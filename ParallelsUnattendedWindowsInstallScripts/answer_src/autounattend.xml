@@ -1,0 +1,279 @@
+<?xml version="1.0" encoding="utf-8"?>
+<unattend xmlns="urn:schemas-microsoft-com:unattend">
+
+  <!-- ═══════════════════════════════════════════════════════════
+       Pass 1 – windowsPE  (runs inside WinPE before installation)
+       Handles language, disk layout, and image selection.
+       ═══════════════════════════════════════════════════════════ -->
+  <settings pass="windowsPE">
+
+    <component name="Microsoft-Windows-International-Core-WinPE"
+               processorArchitecture="arm64"
+               publicKeyToken="31bf3856ad364e35"
+               language="neutral" versionScope="nonSxS"
+               xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State"
+               xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <SetupUILanguage>
+        <UILanguage>en-US</UILanguage>
+        <WillShowUI>Never</WillShowUI>
+      </SetupUILanguage>
+      <UILanguage>en-US</UILanguage>
+      <UILanguageFallback>en-US</UILanguageFallback>
+      <InputLocale>0409:00000409</InputLocale>
+      <SystemLocale>en-US</SystemLocale>
+      <UserLocale>en-US</UserLocale>
+    </component>
+
+    <component name="Microsoft-Windows-Setup"
+               processorArchitecture="arm64"
+               publicKeyToken="31bf3856ad364e35"
+               language="neutral" versionScope="nonSxS"
+               xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State"
+               xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+      <!-- ── Disk layout: GPT, UEFI, single 64 GB drive ───────── -->
+      <DiskConfiguration>
+        <Disk wcm:action="add">
+          <DiskID>0</DiskID>
+          <WillWipeDisk>true</WillWipeDisk>
+          <CreatePartitions>
+            <!-- 1: EFI System Partition -->
+            <CreatePartition wcm:action="add">
+              <Order>1</Order><Size>260</Size><Type>EFI</Type>
+            </CreatePartition>
+            <!-- 2: Microsoft Reserved -->
+            <CreatePartition wcm:action="add">
+              <Order>2</Order><Size>16</Size><Type>MSR</Type>
+            </CreatePartition>
+            <!-- 3: Windows – extend to fill remaining disk.
+                 Windows Setup will automatically create a recovery partition. -->
+            <CreatePartition wcm:action="add">
+              <Order>3</Order><Extend>true</Extend><Type>Primary</Type>
+            </CreatePartition>
+          </CreatePartitions>
+          <ModifyPartitions>
+            <ModifyPartition wcm:action="add">
+              <Order>1</Order><PartitionID>1</PartitionID>
+              <Label>System</Label><Format>FAT32</Format>
+            </ModifyPartition>
+            <ModifyPartition wcm:action="add">
+              <Order>2</Order><PartitionID>3</PartitionID>
+              <Label>Windows</Label><Letter>C</Letter><Format>NTFS</Format>
+            </ModifyPartition>
+          </ModifyPartitions>
+        </Disk>
+        <WillShowUI>Never</WillShowUI>
+      </DiskConfiguration>
+
+      <!-- ── Image install ─────────────────────────────────────── -->
+      <ImageInstall>
+        <OSImage>
+          <InstallTo>
+            <DiskID>0</DiskID>
+            <PartitionID>3</PartitionID>
+          </InstallTo>
+          <!-- Select Windows 11 Pro (index 6 in a standard UUP ISO; Setup will
+               pick the right image automatically when WillShowUI=Never and a
+               ProductKey is not provided for evaluation purposes) -->
+          <InstallToAvailablePartition>false</InstallToAvailablePartition>
+          <WillShowUI>Never</WillShowUI>
+        </OSImage>
+      </ImageInstall>
+
+      <!-- ── User data / EULA ──────────────────────────────────── -->
+      <UserData>
+        <AcceptEula>true</AcceptEula>
+        <FullName>User</FullName>
+        <Organization></Organization>
+        <ProductKey>
+          <!-- Leave blank to use a generic/evaluation key. Windows will activate
+               automatically if the host licence supports it (Parallels/Microsoft
+               licence), or you can enter your key here. -->
+          <WillShowUI>Never</WillShowUI>
+        </ProductKey>
+      </UserData>
+
+    </component>
+  </settings><!-- end windowsPE -->
+
+  <!-- ═══════════════════════════════════════════════════════════
+       Pass 2 – offlineServicing  (applied to the offline image)
+       Nothing to customise here for a base install.
+       ═══════════════════════════════════════════════════════════ -->
+
+  <!-- ═══════════════════════════════════════════════════════════
+       Pass 3 – specialize  (first boot, machine-specific config)
+       ═══════════════════════════════════════════════════════════ -->
+  <settings pass="specialize">
+
+    <component name="Microsoft-Windows-Shell-Setup"
+               processorArchitecture="arm64"
+               publicKeyToken="31bf3856ad364e35"
+               language="neutral" versionScope="nonSxS"
+               xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State">
+      <ComputerName>WinARM</ComputerName>
+      <TimeZone>UTC</TimeZone>
+    </component>
+
+    <component name="Microsoft-Windows-Deployment"
+               processorArchitecture="arm64"
+               publicKeyToken="31bf3856ad364e35"
+               language="neutral" versionScope="nonSxS"
+               xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State">
+      <RunSynchronous>
+        <!-- Silence Windows 11 hardware requirement checks (safe on ARM / Parallels) -->
+        <RunSynchronousCommand wcm:action="add">
+          <Order>1</Order>
+          <Path>reg add HKLM\SYSTEM\Setup\LabConfig /v BypassTPMCheck /t REG_DWORD /d 1 /f</Path>
+        </RunSynchronousCommand>
+        <RunSynchronousCommand wcm:action="add">
+          <Order>2</Order>
+          <Path>reg add HKLM\SYSTEM\Setup\LabConfig /v BypassSecureBootCheck /t REG_DWORD /d 1 /f</Path>
+        </RunSynchronousCommand>
+        <RunSynchronousCommand wcm:action="add">
+          <Order>3</Order>
+          <Path>reg add HKLM\SYSTEM\Setup\LabConfig /v BypassRAMCheck /t REG_DWORD /d 1 /f</Path>
+        </RunSynchronousCommand>
+        <!-- BypassNRO: skip "connect to network" OOBE screen (required for Win 11 24H2+) -->
+        <RunSynchronousCommand wcm:action="add">
+          <Order>4</Order>
+          <Path>reg add HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\OOBE /v BypassNRO /t REG_DWORD /d 1 /f</Path>
+        </RunSynchronousCommand>
+        <!-- Mark privacy consent as already completed — suppresses the privacy page -->
+        <RunSynchronousCommand wcm:action="add">
+          <Order>5</Order>
+          <Path>reg add HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\OOBE /v PrivacyConsentStatus /t REG_DWORD /d 1 /f</Path>
+        </RunSynchronousCommand>
+        <!-- Suppress "Customize your experience" and related OOBE upsell pages -->
+        <RunSynchronousCommand wcm:action="add">
+          <Order>6</Order>
+          <Path>reg add HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\OOBE /v SetupDisplayedProductPage /t REG_DWORD /d 1 /f</Path>
+        </RunSynchronousCommand>
+        <!-- Skip OneDrive, Cortana, and MS account OOBE prompts -->
+        <RunSynchronousCommand wcm:action="add">
+          <Order>7</Order>
+          <Path>reg add HKLM\SOFTWARE\Policies\Microsoft\Windows\OOBE /v DisablePrivacyExperienceOOBE /t REG_DWORD /d 1 /f</Path>
+        </RunSynchronousCommand>
+      </RunSynchronous>
+    </component>
+
+  </settings><!-- end specialize -->
+
+  <!-- ═══════════════════════════════════════════════════════════
+       Pass 4 – oobeSystem  (Out-of-Box Experience, final setup)
+       Creates the local user, skips all interactive OOBE screens,
+       enables autologon, and triggers Parallels Tools install.
+       ═══════════════════════════════════════════════════════════ -->
+  <settings pass="oobeSystem">
+
+    <component name="Microsoft-Windows-Shell-Setup"
+               processorArchitecture="arm64"
+               publicKeyToken="31bf3856ad364e35"
+               language="neutral" versionScope="nonSxS"
+               xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State"
+               xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+      <!-- ── Skip every OOBE screen ────────────────────────────── -->
+      <OOBE>
+        <HideEULAPage>true</HideEULAPage>
+        <!-- true = suppress the "Who's going to use this PC?" local-account
+             creation screen; the account defined in LocalAccounts is used. -->
+        <HideLocalAccountScreen>true</HideLocalAccountScreen>
+        <HideOnlineAccountScreens>true</HideOnlineAccountScreens>
+        <HideWirelessSetupInOOBE>true</HideWirelessSetupInOOBE>
+        <HideOEMRegistrationScreen>true</HideOEMRegistrationScreen>
+        <ProtectYourPC>3</ProtectYourPC>
+        <SkipMachineOOBE>true</SkipMachineOOBE>
+        <SkipUserOOBE>true</SkipUserOOBE>
+        <NetworkLocation>Work</NetworkLocation>
+      </OOBE>
+
+      <!-- ── Create the local administrator account ────────────── -->
+      <UserAccounts>
+        <LocalAccounts>
+          <LocalAccount wcm:action="add">
+            <Password>
+              <Value>Parallels1!</Value>
+              <PlainText>true</PlainText>
+            </Password>
+            <Description>Primary admin account</Description>
+            <DisplayName>User</DisplayName>
+            <Group>Administrators</Group>
+            <Name>User</Name>
+          </LocalAccount>
+        </LocalAccounts>
+        <!-- Remove the built-in Administrator account from login screen -->
+        <AdministratorPassword>
+          <Value></Value>
+          <PlainText>true</PlainText>
+        </AdministratorPassword>
+      </UserAccounts>
+
+      <!-- ── Auto-login for first few boots (allows FirstLogonCommands) -->
+      <AutoLogon>
+        <Password>
+          <Value>Parallels1!</Value>
+          <PlainText>true</PlainText>
+        </Password>
+        <LogonCount>5</LogonCount>
+        <Username>User</Username>
+        <Enabled>true</Enabled>
+      </AutoLogon>
+
+      <TimeZone>UTC</TimeZone>
+
+      <!-- ── Commands that run at the very first logon ─────────── -->
+      <FirstLogonCommands>
+
+        <!-- Enable RDP so you can access the VM over the network later -->
+        <SynchronousCommand wcm:action="add">
+          <Order>1</Order>
+          <Description>Enable Remote Desktop</Description>
+          <CommandLine>cmd /c reg add "HKLM\SYSTEM\CurrentControlSet\Control\Terminal Server" /v fDenyTSConnections /t REG_DWORD /d 0 /f</CommandLine>
+          <RequiresUserInput>false</RequiresUserInput>
+        </SynchronousCommand>
+
+        <!-- Allow RDP through the Windows Firewall -->
+        <SynchronousCommand wcm:action="add">
+          <Order>2</Order>
+          <Description>Firewall – allow RDP</Description>
+          <CommandLine>cmd /c netsh advfirewall firewall set rule group="remote desktop" new enable=Yes</CommandLine>
+          <RequiresUserInput>false</RequiresUserInput>
+        </SynchronousCommand>
+
+        <!-- Install Parallels Tools silently.
+             Iterate drive letters D-J looking for PTAgent.exe – avoids
+             relying on wmic which is removed in Windows 11 24H2. -->
+        <SynchronousCommand wcm:action="add">
+          <Order>3</Order>
+          <Description>Install Parallels Tools</Description>
+          <CommandLine>cmd /c for %D in (D: E: F: G: H: I: J:) do if exist %D\PTAgent.exe start /wait %D\PTAgent.exe /install_silent</CommandLine>
+          <RequiresUserInput>false</RequiresUserInput>
+        </SynchronousCommand>
+
+        <!-- Mark setup complete (flag file the host script polls for) -->
+        <SynchronousCommand wcm:action="add">
+          <Order>4</Order>
+          <Description>Write setup-complete marker</Description>
+          <CommandLine>cmd /c echo done > C:\setup_complete.txt</CommandLine>
+          <RequiresUserInput>false</RequiresUserInput>
+        </SynchronousCommand>
+
+      </FirstLogonCommands>
+
+    </component><!-- end Microsoft-Windows-Shell-Setup -->
+
+    <component name="Microsoft-Windows-International-Core"
+               processorArchitecture="arm64"
+               publicKeyToken="31bf3856ad364e35"
+               language="neutral" versionScope="nonSxS"
+               xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State">
+      <InputLocale>0409:00000409</InputLocale>
+      <SystemLocale>en-US</SystemLocale>
+      <UILanguage>en-US</UILanguage>
+      <UserLocale>en-US</UserLocale>
+    </component>
+
+  </settings><!-- end oobeSystem -->
+
+</unattend>
