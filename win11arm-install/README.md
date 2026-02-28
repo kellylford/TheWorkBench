@@ -10,6 +10,22 @@ This script eliminates the problem entirely. A single terminal command downloads
 
 ---
 
+## Choosing an Install Edition
+
+Two install scripts are provided. Both are fully unattended — choose based on how much disk space you have and whether you want Microsoft's built-in apps pre-installed.
+
+| | Minimal | Full |
+|---|---|---|
+| **Finder launcher** | `Install Windows (Minimal).command` | `Install Windows (Full).command` |
+| **Shell script** | `install-windows-minimal.sh` | `install-windows-full.sh` |
+| **Virtual disk size** | 64 GB | 128 GB |
+| **Microsoft inbox apps** | Stripped out (lean install) | Included — Photos, Calculator, Paint, Notepad, Terminal, Media Player, and more |
+| **VM name in Parallels** | `Windows 11 ARM` | `Windows 11 ARM (Full)` |
+
+If you are not sure which to pick, start with **Minimal**. You can install any individual app inside Windows afterward. Choose **Full** if you want a stock Windows experience with all the built-in apps ready to go.
+
+---
+
 ## What You Need Before Starting
 
 ### Hardware
@@ -48,32 +64,56 @@ Once Windows is running, VoiceOver on the Mac side does not read inside the Wind
 
 All steps happen in **Terminal**. You can open Terminal with Spotlight: press **Command-Space**, type "Terminal", and press Return.
 
-### Step 1 — Download the script
+### Step 1 — Get the scripts
 
-The script lives in your project folder. If you received this as a folder, open Terminal, then navigate to the folder:
+**Option A — Finder (easiest, no Terminal needed for this step)**
+
+If you received this as a zip, unzip it and open the folder. Two double-clickable launchers are included:
+
+- `Install Windows (Minimal).command` — lean install, 64 GB disk
+- `Install Windows (Full).command` — full Microsoft inbox apps, 128 GB disk
+
+Double-click the one you want in Finder. macOS will open Terminal and start the install automatically. Skip to Step 3.
+
+> **If macOS blocks the file with "cannot be opened because it is from an unidentified developer":** This is Gatekeeper quarantine on a downloaded file. Fix it by opening Terminal, navigating to the unzipped folder, and running:
+> ```
+> xattr -cr .
+> ```
+> Then double-click the launcher again.
+
+**Option B — Terminal**
+
+If you received the folder, navigate to it in Terminal:
 
 ```
-cd ~/Documents/GitHub/AppExperimentation/win11arm-install
+cd /path/to/ParallelsUnattendedWindowsInstallScripts
 ```
 
-If you are setting this up fresh on a new machine, create the folder and download the script:
+If you are setting this up fresh on a new machine, create a folder and copy the scripts there:
 
 ```
 mkdir -p ~/win11-install
 cd ~/win11-install
-curl -fsSL -o install-windows.sh https://YOUR_SHARED_LOCATION/install-windows.sh
-chmod +x install-windows.sh
+# Copy install-windows.sh, install-windows-full.sh, and the answer_src/ folder here
 ```
-
-Replace `https://YOUR_SHARED_LOCATION/install-windows.sh` with wherever the script is hosted or shared.
 
 ### Step 2 — Run the script
 
+**If you used Option A (Finder launcher) in Step 1, skip this step — the launcher already ran the script.**
+
+From Terminal, run whichever edition you chose:
+
+**Minimal install** (64 GB disk, lean Windows):
 ```
-./install-windows.sh
+./install-windows-minimal.sh
 ```
 
-That is the only command you need to run. Everything else is automatic.
+**Full install** (128 GB disk, all Microsoft inbox apps):
+```
+./install-windows-full.sh
+```
+
+That single command is all you need. Everything else is automatic.
 
 You will see text output in Terminal describing each stage. There are no prompts, no questions, and no windows you need to interact with.
 
@@ -166,21 +206,23 @@ Remote Desktop sessions support any Windows screen reader you install inside the
 
 ## Default Credentials
 
-| Setting | Default value |
-|---|---|
-| Windows username | `User` |
-| Windows password | `Parallels1!` |
-| Computer name | `WinARM` |
-| VM name in Parallels | `Windows 11 ARM` |
-| RAM | 8 GB |
-| CPU cores | 6 |
-| Disk size | 64 GB |
+These defaults apply to both the Minimal and Full installs. The Full install uses a larger disk and a different VM name — those differences are noted below.
+
+| Setting | Minimal | Full |
+|---|---|---|
+| Windows username | `User` | `User` |
+| Windows password | `Parallels1!` | `Parallels1!` |
+| Computer name | `WinARM` | `WinARM` |
+| VM name in Parallels | `Windows 11 ARM` | `Windows 11 ARM (Full)` |
+| RAM | 8 GB | 8 GB |
+| CPU cores | 6 | 6 |
+| Disk size | 64 GB | 128 GB |
 
 ---
 
 ## Customisation
 
-You can change any default by setting environment variables before running the script. For example:
+You can change any default by setting environment variables before running the script. This works with both the Minimal and Full install scripts. For example:
 
 ```
 VM_NAME="My Windows VM" \
@@ -190,8 +232,10 @@ WIN_COMPUTER="KellysPC" \
 VM_RAM=12288 \
 VM_CPUS=8 \
 VM_DISK_GB=128 \
-./install-windows.sh
+./install-windows-minimal.sh
 ```
+
+To apply the same overrides to the Full install, replace `install-windows-minimal.sh` with `install-windows-full.sh` in the command above.
 
 All options and their defaults:
 
@@ -255,7 +299,7 @@ Delete the VM and the work folder:
 ```
 prlctl stop "Windows 11 ARM" --kill 2>/dev/null; prlctl delete "Windows 11 ARM" 2>/dev/null
 rm -rf ~/win11-install/work
-./install-windows.sh
+./install-windows-minimal.sh
 ```
 
 The Windows ISO is cached in `work/windows11_arm.iso` — if you want to save the 5 GB download, delete everything in `work/` except that file.

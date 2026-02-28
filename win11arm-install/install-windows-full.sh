@@ -188,9 +188,17 @@ sys.exit('No stable Windows 11 ARM64 build found in UUP dump results.')
     config_ini=$(find "$uup_dir" -name "ConvertConfig.ini" | head -1)
     if [[ -n "$config_ini" ]]; then
         log "Patching ConvertConfig.ini for full app provisioning..."
+        # AppsLevel=2  → include all inbox app packages in the ISO
+        # StubAppsFull=1 → bundle full offline packages, not Store stubs that need internet
+        # SkipEdge=0   → keep Edge
         sed -i '' 's/^AppsLevel[[:space:]]*=.*/AppsLevel     =2/' "$config_ini"
+        sed -i '' 's/^StubAppsFull[[:space:]]*=.*/StubAppsFull =1/' "$config_ini"
         sed -i '' 's/^SkipEdge[[:space:]]*=.*/SkipEdge      =0/' "$config_ini"
-        ok "ConvertConfig.ini patched – AppsLevel=2 (all inbox apps + Edge will be included)."
+        # Verify the keys are actually present (sed is silent if the line didn't exist)
+        grep -q "^AppsLevel" "$config_ini"    || echo "AppsLevel     =2"    >> "$config_ini"
+        grep -q "^StubAppsFull" "$config_ini" || echo "StubAppsFull =1"    >> "$config_ini"
+        grep -q "^SkipEdge" "$config_ini"     || echo "SkipEdge      =0"    >> "$config_ini"
+        ok "ConvertConfig.ini patched – AppsLevel=2, StubAppsFull=1 (full offline app packages + Edge)."
     else
         warn "ConvertConfig.ini not found in UUP package – app level may not be set correctly."
     fi
@@ -223,11 +231,164 @@ sys.exit('No stable Windows 11 ARM64 build found in UUP dump results.')
     ok "Windows 11 ARM full ISO ready: $WINDOWS_ISO  ($(du -sh "$WINDOWS_ISO" | cut -f1))"
 }
 
+# ─── Download App Installer (winget) and stage setup script ─────────────────
+# AppInstaller.msixbundle is embedded in the answer ISO so FirstLogonCommands
+# can install winget without any VM-side internet access, then use winget to
+# install Microsoft Edge (no standalone ARM64 Edge exe exists).
+# setup.ps1 is also embedded on the answer ISO and run via FirstLogonCommands.
+download_app_installer() {
+    header "Downloading App Installer (winget) package"
+
+    mkdir -p "$ANSWER_DIR"
+
+    local pkg_cache="$WORK_DIR/AppInstaller.msixbundle"
+    if [[ -f "$pkg_cache" ]]; then
+        ok "App Installer already cached – reusing $pkg_cache ($(du -sh "$pkg_cache" | cut -f1))"
+    else
+        log "Fetching latest winget release from GitHub API..."
+        local url
+        url=$(curl -fsSL https://api.github.com/repos/microsoft/winget-cli/releases/latest \
+            | python3 -c "
+import sys, json
+data = json.load(sys.stdin)
+for a in data.get('assets', []):
+    if a['name'].endswith('.msixbundle') and 'DesktopAppInstaller' in a['name']:
+        print(a['browser_download_url'])
+        break
+") || die "Failed to query GitHub releases API."
+        [[ -n "$url" ]] || die "No App Installer msixbundle found in latest winget release."
+        log "Downloading App Installer from GitHub: $url"
+        curl -fsSL -o "$pkg_cache" "$url" || die "Failed to download App Installer msixbundle."
+        ok "App Installer downloaded: $pkg_cache ($(du -sh "$pkg_cache" | cut -f1))"
+    fi
+
+    # Stage into answer_src so hdiutil includes it in the answer ISO.
+    cp "$pkg_cache" "$ANSWER_DIR/AppInstaller.msixbundle"
+    ok "App Installer staged to $ANSWER_DIR/"
+}
+
+create_setup_script() {
+    header "Creating Windows first-logon setup script"
+
+    mkdir -p "$ANSWER_DIR"
+
+    # This script is placed on the answer ISO (e.g. D:\setup.ps1) and invoked
+    # by FirstLogonCommands Order 4.  It runs in the user's login session so
+    # Add-AppxPackage is permitted (unlike the SYSTEM context of prlctl exec).
+    cat > "$ANSWER_DIR/setup.ps1" <<'PSEOF'
+# setup.ps1  —  runs at first logon via FirstLogonCommands
+# Step 1: install App Installer (winget) from the answer CD-ROM
+#         (fallback: \\Mac\Downloads shared folder via Parallels Tools)
+# Step 2: install Microsoft Edge via winget
+
+$logPath = 'C:\setup_log.txt'
+function Log($msg) { $ts = Get-Date -Format 'HH:mm:ss'; "$ts  $msg" | Tee-Object -FilePath $logPath -Append | Write-Output }
+
+# ── Step 1: find AppInstaller.msixbundle ─────────────────────────────────────
+Log 'Looking for AppInstaller.msixbundle...'
+$pkg = $null
+
+# Primary: scan all drive letters (CD-ROM with answer ISO)
+foreach ($d in @('D','E','F','G','H','I','J','K')) {
+    $candidate = $d + ':\AppInstaller.msixbundle'
+    if (Test-Path $candidate) { $pkg = $candidate; break }
+}
+
+# Fallback: Parallels shared folder (\\Mac\Downloads) if Tools are installed
+if (-not $pkg) {
+    Log 'Not found on optical drives — trying Parallels shared folder...'
+    $unc = '\\Mac\Downloads\AppInstaller.msixbundle'
+    if (Test-Path $unc) { $pkg = $unc }
+}
+
+if ($pkg) {
+    Log "Found $pkg — installing App Installer (winget)..."
+    try {
+        Add-AppxPackage -Path $pkg -ForceApplicationShutdown -ErrorAction Stop
+        Log 'App Installer installed successfully.'
+    } catch {
+        Log "Add-AppxPackage error: $_"
+    }
+} else {
+    Log 'WARNING: AppInstaller.msixbundle not found on any drive — winget unavailable.'
+}
+
+# ── Step 2: wait for winget, then install Edge ────────────────────────────────
+$wg = "$env:LOCALAPPDATA\Microsoft\WindowsApps\winget.exe"
+Log 'Waiting for winget.exe to be registered...'
+$found = $false
+for ($i = 0; $i -lt 12; $i++) {
+    if (Test-Path $wg) { $found = $true; break }
+    Log "  winget not yet found (attempt $($i+1)/12) — sleeping 10 s..."
+    Start-Sleep -Seconds 10
+}
+
+if ($found) {
+    Log 'winget found — installing Microsoft Edge...'
+    $result = & $wg install --id Microsoft.Edge -e --accept-source-agreements --accept-package-agreements --silent 2>&1
+    Log "winget result: $result"
+    Log 'Edge installation complete.'
+} else {
+    Log 'WARNING: winget.exe not found after 2 minutes — Edge not installed.'
+}
+
+Log 'setup.ps1 finished.'
+PSEOF
+
+    ok "setup.ps1 written to $ANSWER_DIR/setup.ps1"
+}
+
 # ─── autounattend.xml ─────────────────────────────────────────────────────────
 create_autounattend() {
     header "Creating autounattend.xml"
 
     mkdir -p "$ANSWER_DIR"
+
+    # ── Generate base64-encoded PowerShell for FirstLogonCommands ───────────────
+    # This self-contained script runs at first logon (as the logged-in user so
+    # Add-AppxPackage is permitted).  It downloads App Installer (winget) from
+    # GitHub, installs it, then uses winget to install Microsoft Edge.
+    # Using -EncodedCommand avoids ALL drive-letter, quoting, and escaping issues.
+    local _ps_tmp _ps_b64
+    _ps_tmp=$(mktemp)
+    cat > "$_ps_tmp" << 'SETUP_EOF'
+$log = 'C:\setup_log.txt'
+function Log($m) { $ts = Get-Date -Format 'HH:mm:ss'; "$ts  $m" | Add-Content -Path $log }
+Log 'setup started'
+try {
+    $ProgressPreference = 'SilentlyContinue'
+    [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+    $url = 'https://github.com/microsoft/winget-cli/releases/latest/download/Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle'
+    $pkg = "$env:TEMP\AppInstaller.msixbundle"
+    Log "Downloading App Installer (winget) from GitHub..."
+    (New-Object Net.WebClient).DownloadFile($url, $pkg)
+    Log "Downloaded $((Get-Item $pkg).Length) bytes"
+    Add-AppxPackage -Path $pkg -ForceApplicationShutdown -ErrorAction Stop
+    Log 'App Installer installed successfully'
+} catch {
+    Log "App Installer error: $_"
+}
+$wg = "$env:LOCALAPPDATA\Microsoft\WindowsApps\winget.exe"
+Log 'Waiting for winget.exe to register...'
+for ($i = 0; $i -lt 18; $i++) {
+    if (Test-Path $wg) { break }
+    Log "  waiting for winget, attempt $($i+1)/18..."
+    Start-Sleep -Seconds 10
+}
+if (Test-Path $wg) {
+    Log 'Installing Microsoft Edge via winget...'
+    $r = & $wg install --id Microsoft.Edge -e --accept-source-agreements --accept-package-agreements --silent 2>&1
+    Log "winget: $($r -join '; ')"
+    Log 'Edge install complete'
+} else {
+    Log 'winget not found after 3 min — Edge not installed'
+}
+Log 'All done'
+SETUP_EOF
+    _ps_b64=$(python3 -c "import base64,sys; print(base64.b64encode(open('$_ps_tmp').read().encode('utf-16-le')).decode())")
+    rm "$_ps_tmp"
+    ok "PowerShell first-logon command base64-encoded (${#_ps_b64} chars)."
+
     cat > "$ANSWER_DIR/autounattend.xml" <<XMLEOF
 <?xml version="1.0" encoding="utf-8"?>
 <unattend xmlns="urn:schemas-microsoft-com:unattend">
@@ -385,6 +546,7 @@ create_autounattend() {
           <Order>7</Order>
           <Path>reg add HKLM\SOFTWARE\Policies\Microsoft\Windows\OOBE /v DisablePrivacyExperienceOOBE /t REG_DWORD /d 1 /f</Path>
         </RunSynchronousCommand>
+
       </RunSynchronous>
     </component>
 
@@ -482,9 +644,20 @@ create_autounattend() {
           <RequiresUserInput>false</RequiresUserInput>
         </SynchronousCommand>
 
-        <!-- Mark setup complete (flag file the host script polls for) -->
+        <!-- Download App Installer (winget) from GitHub and install Edge.
+             Uses -EncodedCommand so no drive letters, quoting, or escaping
+             issues apply.  Runs as the auto-logged-in user so Add-AppxPackage
+             is permitted.  Writes progress to C:\setup_log.txt. -->
         <SynchronousCommand wcm:action="add">
           <Order>4</Order>
+          <Description>Install winget and Microsoft Edge</Description>
+          <CommandLine>powershell -NoProfile -ExecutionPolicy Bypass -EncodedCommand ${_ps_b64}</CommandLine>
+          <RequiresUserInput>false</RequiresUserInput>
+        </SynchronousCommand>
+
+        <!-- Mark setup complete (flag file the host script polls for) -->
+        <SynchronousCommand wcm:action="add">
+          <Order>5</Order>
           <Description>Write setup-complete marker</Description>
           <CommandLine>cmd /c echo done > C:\setup_complete.txt</CommandLine>
           <RequiresUserInput>false</RequiresUserInput>
@@ -732,6 +905,50 @@ run_installation() {
     WIN_IP=""
 }
 
+# ─── Wait for FirstLogonCommands to finish ───────────────────────────────────
+# The answer ISO (cdrom1) must stay mounted until setup.ps1 has had a chance
+# to run.  We poll for C:\setup_complete.txt which is written by the last
+# FirstLogonCommand.  Only then does eject_install_media disconnect cdrom1.
+wait_for_setup_complete() {
+    header "Waiting for first-logon setup to complete"
+
+    log "Polling C:\\setup_complete.txt (written when FirstLogonCommands finish)."
+    log "Expected time: ~15 min (Parallels Tools + winget + Edge install)."
+
+    local timeout_sec=$(( 40 * 60 ))
+    local elapsed=0
+    local poll=30
+    local start_ts
+    start_ts=$(date +%s)
+
+    while (( elapsed < timeout_sec )); do
+        local done
+        done=$(prlctl exec "$VM_NAME" cmd /c \
+            "if exist C:\\setup_complete.txt (type C:\\setup_complete.txt) else (echo NOT_YET)" \
+            2>/dev/null || true)
+        if [[ "$done" == *"done"* ]]; then
+            echo ""
+            ok "FirstLogonCommands finished (setup_complete.txt = done)."
+            local setup_log
+            setup_log=$(prlctl exec "$VM_NAME" cmd /c "type C:\\setup_log.txt" 2>/dev/null || true)
+            if [[ -n "$setup_log" ]]; then
+                log "--- C:\\setup_log.txt ---"
+                echo "$setup_log" | tee -a "$LOG_FILE"
+                log "--- end setup_log.txt ---"
+            fi
+            return 0
+        fi
+        sleep "$poll"
+        (( elapsed += poll )) || true
+        printf '\r[%s] Waiting for setup_complete.txt... elapsed=%dm  ' \
+            "$(date '+%H:%M:%S')" "$(( elapsed / 60 ))"
+    done
+
+    echo ""
+    warn "Timed out (40 min) waiting for setup_complete.txt — continuing."
+    warn "Setup may still be running. Check C:\\setup_log.txt in the VM."
+}
+
 # ─── Post-install: Parallels Tools ───────────────────────────────────────────
 install_parallels_tools() {
     header "Parallels Tools"
@@ -816,11 +1033,12 @@ main() {
 
     check_prerequisites
     download_windows_iso
-    create_autounattend
-    create_answer_iso
+    create_autounattend      # generates base64 PS command; writes autounattend.xml
+    create_answer_iso        # packages autounattend.xml into the answer ISO
     create_vm
     run_installation        # sets WIN_IP when desktop confirmed
     install_parallels_tools # mounts Tools ISO; autounattend runs installer
+    wait_for_setup_complete # poll setup_complete.txt before ejecting answer ISO
     eject_install_media
     print_summary
 }
