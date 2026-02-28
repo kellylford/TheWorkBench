@@ -77,17 +77,9 @@ final class VMStore: ObservableObject {
 
     var selectedVM: VM? { vms.first { $0.id == selectedID } }
 
-    private var timer: Timer?
-
     init() {
         refresh()
-        timer = Timer.scheduledTimer(withTimeInterval: 10, repeats: true) { [weak self] _ in
-            guard let self else { return }
-            Task { @MainActor in self.refresh() }
-        }
     }
-
-    deinit { timer?.invalidate() }
 
     func refresh() {
         Task { await fetchVMs() }

@@ -33,6 +33,7 @@ struct VMRow: View {
         .padding(.vertical, 4)
         .contentShape(Rectangle())
         .accessibilityElement(children: .ignore)
+        .accessibilityLabel("\(vm.name), \(vm.status.displayName)")
         .accessibilityHint("Use VM Actions menu, context menu (VO+Shift+M), or VO+Z for quick actions")
     }
 
