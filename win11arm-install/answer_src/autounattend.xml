@@ -251,9 +251,17 @@
           <RequiresUserInput>false</RequiresUserInput>
         </SynchronousCommand>
 
-        <!-- Mark setup complete (flag file the host script polls for) -->
+        <!-- Create Microsoft Edge shortcut on the Public Desktop (all users). -->
         <SynchronousCommand wcm:action="add">
           <Order>3</Order>
+          <Description>Create Edge Desktop shortcut</Description>
+          <CommandLine>powershell -NoProfile -ExecutionPolicy Bypass -Command "$ws=New-Object -ComObject WScript.Shell;$s=$ws.CreateShortcut([Environment]::GetFolderPath('CommonDesktopDirectory')+'\Microsoft Edge.lnk');$s.TargetPath='C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe';$s.Save()"</CommandLine>
+          <RequiresUserInput>false</RequiresUserInput>
+        </SynchronousCommand>
+
+        <!-- Mark setup complete (flag file the host script polls for) -->
+        <SynchronousCommand wcm:action="add">
+          <Order>4</Order>
           <Description>Write setup-complete marker</Description>
           <CommandLine>cmd /c echo done > C:\setup_complete.txt</CommandLine>
           <RequiresUserInput>false</RequiresUserInput>

@@ -343,7 +343,7 @@ create_answer_iso() {
           <Value>%%PASS%%</Value>
           <PlainText>true</PlainText>
         </Password>
-        <LogonCount>3</LogonCount>
+        <LogonCount>5</LogonCount>
       </AutoLogon>
 
       <TimeZone>%%TZ%%</TimeZone>
@@ -366,9 +366,16 @@ create_answer_iso() {
           <Description>Install Microsoft Edge ARM64</Description>
           <RequiresUserInput>false</RequiresUserInput>
         </SynchronousCommand>
-        <!-- Write setup-complete marker that the host script polls for. -->
+        <!-- Create Microsoft Edge shortcut on the Public Desktop (all users). -->
         <SynchronousCommand wcm:action="add">
           <Order>3</Order>
+          <CommandLine>powershell -NoProfile -ExecutionPolicy Bypass -Command "\$ws=New-Object -ComObject WScript.Shell;\$s=\$ws.CreateShortcut([Environment]::GetFolderPath('CommonDesktopDirectory')+'\Microsoft Edge.lnk');\$s.TargetPath='C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe';\$s.Save()"</CommandLine>
+          <Description>Create Edge Desktop shortcut</Description>
+          <RequiresUserInput>false</RequiresUserInput>
+        </SynchronousCommand>
+        <!-- Write setup-complete marker that the host script polls for. -->
+        <SynchronousCommand wcm:action="add">
+          <Order>4</Order>
           <CommandLine>cmd /c echo done > C:\setup_complete.txt</CommandLine>
           <Description>Write setup-complete marker</Description>
           <RequiresUserInput>false</RequiresUserInput>
@@ -413,18 +420,15 @@ XMLEOF
 create_vm() {
     banner "Creating VM"
 
-    # Remove any previously registered VM with the same name and any orphaned
-    # .pvm bundles in ~/Parallels that could cause naming or log-file conflicts.
-    if prlctl list --all 2>/dev/null | grep -qF "\"${VM_NAME}\""; then
-        log "Stopping/deleting existing '${VM_NAME}' VM..."
-        prlctl stop "$VM_NAME" --kill 2>/dev/null || true
-        prlctl delete "$VM_NAME" 2>/dev/null || true
-    fi
-    local target_pvm="$HOME/Parallels/${VM_NAME}.pvm"
-    if [[ -d "$target_pvm" ]]; then
-        log "Removing orphaned .pvm: $target_pvm"
-        rm -rf "$target_pvm"
-    fi
+    # If a VM or .pvm bundle with this name already exists, find a unique name
+    # by appending (1), (2), … — the same convention Parallels itself uses.
+    local _base="$VM_NAME" _n=1
+    while prlctl list --all 2>/dev/null | grep -qF "\"${VM_NAME}\"" || \
+          [[ -d "$HOME/Parallels/${VM_NAME}.pvm" ]]; do
+        VM_NAME="${_base} (${_n})"
+        (( _n++ ))
+    done
+    [[ "$VM_NAME" != "$_base" ]] && log "Name '${_base}' taken — using '${VM_NAME}'"
 
     log "VM: $VM_NAME"
 
