@@ -69,6 +69,13 @@ final class VMStore: ObservableObject {
     @Published var isRefreshing = false
     @Published var lastError: String? = nil
     @Published var busyIDs: Set<String> = []
+    @Published var selectedID: String? = nil
+    @Published var cloneTargetVM: VM? = nil
+    @Published var cloneName: String = ""
+    @Published var showDeleteConfirm = false
+    @Published var deleteTarget: VM? = nil
+
+    var selectedVM: VM? { vms.first { $0.id == selectedID } }
 
     private var timer: Timer?
 
@@ -106,5 +113,30 @@ final class VMStore: ObservableObject {
             try? await Task.sleep(nanoseconds: 1_500_000_000)
             await fetchVMs()
         }
+    }
+
+    // MARK: - Convenience helpers for menu / context actions
+
+    func startSelected()  { if let v = selectedVM, v.status.canStart  { perform(.start,  on: v) } }
+    func stopSelected()   { if let v = selectedVM, v.status.canStop   { perform(.stop,   on: v) } }
+    func pauseSelected()  { if let v = selectedVM, v.status.canPause  { perform(.pause,  on: v) } }
+    func resumeSelected() { if let v = selectedVM, v.status.canResume { perform(.resume, on: v) } }
+
+    func beginClone(_ vm: VM) {
+        cloneTargetVM = vm
+        cloneName = "\(vm.name) (Clone)"
+    }
+    func commitClone() {
+        guard let vm = cloneTargetVM, !cloneName.trimmingCharacters(in: .whitespaces).isEmpty else { return }
+        perform(.clone(newName: cloneName), on: vm)
+        cloneTargetVM = nil
+    }
+    func beginDelete(_ vm: VM) {
+        deleteTarget = vm
+        showDeleteConfirm = true
+    }
+    func commitDelete() {
+        if let vm = deleteTarget { perform(.delete, on: vm) }
+        deleteTarget = nil
     }
 }

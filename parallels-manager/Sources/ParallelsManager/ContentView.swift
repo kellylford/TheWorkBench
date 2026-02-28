@@ -2,23 +2,18 @@ import SwiftUI
 
 struct ContentView: View {
     @EnvironmentObject private var store: VMStore
-    @State private var selectedID: String? = nil
-    @State private var cloneTargetVM: VM? = nil
-    @State private var cloneName = ""
-    @State private var showDeleteConfirm = false
-    @State private var deleteTarget: VM? = nil
 
     var body: some View {
         VStack(spacing: 0) {
-            // Toolbar
-            HStack {
+            // ── Toolbar ───────────────────────────────────────────────────
+            HStack(spacing: 8) {
                 Text("Parallels Manager")
                     .font(.headline)
                 Spacer()
                 if store.isRefreshing {
                     ProgressView()
-                        .scaleEffect(0.6)
-                        .accessibilityLabel("Refreshing VM list")
+                        .scaleEffect(0.65)
+                        .accessibilityLabel("Refreshing")
                 }
                 Button {
                     store.refresh()
@@ -26,7 +21,6 @@ struct ContentView: View {
                     Label("Refresh", systemImage: "arrow.clockwise")
                 }
                 .keyboardShortcut("r", modifiers: .command)
-                .accessibilityLabel("Refresh VM list")
                 .help("Refresh VM list (⌘R)")
             }
             .padding(.horizontal, 12)
@@ -35,76 +29,77 @@ struct ContentView: View {
 
             Divider()
 
+            // ── VM List ───────────────────────────────────────────────────
             if store.vms.isEmpty && !store.isRefreshing {
                 Spacer()
-                Text("No VMs found")
+                Text("No virtual machines found")
                     .foregroundColor(.secondary)
-                    .accessibilityLabel("No virtual machines found")
                 Spacer()
             } else {
-                List(store.vms, selection: $selectedID) { vm in
-                    VMRow(vm: vm,
-                          isBusy: store.busyIDs.contains(vm.id),
-                          onStart:  { store.perform(.start,  on: vm) },
-                          onStop:   { store.perform(.stop,   on: vm) },
-                          onPause:  { store.perform(.pause,  on: vm) },
-                          onResume: { store.perform(.resume, on: vm) },
-                          onClone: {
-                              cloneTargetVM = vm
-                              cloneName = "\(vm.name) (Clone)"
-                          },
-                          onDelete: {
-                              deleteTarget = vm
-                              showDeleteConfirm = true
-                          })
-                    .tag(vm.id)
+                List(store.vms, selection: $store.selectedID) { vm in
+                    VMRow(vm: vm, isBusy: store.busyIDs.contains(vm.id))
+                        .tag(vm.id)
+                        // Context menu — right-click or VoiceOver VO+Shift+M
+                        .contextMenu { vmContextMenu(for: vm) }
+                        // Accessibility actions — VoiceOver VO+Z to cycle through them
+                        .accessibilityAction(named: "Start")  { if vm.status.canStart  { store.perform(.start,  on: vm) } }
+                        .accessibilityAction(named: "Stop")   { if vm.status.canStop   { store.perform(.stop,   on: vm) } }
+                        .accessibilityAction(named: "Pause")  { if vm.status.canPause  { store.perform(.pause,  on: vm) } }
+                        .accessibilityAction(named: "Resume") { if vm.status.canResume { store.perform(.resume, on: vm) } }
+                        .accessibilityAction(named: "Clone")  { store.beginClone(vm) }
+                        .accessibilityAction(named: "Delete") { store.beginDelete(vm) }
                 }
-                .accessibilityLabel("Virtual machine list")
+                .accessibilityLabel("Virtual machines")
+                .listStyle(.inset(alternatesRowBackgrounds: true))
             }
 
-            // Error bar
+            // ── Error bar ─────────────────────────────────────────────────
             if let err = store.lastError {
                 Divider()
                 HStack {
                     Image(systemName: "exclamationmark.triangle.fill")
                         .foregroundColor(.red)
-                    Text(err)
-                        .font(.caption)
-                        .foregroundColor(.red)
-                        .lineLimit(2)
+                    Text(err).font(.caption).foregroundColor(.red).lineLimit(2)
                     Spacer()
-                    Button("Dismiss") { store.lastError = nil }
-                        .font(.caption)
+                    Button("Dismiss") { store.lastError = nil }.font(.caption)
                 }
-                .padding(.horizontal, 12)
-                .padding(.vertical, 6)
+                .padding(.horizontal, 12).padding(.vertical, 6)
                 .accessibilityElement(children: .combine)
                 .accessibilityLabel("Error: \(err)")
             }
         }
-        .frame(minWidth: 560, minHeight: 340)
+        .frame(minWidth: 580, minHeight: 300)
+
         // Clone sheet
-        .sheet(item: $cloneTargetVM) { vm in
-            CloneSheet(vm: vm, cloneName: $cloneName) {
-                store.perform(.clone(newName: cloneName), on: vm)
-                cloneTargetVM = nil
-            } onCancel: {
-                cloneTargetVM = nil
-            }
+        .sheet(item: $store.cloneTargetVM) { vm in
+            CloneSheet(vm: vm, cloneName: $store.cloneName,
+                       onClone:  { store.commitClone() },
+                       onCancel: { store.cloneTargetVM = nil })
         }
+
         // Delete confirmation
         .confirmationDialog(
-            "Delete \"\(deleteTarget?.name ?? "")\"?",
-            isPresented: $showDeleteConfirm,
+            "Delete \"\(store.deleteTarget?.name ?? "")\"?",
+            isPresented: $store.showDeleteConfirm,
             titleVisibility: .visible
         ) {
-            Button("Delete", role: .destructive) {
-                if let vm = deleteTarget { store.perform(.delete, on: vm) }
-                deleteTarget = nil
-            }
-            Button("Cancel", role: .cancel) { deleteTarget = nil }
+            Button("Delete", role: .destructive) { store.commitDelete() }
+            Button("Cancel", role: .cancel)      { store.deleteTarget = nil }
         } message: {
             Text("This permanently removes the VM and all its files. This cannot be undone.")
         }
+    }
+
+    // MARK: - Context menu
+
+    @ViewBuilder
+    private func vmContextMenu(for vm: VM) -> some View {
+        if vm.status.canStart  { Button("Start")                         { store.perform(.start,  on: vm) } }
+        if vm.status.canResume { Button("Resume")                        { store.perform(.resume, on: vm) } }
+        if vm.status.canPause  { Button("Pause")                         { store.perform(.pause,  on: vm) } }
+        if vm.status.canStop   { Button("Stop")                          { store.perform(.stop,   on: vm) } }
+        Divider()
+        Button("Clone…")                                                  { store.beginClone(vm) }
+        Button("Delete…", role: .destructive)                            { store.beginDelete(vm) }
     }
 }
