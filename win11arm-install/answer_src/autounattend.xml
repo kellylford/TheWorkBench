@@ -68,13 +68,16 @@
       <!-- ── Image install ─────────────────────────────────────── -->
       <ImageInstall>
         <OSImage>
+          <InstallFrom>
+            <MetaData wcm:action="add">
+              <Key>/IMAGE/INDEX</Key>
+              <Value>3</Value>
+            </MetaData>
+          </InstallFrom>
           <InstallTo>
             <DiskID>0</DiskID>
             <PartitionID>3</PartitionID>
           </InstallTo>
-          <!-- Select Windows 11 Pro (index 6 in a standard UUP ISO; Setup will
-               pick the right image automatically when WillShowUI=Never and a
-               ProductKey is not provided for evaluation purposes) -->
           <InstallToAvailablePartition>false</InstallToAvailablePartition>
           <WillShowUI>Never</WillShowUI>
         </OSImage>
@@ -86,9 +89,11 @@
         <FullName>User</FullName>
         <Organization></Organization>
         <ProductKey>
-          <!-- Leave blank to use a generic/evaluation key. Windows will activate
-               automatically if the host licence supports it (Parallels/Microsoft
-               licence), or you can enter your key here. -->
+          <!-- KMS client setup key for Windows 11 Pro (publicly documented by Microsoft).
+               Not a real product key – does not activate Windows.
+               Just tells Setup which edition to install without showing the key prompt.
+               Source: https://learn.microsoft.com/en-us/windows-server/get-started/kms-client-setup-keys -->
+          <Key>VK7JG-NPHTM-C97JM-9MPGT-3V66T</Key>
           <WillShowUI>Never</WillShowUI>
         </ProductKey>
       </UserData>
@@ -225,35 +230,30 @@
       <!-- ── Commands that run at the very first logon ─────────── -->
       <FirstLogonCommands>
 
-        <!-- Enable RDP so you can access the VM over the network later -->
-        <SynchronousCommand wcm:action="add">
-          <Order>1</Order>
-          <Description>Enable Remote Desktop</Description>
-          <CommandLine>cmd /c reg add "HKLM\SYSTEM\CurrentControlSet\Control\Terminal Server" /v fDenyTSConnections /t REG_DWORD /d 0 /f</CommandLine>
-          <RequiresUserInput>false</RequiresUserInput>
-        </SynchronousCommand>
-
-        <!-- Allow RDP through the Windows Firewall -->
-        <SynchronousCommand wcm:action="add">
-          <Order>2</Order>
-          <Description>Firewall – allow RDP</Description>
-          <CommandLine>cmd /c netsh advfirewall firewall set rule group="remote desktop" new enable=Yes</CommandLine>
-          <RequiresUserInput>false</RequiresUserInput>
-        </SynchronousCommand>
-
         <!-- Install Parallels Tools silently.
              Iterate drive letters D-J looking for PTAgent.exe – avoids
              relying on wmic which is removed in Windows 11 24H2. -->
         <SynchronousCommand wcm:action="add">
-          <Order>3</Order>
+          <Order>1</Order>
           <Description>Install Parallels Tools</Description>
           <CommandLine>cmd /c for %D in (D: E: F: G: H: I: J:) do if exist %D\PTAgent.exe start /wait %D\PTAgent.exe /install_silent</CommandLine>
           <RequiresUserInput>false</RequiresUserInput>
         </SynchronousCommand>
 
+        <!-- Install Microsoft Edge via the official Enterprise MSI API.
+             Queries the Edge enterprise API for the latest ARM64 stable MSI URL,
+             downloads it, and installs silently for all users.
+             This bypasses the UUP converter's Edge integration limitations on macOS. -->
+        <SynchronousCommand wcm:action="add">
+          <Order>2</Order>
+          <Description>Install Microsoft Edge (ARM64 MSI)</Description>
+          <CommandLine>powershell -NoProfile -ExecutionPolicy Bypass -Command "try{$j=(New-Object Net.WebClient).DownloadString('https://edgeupdates.microsoft.com/api/products?view=enterprise')|ConvertFrom-Json;$u=($j|?{$_.Product-eq'Stable'}|Select -First 1).Releases|?{$_.Platform-eq'Windows'-and$_.Architecture-eq'ARM64'}|Select -First 1|%{($_.Artifacts|?{$_.ArtifactName-eq'msi'}|Select -First 1).Location};$m='C:\Windows\Temp\EdgeARM64.msi';(New-Object Net.WebClient).DownloadFile($u,$m);Start-Process msiexec -Wait -ArgumentList('/i',$m,'/quiet','/norestart','ALLUSERS=1')}catch{}"</CommandLine>
+          <RequiresUserInput>false</RequiresUserInput>
+        </SynchronousCommand>
+
         <!-- Mark setup complete (flag file the host script polls for) -->
         <SynchronousCommand wcm:action="add">
-          <Order>4</Order>
+          <Order>3</Order>
           <Description>Write setup-complete marker</Description>
           <CommandLine>cmd /c echo done > C:\setup_complete.txt</CommandLine>
           <RequiresUserInput>false</RequiresUserInput>
