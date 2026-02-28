@@ -42,13 +42,47 @@ struct PrlctlController {
                 if case .clone = action {
                     args = [prlctlPath, "clone", vmID] + action.prlctlArgs.dropFirst()
                 }
-                let result = shell(args)
+                // Run via /bin/sh so the subprocess gets a full login-like environment
+                // and can connect to the Parallels dispatcher service.
+                let cmd = args
+                    .map { "'" + $0.replacingOccurrences(of: "'", with: "'\\''") + "'" }
+                    .joined(separator: " ")
+                let result = shellCmd(cmd)
                 cont.resume(returning: result.map { _ in () })
             }
         }
     }
 
     // MARK: - Helpers
+
+    /// Run via /bin/sh so prlctl gets a proper environment to reach the Parallels dispatcher.
+    private static func shellCmd(_ cmd: String) -> Result<String, Error> {
+        let proc = Process()
+        proc.executableURL = URL(fileURLWithPath: "/bin/sh")
+        proc.arguments = ["-c", cmd]
+        proc.environment = ProcessInfo.processInfo.environment
+        let pipe = Pipe()
+        let errPipe = Pipe()
+        proc.standardOutput = pipe
+        proc.standardError  = errPipe
+        do {
+            try proc.run()
+            proc.waitUntilExit()
+        } catch {
+            return .failure(error)
+        }
+        let out = String(data: pipe.fileHandleForReading.readDataToEndOfFile(),    encoding: .utf8) ?? ""
+        let err = String(data: errPipe.fileHandleForReading.readDataToEndOfFile(), encoding: .utf8) ?? ""
+        if proc.terminationStatus != 0 {
+            return .failure(PrlctlError.executionFailed(err.isEmpty ? out : err))
+        }
+        // prlctl sometimes exits 0 but prints an error on stderr — surface it
+        let errTrimmed = err.trimmingCharacters(in: .whitespacesAndNewlines)
+        if !errTrimmed.isEmpty {
+            return .failure(PrlctlError.executionFailed(errTrimmed))
+        }
+        return .success(out)
+    }
 
     private static func shell(_ args: [String]) -> Result<String, Error> {
         guard FileManager.default.fileExists(atPath: prlctlPath) else {
