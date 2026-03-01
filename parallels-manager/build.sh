@@ -34,6 +34,14 @@ mkdir -p "$APP_BUNDLE/Contents/Resources"
 cp "$BIN" "$APP_BUNDLE/Contents/MacOS/ParallelsManager"
 cp "$SCRIPT_DIR/Info.plist" "$APP_BUNDLE/Contents/Info.plist"
 
+# Copy install scripts into Resources so the app can launch them
+cp "$SCRIPT_DIR/Sources/ParallelsManager/Resources/install-windows-full.sh" \
+   "$APP_BUNDLE/Contents/Resources/"
+cp "$SCRIPT_DIR/Sources/ParallelsManager/Resources/Install Windows (Full).command" \
+   "$APP_BUNDLE/Contents/Resources/"
+chmod +x "$APP_BUNDLE/Contents/Resources/install-windows-full.sh"
+chmod +x "$APP_BUNDLE/Contents/Resources/Install Windows (Full).command"
+
 # Strip quarantine from binary (not needed for self-built, but be safe)
 xattr -cr "$APP_BUNDLE" 2>/dev/null || true
 

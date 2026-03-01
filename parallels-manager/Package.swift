@@ -3,11 +3,12 @@ import PackageDescription
 
 let package = Package(
     name: "ParallelsManager",
-    platforms: [.macOS(.v13)],
+    platforms: [.macOS(.v14)],
     targets: [
         .executableTarget(
             name: "ParallelsManager",
-            path: "Sources/ParallelsManager"
+            path: "Sources/ParallelsManager",
+            resources: [.copy("Resources")]
         )
     ]
 )

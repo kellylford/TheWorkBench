@@ -37,8 +37,12 @@ struct PrlctlController {
     static func run(action: VMAction, vmID: String) async -> Result<Void, Error> {
         await withCheckedContinuation { cont in
             DispatchQueue.global().async {
-                var args = [prlctlPath] + action.prlctlArgs + [vmID]
-                // Clone puts the target ID first
+                // prlctl expects: prlctl <verb> <ID> [extra-flags...]
+                // e.g. "prlctl stop {uuid} --kill" NOT "prlctl stop --kill {uuid}"
+                let verb = action.prlctlArgs[0]
+                let extraArgs = Array(action.prlctlArgs.dropFirst())
+                var args = [prlctlPath, verb, vmID] + extraArgs
+                // Clone is: prlctl clone <source-ID> --name <newName>
                 if case .clone = action {
                     args = [prlctlPath, "clone", vmID] + action.prlctlArgs.dropFirst()
                 }

@@ -3,6 +3,7 @@ import SwiftUI
 struct VMRow: View {
     let vm: VM
     let isBusy: Bool
+    var isSelected: Bool = false
 
     var body: some View {
         HStack(spacing: 10) {
@@ -33,8 +34,14 @@ struct VMRow: View {
         .padding(.vertical, 4)
         .contentShape(Rectangle())
         .accessibilityElement(children: .ignore)
-        .accessibilityLabel("\(vm.name), \(vm.status.displayName)")
-        .accessibilityHint("Use VM Actions menu, context menu (VO+Shift+M), or VO+Z for quick actions")
+        .accessibilityLabel(accessibilityLabel)
+        .accessibilityAddTraits(isSelected ? .isSelected : [])
+    }
+
+    private var accessibilityLabel: String {
+        var parts = [vm.name, vm.status.displayName]
+        if isBusy { parts.append("Busy") }
+        return parts.joined(separator: ", ")
     }
 
     private var statusColor: Color {

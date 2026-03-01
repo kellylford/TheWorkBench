@@ -16,7 +16,19 @@ struct ParallelsManagerApp: App {
                     .keyboardShortcut("r", modifiers: .command)
             }
 
-            // ── VM Actions menu ──────────────────────────────────────────
+            // ── Edit menu — Copy Machine Identifier ──────────────────────
+            CommandGroup(after: .pasteboard) {
+                Divider()
+                Button("Copy Machine Identifier") { store.copyIdentifier() }
+                    .keyboardShortcut("c", modifiers: [.command, .shift])
+                    .disabled(store.selectedVM == nil)
+            }
+            // ── New Windows VM ──────────────────────────────────────────────
+            CommandGroup(after: .newItem) {
+                Button("New Windows VM…") { store.showNewVMSheet = true }
+                    .keyboardShortcut("n", modifiers: .command)
+            }
+            // ── VM Actions menu ───────────────────────────────────────────
             CommandMenu("VM Actions") {
                 let vm = store.selectedVM
 
@@ -35,6 +47,13 @@ struct ParallelsManagerApp: App {
                 Button("Resume") { store.resumeSelected() }
                     .keyboardShortcut("p", modifiers: [.command, .shift])
                     .disabled(vm == nil || !(vm!.status.canResume))
+
+                Button("Suspend") { store.suspendSelected() }
+                    .keyboardShortcut("u", modifiers: [.command, .option])
+                    .disabled(vm == nil || !(vm!.status.canSuspend))
+
+                Button("Reset") { store.resetSelected() }
+                    .disabled(vm == nil || !(vm!.status.canReset))
 
                 Divider()
 
