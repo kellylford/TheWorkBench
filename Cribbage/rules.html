@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cribbage Rules</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .rules-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+        }
+        
+        .rules-container h1 {
+            color: #2c3e50;
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 10px;
+        }
+        
+        .rules-container h2 {
+            color: #34495e;
+            margin-top: 30px;
+            border-bottom: 2px solid #ecf0f1;
+            padding-bottom: 5px;
+        }
+        
+        .rules-container h3 {
+            color: #7f8c8d;
+            margin-top: 20px;
+        }
+        
+        .rules-container p, .rules-container li {
+            line-height: 1.8;
+            color: #2c3e50;
+        }
+        
+        .rules-container ul, .rules-container ol {
+            margin: 10px 0 20px 20px;
+        }
+        
+        .play-button {
+            display: inline-block;
+            background: #27ae60;
+            color: white;
+            padding: 15px 30px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 18px;
+            margin: 20px 0;
+            transition: background 0.3s;
+        }
+        
+        .play-button:hover {
+            background: #229954;
+        }
+        
+        .example {
+            background: #f8f9fa;
+            border-left: 4px solid #3498db;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        
+        .scoring-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        
+        .scoring-table th, .scoring-table td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        
+        .scoring-table th {
+            background: #3498db;
+            color: white;
+        }
+        
+        .scoring-table tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+    </style>
+</head>
+<body>
+    <div class="rules-container">
+        <h1>Cribbage Rules & Gameplay</h1>
+        
+        <a href="index.html" class="play-button">← Back to Game</a>
+        
+        <h2>Overview</h2>
+        <p>Cribbage is a classic card game for two players. The objective is to be the first player to reach 121 points. Points are scored during play and by forming certain card combinations in your hand.</p>
+        
+        <h2>Setup</h2>
+        <ol>
+            <li><strong>The Deck:</strong> Use a standard 52-card deck.</li>
+            <li><strong>The Board:</strong> A cribbage board is used to keep score with pegs moving around the track.</li>
+            <li><strong>Choosing Dealer:</strong> Each player cuts the deck. The player with the lowest card becomes the first dealer. The dealer alternates each round.</li>
+        </ol>
+        
+        <h2>The Deal</h2>
+        <p>The dealer shuffles and deals 6 cards to each player, one at a time.</p>
+        
+        <h2>The Discard (Crib)</h2>
+        <p>Each player selects 2 cards from their hand to discard face-down. These 4 cards form the "crib," which belongs to the dealer and will be scored at the end of the round.</p>
+        <p><strong>Strategy tip:</strong> Try to discard cards that won't form good combinations in the crib if you're not the dealer, or cards that might score well if you are the dealer.</p>
+        
+        <h2>The Cut</h2>
+        <p>After discarding, the non-dealer cuts the remaining deck. The dealer reveals the top card of the bottom section - this is called the "starter" or "cut card."</p>
+        <ul>
+            <li><strong>His Heels:</strong> If the cut card is a Jack, the dealer immediately scores 2 points.</li>
+        </ul>
+        
+        <h2>The Play</h2>
+        <p>The non-dealer plays first. Players alternate playing one card at a time, face-up in front of them.</p>
+        
+        <h3>Running Count</h3>
+        <p>As cards are played, a running total is kept. Face cards (J, Q, K) count as 10, Aces count as 1, and all other cards count as their face value. The count cannot exceed 31.</p>
+        
+        <h3>Scoring During Play</h3>
+        <table class="scoring-table">
+            <thead>
+                <tr>
+                    <th>Combination</th>
+                    <th>Points</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Fifteen (15)</td>
+                    <td>2</td>
+                    <td>The running count reaches exactly 15</td>
+                </tr>
+                <tr>
+                    <td>Thirty-One (31)</td>
+                    <td>2</td>
+                    <td>The running count reaches exactly 31</td>
+                </tr>
+                <tr>
+                    <td>Pair</td>
+                    <td>2</td>
+                    <td>Playing a card that matches the rank of the previous card</td>
+                </tr>
+                <tr>
+                    <td>Three of a Kind</td>
+                    <td>6</td>
+                    <td>Playing a third card of the same rank in succession</td>
+                </tr>
+                <tr>
+                    <td>Four of a Kind</td>
+                    <td>12</td>
+                    <td>Playing a fourth card of the same rank in succession</td>
+                </tr>
+                <tr>
+                    <td>Run (Sequence)</td>
+                    <td>1 per card</td>
+                    <td>Three or more cards in sequence (e.g., 5-6-7 = 3 points). Order played doesn't matter.</td>
+                </tr>
+                <tr>
+                    <td>Go</td>
+                    <td>1</td>
+                    <td>When opponent cannot play without exceeding 31, you score 1 point and play continues</td>
+                </tr>
+                <tr>
+                    <td>Last Card</td>
+                    <td>1</td>
+                    <td>Playing the last card when the count is under 31</td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <div class="example">
+            <strong>Example:</strong> If the count is 9 and you play a 6, the count becomes 15 and you score 2 points. If your opponent then plays another 6, they score 2 for the pair plus 2 for reaching 31 (4 points total).
+        </div>
+        
+        <h3>Go</h3>
+        <p>If you cannot play a card without exceeding 31, you say "Go." Your opponent continues to play any remaining cards that don't exceed 31, scoring for any combinations. The player who played the last card scores 1 point for "go" (or 2 if it's exactly 31). The count then resets to zero, and play continues with the player who said "Go."</p>
+        
+        <h2>Counting Hands</h2>
+        <p>After all cards have been played, hands are scored in this order:</p>
+        <ol>
+            <li>Non-dealer's hand</li>
+            <li>Dealer's hand</li>
+            <li>Dealer's crib</li>
+        </ol>
+        
+        <p>Each hand (and the crib) is scored using the 4 cards kept plus the cut card.</p>
+        
+        <h3>Scoring Combinations in Hands</h3>
+        <table class="scoring-table">
+            <thead>
+                <tr>
+                    <th>Combination</th>
+                    <th>Points</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Fifteen</td>
+                    <td>2</td>
+                    <td>Any combination of cards that totals 15 (can occur multiple times)</td>
+                </tr>
+                <tr>
+                    <td>Pair</td>
+                    <td>2</td>
+                    <td>Two cards of the same rank</td>
+                </tr>
+                <tr>
+                    <td>Three of a Kind</td>
+                    <td>6</td>
+                    <td>Three cards of the same rank (counts as 3 pairs)</td>
+                </tr>
+                <tr>
+                    <td>Four of a Kind</td>
+                    <td>12</td>
+                    <td>Four cards of the same rank (counts as 6 pairs)</td>
+                </tr>
+                <tr>
+                    <td>Run</td>
+                    <td>1 per card</td>
+                    <td>Three or more cards in sequence (e.g., 4-5-6 = 3 points)</td>
+                </tr>
+                <tr>
+                    <td>Flush</td>
+                    <td>4 or 5</td>
+                    <td>All 4 cards in hand same suit = 4 points. If cut card also matches = 5 points. (Crib flushes must include cut card for any points)</td>
+                </tr>
+                <tr>
+                    <td>Nobs</td>
+                    <td>1</td>
+                    <td>Jack in hand matching the suit of the cut card</td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <div class="example">
+            <strong>Example Hand:</strong> You have 5♥ 5♦ 5♠ 10♣ and the cut card is 5♣.
+            <ul>
+                <li>Four 5s = 12 points (six pairs)</li>
+                <li>Each 5 combines with the 10 for 15 = 8 points (four fifteens)</li>
+                <li><strong>Total: 20 points</strong></li>
+            </ul>
+        </div>
+        
+        <h2>Winning the Game</h2>
+        <p>The first player to reach or exceed 121 points wins the game. Points can be scored at any time during play or hand counting, and the game ends immediately when a player reaches 121.</p>
+        
+        <h3>Skunks</h3>
+        <ul>
+            <li><strong>Skunk:</strong> If you win before your opponent reaches 91 points, it counts as a double win.</li>
+            <li><strong>Double Skunk:</strong> If you win before your opponent reaches 61 points, it counts as a triple win.</li>
+        </ul>
+        
+        <h2>Strategy Tips</h2>
+        <ul>
+            <li>Keep cards that work well together (cards that make 15, pairs, or runs)</li>
+            <li>When you're not the dealer, discard cards to the crib that are unlikely to score (avoid 5s and cards that are close in rank)</li>
+            <li>Count your opponent's possible points during play to make strategic decisions</li>
+            <li>Try to peg points during play - the play phase is where games are often won or lost</li>
+            <li>Remember that Aces are low (value of 1) and cannot be used in runs with Kings</li>
+        </ul>
+        
+        <h2>Common Mistakes</h2>
+        <ul>
+            <li>Forgetting that runs during play don't need to be in order (5-7-6 is a valid run)</li>
+            <li>Not recognizing all the fifteens in a hand</li>
+            <li>Forgetting that flushes in the crib must include the cut card</li>
+            <li>Miscounting pairs in hands with three or four of a kind</li>
+        </ul>
+        
+        <a href="index.html" class="play-button">Play Cribbage Now →</a>
+    </div>
+</body>
+</html>

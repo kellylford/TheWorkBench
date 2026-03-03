@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cribbage Game</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="game-container">
+        <h1 class="page-title">Cribbage</h1>
+        
+        <main id="main-content">
+        <!-- Cribbage Board -->
+        <div class="cribbage-board" role="img" aria-label="Cribbage scoring board">
+            <div class="board-row player-row">
+                <span class="board-label" id="playerLabel">PLAYER: 0</span>
+                <div class="peg-track" id="playerTrack" role="progressbar" aria-label="Player score: 0 of 121" aria-valuemin="0" aria-valuemax="121" aria-valuenow="0"></div>
+            </div>
+            <div class="board-row computer-row">
+                <span class="board-label" id="computerLabel">COMPUTER: 0</span>
+                <div class="peg-track" id="computerTrack" role="progressbar" aria-label="Computer score: 0 of 121" aria-valuemin="0" aria-valuemax="121" aria-valuenow="0"></div>
+            </div>
+            <div id="scoreAnnouncement" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+        </div>
+
+        <!-- Game Status -->
+        <div class="game-status">
+            <h3>Game Status</h3>
+            <ul class="status-messages" id="statusMessages" tabindex="0" aria-label="Game log"></ul>
+        </div>
+
+        <!-- Computer Hand -->
+        <div class="hand-section">
+            <h3>Computer Hand</h3>
+            <div class="card-container" id="computerHand" role="group" aria-label="Computer hand">Container should be ~42px high until cards dealt</div>
+        </div>
+
+        <!-- Crib -->
+        <div class="hand-section">
+            <h3 id="cribHeading">The Crib</h3>
+            <div class="card-container" id="cribCards" role="group" aria-label="The crib">Container should be ~42px high until cards dealt</div>
+        </div>
+
+        <!-- Played Cards -->
+        <div class="hand-section">
+            <h3>Played Cards <span id="playCountDisplay" class="play-count-display"></span></h3>
+            <div class="card-container" id="playedCards" role="group" aria-label="Played cards">Container should be ~42px high until cards dealt</div>
+        </div>
+
+        <!-- Player Hand -->
+        <div class="hand-section">
+            <h3>Your Hand</h3>
+            <div class="card-container" id="playerHand" role="group" aria-label="Your hand">Container should be ~42px high until cards dealt</div>
+        </div>
+
+        <!-- Controls -->
+        <div class="controls">
+            <button id="cutButton" class="game-button" accesskey="n">Cut</button>
+            <button id="goButton" class="game-button" disabled accesskey="g">Go</button>
+            <button id="continueButton" class="game-button" disabled accesskey="n">Continue</button>
+        </div>
+        </main>
+        
+        <!-- Links -->
+        <div class="footer-links">
+            <a href="rules.html" target="_blank" rel="noopener noreferrer" class="rules-link">📖 How to Play Cribbage</a>
+            <a href="https://github.com/kellylford/cribbage/commits/main" target="_blank" rel="noopener noreferrer" class="changes-link">📋 Recent Changes</a>
+            <a href="https://github.com/kellylford/cribbage/issues/new" target="_blank" rel="noopener noreferrer" class="issue-link">Report an Issue</a>
+        </div>
+    </div>
+
+    <!-- Hidden live region for screen reader announcements -->
+    <div id="liveAnnouncer" class="sr-only" role="status" aria-live="assertive" aria-atomic="true"></div>
+
+    <script src="game.js"></script>
+</body>
+</html>
