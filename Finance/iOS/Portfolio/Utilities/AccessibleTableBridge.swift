@@ -36,6 +36,12 @@ final class AccessibleDataTableView: UIView,
 
     var columnHeaders: [String] = [] { didSet { rebuild() } }
     var dataRows: [[String]] = []    { didSet { rebuild() } }
+    var canMoveUp: (Int) -> Bool = { _ in false }
+    var canMoveDown: (Int) -> Bool = { _ in false }
+    var onMoveUp: (Int) -> Void = { _ in }
+    var onMoveDown: (Int) -> Void = { _ in }
+    var onMoveToTop: (Int) -> Void = { _ in }
+    var onMoveToBottom: (Int) -> Void = { _ in }
 
     private var headerElements: [DataTableCellElement] = []
     private var rowElements:    [[DataTableCellElement]] = []
@@ -97,9 +103,38 @@ final class AccessibleDataTableView: UIView,
                                               traits: .staticText,
                                               row: row + 1, col: col)
                 el.accessibilityFrame = screenFrame(row: row + 1, col: col)
+                el.accessibilityCustomActions = customActions(forRow: row)
                 return el
             }
         }
+    }
+
+    private func customActions(forRow row: Int) -> [UIAccessibilityCustomAction] {
+        var actions: [UIAccessibilityCustomAction] = []
+
+        if canMoveUp(row) {
+            actions.append(UIAccessibilityCustomAction(name: "Move Up") { [weak self] _ in
+                self?.onMoveUp(row)
+                return true
+            })
+            actions.append(UIAccessibilityCustomAction(name: "Move To Top") { [weak self] _ in
+                self?.onMoveToTop(row)
+                return true
+            })
+        }
+
+        if canMoveDown(row) {
+            actions.append(UIAccessibilityCustomAction(name: "Move Down") { [weak self] _ in
+                self?.onMoveDown(row)
+                return true
+            })
+            actions.append(UIAccessibilityCustomAction(name: "Move To Bottom") { [weak self] _ in
+                self?.onMoveToBottom(row)
+                return true
+            })
+        }
+
+        return actions
     }
 
     @objc func accessibilityRowCount() -> Int {
@@ -150,12 +185,25 @@ final class AccessibleDataTableView: UIView,
 struct AccessibleDataTable: UIViewRepresentable {
     let headers: [String]
     let rows: [[String]]
+    let canMoveUp: (Int) -> Bool
+    let canMoveDown: (Int) -> Bool
+    let onMoveUp: (Int) -> Void
+    let onMoveDown: (Int) -> Void
+    let onMoveToTop: (Int) -> Void
+    let onMoveToBottom: (Int) -> Void
 
     func makeUIView(context: Context) -> AccessibleDataTableView {
         AccessibleDataTableView()
     }
 
     func updateUIView(_ uiView: AccessibleDataTableView, context: Context) {
+        uiView.canMoveUp = canMoveUp
+        uiView.canMoveDown = canMoveDown
+        uiView.onMoveUp = onMoveUp
+        uiView.onMoveDown = onMoveDown
+        uiView.onMoveToTop = onMoveToTop
+        uiView.onMoveToBottom = onMoveToBottom
+
         guard uiView.columnHeaders != headers || uiView.dataRows != rows else { return }
         uiView.columnHeaders = headers
         uiView.dataRows      = rows

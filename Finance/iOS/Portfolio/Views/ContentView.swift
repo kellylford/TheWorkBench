@@ -92,7 +92,6 @@ struct PortfolioSummaryView: View {
 
 struct PortfolioTableView: View {
     @EnvironmentObject var portfolioVM: PortfolioViewModel
-    @State private var selectedForDelete: UUID? = nil
     
     var body: some View {
         ScrollView {
@@ -128,10 +127,8 @@ struct PortfolioTableView: View {
                 // Data Rows
                 ForEach(Array(portfolioVM.holdings.enumerated()), id: \.element.id) { idx, holding in
                     PortfolioRow(
-                        holding: holding,
                         columns: portfolioVM.tableRows[idx],
                         index: idx,
-                        onDelete: { selectedForDelete = holding.id },
                         onMoveUp: { portfolioVM.moveUp(id: holding.id) },
                         onMoveDown: { portfolioVM.moveDown(id: holding.id) },
                         onMoveToTop: { portfolioVM.moveToTop(id: holding.id) },
@@ -145,29 +142,43 @@ struct PortfolioTableView: View {
                     }
                 }
             }
-        }
-        .confirmationDialog("Remove Holding", isPresented: .constant(selectedForDelete != nil)) {
-            Button("Remove", role: .destructive) {
-                if let id = selectedForDelete {
-                    if let holding = portfolioVM.holdings.first(where: { $0.id == id }) {
-                        portfolioVM.removeHolding(holding)
+            .accessibilityHidden(true)
+            .overlay(
+                AccessibleDataTable(
+                    headers: portfolioVM.tableHeaders,
+                    rows: portfolioVM.tableRows,
+                    canMoveUp: { row in
+                        row > 0
+                    },
+                    canMoveDown: { row in
+                        row < portfolioVM.holdings.count - 1
+                    },
+                    onMoveUp: { row in
+                        guard portfolioVM.holdings.indices.contains(row) else { return }
+                        portfolioVM.moveUp(id: portfolioVM.holdings[row].id)
+                    },
+                    onMoveDown: { row in
+                        guard portfolioVM.holdings.indices.contains(row) else { return }
+                        portfolioVM.moveDown(id: portfolioVM.holdings[row].id)
+                    },
+                    onMoveToTop: { row in
+                        guard portfolioVM.holdings.indices.contains(row) else { return }
+                        portfolioVM.moveToTop(id: portfolioVM.holdings[row].id)
+                    },
+                    onMoveToBottom: { row in
+                        guard portfolioVM.holdings.indices.contains(row) else { return }
+                        portfolioVM.moveToBottom(id: portfolioVM.holdings[row].id)
                     }
-                }
-                selectedForDelete = nil
-            }
-        } message: {
-            if let id = selectedForDelete, let holding = portfolioVM.holdings.first(where: { $0.id == id }) {
-                Text("Remove \(holding.name) from your portfolio?")
-            }
+                )
+                .allowsHitTesting(false)
+            )
         }
     }
 }
 
 struct PortfolioRow: View {
-    let holding: PortfolioHolding
     let columns: [String]
     let index: Int
-    let onDelete: () -> Void
     let onMoveUp: () -> Void
     let onMoveDown: () -> Void
     let onMoveToTop: () -> Void
@@ -177,17 +188,7 @@ struct PortfolioRow: View {
     
     var body: some View {
         rowContent
-            .contextMenu {
-                menuContent
-            }
-            .modifier(AccessibilityModifier(
-                label: accessibilityText,
-                onDelete: onDelete,
-                onMoveUp: onMoveUp,
-                onMoveDown: onMoveDown,
-                onMoveToTop: onMoveToTop,
-                onMoveToBottom: onMoveToBottom
-            ))
+            .contextMenu { menuContent }
     }
     
     private var rowContent: some View {
@@ -220,8 +221,6 @@ struct PortfolioRow: View {
     
     @ViewBuilder
     private var menuContent: some View {
-        Button("Delete", role: .destructive, action: onDelete)
-        
         Button("Move Up", action: onMoveUp)
             .disabled(!canMoveUp)
         
@@ -233,41 +232,6 @@ struct PortfolioRow: View {
         
         Button("Move To Bottom", action: onMoveToBottom)
             .disabled(!canMoveDown)
-    }
-    
-    private var accessibilityText: String {
-        "\(columns[0]), Price \(columns[1]), Change \(columns[2]), \(columns[3]) shares, Value \(columns[4])"
-    }
-}
-
-struct AccessibilityModifier: ViewModifier {
-    let label: String
-    let onDelete: () -> Void
-    let onMoveUp: () -> Void
-    let onMoveDown: () -> Void
-    let onMoveToTop: () -> Void
-    let onMoveToBottom: () -> Void
-    
-    func body(content: Content) -> some View {
-        content
-            .accessibilityElement(children: .combine)
-            .accessibilityLabel(label)
-            .accessibilityHint("Actions available")
-            .accessibilityAction(named: "Delete") {
-                onDelete()
-            }
-            .accessibilityAction(named: "Move Up") {
-                onMoveUp()
-            }
-            .accessibilityAction(named: "Move Down") {
-                onMoveDown()
-            }
-            .accessibilityAction(named: "Move To Top") {
-                onMoveToTop()
-            }
-            .accessibilityAction(named: "Move To Bottom") {
-                onMoveToBottom()
-            }
     }
 }
 
