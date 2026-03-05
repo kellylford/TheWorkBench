@@ -93,11 +93,11 @@ struct PortfolioSummaryView: View {
 struct PortfolioTableView: View {
     @EnvironmentObject var portfolioVM: PortfolioViewModel
     @State private var selectedForDelete: UUID? = nil
-    @State private var editingHolding: PortfolioHolding? = nil
     
     var body: some View {
         ScrollView {
             VStack(spacing: 0) {
+                // Header Row
                 HStack(spacing: 0) {
                     Text("Ticker")
                         .font(.caption.bold())
@@ -125,152 +125,26 @@ struct PortfolioTableView: View {
                 
                 Divider()
                 
+                // Data Rows
                 ForEach(Array(portfolioVM.holdings.enumerated()), id: \.element.id) { idx, holding in
-                    let cols = portfolioVM.tableRows[idx]
-                    
-                    HStack(spacing: 0) {
-                        Text(cols[0])
-                            .font(.subheadline.bold())
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .padding(.horizontal, 8)
-                        
-                        Text(cols[1])
-                            .font(.caption.monospacedDigit())
-                            .frame(width: 60)
-                        
-                        Text(cols[2])
-                            .font(.caption2.monospacedDigit())
-                            .frame(width: 80)
-                        
-                        Text(cols[3])
-                            .font(.caption.monospacedDigit())
-                            .frame(width: 50)
-                        
-                        Text(cols[4])
-                            .font(.caption.monospacedDigit())
-                            .frame(width: 60)
-                    }
-                    .padding(.vertical, 7)
-                    .background(idx % 2 == 0 ? Color.clear : Color.secondary.opacity(0.05))
-                    .contentShape(Rectangle())
-                    .contextMenu {
-                        Button("Edit") {
-                            editingHolding = holding
-                        }
-
-                        Button("Delete", role: .destructive) {
-                            selectedForDelete = holding.id
-                        }
-
-                        Button("Move Up") {
-                            portfolioVM.moveUp(id: holding.id)
-                        }
-                        .disabled(!portfolioVM.canMoveUp(id: holding.id))
-
-                        Button("Move Down") {
-                            portfolioVM.moveDown(id: holding.id)
-                        }
-                        .disabled(!portfolioVM.canMoveDown(id: holding.id))
-
-                        Button("Move To Top") {
-                            portfolioVM.moveToTop(id: holding.id)
-                        }
-                        .disabled(!portfolioVM.canMoveUp(id: holding.id))
-
-                        Button("Move To Bottom") {
-                            portfolioVM.moveToBottom(id: holding.id)
-                        }
-                        .disabled(!portfolioVM.canMoveDown(id: holding.id))
-                    }
-                    .accessibilityHidden(true)
+                    PortfolioRow(
+                        holding: holding,
+                        columns: portfolioVM.tableRows[idx],
+                        index: idx,
+                        onDelete: { selectedForDelete = holding.id },
+                        onMoveUp: { portfolioVM.moveUp(id: holding.id) },
+                        onMoveDown: { portfolioVM.moveDown(id: holding.id) },
+                        onMoveToTop: { portfolioVM.moveToTop(id: holding.id) },
+                        onMoveToBottom: { portfolioVM.moveToBottom(id: holding.id) },
+                        canMoveUp: portfolioVM.canMoveUp(id: holding.id),
+                        canMoveDown: portfolioVM.canMoveDown(id: holding.id)
+                    )
                     
                     if idx < portfolioVM.holdings.count - 1 {
                         Divider().padding(.leading, 8)
                     }
                 }
             }
-            .accessibilityHidden(true)
-            .overlay(
-                AccessibleDataTable(
-                    headers: portfolioVM.tableHeaders,
-                    rows: portfolioVM.tableRows
-                )
-                .allowsHitTesting(false)
-            )
-
-            // VoiceOver-operable row actions mirror the long-press context menu.
-            VStack(alignment: .leading, spacing: 6) {
-                Text("Manage Holdings")
-                    .font(.caption.bold())
-                    .foregroundColor(.secondary)
-                    .padding(.top, 10)
-
-                ForEach(portfolioVM.holdings) { holding in
-                    HStack {
-                        Text(holding.name)
-                            .font(.subheadline)
-                        Spacer()
-                        Text("\(holding.shares, specifier: "%.2f")")
-                            .font(.caption.monospacedDigit())
-                            .foregroundColor(.secondary)
-                    }
-                    .padding(.vertical, 6)
-                    .contentShape(Rectangle())
-                    .contextMenu {
-                        Button("Edit") {
-                            editingHolding = holding
-                        }
-
-                        Button("Delete", role: .destructive) {
-                            selectedForDelete = holding.id
-                        }
-
-                        Button("Move Up") {
-                            portfolioVM.moveUp(id: holding.id)
-                        }
-                        .disabled(!portfolioVM.canMoveUp(id: holding.id))
-
-                        Button("Move Down") {
-                            portfolioVM.moveDown(id: holding.id)
-                        }
-                        .disabled(!portfolioVM.canMoveDown(id: holding.id))
-
-                        Button("Move To Top") {
-                            portfolioVM.moveToTop(id: holding.id)
-                        }
-                        .disabled(!portfolioVM.canMoveUp(id: holding.id))
-
-                        Button("Move To Bottom") {
-                            portfolioVM.moveToBottom(id: holding.id)
-                        }
-                        .disabled(!portfolioVM.canMoveDown(id: holding.id))
-                    }
-                    .accessibilityElement(children: .combine)
-                    .accessibilityLabel("\(holding.name), \(holding.shares, specifier: "%.2f") shares")
-                    .accessibilityHint("Actions available")
-                    .accessibilityAction(named: "Edit") {
-                        editingHolding = holding
-                    }
-                    .accessibilityAction(named: "Delete") {
-                        selectedForDelete = holding.id
-                    }
-                    .accessibilityAction(named: "Move Up") {
-                        portfolioVM.moveUp(id: holding.id)
-                    }
-                    .accessibilityAction(named: "Move Down") {
-                        portfolioVM.moveDown(id: holding.id)
-                    }
-                    .accessibilityAction(named: "Move To Top") {
-                        portfolioVM.moveToTop(id: holding.id)
-                    }
-                    .accessibilityAction(named: "Move To Bottom") {
-                        portfolioVM.moveToBottom(id: holding.id)
-                    }
-
-                    Divider()
-                }
-            }
-            .padding(.horizontal, 8)
         }
         .confirmationDialog("Remove Holding", isPresented: .constant(selectedForDelete != nil)) {
             Button("Remove", role: .destructive) {
@@ -286,11 +160,114 @@ struct PortfolioTableView: View {
                 Text("Remove \(holding.name) from your portfolio?")
             }
         }
-        .sheet(item: $editingHolding) { holding in
-            EditHoldingSheet(holding: holding) { ticker, shares in
-                await portfolioVM.updateHolding(id: holding.id, ticker: ticker, shares: shares)
+    }
+}
+
+struct PortfolioRow: View {
+    let holding: PortfolioHolding
+    let columns: [String]
+    let index: Int
+    let onDelete: () -> Void
+    let onMoveUp: () -> Void
+    let onMoveDown: () -> Void
+    let onMoveToTop: () -> Void
+    let onMoveToBottom: () -> Void
+    let canMoveUp: Bool
+    let canMoveDown: Bool
+    
+    var body: some View {
+        rowContent
+            .contextMenu {
+                menuContent
             }
+            .modifier(AccessibilityModifier(
+                label: accessibilityText,
+                onDelete: onDelete,
+                onMoveUp: onMoveUp,
+                onMoveDown: onMoveDown,
+                onMoveToTop: onMoveToTop,
+                onMoveToBottom: onMoveToBottom
+            ))
+    }
+    
+    private var rowContent: some View {
+        HStack(spacing: 0) {
+            Text(columns[0])
+                .font(.subheadline.bold())
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.horizontal, 8)
+            
+            Text(columns[1])
+                .font(.caption.monospacedDigit())
+                .frame(width: 60)
+            
+            Text(columns[2])
+                .font(.caption2.monospacedDigit())
+                .frame(width: 80)
+            
+            Text(columns[3])
+                .font(.caption.monospacedDigit())
+                .frame(width: 50)
+            
+            Text(columns[4])
+                .font(.caption.monospacedDigit())
+                .frame(width: 60)
         }
+        .padding(.vertical, 7)
+        .background(index % 2 == 0 ? Color.clear : Color.secondary.opacity(0.05))
+        .contentShape(Rectangle())
+    }
+    
+    @ViewBuilder
+    private var menuContent: some View {
+        Button("Delete", role: .destructive, action: onDelete)
+        
+        Button("Move Up", action: onMoveUp)
+            .disabled(!canMoveUp)
+        
+        Button("Move Down", action: onMoveDown)
+            .disabled(!canMoveDown)
+        
+        Button("Move To Top", action: onMoveToTop)
+            .disabled(!canMoveUp)
+        
+        Button("Move To Bottom", action: onMoveToBottom)
+            .disabled(!canMoveDown)
+    }
+    
+    private var accessibilityText: String {
+        "\(columns[0]), Price \(columns[1]), Change \(columns[2]), \(columns[3]) shares, Value \(columns[4])"
+    }
+}
+
+struct AccessibilityModifier: ViewModifier {
+    let label: String
+    let onDelete: () -> Void
+    let onMoveUp: () -> Void
+    let onMoveDown: () -> Void
+    let onMoveToTop: () -> Void
+    let onMoveToBottom: () -> Void
+    
+    func body(content: Content) -> some View {
+        content
+            .accessibilityElement(children: .combine)
+            .accessibilityLabel(label)
+            .accessibilityHint("Actions available")
+            .accessibilityAction(named: "Delete") {
+                onDelete()
+            }
+            .accessibilityAction(named: "Move Up") {
+                onMoveUp()
+            }
+            .accessibilityAction(named: "Move Down") {
+                onMoveDown()
+            }
+            .accessibilityAction(named: "Move To Top") {
+                onMoveToTop()
+            }
+            .accessibilityAction(named: "Move To Bottom") {
+                onMoveToBottom()
+            }
     }
 }
 
