@@ -17,6 +17,8 @@
 		B48CE99616C24CC6B0F3941F /* PortfolioApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5798455B70A420D21C8BB375 /* PortfolioApp.swift */; };
 		BB4F399056CD97604097DB2F /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41BE49E0B252DCD67B08B0A9 /* ContentView.swift */; };
 		CE4564D1CEBC427E82400D4F /* PortfolioUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 286A4557B4D58F40446AE5A0 /* PortfolioUITests.swift */; };
+		E475BD3C0637FB80479B3BC3 /* Config.swift.example in Resources */ = {isa = PBXBuildFile; fileRef = DB376847F70C607944BB1126 /* Config.swift.example */; };
+		E69BA10F35B794E9FCB5A2E6 /* Config.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1F9A44EEBDBB9DAEEFE6981 /* Config.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -50,7 +52,9 @@
 		9624322CA12D59265DC021CC /* PortfolioTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = PortfolioTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		C9A896F3C7A677339FCEE85F /* Portfolio.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = Portfolio.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D34B497D3CBBE2E870736205 /* PortfolioTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PortfolioTests.swift; sourceTree = "<group>"; };
+		DB376847F70C607944BB1126 /* Config.swift.example */ = {isa = PBXFileReference; path = Config.swift.example; sourceTree = "<group>"; };
 		E39F07DC385D8BD1C4696875 /* EditHoldingSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditHoldingSheet.swift; sourceTree = "<group>"; };
+		F1F9A44EEBDBB9DAEEFE6981 /* Config.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Config.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
@@ -65,6 +69,8 @@
 		0933EC530F7B5A065CEE71BB /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				F1F9A44EEBDBB9DAEEFE6981 /* Config.swift */,
+				DB376847F70C607944BB1126 /* Config.swift.example */,
 				6ADEE0AD80C4EBA1CA0E0429 /* FinnhubService.swift */,
 			);
 			path = Services;
@@ -164,6 +170,7 @@
 			buildConfigurationList = E07B38029D3631DFD865CBA8 /* Build configuration list for PBXNativeTarget "Portfolio" */;
 			buildPhases = (
 				BBC6A438070EC187286BAEE2 /* Sources */,
+				15E3E06EF859FBCD3F76B1E6 /* Resources */,
 			);
 			buildRules = (
 			);
@@ -237,6 +244,17 @@
 		};
 /* End PBXProject section */
 
+/* Begin PBXResourcesBuildPhase section */
+		15E3E06EF859FBCD3F76B1E6 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E475BD3C0637FB80479B3BC3 /* Config.swift.example in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
 		0B45CD7576CBB632EBF813A8 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
@@ -260,6 +278,7 @@
 			files = (
 				8FF848C0CC40E7CC269B2B47 /* AccessibleTableBridge.swift in Sources */,
 				B0CDA40021C10A604E6C9B53 /* AddTickerSheet.swift in Sources */,
+				E69BA10F35B794E9FCB5A2E6 /* Config.swift in Sources */,
 				BB4F399056CD97604097DB2F /* ContentView.swift in Sources */,
 				2AD3FC9E5DBA24401FE5C836 /* EditHoldingSheet.swift in Sources */,
 				5BD8E9FB6096AEBA66ADFF63 /* FinnhubService.swift in Sources */,

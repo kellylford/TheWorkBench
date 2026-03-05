@@ -3,7 +3,7 @@ import Foundation
 class FinnhubService {
     static let shared = FinnhubService()
     
-    private let apiKey = "YOUR_FINNHUB_API_KEY_HERE"
+    private let apiKey = Config.finnhubAPIKey
     private let baseURL = "https://finnhub.io/api/v1"
     
     func fetchQuote(for ticker: String) async throws -> StockQuote {
