@@ -2,3 +2,24 @@
 *.xcuserstate
 **/xcuserdata/
 Finance/iOS/Portfolio/Services/Config.swift
+
+# .NET / C# build output
+[Bb]in/
+[Oo]bj/
+*.user
+*.suo
+.vs/
+*.userosscache
+*.sln.docstates
+
+# NuGet
+*.nupkg
+*.snupkg
+packages/
+project.lock.json
+project.assets.json
+
+# Rider / ReSharper
+.idea/
+_ReSharper*/
+*.DotSettings.user
