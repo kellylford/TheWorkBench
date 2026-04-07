@@ -14,6 +14,7 @@ public final class MailStore: ObservableObject {
     @Published public var folders: [MailFolder] = []
     @Published public var messages: [MailMessage] = []
     @Published public var selectedFolder: MailFolder?
+    @Published public var selectedMessage: MailMessage?
     @Published public var isLoading: Bool = false
     @Published public var errorMessage: String?
 
@@ -131,7 +132,7 @@ public final class MailStore: ObservableObject {
             errorMessage = "Not connected to account"
             return
         }
-        let account = accounts.first { $0.id == accountID }
+        _ = accounts.first { $0.id == accountID }  // unused but kept for symmetry
         let realFolders = folders.filter { $0.accountID == accountID && !$0.isVirtual }
 
         var allMessages: [MailMessage] = []
@@ -197,9 +198,28 @@ public final class MailStore: ObservableObject {
             try await client.markRead(uid: message.uid)
             if let idx = messages.firstIndex(where: { $0.id == message.id }) {
                 messages[idx].isRead = true
+                if selectedMessage?.id == message.id { selectedMessage = messages[idx] }
             }
         } catch {
             logger.warning("markRead failed: \(error)")
+        }
+    }
+
+    public func markUnread(_ message: MailMessage) async {
+        guard message.isRead,
+              let client = clients[message.accountID] else { return }
+        do {
+            let realFolder = folders.first { $0.id == message.folderID && !$0.isVirtual }
+            if let folder = realFolder {
+                _ = try? await client.selectFolder(folder.name)
+            }
+            try await client.markUnread(uid: message.uid)
+        } catch {
+            logger.warning("markUnread failed: \(error)")
+        }
+        if let idx = messages.firstIndex(where: { $0.id == message.id }) {
+            messages[idx].isRead = false
+            if selectedMessage?.id == message.id { selectedMessage = messages[idx] }
         }
     }
 

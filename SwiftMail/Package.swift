@@ -38,7 +38,15 @@ let package = Package(
                 "SwiftMailCore",
                 .product(name: "Logging", package: "swift-log"),
             ],
-            path: "Sources/SwiftMail"
+            path: "Sources/SwiftMail",
+            linkerSettings: [
+                .unsafeFlags([
+                    "-Xlinker", "-sectcreate",
+                    "-Xlinker", "__TEXT",
+                    "-Xlinker", "__info_plist",
+                    "-Xlinker", "Sources/SwiftMail/Info.plist"
+                ])
+            ]
         ),
     ]
 )

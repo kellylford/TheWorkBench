@@ -3,7 +3,6 @@ import SwiftMailCore
 
 struct MessageListView: View {
     @EnvironmentObject private var store: MailStore
-    @Binding var readingMessage: MailMessage?
 
     // The currently keyboard-focused row index
     @State private var focusedIndex: Int? = nil
@@ -163,7 +162,7 @@ struct MessageListView: View {
     }
 
     private func openMessage(_ message: MailMessage) {
-        readingMessage = message
+        store.selectedMessage = message
         Task { await store.fetchBody(for: message) }
         Task { await store.markRead(message) }
     }
@@ -171,7 +170,7 @@ struct MessageListView: View {
     private func deleteFocused() {
         guard let idx = focusedIndex, idx < messages.count else { return }
         let message = messages[idx]
-        if readingMessage?.id == message.id { readingMessage = nil }
+        if store.selectedMessage?.id == message.id { store.selectedMessage = nil }
         Task { await store.deleteMessage(message) }
     }
 
@@ -180,7 +179,7 @@ struct MessageListView: View {
     private func messageAccessibilityLabel(_ msg: MailMessage) -> String {
         let readState = msg.isRead ? "Read" : "Unread"
         let dateStr = RelativeDateTimeFormatter().localizedString(for: msg.date, relativeTo: Date())
-        return "\(readState). From \(msg.from). Subject: \(msg.subject). \(dateStr)"
+        return "\(readState). \(msg.from). \(msg.subject). \(dateStr)"
     }
 }
 

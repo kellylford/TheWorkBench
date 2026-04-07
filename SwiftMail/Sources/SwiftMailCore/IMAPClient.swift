@@ -129,13 +129,19 @@ public actor IMAPClient {
         return parseBodyResponse(response)
     }
 
-    // MARK: Mark as Read
+    // MARK: Mark as Read / Unread
 
     public func markRead(uid: UInt32) async throws {
         let conn = try requireConnection()
         let tag = conn.nextTag()
-        let cmd = "\(tag) UID STORE \(uid) +FLAGS (\\Seen)\r\n"
-        try await conn.send(cmd)
+        try await conn.send("\(tag) UID STORE \(uid) +FLAGS (\\Seen)\r\n")
+        _ = try await conn.readUntilTaggedResponse(tag: tag)
+    }
+
+    public func markUnread(uid: UInt32) async throws {
+        let conn = try requireConnection()
+        let tag = conn.nextTag()
+        try await conn.send("\(tag) UID STORE \(uid) -FLAGS (\\Seen)\r\n")
         _ = try await conn.readUntilTaggedResponse(tag: tag)
     }
 
@@ -315,9 +321,10 @@ public actor IMAPClient {
             }
             i = block.index(after: i)
         }
-        let subject = extractNthEnvelopeToken(envContent, n: 1)
-        let fromRaw = extractNthEnvelopeToken(envContent, n: 2)
-        let toRaw = extractNthEnvelopeToken(envContent, n: 5)
+        // IMAP ENVELOPE: (date subject from sender reply-to to cc bcc in-reply-to message-id)
+        let subject = extractNthEnvelopeToken(envContent, n: 2)  // position 2
+        let fromRaw = extractNthEnvelopeToken(envContent, n: 3)  // position 3
+        let toRaw   = extractNthEnvelopeToken(envContent, n: 6)  // position 6
         return (
             subject: decodeIMAPString(subject),
             from: decodeAddressList(fromRaw),
@@ -336,17 +343,23 @@ public actor IMAPClient {
                 continue
             }
             count += 1
-            var tokenEnd = i
             if ch == "\"" {
-                // quoted string
-                i = s.index(after: i)
+                // quoted string — track content start, return slice between the quotes
+                i = s.index(after: i)  // skip opening "
+                let contentStart = i
                 while i < s.endIndex {
-                    if s[i] == "\\" { i = s.index(after: i) } // escaped
-                    else if s[i] == "\"" { tokenEnd = s.index(after: i); break }
-                    if i < s.endIndex { i = s.index(after: i) }
+                    if s[i] == "\\" {
+                        i = s.index(after: i)  // skip backslash
+                        if i < s.endIndex { i = s.index(after: i) }  // skip escaped char
+                    } else if s[i] == "\"" {
+                        if count == n { return String(s[contentStart..<i]) }
+                        i = s.index(after: i)  // skip closing "
+                        break
+                    } else {
+                        i = s.index(after: i)
+                    }
                 }
-                if count == n { return String(s[i..<tokenEnd]) }
-                i = tokenEnd
+                continue  // i already advanced past closing "
             } else if ch == "(" {
                 var depth = 1
                 i = s.index(after: i)
@@ -432,10 +445,10 @@ public actor IMAPClient {
     }
 
     private func parseAddressTuple(_ s: String) -> String {
-        // name NIL mailbox host
-        let name = extractNthEnvelopeToken(s, n: 0)
-        let mailbox = extractNthEnvelopeToken(s, n: 2)
-        let host = extractNthEnvelopeToken(s, n: 3)
+        // IMAP address tuple: (name NIL mailbox host) — positions are 1-indexed
+        let name    = extractNthEnvelopeToken(s, n: 1)  // display name
+        let mailbox = extractNthEnvelopeToken(s, n: 3)  // local-part (position 2 is NIL/route)
+        let host    = extractNthEnvelopeToken(s, n: 4)  // domain
         let decodedName = decodeIMAPString(name)
         let email = "\(decodeIMAPString(mailbox))@\(decodeIMAPString(host))"
         if !decodedName.isEmpty && decodedName != "NIL" {
@@ -570,7 +583,7 @@ public actor IMAPClient {
 
     private func decodeQuotedPrintable(_ s: String) -> String {
         var result = ""
-        var lines = s.components(separatedBy: "\n")
+        let lines = s.components(separatedBy: "\n")
         for line in lines {
             var l = line
             if l.hasSuffix("=\r") { l = String(l.dropLast(2)) }

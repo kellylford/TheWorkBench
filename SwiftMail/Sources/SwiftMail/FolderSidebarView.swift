@@ -59,7 +59,6 @@ struct FolderSidebarView: View {
                 }
                 .help("Refresh all accounts")
                 .accessibilityLabel("Refresh all accounts")
-                .keyboardShortcut("r", modifiers: [.command])
             }
 
             ToolbarItem {
