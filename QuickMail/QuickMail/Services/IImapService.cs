@@ -17,5 +17,6 @@ public interface IImapService : IDisposable
         Guid accountId, string folderName, uint uid, CancellationToken ct = default);
     Task MarkReadAsync(Guid accountId, string folderName, uint uid, CancellationToken ct = default);
     Task MoveToTrashAsync(Guid accountId, string folderName, uint uid, CancellationToken ct = default);
+    Task MoveToTrashBatchAsync(Guid accountId, string folderName, IList<uint> uids, CancellationToken ct = default);
     Task<int> PollAsync(Guid accountId, string folderName, CancellationToken ct = default);
 }

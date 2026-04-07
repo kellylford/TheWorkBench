@@ -72,7 +72,8 @@ public class ImapService : IImapService
             {
                 FullName = inbox.FullName,
                 DisplayName = "Inbox",
-                UnreadCount = inbox.Unread
+                UnreadCount = inbox.Unread,
+                AccountId = accountId
             });
             await inbox.CloseAsync(false, ct);
         }
@@ -102,7 +103,8 @@ public class ImapService : IImapService
                 {
                     FullName = folder.FullName,
                     DisplayName = folder.Name,
-                    UnreadCount = unread
+                    UnreadCount = unread,
+                    AccountId = accountId
                 });
             }
             catch (Exception ex)
@@ -113,7 +115,8 @@ public class ImapService : IImapService
                 {
                     FullName = folder.FullName,
                     DisplayName = folder.Name,
-                    UnreadCount = 0
+                    UnreadCount = 0,
+                    AccountId = accountId
                 });
             }
         }
@@ -245,6 +248,33 @@ public class ImapService : IImapService
         try
         {
             await folder.AddFlagsAsync(new UniqueId(uid), MessageFlags.Seen, true, ct);
+        }
+        finally
+        {
+            await folder.CloseAsync(false, ct);
+        }
+    }
+
+    public async Task MoveToTrashBatchAsync(Guid accountId, string folderName, IList<uint> uids, CancellationToken ct = default)
+    {
+        var client = GetClient(accountId);
+        var folder = await client.GetFolderAsync(folderName, ct);
+        await folder.OpenAsync(FolderAccess.ReadWrite, ct);
+        try
+        {
+            var uidList = uids.Select(u => new UniqueId(u)).ToList();
+
+            IMailFolder? trash = null;
+            foreach (var sf in new[] { SpecialFolder.Trash, SpecialFolder.Junk })
+            {
+                try { trash = client.GetFolder(sf); break; }
+                catch { /* not available */ }
+            }
+
+            if (trash != null)
+                await folder.MoveToAsync(uidList, trash, ct);
+            else
+                await folder.AddFlagsAsync(uidList, MessageFlags.Deleted, true, ct);
         }
         finally
         {

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.ObjectModel;
 using System.Threading;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -21,8 +22,9 @@ public partial class ComposeViewModel : ObservableObject
     [ObservableProperty] private string _body = string.Empty;
     [ObservableProperty] private string _statusText = string.Empty;
     [ObservableProperty] private bool _isBusy = false;
+    [ObservableProperty] private ObservableCollection<AccountModel> _senderAccounts = [];
+    [ObservableProperty] private AccountModel? _senderAccount;
 
-    private Guid _accountId;
     private string? _inReplyToMessageId;
 
     public event Action? CloseRequested;
@@ -36,13 +38,17 @@ public partial class ComposeViewModel : ObservableObject
 
     public void Seed(ComposeModel model)
     {
-        _accountId = model.AccountId;
         _inReplyToMessageId = model.InReplyToMessageId;
         To = model.To;
         Cc = model.Cc;
         Bcc = model.Bcc;
         Subject = model.Subject;
         Body = model.Body;
+
+        var accounts = _accountService.LoadAccounts();
+        SenderAccounts = new ObservableCollection<AccountModel>(accounts);
+        SenderAccount = SenderAccounts.FirstOrDefault(a => a.Id == model.AccountId)
+                        ?? SenderAccounts.FirstOrDefault();
     }
 
     [RelayCommand]
@@ -54,15 +60,14 @@ public partial class ComposeViewModel : ObservableObject
             return;
         }
 
-        var accounts = _accountService.LoadAccounts();
-        var account = accounts.Find(a => a.Id == _accountId);
+        var account = SenderAccount;
         if (account == null)
         {
-            StatusText = "Account not found.";
+            StatusText = "Please select a sender account.";
             return;
         }
 
-        var password = _credentials.GetPassword(_accountId);
+        var password = _credentials.GetPassword(account.Id);
         if (string.IsNullOrEmpty(password))
         {
             StatusText = "No password stored for this account.";
@@ -75,7 +80,7 @@ public partial class ComposeViewModel : ObservableObject
         {
             var compose = new ComposeModel
             {
-                AccountId = _accountId,
+                AccountId = account.Id,
                 To = To,
                 Cc = Cc,
                 Bcc = Bcc,

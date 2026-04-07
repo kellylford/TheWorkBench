@@ -13,7 +13,7 @@ public class SmtpService : ISmtpService
     {
         var message = new MimeMessage();
 
-        message.From.Add(MailboxAddress.Parse(account.Username));
+        message.From.Add(new MailboxAddress(account.DisplayName, account.Username));
         AddAddresses(message.To, compose.To);
         AddAddresses(message.Cc, compose.Cc);
         AddAddresses(message.Bcc, compose.Bcc);

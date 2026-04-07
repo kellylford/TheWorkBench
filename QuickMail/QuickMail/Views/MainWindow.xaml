@@ -20,7 +20,6 @@
         <KeyBinding Key="R"                     Command="{Binding ReplyCommand}"         />
         <KeyBinding Key="R" Modifiers="Shift"   Command="{Binding ReplyAllCommand}"      />
         <KeyBinding Key="F"                     Command="{Binding ForwardCommand}"       />
-        <KeyBinding Key="Delete"                Command="{Binding DeleteMessageCommand}"      />
         <KeyBinding Key="F5"                    Command="{Binding RefreshCommand}"            />
         <KeyBinding Key="M" Modifiers="Ctrl"    Command="{Binding LoadMoreMessagesCommand}"  />
     </Window.InputBindings>
@@ -137,19 +136,35 @@
                          PreviewKeyDown="FolderList_PreviewKeyDown">
                     <ListBox.ItemContainerStyle>
                         <Style TargetType="ListBoxItem" BasedOn="{StaticResource {x:Type ListBoxItem}}">
-                            <Setter Property="AutomationProperties.Name">
-                                <Setter.Value>
-                                    <MultiBinding StringFormat="{}{0}, {1} unread">
-                                        <Binding Path="DisplayName"/>
-                                        <Binding Path="UnreadCount"/>
-                                    </MultiBinding>
-                                </Setter.Value>
-                            </Setter>
+                            <!-- Folders are indented -->
+                            <Setter Property="Padding" Value="14,3,4,3"/>
+                            <Setter Property="AutomationProperties.Name" Value="{Binding AutomationName}"/>
+                            <Style.Triggers>
+                                <!-- Account headers: non-selectable, bold, full-width background -->
+                                <DataTrigger Binding="{Binding IsHeader}" Value="True">
+                                    <Setter Property="IsEnabled" Value="False"/>
+                                    <Setter Property="Padding" Value="4,5,4,3"/>
+                                    <!-- Keep text readable even though IsEnabled=False -->
+                                    <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}"/>
+                                    <Setter Property="Background" Value="{DynamicResource {x:Static SystemColors.ControlBrushKey}}"/>
+                                </DataTrigger>
+                            </Style.Triggers>
                         </Style>
                     </ListBox.ItemContainerStyle>
                     <ListBox.ItemTemplate>
                         <DataTemplate>
-                            <TextBlock Text="{Binding}"/>
+                            <TextBlock>
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Text" Value="{Binding}"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsHeader}" Value="True">
+                                                <Setter Property="FontWeight" Value="SemiBold"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
                         </DataTemplate>
                     </ListBox.ItemTemplate>
                 </ListBox>
@@ -227,10 +242,11 @@
                     </TextBlock>
 
                     <ListView x:Name="MessageList"
-                              AutomationProperties.Name="Messages. Arrow keys to navigate, Enter to read."
+                              AutomationProperties.Name="Messages"
                               AutomationProperties.LiveSetting="Polite"
                               ItemsSource="{Binding Messages}"
                               SelectedItem="{Binding SelectedMessage, Mode=TwoWay}"
+                              SelectionMode="Extended"
                               BorderThickness="0"
                               TabIndex="3"
                               KeyboardNavigation.TabNavigation="None"

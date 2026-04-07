@@ -5,6 +5,7 @@ using System.Net;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Threading;
@@ -100,16 +101,12 @@ public partial class MainWindow : Window
             return;
         }
 
-        await _vm.SelectAccountCommand.ExecuteAsync(firstAccount);
+        await _vm.ConnectAllAccountsAsync();
 
-        var inbox = _vm.Folders.FirstOrDefault(f =>
-                        f.FullName.Equals("INBOX", StringComparison.OrdinalIgnoreCase))
-                    ?? _vm.Folders.FirstOrDefault();
+        // Open All Mail by default so messages from all connected accounts are visible
+        await _vm.SelectFolderCommand.ExecuteAsync(MainViewModel.AllMailFolder);
 
-        if (inbox != null)
-            await _vm.SelectFolderCommand.ExecuteAsync(inbox);
-
-        MessageList.Focus();
+        FocusMessageListFirstItem();
     }
 
     // Ctrl+0 = toolbar; Ctrl+1/2/3 jump directly to any pane; Ctrl+Y opens the folder picker
@@ -130,12 +127,22 @@ public partial class MainWindow : Window
 
     private async void OpenFolderPicker()
     {
-        if (_vm.Folders.Count == 0) return;
-        var picker = new FolderPickerWindow(_vm.SelectedAccount, _vm.Folders) { Owner = this };
+        if (_vm.CachedFolders.Count == 0) return;
+        var picker = new FolderPickerWindow(_vm.Accounts, _vm.CachedFolders, MainViewModel.AllMailFolder) { Owner = this };
         if (picker.ShowDialog() == true && picker.SelectedFolder is MailFolderModel folder)
         {
-            await _vm.SelectFolderCommand.ExecuteAsync(folder);
-            MessageList.Focus();
+            // Switch accounts if needed (AllMail has no specific account)
+            if (picker.SelectedAccount != null && picker.SelectedAccount.Id != _vm.SelectedAccount?.Id)
+                await _vm.SelectAccountCommand.ExecuteAsync(picker.SelectedAccount);
+
+            // Resolve to the live instance from the folder list
+            var target = _vm.Folders.FirstOrDefault(f =>
+                             !f.IsHeader &&
+                             f.FullName.Equals(folder.FullName, StringComparison.OrdinalIgnoreCase) &&
+                             (folder.AccountId == Guid.Empty || f.AccountId == folder.AccountId))
+                         ?? folder;
+            await _vm.SelectFolderCommand.ExecuteAsync(target);
+            FocusMessageListFirstItem();
         }
     }
 
@@ -160,15 +167,70 @@ public partial class MainWindow : Window
     // Enter on a folder: load messages then move focus to the message list
     private async void FolderList_PreviewKeyDown(object sender, KeyEventArgs e)
     {
-        if (e.Key == Key.Enter && FolderList.SelectedItem is MailFolderModel folder)
+        if (e.Key == Key.Enter &&
+            FolderList.SelectedItem is MailFolderModel folder &&
+            !folder.IsHeader)
         {
             e.Handled = true;
             await _vm.SelectFolderCommand.ExecuteAsync(folder);
-            MessageList.Focus();
+            FocusMessageListFirstItem();
         }
     }
 
-    // Enter on a message: load body, render it in the browser, move focus in
+    // Focuses the first (or currently selected) ListViewItem so Up/Down arrow work
+    // immediately after loading a folder.
+    //
+    // Why the two-step approach:
+    //   After an async data load, WPF has queued DataBind (8), Render (7), and
+    //   Loaded (6) dispatcher items to update the ListView.  Calling this method
+    //   synchronously would run before those items, so ContainerFromIndex returns
+    //   null and the fallback MessageList.Focus() gives the *control* focus — not
+    //   any row — causing Down arrow to exit to the next tab stop (the toolbar).
+    //
+    //   Queuing at DispatcherPriority.Input (5) defers execution until all of those
+    //   higher-priority items have been processed.  If the VirtualizingStackPanel
+    //   still hasn't generated the container (rare first-load scenario), the
+    //   ItemContainerGenerator.StatusChanged event covers the remaining gap.
+    private void FocusMessageListFirstItem()
+    {
+        if (MessageList.Items.Count == 0) { MessageList.Focus(); return; }
+        if (MessageList.SelectedIndex < 0) MessageList.SelectedIndex = 0;
+
+        var idx = MessageList.SelectedIndex;
+        MessageList.ScrollIntoView(MessageList.Items[idx]);
+
+        Dispatcher.InvokeAsync(() => FocusItemAt(idx), DispatcherPriority.Input);
+    }
+
+    private void FocusItemAt(int idx)
+    {
+        if (idx >= MessageList.Items.Count) { MessageList.Focus(); return; }
+
+        if (MessageList.ItemContainerGenerator.ContainerFromIndex(idx) is ListViewItem row)
+        {
+            row.Focus();
+            return;
+        }
+
+        // VirtualizingStackPanel hasn't realized the container yet.
+        // Wait for generation to complete, then focus.
+        void OnStatusChanged(object? s, EventArgs e)
+        {
+            if (MessageList.ItemContainerGenerator.Status != GeneratorStatus.ContainersGenerated)
+                return;
+            MessageList.ItemContainerGenerator.StatusChanged -= OnStatusChanged;
+            Dispatcher.InvokeAsync(() =>
+            {
+                if (MessageList.ItemContainerGenerator.ContainerFromIndex(idx) is ListViewItem r)
+                    r.Focus();
+                else
+                    MessageList.Focus();
+            }, DispatcherPriority.Input);
+        }
+        MessageList.ItemContainerGenerator.StatusChanged += OnStatusChanged;
+    }
+
+    // Enter on a message: load body; Delete: delete all selected messages
     private async void MessageList_PreviewKeyDown(object sender, KeyEventArgs e)
     {
         if (e.Key == Key.Enter && MessageList.SelectedItem is MailMessageSummary summary)
@@ -177,6 +239,15 @@ public partial class MainWindow : Window
             await _vm.SelectMessageCommand.ExecuteAsync(summary);
             if (_vm.IsMessageOpen && _vm.MessageDetail != null)
                 await ShowMessageBodyAsync(_vm.MessageDetail);
+        }
+        else if (e.Key == Key.Delete && MessageList.SelectedItems.Count > 0)
+        {
+            e.Handled = true;
+            var toDelete = MessageList.SelectedItems
+                .OfType<MailMessageSummary>()
+                .ToList();
+            await _vm.DeleteMessagesAsync(toDelete);
+            FocusMessageListFirstItem();
         }
     }
 
@@ -234,28 +305,13 @@ public partial class MainWindow : Window
         await MessageBody.CoreWebView2.ExecuteScriptAsync("document.body.focus()");
     }
 
-    // Return focus to the exact ListViewItem the user was on.
-    // Using DispatcherPriority.Input ensures layout is settled before we try
-    // to focus the container, so arrows work correctly immediately afterwards.
+    // Return keyboard focus to the selected ListViewItem after reading a message.
     private void ReturnFocusToMessageList()
     {
-        if (MessageList.SelectedItem == null)
-        {
-            MessageList.Focus();
-            return;
-        }
-
-        MessageList.ScrollIntoView(MessageList.SelectedItem);
-
-        // Defer until after the scroll layout pass so the container is realised
-        Dispatcher.InvokeAsync(() =>
-        {
-            if (MessageList.ItemContainerGenerator
-                    .ContainerFromItem(MessageList.SelectedItem) is ListViewItem row)
-                row.Focus();
-            else
-                MessageList.Focus();
-        }, DispatcherPriority.Loaded);
+        if (MessageList.Items.Count == 0) { MessageList.Focus(); return; }
+        var idx = MessageList.SelectedIndex >= 0 ? MessageList.SelectedIndex : 0;
+        MessageList.ScrollIntoView(MessageList.Items[idx]);
+        Dispatcher.InvokeAsync(() => FocusItemAt(idx), DispatcherPriority.Input);
     }
 
     private void OpenComposeWindow(ComposeModel composeModel)

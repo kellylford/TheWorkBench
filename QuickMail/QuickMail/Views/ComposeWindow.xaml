@@ -7,10 +7,12 @@
         Title="Compose Message"
         Height="540" Width="680"
         MinHeight="360" MinWidth="480"
-        WindowStartupLocation="CenterOwner">
+        WindowStartupLocation="CenterOwner"
+        PreviewKeyDown="Window_PreviewKeyDown">
 
     <Window.InputBindings>
         <KeyBinding Key="Escape" Command="{Binding CancelCommand}"/>
+        <KeyBinding Key="S" Modifiers="Alt" Command="{Binding SendCommand}"/>
     </Window.InputBindings>
 
     <DockPanel Margin="10">
@@ -23,14 +25,14 @@
                     AutomationProperties.Name="Cancel and close compose window"
                     IsCancel="True"
                     MinWidth="80" Margin="6,0,0,0"
-                    TabIndex="7"/>
+                    TabIndex="8"/>
             <Button DockPanel.Dock="Right"
-                    Content="_Send"
+                    Content="Send (Alt+S)"
                     Command="{Binding SendCommand}"
-                    AutomationProperties.Name="Send message"
+                    AutomationProperties.Name="Send message (Alt+S)"
                     IsDefault="True"
                     MinWidth="80"
-                    TabIndex="6"/>
+                    TabIndex="7"/>
             <TextBlock VerticalAlignment="Center"
                        Text="{Binding StatusText}"
                        AutomationProperties.LiveSetting="Assertive"
@@ -46,61 +48,78 @@
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="60"/>
+                <ColumnDefinition Width="70"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
-            <!-- To -->
+            <!-- From -->
             <TextBlock Grid.Row="0" Grid.Column="0"
+                       Text="Fro_m:"
+                       VerticalAlignment="Center" Margin="0,4"/>
+            <ComboBox Grid.Row="0" Grid.Column="1"
+                      x:Name="FromCombo"
+                      ItemsSource="{Binding SenderAccounts}"
+                      SelectedItem="{Binding SenderAccount, Mode=TwoWay}"
+                      DisplayMemberPath="DisplayName"
+                      AutomationProperties.Name="From account. Alt+M to focus."
+                      AutomationProperties.HelpText="Choose which account to send from"
+                      Margin="0,4" TabIndex="0"/>
+
+            <!-- To -->
+            <TextBlock Grid.Row="1" Grid.Column="0"
                        x:Name="ToLabel" Text="_To:"
                        VerticalAlignment="Center" Margin="0,4"/>
-            <TextBox Grid.Row="0" Grid.Column="1"
+            <TextBox Grid.Row="1" Grid.Column="1"
                      Text="{Binding To, UpdateSourceTrigger=PropertyChanged}"
                      AutomationProperties.LabeledBy="{Binding ElementName=ToLabel}"
                      AutomationProperties.HelpText="Separate multiple addresses with semicolons"
-                     Margin="0,4" TabIndex="0"/>
-
-            <!-- Cc -->
-            <TextBlock Grid.Row="1" Grid.Column="0"
-                       x:Name="CcLabel" Text="_Cc:"
-                       VerticalAlignment="Center" Margin="0,4"/>
-            <TextBox Grid.Row="1" Grid.Column="1"
-                     Text="{Binding Cc, UpdateSourceTrigger=PropertyChanged}"
-                     AutomationProperties.LabeledBy="{Binding ElementName=CcLabel}"
                      Margin="0,4" TabIndex="1"/>
 
-            <!-- Bcc -->
+            <!-- Cc -->
             <TextBlock Grid.Row="2" Grid.Column="0"
-                       x:Name="BccLabel" Text="_Bcc:"
+                       x:Name="CcLabel" Text="_Cc:"
                        VerticalAlignment="Center" Margin="0,4"/>
             <TextBox Grid.Row="2" Grid.Column="1"
-                     Text="{Binding Bcc, UpdateSourceTrigger=PropertyChanged}"
-                     AutomationProperties.LabeledBy="{Binding ElementName=BccLabel}"
+                     Text="{Binding Cc, UpdateSourceTrigger=PropertyChanged}"
+                     AutomationProperties.LabeledBy="{Binding ElementName=CcLabel}"
                      Margin="0,4" TabIndex="2"/>
 
-            <!-- Subject -->
+            <!-- Bcc -->
             <TextBlock Grid.Row="3" Grid.Column="0"
-                       x:Name="SubjectLabel" Text="_Subject:"
+                       x:Name="BccLabel" Text="_Bcc:"
                        VerticalAlignment="Center" Margin="0,4"/>
             <TextBox Grid.Row="3" Grid.Column="1"
-                     Text="{Binding Subject, UpdateSourceTrigger=PropertyChanged}"
-                     AutomationProperties.LabeledBy="{Binding ElementName=SubjectLabel}"
+                     Text="{Binding Bcc, UpdateSourceTrigger=PropertyChanged}"
+                     AutomationProperties.LabeledBy="{Binding ElementName=BccLabel}"
                      Margin="0,4" TabIndex="3"/>
 
-            <Separator Grid.Row="4" Grid.ColumnSpan="2" Margin="0,4"/>
+            <!-- Subject -->
+            <TextBlock Grid.Row="4" Grid.Column="0"
+                       x:Name="SubjectLabel" Text="S_ubject:"
+                       VerticalAlignment="Center" Margin="0,4"/>
+            <TextBox Grid.Row="4" Grid.Column="1"
+                     x:Name="SubjectBox"
+                     Text="{Binding Subject, UpdateSourceTrigger=PropertyChanged}"
+                     AutomationProperties.LabeledBy="{Binding ElementName=SubjectLabel}"
+                     AutomationProperties.Name="Subject. Alt+U to focus."
+                     Margin="0,4" TabIndex="4"/>
+
+            <Separator Grid.Row="5" Grid.ColumnSpan="2" Margin="0,4"/>
 
             <!-- Body -->
-            <TextBox Grid.Row="5" Grid.ColumnSpan="2"
+            <TextBox Grid.Row="6" Grid.ColumnSpan="2"
+                     x:Name="BodyBox"
                      Text="{Binding Body, UpdateSourceTrigger=PropertyChanged}"
-                     AutomationProperties.Name="Message body"
+                     AutomationProperties.Name="Message body. Alt+U for Subject, Alt+M for From, Alt+S to send."
                      AcceptsReturn="True" AcceptsTab="True"
                      TextWrapping="Wrap"
                      VerticalScrollBarVisibility="Auto"
                      FontFamily="Segoe UI"
-                     Margin="0,4" TabIndex="4"
+                     Margin="0,4" TabIndex="5"
                      VerticalAlignment="Stretch"/>
         </Grid>
     </DockPanel>

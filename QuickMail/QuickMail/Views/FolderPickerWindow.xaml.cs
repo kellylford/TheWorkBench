@@ -15,18 +15,34 @@ namespace QuickMail.Views;
 /// </summary>
 public partial class FolderPickerWindow : Window
 {
-    public MailFolderModel? SelectedFolder { get; private set; }
+    private readonly Dictionary<MailFolderModel, AccountModel> _folderToAccount = new();
 
-    public FolderPickerWindow(AccountModel? account, IEnumerable<MailFolderModel> folders)
+    public MailFolderModel? SelectedFolder { get; private set; }
+    public AccountModel? SelectedAccount { get; private set; }
+
+    public FolderPickerWindow(IEnumerable<AccountModel> accounts, IReadOnlyDictionary<Guid, List<MailFolderModel>> cachedFolders, MailFolderModel? allMailFolder = null)
     {
         InitializeComponent();
 
-        var roots = FolderTreeBuilder.Build(folders, account);
-        FolderTreeView.ItemsSource = roots;
+        var roots = new List<FolderTreeNode>();
 
-        // Expand the top level so children are visible immediately
-        foreach (var root in roots)
-            root.IsExpanded = true;
+        // Virtual "All Mail" node at the top of the tree
+        if (allMailFolder != null)
+            roots.Add(new FolderTreeNode { Folder = allMailFolder, Label = allMailFolder.DisplayName, IsExpanded = true });
+
+        foreach (var account in accounts)
+        {
+            if (!cachedFolders.TryGetValue(account.Id, out var folders) || folders.Count == 0) continue;
+
+            foreach (var f in folders)
+                _folderToAccount[f] = account;
+
+            var accountRoots = FolderTreeBuilder.Build(folders, account);
+            foreach (var r in accountRoots)
+                roots.Add(r);
+        }
+
+        FolderTreeView.ItemsSource = roots;
 
         Loaded += (_, _) => FolderTreeView.Focus();
     }
@@ -47,6 +63,8 @@ public partial class FolderPickerWindow : Window
         if (FolderTreeView.SelectedItem is FolderTreeNode node && node.Folder != null)
         {
             SelectedFolder = node.Folder;
+            _folderToAccount.TryGetValue(node.Folder, out var account);
+            SelectedAccount = account;
             DialogResult = true;
         }
     }
