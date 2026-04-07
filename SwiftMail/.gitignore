@@ -1,0 +1,19 @@
+# Build products
+.build/
+
+# SwiftPM
+.swiftpm/configuration/registries.json
+.swiftpm/xcode/package.xcworkspace/contents.xcworkspacedata
+.netrc
+
+# Xcode
+*.xcuserstate
+xcuserdata/
+DerivedData/
+
+# macOS
+.DS_Store
+
+# Credentials / secrets
+*.p12
+*.mobileprovision
