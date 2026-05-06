@@ -9,6 +9,8 @@ public class MailFolderModel
     public string FullName { get; set; } = string.Empty;
     public string DisplayName { get; set; } = string.Empty;
     public int UnreadCount { get; set; }
+    /// <summary>True for Trash, Junk, Sent, and Drafts — excluded from the All Mail aggregate view.</summary>
+    public bool ExcludeFromAllMail { get; set; }
 
     /// <summary>Accessibility label: headers just show the name; folders include unread count.</summary>
     public string AutomationName =>

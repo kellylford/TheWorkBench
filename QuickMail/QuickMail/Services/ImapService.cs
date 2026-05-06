@@ -99,24 +99,28 @@ public class ImapService : IImapService
                 var unread = folder.Unread;
                 await folder.CloseAsync(false, ct);
 
+                var excluded = IsExcludedFromAllMail(folder.Attributes);
                 result.Add(new MailFolderModel
                 {
                     FullName = folder.FullName,
                     DisplayName = folder.Name,
                     UnreadCount = unread,
-                    AccountId = accountId
+                    AccountId = accountId,
+                    ExcludeFromAllMail = excluded
                 });
             }
             catch (Exception ex)
             {
                 LogService.Log($"  Cannot open folder {folder.FullName}: {ex.Message}");
                 // Still add it so the user can see it exists
+                var excluded = IsExcludedFromAllMail(folder.Attributes);
                 result.Add(new MailFolderModel
                 {
                     FullName = folder.FullName,
                     DisplayName = folder.Name,
                     UnreadCount = 0,
-                    AccountId = accountId
+                    AccountId = accountId,
+                    ExcludeFromAllMail = excluded
                 });
             }
         }
@@ -312,6 +316,38 @@ public class ImapService : IImapService
         }
     }
 
+    public async Task EmptyTrashAsync(Guid accountId, CancellationToken ct = default)
+    {
+        var client = GetClient(accountId);
+
+        IMailFolder? trash = null;
+        foreach (var sf in new[] { SpecialFolder.Trash, SpecialFolder.Junk })
+        {
+            try { trash = client.GetFolder(sf); break; }
+            catch { /* not available */ }
+        }
+
+        if (trash == null)
+        {
+            LogService.Log($"EmptyTrash: no Trash folder found for account {accountId}");
+            return;
+        }
+
+        await trash.OpenAsync(FolderAccess.ReadWrite, ct);
+        try
+        {
+            var uids = await trash.SearchAsync(SearchQuery.All, ct);
+            if (uids.Count == 0) return;
+            LogService.Log($"EmptyTrash: expunging {uids.Count} messages from {trash.FullName}");
+            await trash.AddFlagsAsync(uids, MessageFlags.Deleted, true, ct);
+            await trash.ExpungeAsync(ct);
+        }
+        finally
+        {
+            await trash.CloseAsync(false, ct);
+        }
+    }
+
     public async Task<int> PollAsync(Guid accountId, string folderName, CancellationToken ct = default)
     {
         var client = GetClient(accountId);
@@ -327,6 +363,10 @@ public class ImapService : IImapService
             await folder.CloseAsync(false, ct);
         }
     }
+
+    private static bool IsExcludedFromAllMail(FolderAttributes attrs) =>
+        (attrs & (FolderAttributes.Trash | FolderAttributes.Junk |
+                  FolderAttributes.Sent  | FolderAttributes.Drafts)) != 0;
 
     private ImapClient GetClient(Guid accountId) =>
         _clients.TryGetValue(accountId, out var client) && client.IsConnected

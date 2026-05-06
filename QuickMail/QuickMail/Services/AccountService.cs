@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text.Json;
 using QuickMail.Models;
 
@@ -23,7 +24,8 @@ public class AccountService : IAccountService
         try
         {
             var json = File.ReadAllText(AccountsFile);
-            return JsonSerializer.Deserialize<List<AccountModel>>(json, JsonOptions) ?? [];
+            var accounts = JsonSerializer.Deserialize<List<AccountModel?>>(json, JsonOptions) ?? [];
+            return accounts.Where(a => a is not null).Cast<AccountModel>().ToList();
         }
         catch
         {

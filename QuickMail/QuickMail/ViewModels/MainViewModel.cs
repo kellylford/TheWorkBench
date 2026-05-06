@@ -359,6 +359,7 @@ public partial class MainViewModel : ObservableObject
 
         foreach (var folder in folders)
         {
+            if (folder.ExcludeFromAllMail) continue;
             ct.ThrowIfCancellationRequested();
             try
             {
@@ -477,9 +478,46 @@ public partial class MainViewModel : ObservableObject
     [RelayCommand]
     private void NewMessage()
     {
-        if (SelectedAccount == null) return;
-        var compose = new ComposeModel { AccountId = SelectedAccount.Id };
+        var account = SelectedAccount ?? Accounts.FirstOrDefault();
+        if (account == null) return;
+        var compose = new ComposeModel { AccountId = account.Id };
         ComposeRequested?.Invoke(compose);
+    }
+
+    [RelayCommand]
+    private async Task EmptyTrashAsync()
+    {
+        var accountsToEmpty = IsAllMailSelected
+            ? Accounts.ToList()
+            : (SelectedAccount != null ? [SelectedAccount] : Accounts.Take(1).ToList());
+
+        if (accountsToEmpty.Count == 0) return;
+
+        StatusText = "Emptying trash\u2026";
+        IsBusy = true;
+        try
+        {
+            using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(60));
+            foreach (var account in accountsToEmpty)
+                await _imap.EmptyTrashAsync(account.Id, cts.Token);
+
+            StatusText = accountsToEmpty.Count == 1
+                ? "Trash emptied."
+                : $"Trash emptied for {accountsToEmpty.Count} accounts.";
+        }
+        catch (OperationCanceledException)
+        {
+            StatusText = "Empty trash timed out.";
+        }
+        catch (Exception ex)
+        {
+            StatusText = $"Empty trash failed: {ex.Message}";
+            LogService.Log("EmptyTrash", ex);
+        }
+        finally
+        {
+            IsBusy = false;
+        }
     }
 
     [RelayCommand]

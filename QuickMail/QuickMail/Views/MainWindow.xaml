@@ -22,6 +22,7 @@
         <KeyBinding Key="F"                     Command="{Binding ForwardCommand}"       />
         <KeyBinding Key="F5"                    Command="{Binding RefreshCommand}"            />
         <KeyBinding Key="M" Modifiers="Ctrl"    Command="{Binding LoadMoreMessagesCommand}"  />
+        <KeyBinding Key="E" Modifiers="Ctrl+Shift" Command="{Binding EmptyTrashCommand}"     />
     </Window.InputBindings>
 
     <Grid>
@@ -75,6 +76,12 @@
                     AutomationProperties.Name="Load more messages (Ctrl+M)"
                     ToolTip="Load 100 more messages (Ctrl+M)"
                     Content="Load _More"/>
+            <Separator/>
+            <Button Style="{StaticResource ToolbarButton}"
+                    Command="{Binding EmptyTrashCommand}"
+                    AutomationProperties.Name="Empty Trash (Ctrl+Shift+E)"
+                    ToolTip="Empty Trash (Ctrl+Shift+E)"
+                    Content="Empty _Trash"/>
             <Separator/>
             <Button Style="{StaticResource ToolbarButton}"
                     Command="{Binding ManageAccountsCommand}"
