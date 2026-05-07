@@ -33,10 +33,11 @@
         </Grid.RowDefinitions>
 
         <!-- ── Toolbar — one tab stop; Arrow keys navigate between buttons ── -->
-        <ToolBar Grid.Row="0"
+        <ToolBar x:Name="MainToolbar"
+                 Grid.Row="0"
                  AutomationProperties.Name="Main toolbar"
-                 KeyboardNavigation.TabNavigation="Once"
-                 KeyboardNavigation.DirectionalNavigation="Cycle">
+                 KeyboardNavigation.DirectionalNavigation="Cycle"
+                 PreviewKeyDown="Toolbar_PreviewKeyDown">
             <Button x:Name="ToolbarFirstButton"
                     Style="{StaticResource ToolbarButton}"
                     Command="{Binding NewMessageCommand}"
@@ -91,8 +92,8 @@
         </ToolBar>
 
         <!-- ── Three-pane layout (Outlook-style): Accounts+Folders left | Messages right ── -->
-        <!--  Tab moves focus: Toolbar → AccountList → FolderList → MessageList             -->
-        <!--  Arrow keys navigate within the focused list                                    -->
+        <!--  Tab loop: AccountList(1) → FolderList(2) → MessageList(3) → Toolbar → StatusBar → wrap -->
+        <!--  Arrow keys navigate within the focused pane (TabNavigation=Once on each)      -->
         <!--  Enter triggers action; focus never changes unless user does it                 -->
         <!--  Ctrl+0 = toolbar | Ctrl+1/2/3 = jump directly to any pane                    -->
         <Grid Grid.Row="1">
@@ -123,7 +124,7 @@
                          DisplayMemberPath="DisplayName"
                          BorderThickness="0,0,1,0"
                          TabIndex="1"
-                         KeyboardNavigation.TabNavigation="None"
+                         KeyboardNavigation.TabNavigation="Once"
                          GotKeyboardFocus="List_GotKeyboardFocus"
                          PreviewKeyDown="AccountList_PreviewKeyDown"/>
 
@@ -138,7 +139,7 @@
                          SelectedItem="{Binding SelectedFolder, Mode=TwoWay}"
                          BorderThickness="0,0,1,0"
                          TabIndex="2"
-                         KeyboardNavigation.TabNavigation="None"
+                         KeyboardNavigation.TabNavigation="Once"
                          GotKeyboardFocus="List_GotKeyboardFocus"
                          PreviewKeyDown="FolderList_PreviewKeyDown">
                     <ListBox.ItemContainerStyle>
@@ -256,9 +257,15 @@
                               SelectionMode="Extended"
                               BorderThickness="0"
                               TabIndex="3"
-                              KeyboardNavigation.TabNavigation="None"
+                              KeyboardNavigation.TabNavigation="Once"
                               GotKeyboardFocus="List_GotKeyboardFocus"
                               PreviewKeyDown="MessageList_PreviewKeyDown">
+                        <ListView.Resources>
+                            <!-- Column headers are mouse-clickable but not keyboard tab stops -->
+                            <Style TargetType="GridViewColumnHeader">
+                                <Setter Property="Focusable" Value="False"/>
+                            </Style>
+                        </ListView.Resources>
                         <ListView.View>
                             <GridView>
                                 <GridViewColumn Width="180">

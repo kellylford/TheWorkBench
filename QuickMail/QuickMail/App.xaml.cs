@@ -1,4 +1,4 @@
-﻿using System.Windows;
+using System.Windows;
 using QuickMail.Services;
 using QuickMail.ViewModels;
 using QuickMail.Views;
@@ -11,17 +11,21 @@ public partial class App : Application
     {
         base.OnStartup(e);
 
-        // Manual DI composition root
-        var accountService = new AccountService();
+        var accountService    = new AccountService();
         var credentialService = new CredentialService();
-        var imapService = new ImapService();
-        var smtpService = new SmtpService();
+        var imapService       = new ImapService();
+        var smtpService       = new SmtpService();
 
-        var mainVm = new MainViewModel(imapService, accountService, credentialService);
+        var localStore = new LocalStoreService();
+        localStore.Initialize();
+
+        var syncService = new SyncService(imapService, localStore);
+
+        var mainVm = new MainViewModel(
+            imapService, accountService, credentialService, localStore, syncService);
         mainVm.LoadAccountList();
 
         var mainWindow = new MainWindow(mainVm, smtpService, accountService, credentialService, imapService);
         mainWindow.Show();
     }
 }
-

@@ -16,12 +16,18 @@ public partial class MainViewModel : ObservableObject
     private readonly IImapService _imap;
     private readonly IAccountService _accountService;
     private readonly ICredentialService _credentials;
+    private readonly ILocalStoreService _localStore;
+    private readonly ISyncService _syncService;
+
     // Separate CTS per operation type so they can't cancel each other accidentally
     private CancellationTokenSource? _connectCts;
     private CancellationTokenSource? _folderCts;
     private CancellationTokenSource? _messageCts;
+    private CancellationTokenSource? _bgSyncCts;
+
     // How many messages to fetch; increased by LoadMoreMessagesCommand
     private int _messageLimit = 100;
+
     // Retains folder lists for every account that has been connected this session
     private readonly Dictionary<Guid, List<MailFolderModel>> _cachedFolders = new();
     public IReadOnlyDictionary<Guid, List<MailFolderModel>> CachedFolders => _cachedFolders;
@@ -29,7 +35,7 @@ public partial class MainViewModel : ObservableObject
     /// <summary>Sentinel that represents the cross-account virtual All Mail view.</summary>
     public static readonly MailFolderModel AllMailFolder = new()
     {
-        FullName  = "\x00AllMail",
+        FullName    = "\x00AllMail",
         DisplayName = "All Mail"
     };
     private bool IsAllMailSelected => SelectedFolder?.FullName == AllMailFolder.FullName;
@@ -68,15 +74,25 @@ public partial class MainViewModel : ObservableObject
     [ObservableProperty]
     private bool _isBusy;
 
-    public bool HasSelectedAccount => SelectedAccount != null;
-    public bool HasSelectedFolder => SelectedFolder != null;
-    public bool HasSelectedMessage => SelectedMessage != null;
+    public bool HasSelectedAccount  => SelectedAccount  != null;
+    public bool HasSelectedFolder   => SelectedFolder   != null;
+    public bool HasSelectedMessage  => SelectedMessage  != null;
 
-    public MainViewModel(IImapService imap, IAccountService accountService, ICredentialService credentials)
+    public MainViewModel(
+        IImapService imap,
+        IAccountService accountService,
+        ICredentialService credentials,
+        ILocalStoreService localStore,
+        ISyncService syncService)
     {
-        _imap = imap;
+        _imap        = imap;
         _accountService = accountService;
         _credentials = credentials;
+        _localStore  = localStore;
+        _syncService = syncService;
+
+        _syncService.FolderSynced    += OnFolderSynced;
+        _syncService.MessagesRemoved += OnMessagesRemoved;
     }
 
     public void LoadAccountList()
@@ -84,33 +100,138 @@ public partial class MainViewModel : ObservableObject
         Accounts = new ObservableCollection<AccountModel>(_accountService.LoadAccounts());
     }
 
+    // ── Startup ──────────────────────────────────────────────────────────────────
+
+    /// <summary>
+    /// Shows All Mail from the local store immediately (no network).
+    /// Called first in OnLoaded so the UI is populated before any IMAP work begins.
+    /// </summary>
+    public async Task InitialLoadAsync()
+    {
+        SelectedFolder = AllMailFolder;
+        var cached = await _localStore.LoadAllSummariesAsync();
+        Messages = new ObservableCollection<MailMessageSummary>(cached);
+        StatusText = cached.Count > 0
+            ? $"{cached.Count} messages (cached — syncing…)"
+            : "Connecting and syncing…";
+        RebuildFolderListFromCache();
+    }
+
+    /// <summary>
+    /// Connects all accounts then runs a background incremental sync.
+    /// New messages trickle into the UI via the FolderSynced event.
+    /// Fire-and-forget from OnLoaded; does not block the UI.
+    /// </summary>
+    public async Task StartBackgroundSyncAsync()
+    {
+        _bgSyncCts?.Cancel();
+        _bgSyncCts = new CancellationTokenSource();
+        var ct = _bgSyncCts.Token;
+
+        await ConnectAllAccountsAsync();
+        if (_cachedFolders.Count == 0) return;
+
+        StatusText = "Syncing mail…";
+        try
+        {
+            await _syncService.SyncAllAccountsAsync(Accounts, _cachedFolders, ct);
+            StatusText = $"{Messages.Count} messages.";
+        }
+        catch (OperationCanceledException) { }
+        catch (Exception ex)
+        {
+            LogService.Log("BackgroundSync", ex);
+            StatusText = $"Sync error: {ex.Message}";
+        }
+    }
+
+    // ── FolderSynced merge ───────────────────────────────────────────────────────
+
+    // Called on the UI thread by SyncService after each folder sync.
+    // Inserts truly new messages into the live collection in sorted order.
+    private void OnFolderSynced(IReadOnlyList<MailMessageSummary> incoming)
+    {
+        if (!IsAllMailSelected) return;
+
+        foreach (var msg in incoming.OrderByDescending(m => m.Date))
+        {
+            // Skip if already displayed (can happen if user triggered a manual refresh mid-sync)
+            if (Messages.Any(e => e.UniqueId   == msg.UniqueId &&
+                                  e.AccountId  == msg.AccountId &&
+                                  e.FolderName == msg.FolderName))
+                continue;
+
+            InsertMessageSorted(msg);
+        }
+
+        StatusText = $"{Messages.Count} messages";
+    }
+
+    // Called on the UI thread when the sync detects server-side deletions.
+    private void OnMessagesRemoved(IReadOnlyList<MailMessageSummary> removed)
+    {
+        bool removedOpen = false;
+        foreach (var msg in removed)
+        {
+            var existing = Messages.FirstOrDefault(e =>
+                e.UniqueId   == msg.UniqueId &&
+                e.AccountId  == msg.AccountId &&
+                e.FolderName == msg.FolderName);
+
+            if (existing == null) continue;
+
+            if (SelectedMessage == existing) removedOpen = true;
+            Messages.Remove(existing);
+        }
+
+        if (removedOpen)
+        {
+            SelectedMessage = Messages.Count > 0 ? Messages[0] : null;
+            MessageDetail   = null;
+            IsMessageOpen   = false;
+        }
+
+        if (removed.Count > 0)
+            StatusText = $"{Messages.Count} messages";
+    }
+
+    // Binary-insert into the descending-by-date Messages collection.
+    private void InsertMessageSorted(MailMessageSummary msg)
+    {
+        int lo = 0, hi = Messages.Count;
+        while (lo < hi)
+        {
+            int mid = (lo + hi) / 2;
+            if (Messages[mid].Date >= msg.Date) lo = mid + 1;
+            else hi = mid;
+        }
+        Messages.Insert(lo, msg);
+    }
+
+    // ── Account / folder selection ───────────────────────────────────────────────
+
     /// <summary>
     /// Connects every configured account in sequence, populates the cache, then
-    /// rebuilds the unified folder list.  Called once from MainWindow.OnLoaded.
+    /// rebuilds the unified folder list.  Called from StartBackgroundSyncAsync.
     /// </summary>
     public async Task ConnectAllAccountsAsync()
     {
-        foreach (var account in Accounts)
-        {
-            var password = _credentials.GetPassword(account.Id);
-            if (string.IsNullOrEmpty(password)) continue;
+        if (Accounts.Count == 0) return;
 
-            StatusText = $"Connecting to {account.DisplayName}\u2026";
-            IsBusy = true;
-            try
-            {
-                using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(30));
-                await _imap.ConnectAsync(account, password, cts.Token);
-                var folderList = await _imap.GetFoldersAsync(account.Id, cts.Token);
-                _cachedFolders[account.Id] = folderList;
-            }
-            catch (OperationCanceledException) { /* skip timed-out account */ }
-            catch (Exception ex)
-            {
-                StatusText = $"Failed to connect {account.DisplayName}: {ex.Message}";
-                LogService.Log($"ConnectAll/{account.DisplayName}", ex);
-            }
+        StatusText = Accounts.Count == 1
+            ? $"Connecting to {Accounts[0].DisplayName}…"
+            : $"Connecting to {Accounts.Count} accounts…";
+        IsBusy = true;
+
+        var tasks = Accounts.Select(account => ConnectOneAccountAsync(account)).ToList();
+        var results = await Task.WhenAll(tasks);
+
+        foreach (var (id, folders) in results)
+        {
+            if (folders != null)
+                _cachedFolders[id] = folders;
         }
+
         IsBusy = false;
         RebuildFolderListFromCache();
         StatusText = _cachedFolders.Count > 0
@@ -118,10 +239,30 @@ public partial class MainViewModel : ObservableObject
             : "No accounts could be connected.";
     }
 
-    /// <summary>
-    /// Rebuilds Folders from the full cache: AllMail at top, then each account
-    /// header followed by that account's folders.
-    /// </summary>
+    private async Task<(Guid Id, List<MailFolderModel>? Folders)> ConnectOneAccountAsync(AccountModel account)
+    {
+        var password = _credentials.GetPassword(account.Id);
+        if (string.IsNullOrEmpty(password)) return (account.Id, null);
+
+        try
+        {
+            using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(30));
+            await _imap.ConnectAsync(account, password, cts.Token);
+            var folderList = await _imap.GetFoldersAsync(account.Id, cts.Token);
+            return (account.Id, folderList);
+        }
+        catch (OperationCanceledException)
+        {
+            LogService.Log($"ConnectAll/{account.DisplayName}: timed out");
+            return (account.Id, null);
+        }
+        catch (Exception ex)
+        {
+            LogService.Log($"ConnectAll/{account.DisplayName}", ex);
+            return (account.Id, null);
+        }
+    }
+
     private void RebuildFolderListFromCache()
     {
         var saved = SelectedFolder;
@@ -133,17 +274,16 @@ public partial class MainViewModel : ObservableObject
 
             items.Add(new MailFolderModel
             {
-                IsHeader = true,
+                IsHeader    = true,
                 DisplayName = account.DisplayName,
-                FullName = $"\x00Header:{account.Id}",
-                AccountId = account.Id
+                FullName    = $"\x00Header:{account.Id}",
+                AccountId   = account.Id
             });
             items.AddRange(folders);
         }
 
         Folders = new ObservableCollection<MailFolderModel>(items);
 
-        // Restore selection if the folder still exists
         if (saved != null && !saved.IsHeader)
         {
             var restored = items.FirstOrDefault(f =>
@@ -158,7 +298,7 @@ public partial class MainViewModel : ObservableObject
     {
         if (account == null) return;
         SelectedAccount = account;
-        StatusText = $"Connecting to {account.DisplayName}\u2026";
+        StatusText = $"Connecting to {account.DisplayName}…";
         IsBusy = true;
         try
         {
@@ -197,8 +337,9 @@ public partial class MainViewModel : ObservableObject
         if (folder == null || folder.IsHeader) return;
         _messageLimit = 100;
         SelectedFolder = folder;
-        MessageDetail = null;
-        IsMessageOpen = false;
+        MessageDetail  = null;
+        IsMessageOpen  = false;
+
         if (folder.FullName == AllMailFolder.FullName)
             await FetchAllMailAsync();
         else
@@ -226,7 +367,7 @@ public partial class MainViewModel : ObservableObject
         if (accountId == Guid.Empty) return;
         var folder = SelectedFolder;
         Messages.Clear();
-        StatusText = $"Loading {folder.DisplayName}\u2026";
+        StatusText = $"Loading {folder.DisplayName}…";
         IsBusy = true;
         try
         {
@@ -234,9 +375,8 @@ public partial class MainViewModel : ObservableObject
             _folderCts = new CancellationTokenSource();
             var list = await _imap.GetMessageSummariesAsync(accountId, folder.FullName, _messageLimit, _folderCts.Token);
             Messages = new ObservableCollection<MailMessageSummary>(list);
-            StatusText = list.Count == 0
-                ? "No messages"
-                : $"{list.Count} messages loaded.";
+            StatusText = list.Count == 0 ? "No messages" : $"{list.Count} messages loaded.";
+            _ = _localStore.UpsertSummariesAsync(list);
         }
         catch (OperationCanceledException)
         {
@@ -257,25 +397,35 @@ public partial class MainViewModel : ObservableObject
     private async Task SelectMessageAsync(MailMessageSummary? summary)
     {
         if (summary == null) return;
-        // When reading a message (e.g. from All Mail), ensure the correct account is
-        // active so that Reply/Forward/Delete operate on the right account.
         if (SelectedAccount?.Id != summary.AccountId)
             SelectedAccount = Accounts.FirstOrDefault(a => a.Id == summary.AccountId) ?? SelectedAccount;
         if (SelectedAccount == null) return;
+
         SelectedMessage = summary;
-        MessageDetail = null;
-        IsMessageOpen = false;
-        StatusText = "Loading message\u2026";
+        MessageDetail   = null;
+        IsMessageOpen   = false;
+        StatusText = "Loading message…";
         IsBusy = true;
         try
         {
             _messageCts?.Cancel();
             _messageCts = new CancellationTokenSource();
-            var detail = await _imap.GetMessageDetailAsync(
-                summary.AccountId, summary.FolderName, summary.UniqueId, _messageCts.Token);
+
+            // Serve from cache when available; fall back to IMAP and cache the result.
+            var detail = await _localStore.LoadDetailAsync(
+                summary.AccountId, summary.FolderName, summary.UniqueId);
+
+            if (detail == null)
+            {
+                detail = await _imap.GetMessageDetailAsync(
+                    summary.AccountId, summary.FolderName, summary.UniqueId, _messageCts.Token);
+                _ = _localStore.UpsertDetailAsync(detail);
+            }
+
             MessageDetail = detail;
             IsMessageOpen = true;
             summary.IsRead = true;
+            _ = _localStore.UpdateIsReadAsync(summary.AccountId, summary.FolderName, summary.UniqueId, true);
             StatusText = "Message loaded. Press Escape to return to message list.";
         }
         catch (OperationCanceledException)
@@ -302,14 +452,10 @@ public partial class MainViewModel : ObservableObject
             await FetchFolderAsync();
     }
 
-    /// <summary>
-    /// Fetches messages from every folder of every connected account,
-    /// merges the results, and sorts them newest-first.
-    /// </summary>
     private async Task FetchAllMailAsync()
     {
         Messages.Clear();
-        StatusText = "Loading All Mail\u2026";
+        StatusText = "Loading All Mail…";
         IsBusy = true;
 
         _folderCts?.Cancel();
@@ -320,8 +466,6 @@ public partial class MainViewModel : ObservableObject
 
         try
         {
-            // Fetch each account's folders sequentially within that account
-            // (MailKit ImapClient is not thread-safe); run accounts in parallel.
             var perAccountTasks = Accounts
                 .Where(a => _cachedFolders.ContainsKey(a.Id))
                 .Select(account => FetchAccountAllFoldersAsync(account, ct));
@@ -335,6 +479,7 @@ public partial class MainViewModel : ObservableObject
             StatusText = sorted.Count == 0
                 ? "No messages across connected accounts."
                 : $"{sorted.Count} messages across all accounts.";
+            _ = _localStore.UpsertSummariesAsync(sorted);
         }
         catch (OperationCanceledException)
         {
@@ -376,6 +521,8 @@ public partial class MainViewModel : ObservableObject
         return result;
     }
 
+    // ── Delete / Trash ───────────────────────────────────────────────────────────
+
     [RelayCommand]
     private async Task DeleteMessageAsync()
     {
@@ -383,20 +530,14 @@ public partial class MainViewModel : ObservableObject
         await DeleteMessagesAsync([SelectedMessage]);
     }
 
-    /// <summary>
-    /// Deletes a batch of messages (may span multiple accounts/folders).
-    /// Called directly from the view when multiple items are selected.
-    /// </summary>
     public async Task DeleteMessagesAsync(IReadOnlyList<MailMessageSummary> toDelete)
     {
         if (toDelete.Count == 0) return;
 
-        // Index of the first item being deleted so we can land near that spot after removal
         var minIdx = toDelete.Min(m => Messages.IndexOf(m));
-
-        var label = toDelete.Count == 1 ? "message" : $"{toDelete.Count} messages";
-        StatusText = $"Deleting {label}\u2026";
-        IsBusy = true;
+        var label  = toDelete.Count == 1 ? "message" : $"{toDelete.Count} messages";
+        StatusText    = $"Deleting {label}…";
+        IsBusy        = true;
         MessageDetail = null;
         IsMessageOpen = false;
 
@@ -405,13 +546,13 @@ public partial class MainViewModel : ObservableObject
             _messageCts?.Cancel();
             _messageCts = new CancellationTokenSource();
 
-            // Group by account + folder so we open each folder only once
             var groups = toDelete.GroupBy(m => (m.AccountId, m.FolderName));
             foreach (var group in groups)
             {
                 var uids = group.Select(m => m.UniqueId).ToList();
                 await _imap.MoveToTrashBatchAsync(
                     group.Key.AccountId, group.Key.FolderName, uids, _messageCts.Token);
+                await _localStore.DeleteSummariesAsync(group.Key.AccountId, group.Key.FolderName, uids);
             }
 
             foreach (var msg in toDelete)
@@ -445,34 +586,31 @@ public partial class MainViewModel : ObservableObject
         }
     }
 
-    // Reply / ReplyAll / Forward: raise events that the View handles to open ComposeWindow
+    // ── Compose / accounts ───────────────────────────────────────────────────────
+
     public event Action<ComposeModel>? ComposeRequested;
     public event Action? ManageAccountsRequested;
-    /// <summary>Fired after delete so the view can focus the newly-selected message row.</summary>
     public event Action? MessageListFocusRequested;
 
     [RelayCommand]
     private void Reply()
     {
         if (MessageDetail == null || SelectedAccount == null) return;
-        var compose = ComposeViewModel.CreateReply(MessageDetail, SelectedAccount.Id);
-        ComposeRequested?.Invoke(compose);
+        ComposeRequested?.Invoke(ComposeViewModel.CreateReply(MessageDetail, SelectedAccount.Id));
     }
 
     [RelayCommand]
     private void ReplyAll()
     {
         if (MessageDetail == null || SelectedAccount == null) return;
-        var compose = ComposeViewModel.CreateReplyAll(MessageDetail, SelectedAccount.Id);
-        ComposeRequested?.Invoke(compose);
+        ComposeRequested?.Invoke(ComposeViewModel.CreateReplyAll(MessageDetail, SelectedAccount.Id));
     }
 
     [RelayCommand]
     private void Forward()
     {
         if (MessageDetail == null || SelectedAccount == null) return;
-        var compose = ComposeViewModel.CreateForward(MessageDetail, SelectedAccount.Id);
-        ComposeRequested?.Invoke(compose);
+        ComposeRequested?.Invoke(ComposeViewModel.CreateForward(MessageDetail, SelectedAccount.Id));
     }
 
     [RelayCommand]
@@ -480,8 +618,7 @@ public partial class MainViewModel : ObservableObject
     {
         var account = SelectedAccount ?? Accounts.FirstOrDefault();
         if (account == null) return;
-        var compose = new ComposeModel { AccountId = account.Id };
-        ComposeRequested?.Invoke(compose);
+        ComposeRequested?.Invoke(new ComposeModel { AccountId = account.Id });
     }
 
     [RelayCommand]
@@ -493,7 +630,7 @@ public partial class MainViewModel : ObservableObject
 
         if (accountsToEmpty.Count == 0) return;
 
-        StatusText = "Emptying trash\u2026";
+        StatusText = "Emptying trash…";
         IsBusy = true;
         try
         {
@@ -521,13 +658,7 @@ public partial class MainViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private void ManageAccounts()
-    {
-        ManageAccountsRequested?.Invoke();
-    }
+    private void ManageAccounts() => ManageAccountsRequested?.Invoke();
 
-    public void RefreshAccountList()
-    {
-        LoadAccountList();
-    }
+    public void RefreshAccountList() => LoadAccountList();
 }

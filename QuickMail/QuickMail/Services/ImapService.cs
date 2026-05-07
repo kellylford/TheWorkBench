@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -14,8 +15,8 @@ namespace QuickMail.Services;
 
 public class ImapService : IImapService
 {
-    private readonly Dictionary<Guid, ImapClient> _clients = [];
-    private readonly Dictionary<Guid, AccountModel> _accounts = [];
+    private readonly ConcurrentDictionary<Guid, ImapClient> _clients = new();
+    private readonly ConcurrentDictionary<Guid, AccountModel> _accounts = new();
     private bool _disposed;
 
     public async Task ConnectAsync(AccountModel account, string password, CancellationToken ct = default)
@@ -24,7 +25,7 @@ public class ImapService : IImapService
         {
             if (existing.IsConnected) return;
             existing.Dispose();
-            _clients.Remove(account.Id);
+            _clients.TryRemove(account.Id, out _);
         }
 
         var client = new ImapClient();
@@ -52,8 +53,8 @@ public class ImapService : IImapService
             if (client.IsConnected)
                 await client.DisconnectAsync(true, ct);
             client.Dispose();
-            _clients.Remove(accountId);
-            _accounts.Remove(accountId);
+            _clients.TryRemove(accountId, out _);
+            _accounts.TryRemove(accountId, out _);
         }
     }
 
@@ -163,7 +164,7 @@ public class ImapService : IImapService
                     UniqueId = s.UniqueId.Id,
                     AccountId = accountId,
                     FolderName = folderName,
-                    From = FormatAddressList(s.Envelope?.From),
+                    From = FormatAddressListDisplay(s.Envelope?.From),
                     Subject = s.Envelope?.Subject ?? "(no subject)",
                     Date = s.Envelope?.Date ?? DateTimeOffset.MinValue,
                     IsRead = (s.Flags & MessageFlags.Seen) != 0
@@ -172,6 +173,54 @@ public class ImapService : IImapService
 
             LogService.Log($"  Returning {result.Count} message summaries");
             return result;
+        }
+        finally
+        {
+            await folder.CloseAsync(false, ct);
+        }
+    }
+
+    public async Task<List<MailMessageSummary>> GetMessagesSinceAsync(
+        Guid accountId, string folderName, uint sinceUid, CancellationToken ct = default)
+    {
+        var client = GetClient(accountId);
+        var folder = await client.GetFolderAsync(folderName, ct);
+        await folder.OpenAsync(FolderAccess.ReadOnly, ct);
+        try
+        {
+            IList<IMessageSummary> summaries;
+            if (sinceUid == 0)
+            {
+                // First sync: fetch most recent 500 messages by index
+                if (folder.Count == 0) return [];
+                var startIndex = Math.Max(0, folder.Count - 500);
+                summaries = await folder.FetchAsync(
+                    startIndex, -1,
+                    MessageSummaryItems.UniqueId | MessageSummaryItems.Envelope | MessageSummaryItems.Flags,
+                    ct);
+            }
+            else
+            {
+                // Incremental: UID FETCH (sinceUid+1):* — only new messages
+                var range = new UniqueIdRange(new UniqueId(sinceUid + 1), UniqueId.MaxValue);
+                summaries = await folder.FetchAsync(
+                    (IList<UniqueId>)range,
+                    MessageSummaryItems.UniqueId | MessageSummaryItems.Envelope | MessageSummaryItems.Flags,
+                    ct);
+            }
+
+            return summaries
+                .Select(s => new MailMessageSummary
+                {
+                    UniqueId   = s.UniqueId.Id,
+                    AccountId  = accountId,
+                    FolderName = folderName,
+                    From       = FormatAddressListDisplay(s.Envelope?.From),
+                    Subject    = s.Envelope?.Subject ?? "(no subject)",
+                    Date       = s.Envelope?.Date ?? DateTimeOffset.MinValue,
+                    IsRead     = (s.Flags & MessageFlags.Seen) != 0,
+                })
+                .ToList();
         }
         finally
         {
@@ -348,6 +397,23 @@ public class ImapService : IImapService
         }
     }
 
+    public async Task<IList<uint>> GetFolderUidsAsync(Guid accountId, string folderName, CancellationToken ct = default)
+    {
+        var client = GetClient(accountId);
+        var folder = await client.GetFolderAsync(folderName, ct);
+        await folder.OpenAsync(FolderAccess.ReadOnly, ct);
+        try
+        {
+            if (folder.Count == 0) return [];
+            var uids = await folder.SearchAsync(MailKit.Search.SearchQuery.All, ct);
+            return uids.Select(u => u.Id).ToList();
+        }
+        finally
+        {
+            await folder.CloseAsync(false, ct);
+        }
+    }
+
     public async Task<int> PollAsync(Guid accountId, string folderName, CancellationToken ct = default)
     {
         var client = GetClient(accountId);
@@ -373,10 +439,22 @@ public class ImapService : IImapService
             ? client
             : throw new InvalidOperationException($"Account {accountId} is not connected.");
 
+    // Full RFC 5322 format — used in detail pane where seeing the email address matters.
     private static string FormatAddressList(InternetAddressList? list)
     {
         if (list == null || list.Count == 0) return string.Empty;
         return string.Join(", ", list.Select(a => a.ToString()));
+    }
+
+    // Display name only — used in the message list From column.
+    // Falls back to the raw address when no name is present.
+    private static string FormatAddressListDisplay(InternetAddressList? list)
+    {
+        if (list == null || list.Count == 0) return string.Empty;
+        return string.Join(", ", list.Select(a =>
+            a is MailboxAddress mb && !string.IsNullOrWhiteSpace(mb.Name)
+                ? mb.Name
+                : a.ToString()));
     }
 
     public void Dispose()

@@ -57,6 +57,14 @@ public partial class MainWindow : Window
         vm.ManageAccountsRequested += OpenAccountManager;
         vm.MessageListFocusRequested += ReturnFocusToMessageList;
 
+        // Re-focus the message list whenever the Messages collection is replaced
+        // (happens after Refresh, Load More, and folder changes).
+        vm.PropertyChanged += (_, e) =>
+        {
+            if (e.PropertyName == nameof(MainViewModel.Messages) && IsActive)
+                Dispatcher.InvokeAsync(FocusMessageListFirstItem, DispatcherPriority.Input);
+        };
+
         KeyDown += OnWindowKeyDown;
         Loaded += OnLoaded;
     }
@@ -101,12 +109,12 @@ public partial class MainWindow : Window
             return;
         }
 
-        await _vm.ConnectAllAccountsAsync();
-
-        // Open All Mail by default so messages from all connected accounts are visible
-        await _vm.SelectFolderCommand.ExecuteAsync(MainViewModel.AllMailFolder);
-
+        // Show local cache immediately so the UI is never blank on startup.
+        await _vm.InitialLoadAsync();
         FocusMessageListFirstItem();
+
+        // Connect accounts and sync new mail in the background; messages trickle in via FolderSynced.
+        _ = _vm.StartBackgroundSyncAsync();
     }
 
     // Ctrl+0 = toolbar; Ctrl+1/2/3 jump directly to any pane; Ctrl+Y opens the folder picker
@@ -146,12 +154,38 @@ public partial class MainWindow : Window
         }
     }
 
-    // When Tab moves keyboard focus into a list that has items but no prior selection,
-    // auto-select the first item so Enter works immediately without needing an arrow key first.
+    // When keyboard focus enters a list, ensure an item is selected and — for the
+    // Tab while inside the toolbar exits to the adjacent tab stop instead of cycling
+    // through every button.  WPF's ToolBar template hard-codes TabNavigation=Cycle on its
+    // inner ToolBarPanel, which our XAML attribute cannot override, so we handle it here.
+    private void Toolbar_PreviewKeyDown(object sender, KeyEventArgs e)
+    {
+        if (e.Key != Key.Tab) return;
+        e.Handled = true;
+        var dir = (e.KeyboardDevice.Modifiers & ModifierKeys.Shift) != 0
+            ? FocusNavigationDirection.Previous
+            : FocusNavigationDirection.Next;
+        MainToolbar.MoveFocus(new TraversalRequest(dir));
+    }
+
+    // When keyboard focus enters a list, ensure an item is selected and — for the
+    // message list — ensure focus lands on the actual row (not the ListView shell).
+    // This covers both Tab navigation (Once mode) and Ctrl+1/2/3 direct jumps.
     private void List_GotKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e)
     {
-        if (sender is ListBox lb && lb.SelectedIndex < 0 && lb.Items.Count > 0)
+        if (sender is not ListBox lb) return;
+
+        if (lb.SelectedIndex < 0 && lb.Items.Count > 0)
             lb.SelectedIndex = 0;
+
+        // If focus landed on the ListView container itself rather than on a row
+        // (e.g. via Ctrl+3), redirect into the selected row so arrow keys work.
+        if (ReferenceEquals(e.NewFocus, lb))
+        {
+            var idx = lb.SelectedIndex >= 0 ? lb.SelectedIndex : 0;
+            if (lb == MessageList)
+                Dispatcher.InvokeAsync(() => FocusItemAt(idx), DispatcherPriority.Input);
+        }
     }
 
     // Enter on an account: connect and load folders; focus stays here
