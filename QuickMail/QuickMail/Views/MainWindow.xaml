@@ -259,7 +259,8 @@
                               TabIndex="3"
                               KeyboardNavigation.TabNavigation="Once"
                               GotKeyboardFocus="List_GotKeyboardFocus"
-                              PreviewKeyDown="MessageList_PreviewKeyDown">
+                              PreviewKeyDown="MessageList_PreviewKeyDown"
+                              MouseLeftButtonUp="MessageList_MouseLeftButtonUp">
                         <ListView.Resources>
                             <!-- Column headers are mouse-clickable but not keyboard tab stops -->
                             <Style TargetType="GridViewColumnHeader">

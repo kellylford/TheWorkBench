@@ -264,6 +264,17 @@ public partial class MainWindow : Window
         MessageList.ItemContainerGenerator.StatusChanged += OnStatusChanged;
     }
 
+    // Single click: load message into the reading pane (standard reading-pane UX).
+    private async void MessageList_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+    {
+        if (MessageList.SelectedItem is MailMessageSummary summary)
+        {
+            await _vm.SelectMessageCommand.ExecuteAsync(summary);
+            if (_vm.IsMessageOpen && _vm.MessageDetail != null)
+                await ShowMessageBodyAsync(_vm.MessageDetail);
+        }
+    }
+
     // Enter on a message: load body; Delete: delete all selected messages
     private async void MessageList_PreviewKeyDown(object sender, KeyEventArgs e)
     {
