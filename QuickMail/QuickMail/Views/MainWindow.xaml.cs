@@ -118,7 +118,6 @@ public partial class MainWindow : Window
     }
 
     // Global key handler (PreviewKeyDown so it fires before any child can swallow the event).
-    // Bare letter KeyGestures are invalid in WPF InputBindings, so compose shortcuts live here.
     private async void OnWindowKeyDown(object sender, KeyEventArgs e)
     {
         switch (e.KeyboardDevice.Modifiers)
@@ -131,24 +130,12 @@ public partial class MainWindow : Window
                     case Key.D2: FolderList.Focus();         e.Handled = true; break;
                     case Key.D3: MessageList.Focus();        e.Handled = true; break;
                     case Key.Y:  OpenFolderPicker();         e.Handled = true; break;
+                    case Key.R:  e.Handled = true; await _vm.ReplyCommand.ExecuteAsync(null);   break;
+                    case Key.F:  e.Handled = true; await _vm.ForwardCommand.ExecuteAsync(null); break;
                 }
                 break;
 
-            case ModifierKeys.None:
-                switch (e.Key)
-                {
-                    case Key.R:
-                        e.Handled = true;
-                        await _vm.ReplyCommand.ExecuteAsync(null);
-                        break;
-                    case Key.F:
-                        e.Handled = true;
-                        await _vm.ForwardCommand.ExecuteAsync(null);
-                        break;
-                }
-                break;
-
-            case ModifierKeys.Shift:
+            case ModifierKeys.Control | ModifierKeys.Shift:
                 if (e.Key == Key.R)
                 {
                     e.Handled = true;

@@ -46,18 +46,18 @@
             <Separator/>
             <Button Style="{StaticResource ToolbarButton}"
                     Command="{Binding ReplyCommand}"
-                    AutomationProperties.Name="Reply (R)"
-                    ToolTip="Reply (R)"
+                    AutomationProperties.Name="Reply (Ctrl+R)"
+                    ToolTip="Reply (Ctrl+R)"
                     Content="_Reply"/>
             <Button Style="{StaticResource ToolbarButton}"
                     Command="{Binding ReplyAllCommand}"
-                    AutomationProperties.Name="Reply All (Shift+R)"
-                    ToolTip="Reply All (Shift+R)"
+                    AutomationProperties.Name="Reply All (Ctrl+Shift+R)"
+                    ToolTip="Reply All (Ctrl+Shift+R)"
                     Content="Reply _All"/>
             <Button Style="{StaticResource ToolbarButton}"
                     Command="{Binding ForwardCommand}"
-                    AutomationProperties.Name="Forward (F)"
-                    ToolTip="Forward (F)"
+                    AutomationProperties.Name="Forward (Ctrl+F)"
+                    ToolTip="Forward (Ctrl+F)"
                     Content="_Forward"/>
             <Separator/>
             <Button Style="{StaticResource ToolbarButton}"
