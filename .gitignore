@@ -23,3 +23,9 @@ project.assets.json
 .idea/
 _ReSharper*/
 *.DotSettings.user
+
+# Build publish output
+publish/
+
+# Claude Code session data (worktrees, local overrides)
+.claude/

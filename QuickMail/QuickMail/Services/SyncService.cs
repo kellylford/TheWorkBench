@@ -58,30 +58,19 @@ public class SyncService : ISyncService
 
         if (incoming.Count > 0)
         {
-            // Fetch body previews before persisting so they're available immediately.
-            if (account.PreviewLines > 0)
-            {
-                try
-                {
-                    var uids     = incoming.Select(s => s.UniqueId).ToList();
-                    var previews = await _imap.FetchPreviewsAsync(
-                        account.Id, folder.FullName, uids, account.PreviewLines, ct);
-                    foreach (var s in incoming)
-                    {
-                        if (previews.TryGetValue(s.UniqueId, out var p))
-                            s.Preview = p;
-                    }
-                }
-                catch (OperationCanceledException) { throw; }
-                catch (Exception ex)
-                {
-                    LogService.Log($"FetchPreviews {account.DisplayName}/{folder.FullName}", ex);
-                }
-            }
-
             await _store.UpsertSummariesAsync(incoming);
+
+            // Show messages immediately — don't wait for body preview fetches.
             await Application.Current.Dispatcher.InvokeAsync(
                 () => FolderSynced?.Invoke(incoming));
+
+            // Fetch previews in the background. Capped at the 100 most-recent so
+            // a first-sync of 500+ messages doesn't stall behind hundreds of IMAP
+            // round-trips. The same summary objects are referenced by the VM's
+            // Messages collection, so setting Preview on them updates the UI via
+            // ObservableProperty without any additional event plumbing.
+            if (account.PreviewLines > 0)
+                _ = FetchAndApplyPreviewsAsync(account, folder, incoming, ct);
         }
 
         // ── Remote deletions ─────────────────────────────────────────────────────
