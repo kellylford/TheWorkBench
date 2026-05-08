@@ -28,5 +28,14 @@ public interface IImapService : IDisposable
     Task MoveToTrashBatchAsync(Guid accountId, string folderName, IList<uint> uids, CancellationToken ct = default);
     Task EmptyTrashAsync(Guid accountId, CancellationToken ct = default);
     Task<IList<uint>> GetFolderUidsAsync(Guid accountId, string folderName, CancellationToken ct = default);
+
+    /// <summary>
+    /// Fetches plain-text previews for the given UIDs in one folder open.
+    /// Returns a mapping of UniqueId → preview string (empty entries omitted).
+    /// </summary>
+    Task<IReadOnlyDictionary<uint, string>> FetchPreviewsAsync(
+        Guid accountId, string folderName, IList<uint> uids,
+        int maxLines, CancellationToken ct = default);
+
     Task<int> PollAsync(Guid accountId, string folderName, CancellationToken ct = default);
 }

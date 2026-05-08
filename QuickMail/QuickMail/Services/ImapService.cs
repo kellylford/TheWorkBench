@@ -414,6 +414,75 @@ public class ImapService : IImapService
         }
     }
 
+    public async Task<IReadOnlyDictionary<uint, string>> FetchPreviewsAsync(
+        Guid accountId, string folderName, IList<uint> uids,
+        int maxLines, CancellationToken ct = default)
+    {
+        var result = new Dictionary<uint, string>();
+        if (uids.Count == 0 || maxLines <= 0) return result;
+
+        var client = GetClient(accountId);
+        var folder = await client.GetFolderAsync(folderName, ct);
+        await folder.OpenAsync(FolderAccess.ReadOnly, ct);
+        try
+        {
+            var mailKitUids = uids.Select(u => new UniqueId(u)).ToList();
+            var summaries   = await folder.FetchAsync(
+                mailKitUids,
+                MessageSummaryItems.UniqueId | MessageSummaryItems.BodyStructure,
+                ct);
+
+            foreach (var s in summaries)
+            {
+                ct.ThrowIfCancellationRequested();
+                try
+                {
+                    string text = string.Empty;
+                    if (s.TextBody != null)
+                    {
+                        var part = await folder.GetBodyPartAsync(s.UniqueId, s.TextBody, ct);
+                        if (part is TextPart tp) text = tp.Text ?? string.Empty;
+                    }
+                    else if (s.HtmlBody != null)
+                    {
+                        var part = await folder.GetBodyPartAsync(s.UniqueId, s.HtmlBody, ct);
+                        if (part is TextPart tp) text = StripHtml(tp.Text ?? string.Empty);
+                    }
+
+                    var preview = ExtractPreviewLines(text, maxLines);
+                    if (!string.IsNullOrEmpty(preview))
+                        result[s.UniqueId.Id] = preview;
+                }
+                catch (OperationCanceledException) { throw; }
+                catch (Exception ex) { LogService.Log($"FetchPreview/{s.UniqueId}", ex); }
+            }
+        }
+        finally
+        {
+            await folder.CloseAsync(false, ct);
+        }
+        return result;
+    }
+
+    private static string ExtractPreviewLines(string text, int maxLines)
+    {
+        var lines = text
+            .Split('\n')
+            .Select(l => l.Trim())
+            .Where(l => l.Length > 0)
+            .Take(maxLines);
+        return string.Join(" ", lines);
+    }
+
+    private static string StripHtml(string html)
+    {
+        if (string.IsNullOrEmpty(html)) return string.Empty;
+        return System.Text.RegularExpressions.Regex.Replace(html, "<[^>]+>", " ")
+            .Replace("&nbsp;", " ").Replace("&amp;", "&")
+            .Replace("&lt;", "<").Replace("&gt;", ">")
+            .Trim();
+    }
+
     public async Task<int> PollAsync(Guid accountId, string folderName, CancellationToken ct = default)
     {
         var client = GetClient(accountId);
