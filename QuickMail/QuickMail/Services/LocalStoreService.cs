@@ -27,13 +27,14 @@ public class LocalStoreService : ILocalStoreService
             PRAGMA journal_mode=WAL;
 
             CREATE TABLE IF NOT EXISTS MessageSummary (
-                unique_id   INTEGER NOT NULL,
-                account_id  TEXT    NOT NULL,
-                folder_name TEXT    NOT NULL,
-                from_disp   TEXT    NOT NULL DEFAULT '',
-                subject     TEXT    NOT NULL DEFAULT '',
-                date_ticks  INTEGER NOT NULL,
-                is_read     INTEGER NOT NULL DEFAULT 0,
+                unique_id    INTEGER NOT NULL,
+                account_id   TEXT    NOT NULL,
+                folder_name  TEXT    NOT NULL,
+                from_disp    TEXT    NOT NULL DEFAULT '',
+                subject      TEXT    NOT NULL DEFAULT '',
+                date_ticks   INTEGER NOT NULL,
+                is_read      INTEGER NOT NULL DEFAULT 0,
+                preview_text TEXT    NOT NULL DEFAULT '',
                 PRIMARY KEY (unique_id, account_id, folder_name)
             );
             CREATE INDEX IF NOT EXISTS idx_summary_date
@@ -52,6 +53,15 @@ public class LocalStoreService : ILocalStoreService
             );
             """;
         cmd.ExecuteNonQuery();
+
+        // Migration: add preview_text to databases created before this column existed.
+        try
+        {
+            using var alter = conn.CreateCommand();
+            alter.CommandText = "ALTER TABLE MessageSummary ADD COLUMN preview_text TEXT NOT NULL DEFAULT '';";
+            alter.ExecuteNonQuery();
+        }
+        catch { /* column already exists — safe to ignore */ }
     }
 
     public async Task UpsertSummariesAsync(IEnumerable<MailMessageSummary> summaries)
@@ -60,31 +70,34 @@ public class LocalStoreService : ILocalStoreService
         await using var tx = await conn.BeginTransactionAsync();
         await using var cmd = conn.CreateCommand();
         cmd.CommandText = """
-            INSERT INTO MessageSummary(unique_id, account_id, folder_name, from_disp, subject, date_ticks, is_read)
-            VALUES($uid, $aid, $fn, $from, $subj, $dt, $read)
+            INSERT INTO MessageSummary(unique_id, account_id, folder_name, from_disp, subject, date_ticks, is_read, preview_text)
+            VALUES($uid, $aid, $fn, $from, $subj, $dt, $read, $preview)
             ON CONFLICT(unique_id, account_id, folder_name) DO UPDATE SET
-                from_disp  = excluded.from_disp,
-                subject    = excluded.subject,
-                date_ticks = excluded.date_ticks,
-                is_read    = excluded.is_read;
+                from_disp    = excluded.from_disp,
+                subject      = excluded.subject,
+                date_ticks   = excluded.date_ticks,
+                is_read      = excluded.is_read,
+                preview_text = CASE WHEN excluded.preview_text = '' THEN preview_text ELSE excluded.preview_text END;
             """;
-        var pUid  = cmd.Parameters.Add("$uid",  SqliteType.Integer);
-        var pAid  = cmd.Parameters.Add("$aid",  SqliteType.Text);
-        var pFn   = cmd.Parameters.Add("$fn",   SqliteType.Text);
-        var pFrom = cmd.Parameters.Add("$from", SqliteType.Text);
-        var pSubj = cmd.Parameters.Add("$subj", SqliteType.Text);
-        var pDt   = cmd.Parameters.Add("$dt",   SqliteType.Integer);
-        var pRead = cmd.Parameters.Add("$read", SqliteType.Integer);
+        var pUid     = cmd.Parameters.Add("$uid",     SqliteType.Integer);
+        var pAid     = cmd.Parameters.Add("$aid",     SqliteType.Text);
+        var pFn      = cmd.Parameters.Add("$fn",      SqliteType.Text);
+        var pFrom    = cmd.Parameters.Add("$from",    SqliteType.Text);
+        var pSubj    = cmd.Parameters.Add("$subj",    SqliteType.Text);
+        var pDt      = cmd.Parameters.Add("$dt",      SqliteType.Integer);
+        var pRead    = cmd.Parameters.Add("$read",    SqliteType.Integer);
+        var pPreview = cmd.Parameters.Add("$preview", SqliteType.Text);
 
         foreach (var s in summaries)
         {
-            pUid.Value  = (long)s.UniqueId;
-            pAid.Value  = s.AccountId.ToString();
-            pFn.Value   = s.FolderName;
-            pFrom.Value = s.From;
-            pSubj.Value = s.Subject;
-            pDt.Value   = s.Date.UtcTicks;
-            pRead.Value = s.IsRead ? 1 : 0;
+            pUid.Value     = (long)s.UniqueId;
+            pAid.Value     = s.AccountId.ToString();
+            pFn.Value      = s.FolderName;
+            pFrom.Value    = s.From;
+            pSubj.Value    = s.Subject;
+            pDt.Value      = s.Date.UtcTicks;
+            pRead.Value    = s.IsRead ? 1 : 0;
+            pPreview.Value = s.Preview;
             await cmd.ExecuteNonQueryAsync();
         }
         await tx.CommitAsync();
@@ -95,7 +108,7 @@ public class LocalStoreService : ILocalStoreService
         await using var conn = await OpenAsync();
         await using var cmd = conn.CreateCommand();
         cmd.CommandText =
-            "SELECT unique_id, account_id, folder_name, from_disp, subject, date_ticks, is_read " +
+            "SELECT unique_id, account_id, folder_name, from_disp, subject, date_ticks, is_read, preview_text " +
             "FROM MessageSummary ORDER BY date_ticks DESC;";
         return await ReadSummariesAsync(cmd);
     }
@@ -105,7 +118,7 @@ public class LocalStoreService : ILocalStoreService
         await using var conn = await OpenAsync();
         await using var cmd = conn.CreateCommand();
         cmd.CommandText =
-            "SELECT unique_id, account_id, folder_name, from_disp, subject, date_ticks, is_read " +
+            "SELECT unique_id, account_id, folder_name, from_disp, subject, date_ticks, is_read, preview_text " +
             "FROM MessageSummary WHERE account_id=$aid AND folder_name=$fn ORDER BY date_ticks DESC;";
         cmd.Parameters.AddWithValue("$aid", accountId.ToString());
         cmd.Parameters.AddWithValue("$fn",  folderName);
@@ -142,6 +155,20 @@ public class LocalStoreService : ILocalStoreService
         cmd.Parameters.AddWithValue("$uid",  (long)uniqueId);
         cmd.Parameters.AddWithValue("$aid",  accountId.ToString());
         cmd.Parameters.AddWithValue("$fn",   folderName);
+        await cmd.ExecuteNonQueryAsync();
+    }
+
+    public async Task UpdatePreviewAsync(Guid accountId, string folderName, uint uniqueId, string preview)
+    {
+        await using var conn = await OpenAsync();
+        await using var cmd = conn.CreateCommand();
+        cmd.CommandText =
+            "UPDATE MessageSummary SET preview_text=$preview " +
+            "WHERE unique_id=$uid AND account_id=$aid AND folder_name=$fn;";
+        cmd.Parameters.AddWithValue("$preview", preview);
+        cmd.Parameters.AddWithValue("$uid",     (long)uniqueId);
+        cmd.Parameters.AddWithValue("$aid",     accountId.ToString());
+        cmd.Parameters.AddWithValue("$fn",      folderName);
         await cmd.ExecuteNonQueryAsync();
     }
 
@@ -250,6 +277,7 @@ public class LocalStoreService : ILocalStoreService
                 Subject    = r.GetString(4),
                 Date       = new DateTimeOffset(r.GetInt64(5), TimeSpan.Zero),
                 IsRead     = r.GetInt64(6) != 0,
+                Preview    = r.GetString(7),
             });
         }
         return list;

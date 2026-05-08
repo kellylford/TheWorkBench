@@ -15,6 +15,9 @@ public partial class MailMessageSummary : ObservableObject
     [ObservableProperty]
     private bool _isRead;
 
+    [ObservableProperty]
+    private string _preview = string.Empty;
+
     /// <summary>Display-friendly date: "Today HH:mm" or "dd MMM".</summary>
     public string DateDisplay
     {

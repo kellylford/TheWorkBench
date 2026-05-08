@@ -311,9 +311,10 @@
                             <Style TargetType="ListViewItem" BasedOn="{StaticResource {x:Type ListViewItem}}">
                                 <Setter Property="AutomationProperties.Name">
                                     <Setter.Value>
-                                        <MultiBinding StringFormat="{}{0}. {1}. {2}.">
+                                        <MultiBinding StringFormat="{}{0}. {1}. {2}. {3}.">
                                             <Binding Path="From"/>
                                             <Binding Path="Subject"/>
+                                            <Binding Path="Preview"/>
                                             <Binding Path="DateDisplay"/>
                                         </MultiBinding>
                                     </Setter.Value>

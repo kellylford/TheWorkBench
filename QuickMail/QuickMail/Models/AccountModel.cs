@@ -20,5 +20,8 @@ public class AccountModel
     public bool SmtpUseSsl { get; set; } = false; // STARTTLS on 587
     public bool SmtpAcceptInvalidCert { get; set; } = false;
 
+    /// <summary>Number of body-preview lines shown in accessibility info. 0 = disabled.</summary>
+    public int PreviewLines { get; set; } = 2;
+
     public override string ToString() => DisplayName;
 }

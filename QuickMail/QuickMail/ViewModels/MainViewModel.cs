@@ -426,6 +426,20 @@ public partial class MainViewModel : ObservableObject
             IsMessageOpen = true;
             summary.IsRead = true;
             _ = _localStore.UpdateIsReadAsync(summary.AccountId, summary.FolderName, summary.UniqueId, true);
+
+            // Extract preview and persist if not already set.
+            if (string.IsNullOrEmpty(summary.Preview))
+            {
+                var account = Accounts.FirstOrDefault(a => a.Id == summary.AccountId);
+                var lines   = account?.PreviewLines ?? 2;
+                var preview = ExtractPreview(detail.PlainTextBody, detail.HtmlBody, lines);
+                if (!string.IsNullOrEmpty(preview))
+                {
+                    summary.Preview = preview;
+                    _ = _localStore.UpdatePreviewAsync(summary.AccountId, summary.FolderName, summary.UniqueId, preview);
+                }
+            }
+
             StatusText = "Message loaded. Press Escape to return to message list.";
         }
         catch (OperationCanceledException)
@@ -681,4 +695,26 @@ public partial class MainViewModel : ObservableObject
     private void ManageAccounts() => ManageAccountsRequested?.Invoke();
 
     public void RefreshAccountList() => LoadAccountList();
+
+    // ── Preview extraction ────────────────────────────────────────────────────────
+
+    private static string ExtractPreview(string plainText, string htmlText, int maxLines)
+    {
+        if (maxLines <= 0) return string.Empty;
+        var source = !string.IsNullOrWhiteSpace(plainText) ? plainText : StripHtml(htmlText);
+        var lines  = source
+            .Split('\n')
+            .Select(l => l.Trim())
+            .Where(l => l.Length > 0)
+            .Take(maxLines);
+        return string.Join(" ", lines);
+    }
+
+    private static string StripHtml(string html)
+    {
+        if (string.IsNullOrEmpty(html)) return string.Empty;
+        return System.Text.RegularExpressions.Regex.Replace(html, "<[^>]+>", " ")
+            .Replace("&nbsp;", " ").Replace("&amp;", "&").Replace("&lt;", "<").Replace("&gt;", ">")
+            .Trim();
+    }
 }
