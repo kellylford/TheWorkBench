@@ -99,4 +99,34 @@ public class SyncService : ISyncService
         await Application.Current.Dispatcher.InvokeAsync(
             () => MessagesRemoved?.Invoke(removed));
     }
+
+    private async Task FetchAndApplyPreviewsAsync(
+        AccountModel account, MailFolderModel folder,
+        List<MailMessageSummary> incoming, CancellationToken ct)
+    {
+        try
+        {
+            var uids = incoming
+                .OrderByDescending(s => s.Date)
+                .Take(100)
+                .Select(s => s.UniqueId)
+                .ToList();
+
+            var previews = await _imap.FetchPreviewsAsync(
+                account.Id, folder.FullName, uids, account.PreviewLines, ct);
+
+            foreach (var s in incoming)
+            {
+                if (!previews.TryGetValue(s.UniqueId, out var p)) continue;
+
+                await Application.Current.Dispatcher.InvokeAsync(() => s.Preview = p);
+                await _store.UpdatePreviewAsync(s.AccountId, s.FolderName, s.UniqueId, p);
+            }
+        }
+        catch (OperationCanceledException) { /* sync cancelled — normal */ }
+        catch (Exception ex)
+        {
+            LogService.Log($"FetchAndApplyPreviews {account.DisplayName}/{folder.FullName}", ex);
+        }
+    }
 }
