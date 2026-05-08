@@ -42,7 +42,10 @@ public class SyncService : ISyncService
                 try
                 {
                     var incoming = await SyncFolderAsync(account, folder, ct);
-                    if (incoming.Count > 0 && account.PreviewLines > 0)
+                    // Only queue body-download fallback for messages the server didn't
+                    // already fill via the IMAP PREVIEW extension.
+                    if (incoming.Count > 0 && account.PreviewLines > 0
+                        && incoming.Any(s => string.IsNullOrEmpty(s.Preview)))
                         previewJobs.Add((account, folder, incoming));
                 }
                 catch (OperationCanceledException) { throw; }
@@ -122,11 +125,14 @@ public class SyncService : ISyncService
     {
         try
         {
+            // Only fetch bodies for messages the server didn't fill via IMAP PREVIEW.
             var uids = incoming
+                .Where(s => string.IsNullOrEmpty(s.Preview))
                 .OrderByDescending(s => s.Date)
                 .Take(100)
                 .Select(s => s.UniqueId)
                 .ToList();
+            if (uids.Count == 0) return;
 
             var previews = await _imap.FetchPreviewsAsync(
                 account.Id, folder.FullName, uids, account.PreviewLines, ct);
