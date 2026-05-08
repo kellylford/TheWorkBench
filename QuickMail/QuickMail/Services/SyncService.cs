@@ -27,6 +27,8 @@ public class SyncService : ISyncService
         IReadOnlyDictionary<Guid, List<MailFolderModel>> cachedFolders,
         CancellationToken ct)
     {
+        var previewJobs = new List<(AccountModel Account, MailFolderModel Folder, List<MailMessageSummary> Incoming)>();
+
         foreach (var account in accounts)
         {
             ct.ThrowIfCancellationRequested();
@@ -39,7 +41,9 @@ public class SyncService : ISyncService
 
                 try
                 {
-                    await SyncFolderAsync(account, folder, ct);
+                    var incoming = await SyncFolderAsync(account, folder, ct);
+                    if (incoming.Count > 0 && account.PreviewLines > 0)
+                        previewJobs.Add((account, folder, incoming));
                 }
                 catch (OperationCanceledException) { throw; }
                 catch (Exception ex)
@@ -48,9 +52,27 @@ public class SyncService : ISyncService
                 }
             }
         }
+
+        // Fetch previews only after ALL folder syncs complete so preview IMAP calls
+        // don't race with the sync IMAP calls on the same shared client.
+        // They run sequentially — fire-and-forget the whole batch so SyncAllAccounts
+        // returns promptly and the status bar updates, while previews trickle in.
+        if (previewJobs.Count > 0)
+            _ = FetchAllPreviewsAsync(previewJobs, ct);
     }
 
-    private async Task SyncFolderAsync(AccountModel account, MailFolderModel folder, CancellationToken ct)
+    private async Task FetchAllPreviewsAsync(
+        List<(AccountModel Account, MailFolderModel Folder, List<MailMessageSummary> Incoming)> jobs,
+        CancellationToken ct)
+    {
+        foreach (var (account, folder, incoming) in jobs)
+        {
+            if (ct.IsCancellationRequested) return;
+            await FetchAndApplyPreviewsAsync(account, folder, incoming, ct);
+        }
+    }
+
+    private async Task<List<MailMessageSummary>> SyncFolderAsync(AccountModel account, MailFolderModel folder, CancellationToken ct)
     {
         // ── New messages ─────────────────────────────────────────────────────────
         var maxUid   = await _store.GetMaxUidAsync(account.Id, folder.FullName);
@@ -63,26 +85,18 @@ public class SyncService : ISyncService
             // Show messages immediately — don't wait for body preview fetches.
             await Application.Current.Dispatcher.InvokeAsync(
                 () => FolderSynced?.Invoke(incoming));
-
-            // Fetch previews in the background. Capped at the 100 most-recent so
-            // a first-sync of 500+ messages doesn't stall behind hundreds of IMAP
-            // round-trips. The same summary objects are referenced by the VM's
-            // Messages collection, so setting Preview on them updates the UI via
-            // ObservableProperty without any additional event plumbing.
-            if (account.PreviewLines > 0)
-                _ = FetchAndApplyPreviewsAsync(account, folder, incoming, ct);
         }
 
         // ── Remote deletions ─────────────────────────────────────────────────────
         // Only meaningful when we already have local data for this folder.
         var localUids = await _store.GetAllUidsAsync(account.Id, folder.FullName);
-        if (localUids.Count == 0) return;
+        if (localUids.Count == 0) return incoming;
 
         var serverUids = await _imap.GetFolderUidsAsync(account.Id, folder.FullName, ct);
         var serverSet  = new HashSet<uint>(serverUids);
         var deletedUids = localUids.Where(u => !serverSet.Contains(u)).ToList();
 
-        if (deletedUids.Count == 0) return;
+        if (deletedUids.Count == 0) return incoming;
 
         LogService.Log($"Sync {account.DisplayName}/{folder.FullName}: {deletedUids.Count} remote deletion(s)");
         await _store.DeleteSummariesAsync(account.Id, folder.FullName, deletedUids);
@@ -98,6 +112,8 @@ public class SyncService : ISyncService
 
         await Application.Current.Dispatcher.InvokeAsync(
             () => MessagesRemoved?.Invoke(removed));
+
+        return incoming;
     }
 
     private async Task FetchAndApplyPreviewsAsync(
