@@ -593,24 +593,44 @@ public partial class MainViewModel : ObservableObject
     public event Action? MessageListFocusRequested;
 
     [RelayCommand]
-    private void Reply()
+    private async Task Reply()
     {
-        if (MessageDetail == null || SelectedAccount == null) return;
-        ComposeRequested?.Invoke(ComposeViewModel.CreateReply(MessageDetail, SelectedAccount.Id));
+        var detail = await EnsureDetailAsync();
+        if (detail == null || SelectedAccount == null) return;
+        ComposeRequested?.Invoke(ComposeViewModel.CreateReply(detail, SelectedAccount.Id));
     }
 
     [RelayCommand]
-    private void ReplyAll()
+    private async Task ReplyAll()
     {
-        if (MessageDetail == null || SelectedAccount == null) return;
-        ComposeRequested?.Invoke(ComposeViewModel.CreateReplyAll(MessageDetail, SelectedAccount.Id));
+        var detail = await EnsureDetailAsync();
+        if (detail == null || SelectedAccount == null) return;
+        ComposeRequested?.Invoke(ComposeViewModel.CreateReplyAll(detail, SelectedAccount.Id));
     }
 
     [RelayCommand]
-    private void Forward()
+    private async Task Forward()
     {
-        if (MessageDetail == null || SelectedAccount == null) return;
-        ComposeRequested?.Invoke(ComposeViewModel.CreateForward(MessageDetail, SelectedAccount.Id));
+        var detail = await EnsureDetailAsync();
+        if (detail == null || SelectedAccount == null) return;
+        ComposeRequested?.Invoke(ComposeViewModel.CreateForward(detail, SelectedAccount.Id));
+    }
+
+    // Returns MessageDetail if already loaded for the selected message,
+    // otherwise fetches it (cache then IMAP) so compose can always proceed.
+    private async Task<MailMessageDetail?> EnsureDetailAsync()
+    {
+        var summary = SelectedMessage;
+        if (summary == null) return null;
+
+        if (MessageDetail != null &&
+            MessageDetail.UniqueId   == summary.UniqueId &&
+            MessageDetail.AccountId  == summary.AccountId &&
+            MessageDetail.FolderName == summary.FolderName)
+            return MessageDetail;
+
+        await SelectMessageCommand.ExecuteAsync(summary);
+        return MessageDetail;
     }
 
     [RelayCommand]

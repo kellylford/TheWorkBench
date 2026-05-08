@@ -16,13 +16,12 @@
     </Window.Resources>
 
     <Window.InputBindings>
-        <KeyBinding Key="N" Modifiers="Ctrl"    Command="{Binding NewMessageCommand}"    />
-        <KeyBinding Key="R"                     Command="{Binding ReplyCommand}"         />
-        <KeyBinding Key="R" Modifiers="Shift"   Command="{Binding ReplyAllCommand}"      />
-        <KeyBinding Key="F"                     Command="{Binding ForwardCommand}"       />
-        <KeyBinding Key="F5"                    Command="{Binding RefreshCommand}"            />
-        <KeyBinding Key="M" Modifiers="Ctrl"    Command="{Binding LoadMoreMessagesCommand}"  />
-        <KeyBinding Key="E" Modifiers="Ctrl+Shift" Command="{Binding EmptyTrashCommand}"     />
+        <!-- Ctrl+N, F5, Ctrl+M, Ctrl+Shift+E use valid KeyGestures (modifier or function key). -->
+        <!-- R, Shift+R, F have no modifier so WPF KeyGesture rejects them; handled in PreviewKeyDown. -->
+        <KeyBinding Key="N"  Modifiers="Ctrl"       Command="{Binding NewMessageCommand}"       />
+        <KeyBinding Key="F5"                        Command="{Binding RefreshCommand}"          />
+        <KeyBinding Key="M"  Modifiers="Ctrl"       Command="{Binding LoadMoreMessagesCommand}" />
+        <KeyBinding Key="E"  Modifiers="Ctrl+Shift" Command="{Binding EmptyTrashCommand}"       />
     </Window.InputBindings>
 
     <Grid>

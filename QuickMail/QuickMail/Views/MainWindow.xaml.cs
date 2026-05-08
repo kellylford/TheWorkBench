@@ -65,7 +65,7 @@ public partial class MainWindow : Window
                 Dispatcher.InvokeAsync(FocusMessageListFirstItem, DispatcherPriority.Input);
         };
 
-        KeyDown += OnWindowKeyDown;
+        PreviewKeyDown += OnWindowKeyDown;
         Loaded += OnLoaded;
     }
 
@@ -117,19 +117,44 @@ public partial class MainWindow : Window
         _ = _vm.StartBackgroundSyncAsync();
     }
 
-    // Ctrl+0 = toolbar; Ctrl+1/2/3 jump directly to any pane; Ctrl+Y opens the folder picker
-    private void OnWindowKeyDown(object sender, KeyEventArgs e)
+    // Global key handler (PreviewKeyDown so it fires before any child can swallow the event).
+    // Bare letter KeyGestures are invalid in WPF InputBindings, so compose shortcuts live here.
+    private async void OnWindowKeyDown(object sender, KeyEventArgs e)
     {
-        if (e.KeyboardDevice.Modifiers == ModifierKeys.Control)
+        switch (e.KeyboardDevice.Modifiers)
         {
-            switch (e.Key)
-            {
-                case Key.D0: ToolbarFirstButton.Focus(); e.Handled = true; break;
-                case Key.D1: AccountList.Focus(); e.Handled = true; break;
-                case Key.D2: FolderList.Focus();  e.Handled = true; break;
-                case Key.D3: MessageList.Focus(); e.Handled = true; break;
-                case Key.Y:  OpenFolderPicker();  e.Handled = true; break;
-            }
+            case ModifierKeys.Control:
+                switch (e.Key)
+                {
+                    case Key.D0: ToolbarFirstButton.Focus(); e.Handled = true; break;
+                    case Key.D1: AccountList.Focus();        e.Handled = true; break;
+                    case Key.D2: FolderList.Focus();         e.Handled = true; break;
+                    case Key.D3: MessageList.Focus();        e.Handled = true; break;
+                    case Key.Y:  OpenFolderPicker();         e.Handled = true; break;
+                }
+                break;
+
+            case ModifierKeys.None:
+                switch (e.Key)
+                {
+                    case Key.R:
+                        e.Handled = true;
+                        await _vm.ReplyCommand.ExecuteAsync(null);
+                        break;
+                    case Key.F:
+                        e.Handled = true;
+                        await _vm.ForwardCommand.ExecuteAsync(null);
+                        break;
+                }
+                break;
+
+            case ModifierKeys.Shift:
+                if (e.Key == Key.R)
+                {
+                    e.Handled = true;
+                    await _vm.ReplyAllCommand.ExecuteAsync(null);
+                }
+                break;
         }
     }
 
