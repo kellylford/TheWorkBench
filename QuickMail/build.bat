@@ -18,13 +18,17 @@ dotnet run --project QuickMail\QuickMail.csproj -c %CONFIG%
 goto end
 
 :publish
-echo Publishing QuickMail self-contained (Release)...
-dotnet publish QuickMail\QuickMail.csproj -c Release -r win-x64 --self-contained -o publish\
+echo Publishing QuickMail — single-file self-contained win-x64...
+if exist publish\ rmdir /s /q publish\
+dotnet publish QuickMail\QuickMail.csproj -c Release -o publish\
+echo.
+echo Output: publish\QuickMail.exe
 goto end
 
 :clean
 echo Cleaning...
 dotnet clean QuickMail\QuickMail.csproj
+if exist publish\ rmdir /s /q publish\
 goto end
 
 :end
