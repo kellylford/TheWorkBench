@@ -21,6 +21,9 @@ public sealed class ConversationGroup : INotifyPropertyChanged
     /// <summary>Display subject taken from the newest message.</summary>
     public string Subject => Messages.Count > 0 ? Messages[0].Subject : NormalizedSubject;
 
+    /// <summary>Sender name of the most recent (newest) message in the conversation.</summary>
+    public string LastSenderName => Messages.Count > 0 ? Messages[0].From : string.Empty;
+
     /// <summary>Preview text taken from the newest message.</summary>
     public string Preview => Messages.Count > 0 ? Messages[0].Preview : string.Empty;
 
@@ -42,9 +45,10 @@ public sealed class ConversationGroup : INotifyPropertyChanged
         get
         {
             var countWord = Count == 1 ? "message" : "messages";
+            var sender  = string.IsNullOrWhiteSpace(LastSenderName) ? string.Empty : $" {LastSenderName}.";
             return string.IsNullOrWhiteSpace(Preview)
-                ? $"{Subject}. {Count} {countWord}. {DateDisplay}."
-                : $"{Subject}. {Count} {countWord}. {Preview}. {DateDisplay}.";
+                ? $"{Subject}. {Count} {countWord}.{sender} {DateDisplay}."
+                : $"{Subject}. {Count} {countWord}.{sender} {Preview}. {DateDisplay}.";
         }
     }
 

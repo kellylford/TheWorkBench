@@ -468,11 +468,18 @@ public partial class MainWindow : Window
                     tvi.IsExpanded = !tvi.IsExpanded;
             }
         }
-        else if (e.Key == Key.Delete && ConversationTree.SelectedItem is MailMessageSummary toDelete)
+        else if (e.Key == Key.Delete)
         {
             e.Handled = true;
-            _vm.SelectedMessage = toDelete;
-            await _vm.DeleteMessageCommand.ExecuteAsync(null);
+            if (ConversationTree.SelectedItem is MailMessageSummary toDelete)
+            {
+                _vm.SelectedMessage = toDelete;
+                await _vm.DeleteMessageCommand.ExecuteAsync(null);
+            }
+            else if (ConversationTree.SelectedItem is ConversationGroup group)
+            {
+                await _vm.DeleteMessagesAsync(group.Messages);
+            }
         }
     }
 

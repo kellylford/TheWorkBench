@@ -366,6 +366,19 @@
                                         <Run Text=" "/>
                                         <Run Text="{Binding Count, StringFormat=({0}), Mode=OneWay}"/>
                                     </TextBlock>
+                                    <TextBlock Text="{Binding LastSenderName}"
+                                               FontSize="11" Opacity="0.85"
+                                               TextTrimming="CharacterEllipsis">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock">
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding LastSenderName}" Value="">
+                                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
                                     <TextBlock Text="{Binding Preview}"
                                                FontSize="11" Opacity="0.7"
                                                TextTrimming="CharacterEllipsis">
