@@ -13,13 +13,13 @@
         <HierarchicalDataTemplate x:Key="FolderNodeTemplate"
                                   ItemsSource="{Binding Children}">
             <TextBlock Text="{Binding Label}"
-                       AutomationProperties.Name="{Binding Label}"/>
+                       AutomationProperties.Name="{Binding AutomationName}"/>
         </HierarchicalDataTemplate>
 
         <!-- Bind IsExpanded on TreeViewItem to our node's IsExpanded property -->
         <Style x:Key="FolderItemStyle" TargetType="TreeViewItem">
             <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}"/>
-            <Setter Property="AutomationProperties.Name" Value="{Binding Label}"/>
+            <Setter Property="AutomationProperties.Name" Value="{Binding AutomationName}"/>
         </Style>
     </Window.Resources>
 

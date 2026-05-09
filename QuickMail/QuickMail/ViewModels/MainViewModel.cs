@@ -51,6 +51,9 @@ public partial class MainViewModel : ObservableObject
     private ObservableCollection<MailFolderModel> _folders = [];
 
     [ObservableProperty]
+    private ObservableCollection<FolderTreeNode> _folderTree = [];
+
+    [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(HasSelectedFolder))]
     private MailFolderModel? _selectedFolder;
 
@@ -67,6 +70,12 @@ public partial class MainViewModel : ObservableObject
     /// <summary>True when a message body has been loaded and the reading pane should be shown.</summary>
     [ObservableProperty]
     private bool _isMessageOpen;
+
+    [ObservableProperty]
+    private bool _isConversationView;
+
+    [ObservableProperty]
+    private ObservableCollection<ConversationGroup> _conversations = [];
 
     [ObservableProperty]
     private string _statusText = "Ready";
@@ -165,9 +174,10 @@ public partial class MainViewModel : ObservableObject
         }
 
         StatusText = $"{Messages.Count} messages";
-    }
 
-    // Called on the UI thread when the sync detects server-side deletions.
+        if (IsConversationView)
+            BuildConversations();
+    }
     private void OnMessagesRemoved(IReadOnlyList<MailMessageSummary> removed)
     {
         bool removedOpen = false;
@@ -193,6 +203,9 @@ public partial class MainViewModel : ObservableObject
 
         if (removed.Count > 0)
             StatusText = $"{Messages.Count} messages";
+
+        if (IsConversationView)
+            BuildConversations();
     }
 
     // Binary-insert into the descending-by-date Messages collection.
@@ -291,6 +304,60 @@ public partial class MainViewModel : ObservableObject
             if (restored != null)
                 SelectedFolder = restored;
         }
+
+        BuildFolderTree();
+    }
+
+    private void BuildFolderTree()
+    {
+        var roots = new List<FolderTreeNode>();
+
+        // "All Mail" is a synthetic leaf at the top (no children).
+        roots.Add(new FolderTreeNode { Folder = AllMailFolder, Label = AllMailFolder.DisplayName });
+
+        foreach (var account in Accounts)
+        {
+            if (_cachedFolders.TryGetValue(account.Id, out var folders) && folders.Count > 0)
+            {
+                var accountRoots = FolderTreeBuilder.Build(folders, account);
+                roots.AddRange(accountRoots);
+            }
+            else
+            {
+                // Placeholder node for accounts that have not yet loaded folders.
+                roots.Add(new FolderTreeNode
+                {
+                    IsHeader = true,
+                    Label    = account.DisplayName,
+                    Folder   = null,
+                });
+            }
+        }
+
+        FolderTree = new ObservableCollection<FolderTreeNode>(roots);
+    }
+
+    // ── Conversation grouping ─────────────────────────────────────────────────────
+
+    partial void OnIsConversationViewChanged(bool value)
+    {
+        if (value)
+            BuildConversations();
+        else
+            Conversations = [];
+    }
+
+    /// <summary>Called by MVVM Toolkit whenever the Messages property is replaced.</summary>
+    partial void OnMessagesChanged(ObservableCollection<MailMessageSummary> value)
+    {
+        if (IsConversationView)
+            BuildConversations();
+    }
+
+    private void BuildConversations()
+    {
+        var groups = ConversationBuilder.Build(Messages);
+        Conversations = new ObservableCollection<ConversationGroup>(groups);
     }
 
     [RelayCommand]

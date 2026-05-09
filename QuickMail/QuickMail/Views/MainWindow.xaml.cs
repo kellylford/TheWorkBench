@@ -28,6 +28,19 @@ public class BoolToFontWeightConverter : IValueConverter
         throw new NotSupportedException();
 }
 
+/// <summary>
+/// Converts bool to Visibility: true → Collapsed, false → Visible.
+/// Used to hide the standard message ListView when conversation view is on.
+/// </summary>
+public class InverseBoolToVisibilityConverter : IValueConverter
+{
+    public object Convert(object value, Type targetType, object parameter, CultureInfo culture) =>
+        value is true ? Visibility.Collapsed : Visibility.Visible;
+
+    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) =>
+        throw new NotSupportedException();
+}
+
 public partial class MainWindow : Window
 {
     private readonly MainViewModel _vm;
@@ -57,12 +70,12 @@ public partial class MainWindow : Window
         vm.ManageAccountsRequested += OpenAccountManager;
         vm.MessageListFocusRequested += ReturnFocusToMessageList;
 
-        // Re-focus the message list whenever the Messages collection is replaced
+        // Re-focus the active message panel whenever the Messages collection is replaced
         // (happens after Refresh, Load More, and folder changes).
         vm.PropertyChanged += (_, e) =>
         {
             if (e.PropertyName == nameof(MainViewModel.Messages) && IsActive)
-                Dispatcher.InvokeAsync(FocusMessageListFirstItem, DispatcherPriority.Input);
+                Dispatcher.InvokeAsync(FocusActiveMessagePanel, DispatcherPriority.Input);
         };
 
         PreviewKeyDown += OnWindowKeyDown;
@@ -128,7 +141,14 @@ public partial class MainWindow : Window
                     case Key.D0: ToolbarFirstButton.Focus(); e.Handled = true; break;
                     case Key.D1: AccountList.Focus();        e.Handled = true; break;
                     case Key.D2: FolderList.Focus();         e.Handled = true; break;
-                    case Key.D3: MessageList.Focus();        e.Handled = true; break;
+                    case Key.D3:
+                        // Focus whichever message panel is currently visible
+                        if (_vm.IsConversationView)
+                            ConversationTree.Focus();
+                        else
+                            MessageList.Focus();
+                        e.Handled = true;
+                        break;
                     case Key.Y:  OpenFolderPicker();         e.Handled = true; break;
                     case Key.R:  e.Handled = true; await _vm.ReplyCommand.ExecuteAsync(null);   break;
                     case Key.F:  e.Handled = true; await _vm.ForwardCommand.ExecuteAsync(null); break;
@@ -136,10 +156,16 @@ public partial class MainWindow : Window
                 break;
 
             case ModifierKeys.Control | ModifierKeys.Shift:
-                if (e.Key == Key.R)
+                switch (e.Key)
                 {
-                    e.Handled = true;
-                    await _vm.ReplyAllCommand.ExecuteAsync(null);
+                    case Key.R:
+                        e.Handled = true;
+                        await _vm.ReplyAllCommand.ExecuteAsync(null);
+                        break;
+                    case Key.C:
+                        _vm.IsConversationView = !_vm.IsConversationView;
+                        e.Handled = true;
+                        break;
                 }
                 break;
         }
@@ -162,7 +188,7 @@ public partial class MainWindow : Window
                              (folder.AccountId == Guid.Empty || f.AccountId == folder.AccountId))
                          ?? folder;
             await _vm.SelectFolderCommand.ExecuteAsync(target);
-            FocusMessageListFirstItem();
+            FocusActiveMessagePanel();
         }
     }
 
@@ -210,16 +236,17 @@ public partial class MainWindow : Window
         }
     }
 
-    // Enter on a folder: load messages then move focus to the message list
+    // Enter on a folder node: load messages then move focus to the active message panel.
+    // Account-group nodes (IsHeader=true) and intermediate path nodes (Folder=null) are skipped.
     private async void FolderList_PreviewKeyDown(object sender, KeyEventArgs e)
     {
         if (e.Key == Key.Enter &&
-            FolderList.SelectedItem is MailFolderModel folder &&
-            !folder.IsHeader)
+            FolderList.SelectedItem is FolderTreeNode node &&
+            node.Folder != null)
         {
             e.Handled = true;
-            await _vm.SelectFolderCommand.ExecuteAsync(folder);
-            FocusMessageListFirstItem();
+            await _vm.SelectFolderCommand.ExecuteAsync(node.Folder);
+            FocusActiveMessagePanel();
         }
     }
 
@@ -362,13 +389,91 @@ public partial class MainWindow : Window
         await MessageBody.CoreWebView2.ExecuteScriptAsync("document.body.focus()");
     }
 
-    // Return keyboard focus to the selected ListViewItem after reading a message.
+    // Return keyboard focus to the active message panel after reading a message.
     private void ReturnFocusToMessageList()
     {
+        if (_vm.IsConversationView)
+        {
+            FocusConversationTreeFirstItem();
+            return;
+        }
         if (MessageList.Items.Count == 0) { MessageList.Focus(); return; }
         var idx = MessageList.SelectedIndex >= 0 ? MessageList.SelectedIndex : 0;
         MessageList.ScrollIntoView(MessageList.Items[idx]);
         Dispatcher.InvokeAsync(() => FocusItemAt(idx), DispatcherPriority.Input);
+    }
+
+    // Routes focus to whichever message panel is currently visible.
+    private void FocusActiveMessagePanel()
+    {
+        if (_vm.IsConversationView)
+            FocusConversationTreeFirstItem();
+        else
+            FocusMessageListFirstItem();
+    }
+
+    // Focuses the first (or currently selected) TreeViewItem in the conversation tree.
+    // WPF TreeView manages its own focus state natively; we just call Focus() on the
+    // control and let it route to the last-focused item (or the first if none).
+    private void FocusConversationTreeFirstItem()
+    {
+        if (ConversationTree.Items.Count == 0) { ConversationTree.Focus(); return; }
+        Dispatcher.InvokeAsync(ConversationTree.Focus, DispatcherPriority.Input);
+    }
+
+    // ── Conversation tree event handlers ────────────────────────────────────────
+
+    // When the ConversationTree gets keyboard focus, ensure an item is highlighted.
+    private void ConversationTree_GotKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e)
+    {
+        // If no item is selected, select and focus the first root item.
+        if (ConversationTree.SelectedItem == null && ConversationTree.Items.Count > 0)
+        {
+            if (ConversationTree.ItemContainerGenerator.ContainerFromIndex(0) is TreeViewItem first)
+            {
+                first.IsSelected = true;
+                first.Focus();
+            }
+        }
+    }
+
+    // Sync the ViewModel's SelectedMessage when the user navigates to a message leaf node,
+    // so Reply/Forward/Delete commands always operate on the right message.
+    private void ConversationTree_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
+    {
+        if (e.NewValue is MailMessageSummary msg)
+            _vm.SelectedMessage = msg;
+    }
+
+    // Keyboard actions in the conversation tree.
+    private async void ConversationTree_PreviewKeyDown(object sender, KeyEventArgs e)
+    {
+        if (e.Key == Key.Enter)
+        {
+            if (ConversationTree.SelectedItem is MailMessageSummary msg)
+            {
+                // Open the selected message in the reading pane.
+                e.Handled = true;
+                await _vm.SelectMessageCommand.ExecuteAsync(msg);
+                if (_vm.IsMessageOpen && _vm.MessageDetail != null)
+                    await ShowMessageBodyAsync(_vm.MessageDetail);
+            }
+            else if (ConversationTree.SelectedItem is ConversationGroup &&
+                     ConversationTree.SelectedItem != null)
+            {
+                // Toggle expand/collapse on the selected conversation node.
+                e.Handled = true;
+                if (ConversationTree.ItemContainerGenerator.ContainerFromItem(
+                        ConversationTree.SelectedItem) is TreeViewItem tvi)
+                    tvi.IsExpanded = !tvi.IsExpanded;
+            }
+        }
+        else if (e.Key == Key.Delete && ConversationTree.SelectedItem is MailMessageSummary toDelete)
+        {
+            e.Handled = true;
+            _vm.SelectedMessage = toDelete;
+            await _vm.DeleteMessageCommand.ExecuteAsync(null);
+        }
     }
 
     private void OpenComposeWindow(ComposeModel composeModel)

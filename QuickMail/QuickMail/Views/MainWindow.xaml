@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:QuickMail.Views"
+        xmlns:models="clr-namespace:QuickMail.Models"
         xmlns:wv2="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
         mc:Ignorable="d"
         Title="QuickMail"
@@ -13,6 +14,7 @@
     <Window.Resources>
         <local:BoolToFontWeightConverter x:Key="BoolToWeightConverter"/>
         <BooleanToVisibilityConverter    x:Key="BoolToVisibilityConverter"/>
+        <local:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisibilityConverter"/>
     </Window.Resources>
 
     <Window.InputBindings>
@@ -77,6 +79,12 @@
                     ToolTip="Load 100 more messages (Ctrl+M)"
                     Content="Load _More"/>
             <Separator/>
+            <ToggleButton Style="{StaticResource ToolbarToggleButton}"
+                          IsChecked="{Binding IsConversationView, Mode=TwoWay}"
+                          AutomationProperties.Name="Conversation view (Ctrl+Shift+C)"
+                          ToolTip="Group messages by subject (Ctrl+Shift+C)"
+                          Content="Conver_sation"/>
+            <Separator/>
             <Button Style="{StaticResource ToolbarButton}"
                     Command="{Binding EmptyTrashCommand}"
                     AutomationProperties.Name="Empty Trash (Ctrl+Shift+E)"
@@ -131,39 +139,22 @@
                            Focusable="False"
                            Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}"/>
 
-                <ListBox Grid.Row="3"
-                         x:Name="FolderList"
-                         AutomationProperties.Name="Folders. Arrow keys to navigate, Enter to load messages."
-                         ItemsSource="{Binding Folders}"
-                         SelectedItem="{Binding SelectedFolder, Mode=TwoWay}"
-                         BorderThickness="0,0,1,0"
-                         TabIndex="2"
-                         KeyboardNavigation.TabNavigation="Once"
-                         GotKeyboardFocus="List_GotKeyboardFocus"
-                         PreviewKeyDown="FolderList_PreviewKeyDown">
-                    <ListBox.ItemContainerStyle>
-                        <Style TargetType="ListBoxItem" BasedOn="{StaticResource {x:Type ListBoxItem}}">
-                            <!-- Folders are indented -->
-                            <Setter Property="Padding" Value="14,3,4,3"/>
-                            <Setter Property="AutomationProperties.Name" Value="{Binding AutomationName}"/>
-                            <Style.Triggers>
-                                <!-- Account headers: non-selectable, bold, full-width background -->
-                                <DataTrigger Binding="{Binding IsHeader}" Value="True">
-                                    <Setter Property="IsEnabled" Value="False"/>
-                                    <Setter Property="Padding" Value="4,5,4,3"/>
-                                    <!-- Keep text readable even though IsEnabled=False -->
-                                    <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}"/>
-                                    <Setter Property="Background" Value="{DynamicResource {x:Static SystemColors.ControlBrushKey}}"/>
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </ListBox.ItemContainerStyle>
-                    <ListBox.ItemTemplate>
-                        <DataTemplate>
-                            <TextBlock>
+                <!-- True TreeView so screen readers announce level, expanded/collapsed state correctly. -->
+                <TreeView Grid.Row="3"
+                          x:Name="FolderList"
+                          AutomationProperties.Name="Folders. Arrow keys to navigate and expand, Enter to load messages."
+                          ItemsSource="{Binding FolderTree}"
+                          BorderThickness="0,0,1,0"
+                          TabIndex="2"
+                          KeyboardNavigation.TabNavigation="Once"
+                          PreviewKeyDown="FolderList_PreviewKeyDown">
+                    <TreeView.Resources>
+                        <HierarchicalDataTemplate DataType="{x:Type models:FolderTreeNode}"
+                                                  ItemsSource="{Binding Children}">
+                            <TextBlock TextTrimming="CharacterEllipsis">
                                 <TextBlock.Style>
                                     <Style TargetType="TextBlock">
-                                        <Setter Property="Text" Value="{Binding}"/>
+                                        <Setter Property="Text" Value="{Binding Label}"/>
                                         <Style.Triggers>
                                             <DataTrigger Binding="{Binding IsHeader}" Value="True">
                                                 <Setter Property="FontWeight" Value="SemiBold"/>
@@ -172,9 +163,15 @@
                                     </Style>
                                 </TextBlock.Style>
                             </TextBlock>
-                        </DataTemplate>
-                    </ListBox.ItemTemplate>
-                </ListBox>
+                        </HierarchicalDataTemplate>
+                    </TreeView.Resources>
+                    <TreeView.ItemContainerStyle>
+                        <Style TargetType="TreeViewItem" BasedOn="{StaticResource {x:Type TreeViewItem}}">
+                            <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}"/>
+                            <Setter Property="AutomationProperties.Name" Value="{Binding AutomationName}"/>
+                        </Style>
+                    </TreeView.ItemContainerStyle>
+                </TreeView>
             </Grid>
 
             <GridSplitter Grid.Column="1" Width="5" HorizontalAlignment="Stretch"
@@ -248,9 +245,13 @@
                         </TextBlock.Style>
                     </TextBlock>
 
+                    <!-- Standard list view and conversation tree occupy the same space;
+                         only one is visible at a time based on IsConversationView. -->
+                    <Grid>
                     <ListView x:Name="MessageList"
                               AutomationProperties.Name="Messages"
                               AutomationProperties.LiveSetting="Polite"
+                              Visibility="{Binding IsConversationView, Converter={StaticResource InverseBoolToVisibilityConverter}}"
                               ItemsSource="{Binding Messages}"
                               SelectedItem="{Binding SelectedMessage, Mode=TwoWay}"
                               SelectionMode="Extended"
@@ -322,6 +323,91 @@
                             </Style>
                         </ListView.ItemContainerStyle>
                     </ListView>
+
+                    <!-- Conversation tree view: one root node per subject group, children are individual messages. -->
+                    <TreeView x:Name="ConversationTree"
+                              AutomationProperties.Name="Messages"
+                              AutomationProperties.LiveSetting="Polite"
+                              Visibility="{Binding IsConversationView, Converter={StaticResource BoolToVisibilityConverter}}"
+                              ItemsSource="{Binding Conversations}"
+                              BorderThickness="0"
+                              TabIndex="3"
+                              KeyboardNavigation.TabNavigation="Once"
+                              GotKeyboardFocus="ConversationTree_GotKeyboardFocus"
+                              SelectedItemChanged="ConversationTree_SelectedItemChanged"
+                              PreviewKeyDown="ConversationTree_PreviewKeyDown">
+                        <TreeView.Resources>
+                            <!-- Style for level-2 message rows (children of a conversation node) -->
+                            <Style x:Key="MessageTreeItemStyle" TargetType="TreeViewItem"
+                                   BasedOn="{StaticResource {x:Type TreeViewItem}}">
+                                <Setter Property="AutomationProperties.Name">
+                                    <Setter.Value>
+                                        <MultiBinding StringFormat="{}{0}. {1}. {2}. {3}.">
+                                            <Binding Path="From"/>
+                                            <Binding Path="Subject"/>
+                                            <Binding Path="Preview"/>
+                                            <Binding Path="DateDisplay"/>
+                                        </MultiBinding>
+                                    </Setter.Value>
+                                </Setter>
+                            </Style>
+
+                            <!-- Level 1: conversation group header with subject + count + preview -->
+                            <HierarchicalDataTemplate DataType="{x:Type models:ConversationGroup}"
+                                                      ItemsSource="{Binding Messages}"
+                                                      ItemContainerStyle="{StaticResource MessageTreeItemStyle}">
+                                <StackPanel>
+                                    <TextBlock TextTrimming="CharacterEllipsis"
+                                               FontWeight="{Binding HasUnread, Converter={StaticResource BoolToWeightConverter}}">
+                                        <Run Text="{Binding Subject, Mode=OneWay}"/>
+                                        <Run Text=" "/>
+                                        <Run Text="{Binding Count, StringFormat=({0}), Mode=OneWay}"/>
+                                    </TextBlock>
+                                    <TextBlock Text="{Binding Preview}"
+                                               FontSize="11" Opacity="0.7"
+                                               TextTrimming="CharacterEllipsis">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock">
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding Preview}" Value="">
+                                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+                                </StackPanel>
+                            </HierarchicalDataTemplate>
+
+                            <!-- Level 2: individual message row matching the ListView column layout -->
+                            <DataTemplate DataType="{x:Type models:MailMessageSummary}">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="180"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="80"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="{Binding From}"
+                                               FontWeight="{Binding IsRead, Converter={StaticResource BoolToWeightConverter}}"
+                                               TextTrimming="CharacterEllipsis"/>
+                                    <TextBlock Grid.Column="1" Text="{Binding Subject}"
+                                               FontWeight="{Binding IsRead, Converter={StaticResource BoolToWeightConverter}}"
+                                               TextTrimming="CharacterEllipsis"/>
+                                    <TextBlock Grid.Column="2" Text="{Binding DateDisplay}"
+                                               TextAlignment="Right"/>
+                                </Grid>
+                            </DataTemplate>
+                        </TreeView.Resources>
+                        <TreeView.ItemContainerStyle>
+                            <!-- Style for root-level conversation group nodes: starts collapsed -->
+                            <Style TargetType="TreeViewItem" BasedOn="{StaticResource {x:Type TreeViewItem}}">
+                                <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}"/>
+                                <Setter Property="AutomationProperties.Name" Value="{Binding AutomationName}"/>
+                            </Style>
+                        </TreeView.ItemContainerStyle>
+                    </TreeView>
+
+                    </Grid>
                 </DockPanel>
 
             </DockPanel>

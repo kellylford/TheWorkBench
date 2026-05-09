@@ -49,4 +49,13 @@
         <Setter Property="Margin" Value="2,0"/>
     </Style>
 
+    <!-- Toolbar toggle button (e.g. Conversation view) — same sizing as ToolbarButton. -->
+    <Style x:Key="ToolbarToggleButton" TargetType="ToggleButton">
+        <Setter Property="FocusVisualStyle" Value="{StaticResource FocusVisual}"/>
+        <Setter Property="MinWidth" Value="75"/>
+        <Setter Property="Margin" Value="2,0"/>
+        <Setter Property="Padding" Value="8,4"/>
+        <Setter Property="MinHeight" Value="28"/>
+    </Style>
+
 </ResourceDictionary>
