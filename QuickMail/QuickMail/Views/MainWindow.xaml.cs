@@ -458,14 +458,24 @@ public partial class MainWindow : Window
                 if (_vm.IsMessageOpen && _vm.MessageDetail != null)
                     await ShowMessageBodyAsync(_vm.MessageDetail);
             }
-            else if (ConversationTree.SelectedItem is ConversationGroup &&
-                     ConversationTree.SelectedItem != null)
+            else if (ConversationTree.SelectedItem is ConversationGroup group)
             {
-                // Toggle expand/collapse on the selected conversation node.
                 e.Handled = true;
-                if (ConversationTree.ItemContainerGenerator.ContainerFromItem(
-                        ConversationTree.SelectedItem) is TreeViewItem tvi)
-                    tvi.IsExpanded = !tvi.IsExpanded;
+                if (group.Messages.Count == 1)
+                {
+                    // Single-message conversation: open the message directly.
+                    var msg = group.Messages[0];
+                    _vm.SelectedMessage = msg;
+                    await _vm.SelectMessageCommand.ExecuteAsync(msg);
+                    if (_vm.IsMessageOpen && _vm.MessageDetail != null)
+                        await ShowMessageBodyAsync(_vm.MessageDetail);
+                }
+                else
+                {
+                    // Toggle expand/collapse on the selected conversation node.
+                    if (ConversationTree.ItemContainerGenerator.ContainerFromItem(group) is TreeViewItem tvi)
+                        tvi.IsExpanded = !tvi.IsExpanded;
+                }
             }
         }
         else if (e.Key == Key.Delete)

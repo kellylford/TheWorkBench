@@ -75,7 +75,7 @@ public partial class MainViewModel : ObservableObject
     private bool _isMessageOpen;
 
     [ObservableProperty]
-    private bool _isConversationView;
+    private bool _isConversationView = true;
 
     [ObservableProperty]
     private ObservableCollection<ConversationGroup> _conversations = [];
@@ -656,6 +656,9 @@ public partial class MainViewModel : ObservableObject
 
             foreach (var msg in toDelete)
                 Messages.Remove(msg);
+
+            if (IsConversationView)
+                ScheduleConversationRebuild();
 
             if (Messages.Count > 0)
             {
