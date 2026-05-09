@@ -333,6 +333,9 @@
                               BorderThickness="0"
                               TabIndex="3"
                               KeyboardNavigation.TabNavigation="Once"
+                              VirtualizingPanel.IsVirtualizing="True"
+                              VirtualizingPanel.VirtualizationMode="Recycling"
+                              ScrollViewer.CanContentScroll="True"
                               GotKeyboardFocus="ConversationTree_GotKeyboardFocus"
                               SelectedItemChanged="ConversationTree_SelectedItemChanged"
                               PreviewKeyDown="ConversationTree_PreviewKeyDown">

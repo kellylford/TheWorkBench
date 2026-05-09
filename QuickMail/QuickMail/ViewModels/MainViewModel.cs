@@ -28,6 +28,9 @@ public partial class MainViewModel : ObservableObject
     // How many messages to fetch; increased by LoadMoreMessagesCommand
     private int _messageLimit = 100;
 
+    // Version stamp for conversation rebuilds; latest wins, stale results discarded
+    private int _conversationRebuildVersion;
+
     // Retains folder lists for every account that has been connected this session
     private readonly Dictionary<Guid, List<MailFolderModel>> _cachedFolders = new();
     public IReadOnlyDictionary<Guid, List<MailFolderModel>> CachedFolders => _cachedFolders;
@@ -176,7 +179,7 @@ public partial class MainViewModel : ObservableObject
         StatusText = $"{Messages.Count} messages";
 
         if (IsConversationView)
-            BuildConversations();
+            ScheduleConversationRebuild();
     }
     private void OnMessagesRemoved(IReadOnlyList<MailMessageSummary> removed)
     {
@@ -205,7 +208,7 @@ public partial class MainViewModel : ObservableObject
             StatusText = $"{Messages.Count} messages";
 
         if (IsConversationView)
-            BuildConversations();
+            ScheduleConversationRebuild();
     }
 
     // Binary-insert into the descending-by-date Messages collection.
@@ -342,7 +345,7 @@ public partial class MainViewModel : ObservableObject
     partial void OnIsConversationViewChanged(bool value)
     {
         if (value)
-            BuildConversations();
+            ScheduleConversationRebuild();
         else
             Conversations = [];
     }
@@ -351,13 +354,28 @@ public partial class MainViewModel : ObservableObject
     partial void OnMessagesChanged(ObservableCollection<MailMessageSummary> value)
     {
         if (IsConversationView)
-            BuildConversations();
+            ScheduleConversationRebuild();
     }
 
-    private void BuildConversations()
+    /// <summary>
+    /// Rebuilds Conversations on a background thread to avoid blocking the UI.
+    /// Uses a version stamp so that rapid successive calls only apply the latest result.
+    /// Must be called from the UI thread (takes a snapshot before handing off).
+    /// </summary>
+    private void ScheduleConversationRebuild()
     {
-        var groups = ConversationBuilder.Build(Messages);
-        Conversations = new ObservableCollection<ConversationGroup>(groups);
+        var version  = Interlocked.Increment(ref _conversationRebuildVersion);
+        var snapshot = Messages.ToList(); // snapshot on UI thread; safe to read on background
+        Task.Run(() =>
+        {
+            var groups = ConversationBuilder.Build(snapshot);
+            App.Current.Dispatcher.InvokeAsync(() =>
+            {
+                // Discard stale results if a newer rebuild was already scheduled
+                if (version == _conversationRebuildVersion)
+                    Conversations = new ObservableCollection<ConversationGroup>(groups);
+            });
+        });
     }
 
     [RelayCommand]
