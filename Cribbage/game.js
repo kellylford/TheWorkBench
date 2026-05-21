@@ -1,28 +1,33 @@
 // Card and Game Classes
 class Card {
+    static RANK_ORDER = Object.freeze(['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K']);
+    static RANK_VALUES = Object.freeze({
+        'A': 1, '2': 2, '3': 3, '4': 4, '5': 5, '6': 6, '7': 7,
+        '8': 8, '9': 9, '10': 10, 'J': 10, 'Q': 10, 'K': 10
+    });
+    static RANK_NAMES = Object.freeze({
+        'A': 'Ace', '2': 'Two', '3': 'Three', '4': 'Four', '5': 'Five',
+        '6': 'Six', '7': 'Seven', '8': 'Eight', '9': 'Nine', '10': 'Ten',
+        'J': 'Jack', 'Q': 'Queen', 'K': 'King'
+    });
+    static SUIT_NAMES = Object.freeze({'♥': 'Hearts', '♦': 'Diamonds', '♣': 'Clubs', '♠': 'Spades'});
+
     constructor(rank, suit) {
         this.rank = rank;
         this.suit = suit;
     }
 
     get value() {
-        const rankValue = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'].indexOf(this.rank) + 1;
-        return rankValue >= 10 ? 10 : rankValue;
+        return Card.RANK_VALUES[this.rank];
     }
 
     get rankValue() {
         // For sorting purposes: Ace=1, 2=2, ..., King=13
-        return ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'].indexOf(this.rank) + 1;
+        return Card.RANK_ORDER.indexOf(this.rank) + 1;
     }
 
     get name() {
-        const rankNames = {
-            'A': 'Ace', '2': 'Two', '3': 'Three', '4': 'Four', '5': 'Five',
-            '6': 'Six', '7': 'Seven', '8': 'Eight', '9': 'Nine', '10': 'Ten',
-            'J': 'Jack', 'Q': 'Queen', 'K': 'King'
-        };
-        const suitNames = {'♥': 'Hearts', '♦': 'Diamonds', '♣': 'Clubs', '♠': 'Spades'};
-        return `${rankNames[this.rank]} of ${suitNames[this.suit]}`;
+        return `${Card.RANK_NAMES[this.rank]} of ${Card.SUIT_NAMES[this.suit]}`;
     }
 
     get suitSymbol() {
@@ -344,8 +349,7 @@ class CribbageGame {
     }
 
     isRun(cards) {
-        const ranks = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
-        const values = cards.map(c => ranks.indexOf(c.rank)).sort((a, b) => a - b);
+        const values = cards.map(c => Card.RANK_ORDER.indexOf(c.rank)).sort((a, b) => a - b);
         
         for (let i = 1; i < values.length; i++) {
             if (values[i] !== values[i - 1] + 1) {
@@ -555,7 +559,6 @@ class CribbageGame {
     }
 
     findBestRun(cards) {
-        const ranks = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
         let maxScore = 0;
 
         for (let len = 5; len >= 3; len--) {
@@ -566,7 +569,7 @@ class CribbageGame {
                 }
                 
                 if (subset.length === len) {
-                    const values = subset.map(c => ranks.indexOf(c.rank)).sort((a, b) => a - b);
+                    const values = subset.map(c => Card.RANK_ORDER.indexOf(c.rank)).sort((a, b) => a - b);
                     let isRun = true;
                     for (let k = 1; k < values.length; k++) {
                         if (values[k] !== values[k - 1] + 1) {
@@ -886,26 +889,9 @@ class GameUI {
             this.updateUI();
         } else if (this.game.state === 'PLAY' && this.game.currentTurn === this.game.player) {
             if (!this.game.player.playedCards.includes(card) && this.game.currentCount + card.value <= 31) {
-                // Batch messages from playing a card
-                this.suppressIndividualAnnouncements = true;
-                const messagesBefore = this.elements.statusMessages.children.length;
-                
-                this.game.playCard(this.game.player, card);
-                
-                this.suppressIndividualAnnouncements = false;
-                
-                // Collect and batch announce the messages
-                const messagesAfter = this.elements.statusMessages.children.length;
-                const newMessageCount = messagesAfter - messagesBefore;
-                
-                if (newMessageCount > 0) {
-                    const messages = [];
-                    for (let i = 0; i < newMessageCount && i < this.elements.statusMessages.children.length; i++) {
-                        messages.push(this.elements.statusMessages.children[i].textContent);
-                    }
-                    messages.reverse().forEach(msg => this.queueAnnouncement(msg));
-                    this.batchAnnounce(150);
-                }
+                this.withBatchedAnnouncements(() => {
+                    this.game.playCard(this.game.player, card);
+                });
                 
                 // Adjust currentCardIndex after playing a card
                 // If we played the card at or before current index, shift focus left
@@ -926,29 +912,10 @@ class GameUI {
     }
 
     handleCut() {
-        // Suppress individual announcements and collect them for batching
-        this.suppressIndividualAnnouncements = true;
-        const messagesBefore = this.elements.statusMessages.children.length;
-        
-        this.game.cutForDeal();
-        this.updateUI();
-        
-        // Re-enable individual announcements
-        this.suppressIndividualAnnouncements = false;
-        
-        // Batch announce the cut results
-        const messagesAfter = this.elements.statusMessages.children.length;
-        const newMessageCount = messagesAfter - messagesBefore;
-        
-        if (newMessageCount > 0) {
-            const messages = [];
-            for (let i = 0; i < newMessageCount && i < this.elements.statusMessages.children.length; i++) {
-                messages.push(this.elements.statusMessages.children[i].textContent);
-            }
-            // Queue all messages and batch them
-            messages.reverse().forEach(msg => this.queueAnnouncement(msg));
-            this.batchAnnounce(150);
-        }
+        this.withBatchedAnnouncements(() => {
+            this.game.cutForDeal();
+            this.updateUI();
+        });
         
         if (this.game.state === 'DISCARD') {
             setTimeout(() => this.elements.playerHand.focus(), 100);
@@ -956,26 +923,9 @@ class GameUI {
     }
 
     handleGo() {
-        // Batch messages from saying Go
-        this.suppressIndividualAnnouncements = true;
-        const messagesBefore = this.elements.statusMessages.children.length;
-        
-        this.game.sayGo();
-        
-        this.suppressIndividualAnnouncements = false;
-        
-        // Collect and batch announce the messages
-        const messagesAfter = this.elements.statusMessages.children.length;
-        const newMessageCount = messagesAfter - messagesBefore;
-        
-        if (newMessageCount > 0) {
-            const messages = [];
-            for (let i = 0; i < newMessageCount && i < this.elements.statusMessages.children.length; i++) {
-                messages.push(this.elements.statusMessages.children[i].textContent);
-            }
-            messages.reverse().forEach(msg => this.queueAnnouncement(msg));
-            this.batchAnnounce(150);
-        }
+        this.withBatchedAnnouncements(() => {
+            this.game.sayGo();
+        });
         
         this.updateUI();
         // Only schedule computer play if game is still in PLAY state
@@ -987,31 +937,12 @@ class GameUI {
     handleContinue() {
         // Handle discard state
         if (this.game.state === 'DISCARD' && this.game.selectedForDiscard.size === 2) {
-            // Suppress individual announcements and collect them for batching
-            this.suppressIndividualAnnouncements = true;
-            const messagesBefore = this.elements.statusMessages.children.length;
-            
-            const indices = Array.from(this.game.selectedForDiscard).sort((a, b) => b - a);
-            this.game.discardToCrib(indices);
-            this.currentCardIndex = 0;
-            this.updateUI();
-            
-            // Re-enable individual announcements
-            this.suppressIndividualAnnouncements = false;
-            
-            // Batch announce the discard/cut card results
-            const messagesAfter = this.elements.statusMessages.children.length;
-            const newMessageCount = messagesAfter - messagesBefore;
-            
-            if (newMessageCount > 0) {
-                const messages = [];
-                for (let i = 0; i < newMessageCount && i < this.elements.statusMessages.children.length; i++) {
-                    messages.push(this.elements.statusMessages.children[i].textContent);
-                }
-                // Queue all messages and batch them
-                messages.reverse().forEach(msg => this.queueAnnouncement(msg));
-                this.batchAnnounce(150);
-            }
+            this.withBatchedAnnouncements(() => {
+                const indices = Array.from(this.game.selectedForDiscard).sort((a, b) => b - a);
+                this.game.discardToCrib(indices);
+                this.currentCardIndex = 0;
+                this.updateUI();
+            });
             
             // Only schedule computer play if game is still in PLAY state (not GAME_OVER)
             if (this.game.state === 'PLAY' && this.game.currentTurn === this.game.computer) {
@@ -1020,29 +951,10 @@ class GameUI {
         }
         // Handle continue states
         else if (this.game.state === 'PAUSE_BEFORE_COUNT') {
-            // Suppress individual announcements and collect them for batching
-            this.suppressIndividualAnnouncements = true;
-            const messagesBefore = this.elements.statusMessages.children.length;
-            
-            this.game.countHands();
-            this.updateUI();
-            
-            // Re-enable individual announcements
-            this.suppressIndividualAnnouncements = false;
-            
-            // Batch announce the hand counting results with current scores
-            const messagesAfter = this.elements.statusMessages.children.length;
-            const newMessageCount = messagesAfter - messagesBefore;
-            
-            if (newMessageCount > 0) {
-                const messages = [];
-                for (let i = 0; i < newMessageCount && i < this.elements.statusMessages.children.length; i++) {
-                    messages.push(this.elements.statusMessages.children[i].textContent);
-                }
-                // Queue all messages and batch them (score is already included in the messages)
-                messages.reverse().forEach(msg => this.queueAnnouncement(msg));
-                this.batchAnnounce(150);
-            }
+            this.withBatchedAnnouncements(() => {
+                this.game.countHands();
+                this.updateUI();
+            });
             // Update UI again to ensure Continue button shows for ROUND_OVER state
             this.updateUI();
         } else if (this.game.state === 'PAUSE_31' || this.game.state === 'PAUSE_GO') {
@@ -1065,52 +977,16 @@ class GameUI {
                 }
             }
         } else if (this.game.state === 'ROUND_OVER') {
-            // Batch messages from starting a new round
-            this.suppressIndividualAnnouncements = true;
-            const messagesBefore = this.elements.statusMessages.children.length;
-            
-            this.game.startRound();
-            this.currentCardIndex = 0;
-            
-            this.suppressIndividualAnnouncements = false;
-            
-            // Collect and batch announce the messages
-            const messagesAfter = this.elements.statusMessages.children.length;
-            const newMessageCount = messagesAfter - messagesBefore;
-            
-            if (newMessageCount > 0) {
-                const messages = [];
-                for (let i = 0; i < newMessageCount && i < this.elements.statusMessages.children.length; i++) {
-                    messages.push(this.elements.statusMessages.children[i].textContent);
-                }
-                messages.reverse().forEach(msg => this.queueAnnouncement(msg));
-                this.batchAnnounce(150);
-            }
-            
+            this.withBatchedAnnouncements(() => {
+                this.game.startRound();
+                this.currentCardIndex = 0;
+            });
             this.updateUI();
         } else if (this.game.state === 'GAME_OVER') {
-            // Start a new game
-            this.suppressIndividualAnnouncements = true;
-            const messagesBefore = this.elements.statusMessages.children.length;
-            
-            this.game.startNewGame();
-            this.currentCardIndex = 0;
-            
-            this.suppressIndividualAnnouncements = false;
-            
-            // Collect and batch announce the messages
-            const messagesAfter = this.elements.statusMessages.children.length;
-            const newMessageCount = messagesAfter - messagesBefore;
-            
-            if (newMessageCount > 0) {
-                const messages = [];
-                for (let i = 0; i < newMessageCount && i < this.elements.statusMessages.children.length; i++) {
-                    messages.push(this.elements.statusMessages.children[i].textContent);
-                }
-                messages.reverse().forEach(msg => this.queueAnnouncement(msg));
-                this.batchAnnounce(150);
-            }
-            
+            this.withBatchedAnnouncements(() => {
+                this.game.startNewGame();
+                this.currentCardIndex = 0;
+            });
             this.updateUI();
         }
     }
@@ -1124,27 +1000,10 @@ class GameUI {
         );
 
         if (playableCards.length > 0) {
-            // Enable batching for multiple messages
-            this.suppressIndividualAnnouncements = true;
-            const messagesBefore = this.elements.statusMessages.children.length;
-            
-            const cardToPlay = this.game.selectBestPlayCard(playableCards);
-            this.game.playCard(this.game.computer, cardToPlay);
-            
-            this.suppressIndividualAnnouncements = false;
-            
-            // Collect and batch announce the messages
-            const messagesAfter = this.elements.statusMessages.children.length;
-            const newMessageCount = messagesAfter - messagesBefore;
-            
-            if (newMessageCount > 0) {
-                const messages = [];
-                for (let i = 0; i < newMessageCount && i < this.elements.statusMessages.children.length; i++) {
-                    messages.push(this.elements.statusMessages.children[i].textContent);
-                }
-                messages.reverse().forEach(msg => this.queueAnnouncement(msg));
-                this.batchAnnounce(150);
-            }
+            this.withBatchedAnnouncements(() => {
+                const cardToPlay = this.game.selectBestPlayCard(playableCards);
+                this.game.playCard(this.game.computer, cardToPlay);
+            });
             
             this.updateUI();
             
@@ -1152,26 +1011,9 @@ class GameUI {
                 setTimeout(() => this.computerPlay(), 1000);
             }
         } else {
-            // Enable batching for multiple messages
-            this.suppressIndividualAnnouncements = true;
-            const messagesBefore = this.elements.statusMessages.children.length;
-            
-            this.game.sayGo();
-            
-            this.suppressIndividualAnnouncements = false;
-            
-            // Collect and batch announce the messages
-            const messagesAfter = this.elements.statusMessages.children.length;
-            const newMessageCount = messagesAfter - messagesBefore;
-            
-            if (newMessageCount > 0) {
-                const messages = [];
-                for (let i = 0; i < newMessageCount && i < this.elements.statusMessages.children.length; i++) {
-                    messages.push(this.elements.statusMessages.children[i].textContent);
-                }
-                messages.reverse().forEach(msg => this.queueAnnouncement(msg));
-                this.batchAnnounce(150);
-            }
+            this.withBatchedAnnouncements(() => {
+                this.game.sayGo();
+            });
             
             this.updateUI();
             // After sayGo, continue playing if still in PLAY state and computer's turn
@@ -1186,8 +1028,11 @@ class GameUI {
         // Show count during PLAY and during pause states (PAUSE_31, PAUSE_GO)
         if ((this.game.state === 'PLAY' || this.game.state === 'PAUSE_31' || this.game.state === 'PAUSE_GO') && this.game.currentCount > 0) {
             this.elements.playCountDisplay.textContent = `Count: ${this.game.currentCount}`;
+            // Add warning class when approaching 31 (non-color indicator for color-blind users)
+            this.elements.playCountDisplay.classList.toggle('play-count-warning', this.game.currentCount >= 25);
         } else {
             this.elements.playCountDisplay.textContent = '';
+            this.elements.playCountDisplay.classList.remove('play-count-warning');
         }
 
         // Update peg positions
@@ -1418,6 +1263,23 @@ class GameUI {
             }
             this.announcementTimeout = null;
         }, delay);
+    }
+
+    withBatchedAnnouncements(fn) {
+        this.suppressIndividualAnnouncements = true;
+        const messagesBefore = this.elements.statusMessages.children.length;
+        fn();
+        this.suppressIndividualAnnouncements = false;
+        const messagesAfter = this.elements.statusMessages.children.length;
+        const newMessageCount = messagesAfter - messagesBefore;
+        if (newMessageCount > 0) {
+            const messages = [];
+            for (let i = 0; i < newMessageCount && i < this.elements.statusMessages.children.length; i++) {
+                messages.push(this.elements.statusMessages.children[i].textContent);
+            }
+            messages.reverse().forEach(msg => this.queueAnnouncement(msg));
+            this.batchAnnounce(150);
+        }
     }
 }
 

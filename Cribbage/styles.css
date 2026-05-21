@@ -29,6 +29,11 @@ body {
     border: 3px solid #3d1e0a;
 }
 
+.cribbage-board:focus-visible {
+    outline: 3px solid #f39c12;
+    outline-offset: 3px;
+}
+
 .board-row {
     display: flex;
     align-items: center;
@@ -80,7 +85,7 @@ body {
     border: 2px solid #34495E;
 }
 
-.game-status h3 {
+.game-status h2 {
     margin-bottom: 5px;
     color: #2c3e50;
     font-size: 14px;
@@ -122,7 +127,7 @@ body {
     margin-bottom: 20px;
 }
 
-.hand-section h3 {
+.hand-section h2 {
     color: #2c3e50;
     font-size: 16px;
     font-weight: 600;
@@ -140,6 +145,12 @@ body {
     margin-left: 10px;
     min-width: 80px;
     text-align: center;
+    border: 2px solid #a93226;
+}
+
+.play-count-display.play-count-warning {
+    border: 3px dashed #f1c40f;
+    background: #922b21;
 }
 
 .play-count-display:empty {
@@ -342,9 +353,10 @@ body {
 }
 
 .game-button:disabled {
-    background: #5a6a6c;
+    background: #7a8a8c;
     cursor: not-allowed;
-    color: #e0e0e0;
+    color: #ffffff;
+    opacity: 0.7;
 }
 
 .game-button:focus-visible {
@@ -425,7 +437,7 @@ body {
         margin-bottom: 10px;
     }
 
-    .game-status h3 {
+    .game-status h2 {
         font-size: 14px;
         margin-bottom: 5px;
     }
@@ -443,7 +455,7 @@ body {
         margin-bottom: 10px;
     }
 
-    .hand-section h3 {
+    .hand-section h2 {
         font-size: 14px;
         margin-bottom: 5px;
     }
@@ -454,9 +466,9 @@ body {
     }
 
     .card {
-        width: 60px;
-        height: 24px;
-        margin: 2px;
+        width: 70px;
+        height: 48px;
+        margin: 4px;
     }
 
     .card-rank {
@@ -516,4 +528,15 @@ body {
 
 .footer-links a.issue-link {
     color: #1a4dbb;
+}
+
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
 }
