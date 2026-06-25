@@ -33,6 +33,8 @@ jobs:
             --standalone \
             devdocs/CONTROLLING_IPHONE_FROM_MAC.md \
             --output _site/devdocs/controlling-iphone-from-mac.html
+          # Remove .gitignore from _site so the action doesn't exclude the generated HTML
+          rm -f _site/.gitignore
 
       - name: Deploy to gh-pages
         uses: peaceiris/actions-gh-pages@v4
