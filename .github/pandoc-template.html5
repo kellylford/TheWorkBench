@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>$if(title)$$title$$endif$</title>
+    $if(description)<meta name="description" content="$description$">$endif$
+    <style>
+        /* WCAG 2.2 AA color contrast: all text meets 4.5:1 ratio */
+        :root {
+            --bg: #ffffff;
+            --text: #1a1a1a;
+            --heading: #0d3b66;
+            --link: #0a6ebe;
+            --link-visited: #7a4fa3;
+            --code-bg: #f5f5f5;
+            --code-text: #1a1a1a;
+            --border: #cccccc;
+            --table-header-bg: #0d3b66;
+            --table-header-text: #ffffff;
+            --table-row-alt: #f5f5f5;
+            --note-bg: #fff9e6;
+            --note-border: #e6c200;
+            --focus-outline: #0a6ebe;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg: #1a1a1a;
+                --text: #e0e0e0;
+                --heading: #7fb3ff;
+                --link: #66b3ff;
+                --link-visited: #c49ae6;
+                --code-bg: #2a2a2a;
+                --code-text: #e0e0e0;
+                --border: #555555;
+                --table-header-bg: #2a4a6a;
+                --table-header-text: #ffffff;
+                --table-row-alt: #2a2a2a;
+                --note-bg: #3a3520;
+                --note-border: #8a7a20;
+                --focus-outline: #66b3ff;
+            }
+        }
+
+        html {
+            font-size: 100%;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            font-size: 1.0625rem;
+            line-height: 1.6;
+            color: var(--text);
+            background-color: var(--bg);
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Skip link for keyboard users — visible on focus only */
+        .skip-link {
+            position: absolute;
+            top: -100px;
+            left: 0;
+            background: var(--bg);
+            color: var(--link);
+            padding: 0.75rem 1rem;
+            text-decoration: underline;
+            z-index: 1000;
+            font-weight: bold;
+        }
+
+        .skip-link:focus {
+            top: 0;
+            outline: 3px solid var(--focus-outline);
+            outline-offset: 2px;
+        }
+
+        /* Visible focus outline for all interactive elements (WCAG 2.4.7) */
+        a:focus, button:focus, [tabindex]:focus {
+            outline: 3px solid var(--focus-outline);
+            outline-offset: 2px;
+        }
+
+        main {
+            max-width: 50rem;
+            margin: 0 auto;
+            padding: 1.5rem 1rem 3rem;
+        }
+
+        h1 {
+            font-size: 1.75rem;
+            line-height: 1.3;
+            color: var(--heading);
+            margin-top: 0;
+            margin-bottom: 0.5rem;
+        }
+
+        h2 {
+            font-size: 1.4rem;
+            line-height: 1.3;
+            color: var(--heading);
+            margin-top: 2.5rem;
+            margin-bottom: 0.75rem;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 0.25rem;
+        }
+
+        h3 {
+            font-size: 1.15rem;
+            line-height: 1.3;
+            color: var(--heading);
+            margin-top: 1.75rem;
+            margin-bottom: 0.5rem;
+        }
+
+        h4 {
+            font-size: 1rem;
+            line-height: 1.3;
+            color: var(--heading);
+            margin-top: 1.25rem;
+            margin-bottom: 0.5rem;
+        }
+
+        p {
+            margin: 0.75rem 0;
+        }
+
+        a {
+            color: var(--link);
+            text-decoration: underline;
+        }
+
+        a:visited {
+            color: var(--link-visited);
+        }
+
+        ul, ol {
+            margin: 0.75rem 0;
+            padding-left: 1.75rem;
+        }
+
+        li {
+            margin: 0.3rem 0;
+        }
+
+        /* Nested lists — indent but keep readable */
+        ul ul, ol ol, ul ol, ol ul {
+            margin: 0.3rem 0;
+        }
+
+        code {
+            font-family: "SF Mono", "Fira Code", "Cascadia Code", Menlo, Consolas, monospace;
+            font-size: 0.9em;
+            background-color: var(--code-bg);
+            color: var(--code-text);
+            padding: 0.15em 0.35em;
+            border-radius: 3px;
+            border: 1px solid var(--border);
+        }
+
+        pre {
+            background-color: var(--code-bg);
+            color: var(--code-text);
+            padding: 1rem;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            margin: 1rem 0;
+            overflow-x: hidden;
+            word-break: break-word;
+            white-space: pre-wrap;
+        }
+
+        pre code {
+            background: none;
+            border: none;
+            padding: 0;
+            font-size: 0.875rem;
+            line-height: 1.5;
+        }
+
+        /* Tables with proper header cells (WCAG 1.3.1) */
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 1rem 0;
+            font-size: 0.95rem;
+        }
+
+        th, td {
+            border: 1px solid var(--border);
+            padding: 0.6rem 0.75rem;
+            text-align: left;
+            vertical-align: top;
+        }
+
+        th {
+            background-color: var(--table-header-bg);
+            color: var(--table-header-text);
+            font-weight: bold;
+        }
+
+        tbody tr:nth-child(even) {
+            background-color: var(--table-row-alt);
+        }
+
+        /* Note/transparency box */
+        .note {
+            background-color: var(--note-bg);
+            border-left: 4px solid var(--note-border);
+            padding: 0.75rem 1rem;
+            margin: 1rem 0;
+            border-radius: 0 4px 4px 0;
+        }
+
+        .note p {
+            margin: 0.3rem 0;
+        }
+
+        hr {
+            border: none;
+            border-top: 2px solid var(--border);
+            margin: 2rem 0;
+        }
+
+        /* Strong/bold text — doesn't rely on color alone (WCAG 1.4.1) */
+        strong {
+            font-weight: 700;
+        }
+
+        /* Footer */
+        footer {
+            margin-top: 3rem;
+            padding-top: 1rem;
+            border-top: 2px solid var(--border);
+            font-size: 0.875rem;
+            color: var(--text);
+        }
+
+        /* Reduced motion (WCAG 2.3.3) */
+        @media (prefers-reduced-motion: reduce) {
+            html {
+                scroll-behavior: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+
+    <main id="main-content">
+$body$
+        <footer>
+            <p>Auto-generated from markdown source. Last updated: $if(date)$$date$$else$$(see git history)$endif$</p>
+        </footer>
+    </main>
+</body>
+</html>
