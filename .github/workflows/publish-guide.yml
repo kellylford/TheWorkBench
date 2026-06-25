@@ -24,19 +24,21 @@ jobs:
 
       - name: Convert Markdown to HTML
         run: |
+          mkdir -p _site/devdocs
+          rsync -a --exclude='_site' . _site/
           pandoc \
             --from markdown+smart \
             --to html5 \
             --template .github/pandoc-template.html5 \
             --standalone \
             devdocs/CONTROLLING_IPHONE_FROM_MAC.md \
-            --output devdocs/controlling-iphone-from-mac.html
+            --output _site/devdocs/controlling-iphone-from-mac.html
 
       - name: Deploy to gh-pages
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: .
+          publish_dir: ./_site
           publish_branch: gh-pages
           force_orphan: true
           commit_message: "Publish: auto-generated HTML from markdown"
