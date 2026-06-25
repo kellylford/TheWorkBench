@@ -166,14 +166,10 @@
             padding: 1rem;
             border-radius: 6px;
             border: 1px solid var(--border);
-            overflow-x: auto;
             margin: 1rem 0;
-            outline: 2px solid transparent;
-            outline-offset: 2px;
-        }
-
-        pre:focus {
-            outline: 2px solid var(--focus-outline);
+            overflow-x: hidden;
+            word-break: break-word;
+            white-space: pre-wrap;
         }
 
         pre code {
@@ -288,7 +284,7 @@
 
         <h3>Finding Your Device</h3>
 
-        <pre tabindex="0"><code># List all connected devices (physical and simulators)
+        <pre><code># List all connected devices (physical and simulators)
 DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcrun devicectl list devices</code></pre>
 
         <p>This shows every device <code>devicectl</code> knows about, including:</p>
@@ -301,7 +297,7 @@ DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcrun devicectl li
 
         <h3>Getting Device Details</h3>
 
-        <pre tabindex="0"><code># Get full info about a specific device
+        <pre><code># Get full info about a specific device
 DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcrun devicectl device info details --device "My iPhone"</code></pre>
 
         <p>You can identify the device by:</p>
@@ -313,7 +309,7 @@ DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcrun devicectl de
 
         <h3>Checking If a Device Is Ready</h3>
 
-        <pre tabindex="0"><code># Get detailed diagnostics
+        <pre><code># Get detailed diagnostics
 DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcrun devicectl device info details --device "My iPhone" --show diagnostics</code></pre>
 
         <p>This shows:</p>
@@ -330,7 +326,7 @@ DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcrun devicectl de
 
         <h3>Building for the Device</h3>
 
-        <pre tabindex="0"><code>DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcodebuild \
+        <pre><code>DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcodebuild \
   -project MyProject.xcodeproj \
   -scheme MyScheme \
   -configuration Debug \
@@ -346,17 +342,17 @@ DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcrun devicectl de
 
         <h3>Finding Your Device's UDID</h3>
 
-        <pre tabindex="0"><code>DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcrun devicectl list devices</code></pre>
+        <pre><code>DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcrun devicectl list devices</code></pre>
 
         <p>Or get it from device details:</p>
 
-        <pre tabindex="0"><code>DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcrun devicectl device info details --device "My iPhone" --show diagnostics</code></pre>
+        <pre><code>DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcrun devicectl device info details --device "My iPhone" --show diagnostics</code></pre>
 
         <p>Look for the <code>UDID</code> field in the output.</p>
 
         <h3>Checking Build Results</h3>
 
-        <pre tabindex="0"><code># Build and show only errors and result
+        <pre><code># Build and show only errors and result
 DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcodebuild \
   -project MyProject.xcodeproj \
   -scheme MyScheme \
@@ -370,29 +366,29 @@ DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcodebuild \
 
         <h3>Installing the App</h3>
 
-        <pre tabindex="0"><code>DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcrun devicectl device install app \
+        <pre><code>DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcrun devicectl device install app \
   --device "My iPhone" \
   "/Users/you/Library/Developer/Xcode/DerivedData/MyProject-abc123/Build/Products/Debug-iphoneos/MyApp.app"</code></pre>
 
         <p>The app path is in your DerivedData folder. You can find it with:</p>
 
-        <pre tabindex="0"><code># Find the built .app
+        <pre><code># Find the built .app
 find ~/Library/Developer/Xcode/DerivedData/MyProject-* -name "MyApp.app" -path "*/Debug-iphoneos/*" 2>/dev/null</code></pre>
 
         <h3>Launching the App</h3>
 
-        <pre tabindex="0"><code>DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcrun devicectl device process launch \
+        <pre><code>DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcrun devicectl device process launch \
   --device "My iPhone" \
   com.yourcompany.yourapp</code></pre>
 
         <p>Use the bundle identifier (not the app name). You can find it in your Xcode project's build settings, or:</p>
 
-        <pre tabindex="0"><code># Get bundle ID from the built app
+        <pre><code># Get bundle ID from the built app
 defaults read "/path/to/MyApp.app/Info.plist" CFBundleIdentifier</code></pre>
 
         <h3>Launching with Console Output</h3>
 
-        <pre tabindex="0"><code>DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcrun devicectl device process launch \
+        <pre><code>DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcrun devicectl device process launch \
   --device "My iPhone" \
   --terminate-existing \
   --console \
@@ -406,7 +402,7 @@ defaults read "/path/to/MyApp.app/Info.plist" CFBundleIdentifier</code></pre>
 
         <p><strong>Note:</strong> <code>--console</code> blocks until the app terminates. For background capture, pipe to a file:</p>
 
-        <pre tabindex="0"><code>DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcrun devicectl device process launch \
+        <pre><code>DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcrun devicectl device process launch \
   --device "My iPhone" \
   --terminate-existing \
   --console \
@@ -414,7 +410,7 @@ defaults read "/path/to/MyApp.app/Info.plist" CFBundleIdentifier</code></pre>
 
         <p>Then later:</p>
 
-        <pre tabindex="0"><code># Check captured logs
+        <pre><code># Check captured logs
 grep -i "error\|warning" /tmp/app_logs.txt</code></pre>
 
         <h2>Capturing Logs</h2>
@@ -425,7 +421,7 @@ grep -i "error\|warning" /tmp/app_logs.txt</code></pre>
 
         <h3>Listing Running Processes</h3>
 
-        <pre tabindex="0"><code>DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcrun devicectl device info processes \
+        <pre><code>DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcrun devicectl device info processes \
   --device "My iPhone"</code></pre>
 
         <p>This shows all running processes with their PIDs — useful for checking if a daemon or service is active.</p>
@@ -434,7 +430,7 @@ grep -i "error\|warning" /tmp/app_logs.txt</code></pre>
 
         <p>If you captured logs to a file with <code>tee</code>, you can filter:</p>
 
-        <pre tabindex="0"><code># Show only errors and warnings
+        <pre><code># Show only errors and warnings
 grep -i "error\|⚠️\|warning" /tmp/app_logs.txt
 
 # Show only your app's debug output
@@ -445,7 +441,7 @@ tail -20 /tmp/app_logs.txt</code></pre>
 
         <h2>Rebooting the Device</h2>
 
-        <pre tabindex="0"><code>DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcrun devicectl device reboot \
+        <pre><code>DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcrun devicectl device reboot \
   --device "My iPhone"</code></pre>
 
         <p>This is useful when:</p>
@@ -459,7 +455,7 @@ tail -20 /tmp/app_logs.txt</code></pre>
 
         <h2>Taking Screenshots</h2>
 
-        <pre tabindex="0"><code>DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcrun devicectl device capture screenshot \
+        <pre><code>DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcrun devicectl device capture screenshot \
   --device "My iPhone" \
   /tmp/screenshot.png</code></pre>
 
@@ -472,7 +468,7 @@ tail -20 /tmp/app_logs.txt</code></pre>
 
         <h3>Screen Recording</h3>
 
-        <pre tabindex="0"><code>DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcrun devicectl device capture screen-record \
+        <pre><code>DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcrun devicectl device capture screen-record \
   --device "My iPhone" \
   /tmp/recording.mp4</code></pre>
 
@@ -484,7 +480,7 @@ tail -20 /tmp/app_logs.txt</code></pre>
 
         <h3>Open a URL (Deep Linking)</h3>
 
-        <pre tabindex="0"><code>DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcrun devicectl device process openURL \
+        <pre><code>DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcrun devicectl device process openURL \
   --device "My iPhone" \
   "myapp://city/madison"</code></pre>
 
@@ -492,7 +488,7 @@ tail -20 /tmp/app_logs.txt</code></pre>
 
         <h3>Inject Text via Pasteboard</h3>
 
-        <pre tabindex="0"><code># Copy text to the device clipboard
+        <pre><code># Copy text to the device clipboard
 DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcrun devicectl device pasteboard copy \
   --device "My iPhone" \
   "text to paste"
@@ -505,7 +501,7 @@ DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcrun devicectl de
 
         <h3>Launch with Arguments</h3>
 
-        <pre tabindex="0"><code>DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcrun devicectl device process launch \
+        <pre><code>DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcrun devicectl device process launch \
   --device "My iPhone" \
   --terminate-existing \
   com.yourcompany.yourapp \
@@ -515,7 +511,7 @@ DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcrun devicectl de
 
         <h3>Launch with Environment Variables</h3>
 
-        <pre tabindex="0"><code>DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcrun devicectl device process launch \
+        <pre><code>DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcrun devicectl device process launch \
   --device "My iPhone" \
   --terminate-existing \
   --environment-variables '{"TEST_MODE": "true", "DEFAULT_CITY": "Madison"}' \
@@ -527,7 +523,7 @@ DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcrun devicectl de
 
         <p>For actual button-tapping and UI interaction automation, use Xcode's UI testing framework. This runs on the device and can tap buttons, swipe, type text, and verify UI state:</p>
 
-        <pre tabindex="0"><code># Run UI tests on the device
+        <pre><code># Run UI tests on the device
 DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcodebuild test \
   -project MyProject.xcodeproj \
   -scheme MyScheme \
@@ -547,7 +543,7 @@ DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcodebuild test \
 
         <h3>Simulate Location</h3>
 
-        <pre tabindex="0"><code>DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcrun devicectl device simulate location \
+        <pre><code>DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcrun devicectl device simulate location \
   --device "My iPhone" \
   --lat 43.0731 --lon -89.4012</code></pre>
 
@@ -555,7 +551,7 @@ DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcodebuild test \
 
         <h3>Send Memory Warnings</h3>
 
-        <pre tabindex="0"><code># Find your app's PID first
+        <pre><code># Find your app's PID first
 DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcrun devicectl device info processes \
   --device "My iPhone" | grep "yourapp"
 
@@ -566,7 +562,7 @@ DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcrun devicectl de
 
         <h3>Post Darwin Notifications</h3>
 
-        <pre tabindex="0"><code>DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcrun devicectl device notification post \
+        <pre><code>DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcrun devicectl device notification post \
   --device "My iPhone" \
   com.yourcompany.test.notification</code></pre>
 
@@ -576,7 +572,7 @@ DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer xcrun devicectl de
 
         <p>Here's a script that does everything in one shot:</p>
 
-        <pre tabindex="0"><code>#!/bin/bash
+        <pre><code>#!/bin/bash
 # Build, install, and launch — all in one command
 # Usage: ./deploy.sh
 
@@ -621,7 +617,7 @@ echo "Done!"</code></pre>
 
         <p>Build logs and device logs are verbose. Always pipe through <code>grep</code> to get just what you need:</p>
 
-        <pre tabindex="0"><code># Just errors
+        <pre><code># Just errors
 xcodebuild ... 2>&amp;1 | grep "error:"
 
 # Just your app's debug logs
@@ -629,7 +625,7 @@ xcrun devicectl ... --console ... 2>&amp;1 | grep "your-prefix"</code></pre>
 
         <h3>Use <code>tee</code> to Capture While Watching</h3>
 
-        <pre tabindex="0"><code>xcrun devicectl ... --console ... 2>&amp;1 | tee /tmp/logs.txt &amp;
+        <pre><code>xcrun devicectl ... --console ... 2>&amp;1 | tee /tmp/logs.txt &amp;
 # Do other things...
 grep "error" /tmp/logs.txt</code></pre>
 
@@ -637,7 +633,7 @@ grep "error" /tmp/logs.txt</code></pre>
 
         <p>If you're using Xcode beta, set it once:</p>
 
-        <pre tabindex="0"><code>export DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer</code></pre>
+        <pre><code>export DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer</code></pre>
 
         <p>Then all subsequent <code>xcrun</code> and <code>xcodebuild</code> commands use that Xcode version.</p>
 
@@ -653,7 +649,7 @@ grep "error" /tmp/logs.txt</code></pre>
 
         <p>If the phone is in a bad state (app won't launch, logs won't capture, model manager fails):</p>
 
-        <pre tabindex="0"><code>xcrun devicectl device reboot --device "My iPhone"</code></pre>
+        <pre><code>xcrun devicectl device reboot --device "My iPhone"</code></pre>
 
         <p>Wait 60 seconds, then try again.</p>
 
@@ -663,7 +659,7 @@ grep "error" /tmp/logs.txt</code></pre>
 
         <p>Make sure the device is paired and on the same Wi-Fi:</p>
 
-        <pre tabindex="0"><code>xcrun devicectl list devices</code></pre>
+        <pre><code>xcrun devicectl list devices</code></pre>
 
         <p>If it shows as "offline," the phone may be asleep. Wake it (tap the screen) and try again.</p>
 
@@ -671,13 +667,13 @@ grep "error" /tmp/logs.txt</code></pre>
 
         <p>The grep filter may have missed the error. Try without the filter:</p>
 
-        <pre tabindex="0"><code>xcodebuild ... build 2>&amp;1 | tail -30</code></pre>
+        <pre><code>xcodebuild ... build 2>&amp;1 | tail -30</code></pre>
 
         <h3>"App not installed" after build</h3>
 
         <p>The build succeeded but the app path is wrong. Find the correct path:</p>
 
-        <pre tabindex="0"><code>find ~/Library/Developer/Xcode/DerivedData/ -name "YourApp.app" -path "*/Debug-iphoneos/*" 2>/dev/null</code></pre>
+        <pre><code>find ~/Library/Developer/Xcode/DerivedData/ -name "YourApp.app" -path "*/Debug-iphoneos/*" 2>/dev/null</code></pre>
 
         <h3>Console shows no output</h3>
 
