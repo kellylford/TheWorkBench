@@ -30,7 +30,7 @@ jobs:
             --template .github/pandoc-template.html5 \
             --standalone \
             devdocs/CONTROLLING_IPHONE_FROM_MAC.md \
-            --output controlling-iphone-from-mac.html
+            --output devdocs/controlling-iphone-from-mac.html
 
       - name: Deploy to gh-pages
         uses: peaceiris/actions-gh-pages@v4
@@ -38,7 +38,5 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: .
           publish_branch: gh-pages
-          destination_dir: devdocs
-          keep_files: true
-          include_files: controlling-iphone-from-mac.html
-          commit_message: "Publish: controlling-iphone-from-mac.html from markdown"
+          force_orphan: true
+          commit_message: "Publish: auto-generated HTML from markdown"
