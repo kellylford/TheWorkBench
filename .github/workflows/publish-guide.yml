@@ -25,24 +25,35 @@ jobs:
       - name: Convert Markdown to HTML
         run: |
           pandoc \
-            --from markdown \
+            --from markdown+smart \
             --to html5 \
-            --template .github/pandoc-template.html5 \
+            --template "${{ github.workspace }}/.github/pandoc-template.html5" \
             --standalone \
-            devdocs/CONTROLLING_IPHONE_FROM_MAC.md \
-            --output devdocs/controlling-iphone-from-mac.html
+            "${{ github.workspace }}/devdocs/CONTROLLING_IPHONE_FROM_MAC.md" \
+            --output "${{ github.workspace }}/devdocs/controlling-iphone-from-mac.html"
+
+      - name: Check if HTML changed
+        id: check_changes
+        run: |
+          if git diff --quiet devdocs/controlling-iphone-from-mac.html; then
+            echo "changed=false" >> $GITHUB_OUTPUT
+          else
+            echo "changed=true" >> $GITHUB_OUTPUT
+          fi
 
       - name: Commit generated HTML
+        if: steps.check_changes.outputs.changed == 'true'
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           git add devdocs/controlling-iphone-from-mac.html
-          git diff --cached --exit-code || git commit -m "Auto-generate HTML from markdown
+          git commit -m "Auto-generate HTML from markdown
 
 - Source: devdocs/CONTROLLING_IPHONE_FROM_MAC.md
 - Generated with: Pandoc
 - Co-Authored-By: GitHub Actions <noreply@github.com>"
 
       - name: Push changes
+        if: steps.check_changes.outputs.changed == 'true'
         run: |
           git push
