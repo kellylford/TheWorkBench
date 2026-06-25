@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>$if(title)$$title$$endif$</title>
-    $if(description)<meta name="description" content="$description$">$endif$
+$if(description)$    <meta name="description" content="$description$">
+$endif$
     <style>
         /* WCAG 2.2 AA color contrast: all text meets 4.5:1 ratio */
         :root {
@@ -252,7 +253,7 @@
     <main id="main-content">
 $body$
         <footer>
-            <p>Auto-generated from markdown source. Last updated: $if(date)$$date$$else$$(see git history)$endif$</p>
+            <p>Auto-generated from markdown source. Last updated: $if(date)$$date$$else$(see git history)$endif$</p>
         </footer>
     </main>
 </body>
