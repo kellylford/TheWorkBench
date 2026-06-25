@@ -27,29 +27,18 @@ jobs:
           pandoc \
             --from markdown+smart \
             --to html5 \
-            --template "${{ github.workspace }}/.github/pandoc-template.html5" \
+            --template .github/pandoc-template.html5 \
             --standalone \
-            "${{ github.workspace }}/devdocs/CONTROLLING_IPHONE_FROM_MAC.md" \
-            --output "${{ github.workspace }}/devdocs/controlling-iphone-from-mac.html"
+            devdocs/CONTROLLING_IPHONE_FROM_MAC.md \
+            --output controlling-iphone-from-mac.html
 
-      - name: Check if HTML changed
-        id: check_changes
-        run: |
-          if git diff --quiet devdocs/controlling-iphone-from-mac.html; then
-            echo "changed=false" >> $GITHUB_OUTPUT
-          else
-            echo "changed=true" >> $GITHUB_OUTPUT
-          fi
-
-      - name: Commit and push generated HTML
-        if: steps.check_changes.outputs.changed == 'true'
-        run: |
-          git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git config --local user.name "github-actions[bot]"
-          git add devdocs/controlling-iphone-from-mac.html
-          git commit -m "Auto-generate HTML from markdown
-
-- Source: devdocs/CONTROLLING_IPHONE_FROM_MAC.md
-- Generated with: Pandoc
-- Co-Authored-By: GitHub Actions <noreply@github.com>"
-          git push
+      - name: Deploy to gh-pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: .
+          publish_branch: gh-pages
+          destination_dir: devdocs
+          keep_files: true
+          include_files: controlling-iphone-from-mac.html
+          commit_message: "Publish: controlling-iphone-from-mac.html from markdown"

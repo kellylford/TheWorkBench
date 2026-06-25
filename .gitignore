@@ -29,3 +29,6 @@ publish/
 
 # Claude Code session data (worktrees, local overrides)
 .claude/
+
+# Generated HTML (auto-published to gh-pages by GitHub Actions)
+devdocs/controlling-iphone-from-mac.html
