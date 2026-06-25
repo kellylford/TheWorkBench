@@ -1,3 +1,8 @@
+---
+title: "Controlling Your iPhone from Your Mac: A Guide for Blind Developers"
+description: "How to build, install, test, and debug an iOS app on your iPhone without touching the phone — using only your Mac and the command line."
+---
+
 # Controlling Your iPhone from Your Mac: A Guide for Blind Developers
 
 Note: This document was composed primarily by AI (glm-5.2:cloud) with limited human prompting to guide content creation.
