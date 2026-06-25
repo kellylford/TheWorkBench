@@ -1,0 +1,6 @@
+# Generated artifacts – never commit these
+work/
+*.iso
+*.zip
+win11arm-install/
+.DS_Store
