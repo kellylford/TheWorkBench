@@ -1,0 +1,18 @@
+{
+  "_comment": "Copy to %USERPROFILE%\\.claude\\speak-config.json. Read by speak-engine.ps1 only — speak-onecore.ps1 ignores it. Run scripts/speak-voices.ps1 to see what this machine actually has.",
+
+  "_engine": "jaws | nvda | onecore | sapi | auto  (auto = a running screen reader, else onecore)",
+  "engine": "auto",
+
+  "_voice": "Substring of the voice id or display name, from speak-voices.ps1's 'match' field. Ignored for jaws and nvda.",
+  "voice": "",
+
+  "_rate": "onecore: 0.5 to 6.0 (6 fastest). sapi: -10 to 10. null = fastest. IGNORED for jaws and nvda, deliberately — rate there is the user's own setting.",
+  "rate": null,
+
+  "_interrupt": "Whether a new reply cuts off the previous one still speaking.",
+  "interrupt": true,
+
+  "_nvdaClientDll": "Full path to nvdaControllerClient64.dll. Leave empty to auto-search %USERPROFILE%\\.claude and the NVDA install. The DLL does NOT ship with NVDA — get it from NV Access's controller client package.",
+  "nvdaClientDll": ""
+}
