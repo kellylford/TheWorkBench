@@ -39,6 +39,27 @@ has to be written out a second time as a tool call.
 That gets you a Windows system voice at maximum rate. To use your screen reader instead, or to
 pick a different voice, see below.
 
+## What this covers, and what it does not
+
+**This is Claude Code only.** The hook lives in Claude Code's `settings.json` and is run by
+Claude Code. Putting it in `%USERPROFILE%\.claude\settings.json` — as the quick start does —
+means it applies to **every Claude Code session on this machine, in every project and every
+directory**. You set it up once.
+
+It does **not** affect:
+
+- **The Claude app or claude.ai in a browser.** Different product, no hooks, nothing local to
+  run. Your normal screen reader is what reads those.
+- **Claude on mobile.**
+- **Sessions running in the cloud** (claude.ai/code, or an agent on a remote machine). The
+  hook would have to run on the machine doing the speaking, and that is not yours.
+
+Anything that is Claude Code running locally and reading your `~/.claude/settings.json` —
+terminal, desktop app, IDE extension — uses it.
+
+To scope it to one project instead of everything, put the same `hooks` block in that
+project's `.claude/settings.json` rather than in your home directory.
+
 ## What is here
 
 | Path | Role |
@@ -73,6 +94,41 @@ $speaker = Join-Path $env:USERPROFILE '.claude\speak-engine.ps1'
 ```
 
 Or install the skill and just say "change the voice Claude reads with".
+
+## Installing the skill
+
+A **skill** is a folder containing a `SKILL.md` file. The frontmatter gives it a name and a
+description; the body is instructions Claude follows when the skill is invoked. Claude Code
+finds them automatically — there is no install command and nothing to register.
+
+Copy the folder to one of two places, depending on how widely you want it:
+
+| Put it here | Available in |
+|---|---|
+| `%USERPROFILE%\.claude\skills\voice-setup\` | every project, on this machine |
+| `<project>\.claude\skills\voice-setup\` | that project only (and it can be committed, so your team gets it) |
+
+For this one you almost certainly want the first:
+
+```
+xcopy /E /I skills\voice-setup "%USERPROFILE%\.claude\skills\voice-setup"
+```
+
+The result must be `...\skills\voice-setup\SKILL.md` — one folder per skill, with the file
+named exactly `SKILL.md`.
+
+**Restart Claude Code.** Skills are read at session start, so a newly added one is not visible
+in a session that was already running.
+
+Then use it either way:
+
+- **By name**: type `/voice-setup`.
+- **By asking**: say "change the voice Claude reads with", or "what voices do I have". Claude
+  matches your request against the skill's `description` field, which is why that field lists
+  trigger phrases rather than just explaining what the skill does.
+
+Same rules apply to any skill, not just this one — the layout, the two locations, and the
+restart are how Claude Code skills work generally.
 
 ## Status
 
