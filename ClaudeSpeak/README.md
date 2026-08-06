@@ -36,8 +36,21 @@ has to be written out a second time as a tool call.
 
 3. Restart Claude Code and ask it anything.
 
-That gets you a Windows system voice at maximum rate. To use your screen reader instead, or to
-pick a different voice, see below.
+With no config file, the engine runs in `auto`: it speaks through **JAWS or NVDA if one is
+running**, and otherwise falls back to a Windows voice at maximum rate. So for most people
+the quick start is the whole setup. Read on to pin a specific route or voice.
+
+## Replacing the echo, not adding to it
+
+The obvious reading of this is "an extra voice on top of my screen reader". It can be the
+opposite, and that turned out to be the better way to use it.
+
+Turn **screen reader echo off in the terminal** and let Claude's speech be the only channel
+there. Nothing competes, nothing talks over anything, and the terminal stops being a thing you
+navigate and becomes a thing that talks to you. With speech routed through your screen reader,
+your normal silence key still interrupts, so you keep full control.
+
+Worth trying before assuming you want a second voice.
 
 ## What this covers, and what it does not
 
@@ -74,7 +87,24 @@ project's `.claude/settings.json` rather than in your home directory.
 | `speak-config.example.json` | Config template for `speak-engine.ps1` |
 
 `speak-onecore.ps1` and `speak-engine.ps1` are interchangeable — same `-Path` parameter.
-Start with the first, switch to the second when you want choices.
+`speak-response.ps1` ships pointing at the engine; `speak-onecore.ps1` is kept as the minimal
+reference version, in case you want to read one short script rather than a router.
+
+## Contributions welcome
+
+Particularly:
+
+- **Verify or fix the NVDA path.** It is written to NV Access's documented interface and
+  compiles, but has never been run against a live NVDA. If you use NVDA, you can settle this
+  in five minutes and it is the single most useful thing anyone could contribute here.
+- **Other screen readers** — Narrator, VoiceOver, Orca. None are wired up.
+- **macOS and Linux.** `SETUP.md` has a `say` / `spd-say` version that is far less developed
+  than the Windows side.
+- **Better markdown-to-speech.** The current stripping is a block of regexes and a set of
+  judgement calls (code blocks dropped, tables dropped, URLs read as "link"). Those are
+  guesses about what people want to hear, not findings.
+
+Open an issue or a PR on [TheWorkBench](https://github.com/kellylford/TheWorkBench).
 
 ## Choosing a route
 
