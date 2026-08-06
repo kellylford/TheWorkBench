@@ -10,9 +10,18 @@ reply, pulls the text out of the session transcript, and hands it to a speech en
 doing it as a hook. Asking Claude to speak its own replies does cost tokens, because the text
 has to be written out a second time as a tool call.
 
+## Download
+
+[**Latest release**](https://github.com/kellylford/TheWorkBench/releases?q=claudespeak&expanded=true)
+— a zip of just this folder. GitHub cannot download a single directory, so without it you
+would have to clone the whole repository.
+
+TheWorkBench holds several unrelated projects, so ClaudeSpeak releases are tagged
+`claudespeak-v*`.
+
 ## Quick start
 
-Run **`install.bat`** from this folder. It copies the scripts, installs the skill, seeds a
+Extract the zip, then run **`install.bat`** from inside the ClaudeSpeak folder. It copies the scripts, installs the skill, seeds a
 config, and adds the hook to your Claude Code `settings.json` — merging with whatever is
 already there rather than replacing it, and backing the file up first. Then restart Claude
 Code.

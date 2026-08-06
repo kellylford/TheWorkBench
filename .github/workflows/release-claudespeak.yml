@@ -1,0 +1,73 @@
+name: Release ClaudeSpeak
+
+# TheWorkBench holds several unrelated projects, so releases are scoped by tag prefix rather
+# than by repository. A tag like claudespeak-v1.0 releases only ClaudeSpeak; another project
+# can take its own prefix later without colliding.
+#
+# The zip exists because GitHub has no way to download a single folder. Without it, anyone
+# following a link to ClaudeSpeak/ has to clone the whole repository or save the files one at
+# a time.
+#
+#   git tag claudespeak-v1.0
+#   git push origin claudespeak-v1.0
+
+on:
+  push:
+    tags:
+      - 'claudespeak-v*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Sanity-check the payload
+        run: |
+          test -f ClaudeSpeak/README.md
+          test -f ClaudeSpeak/install.bat
+          test -f ClaudeSpeak/install.ps1
+          test -f ClaudeSpeak/scripts/speak-response.ps1
+          test -f ClaudeSpeak/skills/voice-setup/SKILL.md
+          echo "payload looks complete"
+
+      - name: Build the zip
+        run: |
+          # Zipped from the repo root so it expands into a ClaudeSpeak/ folder rather than
+          # scattering loose files wherever the user extracted it.
+          zip -r "ClaudeSpeak-${GITHUB_REF_NAME}.zip" ClaudeSpeak -x '*/.git*'
+          unzip -l "ClaudeSpeak-${GITHUB_REF_NAME}.zip"
+
+      - name: Create the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          cat > notes.md <<'NOTES'
+          Makes Claude Code read its replies aloud — through JAWS, NVDA, or a Windows voice.
+
+          **Install:** download the zip below, extract it, and run `install.bat` from inside the
+          ClaudeSpeak folder. Then restart Claude Code. There is a manual path in the README if
+          you would rather not run a script, and `install.ps1 -WhatIf` shows what it would do
+          without changing anything.
+
+          Read the [README](https://github.com/kellylford/TheWorkBench/tree/main/ClaudeSpeak)
+          first — particularly the note on what does and does not get read aloud.
+
+          **Scope of testing.** JAWS, NVDA, and both Windows voice engines are verified working,
+          but on one machine: Windows on ARM, one Windows version, one Claude Code version. The
+          installer was exercised against fresh installs, merging into an existing settings file,
+          adding alongside an existing Stop hook, repeat runs, and malformed JSON — but never on
+          anyone else's setup. Reports welcome.
+
+          If something does not speak, the useful first two things are
+          `%TEMP%\claude-speak\last-route.log` and the output of `speak-voices.ps1`. A clean run
+          only proves *something* spoke, not that your chosen route did.
+          NOTES
+
+          gh release create "$GITHUB_REF_NAME" \
+            "ClaudeSpeak-${GITHUB_REF_NAME}.zip" \
+            --title "ClaudeSpeak ${GITHUB_REF_NAME#claudespeak-}" \
+            --notes-file notes.md
