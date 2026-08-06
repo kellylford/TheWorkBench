@@ -7,6 +7,12 @@ In my experience both the Claude desktop app and the terminal have challenges wi
 
 ClaudeSpeak is aimed at improving on both situations. It makes Claude Code speak each reply once, cleanly, as soon as it finishes - and it can speak through your screen reader rather than around it.
 
+Screen reading users of Claude's terminal may also want to try a new screen reader mode setting as well. Details on what it does and how to enable it are at:
+
+https://support.claude.com/en/articles/15924927-use-claude-code-cli-with-a-screen-reader
+
+That setting and this are addressing different halves of the same problem - one changes what Claude Code renders, the other changes how the reply reaches you - so they are worth trying together rather than instead of each other.
+
 https://github.com/kellylford/TheWorkBench/tree/main/ClaudeSpeak
 
 Up front: I built this with Claude, and Claude wrote essentially all of the code and documentation. I directed it, tested it, and told it when something sounded wrong. I am flagging that partly for honesty and partly because it is relevant to how you read the technical claims further down - those are Claude's findings and Claude's understanding, not things I independently verified.
