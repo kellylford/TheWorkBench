@@ -111,6 +111,15 @@ your normal silence key still interrupts, so you keep full control.
 
 Worth trying before assuming you want a second voice.
 
+Screen reading users of Claude's terminal may also want to try a new screen reader mode
+setting as well. Details on what it does and how to enable it are at:
+
+https://support.claude.com/en/articles/15924927-use-claude-code-cli-with-a-screen-reader
+
+That setting and ClaudeSpeak address different halves of the same problem — one changes what
+Claude Code renders, the other changes how the reply reaches you. They are worth trying
+together rather than instead of each other.
+
 ## What this covers, and what it does not
 
 **This is Claude Code only.** The hook lives in Claude Code's `settings.json` and is run by
