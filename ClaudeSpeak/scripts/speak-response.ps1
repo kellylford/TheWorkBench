@@ -95,7 +95,9 @@ $txtFile = Join-Path $dir 'response.txt'
 [System.IO.File]::WriteAllText($txtFile, $text, (New-Object System.Text.UTF8Encoding($false)))
 
 # Detached, so a long reply never holds up the session.
-$speaker = Join-Path $env:USERPROFILE '.claude\speak-onecore.ps1'
+# speak-engine.ps1 is a drop-in for speak-onecore.ps1 (same -Path) that honours
+# speak-config.json, so the route can change without editing this file again.
+$speaker = Join-Path $env:USERPROFILE '.claude\speak-engine.ps1'
 $proc = Start-Process -FilePath 'powershell.exe' -PassThru -WindowStyle Hidden -ArgumentList @(
     '-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', "`"$speaker`"", '-Path', "`"$txtFile`""
 )
