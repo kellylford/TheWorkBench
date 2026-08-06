@@ -40,6 +40,36 @@ With no config file, the engine runs in `auto`: it speaks through **JAWS or NVDA
 running**, and otherwise falls back to a Windows voice at maximum rate. So for most people
 the quick start is the whole setup. Read on to pin a specific route or voice.
 
+## What gets read aloud, and what does not
+
+**Always spoken** — Claude's own prose from the reply just finished.
+
+**Never spoken, regardless of settings:**
+
+- Thinking blocks
+- Tool calls and their arguments
+- Tool output — file contents, command results, search hits
+- Anything from earlier in the conversation. Only the newest reply is read.
+
+That is a deliberate floor, not a setting. The point is to hear what Claude *said*, not to
+have the machinery narrated at you.
+
+**Configurable**, via the `content` block in `speak-config.json`:
+
+| Setting | Default | Options |
+|---|---|---|
+| `codeBlocks` | `announce` | `announce` says "Code block omitted", `omit` skips silently, `read` speaks the code |
+| `tables` | `omit` | `omit`, or `read` to hear the rows |
+| `urls` | `link` | `link` says the word "link", `omit` drops them, `read` spells out the whole URL |
+| `firstParagraphOnly` | `false` | Speak only the opening paragraph |
+| `maxChars` | `0` | Stop after N characters and say "Response truncated". 0 = no limit |
+
+Markdown punctuation — asterisks, backticks, heading hashes, bullet markers, blockquote
+carets — is always stripped, because it is markup rather than words.
+
+The skill can set all of these conversationally: "don't read code blocks", "just read me the
+first paragraph", "read the full URLs".
+
 ## Replacing the echo, not adding to it
 
 The obvious reading of this is "an extra voice on top of my screen reader". It can be the
@@ -94,9 +124,8 @@ reference version, in case you want to read one short script rather than a route
 
 Particularly:
 
-- **Verify or fix the NVDA path.** It is written to NV Access's documented interface and
-  compiles, but has never been run against a live NVDA. If you use NVDA, you can settle this
-  in five minutes and it is the single most useful thing anyone could contribute here.
+- **Confirm NVDA on other architectures.** It is verified on ARM64 Windows with NVDA 2026.1.1.
+  Plain x64 Windows *should* be the easier case, but nobody has actually run it there.
 - **Other screen readers** — Narrator, VoiceOver, Orca. None are wired up.
 - **macOS and Linux.** `SETUP.md` has a `say` / `spd-say` version that is far less developed
   than the Windows side.
@@ -163,9 +192,10 @@ restart are how Claude Code skills work generally.
 ## Status
 
 - **JAWS** (`FreedomSci.JawsApi` COM) — verified working.
-- **NVDA** (`nvdaControllerClient64.dll`) — written to NV Access's documented interface and
-  compiles, but **not verified against a live NVDA**. The DLL does not ship with NVDA; it
-  comes from their controller-client package separately.
+- **NVDA** (`nvdaControllerClient.dll`) — verified working, on NVDA 2026.1.1. Two things to
+  know: the DLL **does not ship with NVDA** (it comes from NV Access's controller-client
+  package), and it must match the architecture of **PowerShell**, not of NVDA. See
+  [SCREEN-READERS.md](SCREEN-READERS.md).
 - **OneCore** and **SAPI** voices — verified working.
 - Windows only for the PowerShell scripts. `SETUP.md` has a shorter macOS/Linux version using
   `say` / `spd-say`.

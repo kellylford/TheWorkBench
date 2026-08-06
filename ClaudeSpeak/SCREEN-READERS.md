@@ -61,11 +61,11 @@ using System.Runtime.InteropServices;
 public static class NvdaClient {
     [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
     public static extern bool SetDllDirectory(string path);
-    [DllImport("nvdaControllerClient64.dll", CharSet = CharSet.Unicode)]
+    [DllImport("nvdaControllerClient.dll", CharSet = CharSet.Unicode)]
     public static extern int nvdaController_testIfRunning();
-    [DllImport("nvdaControllerClient64.dll", CharSet = CharSet.Unicode)]
+    [DllImport("nvdaControllerClient.dll", CharSet = CharSet.Unicode)]
     public static extern int nvdaController_speakText(string text);
-    [DllImport("nvdaControllerClient64.dll", CharSet = CharSet.Unicode)]
+    [DllImport("nvdaControllerClient.dll", CharSet = CharSet.Unicode)]
     public static extern int nvdaController_cancelSpeech();
 }
 '@
@@ -81,14 +81,65 @@ if ([NvdaClient]::nvdaController_testIfRunning() -eq 0) {   # 0 means NVDA is ru
 ```
 
 All three return `0` for success. `Add-Type` compiles without the DLL present — P/Invoke
-binding is lazy — so a missing DLL surfaces only at the first call, as a
-`MethodInvocationException`. Catch it and fall back rather than letting it surface as a crash.
+binding is lazy — so a missing DLL surfaces only at the first call. Catch it and fall back
+rather than letting it surface as a crash.
 
-Use `nvdaControllerClient32.dll` instead if you are on 32-bit PowerShell.
+**Both paths are verified working.** The NVDA one took a detour worth documenting.
 
-**Honest status**: the JAWS path above is verified working. The NVDA path is written to NV
-Access's documented interface and compiles, but has not been run against a live NVDA. Treat it
-as unverified until you have tried it.
+### The architecture trap
+
+The controller client DLL must match the architecture of **the process calling it** — not of
+NVDA, and not of Windows. Get it wrong and the first call throws `BadImageFormatException`
+("An attempt was made to load a program with an incorrect format").
+
+This bites hardest on Windows on ARM:
+
+| Your PowerShell | DLL you need |
+|---|---|
+| `System32\WindowsPowerShell` on ARM64 Windows | **arm64** |
+| `SysWOW64\WindowsPowerShell` on ARM64 Windows | x86 |
+| `System32\WindowsPowerShell` on x64 Windows | x64 |
+
+On ARM64 Windows the inbox PowerShell in System32 is **ARM64 native** and SysWOW64 is **x86**.
+There is no x64 PowerShell unless you installed one — so the x64 build, which is the one you
+are most likely to already have lying around, cannot be loaded by either.
+
+**The DLL does not ship with NVDA.** Confirmed on NVDA 2026.1.1: nothing matching
+`nvdaControllerClient*` exists anywhere under its install directory. Get it from NV Access:
+
+```
+https://download.nvaccess.org/releases/<version>/nvda_<version>_controllerClient.zip
+```
+
+4.5 MB for 2026.1.1. Inside are `x86/`, `x64/`, `arm64/` and `arm64ec/` folders, each holding
+`nvdaControllerClient.dll`. Take the one matching your PowerShell.
+
+### Do not trust the filename
+
+- NV Access shipped the ARM64 library as **`nvdaControllerClient32.dll`** for a while
+  ([nvaccess/nvda#15717](https://github.com/nvaccess/nvda/issues/15717)). Current packages drop
+  the suffix — it is just `nvdaControllerClient.dll` inside an architecture folder.
+- The `arm64ec` build reports **x64** in its PE header, because that is what ARM64EC is.
+
+Read the header instead. Machine type sits at the offset stored in `e_lfanew` (0x3C), plus 4:
+
+```powershell
+function Get-PeArch([string]$p) {
+    $fs = [IO.File]::OpenRead($p); $br = New-Object IO.BinaryReader($fs)
+    $fs.Position = 0x3C; $o = $br.ReadInt32(); $fs.Position = $o + 4; $m = $br.ReadUInt16()
+    $br.Close(); $fs.Close()
+    switch ($m) { 0x8664 {'x64'} 0x014c {'x86'} 0xAA64 {'ARM64'} default {'unknown'} }
+}
+```
+
+`speak-voices.ps1` does exactly this, so a wrong-architecture DLL is reported as unusable
+rather than as found.
+
+### Diagnosing without starting NVDA
+
+`nvdaController_testIfRunning()` returning **1722** (`RPC_S_SERVER_UNAVAILABLE`) is good news:
+the DLL loaded, and is correctly reporting that NVDA is not running. That separates "wrong
+architecture" from "NVDA is off" without starting anything.
 
 ---
 

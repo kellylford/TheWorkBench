@@ -57,18 +57,50 @@ function Try-Jaws($text, $interrupt) {
     } catch { return $false }
 }
 
+# PE machine type. The DLL must match the architecture of THIS process, not of NVDA, and the
+# filename cannot be trusted: NV Access shipped the ARM64 build as nvdaControllerClient32.dll
+# for a while, and their arm64ec build reports x64 in its header.
+function Get-PeArch([string]$p) {
+    try {
+        $fs = [IO.File]::OpenRead($p); $br = New-Object IO.BinaryReader($fs)
+        $fs.Position = 0x3C; $o = $br.ReadInt32(); $fs.Position = $o + 4; $m = $br.ReadUInt16()
+        $br.Close(); $fs.Close()
+        switch ($m) { 0x8664 { 'x64' } 0x014c { 'x86' } 0xAA64 { 'ARM64' } default { 'unknown' } }
+    } catch { 'unreadable' }
+}
+
 function Try-Nvda($text, $interrupt, $dllPath) {
     if (-not (Get-Process nvda -ErrorAction SilentlyContinue)) { return $false }
 
+    $want = $env:PROCESSOR_ARCHITECTURE
+    if ($want -eq 'AMD64') { $want = 'x64' }
+
+    if ($dllPath -and (Test-Path -LiteralPath $dllPath)) {
+        if ((Get-PeArch $dllPath) -ne $want) { $dllPath = $null }
+    } else { $dllPath = $null }
+
     if (-not $dllPath) {
-        foreach ($root in @("$env:USERPROFILE\.claude", "${env:ProgramFiles(x86)}\NVDA", "$env:ProgramFiles\NVDA")) {
+        foreach ($root in @("$env:USERPROFILE\.claude", "$env:ProgramFiles\NVDA",
+                            "${env:ProgramFiles(x86)}\NVDA", "$env:LOCALAPPDATA\Programs\NVDA")) {
             if (-not (Test-Path $root)) { continue }
-            $hit = Get-ChildItem $root -Recurse -Filter 'nvdaControllerClient64.dll' -ErrorAction SilentlyContinue |
-                   Select-Object -First 1
-            if ($hit) { $dllPath = $hit.FullName; break }
+            foreach ($hit in (Get-ChildItem $root -Recurse -Filter 'nvdaControllerClient*.dll' -Depth 4 -ErrorAction SilentlyContinue)) {
+                if ((Get-PeArch $hit.FullName) -eq $want) { $dllPath = $hit.FullName; break }
+            }
+            if ($dllPath) { break }
         }
     }
-    if (-not $dllPath -or -not (Test-Path -LiteralPath $dllPath)) { return $false }
+    if (-not $dllPath) { return $false }
+
+    # DllImport binds a fixed filename, but NV Access has used both nvdaControllerClient.dll
+    # (current) and nvdaControllerClient64.dll (older). Stage whatever was found under the
+    # canonical name so either package works.
+    $stage = Join-Path $env:TEMP 'claude-speak-nvda'
+    if (-not (Test-Path $stage)) { New-Item -ItemType Directory -Path $stage -Force | Out-Null }
+    $canonical = Join-Path $stage 'nvdaControllerClient.dll'
+    if ((-not (Test-Path $canonical)) -or
+        ((Get-Item $canonical).Length -ne (Get-Item $dllPath).Length)) {
+        Copy-Item $dllPath $canonical -Force -ErrorAction SilentlyContinue
+    }
 
     try {
         if (-not ('NvdaClient' -as [type])) {
@@ -78,18 +110,18 @@ using System.Runtime.InteropServices;
 public static class NvdaClient {
     [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
     public static extern bool SetDllDirectory(string path);
-    [DllImport("nvdaControllerClient64.dll", CharSet = CharSet.Unicode)]
+    [DllImport("nvdaControllerClient.dll", CharSet = CharSet.Unicode)]
     public static extern int nvdaController_testIfRunning();
-    [DllImport("nvdaControllerClient64.dll", CharSet = CharSet.Unicode)]
+    [DllImport("nvdaControllerClient.dll", CharSet = CharSet.Unicode)]
     public static extern int nvdaController_speakText(string text);
-    [DllImport("nvdaControllerClient64.dll", CharSet = CharSet.Unicode)]
+    [DllImport("nvdaControllerClient.dll", CharSet = CharSet.Unicode)]
     public static extern int nvdaController_cancelSpeech();
 }
 '@
         }
         # The DllImport name is unqualified, so the directory must be on the search path
         # before the first call binds it.
-        [NvdaClient]::SetDllDirectory((Split-Path -Parent $dllPath)) | Out-Null
+        [NvdaClient]::SetDllDirectory($stage) | Out-Null
         if ([NvdaClient]::nvdaController_testIfRunning() -ne 0) { return $false }
         if ($interrupt) { [NvdaClient]::nvdaController_cancelSpeech() | Out-Null }
         return ([NvdaClient]::nvdaController_speakText($text) -eq 0)
@@ -183,6 +215,15 @@ if ($null -ne $rate) {
     $sapiRate    = [int]$rate
 }
 
+# Record which route actually spoke. Falling through silently is worse than failing: a
+# configured route can break and the fallback still sounds fine, so you conclude the route
+# works when it never ran. That exact thing happened while this was being built — an NVDA
+# config fell through to a Windows voice and was mistaken for NVDA speaking.
+$logDir = Join-Path $env:TEMP 'claude-speak'
+if (-not (Test-Path $logDir)) { New-Item -ItemType Directory -Path $logDir -Force | Out-Null }
+$logFile = Join-Path $logDir 'last-route.log'
+$log = @("configured engine: $engine", "process arch: $env:PROCESSOR_ARCHITECTURE")
+
 foreach ($route in $order) {
     $spoke = $false
     switch ($route) {
@@ -191,7 +232,17 @@ foreach ($route in $order) {
         'onecore' { $spoke = Try-OneCore $text $voice $oneCoreRate }
         'sapi'    { $spoke = Try-Sapi    $text $voice $sapiRate }
     }
-    if ($spoke) { exit 0 }
+    if ($spoke) {
+        $log += "SPOKE VIA: $route"
+        if ($route -ne $engine -and $engine -ne 'auto') {
+            $log += "WARNING: fell back from '$engine' to '$route' - the configured route did not work"
+        }
+        [System.IO.File]::WriteAllText($logFile, ($log -join "`r`n"))
+        exit 0
+    }
+    $log += "failed: $route"
 }
 
+$log += 'NOTHING SPOKE - every route failed'
+[System.IO.File]::WriteAllText($logFile, ($log -join "`r`n"))
 exit 0
