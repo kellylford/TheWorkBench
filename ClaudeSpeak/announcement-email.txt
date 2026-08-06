@@ -17,80 +17,86 @@ screen reader rather than around it.
 
 https://github.com/kellylford/TheWorkBench/tree/main/ClaudeSpeak
 
+Up front: I built this with Claude, and Claude wrote essentially all of the code
+and documentation. I directed it, tested it, and told it when something sounded
+wrong. I am flagging that partly for honesty and partly because it is relevant to
+how you read the technical claims further down - those are Claude's findings and
+Claude's understanding, not things I independently verified.
+
 It costs nothing in Claude usage. The text is pulled out of the session
 transcript by a hook, so the model is not involved and no extra tokens are spent.
-Asking Claude to read its own replies does cost tokens, because the text has to
-be generated a second time.
 
 JAWS exposes a COM interface and NVDA has a controller client library. Going
 through either means Claude's replies use the voice, rate and punctuation level
 you already configured, and your usual silence key interrupts them like any other
-speech. Nothing new to learn. If you would rather have a separate Windows voice
-so Claude is distinguishable from everything else, that works too and is a config
-setting.
-
-Setup is two PowerShell scripts and about ten lines in a settings file. With no
-configuration at all it speaks through whichever screen reader is running, and
-falls back to a Windows voice if none is. It applies to every Claude Code session
-on the machine - the desktop app as much as the terminal.
+speech. If you would rather have a separate Windows voice so Claude is
+distinguishable from everything else, that works too and is a config setting.
 
 
-TWO THINGS THAT COST ME AN AFTERNOON
+INSTALLING
 
-Both JAWS and NVDA are verified working. Getting NVDA there turned up two traps
-that I have not seen written down anywhere, so they are worth passing on even if
-you never use this project.
+There is an install.bat in the repo. Run it and it copies the scripts, installs
+the skill, and adds the hook to your Claude Code settings file - merging with
+whatever is already in there rather than replacing it. Then restart Claude Code.
 
-First, the NVDA controller client DLL does not ship with NVDA. I confirmed this
-on 2026.1.1 - nothing matching nvdaControllerClient exists anywhere under the
-install directory. You get it from NV Access's controller client package, which
-is a separate 4.5 MB download.
-
-Second, and this is the one that had me convinced my code was wrong: the DLL has
-to match the architecture of the process calling it, not of NVDA and not of
-Windows. I am on Windows on ARM. The inbox PowerShell there is ARM64 native, and
-SysWOW64 is x86, so there is no x64 PowerShell unless you install one - and x64
-is exactly the build you are most likely to already have lying around. Loading it
-throws BadImageFormatException. The package contains x86, x64, arm64 and arm64ec
-builds; you want the one matching PowerShell.
-
-Do not trust the filename either. NV Access shipped the ARM64 library as
-nvdaControllerClient32.dll for a while, and the arm64ec build reports x64 in its
-PE header. The scripts here read the header rather than the name.
-
-A third one, more general: the engine falls back to another route when the
-configured one fails, so speech happening does not prove your route worked. A
-failing NVDA config fell through to a Windows voice and sounded exactly like
-success - twice. There is now a log recording which route actually spoke. If you
-test this, check the log rather than trusting your ears. I would not have caught
-it otherwise.
+It applies to every Claude Code session on the machine, the desktop app as much
+as the terminal. It does not affect the Claude app or claude.ai in a browser,
+which are a different product with no hooks.
 
 
-WHERE I COULD USE HELP
+CONTROLLING WHAT GETS SPOKEN
 
-- NVDA is verified on ARM64 Windows. Plain x64 should be the easier case, but
-  nobody has actually run it there. If you use NVDA on x64, five minutes would
-  confirm it.
+This part I did want, and it works. Thinking, tool calls and tool output are
+never spoken - only Claude's actual prose, and only the newest reply. On top of
+that you can choose what happens to code blocks (announced, skipped, or read
+out), tables, and URLs, and you can ask for only the first paragraph or cap the
+length.
 
-- If you know NVDA's controller client well, I would welcome a second opinion on
-  whether P/Invoking the DLL is even the right approach.
+You can set all of that by just saying so - "stop reading me code", "just the
+gist", "read the actual links" - via an included Claude Code skill. If you have
+not used skills before, they are simply a folder with a SKILL.md file in it,
+dropped into your .claude folder; there is no install step beyond copying it, and
+the repo explains the general mechanics.
 
 
-ALSO WELCOME
+TWO THINGS CLAUDE HAD TO SORT OUT WITH NVDA
 
-- Narrator, VoiceOver and Orca are not wired up at all.
-- Windows is much better developed than the macOS and Linux version, which uses
-  say and spd-say.
-- The markdown-to-speech handling drops code blocks and tables and reads URLs as
-  the word "link". Those are my guesses about what people want to hear, not
-  anything I have tested with anyone else. I would particularly like to be told I
-  got these wrong.
+Both JAWS and NVDA work. Getting NVDA there took some digging, and the findings
+seem worth passing on. To repeat the caveat above: this is Claude's
+understanding, arrived at while debugging on my machine. I do not independently
+know it to be true, and I would be glad to be corrected.
 
-There is also a Claude Code skill included that walks you through picking a route
-and voice conversationally. It checks what is actually installed rather than
-assuming, and lets you audition voices before committing.
+The first is that the NVDA controller client DLL does not appear to ship with
+NVDA. Claude could not find anything matching that name anywhere under the
+install directory on 2026.1.1. It came from NV Access's controller client
+package, which is a separate download.
 
-Suggestions, corrections, pull requests and disagreement about the design choices
-are all welcome. Issues and PRs on the repo, or just reply here.
+The second is architecture. The DLL apparently has to match the architecture of
+the process calling it, not of NVDA and not of Windows. I am on Windows on ARM,
+where the inbox PowerShell is ARM64 and the other one is x86, so an x64 build -
+the one you are most likely to already have - would not load at all. The download
+contains several builds and Claude picked the matching one. Claude also found
+that the filenames are not a reliable guide to what is inside, so the scripts
+read the file header instead.
+
+There was also a debugging trap worth mentioning regardless of any of the above.
+The engine falls back to another speech route when the configured one fails, so
+speech happening does not prove your route worked. A failing NVDA config fell
+through to a Windows voice and sounded like success - twice - before we caught
+it. There is now a log recording which route actually spoke. If you test this,
+check the log rather than trusting your ears.
+
+
+WHERE HELP WOULD BE WELCOME
+
+- NVDA is verified on Windows on ARM. Plain x64 should be simpler, but nobody has
+  actually run it there.
+- Narrator, VoiceOver and Orca are not wired up.
+- The macOS and Linux side is much thinner than the Windows side.
+- The choices about what to strip before speaking are guesses. If they are wrong
+  for how you work, I would like to hear it.
+
+Suggestions, corrections and pull requests are all welcome. Issues and PRs on the
+repo, or just reply here.
 
 Kelly Ford

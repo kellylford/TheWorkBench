@@ -12,6 +12,26 @@ has to be written out a second time as a tool call.
 
 ## Quick start
 
+Run **`install.bat`** from this folder. It copies the scripts, installs the skill, seeds a
+config, and adds the hook to your Claude Code `settings.json` — merging with whatever is
+already there rather than replacing it, and backing the file up first. Then restart Claude
+Code.
+
+It is safe to re-run: an existing config or hook is left alone. If `settings.json` is not
+valid JSON it refuses to touch the file and prints what to add by hand.
+
+```
+install.bat
+```
+
+To see what it would do without changing anything:
+
+```
+powershell -NoProfile -ExecutionPolicy Bypass -File install.ps1 -WhatIf
+```
+
+### Doing it by hand
+
 1. Copy everything in `scripts/` to `%USERPROFILE%\.claude\`.
 2. Add this to `%USERPROFILE%\.claude\settings.json`, merging with whatever is already there:
 
