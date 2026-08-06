@@ -15,6 +15,24 @@ Configures the read-aloud Stop hook. Everything lives in `~/.claude/`:
 | `speak-response.ps1` | The Stop hook. Extracts the reply, strips markdown, calls a speaker. |
 | `speak-onecore.ps1` | The original OneCore-only speaker. Superseded by `speak-engine.ps1`. |
 
+## Always ask with question cards
+
+**Every choice you put to the user MUST go through the `AskUserQuestion` tool.** Never ask in
+prose, never present options as a numbered list in your reply, and never assume an answer
+because it seems obvious from context.
+
+This is not a style preference. The user drives this skill by keyboard with a screen reader,
+and the question card is a real control they can arrow through and select. A question written
+into prose is something they have to find in a transcript, parse, and answer by typing — which
+is exactly the friction this whole project exists to remove.
+
+Batch related questions into a single `AskUserQuestion` call (it takes up to four) rather than
+asking one, waiting, asking the next. Give each option a `preview` showing the config it would
+write, so the effect is visible before choosing.
+
+The only things that do not need a card are reporting what you found and confirming what you
+did.
+
 ## Ground rules
 
 - **Never state what a voice sounds like, or which is "better".** Offer a preview and let the
@@ -38,9 +56,19 @@ powershell -NoProfile -ExecutionPolicy Bypass -File "$env:USERPROFILE\.claude\sp
 Returns `screenReaders` (with `available` and `running`), `systemVoices` (each with a `match`
 string and its engine's `rateRange`), and `notes`.
 
-### 2. Ask what they want
+### 2. Ask what they want — with a question card
 
-Use `AskUserQuestion`. Offer only routes the probe found. Frame the real trade-off:
+Call `AskUserQuestion`. Offer **only** routes the probe actually found; never list NVDA if the
+probe says there is no usable controller client, and never list a voice that is not installed.
+
+A good first call asks two questions at once:
+
+1. **Speech route** — one option per available route, plus `auto`.
+2. **What gets read aloud** — a `multiSelect` question offering the trims most people want:
+   skip code blocks, skip tables, read full URLs, first paragraph only. Skip this question
+   only if the user already told you what they want.
+
+Frame the real trade-off in the route descriptions:
 
 - **Through their screen reader** (`jaws` / `nvda`) — their voice and rate, and their usual
   silence key interrupts it. Nothing to tune here.
@@ -48,8 +76,17 @@ Use `AskUserQuestion`. Offer only routes the probe found. Frame the real trade-o
   working when it is off, and can be set to a different voice so Claude is distinguishable
   from everything else on screen. Needs a voice and rate chosen.
 
-If they pick a system voice, ask which voice, then the rate. `onecore` runs 0.5–6.0 (6 is
-fastest); `sapi` runs -10 to 10.
+If they pick a system voice, follow up with **another card** — voice and rate as two questions
+in one call, one option per installed voice. `onecore` runs 0.5–6.0 (6 is fastest); `sapi`
+runs -10 to 10. Do not ask about rate at all when the route is `jaws` or `nvda`.
+
+Every option needs a `preview` showing the resulting config, e.g.:
+
+```
+engine: onecore
+voice:  MSTTS_V110_enUS_ZiraM
+rate:   6.0  (0.5-6.0, 6 = fastest)
+```
 
 ### 3. Preview before committing
 
@@ -105,6 +142,9 @@ block of the same config and are read by `speak-response.ps1`:
 Map plain requests onto these rather than making the user learn the field names — "stop
 reading me code" is `codeBlocks: omit`, "just the gist" is `firstParagraphOnly: true`, "read
 the actual links" is `urls: read`.
+
+When the user has *not* already said what they want, offer these as a `multiSelect` question
+card rather than describing them and waiting for a reply.
 
 State the floor when it is relevant: thinking blocks, tool calls and tool output are **never**
 spoken whatever these are set to, and only the newest reply is read. Users sometimes assume
