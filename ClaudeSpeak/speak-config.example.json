@@ -1,5 +1,5 @@
 {
-  "_comment": "Copy to %USERPROFILE%\\.claude\\speak-config.json. Read by speak-engine.ps1 only — speak-onecore.ps1 ignores it. Run scripts/speak-voices.ps1 to see what this machine actually has.",
+  "_comment": "Copy to the .claude folder in your user profile, named speak-config.json. Run scripts/speak-voices.ps1 to see what this machine actually has. Every field is optional; omitting one keeps its default.",
 
   "_engine": "jaws | nvda | onecore | sapi | auto  (auto = a running screen reader, else onecore)",
   "engine": "auto",
@@ -7,12 +7,30 @@
   "_voice": "Substring of the voice id or display name, from speak-voices.ps1's 'match' field. Ignored for jaws and nvda.",
   "voice": "",
 
-  "_rate": "onecore: 0.5 to 6.0 (6 fastest). sapi: -10 to 10. null = fastest. IGNORED for jaws and nvda, deliberately — rate there is the user's own setting.",
+  "_rate": "onecore: 0.5 to 6.0 (6 fastest). sapi: -10 to 10. null = fastest. IGNORED for jaws and nvda, deliberately - rate there is the user's own setting.",
   "rate": null,
 
   "_interrupt": "Whether a new reply cuts off the previous one still speaking.",
   "interrupt": true,
 
-  "_nvdaClientDll": "Full path to nvdaControllerClient64.dll. Leave empty to auto-search %USERPROFILE%\\.claude and the NVDA install. The DLL does NOT ship with NVDA — get it from NV Access's controller client package.",
-  "nvdaClientDll": ""
+  "_nvdaClientDll": "Full path to the NVDA controller client DLL. Leave empty to auto-search. It must match the architecture of PowerShell, not of NVDA, and it does NOT ship with NVDA.",
+  "nvdaClientDll": "",
+
+  "_content": "What actually gets spoken. Only Claude's own prose is ever read - thinking, tool calls and tool output are never spoken regardless of these settings.",
+  "content": {
+    "_codeBlocks": "announce (say 'Code block omitted') | omit (skip silently) | read (speak the code)",
+    "codeBlocks": "announce",
+
+    "_tables": "omit | read",
+    "tables": "omit",
+
+    "_urls": "link (say the word 'link') | omit | read (speak the whole URL)",
+    "urls": "link",
+
+    "_firstParagraphOnly": "Speak only the opening paragraph. Good for long replies you will read yourself.",
+    "firstParagraphOnly": false,
+
+    "_maxChars": "Stop after this many characters and say 'Response truncated'. 0 = no limit.",
+    "maxChars": 0
+  }
 }

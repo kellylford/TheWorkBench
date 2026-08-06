@@ -62,13 +62,42 @@ if ($parts.Count -eq 0) { exit 0 }
 
 $text = $parts -join "`n`n"
 
+# What gets spoken is the user's call, not a hardcoded guess. Defaults below reproduce the
+# original behaviour, so an absent or partial config changes nothing.
+$content = $null
+$cfgPath = Join-Path $env:USERPROFILE '.claude\speak-config.json'
+if (Test-Path -LiteralPath $cfgPath) {
+    try { $content = (Get-Content -LiteralPath $cfgPath -Raw -Encoding UTF8 | ConvertFrom-Json).content } catch { }
+}
+function Opt($name, $default) {
+    if ($content -and ($content.PSObject.Properties.Name -contains $name) -and $null -ne $content.$name) {
+        return $content.$name
+    }
+    return $default
+}
+$optCode   = [string](Opt 'codeBlocks' 'announce')   # announce | omit | read
+$optTables = [string](Opt 'tables'     'omit')       # omit | read
+$optUrls   = [string](Opt 'urls'       'link')       # link | omit | read
+$optFirst  = [bool]  (Opt 'firstParagraphOnly' $false)
+$optMax    = [int]   (Opt 'maxChars'   0)            # 0 = no limit
+
 # Markdown reads terribly aloud. Drop what is meant to be looked at rather than heard, and
 # strip the punctuation that marks it up.
-$text = [regex]::Replace($text, '(?s)```.*?```', ' Code block omitted. ')   # fenced code
-$text = [regex]::Replace($text, '(?m)^\s*\|.*$', '')                        # table rows
-$text = [regex]::Replace($text, '(?m)^\s*[-:|\s]+$', '')                    # table rules
+switch ($optCode) {
+    'omit'   { $text = [regex]::Replace($text, '(?s)```.*?```', ' ') }
+    'read'   { $text = [regex]::Replace($text, '(?s)```(\w*)\r?\n(.*?)```', ' $2 ') }
+    default  { $text = [regex]::Replace($text, '(?s)```.*?```', ' Code block omitted. ') }
+}
+if ($optTables -ne 'read') {
+    $text = [regex]::Replace($text, '(?m)^\s*\|.*$', '')                    # table rows
+    $text = [regex]::Replace($text, '(?m)^\s*[-:|\s]+$', '')                # table rules
+}
 $text = [regex]::Replace($text, '\[([^\]]+)\]\([^)]*\)', '$1')              # links -> label
-$text = [regex]::Replace($text, 'https?://\S+', ' link ')                   # bare URLs
+switch ($optUrls) {
+    'omit'   { $text = [regex]::Replace($text, 'https?://\S+', ' ') }
+    'read'   { }
+    default  { $text = [regex]::Replace($text, 'https?://\S+', ' link ') }
+}
 $text = $text -replace '`', ''                                              # inline code ticks
 $text = [regex]::Replace($text, '(?m)^\s{0,3}#{1,6}\s*', '')                # ATX headings
 # Underscores are deliberately left alone: stripping them mangles identifiers like
@@ -78,6 +107,12 @@ $text = [regex]::Replace($text, '(?m)^\s*>\s?', '')                         # bl
 $text = [regex]::Replace($text, '(?m)^\s*[-*+]\s+', '')                     # bullet markers
 $text = [regex]::Replace($text, '\n{3,}', "`n`n")
 $text = $text.Trim()
+
+# Length controls, applied last so they act on what would actually have been spoken.
+if ($optFirst) { $text = ($text -split "`n`n")[0].Trim() }
+if ($optMax -gt 0 -and $text.Length -gt $optMax) {
+    $text = $text.Substring(0, $optMax).Trim() + '. Response truncated.'
+}
 
 if ([string]::IsNullOrWhiteSpace($text)) { exit 0 }
 

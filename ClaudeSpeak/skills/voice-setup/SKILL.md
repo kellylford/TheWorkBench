@@ -89,6 +89,27 @@ The engine always falls through to other routes if the configured one is unavail
 config naming an uninstalled voice still speaks — it just will not sound like what was asked
 for. Check the probe rather than trusting that speech happened.
 
+### 4b. Offer control over what is spoken, not just how
+
+Users often want less read at them rather than a different voice. These live in the `content`
+block of the same config and are read by `speak-response.ps1`:
+
+| Setting | Default | Options |
+|---|---|---|
+| `codeBlocks` | `announce` | `announce` / `omit` / `read` |
+| `tables` | `omit` | `omit` / `read` |
+| `urls` | `link` | `link` / `omit` / `read` |
+| `firstParagraphOnly` | `false` | `true` speaks only the opening paragraph |
+| `maxChars` | `0` | stop after N characters; 0 = no limit |
+
+Map plain requests onto these rather than making the user learn the field names — "stop
+reading me code" is `codeBlocks: omit`, "just the gist" is `firstParagraphOnly: true`, "read
+the actual links" is `urls: read`.
+
+State the floor when it is relevant: thinking blocks, tool calls and tool output are **never**
+spoken whatever these are set to, and only the newest reply is read. Users sometimes assume
+the opposite and are asking you to fix a problem they do not have.
+
 ### 5. Make sure the hook uses the engine
 
 `speak-response.ps1` may still point at the original `speak-onecore.ps1`, which ignores the
