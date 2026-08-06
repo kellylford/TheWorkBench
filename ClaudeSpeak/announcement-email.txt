@@ -18,9 +18,19 @@ JAWS exposes a COM interface and NVDA has a controller client library. Going thr
 
 INSTALLING
 
-There is an install.bat in the repo. Run it and it copies the scripts, installs the skill, and adds the hook to your Claude Code settings file - merging with whatever is already in there rather than replacing it. Then restart Claude Code.
+There is an install.bat in the repo. Run it from the ClaudeSpeak folder and it does four things: copies the PowerShell scripts into your .claude folder, installs the skill, writes a starter config set to pick whichever screen reader is running, and adds the hook to your Claude Code settings.json. Then restart Claude Code, because hooks and skills are both read at session start.
 
-It applies to every Claude Code session on the machine, the desktop app as much as the terminal. It does not affect the Claude app or claude.ai in a browser, which are a different product with no hooks.
+The settings.json part is the bit that could hurt, so it is written to be careful. It merges rather than replaces, so anything already in that file stays. It takes a backup first. If you already have a Stop hook - I do, for chat logging - it adds alongside rather than on top. Re-running it is safe: an existing config or hook is left alone. And if your settings.json is not valid JSON it refuses to touch the file at all and prints what to add by hand.
+
+You can see what it would do without changing anything:
+
+powershell -NoProfile -ExecutionPolicy Bypass -File install.ps1 -WhatIf
+
+Please read the installer before you run it. I would say that about anyone's install script, but particularly one written by an AI, for a file you care about.
+
+An important caveat: the installer has only been tested on my machine. Claude exercised it against throwaway targets covering a fresh install, merging into an existing settings file, adding alongside an existing Stop hook, running it twice, and a deliberately malformed settings.json - and that testing did find two real bugs before they shipped. But that is one machine, one Windows version, one Claude Code version, and one person's settings file. It has never been run on anyone else's setup. If it does something unexpected on yours I would genuinely like to know, and there is a manual setup path in the README that is maybe ten lines of copying and one edit.
+
+Whichever way you install it, it applies to every Claude Code session on the machine, the desktop app as much as the terminal. It does not affect the Claude app or claude.ai in a browser, which are a different product with no hooks.
 
 
 CONTROLLING WHAT GETS SPOKEN
