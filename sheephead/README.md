@@ -126,6 +126,43 @@ If everyone passes you get a leaster (or a redeal, your choice): no picker, ever
 themselves, the blind goes to whoever wins the last trick, and the *fewest* points wins — but you
 must have taken at least one trick to be eligible.
 
+### Doublers (optional house rules)
+
+Off by default; turn them on in **Game settings**. A doubler multiplies what the whole hand is
+worth, however it turns out — holding the queens and going down costs double too. Two doublers on
+one hand make it worth four times.
+
+| Doubler | Fires when |
+| --- | --- |
+| Black queens | One player holds both Q♣ and Q♠ in their own hand after burying |
+| Red queens | One player holds both Q♥ and Q♦ |
+| Redeal | Everybody passed and the hand was redealt — doubles the next hand, and does not stack |
+
+A pair only counts inside a single hand. Q♣ with the picker and Q♠ with the partner is not a
+doubler, and neither is a pair split across opposing sides. Who holds what stays private until
+scoring, exactly like the partner card — the only thing said out loud during play is to you, about
+your own hand.
+
+How often they fire, measured over 4,000 hands per table size:
+
+| Players | Black only | Red only | Both (4x) | Any queen doubler | Average hand value |
+| --- | --- | --- | --- | --- | --- |
+| 3 | 23% | 24% | 11% | 58% | 1.80x |
+| 4 | 19% | 18% | 7% | 44% | 1.58x |
+| 5 | 17% | 16% | 4% | 36% | 1.45x |
+| 6 | 15% | 14% | 2% | 31% | 1.42x |
+
+Three-handed is high because ten-card hands make pairs likely.
+
+### Game settings
+
+One dialog holds every rule and preference, reachable from the setup screen and from the in-game
+toolbar. Settings are remembered, so a new game uses them again unless you change them.
+
+Pace and speech changes take effect immediately. Rule changes — all-pass behaviour, opponent skill,
+doublers — take effect from the next hand, so a hand in progress is never scored under rules it did
+not start under.
+
 ### Exporting a game log
 
 Press <kbd>E</kbd> (or the "Export log" button) for a complete written account of the session:

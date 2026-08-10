@@ -30,7 +30,7 @@
     return C.shuffle(pool).slice(0, count);
   }
   var STORE_KEY = 'sheephead.settings.v1';
-  var DIALOGS = ['rules-dialog', 'a11y-dialog', 'export-dialog', 'bug-dialog'];
+  var DIALOGS = ['rules-dialog', 'a11y-dialog', 'export-dialog', 'bug-dialog', 'settings-dialog'];
 
   function anyDialogOpen() {
     for (var i = 0; i < DIALOGS.length; i++) if (el[DIALOGS[i]].open) return true;
@@ -56,7 +56,7 @@
       'trick', 'lasttrick', 'players-table', 'log', 'announcer', 'alerts', 'blind',
       'game-h', 'export-dialog', 'export-text', 'export-summary',
       'bug-dialog', 'bug-title', 'bug-what', 'bug-include-log', 'bug-preview',
-      'rules-dialog', 'a11y-dialog'].forEach(function (id) {
+      'rules-dialog', 'a11y-dialog', 'settings-dialog', 'settings-summary'].forEach(function (id) {
         el[id] = $(id);
       });
 
@@ -76,6 +76,16 @@
       el[id].addEventListener('close', restoreDialogFocus);
     });
     $('btn-newgame').addEventListener('click', backToSetup);
+    $('setup-settings').addEventListener('click', openSettings);
+    $('btn-settings').addEventListener('click', openSettings);
+    $('settings-close').addEventListener('click', function () { closeDialog(el['settings-dialog']); });
+    $('settings-reset').addEventListener('click', resetSettings);
+    // Persist as they go, so nothing is lost by closing with Escape.
+    ['opt-allpass', 'opt-difficulty', 'opt-pace', 'opt-verbose', 'opt-autofocus',
+      'opt-black-queens', 'opt-red-queens', 'opt-redeal-doubler', 'opt-name', 'opt-players']
+      .forEach(function (id) {
+        $(id).addEventListener('change', onSettingChanged);
+      });
     $('btn-log').addEventListener('click', function () { focusLogEntry(0); });
     $('btn-export').addEventListener('click', openExport);
     $('export-close').addEventListener('click', function () { closeDialog(el['export-dialog']); });
@@ -105,20 +115,61 @@
 
   /* ---------------- settings ---------------- */
 
+  var DEFAULTS = {
+    name: 'You', numPlayers: 5, allPass: 'leaster', difficulty: 'normal',
+    pace: 400, verbose: true, autofocus: true,
+    blackQueenDoubler: false, redQueenDoubler: false, redealDoubler: false
+  };
+
+  /* Rules the engine must not see change part way through a hand. Everything
+   * else can take effect immediately. */
+  var RULE_FIELDS = ['allPass', 'difficulty', 'blackQueenDoubler', 'redQueenDoubler', 'redealDoubler'];
+
+  function applyToForm(s) {
+    $('opt-name').value = s.name;
+    $('opt-players').value = String(s.numPlayers);
+    $('opt-allpass').value = s.allPass;
+    $('opt-difficulty').value = s.difficulty;
+    $('opt-pace').value = String(s.pace);
+    $('opt-verbose').checked = !!s.verbose;
+    $('opt-autofocus').checked = !!s.autofocus;
+    $('opt-black-queens').checked = !!s.blackQueenDoubler;
+    $('opt-red-queens').checked = !!s.redQueenDoubler;
+    $('opt-redeal-doubler').checked = !!s.redealDoubler;
+  }
+
   function loadSettings() {
+    var stored = {};
+    try { stored = JSON.parse(localStorage.getItem(STORE_KEY) || '{}'); } catch (e) { stored = {}; }
     var s = {};
-    try { s = JSON.parse(localStorage.getItem(STORE_KEY) || '{}'); } catch (e) { s = {}; }
-    if (s.name) $('opt-name').value = s.name;
-    if (s.numPlayers) $('opt-players').value = String(s.numPlayers);
-    if (s.allPass) $('opt-allpass').value = s.allPass;
-    if (s.difficulty) $('opt-difficulty').value = s.difficulty;
-    if (s.pace !== undefined) $('opt-pace').value = String(s.pace);
-    if (s.verbose !== undefined) $('opt-verbose').checked = !!s.verbose;
-    if (s.autofocus !== undefined) $('opt-autofocus').checked = !!s.autofocus;
+    Object.keys(DEFAULTS).forEach(function (k) {
+      s[k] = stored[k] === undefined ? DEFAULTS[k] : stored[k];
+    });
+    applyToForm(s);
+    renderSettingsSummary();
   }
 
   function saveSettings() {
-    try { localStorage.setItem(STORE_KEY, JSON.stringify(settings)); } catch (e) { /* private mode */ }
+    try { localStorage.setItem(STORE_KEY, JSON.stringify(readForm())); } catch (e) { /* private mode */ }
+    renderSettingsSummary();
+  }
+
+  var PACE_NAMES = { '0': 'instant', '400': 'fast', '900': 'relaxed', '-1': 'manual' };
+
+  function renderSettingsSummary() {
+    if (!el['settings-summary']) return;
+    var f = readForm();
+    var bits = [
+      f.allPass === 'leaster' ? 'Leaster when all pass' : 'Redeal when all pass',
+      f.difficulty + ' opponents',
+      PACE_NAMES[String(f.pace)] + ' pace'
+    ];
+    var dbl = [];
+    if (f.blackQueenDoubler) dbl.push('black queens');
+    if (f.redQueenDoubler) dbl.push('red queens');
+    if (f.redealDoubler) dbl.push('redeal');
+    bits.push(dbl.length ? 'Doublers: ' + dbl.join(', ') : 'No doublers');
+    el['settings-summary'].textContent = bits.join('. ') + '.';
   }
 
   function readForm() {
@@ -133,7 +184,10 @@
       difficulty: $('opt-difficulty').value,
       pace: parseInt($('opt-pace').value, 10),
       verbose: $('opt-verbose').checked,
-      autofocus: $('opt-autofocus').checked
+      autofocus: $('opt-autofocus').checked,
+      blackQueenDoubler: $('opt-black-queens').checked,
+      redQueenDoubler: $('opt-red-queens').checked,
+      redealDoubler: $('opt-redeal-doubler').checked
     };
   }
 
@@ -143,7 +197,9 @@
     e.preventDefault();
     settings = readForm();
     saveSettings();
-    state = G.createGame(settings);
+    var cfg = {};
+    Object.keys(settings).forEach(function (k) { cfg[k] = settings[k]; });
+    state = G.createGame(cfg);
     el['setup-section'].hidden = true;
     el['game-section'].hidden = false;
     el.log.innerHTML = '';
@@ -165,6 +221,9 @@
     clearTimeout(timer);
     selected = {};
     handFocus = 0;
+    // Rule changes made mid-game take effect here, at a hand boundary, never
+    // part way through a hand already being scored under the old rules.
+    RULE_FIELDS.forEach(function (k) { state.config[k] = settings[k]; });
     G.newHand(state);
     drain();
     speech.unshift(' ');            // keeps the deal line from merging with the previous hand
@@ -1332,6 +1391,28 @@
       alert_('Your browser blocked the new tab. The report is on your clipboard — ' +
         'open ' + BUG_REPO + ' issues and paste it.');
     }
+  }
+
+  function openSettings() {
+    openDialog(el['settings-dialog']);
+    var first = el['settings-dialog'].querySelector('select, input');
+    if (first) first.focus();
+  }
+
+  /* Settings are live: pace and speech apply at once, rules at the next hand. */
+  function onSettingChanged() {
+    saveSettings();
+    if (!state) return;
+    var fresh = readForm();
+    ['pace', 'verbose', 'autofocus'].forEach(function (k) { settings[k] = fresh[k]; });
+    RULE_FIELDS.forEach(function (k) { settings[k] = fresh[k]; });
+    render();
+  }
+
+  function resetSettings() {
+    applyToForm(DEFAULTS);
+    onSettingChanged();
+    alert_('Game settings reset to defaults.');
   }
 
   function openRules() { openDialog(el['rules-dialog']); }

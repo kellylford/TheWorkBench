@@ -65,6 +65,9 @@
       pickLog: [],
       pickedUp: [],
       trickLog: [],
+      doublers: [],
+      redealDoubler: false,
+      nextHandDoubler: false,
       revealInfo: null
     };
   }
@@ -111,6 +114,10 @@
     state.pickLog = [];
     state.pickedUp = [];
     state.trickLog = [];
+    state.doublers = [];
+    // A redeal doubles the hand that follows it; it does not compound.
+    state.redealDoubler = !!state.nextHandDoubler;
+    state.nextHandDoubler = false;
     state.revealInfo = null;
     deal(state);
     state.phase = 'pick';
@@ -168,8 +175,12 @@
         ev(state, 'info', 'Everyone passed. This hand is a leaster: no picker, everyone plays for themselves, ' +
           'and the fewest points wins. You must take at least one trick to win. ' +
           'The blind goes to whoever takes the last trick.');
+        computeDoublers(state);
       } else {
-        ev(state, 'info', 'Everyone passed. Redealing.');
+        var willDouble = !!state.config.redealDoubler;
+        if (willDouble) state.nextHandDoubler = true;
+        ev(state, 'info', 'Everyone passed. Redealing.' +
+          (willDouble ? ' The next hand is a doubler, worth twice as much.' : ''));
         newHand(state);
       }
     } else {
@@ -200,6 +211,7 @@
     ev(state, 'bury', nameOf(state, state.picker) + vb(state, state.picker, ' buries ', ' bury ') + d.blind + ' cards.');
 
     assignPartner(state);
+    computeDoublers(state);
 
     state.phase = 'play';
     state.leader = (state.dealer + 1) % state.config.numPlayers;
@@ -252,6 +264,58 @@
   function hasCard(cards, id) {
     for (var i = 0; i < cards.length; i++) if (cards[i].id === id) return true;
     return false;
+  }
+
+  /* ---------------- doublers ---------------- */
+
+  var QUEEN_PAIRS = [
+    { kind: 'black', cards: ['QC', 'QS'], text: 'both black queens' },
+    { kind: 'red', cards: ['QH', 'QD'], text: 'both red queens' }
+  ];
+
+  /* A pair only counts in one player's own hand, and only once the hands are
+   * final — the picker's changes when they bury. Each pair found doubles the
+   * hand, so a player holding all four queens doubles it twice.
+   *
+   * Who holds what is private until scoring, exactly like the partner card. The
+   * only thing said out loud is to the player about their own hand. */
+  function computeDoublers(state) {
+    state.doublers = [];
+    for (var q = 0; q < QUEEN_PAIRS.length; q++) {
+      var pair = QUEEN_PAIRS[q];
+      if (!state.config[pair.kind === 'black' ? 'blackQueenDoubler' : 'redQueenDoubler']) continue;
+      for (var i = 0; i < state.players.length; i++) {
+        var hand = state.players[i].hand;
+        if (hasCard(hand, pair.cards[0]) && hasCard(hand, pair.cards[1])) {
+          state.doublers.push({ kind: pair.kind, player: i, text: pair.text });
+          if (state.players[i].isHuman) {
+            ev(state, 'info', 'You hold ' + pair.text + ', so this hand counts double.');
+          }
+          break;   // a pair can only sit in one hand
+        }
+      }
+    }
+  }
+
+  /* Everything that multiplies this hand, including the redeal doubler. */
+  function doublerList(state) {
+    var out = state.doublers.slice();
+    if (state.redealDoubler) out.push({ kind: 'redeal', player: -1, text: 'the redeal' });
+    return out;
+  }
+
+  function doublerFactor(state) {
+    return Math.pow(2, doublerList(state).length);
+  }
+
+  function doublerText(state) {
+    var list = doublerList(state);
+    if (!list.length) return '';
+    var bits = list.map(function (dbl) {
+      return dbl.player >= 0 ? nameOf(state, dbl.player) + ' held ' + dbl.text : dbl.text;
+    });
+    return ' Doubled by ' + bits.join(' and ') + ', so the hand is worth ' +
+      doublerFactor(state) + ' times.';
   }
 
   /* ---------------- playing ---------------- */
@@ -480,7 +544,8 @@
       if (pl.points < b.points || (pl.points === b.points && pl.tricksWon < b.tricksWon)) best = i;
     }
     if (best < 0) best = 0;
-    for (var j = 0; j < n; j++) deltas[j] = j === best ? (n - 1) : -1;
+    var lf = doublerFactor(state);
+    for (var j = 0; j < n; j++) deltas[j] = (j === best ? (n - 1) : -1) * lf;
 
     var lines = state.players.map(function (p) {
       return p.name + ' ' + p.points + (p.tricksWon === 0 ? ' (no tricks, not eligible)' : '');
@@ -500,8 +565,9 @@
       leaster: true,
       winners: [best],
       deltas: deltas,
+      factor: lf,
       summary: 'Leaster result: ' + lines + '.' + blindText + ' ' + state.players[best].name +
-        ' takes the fewest points and wins, ' + (n - 1) + ' points.'
+        ' takes the fewest points and wins, ' + ((n - 1) * lf) + ' points.' + doublerText(state)
     };
   }
 
@@ -537,7 +603,10 @@
     for (var k = 0; k < pickerTeam.length; k++) isOpp[pickerTeam[k]] = false;
     var oppCount = isOpp.filter(Boolean).length;
 
-    var stake = 2 * mult;
+    // Doublers multiply the whole hand, win or lose, rather than rewarding the
+    // holder — so holding both black queens and going down costs double too.
+    var factor = doublerFactor(state);
+    var stake = 2 * mult * factor;
     var pot = stake * oppCount;
     var partnerShare = pickerTeam.length > 1 ? Math.floor(pot / 3) : 0;
     var pickerShare = pot - partnerShare;
@@ -567,7 +636,8 @@
 
     var summary = 'Hand over. ' + teamText + ' took ' + pickerPts + ' points (including ' +
       buriedPts + ' buried); the other team took ' + oppPts + '.' + blindText + buriedText + ' ' +
-      (pickerWins ? 'The picker\'s team wins' : 'The picker\'s team loses') + ' — ' + label + '. ' +
+      (pickerWins ? 'The picker\'s team wins' : 'The picker\'s team loses') + ' — ' + label + '.' +
+      doublerText(state) + ' ' +
       state.players.map(function (p, i) {
         var dv = deltas[i];
         return p.name + ' ' + (dv >= 0 ? '+' : '') + dv;
@@ -580,6 +650,7 @@
       buriedPts: buriedPts,
       pickerWins: pickerWins,
       mult: mult,
+      factor: factor,
       label: label,
       deltas: deltas,
       summary: summary
@@ -784,6 +855,8 @@
     allyProb: allyProb,
     handSizeFor: handSizeFor,
     transcript: transcript,
-    auditHand: auditHand
+    auditHand: auditHand,
+    doublerFactorFor: doublerFactor,
+    doublerListFor: doublerList
   };
 })(window);

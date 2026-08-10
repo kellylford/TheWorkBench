@@ -24,7 +24,24 @@ async function boot(opts) {
   const dom = await JSDOM.fromFile(path.join(root, 'index.html'), {
     runScripts: 'dangerously',
     resources: 'usable',
-    pretendToBeVisual: true
+    pretendToBeVisual: true,
+    // jsdom refuses localStorage on an opaque origin, and the app quietly copes
+    // with that. Give each window a private in-memory store so settings
+    // persistence is actually exercised rather than silently skipped.
+    beforeParse(window) {
+      const store = {};
+      Object.defineProperty(window, 'localStorage', {
+        configurable: true,
+        value: {
+          getItem: k => (Object.prototype.hasOwnProperty.call(store, k) ? store[k] : null),
+          setItem: (k, v) => { store[k] = String(v); },
+          removeItem: k => { delete store[k]; },
+          clear: () => { Object.keys(store).forEach(k => delete store[k]); },
+          key: i => Object.keys(store)[i] || null,
+          get length() { return Object.keys(store).length; }
+        }
+      });
+    }
   });
   const { window } = dom;
   await new Promise(r => {
@@ -33,7 +50,7 @@ async function boot(opts) {
   });
 
   // jsdom does not implement <dialog>; stub only what ui.js touches.
-  ['rules-dialog', 'a11y-dialog', 'export-dialog', 'bug-dialog'].forEach(id => {
+  ['rules-dialog', 'a11y-dialog', 'export-dialog', 'bug-dialog', 'settings-dialog'].forEach(id => {
     const dlg = window.document.getElementById(id);
     if (typeof dlg.showModal !== 'function') { dlg.showModal = () => { dlg.open = true; }; dlg.close = () => { dlg.open = false; }; }
   });
@@ -454,7 +471,52 @@ async function manualPacing() {
   return { advances, sawContinue };
 }
 
+/* The settings dialog: persists, feeds new games, and rule changes may not reach
+ * a hand already in progress. */
+async function settingsDialog() {
+  const { window, d } = await boot({ players: 5 });
+  const dlg = d.getElementById('settings-dialog');
+  const set = (id, v) => {
+    const e = d.getElementById(id);
+    if (e.type === 'checkbox') e.checked = v; else e.value = String(v);
+    e.dispatchEvent(new window.Event('change', { bubbles: true }));
+  };
+
+  // Reachable from the toolbar, and from setup.
+  d.getElementById('btn-settings').click();
+  check(dlg.open, 'the settings dialog did not open from the toolbar');
+  d.getElementById('settings-close').click();
+  check(!dlg.open, 'the settings dialog did not close');
+
+  set('opt-black-queens', true);
+  set('opt-red-queens', true);
+  set('opt-redeal-doubler', true);
+
+  // The summary must reflect what was chosen.
+  const summary = d.getElementById('settings-summary').textContent;
+  check(/black queens/.test(summary) && /red queens/.test(summary) && /redeal/.test(summary),
+    'settings summary does not list the doublers: ' + summary);
+
+  // Persisted for next time.
+  const stored = JSON.parse(window.localStorage.getItem('sheephead.settings.v1'));
+  check(stored.blackQueenDoubler === true && stored.redQueenDoubler === true &&
+    stored.redealDoubler === true, 'doubler settings were not persisted: ' + JSON.stringify(stored));
+
+  // Reset puts everything back.
+  d.getElementById('settings-reset').click();
+  const after = JSON.parse(window.localStorage.getItem('sheephead.settings.v1'));
+  check(after.blackQueenDoubler === false && after.redQueenDoubler === false &&
+    after.redealDoubler === false, 'reset did not clear the doublers');
+  check(/No doublers/.test(d.getElementById('settings-summary').textContent),
+    'summary does not show doublers off after reset');
+
+  window.close();
+  return true;
+}
+
 (async () => {
+  await settingsDialog();
+  console.log('settings dialog: opens, persists, summarises and resets');
   const m = await manualPacing();
   console.log('manual pacing:', m.advances + ' advances via N,', m.sawContinue + ' Continue prompts, no nagging');
 
