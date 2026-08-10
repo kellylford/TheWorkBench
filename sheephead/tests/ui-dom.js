@@ -112,7 +112,7 @@ function myTurn(d) { return /your turn to play/i.test(d.getElementById('status')
 
 async function playHands(players, howMany) {
   const { window, d } = await boot({ players });
-  const seen = { focusChecks: 0, focusBad: 0, buries: 0, handsDone: 0, blockedSeen: 0, exports: 0, midChecks: 0, bugs: 0 };
+  const seen = { focusChecks: 0, focusBad: 0, buries: 0, handsDone: 0, blockedSeen: 0, exports: 0, midChecks: 0, bugs: 0, handSaid: 0 };
   let guard = 0;
 
   while (seen.handsDone < howMany && ++guard < 6000) {
@@ -228,6 +228,28 @@ async function playHands(players, howMany) {
         'the hand region contains keyboard instructions: ' + text.slice(0, 160));
     }
 
+    // The hand announcement must read every card the same way: full names in
+    // both groups, never a bare rank list under a suit heading.
+    if (myTurn(d) && seen.handSaid < 3) {
+      d.querySelector('[data-say="hand"]').click();
+      await settleAlert();
+      const said = d.getElementById('announcer').textContent;
+      if (said) {
+        seen.handSaid++;
+        check(/Trump: |No trump/.test(said), 'hand announcement has no trump section: ' + said);
+        check(/Non-trump: |No non-trump cards/.test(said),
+          'hand announcement has no non-trump section: ' + said);
+        check(!/(Clubs|Spades|Hearts): /.test(said),
+          'hand announcement still uses per-suit headings: ' + said);
+        // Every card in hand must appear by its full name.
+        cards(d).forEach(c => {
+          const name = c.getAttribute('aria-label').split(',')[0];
+          check(said.indexOf(name) >= 0,
+            'hand announcement is missing "' + name + '": ' + said);
+        });
+      }
+    }
+
     if (myTurn(d)) {
       const all = cards(d), legal = legalCards(d);
       check(legal.length > 0, 'a turn with no legal card');
@@ -273,7 +295,8 @@ async function playHands(players, howMany) {
       r.blockedSeen + ' turns with blocked cards,',
       'focus-on-playable ' + (r.focusChecks - r.focusBad) + '/' + r.focusChecks + ',', r.exports + ' clean exports,',
       r.midChecks + ' mid-hand accounting checks,',
-      r.bugs + ' bug-report checks');
+      r.bugs + ' bug-report checks,',
+      r.handSaid + ' hand announcements');
     check(r.focusChecks > 0, players + 'p: never exercised a restricted turn');
   }
 
