@@ -112,7 +112,7 @@ function myTurn(d) { return /your turn to play/i.test(d.getElementById('status')
 
 async function playHands(players, howMany) {
   const { window, d } = await boot({ players });
-  const seen = { focusChecks: 0, focusBad: 0, buries: 0, handsDone: 0, blockedSeen: 0, exports: 0, midChecks: 0, bugs: 0, handSaid: 0, blindMarked: 0, blindRevealed: 0, jdSeen: 0, orderSaid: 0 };
+  const seen = { focusChecks: 0, focusBad: 0, buries: 0, handsDone: 0, blockedSeen: 0, exports: 0, midChecks: 0, bugs: 0, handSaid: 0, blindMarked: 0, blindRevealed: 0, jdSeen: 0, orderSaid: 0, pickLabels: 0 };
   let guard = 0;
 
   while (seen.handsDone < howMany && ++guard < 6000) {
@@ -196,7 +196,20 @@ async function playHands(players, howMany) {
       if (seen.handsDone < howMany) next.click();
       continue;
     }
-    if (pick) { pick.click(); continue; }
+    if (pick) {
+      // Deciding on the blind IS your turn. The cards are for review, but they
+      // must never claim it is somebody else's turn.
+      cards(d).forEach(c => {
+        const label = c.getAttribute('aria-label');
+        check(!/not your turn/.test(label),
+          'a card says "not your turn" while you are deciding whether to pick: ' + label);
+        check(/for review while you decide whether to pick/.test(label),
+          'a card does not explain why it is unplayable while picking: ' + label);
+      });
+      seen.pickLabels++;
+      pick.click();
+      continue;
+    }
     if (bury) {
       const need = +bury.textContent.match(/of (\d+)/)[1];
 
@@ -303,6 +316,15 @@ async function playHands(players, howMany) {
         'something other than the jack of diamonds is marked as the partner card');
     }
 
+    // Whatever the state, "not your turn" may only appear when it really is not.
+    {
+      const claimsNotYourTurn = cards(d).some(c => /not your turn/.test(c.getAttribute('aria-label')));
+      const itIsMyTurn = myTurn(d) || !!btn(d, /Pick up the blind/) || !!btn(d, /^Bury /);
+      check(!(claimsNotYourTurn && itIsMyTurn),
+        'cards say "not your turn" but it is the player\'s turn — status: ' +
+        d.getElementById('status').textContent);
+    }
+
     // No instructional prose anywhere in the hand region.
     {
       const text = d.getElementById('hand').textContent;
@@ -382,7 +404,8 @@ async function playHands(players, howMany) {
       r.blindMarked + ' blind-marked buries,',
       r.blindRevealed + ' blind reveals,',
       r.jdSeen + ' jack sightings,',
-      r.orderSaid + ' play-order checks');
+      r.orderSaid + ' play-order checks,',
+      r.pickLabels + ' pick-label checks');
     check(r.focusChecks > 0, players + 'p: never exercised a restricted turn');
   }
 
