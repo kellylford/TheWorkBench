@@ -289,21 +289,24 @@
     }
   }
 
+  /* Every card is read out in full, both groups the same way. An earlier version
+   * shortened the non-trump cards to bare ranks under a suit heading ("Hearts:
+   * Ace, Eight"), which changes the pattern half way through the sentence and
+   * makes it harder to follow, not easier. */
   function textHand() {
     var hand = C.sortHand(state.players[0].hand);
     if (!hand.length) return 'Your hand is empty.';
-    var groups = { T: [], C: [], S: [], H: [] };
-    hand.forEach(function (c) { groups[C.effSuit(c)].push(c); });
+
+    var trump = [], fail = [];
+    hand.forEach(function (c) { (C.isTrump(c) ? trump : fail).push(c); });
+    var full = function (c) { return C.name(c); };
+
     var parts = [];
-    if (groups.T.length) {
-      parts.push('Trump: ' + groups.T.map(function (c) { return C.name(c); }).join(', '));
-    }
-    ['C', 'S', 'H'].forEach(function (s) {
-      if (groups[s].length) {
-        parts.push(C.SUIT_NAME[s] + ': ' + groups[s].map(function (c) { return C.RANK_NAME[c.r]; }).join(', '));
-      }
-    });
-    var msg = 'Your hand, ' + hand.length + (hand.length === 1 ? ' card. ' : ' cards. ') + parts.join('. ') + '.';
+    parts.push(trump.length ? 'Trump: ' + trump.map(full).join(', ') : 'No trump');
+    parts.push(fail.length ? 'Non-trump: ' + fail.map(full).join(', ') : 'No non-trump cards');
+
+    var msg = 'Your hand, ' + hand.length + (hand.length === 1 ? ' card. ' : ' cards. ') +
+      parts.join('. ') + '.';
     if (settings.verbose) msg += ' Worth ' + C.sumPoints(hand) + ' points.';
     return msg;
   }
