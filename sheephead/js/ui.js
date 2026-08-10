@@ -535,6 +535,25 @@
 
   function seatName(i) { return state.players[i].name; }
 
+  /* Why a card cannot be activated right now. Never says "not your turn" when it
+   * IS your turn — while deciding on the blind the cards are for review, which
+   * is a different thing entirely and worth saying accurately. */
+  function idleReason() {
+    if (state.phase === 'pick') {
+      return isHumanTurn()
+        ? 'for review while you decide whether to pick'
+        : 'for review, ' + seatName(state.turn) + ' is deciding whether to pick';
+    }
+    if (state.phase === 'bury') {
+      return state.picker === 0
+        ? 'for review while you choose what to bury'
+        : 'for review, ' + seatName(state.picker) + ' is burying';
+    }
+    if (state.phase === 'handOver') return 'the hand is over';
+    if (state.phase === 'play') return 'not your turn, ' + seatName(state.turn) + ' is to play';
+    return 'not playable right now';
+  }
+
   function places(k) {
     var words = ['', 'one place', 'two places', 'three places', 'four places', 'five places'];
     return words[k] || k + ' places';
@@ -763,7 +782,7 @@
         label += ', cannot be played, ' + G.illegalReason(state, 0, c.id);
       } else if (handMode === 'idle') {
         b.setAttribute('aria-disabled', 'true');
-        label += ', not your turn';
+        label += ', ' + idleReason();
       }
       b.setAttribute('aria-label', label);
       b.addEventListener('click', function () { activateCard(c.id, i); });
@@ -973,7 +992,7 @@
       tick();
       return;
     }
-    alert_('It is not your turn to play a card.');
+    alert_('You cannot play a card right now: ' + idleReason() + '.');
   }
 
   function doBury() {
