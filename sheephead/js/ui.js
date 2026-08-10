@@ -82,7 +82,8 @@
     $('settings-reset').addEventListener('click', resetSettings);
     // Persist as they go, so nothing is lost by closing with Escape.
     ['opt-allpass', 'opt-difficulty', 'opt-pace', 'opt-verbose', 'opt-autofocus',
-      'opt-black-queens', 'opt-red-queens', 'opt-redeal-doubler', 'opt-name', 'opt-players']
+      'opt-black-queens', 'opt-red-queens', 'opt-redeal-doubler', 'opt-name', 'opt-players',
+      'opt-skin']
       .forEach(function (id) {
         $(id).addEventListener('change', onSettingChanged);
       });
@@ -117,7 +118,7 @@
 
   var DEFAULTS = {
     name: 'You', numPlayers: 5, allPass: 'leaster', difficulty: 'normal',
-    pace: 400, verbose: true, autofocus: true,
+    pace: 400, verbose: true, autofocus: true, skin: 'traditional',
     blackQueenDoubler: false, redQueenDoubler: false, redealDoubler: false
   };
 
@@ -131,6 +132,7 @@
     $('opt-allpass').value = s.allPass;
     $('opt-difficulty').value = s.difficulty;
     $('opt-pace').value = String(s.pace);
+    $('opt-skin').value = s.skin;
     $('opt-verbose').checked = !!s.verbose;
     $('opt-autofocus').checked = !!s.autofocus;
     $('opt-black-queens').checked = !!s.blackQueenDoubler;
@@ -146,6 +148,7 @@
       s[k] = stored[k] === undefined ? DEFAULTS[k] : stored[k];
     });
     applyToForm(s);
+    applySkin();
     renderSettingsSummary();
   }
 
@@ -162,7 +165,8 @@
     var bits = [
       f.allPass === 'leaster' ? 'Leaster when all pass' : 'Redeal when all pass',
       f.difficulty + ' opponents',
-      PACE_NAMES[String(f.pace)] + ' pace'
+      PACE_NAMES[String(f.pace)] + ' pace',
+      f.skin === 'plain' ? 'Plain cards' : 'Traditional cards'
     ];
     var dbl = [];
     if (f.blackQueenDoubler) dbl.push('black queens');
@@ -182,6 +186,7 @@
       numPlayers: n,
       allPass: $('opt-allpass').value,
       difficulty: $('opt-difficulty').value,
+      skin: $('opt-skin').value,
       pace: parseInt($('opt-pace').value, 10),
       verbose: $('opt-verbose').checked,
       autofocus: $('opt-autofocus').checked,
@@ -479,6 +484,7 @@
     renderTrick(el.trick, state.trick, true);
     renderTrick(el.lasttrick, state.lastTrick ? state.lastTrick.plays : [], false, state.lastTrick);
     renderPlayers();
+    renderSeats();
     renderBlind();
     syncLogTabs();
   }
@@ -750,23 +756,89 @@
       wrap.appendChild(none);
     }
     cards.forEach(function (c) {
-      var span = document.createElement('span');
-      span.className = 'card' + (C.isTrump(c) ? ' trump' : '') + ((c.s === 'H' || c.s === 'D') ? ' red' : '');
-      var rank = document.createElement('span');
-      rank.className = 'rank'; rank.setAttribute('aria-hidden', 'true');
-      rank.textContent = C.RANK_TEXT[c.r];
-      var suit = document.createElement('span');
-      suit.className = 'suit'; suit.setAttribute('aria-hidden', 'true');
-      suit.textContent = C.SUIT_SYM[c.s];
-      var tag = document.createElement('span');
-      tag.className = 'tag'; tag.setAttribute('aria-hidden', 'true');
-      tag.textContent = C.isTrump(c) ? 'trump ' + C.points(c) : C.points(c) + ' pts';
-      span.appendChild(rank); span.appendChild(suit); span.appendChild(tag);
-      span.setAttribute('role', 'img');
-      span.setAttribute('aria-label', C.describe(c));
-      wrap.appendChild(span);
+      var box = document.createElement('span');
+      box.className = cardClasses(c);
+      paintCard(box, c, { tag: C.isTrump(c) ? 'trump ' + C.points(c) : C.points(c) + ' pts' });
+      box.setAttribute('role', 'img');
+      box.setAttribute('aria-label', C.describe(c));
+      wrap.appendChild(box);
     });
     box.appendChild(wrap);
+  }
+
+
+  /* ---------------- card faces ---------------- */
+
+  /* Pip positions on a 3 column by 5 row grid, [col, row], following the
+   * traditional layouts. Everything built here is decoration: it is all
+   * aria-hidden, and the card's aria-label carries the real information. */
+  var PIP_LAYOUT = {
+    '7': [[1,1],[3,1],[1,3],[3,3],[1,5],[3,5],[2,2]],
+    '8': [[1,1],[3,1],[1,3],[3,3],[1,5],[3,5],[2,2],[2,4]],
+    '9': [[1,1],[3,1],[1,2],[3,2],[1,4],[3,4],[1,5],[3,5],[2,3]],
+    'T': [[1,1],[3,1],[1,2],[3,2],[1,4],[3,4],[1,5],[3,5],[2,2],[2,4]]
+  };
+
+  function span(cls, text) {
+    var e = document.createElement('span');
+    if (cls) e.className = cls;
+    if (text !== undefined) e.textContent = text;
+    return e;
+  }
+
+  /* Corner index: rank over a small suit glyph, as on a real card. */
+  function cornerIndex(c, where) {
+    var idx = span('idx idx-' + where);
+    idx.appendChild(span('idx-rank', C.RANK_TEXT[c.r]));
+    idx.appendChild(span('idx-suit', C.SUIT_SYM[c.s]));
+    return idx;
+  }
+
+  /* The middle of the card: pips for number cards, a single large pip for an
+   * ace, a monogram panel for the court cards. */
+  function cardCentre(c) {
+    var face = span('face');
+    var layout = PIP_LAYOUT[c.r];
+    if (layout) {
+      face.className = 'face face-pips';
+      layout.forEach(function (pos) {
+        var pip = span('pip', C.SUIT_SYM[c.s]);
+        pip.style.gridColumn = String(pos[0]);
+        pip.style.gridRow = String(pos[1]);
+        if (pos[1] >= 4) pip.classList.add('pip-flip');   // lower half sits upside down
+        face.appendChild(pip);
+      });
+    } else if (c.r === 'A') {
+      face.className = 'face face-ace';
+      face.appendChild(span('pip pip-big', C.SUIT_SYM[c.s]));
+    } else {
+      face.className = 'face face-court';
+      face.appendChild(span('court-letter', C.RANK_TEXT[c.r]));
+      face.appendChild(span('court-suit', C.SUIT_SYM[c.s]));
+    }
+    return face;
+  }
+
+  /* Fill a card element with its visible innards. Every piece is hidden from
+   * assistive technology; the label on the element itself is what gets read. */
+  function paintCard(el2, c, opts) {
+    opts = opts || {};
+    el2.appendChild(cornerIndex(c, 'tl'));
+    el2.appendChild(cardCentre(c));
+    el2.appendChild(cornerIndex(c, 'br'));
+    // The plain skin shows these two instead of the pips and indices.
+    var simple = span('simple');
+    simple.appendChild(span('rank', C.RANK_TEXT[c.r]));
+    simple.appendChild(span('suit', C.SUIT_SYM[c.s]));
+    el2.appendChild(simple);
+    if (opts.position) el2.appendChild(span('pos', opts.position));
+    if (opts.tag) el2.appendChild(span('tag', opts.tag));
+    [].forEach.call(el2.children, function (ch) { ch.setAttribute('aria-hidden', 'true'); });
+    return el2;
+  }
+
+  function cardClasses(c) {
+    return 'card' + (C.isTrump(c) ? ' trump' : '') + ((c.s === 'H' || c.s === 'D') ? ' red' : '');
   }
 
   function renderHand() {
@@ -815,27 +887,18 @@
       var b = document.createElement('button');
       b.type = 'button';
       var isPartnerCard = partnerRule && c.id === G.PARTNER_CARD;
-      b.className = 'card' + (C.isTrump(c) ? ' trump' : '') + ((c.s === 'H' || c.s === 'D') ? ' red' : '') +
+      b.className = cardClasses(c) +
         (justPicked[c.id] ? ' from-blind' : '') + (isPartnerCard ? ' partner-card' : '');
       b.dataset.id = c.id;
       b.dataset.index = String(i);
       b.tabIndex = i === handFocus ? 0 : -1;
 
-      var pos = document.createElement('span');
-      pos.className = 'pos'; pos.setAttribute('aria-hidden', 'true');
-      pos.textContent = String(i + 1 === 10 ? 0 : i + 1);
-      var rank = document.createElement('span');
-      rank.className = 'rank'; rank.setAttribute('aria-hidden', 'true');
-      rank.textContent = C.RANK_TEXT[c.r];
-      var suit = document.createElement('span');
-      suit.className = 'suit'; suit.setAttribute('aria-hidden', 'true');
-      suit.textContent = C.SUIT_SYM[c.s];
-      var tag = document.createElement('span');
-      tag.className = 'tag'; tag.setAttribute('aria-hidden', 'true');
-      tag.textContent = justPicked[c.id] ? 'from blind'
-        : isPartnerCard ? 'partner'
-          : C.isTrump(c) ? 'trump ' + C.points(c) : C.points(c) + ' pts';
-      b.appendChild(pos); b.appendChild(rank); b.appendChild(suit); b.appendChild(tag);
+      paintCard(b, c, {
+        position: String(i + 1 === 10 ? 0 : i + 1),
+        tag: justPicked[c.id] ? 'from blind'
+          : isPartnerCard ? 'partner'
+            : C.isTrump(c) ? 'trump ' + C.points(c) : C.points(c) + ' pts'
+      });
 
       var label = C.describe(c) + ', card ' + (i + 1) + ' of ' + hand.length;
       if (justPicked[c.id]) label += ', from the blind';
@@ -878,6 +941,11 @@
       var who = document.createElement('span');
       who.className = 'who';
       who.textContent = state.players[t.player].name + (i === 0 ? ' (led)' : '');
+      var mini = document.createElement('span');
+      mini.className = cardClasses(t.card) + ' mini';
+      paintCard(mini, t.card, {});
+      mini.setAttribute('aria-hidden', 'true');
+      li.appendChild(mini);
       var what = document.createElement('span');
       what.className = 'what';
       what.textContent = C.name(t.card);
@@ -1393,6 +1461,36 @@
     }
   }
 
+  /* One class on <body> switches the whole look. No markup differs between the
+   * two skins, so nothing an assistive technology sees can change with it. */
+  function applySkin() {
+    var skin = ($('opt-skin') && $('opt-skin').value) || 'traditional';
+    document.body.classList.toggle('skin-traditional', skin === 'traditional');
+    document.body.classList.toggle('skin-plain', skin === 'plain');
+  }
+
+  /* Opponents drawn as a fan of face-down cards. Decoration only: the region is
+   * aria-hidden, holds nothing focusable, and repeats what the players table
+   * already says properly. */
+  function renderSeats() {
+    var box = $('seats');
+    if (!box) return;
+    box.innerHTML = '';
+    if (!state || settings.skin === 'plain') { box.hidden = true; return; }
+    box.hidden = false;
+    for (var i = 1; i < state.players.length; i++) {
+      var p = state.players[i];
+      var seat = document.createElement('div');
+      seat.className = 'seat' + (state.turn === i && state.phase !== 'handOver' ? ' seat-turn' : '');
+      seat.appendChild(span('seat-name', p.name));
+      seat.appendChild(span('seat-role', roleTags(i).join(', ')));
+      var fan = span('seat-fan');
+      for (var k = 0; k < p.hand.length; k++) fan.appendChild(span('back'));
+      seat.appendChild(fan);
+      box.appendChild(seat);
+    }
+  }
+
   function openSettings() {
     openDialog(el['settings-dialog']);
     var first = el['settings-dialog'].querySelector('select, input');
@@ -1402,9 +1500,10 @@
   /* Settings are live: pace and speech apply at once, rules at the next hand. */
   function onSettingChanged() {
     saveSettings();
+    applySkin();          // presentation only, so it applies with or without a game
     if (!state) return;
     var fresh = readForm();
-    ['pace', 'verbose', 'autofocus'].forEach(function (k) { settings[k] = fresh[k]; });
+    ['pace', 'verbose', 'autofocus', 'skin'].forEach(function (k) { settings[k] = fresh[k]; });
     RULE_FIELDS.forEach(function (k) { settings[k] = fresh[k]; });
     render();
   }

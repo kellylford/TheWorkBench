@@ -9,6 +9,29 @@ No build step, no dependencies, no server. Open `index.html` in a browser and pl
 start index.html
 ```
 
+## Two looks, one page
+
+**Traditional** (default) draws printed card faces — corner indices, pip layouts, court panels — on
+a green table, with opponents shown as fans of face-down cards. **Plain** uses large rank and suit
+glyphs on flat panels. Switch in Game settings.
+
+The markup is identical either way. Every visual part of a card is `aria-hidden`; the information
+lives in the card's `aria-label`, which does not change between skins. Switching adds one class to
+`<body>` — so the two audiences are served by one DOM and there is no second code path to keep
+correct.
+
+### Sizing
+
+Cards are `clamp(3.5rem, 15vw, 5rem)` — the bounds are in **rem**, so the user's font size always
+wins and the viewport only chooses within those limits. This matters: the Cribbage project in this
+same repository is 131 px declarations and 0 rem, which is exactly why its layout came apart when
+text was scaled.
+
+`tests/layout.js` drives a real headless browser across six viewports from 320px to 1920px, at
+default and 150% text size, and fails on any horizontal overflow, any card under 40px wide, any
+card that loses its aspect ratio, or any tap target under 24px. Measured range: 56px cards on a
+320px phone, 120px at 150% text on a desktop, never a horizontal scrollbar.
+
 ## Accessibility
 
 The game is designed so that nothing is conveyed by sight alone.

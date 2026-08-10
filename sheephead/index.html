@@ -88,6 +88,10 @@
       <div id="hand" class="hand" role="group" aria-labelledby="hand-h"></div>
     </section>
 
+    <!-- Decorative only. The players table below carries the same information
+         for assistive technology, so this is hidden from it entirely. -->
+    <div id="seats" class="seats" aria-hidden="true"></div>
+
     <section aria-labelledby="trick-h">
       <h3 id="trick-h">Current trick</h3>
       <ol id="trick" class="trick"></ol>
@@ -179,6 +183,19 @@
       <p class="field checkbox">
         <input type="checkbox" id="opt-redeal-doubler" name="redealdoubler">
         <label for="opt-redeal-doubler">A redeal doubles the next hand — only applies when "when everybody passes" is set to redeal, and repeated redeals do not stack</label>
+      </p>
+    </fieldset>
+
+    <fieldset>
+      <legend>Appearance</legend>
+      <p class="field">
+        <label for="opt-skin">Card and table style</label>
+        <select id="opt-skin" name="skin">
+          <option value="traditional" selected>Traditional — printed card faces on a green table</option>
+          <option value="plain">Plain — large rank and suit, flat background</option>
+        </select>
+        <span class="hint">Both styles carry exactly the same information and read identically to a
+          screen reader. Plain uses bigger, simpler glyphs and no table dressing.</span>
       </p>
     </fieldset>
 
