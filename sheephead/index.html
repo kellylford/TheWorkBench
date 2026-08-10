@@ -80,7 +80,8 @@
 
       <p class="actions">
         <button type="submit" class="primary">Start game</button>
-        <button type="button" id="setup-help">How to play</button>
+        <button type="button" id="setup-rules">How to play Sheephead</button>
+        <button type="button" id="setup-a11y">Accessibility hints</button>
       </p>
     </form>
   </section>
@@ -102,7 +103,8 @@
       <button type="button" id="btn-log" aria-keyshortcuts="G">Game log <kbd>G</kbd></button>
       <button type="button" id="btn-export" aria-keyshortcuts="E">Export log <kbd>E</kbd></button>
       <button type="button" id="btn-bug" aria-keyshortcuts="B">Report a bug <kbd>B</kbd></button>
-      <button type="button" id="btn-help" aria-keyshortcuts="?">Help <kbd>?</kbd></button>
+      <button type="button" id="btn-rules">How to play</button>
+      <button type="button" id="btn-a11y" aria-keyshortcuts="?">Accessibility hints <kbd>?</kbd></button>
       <button type="button" id="btn-newgame">New game</button>
     </div>
 
@@ -159,58 +161,162 @@
 <div id="announcer" class="sr-only" aria-live="polite" aria-atomic="true"></div>
 <div id="alerts" class="sr-only" role="alert" aria-atomic="true"></div>
 
-<dialog id="help-dialog" aria-labelledby="help-h">
+<dialog id="rules-dialog" aria-labelledby="rules-h">
   <div class="dialog-body">
-    <h2 id="help-h">How to play</h2>
+    <h2 id="rules-h">How to play Sheephead</h2>
+    <p class="hint">The rules of the game. For keyboard and screen reader guidance, use the
+      Accessibility hints button at the bottom, or press <kbd>?</kbd>.</p>
 
-    <h3>Keyboard</h3>
-    <ul>
-      <li><kbd>Tab</kbd> and <kbd>Shift</kbd>+<kbd>Tab</kbd> move between all controls.</li>
-      <li>Inside your hand, <kbd>Left</kbd> and <kbd>Right</kbd> arrows move card to card; <kbd>Home</kbd> and <kbd>End</kbd> jump to the first or last card.</li>
-      <li><kbd>Enter</kbd> or <kbd>Space</kbd> plays the focused card.</li>
-      <li><kbd>1</kbd> to <kbd>9</kbd> and <kbd>0</kbd> pick the card at that position directly. <kbd>0</kbd> means the tenth card. Cards are always numbered in the order they are announced, trump first.</li>
-      <li>While burying, <kbd>Enter</kbd>, <kbd>Space</kbd> or a number key toggles a card in and out of your selection instead of playing it. Each card says whether it is selected, and the Bury button tells you how many you have chosen so far. When the right number are selected, activate the Bury button to finish.</li>
-      <li>A card you are not allowed to play says so when you reach it, and tells you which suit you have to follow. Trying to play it explains why instead of doing anything.</li>
-      <li>Review keys: <kbd>H</kbd> hand, <kbd>T</kbd> current trick, <kbd>L</kbd> last trick, <kbd>S</kbd> scores, <kbd>P</kbd> picker and partner, <kbd>C</kbd> cards played so far, <kbd>R</kbd> repeat the last announcement, <kbd>?</kbd> this help.</li>
-      <li><kbd>E</kbd> opens Export game log: a full written account of every finished hand — who was dealt what, who picked, what was buried, every card played — with an automatic check that the points add up. Download it or copy it. If something ever looks wrong with a score, export it.</li>
-      <li><kbd>B</kbd> opens Report a bug. Describe what went wrong and it builds a report from the game log, plus your browser and settings. It copies the whole thing to your clipboard and opens a new issue on GitHub with the summary already filled in, ready for you to paste the log and post. A read-only box shows exactly what will be copied, and nothing leaves your machine until you post it yourself. You need a GitHub account.</li>
-      <li><kbd>G</kbd> jumps into the game log at the newest entry. From there <kbd>Up</kbd> and <kbd>Down</kbd> move one entry at a time, <kbd>Page Up</kbd> and <kbd>Page Down</kbd> move ten, and <kbd>Home</kbd> and <kbd>End</kbd> go to the newest and oldest. Number keys are ignored inside the log so you cannot play a card by accident while reading.</li>
-    </ul>
-    <p>The game does not override your screen reader's reading mode. Everything here is an ordinary
-      button, list, table or dialog, so browse mode, focus mode and forms mode all behave exactly as
-      they normally do and you stay in charge of switching between them.</p>
-    <p>One consequence worth knowing: in browse mode your screen reader claims single letter keys for
-      its own quick navigation, so the game's letter shortcuts will not reach the page. Switch to
-      focus or forms mode when you want them — in NVDA that is <kbd>NVDA</kbd>+<kbd>Space</kbd>. If
-      you would rather not switch at all, every letter shortcut also has a button in the “Review the
-      game” group, and those work in any mode. <kbd>Tab</kbd>, <kbd>Enter</kbd> and <kbd>Space</kbd>
-      always work too, so you can play the whole game without ever changing mode.</p>
+    <h3>The idea</h3>
+    <p>Sheephead is a trick taking game about capturing card points. One player, the picker, takes
+      on the rest of the table, usually with a secret partner. The picker's side needs more than
+      half the points in the deck to win the hand.</p>
 
     <h3>The deck</h3>
-    <p>Thirty-two cards: seven, eight, nine, ten, jack, queen, king and ace in each suit. At four players the seven and eight of diamonds come out, leaving thirty, so that everyone still gets a full hand with a two card blind. Both are worth nothing, so a hand is 120 points at every table size.</p>
-    <p><strong>Trump</strong> is a single fourteen card suit made of all four queens, then all four jacks, then the whole diamond suit. From highest to lowest: queen of clubs, queen of spades, queen of hearts, queen of diamonds, jack of clubs, jack of spades, jack of hearts, jack of diamonds, then ace, ten, king, nine, eight and seven of diamonds.</p>
-    <p><strong>Fail</strong> suits are clubs, spades and hearts, ranked ace, ten, king, nine, eight, seven. Note that the ten sits above the king, and the queens and jacks are not in their fail suits at all — they are trump.</p>
-    <p>Card values: ace 11, ten 10, king 4, queen 3, jack 2, nine, eight and seven nothing. That is 120 points in the deck.</p>
+    <p>Thirty-two cards: seven, eight, nine, ten, jack, queen, king and ace in each suit. At four
+      players the seven and eight of diamonds come out, leaving thirty, so that everyone still gets
+      a full hand with a two card blind. Both are worth nothing, so a hand is 120 points at every
+      table size.</p>
+    <p><strong>Trump</strong> is a single fourteen card suit made of all four queens, then all four
+      jacks, then the whole diamond suit. From highest to lowest: queen of clubs, queen of spades,
+      queen of hearts, queen of diamonds, jack of clubs, jack of spades, jack of hearts, jack of
+      diamonds, then ace, ten, king, nine, eight and seven of diamonds.</p>
+    <p><strong>Fail</strong> suits are clubs, spades and hearts, ranked ace, ten, king, nine, eight,
+      seven. Two things surprise new players: the ten sits above the king, and the queens and jacks
+      are not in their fail suits at all, they are trump. So the highest club is the ace of clubs,
+      not the queen or the jack of clubs.</p>
+    <p>Card values: ace 11, ten 10, king 4, queen 3, jack 2, and nine, eight and seven nothing. That
+      is 120 points in the deck.</p>
 
     <h3>The deal</h3>
-    <p>Everyone gets a hand and a small blind is set aside. Starting to the dealer's left, each player may pick up the blind or pass. Whoever picks takes the blind into their hand and buries the same number of cards face down; those buried cards count for the picker's team at the end.</p>
-    <p>With four, five or six players the jack of diamonds is the secret partner card. Whoever holds it plays with the picker but says nothing until the card hits the table. If the picker holds it or buries it, the picker plays alone against everyone.</p>
-    <p>None of that is announced. The sides only become public when the jack of diamonds is actually played: if somebody else plays it they are the partner, and if the picker plays it themselves that is the moment everyone learns the picker is alone. If the picker buried it, nobody finds out until the hand is scored. You are told your own situation — whether you picked, or hold the jack — but never anyone else's. Press <kbd>P</kbd> at any time for what is currently known.</p>
-    <p>With three players there is no partner card and the picker is always alone, which everyone knows in advance.</p>
+    <p>Everyone gets a hand and a small blind is set aside. Starting to the dealer's left, each
+      player may pick up the blind or pass. Whoever picks takes the blind into their hand and buries
+      the same number of cards face down; those buried cards count for the picker's team at the end,
+      so it pays to bury points you could not otherwise protect.</p>
+    <p>With four, five or six players the jack of diamonds is the secret partner card. Whoever holds
+      it plays with the picker but says nothing until the card hits the table. If the picker holds it
+      or buries it, the picker plays alone against everyone.</p>
+    <p>None of that is announced. The sides only become public when the jack of diamonds is actually
+      played: if somebody else plays it they are the partner, and if the picker plays it themselves
+      that is the moment everyone learns the picker is alone. If the picker buried it, nobody finds
+      out until the hand is scored. You are told your own situation, whether you picked or hold the
+      jack, but never anyone else's.</p>
+    <p>With three players there is no partner card and the picker is always alone, which everyone
+      knows in advance.</p>
 
     <h3>Play</h3>
-    <p>The player to the dealer's left leads. You must follow the suit that was led if you can. Remember that trump is its own suit: if a queen, jack or diamond is led, every queen, jack and diamond in your hand must follow it. Highest trump takes the trick; if no trump is played, the highest card of the led suit takes it.</p>
+    <p>The player to the dealer's left leads. You must follow the suit that was led if you can.
+      Remember that trump is its own suit: if a queen, jack or diamond is led, every queen, jack and
+      diamond in your hand must follow it, and a queen of clubs does not follow a lead of clubs.
+      Highest trump takes the trick; if no trump is played, the highest card of the led suit takes
+      it. If you cannot follow, you may play anything, including trump.</p>
 
-    <h3>Two different numbers</h3>
-    <p>The players table shows two things that are easy to mix up. <strong>Card points this hand</strong> is what you have taken in tricks out of the 120 in the deck; those always total 120 across everyone, plus whatever the picker buried. <strong>Game score</strong> is the running total in scoring units across all hands played; those always total zero, so one player being well ahead means the others are behind by the same amount. The Total row at the bottom of the table tracks how many points have been taken so far; once the last trick is played it shows the full accounting, taken plus buried, which should come to 120.</p>
-
-    <h3>Winning</h3>
-    <p>The picker's team needs 61 of the 120 points. Scores per hand: a normal win pays one unit, 91 or more pays two, taking every trick pays three. If the picker's team falls short they pay double, and more if they are held to 30 points or fewer, or take no tricks at all. Each opponent settles for two units times the multiplier; the picker takes roughly two thirds of that pot and the partner one third.</p>
+    <h3>Winning the hand</h3>
+    <p>The picker's team needs 61 of the 120 points. A normal win pays one unit, 91 or more pays two
+      (a schneider), and taking every trick pays three. If the picker's team falls short they pay
+      double, and more if they are held to 30 points or fewer, or take no tricks at all. Each
+      opponent settles for two units times the multiplier; the picker takes roughly two thirds of
+      that pot and the partner one third.</p>
 
     <h3>Leaster</h3>
-    <p>If everyone passes and you chose the leaster option, there is no picker. Everyone plays for themselves, the blind goes to whoever wins the last trick, and the player with the <em>fewest</em> points wins — but you must have taken at least one trick to be eligible.</p>
+    <p>If everyone passes and you chose the leaster option, there is no picker. Everyone plays for
+      themselves, the blind goes to whoever wins the last trick, and the player with the
+      <em>fewest</em> points wins. You must have taken at least one trick to be eligible, so ducking
+      every single trick loses.</p>
 
-    <p class="actions"><button type="button" id="help-close" class="primary">Close</button></p>
+    <h3>Two different numbers on the table</h3>
+    <p>The players table shows two things that are easy to mix up. <strong>Card points this
+      hand</strong> is what you have taken in tricks out of the 120 in the deck; those always total
+      120 across everyone, plus whatever the picker buried. <strong>Game score</strong> is the
+      running total in scoring units across all the hands you have played; those always total zero,
+      so one player being well ahead means the others are behind by the same amount. The Total row
+      at the bottom tracks points taken so far, and once the last trick is played it shows the full
+      accounting, taken plus buried, which should come to 120.</p>
+
+    <p class="actions">
+      <button type="button" id="rules-close" class="primary">Close</button>
+      <button type="button" id="rules-to-a11y">Accessibility hints</button>
+    </p>
+  </div>
+</dialog>
+
+<dialog id="a11y-dialog" aria-labelledby="a11y-h">
+  <div class="dialog-body">
+    <h2 id="a11y-h">Accessibility hints</h2>
+    <p class="hint">Keyboard, screen reader and pacing guidance. For the rules of the game, use the
+      How to play button at the bottom.</p>
+
+    <h3>You can play without learning anything</h3>
+    <p><kbd>Tab</kbd> and <kbd>Shift</kbd>+<kbd>Tab</kbd> reach every control, and <kbd>Enter</kbd>
+      or <kbd>Space</kbd> activates whatever you land on. That alone is enough to play a whole game.
+      Everything below is optional convenience.</p>
+
+    <h3>Screen reader modes</h3>
+    <p>The game does not override your reading mode. Nothing here is marked as an application
+      region, so browse mode, focus mode and forms mode all behave exactly as they normally do, and
+      you stay in charge of switching between them.</p>
+    <p>The consequence worth knowing: in browse mode your screen reader keeps single letter keys for
+      its own quick navigation, so the game's letter shortcuts below will not reach the page. Switch
+      to focus or forms mode when you want them; in NVDA that is <kbd>NVDA</kbd>+<kbd>Space</kbd>.
+      If you would rather never switch, every letter shortcut also has a button in the Review the
+      game group, and those work in any mode.</p>
+
+    <h3>Your hand</h3>
+    <ul>
+      <li><kbd>Left</kbd> and <kbd>Right</kbd> move card to card; <kbd>Home</kbd> and <kbd>End</kbd>
+        jump to the first or last card.</li>
+      <li><kbd>Enter</kbd> or <kbd>Space</kbd> plays the focused card.</li>
+      <li><kbd>1</kbd> to <kbd>9</kbd> and <kbd>0</kbd> go straight to the card at that position;
+        <kbd>0</kbd> means the tenth. Cards are numbered in the order they are announced, trump
+        first.</li>
+      <li>Each card announces its name, whether it is trump, its point value and its position, for
+        example Queen of Clubs, trump, 3 points, card 1 of 6.</li>
+      <li>A card you may not play right now says so and names the suit you have to follow. It stays
+        in the list rather than disappearing, so you can always review your whole hand. Trying to
+        play it explains why instead of doing nothing.</li>
+      <li>While burying, <kbd>Enter</kbd>, <kbd>Space</kbd> or a number key toggles a card in and out
+        of your selection instead of playing it. Each card says whether it is selected, and the Bury
+        button tells you how many you have chosen. Activate it when the count is right.</li>
+    </ul>
+
+    <h3>Review keys</h3>
+    <ul>
+      <li><kbd>H</kbd> your hand, grouped by trump and fail suit</li>
+      <li><kbd>T</kbd> the current trick, who is winning it and how many points are in it</li>
+      <li><kbd>L</kbd> the last completed trick</li>
+      <li><kbd>S</kbd> points this hand and running scores</li>
+      <li><kbd>P</kbd> who picked, and what is currently known about the partner</li>
+      <li><kbd>C</kbd> counting aid: how much trump has gone, and the highest cards not yet seen</li>
+      <li><kbd>R</kbd> repeat the last announcement</li>
+      <li><kbd>?</kbd> these accessibility hints</li>
+    </ul>
+
+    <h3>The game log</h3>
+    <p><kbd>G</kbd> jumps to the newest entry. From there <kbd>Up</kbd> and <kbd>Down</kbd> move one
+      entry at a time, <kbd>Page Up</kbd> and <kbd>Page Down</kbd> move ten, and <kbd>Home</kbd> and
+      <kbd>End</kbd> go to the newest and oldest. The log is never spoken automatically, so you can
+      read back through it at your own pace without it interrupting play. Number keys are ignored
+      inside it, so you cannot play a card by accident while reading.</p>
+
+    <h3>Pacing and speech</h3>
+    <p>Opponents' turns can advance instantly, after a short or long pause, or only when you press a
+      Continue button. In the automatic modes a whole run of opponent plays is announced as one
+      message, so nothing is cut off part way through by the next play. Manual mode announces each
+      play on its own as it happens. You can also turn off point values in card announcements, and
+      stop focus moving to your cards when your turn comes.</p>
+
+    <h3>If something looks wrong</h3>
+    <p><kbd>E</kbd> exports a full written account of every finished hand, including who was dealt
+      what, who picked, what was buried and every card played, with an automatic check that the
+      points add up. <kbd>B</kbd> opens Report a bug, which builds that same log into a report along
+      with your browser and settings, copies it to your clipboard and opens a prefilled GitHub
+      issue. A read only box shows exactly what will be copied, and nothing leaves your machine
+      until you post it yourself.</p>
+
+    <p class="actions">
+      <button type="button" id="a11y-close" class="primary">Close</button>
+      <button type="button" id="a11y-to-rules">How to play Sheephead</button>
+    </p>
   </div>
 </dialog>
 
