@@ -77,6 +77,7 @@ and forced-colours mode.
 | <kbd>S</kbd> | Points this hand and running scores |
 | <kbd>P</kbd> | Who picked, and what is known about the partner |
 | <kbd>C</kbd> | Counting aid: trump played, highest cards not yet seen |
+| <kbd>O</kbd> | Play order for this trick, and where the picker sits in it |
 | <kbd>G</kbd> | Jump into the game log |
 | <kbd>E</kbd> | Export the game log |
 | <kbd>B</kbd> | Report a bug |

@@ -285,6 +285,7 @@
       case 'score': announce(textScores()); break;
       case 'teams': announce(textTeams()); break;
       case 'count': announce(textCount()); break;
+      case 'order': announce(textOrder()); break;
       case 'repeat': announce(lastSpoken || 'Nothing to repeat.'); break;
     }
   }
@@ -516,6 +517,103 @@
 
   /* What holding the Jack of Diamonds means for this player right now. Only ever
    * describes their own position — never anybody else's. */
+  /* The roles a seat may be shown as, from this player's point of view. The one
+   * place the disclosure rule lives, so the table and the spoken order can never
+   * drift apart and start revealing different things. */
+  function roleTags(i) {
+    var roles = [];
+    if (i === state.dealer) roles.push('dealer');
+    if (i === state.picker) {
+      roles.push('picker');
+      if (state.alone && (state.partnerRevealed || i === 0)) roles.push('alone');
+    }
+    if (!state.isLeaster && !state.alone && state.partner === i &&
+        (state.partnerRevealed || i === 0)) roles.push('partner');
+    if (state.isLeaster) roles.push('leaster');
+    return roles;
+  }
+
+  function seatName(i) { return state.players[i].name; }
+
+  function places(k) {
+    var words = ['', 'one place', 'two places', 'three places', 'four places', 'five places'];
+    return words[k] || k + ' places';
+  }
+
+  /* Where everyone sits in the running order. A sighted player reads this off
+   * the table; without it there is no way to know whether the picker plays
+   * before or after you, which changes what it is safe to lead. */
+  function textOrder() {
+    if (!state) return '';
+    var n = settings.numPlayers;
+    var i, k, tags, line;
+    var list = [];
+
+    if (state.phase === 'pick') {
+      var decided = {};
+      state.pickLog.forEach(function (e) { decided[e.player] = e.action; });
+      var pickStart = (state.dealer + 1) % n;
+      for (k = 0; k < n; k++) {
+        i = (pickStart + k) % n;
+        tags = roleTags(i);
+        var st = decided[i] === 'pass' ? 'passed'
+          : decided[i] === 'pick' ? 'picked'
+            : i === state.turn ? 'deciding now' : 'still to decide';
+        list.push((k + 1) + ', ' + seatName(i) + (tags.length ? ', ' + tags.join(', ') : '') + ', ' + st);
+      }
+      return 'Picking order, starting to the dealer\'s left. ' + list.join('. ') + '.';
+    }
+
+    if (state.phase !== 'play' && state.phase !== 'handOver') {
+      return 'Seating order: ' + state.players.map(function (p) { return p.name; }).join(', ') + '.';
+    }
+
+    var startSeat = state.trick.length ? state.trick[0].player : state.leader;
+    var playedBy = {};
+    state.trick.forEach(function (t) { playedBy[t.player] = t.card; });
+
+    var youAt = -1, pickerAt = -1;
+    for (k = 0; k < n; k++) {
+      i = (startSeat + k) % n;
+      if (i === 0) youAt = k;
+      if (i === state.picker) pickerAt = k;
+      tags = roleTags(i);
+      line = (k + 1) + ', ' + seatName(i) + (tags.length ? ', ' + tags.join(', ') : '');
+      if (state.phase === 'play') {
+        line += ', ' + (playedBy[i] ? 'played ' + C.name(playedBy[i]) : 'to play');
+      }
+      list.push(line);
+    }
+
+    var msg = 'Play order for this trick, starting with the lead. ' + list.join('. ') + '.';
+
+    if (youAt === 0) msg += ' You lead.';
+    else if (youAt === n - 1) msg += ' You play last.';
+
+    if (!state.isLeaster && state.picker >= 0) {
+      if (state.picker === 0) {
+        msg += ' You are the picker.';
+      } else if (pickerAt >= 0 && youAt >= 0) {
+        var delta = pickerAt - youAt;
+        msg += delta > 0
+          ? ' The picker plays ' + places(delta) + ' after you.'
+          : ' The picker plays ' + places(-delta) + ' before you.';
+      }
+    }
+
+    if (state.phase === 'play') {
+      var after = [];
+      for (k = youAt + 1; k < n; k++) after.push(seatName((startSeat + k) % n));
+      if (youAt >= 0 && !playedBy[0]) {
+        msg += after.length
+          ? ' ' + after.length + (after.length === 1 ? ' player plays' : ' players play') +
+            ' after you: ' + after.join(', ') + '.'
+          : ' Nobody plays after you.';
+      }
+    }
+    return msg;
+  }
+
   function hasPartnerCard() {
     return state.players[0].hand.some(function (c) { return c.id === G.PARTNER_CARD; });
   }
@@ -722,15 +820,7 @@
 
       // Roles must only show what this player is entitled to know: a hidden
       // partner, and a hidden "playing alone", stay off the table.
-      var roles = [];
-      if (i === state.dealer) roles.push('dealer');
-      if (i === state.picker) {
-        roles.push('picker');
-        if (state.alone && (state.partnerRevealed || i === 0)) roles.push('alone');
-      }
-      if (!state.isLeaster && !state.alone && state.partner === i && (state.partnerRevealed || i === 0)) roles.push('partner');
-      if (state.isLeaster) roles.push('leaster');
-
+      var roles = roleTags(i);
       var cells = [
         p.name + (i === 0 ? ' (you)' : ''),
         roles.length ? roles.join(', ') : '—',
@@ -974,7 +1064,7 @@
     if (k === 'g') { e.preventDefault(); focusLogEntry(0); return; }
     if (k === 'e') { e.preventDefault(); openExport(); return; }
 
-    var map = { h: 'hand', t: 'trick', l: 'last', s: 'score', p: 'teams', c: 'count', r: 'repeat' };
+    var map = { h: 'hand', t: 'trick', l: 'last', s: 'score', p: 'teams', c: 'count', o: 'order', r: 'repeat' };
     if (map[k]) { e.preventDefault(); say(map[k]); return; }
     if (e.key === '?') { e.preventDefault(); openA11y(); }
   }

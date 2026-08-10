@@ -112,7 +112,7 @@ function myTurn(d) { return /your turn to play/i.test(d.getElementById('status')
 
 async function playHands(players, howMany) {
   const { window, d } = await boot({ players });
-  const seen = { focusChecks: 0, focusBad: 0, buries: 0, handsDone: 0, blockedSeen: 0, exports: 0, midChecks: 0, bugs: 0, handSaid: 0, blindMarked: 0, blindRevealed: 0, jdSeen: 0 };
+  const seen = { focusChecks: 0, focusBad: 0, buries: 0, handsDone: 0, blockedSeen: 0, exports: 0, midChecks: 0, bugs: 0, handSaid: 0, blindMarked: 0, blindRevealed: 0, jdSeen: 0, orderSaid: 0 };
   let guard = 0;
 
   while (seen.handsDone < howMany && ++guard < 6000) {
@@ -256,6 +256,38 @@ async function playHands(players, howMany) {
       seen.midChecks++;
     }
 
+    // Play order must say who plays when, and — the point of it — where the
+    // picker sits relative to you.
+    if (myTurn(d) && seen.orderSaid < 3) {
+      d.querySelector('[data-say="order"]').click();
+      await settleAlert();
+      const said = d.getElementById('announcer').textContent;
+      if (said) {
+        seen.orderSaid++;
+        check(/^Play order for this trick, starting with the lead\./.test(said),
+          'play order announcement is malformed: ' + said);
+        // every seat named exactly once
+        const rows = [...d.querySelectorAll('#players-table tbody tr')];
+        rows.forEach(r => {
+          const nm = r.querySelector('th').textContent.replace(' (you)', '');
+          check(said.indexOf(nm) >= 0, 'play order is missing ' + nm + ': ' + said);
+        });
+        check(said.indexOf(String(players) + ', ') >= 0,
+          'play order does not number every seat up to ' + players + ': ' + said);
+        // the picker's position relative to you, which is the whole point
+        const pickerRow = rows.findIndex(r => /picker/.test(r.children[1].textContent));
+        if (pickerRow === 0) {
+          check(/You are the picker\./.test(said), 'you are the picker but it was not said: ' + said);
+        } else if (pickerRow > 0) {
+          check(/The picker plays (one|two|three|four|five) places? (after|before) you\./.test(said),
+            'play order does not place the picker relative to you: ' + said);
+        }
+        // leading and last are worth calling out explicitly
+        const played = d.querySelectorAll('#trick li:not(.empty)').length;
+        if (played === 0) check(/You lead\./.test(said), 'leading was not announced: ' + said);
+      }
+    }
+
     // The jack of diamonds is called out whenever the player holds it, so they
     // know they are the partner without having to work it out.
     if (players >= 4) {
@@ -349,7 +381,8 @@ async function playHands(players, howMany) {
       r.handSaid + ' hand announcements,',
       r.blindMarked + ' blind-marked buries,',
       r.blindRevealed + ' blind reveals,',
-      r.jdSeen + ' jack sightings');
+      r.jdSeen + ' jack sightings,',
+      r.orderSaid + ' play-order checks');
     check(r.focusChecks > 0, players + 'p: never exercised a restricted turn');
   }
 
