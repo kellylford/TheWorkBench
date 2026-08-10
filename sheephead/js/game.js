@@ -63,6 +63,7 @@
       history: [],      // one audited record per completed hand
       dealt: null,
       pickLog: [],
+      pickedUp: [],
       trickLog: [],
       revealInfo: null
     };
@@ -108,6 +109,7 @@
     state.played = [];
     state.result = null;
     state.pickLog = [];
+    state.pickedUp = [];
     state.trickLog = [];
     state.revealInfo = null;
     deal(state);
@@ -139,7 +141,10 @@
     var d = DEAL[state.config.numPlayers];
     state.picker = p;
     var pl = state.players[p];
-    pl.hand = C.sortHand(pl.hand.concat(state.blind));
+    // The blind goes to the front of the hand, unsorted, so the picker can see
+    // at a glance what they just took. The hand is sorted properly after burying.
+    state.pickedUp = C.ids(state.blind);
+    pl.hand = state.blind.concat(C.sortHand(pl.hand));
     state.pickLog.push({ player: p, action: 'pick' });
     ev(state, 'pick', nameOf(state, p) + vb(state, p, ' picks', ' pick') + ' up the blind (' + d.blind + ' cards).');
     state.blind = [];
@@ -190,6 +195,8 @@
       chosen.push(pl.hand.splice(idx, 1)[0]);
     }
     state.buried = chosen;
+    pl.hand = C.sortHand(pl.hand);   // back to normal order now the choice is made
+    state.pickedUp = [];
     ev(state, 'bury', nameOf(state, state.picker) + vb(state, state.picker, ' buries ', ' bury ') + d.blind + ' cards.');
 
     assignPartner(state);
@@ -478,11 +485,22 @@
     var lines = state.players.map(function (p) {
       return p.name + ' ' + p.points + (p.tricksWon === 0 ? ' (no tricks, not eligible)' : '');
     }).join(', ');
+
+    // The blind was never picked up, so nobody has seen it until now.
+    var blindText = '';
+    if (state.dealt && state.dealt.blind.length) {
+      var cards = state.dealt.blind.map(function (id) { return C.get(id); });
+      var last = state.trickLog.length ? state.trickLog[state.trickLog.length - 1] : null;
+      blindText = ' The blind held ' + cards.map(function (c) { return C.name(c); }).join(' and ') +
+        ', worth ' + C.sumPoints(cards) + ', and went to ' +
+        (last ? nameOf(state, last.winner) : 'the last trick') + ' with the last trick.';
+    }
+
     return {
       leaster: true,
       winners: [best],
       deltas: deltas,
-      summary: 'Leaster result: ' + lines + '. ' + state.players[best].name +
+      summary: 'Leaster result: ' + lines + '.' + blindText + ' ' + state.players[best].name +
         ' takes the fewest points and wins, ' + (n - 1) + ' points.'
     };
   }
@@ -537,8 +555,18 @@
       teamText += ' (the Jack of Diamonds was buried)';
     }
 
+    // Name the cards, not just the total — at hand end everything is public, and
+    // "21 buried" tells you nothing about what actually went down.
+    var buriedText = state.buried.length
+      ? ' Buried: ' + state.buried.map(function (c) { return C.name(c); }).join(', ') +
+        ' (' + buriedPts + (buriedPts === 1 ? ' point).' : ' points).')
+      : '';
+    var blindText = state.dealt && state.dealt.blind.length
+      ? ' The blind held ' + state.dealt.blind.map(function (id) { return C.name(C.get(id)); }).join(' and ') + '.'
+      : '';
+
     var summary = 'Hand over. ' + teamText + ' took ' + pickerPts + ' points (including ' +
-      buriedPts + ' buried); the other team took ' + oppPts + '. ' +
+      buriedPts + ' buried); the other team took ' + oppPts + '.' + blindText + buriedText + ' ' +
       (pickerWins ? 'The picker\'s team wins' : 'The picker\'s team loses') + ' — ' + label + '. ' +
       state.players.map(function (p, i) {
         var dv = deltas[i];

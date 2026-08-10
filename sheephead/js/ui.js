@@ -53,7 +53,7 @@
 
   function init() {
     ['setup-section', 'setup-form', 'game-section', 'status', 'actions', 'hand',
-      'trick', 'lasttrick', 'players-table', 'log', 'announcer', 'alerts',
+      'trick', 'lasttrick', 'players-table', 'log', 'announcer', 'alerts', 'blind',
       'game-h', 'export-dialog', 'export-text', 'export-summary',
       'bug-dialog', 'bug-title', 'bug-what', 'bug-include-log', 'bug-preview',
       'rules-dialog', 'a11y-dialog'].forEach(function (id) {
@@ -297,6 +297,15 @@
     var hand = C.sortHand(state.players[0].hand);
     if (!hand.length) return 'Your hand is empty.';
 
+    // Just after picking, call out what came from the blind before anything else
+    // — that is the thing the picker actually needs to know right now.
+    var lead = '';
+    if (state.phase === 'bury' && state.picker === 0 && state.pickedUp && state.pickedUp.length) {
+      lead = 'From the blind: ' + state.pickedUp.map(function (id) {
+        return C.name(C.get(id));
+      }).join(', ') + '. Then your hand. ';
+    }
+
     var trump = [], fail = [];
     hand.forEach(function (c) { (C.isTrump(c) ? trump : fail).push(c); });
     var full = function (c) { return C.name(c); };
@@ -305,9 +314,12 @@
     parts.push(trump.length ? 'Trump: ' + trump.map(full).join(', ') : 'No trump');
     parts.push(fail.length ? 'Non-trump: ' + fail.map(full).join(', ') : 'No non-trump cards');
 
-    var msg = 'Your hand, ' + hand.length + (hand.length === 1 ? ' card. ' : ' cards. ') +
+    var msg = lead + 'Your hand, ' + hand.length + (hand.length === 1 ? ' card. ' : ' cards. ') +
       parts.join('. ') + '.';
     if (settings.verbose) msg += ' Worth ' + C.sumPoints(hand) + ' points.';
+    if (G.DEAL[settings.numPlayers].partner && hasPartnerCard()) {
+      msg += ' You hold the Jack of Diamonds, ' + partnerCardMeaning() + '.';
+    }
     return msg;
   }
 
@@ -408,6 +420,7 @@
     renderTrick(el.trick, state.trick, true);
     renderTrick(el.lasttrick, state.lastTrick ? state.lastTrick.plays : [], false, state.lastTrick);
     renderPlayers();
+    renderBlind();
     syncLogTabs();
   }
 
@@ -501,11 +514,93 @@
     return b;
   }
 
+  /* What holding the Jack of Diamonds means for this player right now. Only ever
+   * describes their own position — never anybody else's. */
+  function hasPartnerCard() {
+    return state.players[0].hand.some(function (c) { return c.id === G.PARTNER_CARD; });
+  }
+
+  function partnerCardMeaning() {
+    if (state.picker < 0) return 'the partner card';
+    if (state.picker === 0) return 'the partner card, so you are playing alone';
+    return 'the partner card, so you are the picker\'s partner';
+  }
+
+  /* The blind, revealed once the hand is over. Until then it is nobody's business:
+   * during play this section stays hidden entirely. */
+  function renderBlind() {
+    var sec = $('blind-section');
+    if (!sec) return;
+    if (state.phase !== 'handOver' || !state.dealt) { sec.hidden = true; return; }
+
+    var blind = state.dealt.blind.map(function (id) { return C.get(id); });
+    var buried = state.buried.slice();
+    var note;
+    if (state.isLeaster) {
+      var last = state.trickLog.length ? state.trickLog[state.trickLog.length - 1] : null;
+      note = 'Nobody picked, so the blind was worth ' + C.sumPoints(blind) + ' to ' +
+        (last ? state.players[last.winner].name : 'whoever took the last trick') + ' with the last trick.';
+    } else {
+      note = 'The blind, and what ' + state.players[state.picker].name + ' buried (' +
+        C.sumPoints(buried) + ' points, counted for the picker\'s team).';
+    }
+    $('blind-note').textContent = note;
+
+    var box = el.blind;
+    box.innerHTML = '';
+    addRevealRow(box, 'Blind', blind);
+    if (!state.isLeaster) addRevealRow(box, 'Buried', buried);
+    sec.hidden = false;
+  }
+
+  function addRevealRow(box, label, cards) {
+    var wrap = document.createElement('div');
+    wrap.className = 'reveal-row';
+    var h = document.createElement('span');
+    h.className = 'reveal-label';
+    h.textContent = label + ':';
+    wrap.appendChild(h);
+    if (!cards.length) {
+      var none = document.createElement('span');
+      none.className = 'hint';
+      none.textContent = 'none';
+      wrap.appendChild(none);
+    }
+    cards.forEach(function (c) {
+      var span = document.createElement('span');
+      span.className = 'card' + (C.isTrump(c) ? ' trump' : '') + ((c.s === 'H' || c.s === 'D') ? ' red' : '');
+      var rank = document.createElement('span');
+      rank.className = 'rank'; rank.setAttribute('aria-hidden', 'true');
+      rank.textContent = C.RANK_TEXT[c.r];
+      var suit = document.createElement('span');
+      suit.className = 'suit'; suit.setAttribute('aria-hidden', 'true');
+      suit.textContent = C.SUIT_SYM[c.s];
+      var tag = document.createElement('span');
+      tag.className = 'tag'; tag.setAttribute('aria-hidden', 'true');
+      tag.textContent = C.isTrump(c) ? 'trump ' + C.points(c) : C.points(c) + ' pts';
+      span.appendChild(rank); span.appendChild(suit); span.appendChild(tag);
+      span.setAttribute('role', 'img');
+      span.setAttribute('aria-label', C.describe(c));
+      wrap.appendChild(span);
+    });
+    box.appendChild(wrap);
+  }
+
   function renderHand() {
-    var hand = C.sortHand(state.players[0].hand);
     handMode = 'idle';
     if (state.phase === 'bury' && state.picker === 0) handMode = 'bury';
     else if (state.phase === 'play' && isHumanTurn()) handMode = 'play';
+
+    // While burying, the engine keeps the freshly picked-up cards at the front
+    // so they are easy to spot. Sorting here would undo that; the hand is sorted
+    // again the moment the bury is committed.
+    var hand = handMode === 'bury'
+      ? state.players[0].hand.slice()
+      : C.sortHand(state.players[0].hand);
+
+    var justPicked = {};
+    (state.pickedUp || []).forEach(function (id) { justPicked[id] = 1; });
+    var partnerRule = G.DEAL[settings.numPlayers].partner;
 
     var legalIds = {};
     if (handMode === 'play') {
@@ -536,7 +631,9 @@
     hand.forEach(function (c, i) {
       var b = document.createElement('button');
       b.type = 'button';
-      b.className = 'card' + (C.isTrump(c) ? ' trump' : '') + ((c.s === 'H' || c.s === 'D') ? ' red' : '');
+      var isPartnerCard = partnerRule && c.id === G.PARTNER_CARD;
+      b.className = 'card' + (C.isTrump(c) ? ' trump' : '') + ((c.s === 'H' || c.s === 'D') ? ' red' : '') +
+        (justPicked[c.id] ? ' from-blind' : '') + (isPartnerCard ? ' partner-card' : '');
       b.dataset.id = c.id;
       b.dataset.index = String(i);
       b.tabIndex = i === handFocus ? 0 : -1;
@@ -552,10 +649,14 @@
       suit.textContent = C.SUIT_SYM[c.s];
       var tag = document.createElement('span');
       tag.className = 'tag'; tag.setAttribute('aria-hidden', 'true');
-      tag.textContent = C.isTrump(c) ? 'trump ' + C.points(c) : C.points(c) + ' pts';
+      tag.textContent = justPicked[c.id] ? 'from blind'
+        : isPartnerCard ? 'partner'
+          : C.isTrump(c) ? 'trump ' + C.points(c) : C.points(c) + ' pts';
       b.appendChild(pos); b.appendChild(rank); b.appendChild(suit); b.appendChild(tag);
 
       var label = C.describe(c) + ', card ' + (i + 1) + ' of ' + hand.length;
+      if (justPicked[c.id]) label += ', from the blind';
+      if (isPartnerCard) label += ', ' + partnerCardMeaning();
       if (handMode === 'bury') {
         b.setAttribute('aria-pressed', selected[c.id] ? 'true' : 'false');
         label += selected[c.id] ? ', selected to bury' : '';
