@@ -33,7 +33,7 @@ async function boot(opts) {
   });
 
   // jsdom does not implement <dialog>; stub only what ui.js touches.
-  ['help-dialog', 'export-dialog'].forEach(id => {
+  ['help-dialog', 'export-dialog', 'bug-dialog'].forEach(id => {
     const dlg = window.document.getElementById(id);
     if (typeof dlg.showModal !== 'function') { dlg.showModal = () => { dlg.open = true; }; dlg.close = () => { dlg.open = false; }; }
   });
@@ -48,6 +48,13 @@ async function boot(opts) {
     check(!opps.some(o => /^You/.test(o)), 'an opponent is named after the player: ' + opps.join(', '));
     check(opps.every(o => /^[A-Z]/.test(o)), 'odd opponent name: ' + opps.join(', '));
   }
+
+  // Screen reader modes are the user's to control: nothing may claim application role.
+  const appRoles = [...d.querySelectorAll('[role="application"]')];
+  check(appRoles.length === 0,
+    'role="application" found on: ' + appRoles.map(e => e.id || e.tagName).join(', '));
+  check(!d.querySelector('[aria-roledescription]'),
+    'aria-roledescription overrides what the screen reader announces');
 
   // The hand region must not carry keyboard instructions; that belongs in help.
   check(!d.getElementById('hand').hasAttribute('aria-describedby'),
@@ -75,7 +82,7 @@ function myTurn(d) { return /your turn to play/i.test(d.getElementById('status')
 
 async function playHands(players, howMany) {
   const { window, d } = await boot({ players });
-  const seen = { focusChecks: 0, focusBad: 0, buries: 0, handsDone: 0, blockedSeen: 0, exports: 0, midChecks: 0 };
+  const seen = { focusChecks: 0, focusBad: 0, buries: 0, handsDone: 0, blockedSeen: 0, exports: 0, midChecks: 0, bugs: 0 };
   let guard = 0;
 
   while (seen.handsDone < howMany && ++guard < 6000) {
@@ -110,10 +117,37 @@ async function playHands(players, howMany) {
       check(/Check: ok/.test(text), 'export hand check is not ok');
       check(d.activeElement === d.getElementById('export-text'), 'export dialog did not focus the text');
       d.getElementById('export-close').click();
+      seen.exports++;
+
+      // Bug report: preview must be exactly what gets copied, and must carry the
+      // transcript when asked and drop it when not.
+      d.getElementById('btn-bug').click();
+      const bugTitle = d.getElementById('bug-title');
+      const bugWhat = d.getElementById('bug-what');
+      const incl = d.getElementById('bug-include-log');
+      const preview = d.getElementById('bug-preview');
+      bugWhat.value = 'The score looked wrong on the last hand.';
+      bugWhat.dispatchEvent(new window.Event('input', { bubbles: true }));
+      check(/score looked wrong/.test(preview.value), 'preview does not reflect what was typed');
+      check(/### Game log/.test(preview.value), 'preview is missing the game log when included');
+      check(preview.value.includes('=== Hand ' + seen.handsDone + ' ==='),
+        'bug report log is missing the hand just played');
+      check(/Browser:/.test(preview.value), 'bug report is missing environment details');
+      check(/Players: /.test(preview.value), 'bug report is missing the game setup');
+
+      incl.checked = false;
+      incl.dispatchEvent(new window.Event('change', { bubbles: true }));
+      check(!/### Game log/.test(preview.value), 'unchecking include-log did not drop the log');
+      check(/score looked wrong/.test(preview.value), 'unchecking include-log lost the description');
+      incl.checked = true;
+      incl.dispatchEvent(new window.Event('change', { bubbles: true }));
+
+      check(/^\[sheephead\] /.test(bugTitle.value) === false, 'title box should hold the bare title');
+      d.getElementById('bug-close').click();
+      seen.bugs++;
       check(d.activeElement === cameFrom,
         'closing the export dialog did not return focus to where it came from (went to ' +
         (d.activeElement && d.activeElement.id || d.activeElement.tagName) + ')');
-      seen.exports++;
       if (seen.handsDone < howMany) next.click();
       continue;
     }
@@ -208,7 +242,8 @@ async function playHands(players, howMany) {
       r.buries + ' buries,',
       r.blockedSeen + ' turns with blocked cards,',
       'focus-on-playable ' + (r.focusChecks - r.focusBad) + '/' + r.focusChecks + ',', r.exports + ' clean exports,',
-      r.midChecks + ' mid-hand accounting checks');
+      r.midChecks + ' mid-hand accounting checks,',
+      r.bugs + ' bug-report checks');
     check(r.focusChecks > 0, players + 'p: never exercised a restricted turn');
   }
 

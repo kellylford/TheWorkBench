@@ -37,10 +37,14 @@ announcement still tells you it is your turn. You can turn the behaviour off ent
 **Pace is configurable.** Opponent turns can advance instantly, after a short or long pause, or
 only when you press a Continue button. Manual mode announces each play individually as it happens.
 
-**Browse mode is respected.** Only the hand is marked `role="application"`, so single-letter review
-keys work while a card has focus even with a screen reader in browse mode. The rest of the page
-stays ordinary readable content. Every shortcut also exists as a button in the "Review the game"
-group, so nothing depends on the shortcuts working.
+**Screen reader modes are left alone.** Nothing here is marked `role="application"`, so browse,
+focus and forms modes behave normally and the user decides when to switch. Everything is a plain
+button, list, table or dialog.
+
+The trade-off is deliberate: in browse mode the screen reader keeps single-letter keys for its own
+quick navigation, so the game's letter shortcuts will not reach the page. That is why every single
+one of them also exists as a button in the "Review the game" group — nothing depends on a shortcut
+being available, and `Tab`/`Enter`/`Space` alone are enough to play a whole game.
 
 Also: visible focus outlines, no colour-only meaning (trump is labelled as well as tinted), a skip
 link, semantic headings and tables, and support for `prefers-reduced-motion`, `prefers-contrast`
@@ -63,6 +67,7 @@ and forced-colours mode.
 | <kbd>C</kbd> | Counting aid: trump played, highest cards not yet seen |
 | <kbd>G</kbd> | Jump into the game log |
 | <kbd>E</kbd> | Export the game log |
+| <kbd>B</kbd> | Report a bug |
 | <kbd>R</kbd> | Repeat the last announcement |
 | <kbd>?</kbd> | Help |
 
@@ -110,6 +115,19 @@ visible rather than buried in a plausible-looking column.
 
 Exporting part way through a hand only reports what you can see from your own seat, so it cannot
 be used to look at other players' cards.
+
+### Reporting a bug
+
+Press <kbd>B</kbd> (or the "Report a bug" button). Describe what went wrong and it assembles a
+report: your description, the game setup, the automatic accounting check, your browser, and the
+full game log. A read-only box shows exactly what will be copied — nothing is hidden and nothing
+is sent anywhere on its own.
+
+"Copy report and open GitHub" puts the whole report on the clipboard and opens a prefilled
+`issues/new` on `kellylford/TheWorkBench`; paste the log in and post it. The link carries the
+summary only, because a full transcript runs to tens of thousands of characters and would blow
+past the URL limit — hence the clipboard. There is no server, no API token and no telemetry
+anywhere in this; posting the issue is entirely the user's own action and needs a GitHub account.
 
 ### Hidden information
 

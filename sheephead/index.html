@@ -101,6 +101,7 @@
       <button type="button" data-say="repeat" aria-keyshortcuts="R">Repeat <kbd>R</kbd></button>
       <button type="button" id="btn-log" aria-keyshortcuts="G">Game log <kbd>G</kbd></button>
       <button type="button" id="btn-export" aria-keyshortcuts="E">Export log <kbd>E</kbd></button>
+      <button type="button" id="btn-bug" aria-keyshortcuts="B">Report a bug <kbd>B</kbd></button>
       <button type="button" id="btn-help" aria-keyshortcuts="?">Help <kbd>?</kbd></button>
       <button type="button" id="btn-newgame">New game</button>
     </div>
@@ -112,9 +113,7 @@
 
     <section aria-labelledby="hand-h">
       <h3 id="hand-h">Your hand</h3>
-      <div id="hand" class="hand" role="application"
-           aria-roledescription="Card hand"
-           aria-labelledby="hand-h"></div>
+      <div id="hand" class="hand" role="group" aria-labelledby="hand-h"></div>
     </section>
 
     <section aria-labelledby="trick-h">
@@ -174,9 +173,18 @@
       <li>A card you are not allowed to play says so when you reach it, and tells you which suit you have to follow. Trying to play it explains why instead of doing anything.</li>
       <li>Review keys: <kbd>H</kbd> hand, <kbd>T</kbd> current trick, <kbd>L</kbd> last trick, <kbd>S</kbd> scores, <kbd>P</kbd> picker and partner, <kbd>C</kbd> cards played so far, <kbd>R</kbd> repeat the last announcement, <kbd>?</kbd> this help.</li>
       <li><kbd>E</kbd> opens Export game log: a full written account of every finished hand — who was dealt what, who picked, what was buried, every card played — with an automatic check that the points add up. Download it or copy it. If something ever looks wrong with a score, export it.</li>
+      <li><kbd>B</kbd> opens Report a bug. Describe what went wrong and it builds a report from the game log, plus your browser and settings. It copies the whole thing to your clipboard and opens a new issue on GitHub with the summary already filled in, ready for you to paste the log and post. A read-only box shows exactly what will be copied, and nothing leaves your machine until you post it yourself. You need a GitHub account.</li>
       <li><kbd>G</kbd> jumps into the game log at the newest entry. From there <kbd>Up</kbd> and <kbd>Down</kbd> move one entry at a time, <kbd>Page Up</kbd> and <kbd>Page Down</kbd> move ten, and <kbd>Home</kbd> and <kbd>End</kbd> go to the newest and oldest. Number keys are ignored inside the log so you cannot play a card by accident while reading.</li>
     </ul>
-    <p>Your hand is marked as an application region, so single letter review keys work while a card has focus even when your screen reader is in browse mode. Everywhere else, use the buttons in the “Review the game” group — they do exactly the same thing and always work.</p>
+    <p>The game does not override your screen reader's reading mode. Everything here is an ordinary
+      button, list, table or dialog, so browse mode, focus mode and forms mode all behave exactly as
+      they normally do and you stay in charge of switching between them.</p>
+    <p>One consequence worth knowing: in browse mode your screen reader claims single letter keys for
+      its own quick navigation, so the game's letter shortcuts will not reach the page. Switch to
+      focus or forms mode when you want them — in NVDA that is <kbd>NVDA</kbd>+<kbd>Space</kbd>. If
+      you would rather not switch at all, every letter shortcut also has a button in the “Review the
+      game” group, and those work in any mode. <kbd>Tab</kbd>, <kbd>Enter</kbd> and <kbd>Space</kbd>
+      always work too, so you can play the whole game without ever changing mode.</p>
 
     <h3>The deck</h3>
     <p>Thirty-two cards: seven, eight, nine, ten, jack, queen, king and ace in each suit. At four players the seven and eight of diamonds come out, leaving thirty, so that everyone still gets a full hand with a two card blind. Both are worth nothing, so a hand is 120 points at every table size.</p>
@@ -220,6 +228,37 @@
     </p>
     <label for="export-text">Game log text (read only — select all and copy if the buttons above do not work)</label>
     <textarea id="export-text" readonly rows="18" spellcheck="false"></textarea>
+  </div>
+</dialog>
+
+<dialog id="bug-dialog" aria-labelledby="bug-h">
+  <div class="dialog-body">
+    <h2 id="bug-h">Report a bug</h2>
+    <p class="hint">This puts the whole report on your clipboard and opens a new issue on GitHub with
+      the summary already filled in. Paste the report into the issue body and post it. You will need
+      a GitHub account. Nothing is sent anywhere until you post it yourself.</p>
+
+    <p class="field">
+      <label for="bug-title">Title</label>
+      <input type="text" id="bug-title" autocomplete="off" maxlength="120">
+    </p>
+    <p class="field">
+      <label for="bug-what">What happened, and what did you expect instead?</label>
+      <textarea id="bug-what" rows="5" spellcheck="true"></textarea>
+    </p>
+    <p class="field checkbox">
+      <input type="checkbox" id="bug-include-log" checked>
+      <label for="bug-include-log">Include the full game log, so the hand can be replayed (recommended)</label>
+    </p>
+
+    <p class="actions">
+      <button type="button" id="bug-open" class="primary">Copy report and open GitHub</button>
+      <button type="button" id="bug-copy">Copy report only</button>
+      <button type="button" id="bug-close">Close</button>
+    </p>
+
+    <label for="bug-preview">Exactly what will be copied (read only)</label>
+    <textarea id="bug-preview" readonly rows="14" spellcheck="false"></textarea>
   </div>
 </dialog>
 
