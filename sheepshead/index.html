@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sheepshead</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to main content</a>
+
+<header class="app-header">
+  <h1>Sheepshead</h1>
+  <p class="tagline">A keyboard and screen&nbsp;reader accessible card game.</p>
+</header>
+
+<main id="main" tabindex="-1">
+
+  <!-- ============ SETUP ============ -->
+  <section id="setup-section" aria-labelledby="setup-h">
+    <h2 id="setup-h">New game</h2>
+    <form id="setup-form">
+      <fieldset>
+        <legend>Players</legend>
+        <p class="field">
+          <label for="opt-name">Your name</label>
+          <input type="text" id="opt-name" name="name" value="You" autocomplete="off" maxlength="16">
+        </p>
+        <p class="field">
+          <label for="opt-players">Number of players (you plus computer opponents)</label>
+          <select id="opt-players" name="players">
+            <option value="3">3 players — 10 cards each, picker always alone</option>
+            <option value="4">4 players — 7 cards each, 30 card deck</option>
+            <option value="5" selected>5 players — 6 cards each (the standard game)</option>
+            <option value="6">6 players — 5 cards each</option>
+          </select>
+        </p>
+      </fieldset>
+
+      <fieldset>
+        <legend>Rules</legend>
+        <p class="field">
+          <label for="opt-allpass">When everybody passes</label>
+          <select id="opt-allpass" name="allpass">
+            <option value="leaster" selected>Play a leaster — fewest points wins</option>
+            <option value="redeal">Redeal the hand</option>
+          </select>
+        </p>
+        <p class="field">
+          <label for="opt-difficulty">Opponent skill</label>
+          <select id="opt-difficulty" name="difficulty">
+            <option value="easy">Easy — they make mistakes</option>
+            <option value="normal" selected>Normal</option>
+            <option value="hard">Hard — they count cards and press advantages</option>
+          </select>
+        </p>
+      </fieldset>
+
+      <fieldset>
+        <legend>Pace and speech</legend>
+        <p class="field">
+          <label for="opt-pace">How opponents' turns advance</label>
+          <select id="opt-pace" name="pace">
+            <option value="0">Instant — no delay</option>
+            <option value="400" selected>Fast — short pause between plays</option>
+            <option value="900">Relaxed — longer pause between plays</option>
+            <option value="-1">Manual — I press a button after each play</option>
+          </select>
+          <span class="hint" id="pace-hint">Screen reader users often prefer Instant or Manual. With Instant and Fast, a run of opponent plays is announced as one message so nothing gets cut off.</span>
+        </p>
+        <p class="field checkbox">
+          <input type="checkbox" id="opt-verbose" name="verbose" checked>
+          <label for="opt-verbose">Include point values when cards are announced</label>
+        </p>
+        <p class="field checkbox">
+          <input type="checkbox" id="opt-autofocus" name="autofocus" checked>
+          <label for="opt-autofocus">Move focus to my cards when it is my turn</label>
+        </p>
+      </fieldset>
+
+      <p class="actions">
+        <button type="submit" class="primary">Start game</button>
+        <button type="button" id="setup-help">How to play</button>
+      </p>
+    </form>
+  </section>
+
+  <!-- ============ GAME ============ -->
+  <section id="game-section" aria-labelledby="game-h" hidden>
+    <h2 id="game-h">Table</h2>
+
+    <p id="status" class="status"></p>
+
+    <div class="toolbar" role="group" aria-label="Review the game">
+      <button type="button" data-say="hand" aria-keyshortcuts="H">Hand <kbd>H</kbd></button>
+      <button type="button" data-say="trick" aria-keyshortcuts="T">Trick <kbd>T</kbd></button>
+      <button type="button" data-say="last" aria-keyshortcuts="L">Last trick <kbd>L</kbd></button>
+      <button type="button" data-say="score" aria-keyshortcuts="S">Scores <kbd>S</kbd></button>
+      <button type="button" data-say="teams" aria-keyshortcuts="P">Picker <kbd>P</kbd></button>
+      <button type="button" data-say="count" aria-keyshortcuts="C">Cards played <kbd>C</kbd></button>
+      <button type="button" data-say="repeat" aria-keyshortcuts="R">Repeat <kbd>R</kbd></button>
+      <button type="button" id="btn-log" aria-keyshortcuts="G">Game log <kbd>G</kbd></button>
+      <button type="button" id="btn-export" aria-keyshortcuts="E">Export log <kbd>E</kbd></button>
+      <button type="button" id="btn-help" aria-keyshortcuts="?">Help <kbd>?</kbd></button>
+      <button type="button" id="btn-newgame">New game</button>
+    </div>
+
+    <section aria-labelledby="action-h" id="action-section">
+      <h3 id="action-h">Your turn</h3>
+      <div id="actions" class="actions-area"></div>
+    </section>
+
+    <section aria-labelledby="hand-h">
+      <h3 id="hand-h">Your hand</h3>
+      <div id="hand" class="hand" role="application"
+           aria-roledescription="Card hand"
+           aria-labelledby="hand-h"></div>
+    </section>
+
+    <section aria-labelledby="trick-h">
+      <h3 id="trick-h">Current trick</h3>
+      <ol id="trick" class="trick"></ol>
+    </section>
+
+    <section aria-labelledby="lasttrick-h">
+      <h3 id="lasttrick-h">Last completed trick</h3>
+      <ol id="lasttrick" class="trick"></ol>
+    </section>
+
+    <section aria-labelledby="players-h">
+      <h3 id="players-h">Players</h3>
+      <div class="table-wrap">
+        <table id="players-table">
+          <caption class="sr-only">Each player's role, cards remaining, and tricks and card points taken this hand, followed by their running game score. Card points always total 120 across the hand; game scores always total zero.</caption>
+          <thead>
+            <tr>
+              <th scope="col">Player</th>
+              <th scope="col">Role</th>
+              <th scope="col">Cards</th>
+              <th scope="col">Tricks</th>
+              <th scope="col">Card points this hand</th>
+              <th scope="col">Game score</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+          <tfoot></tfoot>
+        </table>
+      </div>
+    </section>
+
+    <section aria-labelledby="log-h">
+      <h3 id="log-h">Game log</h3>
+      <p class="hint">Newest entry first. Press <kbd>G</kbd> to jump here, then <kbd>Up</kbd> and <kbd>Down</kbd> to move entry by entry, <kbd>Home</kbd> for the newest and <kbd>End</kbd> for the oldest. This region is never spoken automatically, so you can read back through it at your own pace.</p>
+      <ul id="log" class="log"></ul>
+    </section>
+  </section>
+</main>
+
+<!-- Live regions. Kept off screen but available to assistive technology. -->
+<div id="announcer" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+<div id="alerts" class="sr-only" role="alert" aria-atomic="true"></div>
+
+<dialog id="help-dialog" aria-labelledby="help-h">
+  <div class="dialog-body">
+    <h2 id="help-h">How to play</h2>
+
+    <h3>Keyboard</h3>
+    <ul>
+      <li><kbd>Tab</kbd> and <kbd>Shift</kbd>+<kbd>Tab</kbd> move between all controls.</li>
+      <li>Inside your hand, <kbd>Left</kbd> and <kbd>Right</kbd> arrows move card to card; <kbd>Home</kbd> and <kbd>End</kbd> jump to the first or last card.</li>
+      <li><kbd>Enter</kbd> or <kbd>Space</kbd> plays the focused card.</li>
+      <li><kbd>1</kbd> to <kbd>9</kbd> and <kbd>0</kbd> pick the card at that position directly. <kbd>0</kbd> means the tenth card. Cards are always numbered in the order they are announced, trump first.</li>
+      <li>While burying, <kbd>Enter</kbd>, <kbd>Space</kbd> or a number key toggles a card in and out of your selection instead of playing it. Each card says whether it is selected, and the Bury button tells you how many you have chosen so far. When the right number are selected, activate the Bury button to finish.</li>
+      <li>A card you are not allowed to play says so when you reach it, and tells you which suit you have to follow. Trying to play it explains why instead of doing anything.</li>
+      <li>Review keys: <kbd>H</kbd> hand, <kbd>T</kbd> current trick, <kbd>L</kbd> last trick, <kbd>S</kbd> scores, <kbd>P</kbd> picker and partner, <kbd>C</kbd> cards played so far, <kbd>R</kbd> repeat the last announcement, <kbd>?</kbd> this help.</li>
+      <li><kbd>E</kbd> opens Export game log: a full written account of every finished hand — who was dealt what, who picked, what was buried, every card played — with an automatic check that the points add up. Download it or copy it. If something ever looks wrong with a score, export it.</li>
+      <li><kbd>G</kbd> jumps into the game log at the newest entry. From there <kbd>Up</kbd> and <kbd>Down</kbd> move one entry at a time, <kbd>Page Up</kbd> and <kbd>Page Down</kbd> move ten, and <kbd>Home</kbd> and <kbd>End</kbd> go to the newest and oldest. Number keys are ignored inside the log so you cannot play a card by accident while reading.</li>
+    </ul>
+    <p>Your hand is marked as an application region, so single letter review keys work while a card has focus even when your screen reader is in browse mode. Everywhere else, use the buttons in the “Review the game” group — they do exactly the same thing and always work.</p>
+
+    <h3>The deck</h3>
+    <p>Thirty-two cards: seven, eight, nine, ten, jack, queen, king and ace in each suit. At four players the seven and eight of diamonds come out, leaving thirty, so that everyone still gets a full hand with a two card blind. Both are worth nothing, so a hand is 120 points at every table size.</p>
+    <p><strong>Trump</strong> is a single fourteen card suit made of all four queens, then all four jacks, then the whole diamond suit. From highest to lowest: queen of clubs, queen of spades, queen of hearts, queen of diamonds, jack of clubs, jack of spades, jack of hearts, jack of diamonds, then ace, ten, king, nine, eight and seven of diamonds.</p>
+    <p><strong>Fail</strong> suits are clubs, spades and hearts, ranked ace, ten, king, nine, eight, seven. Note that the ten sits above the king, and the queens and jacks are not in their fail suits at all — they are trump.</p>
+    <p>Card values: ace 11, ten 10, king 4, queen 3, jack 2, nine, eight and seven nothing. That is 120 points in the deck.</p>
+
+    <h3>The deal</h3>
+    <p>Everyone gets a hand and a small blind is set aside. Starting to the dealer's left, each player may pick up the blind or pass. Whoever picks takes the blind into their hand and buries the same number of cards face down; those buried cards count for the picker's team at the end.</p>
+    <p>With four, five or six players the jack of diamonds is the secret partner card. Whoever holds it plays with the picker but says nothing until the card hits the table. If the picker holds it or buries it, the picker plays alone against everyone.</p>
+    <p>None of that is announced. The sides only become public when the jack of diamonds is actually played: if somebody else plays it they are the partner, and if the picker plays it themselves that is the moment everyone learns the picker is alone. If the picker buried it, nobody finds out until the hand is scored. You are told your own situation — whether you picked, or hold the jack — but never anyone else's. Press <kbd>P</kbd> at any time for what is currently known.</p>
+    <p>With three players there is no partner card and the picker is always alone, which everyone knows in advance.</p>
+
+    <h3>Play</h3>
+    <p>The player to the dealer's left leads. You must follow the suit that was led if you can. Remember that trump is its own suit: if a queen, jack or diamond is led, every queen, jack and diamond in your hand must follow it. Highest trump takes the trick; if no trump is played, the highest card of the led suit takes it.</p>
+
+    <h3>Two different numbers</h3>
+    <p>The players table shows two things that are easy to mix up. <strong>Card points this hand</strong> is what you have taken in tricks out of the 120 in the deck; those always total 120 across everyone, plus whatever the picker buried. <strong>Game score</strong> is the running total in scoring units across all hands played; those always total zero, so one player being well ahead means the others are behind by the same amount. The Total row at the bottom of the table tracks how many points have been taken so far; once the last trick is played it shows the full accounting, taken plus buried, which should come to 120.</p>
+
+    <h3>Winning</h3>
+    <p>The picker's team needs 61 of the 120 points. Scores per hand: a normal win pays one unit, 91 or more pays two, taking every trick pays three. If the picker's team falls short they pay double, and more if they are held to 30 points or fewer, or take no tricks at all. Each opponent settles for two units times the multiplier; the picker takes roughly two thirds of that pot and the partner one third.</p>
+
+    <h3>Leaster</h3>
+    <p>If everyone passes and you chose the leaster option, there is no picker. Everyone plays for themselves, the blind goes to whoever wins the last trick, and the player with the <em>fewest</em> points wins — but you must have taken at least one trick to be eligible.</p>
+
+    <p class="actions"><button type="button" id="help-close" class="primary">Close</button></p>
+  </div>
+</dialog>
+
+<dialog id="export-dialog" aria-labelledby="export-h">
+  <div class="dialog-body">
+    <h2 id="export-h">Export game log</h2>
+    <p id="export-summary" class="hint"></p>
+    <p class="hint">A complete account of every finished hand: who was dealt what, who picked, what
+      was buried, every card played, and an automatic check that the points add up. The hand you are
+      part way through is reported from your seat only, so this cannot be used to see other hands.</p>
+    <p class="actions">
+      <button type="button" id="export-download" class="primary">Download as a text file</button>
+      <button type="button" id="export-copy">Copy to clipboard</button>
+      <button type="button" id="export-close">Close</button>
+    </p>
+    <label for="export-text">Game log text (read only — select all and copy if the buttons above do not work)</label>
+    <textarea id="export-text" readonly rows="18" spellcheck="false"></textarea>
+  </div>
+</dialog>
+
+<script src="js/cards.js"></script>
+<script src="js/game.js"></script>
+<script src="js/ai.js"></script>
+<script src="js/ui.js"></script>
+</body>
+</html>
