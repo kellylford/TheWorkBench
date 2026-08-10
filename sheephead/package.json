@@ -10,6 +10,7 @@
     "test:ui": "node tests/ui-dom.js",
     "test:transcript": "node tests/transcript.js",
     "test:doublers": "node tests/doublers.js",
+    "test:layout": "node tests/layout.js",
     "balance": "node tests/balance.js"
   },
   "license": "MIT"

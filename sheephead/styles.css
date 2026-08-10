@@ -20,6 +20,10 @@
   --trump: #f0c04a;
   --partner: #7ad3a0;
   --partner-ink: #0d5c38;
+  --felt: #1d5c43;
+  --felt-edge: #123a2b;
+  --back-a: #2a4f7c;
+  --back-b: #1b3557;
   --focus: #ffd54a;
   --radius: 8px;
 }
@@ -42,11 +46,19 @@
     --trump: #8a5a00;
     --partner: #1a7f4f;
     --partner-ink: #0d5c38;
+    --felt: #1f6b4d;
+    --felt-edge: #14503a;
+    --back-a: #33608f;
+    --back-b: #224060;
     --focus: #a35a00;
   }
 }
 
 * { box-sizing: border-box; }
+
+/* A class that sets `display` outranks the browser's [hidden] rule, which left
+ * the decorative seats showing as an empty strip in the plain skin. */
+[hidden] { display: none !important; }
 
 html { font-size: 100%; }
 
@@ -199,22 +211,27 @@ kbd {
   min-height: 6.5rem;
 }
 
+/* Card size adapts between a phone and a desktop, but the bounds are in rem so
+ * the user's font size always wins. Viewport units alone were how the Cribbage
+ * layout in this repo ended up unusable when text was scaled up. */
 .card {
   position: relative;
-  width: 4.25rem;
-  min-height: 5.75rem;
-  padding: .3rem .35rem;
+  width: clamp(3.5rem, 15vw, 5rem);
+  aspect-ratio: 5 / 7;
+  padding: .25rem;
   background: var(--card-bg);
   color: var(--card-ink);
   border: 2px solid #7b8794;
-  border-radius: 8px;
+  border-radius: .4rem;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: .1rem;
   line-height: 1.1;
+  container-type: inline-size;
 }
+.card .simple { display: flex; flex-direction: column; align-items: center; line-height: 1; }
 .card .rank { font-size: 1.5rem; font-weight: 800; }
 .card .suit { font-size: 1.5rem; }
 .card .pos {
@@ -222,11 +239,59 @@ kbd {
   font-size: .7rem; font-weight: 700; color: #5a6672;
 }
 .card .tag {
-  font-size: .62rem;
+  position: absolute; bottom: 2px; left: 0; right: 0;
+  text-align: center;
+  font-size: .58rem;
   font-weight: 800;
-  letter-spacing: .08em;
+  letter-spacing: .06em;
   text-transform: uppercase;
   color: #5a6672;
+}
+
+/* --- traditional skin: corner indices, pips, court panels --- */
+.card .idx, .card .face { display: none; }
+
+.skin-traditional .card .simple { display: none; }
+.skin-traditional .card .idx {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: absolute;
+  line-height: .95;
+  font-weight: 800;
+}
+.skin-traditional .card .idx-tl { top: .12rem; left: .2rem; }
+.skin-traditional .card .idx-br { bottom: .12rem; right: .2rem; transform: rotate(180deg); }
+.skin-traditional .card .idx-rank { font-size: .95rem; }
+.skin-traditional .card .idx-suit { font-size: .8rem; }
+
+.skin-traditional .card .face { display: grid; width: 58%; height: 74%; }
+.skin-traditional .card .face-pips {
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(5, 1fr);
+  place-items: center;
+}
+.skin-traditional .card .pip { font-size: .8rem; line-height: 1; }
+.skin-traditional .card .pip-flip { transform: rotate(180deg); }
+.skin-traditional .card .face-ace { place-items: center; }
+.skin-traditional .card .pip-big { font-size: 2.1rem; line-height: 1; }
+.skin-traditional .card .face-court {
+  place-items: center;
+  align-content: center;
+  gap: .1rem;
+  border: 1px solid currentColor;
+  border-radius: .2rem;
+  background: rgba(0, 0, 0, .04);
+}
+.skin-traditional .card .court-letter { font-size: 1.5rem; font-weight: 800; line-height: 1; }
+.skin-traditional .card .court-suit { font-size: .95rem; line-height: 1; }
+.skin-traditional .card .pos { color: #8a95a1; }
+.skin-traditional .card .tag { font-size: .52rem; opacity: .8; }
+
+/* The tag and position number are guides, not part of the card. Hide them once
+ * the card is small enough that they would crowd the face. */
+@container (max-width: 3.9rem) {
+  .skin-traditional .card .tag { display: none; }
 }
 .card.red .rank, .card.red .suit { color: var(--card-red); }
 .card.trump { border-color: var(--trump); border-width: 3px; }
@@ -268,12 +333,15 @@ kbd {
 .reveal-label { font-weight: 700; min-width: 4.5rem; color: var(--ink-dim); }
 .hand.static .card { cursor: default; }
 
-.card[aria-disabled="true"] { opacity: .45; }
+/* A card you cannot play is greyed and hatched, but stays fully opaque — using
+ * opacity let the green table show through and turned the pips to mud. It must
+ * still be readable, because you can review your whole hand on your turn. */
+.card[aria-disabled="true"] { filter: grayscale(.8) brightness(.88); }
 .card[aria-disabled="true"]::after {
   content: "";
   position: absolute; inset: 0;
-  background: repeating-linear-gradient(45deg, transparent 0 6px, rgba(0,0,0,.16) 6px 12px);
-  border-radius: 6px;
+  background: repeating-linear-gradient(45deg, transparent 0 .3rem, rgba(24,34,44,.13) .3rem .6rem);
+  border-radius: .3rem;
 }
 
 @media (prefers-reduced-motion: no-preference) {
@@ -387,4 +455,98 @@ dialog::backdrop { background: rgba(0,0,0,.65); }
   .card.from-blind { border-style: dashed; }
   .card.partner-card { outline: 3px solid; outline-offset: 1px; }
   .trick li.winning { border-style: dashed; }
+}
+
+/* ================= traditional table dressing =================
+ * Everything below is decoration layered on the same markup. The plain skin
+ * simply does not switch it on, so both skins share one DOM and the screen
+ * reader experience is identical either way.
+ */
+
+.skin-traditional .hand,
+.skin-traditional .trick,
+.skin-traditional .seats {
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(255,255,255,.06), transparent 60%),
+    var(--felt);
+  border-color: var(--felt-edge);
+  box-shadow: inset 0 .1rem .6rem rgba(0,0,0,.35);
+}
+
+/* Cards in the trick: a real face beside the player's name. The name text stays
+ * in the DOM untouched; only the written-out card name is moved off screen,
+ * because the face already says it. */
+.trick .mini { display: none; }
+.skin-traditional .trick .mini { display: flex; width: clamp(2.6rem, 11vw, 3.4rem); }
+.skin-traditional .trick .what {
+  position: absolute; width: 1px; height: 1px;
+  padding: 0; margin: -1px; overflow: hidden;
+  clip: rect(0 0 0 0); white-space: nowrap;
+}
+.skin-traditional .trick li {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .25rem;
+  min-width: 0;
+  background: rgba(0,0,0,.18);
+  border-color: rgba(255,255,255,.14);
+}
+.skin-traditional .trick li.winning { border-color: var(--good); }
+.skin-traditional .trick .who { text-align: center; color: #dfeae4; }
+.skin-traditional .trick .flag { text-align: center; }
+
+/* Opponents, shown as a fan of face-down cards. Purely decorative: the players
+ * table carries the same information for assistive technology, so this whole
+ * region is aria-hidden and nothing here is focusable. */
+.seats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+  gap: .75rem;
+  padding: .75rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--panel);
+  margin-bottom: .5rem;
+}
+.seat { min-width: 0; text-align: center; }
+.seat-name { font-weight: 700; font-size: .95rem; }
+.seat-role { display: block; font-size: .78rem; color: var(--ink-dim); min-height: 1.1em; }
+.skin-traditional .seat-name,
+.skin-traditional .seat-role { color: #e8f1ec; }
+.seat-fan { display: flex; justify-content: center; margin-top: .3rem; min-height: 2.6rem; }
+.seat-fan .back {
+  width: clamp(1.5rem, 6vw, 2rem);
+  aspect-ratio: 5 / 7;
+  margin-left: -.55rem;
+  border-radius: .25rem;
+  border: 1px solid #24313d;
+  background:
+    repeating-linear-gradient(45deg, var(--back-a) 0 .22rem, var(--back-b) .22rem .44rem);
+  box-shadow: 0 .05rem .15rem rgba(0,0,0,.45);
+}
+.seat-fan .back:first-child { margin-left: 0; }
+.seat-turn .seat-name::after { content: " \25C0"; color: var(--accent); }
+
+/* Cards lift as they land, unless the reader has asked for less movement. */
+@media (prefers-reduced-motion: no-preference) {
+  .skin-traditional .trick li { animation: deal .22s ease-out both; }
+  @keyframes deal {
+    from { opacity: 0; transform: translateY(-.5rem) scale(.96); }
+    to   { opacity: 1; transform: none; }
+  }
+}
+
+/* Forced colours strips backgrounds; make sure the felt never hides anything. */
+@media (forced-colors: active) {
+  .skin-traditional .hand,
+  .skin-traditional .trick,
+  .skin-traditional .seats { background: Canvas; box-shadow: none; }
+  .seat-fan .back { background: Canvas; border: 1px solid CanvasText; }
+  .skin-traditional .card .face-court { background: Canvas; }
+}
+
+/* Filters are dropped in forced colours, so mark unplayable cards structurally. */
+@media (forced-colors: active) {
+  .card[aria-disabled="true"] { border-style: dotted; }
 }
