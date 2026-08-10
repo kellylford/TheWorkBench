@@ -30,6 +30,18 @@ item that takes real DOM focus — the screen reader reads it because focus move
 of any live region or label trickery. Number keys are ignored inside the log so you cannot play a
 card by accident while reading back.
 
+**The blind is shown, not summarised.** When a hand ends, the actual cards are laid out — what was
+in the blind, and separately what the picker buried. "21 points buried" tells you nothing about
+what actually went down. In a leaster the blind is shown with who took it on the last trick.
+
+**Freshly picked cards are obvious.** After picking, the two cards from the blind sit at the front
+of the hand, outlined and badged, until the bury is committed — then the hand sorts normally. The
+announcement leads with them too: "From the blind: Ace of Spades, Ten of Spades. Then your hand…"
+
+**The jack of diamonds is called out.** Whenever you hold the partner card it is marked in your
+hand and says what it means for you — that you are the picker's partner, or that you picked and are
+therefore playing alone. Only ever about your own position, never anyone else's.
+
 **Focus is never stolen out from under you.** Focus moves to your cards when it becomes your turn,
 but not while you are in a text field, reading the help, or reading back through the log. The
 announcement still tells you it is your turn. You can turn the behaviour off entirely in setup.

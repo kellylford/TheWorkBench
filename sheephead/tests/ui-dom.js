@@ -112,7 +112,7 @@ function myTurn(d) { return /your turn to play/i.test(d.getElementById('status')
 
 async function playHands(players, howMany) {
   const { window, d } = await boot({ players });
-  const seen = { focusChecks: 0, focusBad: 0, buries: 0, handsDone: 0, blockedSeen: 0, exports: 0, midChecks: 0, bugs: 0, handSaid: 0 };
+  const seen = { focusChecks: 0, focusBad: 0, buries: 0, handsDone: 0, blockedSeen: 0, exports: 0, midChecks: 0, bugs: 0, handSaid: 0, blindMarked: 0, blindRevealed: 0, jdSeen: 0 };
   let guard = 0;
 
   while (seen.handsDone < howMany && ++guard < 6000) {
@@ -134,6 +134,21 @@ async function playHands(players, howMany) {
         'Total row does not show 120: ' + foot.children[4].textContent);
       check(foot.children[5].textContent === '0',
         'game scores are not zero sum: ' + foot.children[5].textContent);
+
+      // The blind must be revealed as actual cards, not just a point total.
+      {
+        const sec = d.getElementById('blind-section');
+        check(!sec.hidden, 'the blind was not revealed at the end of the hand');
+        const shown = [...sec.querySelectorAll('.card')].map(c => c.getAttribute('aria-label'));
+        check(shown.length >= 2, 'the blind reveal shows no cards: ' + shown.join(' | '));
+        shown.forEach(l => check(/ of (Clubs|Spades|Hearts|Diamonds),/.test(l),
+          'blind reveal card is not fully named: ' + l));
+        // and named in the summary too, not just rendered
+        const said = d.querySelector('#actions .hint').textContent;
+        check(/The blind held .+ of /.test(said),
+          'the hand summary does not name the blind cards: ' + said);
+        seen.blindRevealed++;
+      }
 
       // Export must open, be audited clean, and contain this hand.
       // Note .click() does not move focus in jsdom, so capture whatever really
@@ -184,6 +199,23 @@ async function playHands(players, howMany) {
     if (pick) { pick.click(); continue; }
     if (bury) {
       const need = +bury.textContent.match(/of (\d+)/)[1];
+
+      // The picked-up cards sit at the front of the hand, marked, until burying
+      // is committed — so the picker can see what they just took.
+      const marked = cards(d).filter(c => /\bfrom-blind\b/.test(c.className));
+      check(marked.length === need,
+        'expected ' + need + ' cards marked as from the blind, got ' + marked.length);
+      check(cards(d).slice(0, need).every(c => /\bfrom-blind\b/.test(c.className)),
+        'the blind cards are not at the front of the hand');
+      marked.forEach(c => check(/from the blind/.test(c.getAttribute('aria-label')),
+        'a blind card does not say so in its label: ' + c.getAttribute('aria-label')));
+      // and the same information must reach speech
+      d.querySelector('[data-say="hand"]').click();
+      await settleAlert();
+      check(/^From the blind: /.test(d.getElementById('announcer').textContent),
+        'hand announcement does not lead with the blind while burying: ' +
+        d.getElementById('announcer').textContent);
+      seen.blindMarked++;
       check(bury.disabled, 'Bury button should start disabled with nothing selected');
       const hand = cards(d);
       // select one too many and confirm the extra is refused
@@ -200,6 +232,9 @@ async function playHands(players, howMany) {
       check(cards(d).filter(c => c.getAttribute('aria-pressed') === 'true').length === need,
         'exactly ' + need + ' cards should be marked selected');
       btn(d, /^Bury /).click();
+      // Once committed the hand goes back to normal order and nothing is marked.
+      check(cards(d).every(c => !/\bfrom-blind\b/.test(c.className)),
+        'cards are still marked as from the blind after burying');
       seen.buries++;
       continue;
     }
@@ -219,6 +254,21 @@ async function playHands(players, howMany) {
         [...d.querySelectorAll('#log li')].map(li => li.textContent).join(' ');
       check(!/Accounting problem/i.test(said), 'an accounting problem was reported: ' + said.slice(0, 300));
       seen.midChecks++;
+    }
+
+    // The jack of diamonds is called out whenever the player holds it, so they
+    // know they are the partner without having to work it out.
+    if (players >= 4) {
+      const jd = cards(d).find(c => c.dataset.id === 'JD');
+      if (jd) {
+        check(/\bpartner-card\b/.test(jd.className), 'the jack of diamonds is not marked');
+        check(/partner card/.test(jd.getAttribute('aria-label')),
+          'the jack of diamonds label does not mention the partner card: ' + jd.getAttribute('aria-label'));
+        seen.jdSeen++;
+      }
+      // Nothing else may ever be marked as the partner card.
+      check(cards(d).filter(c => /\bpartner-card\b/.test(c.className)).length === (jd ? 1 : 0),
+        'something other than the jack of diamonds is marked as the partner card');
     }
 
     // No instructional prose anywhere in the hand region.
@@ -296,7 +346,10 @@ async function playHands(players, howMany) {
       'focus-on-playable ' + (r.focusChecks - r.focusBad) + '/' + r.focusChecks + ',', r.exports + ' clean exports,',
       r.midChecks + ' mid-hand accounting checks,',
       r.bugs + ' bug-report checks,',
-      r.handSaid + ' hand announcements');
+      r.handSaid + ' hand announcements,',
+      r.blindMarked + ' blind-marked buries,',
+      r.blindRevealed + ' blind reveals,',
+      r.jdSeen + ' jack sightings');
     check(r.focusChecks > 0, players + 'p: never exercised a restricted turn');
   }
 

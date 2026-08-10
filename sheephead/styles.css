@@ -18,6 +18,8 @@
   --card-ink: #16202a;
   --card-red: #b3122a;
   --trump: #f0c04a;
+  --partner: #7ad3a0;
+  --partner-ink: #0d5c38;
   --focus: #ffd54a;
   --radius: 8px;
 }
@@ -38,6 +40,8 @@
     --card-ink: #12181f;
     --card-red: #b3122a;
     --trump: #8a5a00;
+    --partner: #1a7f4f;
+    --partner-ink: #0d5c38;
     --focus: #a35a00;
   }
 }
@@ -231,6 +235,38 @@ kbd {
   outline-offset: 1px;
   transform: translateY(-.4rem);
 }
+/* Cards just taken from the blind, shown at the front of the hand until the
+ * picker buries. Lifted and outlined so they read as "these are the new ones". */
+.card.from-blind {
+  border-color: var(--accent);
+  border-width: 3px;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 35%, transparent);
+  transform: translateY(-.35rem);
+}
+.card.from-blind .tag { color: var(--accent); font-weight: 800; }
+
+/* The jack of diamonds: whoever holds it is the picker's partner, so it is
+ * worth spotting instantly. */
+.card.partner-card {
+  border-color: var(--partner);
+  border-width: 3px;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--partner) 18%, var(--card-bg)) 0%, var(--card-bg) 55%);
+}
+.card.partner-card .tag { color: var(--partner-ink); font-weight: 800; }
+.card.partner-card::before {
+  content: "★";
+  position: absolute; top: 1px; right: 4px;
+  font-size: .8rem; line-height: 1;
+  color: var(--partner-ink);
+}
+.card.from-blind.partner-card { box-shadow: 0 0 0 3px color-mix(in srgb, var(--partner) 40%, transparent); }
+
+/* The blind revealed at the end of a hand: static, not interactive. */
+.hand.static { align-items: flex-start; flex-direction: column; gap: .75rem; }
+.reveal-row { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; }
+.reveal-label { font-weight: 700; min-width: 4.5rem; color: var(--ink-dim); }
+.hand.static .card { cursor: default; }
+
 .card[aria-disabled="true"] { opacity: .45; }
 .card[aria-disabled="true"]::after {
   content: "";
@@ -347,5 +383,7 @@ dialog::backdrop { background: rgba(0,0,0,.65); }
 }
 @media (forced-colors: active) {
   .card.trump { border-style: double; }
+  .card.from-blind { border-style: dashed; }
+  .card.partner-card { outline: 3px solid; outline-offset: 1px; }
   .trick li.winning { border-style: dashed; }
 }
