@@ -1,4 +1,4 @@
-/* Sheepshead - card model.
+/* Sheephead - card model.
  * Ranks are stored as single characters; 'T' is the ten. Card ids are rank+suit, e.g. "QC", "TD".
  */
 (function (global) {

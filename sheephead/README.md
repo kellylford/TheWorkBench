@@ -1,6 +1,6 @@
-# Sheepshead
+# Sheephead
 
-A web-based Sheepshead (Schafkopf) card game built to be fully playable with a keyboard and a
+A web-based Sheephead (Schafkopf) card game built to be fully playable with a keyboard and a
 screen reader. Pick a table size from three to six and play against that many computer opponents.
 
 No build step, no dependencies, no server. Open `index.html` in a browser and play.

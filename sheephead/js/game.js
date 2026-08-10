@@ -1,4 +1,4 @@
-/* Sheepshead - rules engine. No DOM access lives in here.
+/* Sheephead - rules engine. No DOM access lives in here.
  *
  * The engine is a small state machine driven by four actions: doPick, doPass,
  * doBury and doPlay. Every action appends human-readable entries to state.events,
@@ -624,7 +624,7 @@
     var n = state.config.numPlayers;
     var d = DEAL[n];
     var L = [];
-    L.push('Sheepshead game log');
+    L.push('Sheephead game log');
     L.push('Players: ' + n + ' — ' + state.players.map(function (p, i) {
       return p.name + (p.isHuman ? ' (you)' : ' (computer)');
     }).join(', '));

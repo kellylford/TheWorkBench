@@ -1,4 +1,4 @@
-/* Sheepshead - interface, keyboard handling and screen reader announcements.
+/* Sheephead - interface, keyboard handling and screen reader announcements.
  *
  * Announcement policy: a run of opponent turns is buffered and spoken as one
  * polite message, so nothing gets cut off half way through. Errors go to a
@@ -29,7 +29,7 @@
     });
     return C.shuffle(pool).slice(0, count);
   }
-  var STORE_KEY = 'sheepshead.settings.v1';
+  var STORE_KEY = 'sheephead.settings.v1';
 
   var state = null;
   var settings = null;
@@ -875,7 +875,7 @@
   function exportFilename() {
     var d = new Date();
     function two(v) { return (v < 10 ? '0' : '') + v; }
-    return 'sheepshead-log-' + d.getFullYear() + two(d.getMonth() + 1) + two(d.getDate()) +
+    return 'sheephead-log-' + d.getFullYear() + two(d.getMonth() + 1) + two(d.getDate()) +
       '-' + two(d.getHours()) + two(d.getMinutes()) + two(d.getSeconds()) + '.txt';
   }
 

@@ -1,4 +1,4 @@
-/* Sheepshead - computer players.
+/* Sheephead - computer players.
  *
  * The AI only ever looks at information a person in that seat would have:
  * its own hand, the cards already played, the public identity of the picker,
