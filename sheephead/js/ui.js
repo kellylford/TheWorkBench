@@ -29,7 +29,11 @@
     });
     return C.shuffle(pool).slice(0, count);
   }
-  var STORE_KEY = 'sheephead.settings.v1';
+  /* Bumping this key retires everyone's saved settings, so a change of default
+   * actually reaches people who have played before instead of only new players.
+   * v2: default pace moved from fast to relaxed. */
+  var STORE_KEY = 'sheephead.settings.v2';
+  var OLD_STORE_KEYS = ['sheephead.settings.v1'];
   var DIALOGS = ['rules-dialog', 'a11y-dialog', 'export-dialog', 'bug-dialog', 'settings-dialog'];
 
   function anyDialogOpen() {
@@ -118,7 +122,7 @@
 
   var DEFAULTS = {
     name: 'You', numPlayers: 5, allPass: 'leaster', difficulty: 'normal',
-    pace: 400, verbose: true, autofocus: true, skin: 'traditional',
+    pace: 900, verbose: true, autofocus: true, skin: 'traditional',
     blackQueenDoubler: false, redQueenDoubler: false, redealDoubler: false
   };
 
@@ -142,7 +146,11 @@
 
   function loadSettings() {
     var stored = {};
-    try { stored = JSON.parse(localStorage.getItem(STORE_KEY) || '{}'); } catch (e) { stored = {}; }
+    try {
+      stored = JSON.parse(localStorage.getItem(STORE_KEY) || '{}');
+      // Clear out superseded versions so they do not sit around for ever.
+      OLD_STORE_KEYS.forEach(function (k) { localStorage.removeItem(k); });
+    } catch (e) { stored = {}; }
     var s = {};
     Object.keys(DEFAULTS).forEach(function (k) {
       s[k] = stored[k] === undefined ? DEFAULTS[k] : stored[k];
