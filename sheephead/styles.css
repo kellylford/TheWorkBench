@@ -248,7 +248,19 @@ kbd {
   color: #5a6672;
 }
 
-/* --- traditional skin: corner indices, pips, court panels --- */
+/* --- traditional skin: corner indices, pips, court panels ---
+ *
+ * EVERYTHING inside a card is sized in cqw — a percentage of the card's own
+ * width — never in rem. The card itself scales with the viewport, so any fixed
+ * unit in here stays put while the card shrinks, and the pips, the corner
+ * letters and the centre glyph pile into each other on a phone. That is exactly
+ * what happened the first time round.
+ *
+ * The geometry that keeps them apart is horizontal: the corner indices live in
+ * the outer 24% on each side, and the pip field spans only the middle 46%, so
+ * they cannot meet however tall anything gets. rem values are declared first as
+ * a fallback for browsers without container query units.
+ */
 .card .idx, .card .face { display: none; }
 
 .skin-traditional .card .simple { display: none; }
@@ -257,36 +269,54 @@ kbd {
   flex-direction: column;
   align-items: center;
   position: absolute;
-  line-height: .95;
+  line-height: .92;
   font-weight: 800;
+  width: 22cqw;
 }
-.skin-traditional .card .idx-tl { top: .12rem; left: .2rem; }
-.skin-traditional .card .idx-br { bottom: .12rem; right: .2rem; transform: rotate(180deg); }
-.skin-traditional .card .idx-rank { font-size: .95rem; }
-.skin-traditional .card .idx-suit { font-size: .8rem; }
+.skin-traditional .card .idx-tl { top: 3cqw; left: 2cqw; }
+.skin-traditional .card .idx-br { bottom: 3cqw; right: 2cqw; transform: rotate(180deg); }
+.skin-traditional .card .idx-rank { font-size: .95rem; font-size: 19cqw; }
+.skin-traditional .card .idx-suit { font-size: .8rem; font-size: 15cqw; }
 
-.skin-traditional .card .face { display: grid; width: 58%; height: 74%; }
+.skin-traditional .card .face {
+  display: grid;
+  width: 46cqw;      /* 27% to 73% — clear of both corner columns */
+  /* Height is in cqw too, not cqh: `container-type: inline-size` only provides
+   * inline units, so cqh escapes to the viewport and stretches the card into a
+   * ribbon. The card is 1.4x as tall as it is wide, so 100cqw is ~71% of it. */
+  height: 100cqw;
+}
 .skin-traditional .card .face-pips {
   grid-template-columns: repeat(3, 1fr);
   grid-template-rows: repeat(5, 1fr);
   place-items: center;
 }
-.skin-traditional .card .pip { font-size: .8rem; line-height: 1; }
+.skin-traditional .card .pip { font-size: .8rem; font-size: 13cqw; line-height: 1; }
 .skin-traditional .card .pip-flip { transform: rotate(180deg); }
 .skin-traditional .card .face-ace { place-items: center; }
-.skin-traditional .card .pip-big { font-size: 2.1rem; line-height: 1; }
+.skin-traditional .card .pip-big { font-size: 2.1rem; font-size: 40cqw; line-height: 1; }
 .skin-traditional .card .face-court {
   place-items: center;
   align-content: center;
-  gap: .1rem;
+  gap: 1cqw;
   border: 1px solid currentColor;
-  border-radius: .2rem;
+  border-radius: 3cqw;
   background: rgba(0, 0, 0, .04);
 }
-.skin-traditional .card .court-letter { font-size: 1.5rem; font-weight: 800; line-height: 1; }
-.skin-traditional .card .court-suit { font-size: .95rem; line-height: 1; }
-.skin-traditional .card .pos { color: #8a95a1; }
-.skin-traditional .card .tag { font-size: .52rem; opacity: .8; }
+.skin-traditional .card .court-letter { font-size: 1.5rem; font-size: 30cqw; font-weight: 800; line-height: 1; }
+.skin-traditional .card .court-suit { font-size: .95rem; font-size: 17cqw; line-height: 1; }
+
+/* The two corners the indices do not use, so nothing lands on top of them. */
+.skin-traditional .card .pos {
+  top: 2cqw; left: auto; right: 3cqw;
+  font-size: 11cqw; color: #8a95a1;
+}
+.skin-traditional .card .tag {
+  bottom: 2cqw; left: 3cqw; right: auto;
+  text-align: left;
+  font-size: 8cqw;
+  opacity: .75;
+}
 
 /* The tag and position number are guides, not part of the card. Hide them once
  * the card is small enough that they would crowd the face. */
