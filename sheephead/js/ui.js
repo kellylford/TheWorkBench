@@ -30,6 +30,12 @@
     return C.shuffle(pool).slice(0, count);
   }
   var STORE_KEY = 'sheephead.settings.v1';
+  var DIALOGS = ['help-dialog', 'export-dialog', 'bug-dialog'];
+
+  function anyDialogOpen() {
+    for (var i = 0; i < DIALOGS.length; i++) if (el[DIALOGS[i]].open) return true;
+    return false;
+  }
 
   var state = null;
   var settings = null;
@@ -48,7 +54,8 @@
   function init() {
     ['setup-section', 'setup-form', 'game-section', 'status', 'actions', 'hand',
       'trick', 'lasttrick', 'players-table', 'log', 'announcer', 'alerts', 'help-dialog',
-      'game-h', 'export-dialog', 'export-text', 'export-summary'].forEach(function (id) {
+      'game-h', 'export-dialog', 'export-text', 'export-summary',
+      'bug-dialog', 'bug-title', 'bug-what', 'bug-include-log', 'bug-preview'].forEach(function (id) {
         el[id] = $(id);
       });
 
@@ -58,7 +65,7 @@
     $('btn-help').addEventListener('click', openHelp);
     $('help-close').addEventListener('click', function () { closeDialog(el['help-dialog']); });
     // Escape closes a native dialog without going through our button.
-    ['help-dialog', 'export-dialog'].forEach(function (id) {
+    DIALOGS.forEach(function (id) {
       el[id].addEventListener('close', restoreDialogFocus);
     });
     $('btn-newgame').addEventListener('click', backToSetup);
@@ -67,6 +74,18 @@
     $('export-close').addEventListener('click', function () { closeDialog(el['export-dialog']); });
     $('export-download').addEventListener('click', downloadExport);
     $('export-copy').addEventListener('click', copyExport);
+
+    $('btn-bug').addEventListener('click', openBug);
+    $('bug-close').addEventListener('click', function () { closeDialog(el['bug-dialog']); });
+    $('bug-open').addEventListener('click', bugCopyAndOpen);
+    $('bug-copy').addEventListener('click', function () {
+      copyText(buildBugReport(), el['bug-preview'], 'Report');
+    });
+    // Keep the preview honest: it must always show exactly what will be copied.
+    ['bug-title', 'bug-what'].forEach(function (id) {
+      el[id].addEventListener('input', refreshBugPreview);
+    });
+    el['bug-include-log'].addEventListener('change', refreshBugPreview);
 
     document.querySelectorAll('[data-say]').forEach(function (b) {
       b.addEventListener('click', function () { say(b.getAttribute('data-say')); });
@@ -779,7 +798,7 @@
    * announcement still tells them it is their turn. */
   function mayTakeFocus() {
     if (!settings.autofocus) return false;
-    if (el['help-dialog'].open || el['export-dialog'].open) return false;
+    if (anyDialogOpen()) return false;
     var a = document.activeElement;
     if (!a) return true;
     if (/^(INPUT|SELECT|TEXTAREA)$/.test(a.tagName)) return false;
@@ -824,7 +843,7 @@
     if (e.ctrlKey || e.altKey || e.metaKey) return;
     var t = e.target;
     if (t && /^(INPUT|SELECT|TEXTAREA)$/.test(t.tagName)) return;
-    if (el['help-dialog'].open || el['export-dialog'].open) return;
+    if (anyDialogOpen()) return;
 
     // Digits play a card, so they must not fire while reading back the log.
     if (/^[0-9]$/.test(e.key) && !el.log.contains(t)) {
@@ -898,23 +917,27 @@
     }
   }
 
-  function copyExport() {
-    var text = el['export-text'].value;
+  /* Copy `text`, falling back to selecting the box it came from so the user can
+   * press Control C themselves. `box` is the textarea holding the same text. */
+  function copyText(text, box, what) {
     function fallback() {
-      el['export-text'].focus();
-      el['export-text'].select();
+      if (box) { box.focus(); box.select(); }
       var ok = false;
       try { ok = document.execCommand('copy'); } catch (e) { ok = false; }
-      alert_(ok ? 'Game log copied to the clipboard.'
+      alert_(ok ? what + ' copied to the clipboard.'
         : 'Could not copy automatically. The text is selected, so press Control C.');
     }
     if (navigator.clipboard && navigator.clipboard.writeText) {
       navigator.clipboard.writeText(text).then(function () {
-        alert_('Game log copied to the clipboard.');
+        alert_(what + ' copied to the clipboard.');
       }, fallback);
     } else {
       fallback();
     }
+  }
+
+  function copyExport() {
+    copyText(el['export-text'].value, el['export-text'], 'Game log');
   }
 
   /* Dialogs must hand focus back where it came from. Native <dialog> does this
@@ -940,6 +963,121 @@
     dialogReturn = null;
     if (back && back.isConnected !== false && document.contains(back)) back.focus();
     else if (state && !el['game-section'].hidden) focusForTurn();
+  }
+
+  /* ---------------- bug reports ---------------- */
+
+  var BUG_REPO = 'kellylford/TheWorkBench';
+  var GAME_URL = 'https://kellylford.github.io/TheWorkBench/sheephead/';
+  /* Long URLs get rejected or silently truncated, so the link carries the summary
+   * only and the full log rides on the clipboard. */
+  var MAX_URL = 6000;
+
+  function bugTitle() {
+    var t = (el['bug-title'].value || '').trim();
+    return '[sheephead] ' + (t || 'Bug report');
+  }
+
+  /* The part that goes in the URL: everything a maintainer needs to triage,
+   * without the transcript. */
+  function bugSummary() {
+    var L = [];
+    L.push('### What happened');
+    L.push('');
+    L.push((el['bug-what'].value || '').trim() || '_(not described)_');
+    L.push('');
+    L.push('### Game');
+    L.push('');
+    L.push('- Page: ' + GAME_URL);
+    if (state) {
+      var d = G.DEAL[settings.numPlayers];
+      L.push('- Players: ' + settings.numPlayers + ' (' +
+        state.players.map(function (p) { return p.name; }).join(', ') + ')');
+      L.push('- Layout: ' + d.hand + ' cards each, ' + d.blind + ' card blind, ' +
+        (d.partner ? 'Jack of Diamonds partner' : 'picker always alone'));
+      L.push('- Opponent skill: ' + settings.difficulty + '; all pass: ' + settings.allPass +
+        '; pace: ' + settings.pace);
+      L.push('- Hand ' + state.handNumber + ', phase ' + state.phase +
+        ', hands completed ' + state.history.length);
+      var bad = state.history.filter(function (h) { return h.problems.length; });
+      L.push('- Automatic check: ' + (bad.length
+        ? '**' + bad.length + ' of ' + state.history.length + ' completed hands FAILED**'
+        : 'all ' + state.history.length + ' completed hands add up correctly'));
+      if (bad.length) {
+        L.push('');
+        L.push('Failures:');
+        bad.slice(0, 5).forEach(function (h) {
+          L.push('- Hand ' + h.handNumber + ': ' + h.problems.join(' '));
+        });
+      }
+    } else {
+      L.push('- No game in progress.');
+    }
+    L.push('');
+    L.push('### Environment');
+    L.push('');
+    L.push('- Browser: ' + navigator.userAgent);
+    L.push('- Window: ' + window.innerWidth + ' by ' + window.innerHeight);
+    L.push('- Language: ' + (navigator.language || 'unknown'));
+    L.push('- Reported: ' + new Date().toString());
+    return L.join('\n');
+  }
+
+  function buildBugReport() {
+    var text = bugSummary();
+    if (el['bug-include-log'].checked && state) {
+      var lines = [].map.call(el.log.children, function (li) { return li.textContent; });
+      text += '\n\n### Game log\n\n```\n' + G.transcript(state, lines) + '\n```\n';
+    }
+    return text;
+  }
+
+  function bugIssueUrl() {
+    var base = 'https://github.com/' + BUG_REPO + '/issues/new';
+    var title = bugTitle();
+    var note = el['bug-include-log'].checked && state
+      ? '\n\n### Game log\n\n_The full game log is on your clipboard. Paste it here._\n'
+      : '\n';
+    var body = bugSummary() + note;
+    var url = base + '?labels=bug&title=' + encodeURIComponent(title) + '&body=' + encodeURIComponent(body);
+    if (url.length > MAX_URL) {
+      // Trim the body until the whole link fits, and say so rather than silently cutting.
+      var over = url.length - MAX_URL;
+      body = body.slice(0, Math.max(0, body.length - over - 80)) +
+        '\n\n_(summary truncated for the link; the full report is on your clipboard)_\n';
+      url = base + '?labels=bug&title=' + encodeURIComponent(title) + '&body=' + encodeURIComponent(body);
+    }
+    return url;
+  }
+
+  function refreshBugPreview() {
+    el['bug-preview'].value = buildBugReport();
+  }
+
+  function openBug() {
+    if (!el['bug-title'].value) {
+      el['bug-title'].value = state && state.phase ? 'Problem during play' : 'Problem with the game';
+    }
+    refreshBugPreview();
+    openDialog(el['bug-dialog']);
+    el['bug-title'].focus();
+    el['bug-title'].select();
+    announce('Report a bug. Describe what happened, then use Copy report and open GitHub. ' +
+      'Nothing is sent until you post the issue yourself.');
+  }
+
+  function bugCopyAndOpen() {
+    var report = buildBugReport();
+    var url = bugIssueUrl();
+    // Open synchronously inside the click so the popup blocker allows it; the
+    // clipboard write settles a moment later, which is fine because the user has
+    // to paste it by hand anyway.
+    var win = window.open(url, '_blank', 'noopener');
+    copyText(report, el['bug-preview'], 'Report');
+    if (!win) {
+      alert_('Your browser blocked the new tab. The report is on your clipboard — ' +
+        'open ' + BUG_REPO + ' issues and paste it.');
+    }
   }
 
   function openHelp() { openDialog(el['help-dialog']); }
