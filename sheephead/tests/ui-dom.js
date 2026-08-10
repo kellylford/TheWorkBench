@@ -89,7 +89,7 @@ async function boot(opts) {
   // The hand region must not carry keyboard instructions; that belongs in help.
   check(!d.getElementById('hand').hasAttribute('aria-describedby'),
     'the hand region still has a description that would be read on every card');
-  d.getElementById('opt-pace').value = '0';
+  d.getElementById('opt-pace').value = String(opts.pace !== undefined ? opts.pace : 0);
   d.getElementById('opt-players').value = String(opts.players);
   d.getElementById('opt-difficulty').value = opts.difficulty || 'hard';
   d.getElementById('opt-allpass').value = opts.allPass || 'leaster';
@@ -389,7 +389,75 @@ async function playHands(players, howMany) {
   return seen;
 }
 
+/* Manual pacing: the old build appended "Press Enter on Continue for the next
+ * play." to every single announcement, which wears thin fast. It must be gone,
+ * and N must advance without needing the button. */
+async function manualPacing() {
+  const { window, d } = await boot({ players: 5, pace: -1 });
+  const say = () => d.getElementById('announcer').textContent;
+  let advances = 0, sawContinue = 0;
+
+  for (let i = 0; i < 400 && advances < 12; i++) {
+    await new Promise(r => setTimeout(r, 5));
+    check(!/Press Enter on Continue/i.test(say()),
+      'manual mode still nags about pressing Enter on Continue: ' + say());
+
+    const cont = [...d.querySelectorAll('#actions button')].find(b => /^Continue/.test(b.textContent));
+    if (cont) {
+      sawContinue++;
+      check(cont.getAttribute('aria-keyshortcuts') === 'N', 'Continue does not advertise N');
+      // advance with the key, not the button
+      const before = d.querySelectorAll('#log li').length;
+      d.dispatchEvent(new window.KeyboardEvent('keydown', { key: 'n', bubbles: true }));
+      await new Promise(r => setTimeout(r, 5));
+      check(d.querySelectorAll('#log li').length > before, 'N did not advance the game');
+      advances++;
+      continue;
+    }
+    const next = [...d.querySelectorAll('#actions button')].find(b => /^Deal next hand/.test(b.textContent));
+    if (next) {
+      check(next.getAttribute('aria-keyshortcuts') === 'N', 'Deal next hand does not advertise N');
+      d.dispatchEvent(new window.KeyboardEvent('keydown', { key: 'n', bubbles: true }));
+      await new Promise(r => setTimeout(r, 5));
+      continue;
+    }
+    const pick = [...d.querySelectorAll('#actions button')].find(b => /Pick up the blind/.test(b.textContent));
+    if (pick) { pick.click(); continue; }
+    const bury = [...d.querySelectorAll('#actions button')].find(b => /^Bury /.test(b.textContent));
+    if (bury) {
+      const need = +bury.textContent.match(/of (\d+)/)[1];
+      [...d.querySelectorAll('#hand .card')].slice(-need).forEach(c => c.click());
+      [...d.querySelectorAll('#actions button')].find(b => /^Bury /.test(b.textContent)).click();
+      continue;
+    }
+    if (myTurn(d)) {
+      const legal = legalCards(d);
+      if (legal[0]) legal[0].click();
+    }
+  }
+  check(sawContinue > 0, 'manual mode never offered a Continue button');
+  check(advances >= 12, 'N only advanced ' + advances + ' times');
+
+  // N must not fire while reading back the log.
+  const logItem = d.querySelector('#log li');
+  if (logItem) {
+    logItem.focus();
+    const before = d.querySelectorAll('#log li').length;
+    // Dispatch ON the log entry so event.target really is inside the log —
+    // passing `target` to the constructor does nothing, it is not an init option.
+    logItem.dispatchEvent(new window.KeyboardEvent('keydown', { key: 'n', bubbles: true }));
+    await new Promise(r => setTimeout(r, 5));
+    check(d.querySelectorAll('#log li').length === before,
+      'N advanced the game while the player was reading the log');
+  }
+  window.close();
+  return { advances, sawContinue };
+}
+
 (async () => {
+  const m = await manualPacing();
+  console.log('manual pacing:', m.advances + ' advances via N,', m.sawContinue + ' Continue prompts, no nagging');
+
   for (const players of [3, 4, 5, 6]) {
     const r = await playHands(players, 4);
     console.log(

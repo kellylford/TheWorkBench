@@ -234,11 +234,10 @@
 
   function turnPrompt() {
     if (!state) return '';
-    if (state.phase === 'handOver') return 'Press Enter on Deal next hand to continue.';
-    if (!isHumanTurn()) {
-      if (settings.pace < 0) return 'Press Enter on Continue for the next play.';
-      return '';
-    }
+    if (state.phase === 'handOver') return 'Press N or Enter on Deal next hand.';
+    // Manual pacing deliberately says nothing here: it would repeat after every
+    // single play, which is exactly the sort of thing that wears thin fast.
+    if (!isHumanTurn()) return '';
     var d = G.DEAL[settings.numPlayers];
     if (state.phase === 'pick') {
       return 'Your turn. Pick up the blind of ' + d.blind + ' cards, or pass? Press H to hear your hand.';
@@ -457,13 +456,13 @@
       p.className = 'hint';
       p.textContent = state.result ? state.result.summary : '';
       box.appendChild(p);
-      box.appendChild(button('Deal next hand', dealNext, true));
+      box.appendChild(button('Deal next hand', dealNext, true, 'N'));
       return;
     }
 
     if (!isHumanTurn()) {
       if (settings.pace < 0) {
-        box.appendChild(button('Continue', stepOnce, true));
+        box.appendChild(button('Continue', stepOnce, true, 'N'));
       } else {
         var w = document.createElement('p');
         w.className = 'hint';
@@ -506,11 +505,19 @@
     }
   }
 
-  function button(label, fn, primary) {
+  function button(label, fn, primary, shortcut) {
     var b = document.createElement('button');
     b.type = 'button';
     b.textContent = label;
     if (primary) b.className = 'primary';
+    if (shortcut) {
+      b.setAttribute('aria-keyshortcuts', shortcut);
+      b.dataset.advance = '1';
+      var k = document.createElement('kbd');
+      k.setAttribute('aria-hidden', 'true');
+      k.textContent = shortcut;
+      b.appendChild(k);
+    }
     b.addEventListener('click', fn);
     return b;
   }
@@ -1080,6 +1087,15 @@
     }
 
     var k = e.key.toLowerCase();
+
+    // N advances: Continue in manual pacing, or Deal next hand. Like the number
+    // keys it is an action rather than a review, so it is ignored inside the log
+    // where the player is reading rather than driving.
+    if (k === 'n' && !el.log.contains(t)) {
+      var adv = el.actions.querySelector('button[data-advance]');
+      if (adv) { e.preventDefault(); adv.click(); }
+      return;
+    }
     if (k === 'g') { e.preventDefault(); focusLogEntry(0); return; }
     if (k === 'e') { e.preventDefault(); openExport(); return; }
 
