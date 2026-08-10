@@ -15,7 +15,7 @@ Windows 11 ARM installation scripts and resources.
 
 [View Project][2]
 
-### sheepshead
+### sheephead
 A fully keyboard and screen reader accessible Sheephead card game for 3 to 6 players, played
 against computer opponents. Runs entirely in the browser with no build step and no dependencies.
 
@@ -36,4 +36,4 @@ Contributions to existing projects are welcome. If you have a script, app or oth
 [1]:	./parallels-manager
 [2]:	./win11arm-install
 [3]:	./LICENSE
-[4]:	./sheepshead
+[4]:	./sheephead

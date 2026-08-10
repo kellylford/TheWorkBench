@@ -1,7 +1,7 @@
 {
-  "name": "sheepshead",
+  "name": "sheephead",
   "version": "1.0.0",
-  "description": "A keyboard and screen reader accessible Sheepshead card game that runs entirely in the browser.",
+  "description": "A keyboard and screen reader accessible Sheephead card game that runs entirely in the browser.",
   "private": true,
   "scripts": {
     "test": "node tests/engine-invariants.js && node tests/hidden-information.js && node tests/transcript.js && node tests/ui-dom.js",
