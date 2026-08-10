@@ -413,6 +413,7 @@ async function manualPacing() {
   const { window, d } = await boot({ players: 5, pace: -1 });
   const say = () => d.getElementById('announcer').textContent;
   let advances = 0, sawContinue = 0;
+  const seen2 = { kept: 0 };
 
   for (let i = 0; i < 400 && advances < 12; i++) {
     await new Promise(r => setTimeout(r, 5));
@@ -425,9 +426,27 @@ async function manualPacing() {
       check(cont.getAttribute('aria-keyshortcuts') === 'N', 'Continue does not advertise N');
       // advance with the key, not the button
       const before = d.querySelectorAll('#log li').length;
+      const focusBefore = d.activeElement;
       d.dispatchEvent(new window.KeyboardEvent('keydown', { key: 'n', bubbles: true }));
       await new Promise(r => setTimeout(r, 5));
       check(d.querySelectorAll('#log li').length > before, 'N did not advance the game');
+
+      // The Continue button must survive the step rather than being rebuilt: a
+      // fresh element would take focus and be announced again after every play.
+      const contAfter = [...d.querySelectorAll('#actions button')]
+        .find(b => /^Continue/.test(b.textContent));
+      // Focus is only required to stay put while we are STILL waiting on
+      // Continue. When the step ends the wait — your turn arrives, or the hand
+      // finishes — moving focus to the new thing to do is correct.
+      if (contAfter) {
+        check(contAfter === cont,
+          'the Continue button was rebuilt, so it would be announced again after every play');
+        check(d.activeElement === focusBefore,
+          'focus moved while still waiting on Continue (from ' +
+          (focusBefore && focusBefore.tagName) + ' to ' +
+          (d.activeElement && d.activeElement.tagName) + ')');
+        seen2.kept++;
+      }
       advances++;
       continue;
     }
@@ -453,6 +472,7 @@ async function manualPacing() {
     }
   }
   check(sawContinue > 0, 'manual mode never offered a Continue button');
+  check(seen2.kept > 0, 'never observed the Continue button surviving a step');
   check(advances >= 12, 'N only advanced ' + advances + ' times');
 
   // N must not fire while reading back the log.
@@ -468,7 +488,7 @@ async function manualPacing() {
       'N advanced the game while the player was reading the log');
   }
   window.close();
-  return { advances, sawContinue };
+  return { advances, sawContinue, kept: seen2.kept };
 }
 
 /* The settings dialog: persists, feeds new games, and rule changes may not reach
@@ -528,7 +548,7 @@ async function settingsDialog() {
   await settingsDialog();
   console.log('settings dialog: opens, persists, summarises and resets');
   const m = await manualPacing();
-  console.log('manual pacing:', m.advances + ' advances via N,', m.sawContinue + ' Continue prompts, no nagging');
+  console.log('manual pacing:', m.advances + ' advances via N,', m.kept + ' steps with the same button kept, focus untouched, no nagging');
 
   for (const players of [3, 4, 5, 6]) {
     const r = await playHands(players, 4);

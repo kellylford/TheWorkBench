@@ -50,6 +50,8 @@
   var selected = {};             // card id -> true, while burying
   var handFocus = 0;
   var logFocus = 0;
+  var lastActionsKey = null;
+  var actionsRebuilt = false;
 
   var el = {};
 
@@ -213,6 +215,7 @@
     var cfg = {};
     Object.keys(settings).forEach(function (k) { cfg[k] = settings[k]; });
     state = G.createGame(cfg);
+    lastActionsKey = null;
     el['setup-section'].hidden = true;
     el['game-section'].hidden = false;
     el.log.innerHTML = '';
@@ -234,6 +237,7 @@
     clearTimeout(timer);
     selected = {};
     handFocus = 0;
+    lastActionsKey = null;
     // Rule changes made mid-game take effect here, at a hand boundary, never
     // part way through a hand already being scored under the old rules.
     RULE_FIELDS.forEach(function (k) { state.config[k] = settings[k]; });
@@ -519,8 +523,29 @@
     el.status.textContent = s;
   }
 
+  /* What the action area should be showing. Rebuilding it every render destroyed
+   * and recreated the Continue button on each step of manual pacing, which threw
+   * focus onto a brand new element and made the screen reader announce
+   * "Continue button" after every single play. If nothing has changed, leave the
+   * DOM alone. */
+  function actionsKey() {
+    if (state.phase === 'handOver') return 'over:' + (state.result ? state.result.summary : '');
+    if (!isHumanTurn()) return settings.pace < 0 ? 'continue' : 'waiting:' + state.turn;
+    if (state.phase === 'pick') return 'pick';
+    if (state.phase === 'bury') return 'bury:' + Object.keys(selected).length;
+    if (state.phase === 'play') {
+      return 'play:' + state.trick.length + ':' +
+        (state.trick.length ? C.effSuit(state.trick[0].card) : '-');
+    }
+    return 'none';
+  }
+
   function renderActions() {
     var box = el.actions;
+    var key = actionsKey();
+    actionsRebuilt = key !== lastActionsKey;
+    if (!actionsRebuilt) return;
+    lastActionsKey = key;
     box.innerHTML = '';
     var d = G.DEAL[settings.numPlayers];
 
@@ -1178,10 +1203,14 @@
     focusCard(handFocus);
   }
 
+  /* Only claim focus when the action area has actually changed. Otherwise
+   * stepping through manual pacing would re-focus the same button over and over
+   * and announce it every time. */
   function focusFirstAction() {
+    if (!actionsRebuilt) return;
     if (!mayTakeFocus()) return;
     var b = el.actions.querySelector('button');
-    if (b) b.focus();
+    if (b && b !== document.activeElement) b.focus();
   }
 
   function onHandKeys(e) {
