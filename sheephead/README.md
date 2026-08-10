@@ -81,6 +81,7 @@ and forced-colours mode.
 | <kbd>G</kbd> | Jump into the game log |
 | <kbd>E</kbd> | Export the game log |
 | <kbd>B</kbd> | Report a bug |
+| <kbd>N</kbd> | Advance: Continue in manual mode, or deal the next hand |
 | <kbd>R</kbd> | Repeat the last announcement |
 | <kbd>?</kbd> | Accessibility hints |
 

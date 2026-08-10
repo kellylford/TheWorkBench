@@ -152,6 +152,7 @@ kbd {
   margin-left: .35em;
   color: var(--ink-dim);
 }
+.primary kbd { color: inherit; border-color: currentColor; opacity: .75; }
 
 :focus-visible {
   outline: 3px solid var(--focus);
