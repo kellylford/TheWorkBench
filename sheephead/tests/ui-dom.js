@@ -33,7 +33,7 @@ async function boot(opts) {
   });
 
   // jsdom does not implement <dialog>; stub only what ui.js touches.
-  ['help-dialog', 'export-dialog', 'bug-dialog'].forEach(id => {
+  ['rules-dialog', 'a11y-dialog', 'export-dialog', 'bug-dialog'].forEach(id => {
     const dlg = window.document.getElementById(id);
     if (typeof dlg.showModal !== 'function') { dlg.showModal = () => { dlg.open = true; }; dlg.close = () => { dlg.open = false; }; }
   });
@@ -47,6 +47,36 @@ async function boot(opts) {
     check(new Set(opps).size === opps.length, 'two opponents share a name: ' + opps.join(', '));
     check(!opps.some(o => /^You/.test(o)), 'an opponent is named after the player: ' + opps.join(', '));
     check(opps.every(o => /^[A-Z]/.test(o)), 'odd opponent name: ' + opps.join(', '));
+  }
+
+  // Help is two separate experiences: game rules, and accessibility guidance.
+  {
+    const rules = d.getElementById('rules-dialog');
+    const a11y = d.getElementById('a11y-dialog');
+    const rulesText = rules.textContent;
+    const a11yText = a11y.textContent;
+
+    // The rules must not be cluttered with keyboard mechanics...
+    check(!/roving|browse mode|NVDA|Tab and Shift/i.test(rulesText),
+      'the rules dialog still contains keyboard or screen reader guidance');
+    check(/trump|trick|blind|picker/i.test(rulesText), 'the rules dialog lost the game rules');
+    // ...and the accessibility hints must not be re-teaching the game.
+    check(!/queen of clubs, queen of spades/i.test(a11yText),
+      'the accessibility dialog still contains the trump order');
+    check(/browse mode|NVDA/i.test(a11yText), 'the accessibility dialog lost the mode guidance');
+
+    // Both reachable from setup, both reachable from each other.
+    ['setup-rules', 'setup-a11y'].forEach(id =>
+      check(d.getElementById(id), 'missing setup entry point: ' + id));
+
+    d.getElementById('setup-a11y').click();
+    check(a11y.open && !rules.open, '? entry point did not open the accessibility dialog');
+    d.getElementById('a11y-to-rules').click();
+    check(rules.open && !a11y.open, 'switching from accessibility to rules failed');
+    d.getElementById('rules-to-a11y').click();
+    check(a11y.open && !rules.open, 'switching from rules to accessibility failed');
+    d.getElementById('a11y-close').click();
+    check(!a11y.open && !rules.open, 'closing left a help dialog open');
   }
 
   // Screen reader modes are the user's to control: nothing may claim application role.

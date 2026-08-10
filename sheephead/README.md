@@ -69,7 +69,20 @@ and forced-colours mode.
 | <kbd>E</kbd> | Export the game log |
 | <kbd>B</kbd> | Report a bug |
 | <kbd>R</kbd> | Repeat the last announcement |
-| <kbd>?</kbd> | Help |
+| <kbd>?</kbd> | Accessibility hints |
+
+## Help is split in two
+
+The game ships two separate help screens rather than one mixed page, because the two audiences
+want different things:
+
+- **How to play Sheephead** — the rules, for anyone who has never played. Trump order, the deal,
+  the partner card, following suit, scoring, leasters.
+- **Accessibility hints** — keyboard, screen reader modes, pacing, and how to review the game
+  state. Nothing about the rules.
+
+Both are reachable from the setup screen and from the in-game toolbar, and each offers the other
+at the bottom so neither is a dead end. <kbd>?</kbd> opens the accessibility hints.
 
 ## Rules as implemented
 

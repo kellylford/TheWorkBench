@@ -30,7 +30,7 @@
     return C.shuffle(pool).slice(0, count);
   }
   var STORE_KEY = 'sheephead.settings.v1';
-  var DIALOGS = ['help-dialog', 'export-dialog', 'bug-dialog'];
+  var DIALOGS = ['rules-dialog', 'a11y-dialog', 'export-dialog', 'bug-dialog'];
 
   function anyDialogOpen() {
     for (var i = 0; i < DIALOGS.length; i++) if (el[DIALOGS[i]].open) return true;
@@ -53,17 +53,24 @@
 
   function init() {
     ['setup-section', 'setup-form', 'game-section', 'status', 'actions', 'hand',
-      'trick', 'lasttrick', 'players-table', 'log', 'announcer', 'alerts', 'help-dialog',
+      'trick', 'lasttrick', 'players-table', 'log', 'announcer', 'alerts',
       'game-h', 'export-dialog', 'export-text', 'export-summary',
-      'bug-dialog', 'bug-title', 'bug-what', 'bug-include-log', 'bug-preview'].forEach(function (id) {
+      'bug-dialog', 'bug-title', 'bug-what', 'bug-include-log', 'bug-preview',
+      'rules-dialog', 'a11y-dialog'].forEach(function (id) {
         el[id] = $(id);
       });
 
     loadSettings();
     el['setup-form'].addEventListener('submit', onStart);
-    $('setup-help').addEventListener('click', openHelp);
-    $('btn-help').addEventListener('click', openHelp);
-    $('help-close').addEventListener('click', function () { closeDialog(el['help-dialog']); });
+    $('setup-rules').addEventListener('click', openRules);
+    $('setup-a11y').addEventListener('click', openA11y);
+    $('btn-rules').addEventListener('click', openRules);
+    $('btn-a11y').addEventListener('click', openA11y);
+    $('rules-close').addEventListener('click', function () { closeDialog(el['rules-dialog']); });
+    $('a11y-close').addEventListener('click', function () { closeDialog(el['a11y-dialog']); });
+    // Each help dialog offers the other, so neither is a dead end.
+    $('rules-to-a11y').addEventListener('click', function () { switchDialog('rules-dialog', 'a11y-dialog'); });
+    $('a11y-to-rules').addEventListener('click', function () { switchDialog('a11y-dialog', 'rules-dialog'); });
     // Escape closes a native dialog without going through our button.
     DIALOGS.forEach(function (id) {
       el[id].addEventListener('close', restoreDialogFocus);
@@ -865,7 +872,7 @@
 
     var map = { h: 'hand', t: 'trick', l: 'last', s: 'score', p: 'teams', c: 'count', r: 'repeat' };
     if (map[k]) { e.preventDefault(); say(map[k]); return; }
-    if (e.key === '?') { e.preventDefault(); openHelp(); }
+    if (e.key === '?') { e.preventDefault(); openA11y(); }
   }
 
   /* ---------------- export ---------------- */
@@ -959,10 +966,28 @@
   }
 
   function restoreDialogFocus() {
+    if (switching) return;      // handing off to a sibling dialog, not really closing
     var back = dialogReturn;
     dialogReturn = null;
     if (back && back.isConnected !== false && document.contains(back)) back.focus();
     else if (state && !el['game-section'].hidden) focusForTurn();
+  }
+
+  /* Move from one help dialog straight to the other, keeping the element that
+   * opened the first one as the eventual focus target. */
+  var switching = false;
+
+  function switchDialog(fromId, toId) {
+    switching = true;
+    var keep = dialogReturn;
+    var from = el[fromId];
+    if (typeof from.close === 'function') from.close(); else from.removeAttribute('open');
+    switching = false;
+    dialogReturn = keep;
+    var to = el[toId];
+    if (typeof to.showModal === 'function') to.showModal(); else to.setAttribute('open', '');
+    var h = to.querySelector('h2');
+    if (h) { h.tabIndex = -1; h.focus(); }
   }
 
   /* ---------------- bug reports ---------------- */
@@ -1080,7 +1105,8 @@
     }
   }
 
-  function openHelp() { openDialog(el['help-dialog']); }
+  function openRules() { openDialog(el['rules-dialog']); }
+  function openA11y() { openDialog(el['a11y-dialog']); }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
   else init();
