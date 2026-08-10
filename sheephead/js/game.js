@@ -617,6 +617,13 @@
     if (pickerTeam.length > 1) deltas[state.partner] = sign * partnerShare;
     for (var m = 0; m < n; m++) if (isOpp[m]) deltas[m] = -sign * stake;
 
+    // Name the defending side from the player's own point of view. Calling it
+    // "the other team" when the player is standing in it reads as if the summary
+    // is about somebody else's game.
+    var humanSeat = -1;
+    for (var hs = 0; hs < n; hs++) if (state.players[hs].isHuman) humanSeat = hs;
+    var defenceText = (humanSeat >= 0 && isOpp[humanSeat]) ? 'your team' : 'the other team';
+
     var teamText = state.alone
       ? state.players[state.picker].name + ' alone'
       : state.players[state.picker].name + ' and ' + state.players[state.partner].name;
@@ -635,7 +642,7 @@
       : '';
 
     var summary = 'Hand over. ' + teamText + ' took ' + pickerPts + ' points (including ' +
-      buriedPts + ' buried); the other team took ' + oppPts + '.' + blindText + buriedText + ' ' +
+      buriedPts + ' buried); ' + defenceText + ' took ' + oppPts + '.' + blindText + buriedText + ' ' +
       (pickerWins ? 'The picker\'s team wins' : 'The picker\'s team loses') + ' — ' + label + '.' +
       doublerText(state) + ' ' +
       state.players.map(function (p, i) {
