@@ -498,13 +498,23 @@ async function settingsDialog() {
     'settings summary does not list the doublers: ' + summary);
 
   // Persisted for next time.
-  const stored = JSON.parse(window.localStorage.getItem('sheephead.settings.v1'));
+  // Find the settings key rather than naming a version, so bumping the key to
+  // push new defaults out does not silently break this test.
+  const storeKey = () => {
+    for (let i = 0; i < window.localStorage.length; i++) {
+      const k = window.localStorage.key(i);
+      if (/^sheephead\.settings\./.test(k)) return k;
+    }
+    return null;
+  };
+  check(storeKey() !== null, 'no sheephead settings key was written to localStorage');
+  const stored = JSON.parse(window.localStorage.getItem(storeKey()));
   check(stored.blackQueenDoubler === true && stored.redQueenDoubler === true &&
     stored.redealDoubler === true, 'doubler settings were not persisted: ' + JSON.stringify(stored));
 
   // Reset puts everything back.
   d.getElementById('settings-reset').click();
-  const after = JSON.parse(window.localStorage.getItem('sheephead.settings.v1'));
+  const after = JSON.parse(window.localStorage.getItem(storeKey()));
   check(after.blackQueenDoubler === false && after.redQueenDoubler === false &&
     after.redealDoubler === false, 'reset did not clear the doublers');
   check(/No doublers/.test(d.getElementById('settings-summary').textContent),
