@@ -30,6 +30,18 @@ Batch related questions into a single `AskUserQuestion` call (it takes up to fou
 asking one, waiting, asking the next. Give each option a `preview` showing the config it would
 write, so the effect is visible before choosing.
 
+**Every `multiSelect` question needs an explicit "change nothing" option.** The card cannot
+submit an empty selection, so without one, a user who wants none of what is on offer is pushed
+into `Other` to say so — which is a worse answer to a question that should have been one
+arrow-key away. Make it the first option, name it for what it does (`Keep the current
+settings`), and give it a `preview` listing the settings that stay in force, the same as any
+other option. If it is somehow selected alongside real changes, the real changes are the
+answer; apply them and say which you applied.
+
+Word the question to match the options on the card. Do not write "pick any, or none" unless a
+*none* option is actually there — the instruction and the card have to agree, or the user is
+hunting for a control that does not exist.
+
 The only things that do not need a card are reporting what you found and confirming what you
 did.
 
@@ -65,8 +77,10 @@ A good first call asks two questions at once:
 
 1. **Speech route** — one option per available route, plus `auto`.
 2. **What gets read aloud** — a `multiSelect` question offering the trims most people want:
-   skip code blocks, skip tables, read full URLs, first paragraph only. Skip this question
-   only if the user already told you what they want.
+   skip code blocks, skip tables, read full URLs, first paragraph only. Lead with a
+   `Keep the current settings` option, since most people setting up a route do not want to
+   change this at the same time. Skip this question only if the user already told you what
+   they want.
 
 Frame the real trade-off in the route descriptions:
 
@@ -144,7 +158,9 @@ reading me code" is `codeBlocks: omit`, "just the gist" is `firstParagraphOnly: 
 the actual links" is `urls: read`.
 
 When the user has *not* already said what they want, offer these as a `multiSelect` question
-card rather than describing them and waiting for a reply.
+card rather than describing them and waiting for a reply — with `Keep the current settings` as
+the first option, as above. Leaving it off makes "I am happy as I am" the one answer the card
+cannot give.
 
 State the floor when it is relevant: thinking blocks, tool calls and tool output are **never**
 spoken whatever these are set to, and only the newest reply is read. Users sometimes assume
