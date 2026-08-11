@@ -140,8 +140,16 @@ async function playHands(players, howMany) {
 
     if (next) {
       seen.handsDone++;
-      const summary = d.querySelector('#actions .hint').textContent;
-      check(/Hand over|Leaster result/.test(summary), 'hand-over summary missing: ' + summary);
+      // The action area carries only the headline now, so the button is not
+      // pushed off a phone screen. The full account must still exist — it moved
+      // to the log, it did not disappear.
+      const headline = d.querySelector('#actions .result-headline').textContent;
+      check(/(wins?|lose[s]?) (alone )?— .+\.$/.test(headline) || /leaster/i.test(headline),
+        'result headline is malformed: ' + headline);
+      check(headline.length < 90, 'the headline is long enough to push the button down: ' + headline);
+      const logged = [...d.querySelectorAll('#log li')].map(li => li.textContent);
+      const summary = logged.find(t => /Hand over|Leaster result/.test(t)) || '';
+      check(summary, 'the full hand summary is not in the game log either');
 
       // The visible Total row must show the points adding up.
       const foot = d.querySelector('#players-table tfoot tr');
@@ -180,10 +188,9 @@ async function playHands(players, howMany) {
         check(shown.length >= 2, 'the blind reveal shows no cards: ' + shown.join(' | '));
         shown.forEach(l => check(/ of (Clubs|Spades|Hearts|Diamonds),/.test(l),
           'blind reveal card is not fully named: ' + l));
-        // and named in the summary too, not just rendered
-        const said = d.querySelector('#actions .hint').textContent;
-        check(/The blind held .+ of /.test(said),
-          'the hand summary does not name the blind cards: ' + said);
+        // and named in the full summary too, not just rendered
+        check(/The blind held .+ of /.test(summary),
+          'the logged hand summary does not name the blind cards: ' + summary);
         seen.blindRevealed++;
       }
 

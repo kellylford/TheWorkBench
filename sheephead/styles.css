@@ -100,7 +100,7 @@ main { padding: 1rem clamp(1rem, 4vw, 2rem) 4rem; max-width: 88rem; }
 main:focus { outline: none; }
 
 h2 { font-size: 1.3rem; margin: 1.25rem 0 .5rem; }
-h3 { font-size: 1.05rem; margin: 1.5rem 0 .4rem; text-transform: uppercase; letter-spacing: .06em; color: var(--ink-dim); }
+h3 { font-size: 1.05rem; margin: 1rem 0 .35rem; text-transform: uppercase; letter-spacing: .06em; color: var(--ink-dim); }
 
 section > :last-child { margin-bottom: 0; }
 
@@ -659,4 +659,17 @@ dialog::backdrop { background: rgba(0,0,0,.65); }
 
   /* 3. The log is long and rarely needed on a phone. */
   .log { max-height: 12rem; }
+
+  /* 4. The decorative seats were the tallest region on a phone — up to 612px of
+   *    face-down card backs that a screen reader user gets nothing from, sitting
+   *    right where they push the current trick off the screen. Two per row
+   *    instead of one, and smaller backs. min() keeps rem as the preferred size
+   *    and only clamps when the container genuinely cannot fit two. */
+  .seats {
+    grid-template-columns: repeat(auto-fit, minmax(min(7rem, 45%), 1fr));
+    gap: .4rem;
+    padding: .5rem;
+  }
+  .seat-fan { min-height: 0; margin-top: .2rem; }
+  .seat-fan .back { width: clamp(1.2rem, 5vw, 1.6rem); }
 }
