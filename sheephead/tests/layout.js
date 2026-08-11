@@ -22,7 +22,7 @@ const FONTS = [16, 24];      // default, and ~150% browser text zoom
 (async () => {
   const browser = await puppeteer.launch({ headless: 'new', args: ['--no-sandbox'] });
   const fails = [];
-  console.log('size          font  players  overflow  cardW   handRows  minTap');
+  console.log('size          font  players  setupOv  overflow  cardW   handRows  minTap');
 
   for (const size of SIZES) {
     for (const font of FONTS) {
@@ -32,6 +32,23 @@ const FONTS = [16, 24];      // default, and ~150% browser text zoom
         await page.goto(pathToFileURL(path.join(root, 'index.html')).href + '?cb=' + Date.now(),
           { waitUntil: 'load' });
         await page.evaluate(f => { document.documentElement.style.fontSize = f + 'px'; }, font);
+
+        // Measure the SETUP screen before starting. This test used to start a
+        // game first and so never looked at the first screen a player sees —
+        // which was overflowing by up to 293px on a phone at large text.
+        const setup = await page.evaluate(() => {
+          const de = document.documentElement;
+          let widest = 0, who = '';
+          document.querySelectorAll('#setup-section *').forEach(e => {
+            const r = e.getBoundingClientRect();
+            if (r.right > widest) { widest = r.right; who = e.tagName.toLowerCase() + (e.id ? '#' + e.id : ''); }
+          });
+          return { overflow: de.scrollWidth - de.clientWidth, who };
+        });
+        if (setup.overflow > 1) {
+          fails.push(size.label + ' @' + font + 'px: SETUP SCREEN overflows by ' +
+            setup.overflow + 'px (widest: ' + setup.who + ')');
+        }
 
         // start a game and get into a playing state
         await page.evaluate(p => {
@@ -98,6 +115,7 @@ const FONTS = [16, 24];      // default, and ~150% browser text zoom
           size.label.padEnd(13),
           String(font).padStart(4),
           String(players).padStart(8),
+          String(setup.overflow).padStart(8),
           String(m.overflow).padStart(9),
           String(m.cardW).padStart(6),
           String(m.rows).padStart(10),
