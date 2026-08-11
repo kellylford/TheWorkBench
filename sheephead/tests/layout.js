@@ -125,6 +125,53 @@ const FONTS = [16, 24];      // default, and ~150% browser text zoom
       }
     }
   }
+  /* The optional two-column desktop layout. The thing that must hold is that
+   * grid placement never desyncs visual order from DOM order — that is the only
+   * reason this is grid rather than positioning, and it is invisible to any
+   * test that only checks overflow. */
+  for (const [w, h, font] of [[1280, 800, 16], [1280, 800, 24], [1920, 1080, 16], [768, 1024, 16]]) {
+    const page = await browser.newPage();
+    await page.setViewport({ width: w, height: h });
+    await page.goto(pathToFileURL(path.join(root, 'index.html')).href + '?cb=' + Date.now(),
+      { waitUntil: 'load' });
+    await page.evaluate(f => { document.documentElement.style.fontSize = f + 'px'; }, font);
+    await page.evaluate(() => {
+      const e = document.getElementById('opt-layout');
+      e.value = 'two';
+      e.dispatchEvent(new Event('change', { bubbles: true }));
+      document.getElementById('opt-players').value = '5';
+      document.getElementById('opt-pace').value = '0';
+      document.getElementById('setup-form')
+        .dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+    });
+    await new Promise(r => setTimeout(r, 400));
+
+    const m = await page.evaluate(() => {
+      const de = document.documentElement;
+      const blocks = [...document.querySelectorAll('#game-section > section, #game-section > div')]
+        .filter(e => e.offsetParent !== null);
+      const domOrder = blocks.map((_, i) => i);
+      // visual order: by row (top, rounded to absorb sub-pixel), then by column
+      const visualOrder = blocks
+        .map((e, i) => ({ i, r: e.getBoundingClientRect() }))
+        .sort((a, b) => (Math.round(a.r.top / 8) - Math.round(b.r.top / 8)) || (a.r.left - b.r.left))
+        .map(x => x.i);
+      return {
+        overflow: de.scrollWidth - de.clientWidth,
+        matches: JSON.stringify(domOrder) === JSON.stringify(visualOrder),
+        dom: domOrder.join(','), vis: visualOrder.join(',')
+      };
+    });
+    if (m.overflow > 1) fails.push('two-column @' + w + 'px/' + font + ': overflows by ' + m.overflow + 'px');
+    if (!m.matches) {
+      fails.push('two-column @' + w + 'px/' + font +
+        ': VISUAL ORDER DIVERGED FROM DOM ORDER (dom ' + m.dom + ' vs visual ' + m.vis + ')');
+    }
+    console.log('two-column   ' + String(font).padStart(4) + String(w).padStart(9) +
+      String(m.overflow).padStart(18) + '   reading order ' + (m.matches ? 'preserved' : 'BROKEN'));
+    await page.close();
+  }
+
   await browser.close();
 
   if (fails.length) {
