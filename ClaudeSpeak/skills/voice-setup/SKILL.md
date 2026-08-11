@@ -26,9 +26,36 @@ and the question card is a real control they can arrow through and select. A que
 into prose is something they have to find in a transcript, parse, and answer by typing — which
 is exactly the friction this whole project exists to remove.
 
-Batch related questions into a single `AskUserQuestion` call (it takes up to four) rather than
-asking one, waiting, asking the next. Give each option a `preview` showing the config it would
-write, so the effect is visible before choosing.
+Batch related questions into a single `AskUserQuestion` call rather than asking one, waiting,
+asking the next.
+
+**The card has hard limits: 1–4 questions, and 2–4 options per question.** Four is a cap, not a
+target, and it applies to `multiSelect` exactly as it does to a single choice. Exceed it and
+the call is rejected. `Other` is added for you — never write one yourself. Plan the options
+against that ceiling *before* writing the call, because the repair when it fails is to drop
+something, and dropping the option the user wanted is the failure this skill exists to avoid.
+When a fifth option will not fit, a second question is the room you have — questions are the
+cheaper axis.
+
+**Every `multiSelect` needs an explicit decline option, and it costs one of the four options.**
+Without one, saying "none of these" means either tabbing past every option to reach Submit and
+confirming through a warning, or typing it into `Other` — a lot of work for the most ordinary
+answer there is. Make it the first option and name it for what it does: `Leave it as it is`.
+So a `multiSelect` offers **at most three** real choices. Pick the three that fit what the user
+is actually doing and say in your reply that the rest can be had by asking in words.
+
+If the decline option somehow arrives selected alongside real changes, the real changes are the
+answer; apply them and say which you applied.
+
+**Put the consequence of an option in its `description`.** That renders in every case. A
+`preview` is worth adding on single-choice questions — it is where a config snippet belongs —
+but do not rely on it to carry anything the user must read, and do not count on it appearing on
+a `multiSelect` at all.
+
+Word the question to match the options on the card. Do not write "pick any, or none" unless a
+*none* option is actually there — the instruction and the card have to agree, or the user is
+hunting for a control that does not exist. If you had to drop a choice to fit the cap, do not
+describe the card as if it were still on there.
 
 The only things that do not need a card are reporting what you found and confirming what you
 did.
@@ -63,10 +90,15 @@ probe says there is no usable controller client, and never list a voice that is 
 
 A good first call asks two questions at once:
 
-1. **Speech route** — one option per available route, plus `auto`.
-2. **What gets read aloud** — a `multiSelect` question offering the trims most people want:
-   skip code blocks, skip tables, read full URLs, first paragraph only. Skip this question
-   only if the user already told you what they want.
+1. **Speech route** — one option per available route, plus `auto`. All four routes plus `auto`
+   is five, one over the cap, so this only fits because the probe rules some out. If it still
+   does not fit, drop `sapi` — `onecore` is the same idea and the probe's own note says it
+   generally sounds cleaner.
+2. **What gets read aloud** — a `multiSelect`, `Leave it as it is` first, then **three** of the
+   trims people ask for: skip code blocks, skip tables, read full URLs, first paragraph only.
+   Four plus the decline option does not fit; choose the three that suit what the user is
+   doing, and mention in your reply that the fourth is available by asking. Skip this question
+   entirely if the user already told you what they want.
 
 Frame the real trade-off in the route descriptions:
 
@@ -77,10 +109,13 @@ Frame the real trade-off in the route descriptions:
   from everything else on screen. Needs a voice and rate chosen.
 
 If they pick a system voice, follow up with **another card** — voice and rate as two questions
-in one call, one option per installed voice. `onecore` runs 0.5–6.0 (6 is fastest); `sapi`
-runs -10 to 10. Do not ask about rate at all when the route is `jaws` or `nvda`.
+in one call, one option per installed voice **of the chosen engine only** (listing both sets
+can run past four options, and they are different voices anyway). `onecore` runs 0.5–6.0 (6 is
+fastest); `sapi` runs -10 to 10. Do not ask about rate at all when the route is `jaws` or
+`nvda`.
 
-Every option needs a `preview` showing the resulting config, e.g.:
+These are single-choice questions, so give every option a `preview` showing the resulting
+config, e.g.:
 
 ```
 engine: onecore
@@ -144,7 +179,10 @@ reading me code" is `codeBlocks: omit`, "just the gist" is `firstParagraphOnly: 
 the actual links" is `urls: read`.
 
 When the user has *not* already said what they want, offer these as a `multiSelect` question
-card rather than describing them and waiting for a reply.
+card rather than describing them and waiting for a reply. Five settings do not fit a four-option
+card, and one of those four has to be `Leave it as it is` — so offer the three that suit what
+they are doing and let the rest be asked for in words. See the card rules at the top; they are
+the binding version.
 
 State the floor when it is relevant: thinking blocks, tool calls and tool output are **never**
 spoken whatever these are set to, and only the newest reply is read. Users sometimes assume
