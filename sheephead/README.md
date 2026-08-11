@@ -249,6 +249,23 @@ tests/          node scripts, no dependencies
 npm test
 ```
 
+- `tests/rules-oracle.js` — the only test that knows what Sheephead *is*. The rules are written
+  out by hand from the game's own How to Play dialog — the trump order typed as fourteen literal
+  cards, the points table, the follow-suit rule, the scoring thresholds — and the engine is
+  measured against them. It may not call `isTrump`, `power`, `beats`, `effSuit`, `points` or
+  `legalPlays` to decide what it expects, because those are the things on trial. Roughly 47,000
+  assertions: every ordered pair of the 32 cards compared, 20,000 random tricks scored
+  independently, 3,000 hands checked against the follow-suit rule, and 6,000 complete hands whose
+  results are re-derived from the rules text. It also reports which scoring boundaries it actually
+  reached and fails if 60/61 never came up, because a threshold test that never lands on the
+  threshold is not testing it.
+
+  **Why it exists.** Everything below checks that the game is consistent *with itself*. Swapping
+  two entries in `TRUMP_ORDER`, so the eight of diamonds beats the nine, passed all of them —
+  25,000 simulated hands with the wrong player taking tricks, and nothing noticed, because the
+  same cards still exist so the points still total 120, the transfer is still zero-sum, and the
+  legality check validates the AI's move against the function that produced it. This file catches
+  that swap, and ten other deliberate rule breaks it was tested against.
 - `tests/engine-invariants.js` — plays 3,600 hands with every seat driven by the AI across all
   table sizes, rule options and difficulties. Checks that the AI never chooses an illegal card or
   fails to follow suit, that every hand accounts for exactly 120 points, that no card is played
@@ -256,7 +273,9 @@ npm test
 - `tests/hidden-information.js` — checks that nothing observable changes based on whether the
   picker is secretly alone: identical event wording, identical opponent inference, correct reveal
   on the play of the jack, and silence for a whole hand when the jack is buried. The computer
-  players never bury trump, so that path is forced by hand.
+  players price trump at −45 when burying, so they effectively never bury the jack themselves and
+  that path is forced by hand — "effectively" rather than "never", which is worth the distinction:
+  it happens about one deal in 300,000, and asserting otherwise made this test flaky for months.
 - `tests/transcript.js` — audits 1,200 played hands across all table sizes, checks that the audit
   actually catches deliberately corrupted hands (wrong totals, a duplicated card, a missing trick,
   non-zero-sum scores), and verifies that a mid-hand export never shows a card still in somebody
