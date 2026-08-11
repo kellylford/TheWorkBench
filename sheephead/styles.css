@@ -8,7 +8,7 @@
   --panel: #1a232e;
   --panel-2: #223040;
   --ink: #eef3f8;
-  --ink-dim: #b6c4d3;
+  --ink-dim: #ccd8e4;
   --line: #3c4b5d;
   --accent: #6fd0ff;
   --accent-ink: #06212e;
@@ -34,7 +34,7 @@
     --panel: #ffffff;
     --panel-2: #e8eef4;
     --ink: #12181f;
-    --ink-dim: #48586a;
+    --ink-dim: #3b4a5b;
     --line: #b9c6d4;
     --accent: #14556f;
     --accent-ink: #ffffff;
@@ -96,7 +96,7 @@ body {
 .app-header h1 { margin: 0; font-size: 1.6rem; letter-spacing: .02em; }
 .tagline { margin: .25rem 0 .75rem; color: var(--ink-dim); }
 
-main { padding: 1rem clamp(1rem, 4vw, 2rem) 4rem; max-width: 72rem; }
+main { padding: 1rem clamp(1rem, 4vw, 2rem) 4rem; max-width: 88rem; }
 main:focus { outline: none; }
 
 h2 { font-size: 1.3rem; margin: 1.25rem 0 .5rem; }
@@ -132,7 +132,7 @@ input[type="text"], select {
 }
 input[type="checkbox"] { width: 1.1rem; height: 1.1rem; margin-top: .2rem; }
 
-.hint { display: block; color: var(--ink-dim); font-size: .92rem; margin: .3rem 0; }
+.hint { display: block; color: var(--ink-dim); font-size: .95rem; margin: .3rem 0; max-width: 60rem; }
 
 /* ---------- buttons ---------- */
 
@@ -151,6 +151,8 @@ button.primary {
   color: var(--accent-ink);
   border-color: var(--accent);
   font-weight: 700;
+  font-size: 1.05rem;
+  padding: .65rem 1.15rem;
 }
 button[disabled] { opacity: .5; cursor: not-allowed; }
 
@@ -173,17 +175,56 @@ kbd {
 
 .actions { display: flex; flex-wrap: wrap; gap: .6rem; margin: 1rem 0 0; }
 .actions-area { display: flex; flex-wrap: wrap; gap: .6rem; align-items: center; min-height: 2.4rem; }
+.actions-area .hint { flex: 1 1 100%; }
+.chips { flex: 1 1 100%; display: flex; flex-wrap: wrap; gap: .45rem; margin-bottom: .2rem; }
+.chip {
+  display: inline-flex; align-items: baseline; gap: .35rem;
+  padding: .3rem .6rem;
+  background: var(--panel-2);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+}
+.chip-label { font-size: .78rem; text-transform: uppercase; letter-spacing: .06em; color: var(--ink-dim); }
+.chip-value { font-weight: 700; }
+.chip-good { border-color: var(--good); }
+.chip-good .chip-value { color: var(--good); }
+.chip-bad { border-color: var(--bad); }
+.chip-bad .chip-value { color: var(--bad); }
+.chip-note { border-color: var(--trump); }
+
+.next-step { flex: 1 1 100%; margin: .1rem 0 .3rem; font-weight: 700; color: var(--ink); }
 
 .toolbar {
   display: flex;
   flex-wrap: wrap;
+  gap: .6rem;
+  margin-bottom: .75rem;
+}
+.tool-group {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
   gap: .4rem;
-  padding: .6rem;
+  padding: .5rem .6rem;
   background: var(--panel);
   border: 1px solid var(--line);
   border-radius: var(--radius);
-  margin-bottom: .5rem;
 }
+.tool-group-name {
+  font-size: .78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .07em;
+  color: var(--ink-dim);
+  margin-right: .15rem;
+}
+/* New game throws away the current game, so it should not look like Scores. */
+button.consequential { border-color: var(--bad); color: var(--bad); }
+button.consequential:hover { background: color-mix(in srgb, var(--bad) 14%, transparent); }
+
+button:active:not([disabled]):not([aria-disabled="true"]) { transform: translateY(1px); }
+button:hover:not([disabled]):not([aria-disabled="true"]) { background: var(--panel); }
+button.primary:hover { background: color-mix(in srgb, var(--accent) 85%, white); }
 
 /* ---------- status ---------- */
 
@@ -203,6 +244,7 @@ kbd {
 .hand {
   display: flex;
   flex-wrap: wrap;
+  align-content: center;
   gap: .5rem;
   padding: .75rem;
   background: var(--panel);
@@ -309,18 +351,20 @@ kbd {
 /* The two corners the indices do not use, so nothing lands on top of them. */
 .skin-traditional .card .pos {
   top: 2cqw; left: auto; right: 3cqw;
-  font-size: 11cqw; color: #8a95a1;
+  font-size: 15cqw;
+  color: #3d4852;          /* was #8a95a1, which failed AA on a white card */
 }
 .skin-traditional .card .tag {
   bottom: 2cqw; left: 3cqw; right: auto;
   text-align: left;
-  font-size: 8cqw;
-  opacity: .75;
+  font-size: 11cqw;
+  color: #3d4852;
+  opacity: 1;
 }
 
 /* The tag and position number are guides, not part of the card. Hide them once
  * the card is small enough that they would crowd the face. */
-@container (max-width: 3.9rem) {
+@container (max-width: 4.6rem) {
   .skin-traditional .card .tag { display: none; }
 }
 .card.red .rank, .card.red .suit { color: var(--card-red); }
@@ -346,7 +390,10 @@ kbd {
 .card.partner-card {
   border-color: var(--partner);
   border-width: 3px;
-  background: linear-gradient(180deg, color-mix(in srgb, var(--partner) 18%, var(--card-bg)) 0%, var(--card-bg) 55%);
+  /* Colour and image set separately: a gradient alone leaves background-color
+   * transparent, which is both a weak fallback and unmeasurable for contrast. */
+  background-color: var(--card-bg);
+  background-image: linear-gradient(180deg, color-mix(in srgb, var(--partner) 18%, var(--card-bg)) 0%, var(--card-bg) 55%);
 }
 .card.partner-card .tag { color: var(--partner-ink); font-weight: 800; }
 .card.partner-card::before {
@@ -405,7 +452,8 @@ kbd {
 .trick .what { font-weight: 700; }
 .trick .what .s.red { color: var(--card-red); }
 .trick .flag { display: block; font-size: .78rem; color: var(--good); font-weight: 700; }
-.trick .empty { color: var(--ink-dim); }
+.trick .empty { color: var(--ink-dim); font-style: italic; padding: .6rem .2rem; }
+.hand > .hint { align-self: center; margin: auto; font-style: italic; text-align: center; }
 
 /* ---------- table ---------- */
 

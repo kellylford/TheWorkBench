@@ -152,6 +152,26 @@ async function playHands(players, howMany) {
       check(foot.children[5].textContent === '0',
         'game scores are not zero sum: ' + foot.children[5].textContent);
 
+      // Result chips summarise the hand at a glance, but must not make a screen
+      // reader hear it all twice — the prose summary beside them already says it.
+      {
+        const chips = d.querySelector('#actions .chips');
+        check(chips, 'no result chips at the end of the hand');
+        if (chips) {
+          check(chips.getAttribute('aria-hidden') === 'true',
+            'result chips are not hidden from assistive technology, so the result is announced twice');
+          const labels = [...chips.querySelectorAll('.chip-label')].map(e => e.textContent);
+          check(labels.includes('You'), 'chips do not show the player their own result: ' + labels.join(','));
+          const you = chips.querySelector('.chip .chip-value').textContent;
+          check(/^[+-]?\d+$/.test(you), 'the player chip is not a score change: ' + you);
+        }
+        // The heading must not still claim it is the player's turn.
+        check(d.getElementById('action-h').textContent === 'Hand complete',
+          'action heading still reads "' + d.getElementById('action-h').textContent + '" after the hand ended');
+        check(/^Next: deal hand \d+\.$/.test(d.querySelector('#actions .next-step').textContent),
+          'no next-step line telling the player what happens now');
+      }
+
       // The blind must be revealed as actual cards, not just a point total.
       {
         const sec = d.getElementById('blind-section');

@@ -4,7 +4,7 @@
   "description": "A keyboard and screen reader accessible Sheephead card game that runs entirely in the browser.",
   "private": true,
   "scripts": {
-    "test": "node tests/engine-invariants.js && node tests/hidden-information.js && node tests/transcript.js && node tests/doublers.js && node tests/ui-dom.js && node tests/card-overlap.js",
+    "test": "node tests/engine-invariants.js && node tests/hidden-information.js && node tests/transcript.js && node tests/doublers.js && node tests/ui-dom.js && node tests/card-overlap.js && node tests/contrast.js",
     "test:invariants": "node tests/engine-invariants.js",
     "test:hidden": "node tests/hidden-information.js",
     "test:ui": "node tests/ui-dom.js",
@@ -12,6 +12,7 @@
     "test:doublers": "node tests/doublers.js",
     "test:layout": "node tests/layout.js",
     "test:overlap": "node tests/card-overlap.js",
+    "test:contrast": "node tests/contrast.js",
     "balance": "node tests/balance.js"
   },
   "license": "MIT"

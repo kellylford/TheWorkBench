@@ -60,22 +60,36 @@
 
     <p id="status" class="status"></p>
 
-    <div class="toolbar" role="group" aria-label="Review the game">
-      <button type="button" data-say="hand" aria-keyshortcuts="H">Hand <kbd>H</kbd></button>
-      <button type="button" data-say="trick" aria-keyshortcuts="T">Trick <kbd>T</kbd></button>
-      <button type="button" data-say="last" aria-keyshortcuts="L">Last trick <kbd>L</kbd></button>
-      <button type="button" data-say="score" aria-keyshortcuts="S">Scores <kbd>S</kbd></button>
-      <button type="button" data-say="teams" aria-keyshortcuts="P">Picker <kbd>P</kbd></button>
-      <button type="button" data-say="count" aria-keyshortcuts="C">Cards played <kbd>C</kbd></button>
-      <button type="button" data-say="order" aria-keyshortcuts="O">Play order <kbd>O</kbd></button>
-      <button type="button" data-say="repeat" aria-keyshortcuts="R">Repeat <kbd>R</kbd></button>
-      <button type="button" id="btn-log" aria-keyshortcuts="G">Game log <kbd>G</kbd></button>
-      <button type="button" id="btn-export" aria-keyshortcuts="E">Export log <kbd>E</kbd></button>
-      <button type="button" id="btn-bug" aria-keyshortcuts="B">Report a bug <kbd>B</kbd></button>
-      <button type="button" id="btn-settings">Settings</button>
-      <button type="button" id="btn-rules">How to play</button>
-      <button type="button" id="btn-a11y" aria-keyshortcuts="?">Accessibility hints <kbd>?</kbd></button>
-      <button type="button" id="btn-newgame">New game</button>
+    <!-- Grouped by what the buttons are for. Fifteen identical buttons in one row
+         meant reading every label to find the one you wanted; the group names are
+         announced by a screen reader too, so this helps in both directions. -->
+    <div class="toolbar">
+      <div class="tool-group" role="group" aria-labelledby="tg-review">
+        <span class="tool-group-name" id="tg-review">Review</span>
+        <button type="button" data-say="hand" aria-keyshortcuts="H">Hand <kbd>H</kbd></button>
+        <button type="button" data-say="trick" aria-keyshortcuts="T">Trick <kbd>T</kbd></button>
+        <button type="button" data-say="last" aria-keyshortcuts="L">Last trick <kbd>L</kbd></button>
+        <button type="button" data-say="score" aria-keyshortcuts="S">Scores <kbd>S</kbd></button>
+        <button type="button" data-say="teams" aria-keyshortcuts="P">Picker <kbd>P</kbd></button>
+        <button type="button" data-say="order" aria-keyshortcuts="O">Play order <kbd>O</kbd></button>
+        <button type="button" data-say="count" aria-keyshortcuts="C">Cards played <kbd>C</kbd></button>
+        <button type="button" data-say="repeat" aria-keyshortcuts="R">Repeat <kbd>R</kbd></button>
+      </div>
+
+      <div class="tool-group" role="group" aria-labelledby="tg-records">
+        <span class="tool-group-name" id="tg-records">Records</span>
+        <button type="button" id="btn-log" aria-keyshortcuts="G">Game log <kbd>G</kbd></button>
+        <button type="button" id="btn-export" aria-keyshortcuts="E">Export log <kbd>E</kbd></button>
+        <button type="button" id="btn-bug" aria-keyshortcuts="B">Report a bug <kbd>B</kbd></button>
+      </div>
+
+      <div class="tool-group" role="group" aria-labelledby="tg-help">
+        <span class="tool-group-name" id="tg-help">Settings and help</span>
+        <button type="button" id="btn-settings">Settings</button>
+        <button type="button" id="btn-rules">How to play</button>
+        <button type="button" id="btn-a11y" aria-keyshortcuts="?">Accessibility hints <kbd>?</kbd></button>
+        <button type="button" id="btn-newgame" class="consequential">New game</button>
+      </div>
     </div>
 
     <section aria-labelledby="action-h" id="action-section">
