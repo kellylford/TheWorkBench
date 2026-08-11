@@ -549,11 +549,26 @@
     box.innerHTML = '';
     var d = G.DEAL[settings.numPlayers];
 
+    // The heading used to read "Your turn" permanently, so a finished hand
+    // announced "Hand 2 complete" under a heading claiming it was your move.
+    var heading = $('action-h');
+    if (heading) {
+      heading.textContent =
+        state.phase === 'handOver' ? 'Hand complete'
+          : isHumanTurn() ? 'Your turn'
+            : 'Waiting for ' + seatName(state.turn);
+    }
+
     if (state.phase === 'handOver') {
       var p = document.createElement('p');
       p.className = 'hint';
       p.textContent = state.result ? state.result.summary : '';
       box.appendChild(p);
+      box.insertBefore(resultChips(), p);
+      var nextNo = document.createElement('p');
+      nextNo.className = 'next-step';
+      nextNo.textContent = 'Next: deal hand ' + (state.handNumber + 1) + '.';
+      box.appendChild(nextNo);
       box.appendChild(button('Deal next hand', dealNext, true, 'N'));
       return;
     }
@@ -601,6 +616,36 @@
         : 'Follow ' + (C.effSuit(state.trick[0].card) === 'T' ? 'trump' : C.SUIT_NAME[C.effSuit(state.trick[0].card)]) + ' if you can.';
       box.appendChild(hint);
     }
+  }
+
+  /* The result as a few scannable facts. Decorative: the summary paragraph
+   * underneath says all of it in prose, so this is aria-hidden rather than
+   * making a screen reader hear everything twice. */
+  function resultChips() {
+    var wrap = document.createElement('div');
+    wrap.className = 'chips';
+    wrap.setAttribute('aria-hidden', 'true');
+    var r = state.result;
+    if (!r) return wrap;
+
+    function chip(label, value, cls) {
+      var c = document.createElement('span');
+      c.className = 'chip' + (cls ? ' ' + cls : '');
+      c.appendChild(span('chip-label', label));
+      c.appendChild(span('chip-value', value));
+      wrap.appendChild(c);
+    }
+
+    var mine = r.deltas[0];
+    chip('You', (mine > 0 ? '+' : '') + mine, mine > 0 ? 'chip-good' : mine < 0 ? 'chip-bad' : '');
+    if (state.isLeaster) {
+      chip('Leaster', state.players[r.winners[0]].name + ' wins');
+    } else {
+      chip('Picker', seatName(state.picker));
+      chip('Points', r.pickerPts + ' to ' + r.oppPts);
+    }
+    if (r.factor > 1) chip('Doubled', r.factor + ' times', 'chip-note');
+    return wrap;
   }
 
   function button(label, fn, primary, shortcut) {
