@@ -75,7 +75,7 @@ for (const n of [4, 5, 6]) {
 /* --- 3. the reveal still happens on the play of the Jack, and says the right
  * thing. Detected from the play event itself, since the Jack can fall on the
  * last card of the hand, where the phase has already flipped to handOver. --- */
-let revealedAlone = 0, revealedPartner = 0;
+let revealedAlone = 0, revealedPartner = 0, jdBuriedNaturally = 0;
 for (const n of [4, 5, 6]) {
   for (let i = 0; i < 3000; i++) {
     const names = ['P0', 'A', 'B', 'C', 'D', 'E'].slice(0, n);
@@ -90,8 +90,18 @@ for (const n of [4, 5, 6]) {
     if (st.isLeaster) continue;
 
     const jdEvent = playEvents.find(e => e.card === 'JD');
-    check(!!jdEvent, `${n}p: the Jack of Diamonds was never played`);
-    if (!jdEvent) continue;
+    // Not played is legal in exactly one case: the picker buried it. The bury
+    // heuristic prices trump at -45, so this needs a hand with nothing but trump
+    // in it and the Jack among the two highest-point cards there — about one deal
+    // in three hundred thousand. This used to assert the Jack was ALWAYS played,
+    // which made the suite fail perhaps once in twenty runs for a reason that was
+    // never a bug. "Effectively never" is not "never"; say which one you mean.
+    if (!jdEvent) {
+      check(st.buried.some(c => c.id === 'JD'),
+        `${n}p: the Jack of Diamonds was neither played nor buried`);
+      jdBuriedNaturally++;
+      continue;
+    }
     if (st.alone) {
       revealedAlone++;
       check(/playing alone/.test(jdEvent.text), `${n}p: alone reveal wording: ${jdEvent.text}`);
@@ -110,7 +120,8 @@ for (const n of [4, 5, 6]) {
 }
 
 /* --- 4. the picker burying the Jack must stay secret all hand. The computer
- * players never bury trump, so this path is forced by hand. --- */
+ * players price trump at -45 when burying, so they effectively never choose this
+ * themselves (see section 3) and the path has to be forced by hand. --- */
 let buriedHidden = 0;
 for (const n of [4, 5, 6]) {
   for (let i = 0; i < 400; i++) {
@@ -184,6 +195,13 @@ console.log('hidden-partner hands sampled: ', checkedPartner);
 console.log('revealed as alone (JD played):', revealedAlone);
 console.log('revealed as partner:          ', revealedPartner);
 console.log('forced buried-Jack hands:     ', buriedHidden);
+console.log('Jack buried by a computer:    ', jdBuriedNaturally, '(expected: almost always 0)');
+// Tolerated as a rarity, not as a habit. If the bury heuristic ever stopped
+// protecting trump, the Jack would start disappearing in quantity and section 3
+// would quietly stop testing the reveal at all — so put a ceiling on it.
+check(jdBuriedNaturally <= 9000 * 0.001,
+  'the computer players are burying the Jack of Diamonds far too often (' +
+  jdBuriedNaturally + ' hands) — the bury heuristic has probably stopped valuing trump');
 
 if (fails.length) {
   const uniq = [...new Set(fails)];

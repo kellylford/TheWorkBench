@@ -528,6 +528,152 @@ async function manualPacing() {
   return { advances, sawContinue, kept: seen2.kept };
 }
 
+/* Timed pacing. The pauses used to be 400ms and 900ms, described as "fast" and
+ * "relaxed", and the report from sighted players was simply that the cards went
+ * by too quickly to follow. They are real seconds now, and because a pause you
+ * cannot skip is its own kind of annoying, Continue is offered here too — the
+ * pause is a ceiling, not a sentence.
+ *
+ * What has to hold: the button is there, N works on it, taking it cancels the
+ * pending timer rather than queueing a second play, the button is not rebuilt
+ * under the player between opponent turns, and left alone the game still moves
+ * on by itself. */
+async function timedPacing() {
+  const { window, d } = await boot({ players: 5, pace: 5000 });
+  const conts = () => [...d.querySelectorAll('#actions button')].find(b => /^Continue/.test(b.textContent));
+  const logLen = () => d.querySelectorAll('#log li').length;
+  const headingText = () => d.getElementById('action-h').textContent;
+
+  // The options offered must be exactly the four the settings screen documents.
+  const opts = [...d.getElementById('opt-pace').options].map(o => o.value);
+  check(opts.join(',') === '0,5000,10000,-1',
+    'the pace options are no longer instant / 5s / 10s / manual: ' + opts.join(','));
+
+  // One log entry per card played, so this counts turns taken exactly. Log
+  // length as a whole does not: a completed trick adds entries of its own.
+  const plays = () => d.querySelectorAll('#log li.k-play').length;
+  let steps = 0, kept = 0, headingsSeen = new Set(), sawNote = 0, autoAdvanced = 0, timerChecked = 0;
+
+  for (let i = 0; i < 400 && steps < 10; i++) {
+    await new Promise(r => setTimeout(r, 5));
+    const cont = conts();
+    if (cont) {
+      check(cont.getAttribute('aria-keyshortcuts') === 'N', 'Continue does not advertise N on a timed pace');
+      // Unlike manual mode, a timed pause does need a word of explanation beside
+      // the button — otherwise a Continue button on a game that advances by
+      // itself just looks like a mistake.
+      if (/five seconds/i.test(d.getElementById('actions').textContent)) sawNote++;
+      headingsSeen.add(headingText());
+
+      // Once, part way in, leave it alone and check the pause really does expire
+      // on its own rather than the game sitting there waiting for a press.
+      if (steps === 3 && !autoAdvanced) {
+        const before = logLen();
+        await new Promise(r => setTimeout(r, 5600));
+        check(logLen() > before, 'a five second pace never advanced on its own after 5.6 seconds');
+        autoAdvanced++;
+        continue;
+      }
+
+      const beforePlays = plays();
+      const before = logLen();
+      const focusBefore = d.activeElement;
+      d.dispatchEvent(new window.KeyboardEvent('keydown', { key: 'n', bubbles: true }));
+      await new Promise(r => setTimeout(r, 5));
+      check(logLen() > before, 'N did not advance the game on a timed pace');
+
+      const contAfter = conts();
+
+      /* Taking Continue has to CANCEL the pause that was already running, not
+       * just jump the queue in front of it. A stale timer does not show up
+       * quickly — it is still armed for its original five second deadline — so
+       * the only way to see it is to take the step and then wait that deadline
+       * out. One press plus one expired pause is two turns. A stale timer makes
+       * it three.
+       *
+       * An earlier version of this check waited 250ms and asserted nothing had
+       * happened. It passed just as happily with the cancellation removed, which
+       * is worth remembering: a test that cannot fail is not evidence. */
+      if (!timerChecked && contAfter && plays() === beforePlays + 1) {
+        const mark = plays();
+        await new Promise(r => setTimeout(r, 5600));
+        const gained = plays() - mark;
+        check(gained <= 1,
+          'after taking Continue, ' + gained + ' more turns were played in one pause instead of 1 — ' +
+          'the pause that was already running was not cancelled');
+        check(gained === 1, 'the pause that follows a Continue never expired');
+        timerChecked++;
+      }
+
+      if (contAfter) {
+        check(contAfter === cont,
+          'the Continue button was rebuilt between opponent turns, so it would be announced again each time');
+        check(d.activeElement === focusBefore, 'focus moved while still waiting on Continue');
+        kept++;
+      }
+      steps++;
+      continue;
+    }
+    const next = [...d.querySelectorAll('#actions button')].find(b => /^Deal next hand/.test(b.textContent));
+    if (next) { next.click(); continue; }
+    const pick = [...d.querySelectorAll('#actions button')].find(b => /Pick up the blind/.test(b.textContent));
+    if (pick) { pick.click(); continue; }
+    const bury = [...d.querySelectorAll('#actions button')].find(b => /^Bury /.test(b.textContent));
+    if (bury) {
+      const need = +bury.textContent.match(/of (\d+)/)[1];
+      [...d.querySelectorAll('#hand .card')].slice(-need).forEach(c => c.click());
+      [...d.querySelectorAll('#actions button')].find(b => /^Bury /.test(b.textContent)).click();
+      continue;
+    }
+    if (myTurn(d)) {
+      const legal = legalCards(d);
+      if (legal[0]) legal[0].click();
+    }
+  }
+
+  check(steps >= 10, 'only got ' + steps + ' Continue steps on a timed pace');
+  check(kept > 0, 'never saw the Continue button survive a step on a timed pace');
+  check(sawNote > 0, 'the timed pace never explained what Continue is for');
+  check(autoAdvanced > 0, 'never got to test that a timed pause expires on its own');
+  check(timerChecked > 0, 'never got to test that Continue cancels the running pause');
+  // The box is deliberately not rebuilt between opponent turns, so the heading is
+  // the only thing left that can say whose turn it is. It must still keep up.
+  check(headingsSeen.size > 1,
+    'the action heading never changed seat while waiting, so it is stuck: ' + [...headingsSeen].join(' | '));
+  window.close();
+  return { steps, kept, autoAdvanced, timerChecked, headings: headingsSeen.size };
+}
+
+/* Instant keeps the old batching behaviour and offers no Continue: there is no
+ * moment in which anyone could reach for it. */
+async function instantPacing() {
+  const { window, d } = await boot({ players: 5, pace: 0 });
+  let checked = 0;
+  for (let i = 0; i < 200 && checked < 20; i++) {
+    await new Promise(r => setTimeout(r, 5));
+    const cont = [...d.querySelectorAll('#actions button')].find(b => /^Continue/.test(b.textContent));
+    check(!cont, 'instant pace offered a Continue button');
+    checked++;
+    const pick = [...d.querySelectorAll('#actions button')].find(b => /Pick up the blind/.test(b.textContent));
+    if (pick) { pick.click(); continue; }
+    const bury = [...d.querySelectorAll('#actions button')].find(b => /^Bury /.test(b.textContent));
+    if (bury) {
+      const need = +bury.textContent.match(/of (\d+)/)[1];
+      [...d.querySelectorAll('#hand .card')].slice(-need).forEach(c => c.click());
+      [...d.querySelectorAll('#actions button')].find(b => /^Bury /.test(b.textContent)).click();
+      continue;
+    }
+    const next = [...d.querySelectorAll('#actions button')].find(b => /^Deal next hand/.test(b.textContent));
+    if (next) { next.click(); continue; }
+    if (myTurn(d)) {
+      const legal = legalCards(d);
+      if (legal[0]) legal[0].click();
+    }
+  }
+  window.close();
+  return checked;
+}
+
 /* The settings dialog: persists, feeds new games, and rule changes may not reach
  * a hand already in progress. */
 async function settingsDialog() {
@@ -586,6 +732,11 @@ async function settingsDialog() {
   console.log('settings dialog: opens, persists, summarises and resets');
   const m = await manualPacing();
   console.log('manual pacing:', m.advances + ' advances via N,', m.kept + ' steps with the same button kept, focus untouched, no nagging');
+  const t = await timedPacing();
+  console.log('timed pacing:', t.steps + ' Continue steps,', t.kept + ' with the same button kept,',
+    t.autoAdvanced + ' pause expired on its own,', t.headings + ' distinct seats named while waiting');
+  const inst = await instantPacing();
+  console.log('instant pacing:', inst + ' states checked, no Continue button offered');
 
   for (const players of [3, 4, 5, 6]) {
     const r = await playHands(players, 4);

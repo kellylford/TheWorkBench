@@ -65,9 +65,17 @@ function playOut(st) {
   return st.result;
 }
 
+/* Blocks 1 and 2 place the black queens and count what comes back, so the red
+ * pair has to be switched off for them. Left on, it is dealt at random, lands
+ * together in one hand about one deal in six, and adds a second — entirely
+ * correct — doubler that the count was not expecting. That made both of these
+ * fail roughly 16% of the time, which read as a flaky suite rather than as a
+ * test measuring two rules at once. */
+const BLACK_ONLY = { redQueenDoubler: false };
+
 /* --- 1. a pair split across a team must NOT count --- */
 {
-  const st = newGame();
+  const st = newGame(BLACK_ONLY);
   G.newHand(st);
   st.turn = 0;
   stack(st, [['QC'], ['QS']]);          // black queens in two different hands
@@ -80,7 +88,7 @@ function playOut(st) {
 
 /* --- 2. one player holding both DOES count, and only once --- */
 {
-  const st = newGame();
+  const st = newGame(BLACK_ONLY);
   G.newHand(st);
   st.turn = 0;
   stack(st, [['QC', 'QS']]);

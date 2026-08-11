@@ -235,11 +235,11 @@
         <label for="opt-pace">How opponents' turns advance</label>
         <select id="opt-pace" name="pace">
           <option value="0">Instant — no delay</option>
-          <option value="400">Fast — short pause between plays</option>
-          <option value="900" selected>Relaxed — longer pause between plays</option>
+          <option value="5000" selected>Five seconds between plays</option>
+          <option value="10000">Ten seconds between plays</option>
           <option value="-1">Manual — I press a button after each play</option>
         </select>
-        <span class="hint" id="pace-hint">Screen reader users often prefer Instant or Manual. With Instant and Fast, a run of opponent plays is announced as one message so nothing gets cut off.</span>
+        <span class="hint" id="pace-hint">On five and ten seconds there is a Continue button as well, so you never have to sit out a pause you did not want — press <kbd>N</kbd> or activate Continue to take the next play straight away. Screen reader users often prefer Instant or Manual. With Instant, a run of opponent plays is announced as one message so nothing gets cut off.</span>
       </p>
       <p class="field checkbox">
         <input type="checkbox" id="opt-verbose" name="verbose" checked>
@@ -399,15 +399,19 @@
       inside it, so you cannot play a card by accident while reading.</p>
 
     <h3>Pacing and speech</h3>
-    <p>Opponents' turns can advance instantly, after a short or long pause, or only when you press a
-      Continue button. In the automatic modes a whole run of opponent plays is announced as one
-      message, so nothing is cut off part way through by the next play. Manual mode announces each
-      play on its own as it happens. You can also turn off point values in card announcements, and
-      stop focus moving to your cards when your turn comes.</p>
-    <p><kbd>N</kbd> advances the game: in manual mode it plays the next turn, and when a hand has
-      finished it deals the next one. It does the same as pressing <kbd>Enter</kbd> on the Continue
-      or Deal next hand button, and it is ignored while you are reading the game log so you cannot
-      advance by accident.</p>
+    <p>Opponents' turns can advance instantly, after five seconds, after ten seconds, or only when
+      you press a Continue button. On instant, a whole run of opponent plays is announced as one
+      message, so nothing is cut off part way through by the next play. On five seconds, ten seconds
+      and manual, each play is announced on its own as it happens — there is room for it to finish.
+      You can also turn off point values in card announcements, and stop focus moving to your cards
+      when your turn comes.</p>
+    <p>The Continue button is there on five and ten seconds too, not only in manual mode. A timed
+      pause is a ceiling, not a wait you are held to: if you have heard enough, take the next play
+      straight away and the pending pause is dropped.</p>
+    <p><kbd>N</kbd> advances the game: wherever there is a Continue button it plays the next turn,
+      and when a hand has finished it deals the next one. It does the same as pressing
+      <kbd>Enter</kbd> on the Continue or Deal next hand button, and it is ignored while you are
+      reading the game log so you cannot advance by accident.</p>
 
     <h3>If something looks wrong</h3>
     <p><kbd>E</kbd> exports a full written account of every finished hand, including who was dealt
