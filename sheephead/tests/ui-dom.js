@@ -584,6 +584,20 @@ async function timedPacing() {
 
       const contAfter = conts();
 
+      /* Assert on the button and on focus HERE, while the state being described
+       * is still the state on screen. The cancellation check below waits out a
+       * whole five second pause, and the game quite correctly moves on during
+       * it — so doing these afterwards made this test fail perhaps one run in
+       * three, with a message that blamed the app for something the test had
+       * caused by looking too late. Capture and assert in the same breath. */
+      if (contAfter) {
+        check(contAfter === cont,
+          'the Continue button was rebuilt between opponent turns, so it would be announced again each time');
+        check(d.activeElement === focusBefore, 'focus moved while still waiting on Continue');
+        kept++;
+      }
+      steps++;
+
       /* Taking Continue has to CANCEL the pause that was already running, not
        * just jump the queue in front of it. A stale timer does not show up
        * quickly — it is still armed for its original five second deadline — so
@@ -604,14 +618,6 @@ async function timedPacing() {
         check(gained === 1, 'the pause that follows a Continue never expired');
         timerChecked++;
       }
-
-      if (contAfter) {
-        check(contAfter === cont,
-          'the Continue button was rebuilt between opponent turns, so it would be announced again each time');
-        check(d.activeElement === focusBefore, 'focus moved while still waiting on Continue');
-        kept++;
-      }
-      steps++;
       continue;
     }
     const next = [...d.querySelectorAll('#actions button')].find(b => /^Deal next hand/.test(b.textContent));
