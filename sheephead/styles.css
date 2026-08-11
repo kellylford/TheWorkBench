@@ -628,3 +628,31 @@ dialog::backdrop { background: rgba(0,0,0,.65); }
 @media (forced-colors: active) {
   .card[aria-disabled="true"] { border-style: dotted; }
 }
+
+/* ---------- narrow screens ----------
+ * Measured, not guessed: grouping the toolbar pushed it to 586px tall on a
+ * 320px phone and the hand started 1089px down the page — you scrolled past a
+ * screen and a half before seeing your cards. Three things claw that back.
+ */
+@media (max-width: 48rem) {
+  /* 1. There is no keyboard on a phone, so the shortcut badges are pure bulk.
+   *    aria-keyshortcuts stays on the buttons either way, so a screen reader
+   *    still reports them and nothing is lost to anyone who does have a keyboard
+   *    paired — they just are not printed. */
+  .toolbar kbd { display: none; }
+
+  /* 2. Tighter chrome throughout. */
+  .app-header { padding-bottom: 0; }
+  .tagline { display: none; }
+  .toolbar { gap: .4rem; }
+  .tool-group { padding: .4rem .45rem; gap: .3rem; }
+  .tool-group-name { font-size: .72rem; flex: 1 1 100%; margin: 0 0 .1rem; }
+  .toolbar button { padding: .45rem .6rem; }
+  h2 { margin: .75rem 0 .4rem; }
+  h3 { margin: 1rem 0 .35rem; }
+  main { padding-bottom: 2rem; }
+  .status { margin: .4rem 0 .6rem; }
+
+  /* 3. The log is long and rarely needed on a phone. */
+  .log { max-height: 12rem; }
+}
