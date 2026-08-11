@@ -206,6 +206,16 @@
     <fieldset>
       <legend>Appearance</legend>
       <p class="field">
+        <label for="opt-layout">Desktop layout</label>
+        <select id="opt-layout" name="layout">
+          <option value="one" selected>One column — everything stacked in order</option>
+          <option value="two">Two columns — pairs panels side by side on wide screens</option>
+        </select>
+        <span class="hint">Only takes effect on screens wider than about 1024px; phones and tablets
+          are unaffected either way. Two columns fits the current trick and the scores on screen
+          without scrolling, at the cost of a wider eye path. Reading order is identical in both.</span>
+      </p>
+      <p class="field">
         <label for="opt-skin">Card and table style</label>
         <select id="opt-skin" name="skin">
           <option value="traditional" selected>Traditional — printed card faces on a green table</option>

@@ -89,7 +89,7 @@
     // Persist as they go, so nothing is lost by closing with Escape.
     ['opt-allpass', 'opt-difficulty', 'opt-pace', 'opt-verbose', 'opt-autofocus',
       'opt-black-queens', 'opt-red-queens', 'opt-redeal-doubler', 'opt-name', 'opt-players',
-      'opt-skin']
+      'opt-skin', 'opt-layout']
       .forEach(function (id) {
         $(id).addEventListener('change', onSettingChanged);
       });
@@ -124,7 +124,7 @@
 
   var DEFAULTS = {
     name: 'You', numPlayers: 5, allPass: 'leaster', difficulty: 'normal',
-    pace: 900, verbose: true, autofocus: true, skin: 'traditional',
+    pace: 900, verbose: true, autofocus: true, skin: 'traditional', layout: 'one',
     blackQueenDoubler: false, redQueenDoubler: false, redealDoubler: false
   };
 
@@ -139,6 +139,7 @@
     $('opt-difficulty').value = s.difficulty;
     $('opt-pace').value = String(s.pace);
     $('opt-skin').value = s.skin;
+    $('opt-layout').value = s.layout;
     $('opt-verbose').checked = !!s.verbose;
     $('opt-autofocus').checked = !!s.autofocus;
     $('opt-black-queens').checked = !!s.blackQueenDoubler;
@@ -176,7 +177,8 @@
       f.allPass === 'leaster' ? 'Leaster when all pass' : 'Redeal when all pass',
       f.difficulty + ' opponents',
       PACE_NAMES[String(f.pace)] + ' pace',
-      f.skin === 'plain' ? 'Plain cards' : 'Traditional cards'
+      f.skin === 'plain' ? 'Plain cards' : 'Traditional cards',
+      f.layout === 'two' ? 'Two column desktop' : 'One column'
     ];
     var dbl = [];
     if (f.blackQueenDoubler) dbl.push('black queens');
@@ -197,6 +199,7 @@
       allPass: $('opt-allpass').value,
       difficulty: $('opt-difficulty').value,
       skin: $('opt-skin').value,
+      layout: $('opt-layout').value,
       pace: parseInt($('opt-pace').value, 10),
       verbose: $('opt-verbose').checked,
       autofocus: $('opt-autofocus').checked,
@@ -1571,6 +1574,8 @@
     var skin = ($('opt-skin') && $('opt-skin').value) || 'traditional';
     document.body.classList.toggle('skin-traditional', skin === 'traditional');
     document.body.classList.toggle('skin-plain', skin === 'plain');
+    var layout = ($('opt-layout') && $('opt-layout').value) || 'one';
+    document.body.classList.toggle('layout-two-col', layout === 'two');
   }
 
   /* Opponents drawn as a fan of face-down cards. Decoration only: the region is
@@ -1607,7 +1612,7 @@
     applySkin();          // presentation only, so it applies with or without a game
     if (!state) return;
     var fresh = readForm();
-    ['pace', 'verbose', 'autofocus', 'skin'].forEach(function (k) { settings[k] = fresh[k]; });
+    ['pace', 'verbose', 'autofocus', 'skin', 'layout'].forEach(function (k) { settings[k] = fresh[k]; });
     RULE_FIELDS.forEach(function (k) { settings[k] = fresh[k]; });
     render();
   }

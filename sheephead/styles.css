@@ -673,3 +673,34 @@ dialog::backdrop { background: rgba(0,0,0,.65); }
   .seat-fan { min-height: 0; margin-top: .2rem; }
   .seat-fan .back { width: clamp(1.2rem, 5vw, 1.6rem); }
 }
+
+/* ---------- optional two-column desktop layout ----------
+ * Off by default; Settings > Appearance > Desktop layout turns it on.
+ *
+ * CSS Grid auto-placement is row-major, so panels fill left-to-right in exact
+ * DOM order. Nothing is repositioned and no `order` is used, so reading order
+ * and visual order stay identical — which is the whole reason this is grid and
+ * not absolute positioning.
+ *
+ * 64rem in a media query is always 1024px regardless of the user's font size,
+ * so phones and tablets are untouched whatever this is set to.
+ */
+@media (min-width: 64rem) {
+  .layout-two-col #game-section {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    column-gap: 1.25rem;
+    align-items: start;
+  }
+  /* Anything that reads as a full-width band stays one. The rest pairs up:
+   * hand | seats, then current trick | last trick. */
+  .layout-two-col #game-section > h2,
+  .layout-two-col #game-section > #status,
+  .layout-two-col #game-section > #action-section,
+  .layout-two-col #game-section > .toolbar,
+  .layout-two-col #game-section > #blind-section,
+  .layout-two-col #game-section > section[aria-labelledby="players-h"],
+  .layout-two-col #game-section > section[aria-labelledby="log-h"] {
+    grid-column: 1 / -1;
+  }
+}
