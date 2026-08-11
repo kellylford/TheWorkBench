@@ -96,6 +96,16 @@ async function boot(opts) {
     check(!a11y.open && !rules.open, 'closing left a help dialog open');
   }
 
+  // The game section's heading is screen-reader-only, so its wording is entirely
+  // for assistive technology. It must not name a different kind of widget —
+  // "Table" sent people looking for a data table.
+  {
+    const name = d.getElementById('game-h').textContent.trim();
+    check(!/^(table|grid|list|form)$/i.test(name),
+      'the game section is named "' + name + '", which names a different widget type');
+    check(name.length > 0, 'the game section has no accessible name');
+  }
+
   // Screen reader modes are the user's to control: nothing may claim application role.
   const appRoles = [...d.querySelectorAll('[role="application"]')];
   check(appRoles.length === 0,
