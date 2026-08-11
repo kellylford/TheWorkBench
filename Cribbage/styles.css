@@ -80,7 +80,7 @@ body {
     border: 2px solid #34495E;
 }
 
-.game-status h3 {
+.game-status h2, .game-status h3 {
     margin-bottom: 5px;
     color: #2c3e50;
     font-size: 14px;
@@ -122,7 +122,7 @@ body {
     margin-bottom: 20px;
 }
 
-.hand-section h3 {
+.hand-section h2, .hand-section h3 {
     color: #2c3e50;
     font-size: 16px;
     font-weight: 600;
@@ -147,7 +147,7 @@ body {
 }
 
 .card-container {
-    min-height: 42px;
+    min-height: 4rem;
     background: white;
     border: 2px solid #34495E;
     border-radius: 8px;
@@ -164,22 +164,53 @@ body {
     outline-offset: 2px;
 }
 
+.skip-link {
+    position: absolute;
+    left: -9999px;
+    top: 0;
+    background: #1f6391;
+    color: #fff;
+    padding: .6rem 1rem;
+    z-index: 100;
+    font-weight: 700;
+}
+.skip-link:focus { left: 0; }
+
 /* Playing Cards */
+/* Card shaped, not bar shaped. This was 100x40 on desktop and 60x24 on a phone
+ * — landscape rectangles with a 28px glyph inside a 24px box, which is why it
+ * needed overflow:hidden to clip its own contents.
+ *
+ * Width is a rem-bounded clamp so it adapts between a phone and a desktop while
+ * the user's font size still wins, and the interior is sized in cqw — a
+ * percentage of the card's own width — so the contents scale with the card
+ * instead of spilling out of it. */
 .card {
-    width: 100px;
-    height: 40px;
+    width: clamp(3.25rem, 13vw, 4.5rem);
+    aspect-ratio: 5 / 7;
     background: white;
     border: 2px solid #333;
     border-radius: 8px;
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
-    padding: 3px;
+    justify-content: flex-start;
+    /* NOT cqw: an element with container-type is a container for its
+       descendants, not for itself, so cqw here escapes to the viewport and
+       inflates the card. Descendants below use cqw correctly. */
+    padding: .2rem;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
     position: relative;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-    overflow: hidden;
+    container-type: inline-size;
+}
+
+/* rank over suit, top left, as on a real card */
+.card > div:first-child {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    line-height: .95;
 }
 
 .card:hover {
@@ -222,23 +253,29 @@ body {
 
 .card-back::before {
     content: '♦';
-    font-size: 72px;
+    font-size: 55cqw;
     opacity: 0.3;
 }
 
 .card-rank {
     font-size: 12px;
+    font-size: 24cqw;
     font-weight: bold;
     line-height: 1;
 }
 
 .card-suit {
     font-size: 14px;
+    font-size: 19cqw;
     line-height: 1;
 }
 
 .card-center {
     font-size: 20px;
+    font-size: 42cqw;
+    flex: 1;
+    display: grid;
+    place-items: center;
     text-align: center;
     line-height: 1;
 }
@@ -425,7 +462,7 @@ body {
         margin-bottom: 10px;
     }
 
-    .game-status h3 {
+    .game-status h2, .game-status h3 {
         font-size: 14px;
         margin-bottom: 5px;
     }
@@ -443,32 +480,20 @@ body {
         margin-bottom: 10px;
     }
 
-    .hand-section h3 {
+    .hand-section h2, .hand-section h3 {
         font-size: 14px;
         margin-bottom: 5px;
     }
 
     .card-container {
-        min-height: 60px;
+        min-height: 4rem;
         padding: 5px;
     }
 
+    /* Card sizing is handled by the clamp and cqw above at every width, so the
+       phone no longer needs its own fixed pixel sizes. */
     .card {
-        width: 60px;
-        height: 24px;
         margin: 2px;
-    }
-
-    .card-rank {
-        font-size: 14px;
-    }
-
-    .card-suit {
-        font-size: 16px;
-    }
-
-    .card-center {
-        font-size: 28px;
     }
 
     .controls {

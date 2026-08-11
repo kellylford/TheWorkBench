@@ -1,0 +1,11 @@
+{
+  "name": "cribbage",
+  "version": "1.0.0",
+  "description": "Cribbage against the computer, built to be playable by keyboard and screen reader.",
+  "private": true,
+  "scripts": {
+    "test": "node tests/audit.js",
+    "audit": "node tests/audit.js"
+  },
+  "license": "MIT"
+}
