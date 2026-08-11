@@ -4,6 +4,17 @@
 The Workbench has small projects I’m working on. These may or may not be final or receive future development.
 ## Projects
 
+### The Card Place
+A landing page for the browser card games — pick a game and play. Both are built to be fully
+playable with a keyboard or a screen reader.
+
+[Open The Card Place][5]
+
+### Cribbage
+The classic two-hander against the computer, scored to 121.
+
+[View Project][6]
+
 # 
 ## parallels-manager
 A macOS application for managing Parallels Desktop virtual machines.
@@ -37,3 +48,5 @@ Contributions to existing projects are welcome. If you have a script, app or oth
 [2]:	./win11arm-install
 [3]:	./LICENSE
 [4]:	./sheephead
+[5]:	https://kellylford.github.io/TheWorkBench/thecardplace.html
+[6]:	./Cribbage
