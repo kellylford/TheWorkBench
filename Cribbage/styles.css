@@ -244,6 +244,9 @@ body {
     transform: rotate(-15deg);
 }
 
+.card.review { cursor: default; }
+.card.review:hover { transform: none; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); }
+
 .card-back {
     background: linear-gradient(135deg, #c41e3a 0%, #8b0000 100%);
     color: white;

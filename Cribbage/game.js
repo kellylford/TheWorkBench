@@ -1286,6 +1286,12 @@ class GameUI {
     }
 
     renderPlayerHand() {
+        // Once the hand is over, the cards live in playedCards, so the hand
+        // container would otherwise sit empty through the whole count.
+        if (this.isReviewing()) {
+            this.renderRevealed(this.elements.playerHand, this.game.player.playedCards);
+            return;
+        }
         this.elements.playerHand.innerHTML = '';
         // Sort the hand before displaying (aces low)
         this.game.player.sortHand();
@@ -1323,6 +1329,13 @@ class GameUI {
     }
 
     renderComputerHand() {
+        // The play is finished by now, so every one of these cards has already
+        // been seen on the table. Showing them costs no hidden information and
+        // is the only way to check the count.
+        if (this.isReviewing()) {
+            this.renderRevealed(this.elements.computerHand, this.game.computer.playedCards);
+            return;
+        }
         this.elements.computerHand.innerHTML = '';
         // Show card backs for remaining cards in computer's hand
         const count = this.game.computer.hand.length;
@@ -1334,6 +1347,12 @@ class GameUI {
     }
 
     renderCrib() {
+        // The crib is counted last, so it stays face down until then — same
+        // order as a real table — and is then left up for review.
+        if (this.game.state === 'ROUND_OVER' || this.game.state === 'GAME_OVER') {
+            this.renderRevealed(this.elements.cribCards, this.game.crib);
+            return;
+        }
         this.elements.cribCards.innerHTML = '';
         // Show face-down cards for the crib count
         for (let i = 0; i < this.game.crib.length; i++) {
@@ -1348,6 +1367,36 @@ class GameUI {
             const cardElement = this.createCardElement(card, true);
             cardElement.style.opacity = '0.8';
             this.elements.playedCards.appendChild(cardElement);
+        });
+    }
+
+    /* States where the hand is over and everything should stay on the table so
+     * both hands can be reviewed, until the player presses Continue. */
+    isReviewing() {
+        return this.game.state === 'PAUSE_BEFORE_COUNT'
+            || this.game.state === 'ROUND_OVER'
+            || this.game.state === 'GAME_OVER';
+    }
+
+    /* Face up, and deliberately not a button: during review these cards are
+     * there to be read, not played, so they should not be announced as
+     * something you can activate. */
+    createRevealedCard(card) {
+        const el = this.createCardElement(card, true);
+        el.setAttribute('role', 'img');
+        el.removeAttribute('aria-pressed');
+        el.removeAttribute('tabindex');
+        el.classList.add('review');
+        return el;
+    }
+
+    renderRevealed(container, cards) {
+        container.innerHTML = '';
+        cards.forEach((card, i) => {
+            const el = this.createRevealedCard(card);
+            el.setAttribute('aria-setsize', cards.length);
+            el.setAttribute('aria-posinset', i + 1);
+            container.appendChild(el);
         });
     }
 
@@ -1421,7 +1470,9 @@ class GameUI {
     }
 }
 
-// Initialize game when page loads
+// Initialize game when page loads.
+// The instance is exposed so tests can drive the game and inspect its state
+// without scraping the DOM for it. Nothing in the game reads this back.
 document.addEventListener('DOMContentLoaded', () => {
-    new GameUI();
+    window.gameUI = new GameUI();
 });
