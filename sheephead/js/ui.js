@@ -560,9 +560,12 @@
     }
 
     if (state.phase === 'handOver') {
+      // Just the outcome here. The full accounting is announced, and sits in the
+      // game log verbatim, so repeating all of it above the button only served to
+      // push the button itself off the bottom of a phone screen.
       var p = document.createElement('p');
-      p.className = 'hint';
-      p.textContent = state.result ? state.result.summary : '';
+      p.className = 'hint result-headline';
+      p.textContent = resultHeadline();
       box.appendChild(p);
       box.insertBefore(resultChips(), p);
       var nextNo = document.createElement('p');
@@ -621,6 +624,25 @@
   /* The result as a few scannable facts. Decorative: the summary paragraph
    * underneath says all of it in prose, so this is aria-hidden rather than
    * making a screen reader hear everything twice. */
+  /* One sentence: who won and how. The chips beside it carry the numbers. */
+  function resultHeadline() {
+    var r = state.result;
+    if (!r) return '';
+    if (r.leaster) {
+      return state.players[r.winners[0]].name + ' wins the leaster with the fewest points.';
+    }
+    // One player takes a singular verb, two take a plural, and "You" takes the
+    // second person either way.
+    var youAreThem = state.picker === 0 && seatName(0).toLowerCase() === 'you';
+    if (state.alone) {
+      return seatName(state.picker) +
+        (r.pickerWins ? (youAreThem ? ' win' : ' wins') : (youAreThem ? ' lose' : ' loses')) +
+        ' alone — ' + r.label + '.';
+    }
+    return seatName(state.picker) + ' and ' + seatName(state.partner) +
+      (r.pickerWins ? ' win' : ' lose') + ' — ' + r.label + '.';
+  }
+
   function resultChips() {
     var wrap = document.createElement('div');
     wrap.className = 'chips';
