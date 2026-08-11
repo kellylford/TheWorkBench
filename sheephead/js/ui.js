@@ -31,9 +31,12 @@
   }
   /* Bumping this key retires everyone's saved settings, so a change of default
    * actually reaches people who have played before instead of only new players.
-   * v2: default pace moved from fast to relaxed. */
-  var STORE_KEY = 'sheephead.settings.v2';
-  var OLD_STORE_KEYS = ['sheephead.settings.v1'];
+   * v2: default pace moved from fast to relaxed.
+   * v3: pace became real seconds. The old 400 and 900 millisecond values are not
+   *     options any more, so a stored one would leave the select with no matching
+   *     option at all — the bump is doing real work here, not just a default. */
+  var STORE_KEY = 'sheephead.settings.v3';
+  var OLD_STORE_KEYS = ['sheephead.settings.v1', 'sheephead.settings.v2'];
   var DIALOGS = ['rules-dialog', 'a11y-dialog', 'export-dialog', 'bug-dialog', 'settings-dialog'];
 
   function anyDialogOpen() {
@@ -124,7 +127,7 @@
 
   var DEFAULTS = {
     name: 'You', numPlayers: 5, allPass: 'leaster', difficulty: 'normal',
-    pace: 900, verbose: true, autofocus: true, skin: 'traditional', layout: 'one',
+    pace: 5000, verbose: true, autofocus: true, skin: 'traditional', layout: 'one',
     blackQueenDoubler: false, redQueenDoubler: false, redealDoubler: false
   };
 
@@ -138,6 +141,10 @@
     $('opt-allpass').value = s.allPass;
     $('opt-difficulty').value = s.difficulty;
     $('opt-pace').value = String(s.pace);
+    // A stored pace that is no longer offered leaves the select with nothing
+    // selected, and readForm would then parse '' to NaN and stall the game. The
+    // store key bump should prevent that; this makes sure it cannot happen.
+    if (!$('opt-pace').value) $('opt-pace').value = String(DEFAULTS.pace);
     $('opt-skin').value = s.skin;
     $('opt-layout').value = s.layout;
     $('opt-verbose').checked = !!s.verbose;
@@ -168,7 +175,17 @@
     renderSettingsSummary();
   }
 
-  var PACE_NAMES = { '0': 'instant', '400': 'fast', '900': 'relaxed', '-1': 'manual' };
+  var PACE_NAMES = {
+    '0': 'Instant pace', '5000': 'Five seconds between plays',
+    '10000': 'Ten seconds between plays', '-1': 'Manual pace'
+  };
+
+  /* How long a pause is, said the way a person would say it. */
+  function paceWords() {
+    return settings.pace === 5000 ? 'five seconds'
+      : settings.pace === 10000 ? 'ten seconds'
+        : Math.round(settings.pace / 1000) + ' seconds';
+  }
 
   function renderSettingsSummary() {
     if (!el['settings-summary']) return;
@@ -176,7 +193,7 @@
     var bits = [
       f.allPass === 'leaster' ? 'Leaster when all pass' : 'Redeal when all pass',
       f.difficulty + ' opponents',
-      PACE_NAMES[String(f.pace)] + ' pace',
+      PACE_NAMES[String(f.pace)] || 'Instant pace',
       f.skin === 'plain' ? 'Plain cards' : 'Traditional cards',
       f.layout === 'two' ? 'Two column desktop' : 'One column'
     ];
@@ -276,6 +293,11 @@
     if (state.phase === 'handOver') { flush(); focusFirstAction(); return; }
     if (isHumanTurn()) { flush(); focusForTurn(); return; }
     if (settings.pace < 0) { flush(); focusFirstAction(); return; }
+    // Batching a run of plays into one message exists to stop them cutting each
+    // other off mid-word, which is a problem at instant speed and only there.
+    // Given whole seconds, each play has room to be spoken as it happens — which
+    // is the entire point of asking for a pause in the first place.
+    if (settings.pace > 0) flush();
     timer = setTimeout(function () {
       AI.act(state);
       drain();
@@ -283,7 +305,12 @@
     }, settings.pace);
   }
 
+  /* Take the next opponent play now. In manual pacing this is the only way the
+   * game moves; on a timed pace it is a shortcut past a pause you did not want,
+   * so the pending timer has to go or the same seat would play twice. */
   function stepOnce() {
+    clearTimeout(timer);
+    timer = null;
     AI.act(state);
     drain();
     tick();
@@ -533,7 +560,12 @@
    * DOM alone. */
   function actionsKey() {
     if (state.phase === 'handOver') return 'over:' + (state.result ? state.result.summary : '');
-    if (!isHumanTurn()) return settings.pace < 0 ? 'continue' : 'waiting:' + state.turn;
+    // Deliberately not keyed on which seat is playing: every pace except instant
+    // now offers a Continue button, and keying on the seat would tear it down and
+    // build a new one after every single opponent play — which is how the
+    // "Continue button. Continue button. Continue button." problem started.
+    // The heading names the seat instead, and it updates outside this guard.
+    if (!isHumanTurn()) return settings.pace === 0 ? 'waiting' : 'continue';
     if (state.phase === 'pick') return 'pick';
     if (state.phase === 'bury') return 'bury:' + Object.keys(selected).length;
     if (state.phase === 'play') {
@@ -545,15 +577,12 @@
 
   function renderActions() {
     var box = el.actions;
-    var key = actionsKey();
-    actionsRebuilt = key !== lastActionsKey;
-    if (!actionsRebuilt) return;
-    lastActionsKey = key;
-    box.innerHTML = '';
-    var d = G.DEAL[settings.numPlayers];
 
     // The heading used to read "Your turn" permanently, so a finished hand
     // announced "Hand 2 complete" under a heading claiming it was your move.
+    // It sits outside the rebuild guard below because it is the one thing that
+    // has to keep up with each opponent's turn, and retitling a heading disturbs
+    // nothing — no focus moves and nothing is announced.
     var heading = $('action-h');
     if (heading) {
       heading.textContent =
@@ -561,6 +590,13 @@
           : isHumanTurn() ? 'Your turn'
             : 'Waiting for ' + seatName(state.turn);
     }
+
+    var key = actionsKey();
+    actionsRebuilt = key !== lastActionsKey;
+    if (!actionsRebuilt) return;
+    lastActionsKey = key;
+    box.innerHTML = '';
+    var d = G.DEAL[settings.numPlayers];
 
     if (state.phase === 'handOver') {
       // Just the outcome here. The full accounting is announced, and sits in the
@@ -580,13 +616,26 @@
     }
 
     if (!isHumanTurn()) {
-      if (settings.pace < 0) {
-        box.appendChild(button('Continue', stepOnce, true, 'N'));
-      } else {
+      if (settings.pace === 0) {
+        // Nothing to offer: the opponents have already finished by the time
+        // anyone could reach for a button.
         var w = document.createElement('p');
         w.className = 'hint';
-        w.textContent = 'Waiting for ' + state.players[state.turn].name + '…';
+        w.textContent = 'Waiting…';
         box.appendChild(w);
+        return;
+      }
+      box.appendChild(button('Continue', stepOnce, true, 'N'));
+      // Manual pacing says nothing here on purpose — the button is the whole
+      // mechanism and a standing instruction beside it wears thin by the second
+      // hand. On a timed pace the button does need a word, because a Continue
+      // button next to a game that advances on its own is otherwise a puzzle.
+      if (settings.pace > 0) {
+        var note = document.createElement('p');
+        note.className = 'hint';
+        note.textContent = 'The next play comes on its own after ' + paceWords() +
+          '. Continue takes it now.';
+        box.appendChild(note);
       }
       return;
     }
@@ -964,6 +1013,9 @@
     if (handMode === 'play') {
       G.legalPlays(state, 0).forEach(function (c) { legalIds[c.id] = 1; });
     }
+    // Lets the stylesheet ring the cards you may play, rather than painting over
+    // the ones you may not. Purely visual: the labels already say which is which.
+    el.hand.classList.toggle('choosing', handMode === 'play');
 
     el.hand.innerHTML = '';
     if (!hand.length) {
@@ -1484,7 +1536,7 @@
       L.push('- Layout: ' + d.hand + ' cards each, ' + d.blind + ' card blind, ' +
         (d.partner ? 'Jack of Diamonds partner' : 'picker always alone'));
       L.push('- Opponent skill: ' + settings.difficulty + '; all pass: ' + settings.allPass +
-        '; pace: ' + settings.pace);
+        '; pace: ' + (PACE_NAMES[String(settings.pace)] || settings.pace + 'ms'));
       L.push('- Hand ' + state.handNumber + ', phase ' + state.phase +
         ', hands completed ' + state.history.length);
       var bad = state.history.filter(function (h) { return h.problems.length; });

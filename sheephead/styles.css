@@ -15,6 +15,9 @@
   --good: #7ee08a;
   --bad: #ff9b9b;
   --card-bg: #f7f9fb;
+  /* A card you cannot play. Light enough that a red suit still clears AA on it
+   * — #c2ccd6 looked better and put the pips at 4.25:1, which is a fail. */
+  --card-off: #ccd5de;
   --card-ink: #16202a;
   --card-red: #b3122a;
   --trump: #f0c04a;
@@ -41,6 +44,7 @@
     --good: #10662a;
     --bad: #a11226;
     --card-bg: #ffffff;
+    --card-off: #ccd5de;
     --card-ink: #12181f;
     --card-red: #b3122a;
     --trump: #8a5a00;
@@ -371,7 +375,16 @@ button.primary:hover { background: color-mix(in srgb, var(--accent) 85%, white);
 @container (max-width: 4.6rem) {
   .skin-traditional .card .tag { display: none; }
 }
-.card.red .rank, .card.red .suit { color: var(--card-red); }
+/* Hearts and diamonds are red. This used to name only .rank and .suit, which
+ * exist solely in the plain skin — so in the traditional skin, the one that is
+ * on by default, every heart and diamond rendered in card ink. Black hearts on
+ * a deck of cards is the sort of thing nobody files a bug about; they just
+ * decide the game looks wrong and stop looking. */
+.card.red .rank, .card.red .suit,
+.skin-traditional .card.red .idx,
+.skin-traditional .card.red .pip,
+.skin-traditional .card.red .court-letter,
+.skin-traditional .card.red .court-suit { color: var(--card-red); }
 .card.trump { border-color: var(--trump); border-width: 3px; }
 .card.trump .tag { color: #8a5a00; }
 .card[aria-pressed="true"] {
@@ -414,15 +427,38 @@ button.primary:hover { background: color-mix(in srgb, var(--accent) 85%, white);
 .reveal-label { font-weight: 700; min-width: 4.5rem; color: var(--ink-dim); }
 .hand.static .card { cursor: default; }
 
-/* A card you cannot play is greyed and hatched, but stays fully opaque — using
- * opacity let the green table show through and turned the pips to mud. It must
- * still be readable, because you can review your whole hand on your turn. */
-.card[aria-disabled="true"] { filter: grayscale(.8) brightness(.88); }
-.card[aria-disabled="true"]::after {
-  content: "";
-  position: absolute; inset: 0;
-  background: repeating-linear-gradient(45deg, transparent 0 .3rem, rgba(24,34,44,.13) .3rem .6rem);
-  border-radius: .3rem;
+/* A card you cannot play.
+ *
+ * Two earlier attempts both failed the same way: they put the signal ON the
+ * card. Translucency let the green felt through and turned the pips to mud;
+ * replacing it with 45-degree hatching was no better, because on a phone the
+ * stripes are about as wide and as dark as the pips, so the two simply merge.
+ * Greyscaling made it worse again by flattening the red suits to black.
+ *
+ * You can review your whole hand on your turn, so every card has to stay
+ * readable. The signal therefore lives entirely AROUND the card: a flat, cooler
+ * body instead of a bright one, and it sits low while the cards you can play
+ * stand up. Nothing is painted over a glyph, and it is not colour alone. */
+.card[aria-disabled="true"] {
+  background-color: var(--card-off);
+  background-image: none;
+  box-shadow: none;
+  transform: translateY(.3rem);
+}
+.card[aria-disabled="true"] .pos,
+.card[aria-disabled="true"] .tag { color: #46525e; }
+/* The court panel's faint black wash is there to lift the panel off a bright
+ * card. On a card already knocked back it lifts nothing, and it costs enough
+ * contrast to put a red suit under AA — measured at 4.28 against a 4.5 floor. */
+.card[aria-disabled="true"] .face-court { background: none; }
+
+/* The other half of the same signal: while you are choosing, the cards you may
+ * actually play stand up off the table. Emphasising what is allowed beats
+ * obscuring what is not, and it costs the face nothing. A shadow rather than a
+ * coloured ring, because the ring has to work against a white card and against
+ * the felt at the same time and no one colour does both. */
+.hand.choosing .card:not([aria-disabled="true"]) {
+  box-shadow: 0 .2rem .4rem rgba(0, 0, 0, .45);
 }
 
 @media (prefers-reduced-motion: no-preference) {
@@ -628,8 +664,10 @@ dialog::backdrop { background: rgba(0,0,0,.65); }
   .skin-traditional .card .face-court { background: Canvas; }
 }
 
-/* Filters are dropped in forced colours, so mark unplayable cards structurally. */
-@media (forced-colors: active) {
+/* Forced colours replaces every background and drops the ring, so the two
+ * signals that survive are the ones that are not colour: the card still sits
+ * low, and it gets a dotted border. */
+@media (prefers-contrast: more), (forced-colors: active) {
   .card[aria-disabled="true"] { border-style: dotted; }
 }
 

@@ -69,8 +69,11 @@ therefore playing alone. Only ever about your own position, never anyone else's.
 but not while you are in a text field, reading the help, or reading back through the log. The
 announcement still tells you it is your turn. You can turn the behaviour off entirely in setup.
 
-**Pace is configurable.** Opponent turns can advance instantly, after a short or long pause, or
-only when you press a Continue button. Manual mode announces each play individually as it happens.
+**Pace is configurable, in real seconds.** Opponent turns can advance instantly, after five seconds,
+after ten seconds, or only when you press Continue. The timed settings are a ceiling rather than a
+wait you are held to — Continue is on screen there as well, and taking it drops the pending pause.
+Every setting except instant announces each play on its own as it happens, because there is time for
+it to finish; instant batches a run of plays into one message so they cannot cut each other off.
 
 **Screen reader modes are left alone.** Nothing here is marked `role="application"`, so browse,
 focus and forms modes behave normally and the user decides when to switch. Everything is a plain
@@ -104,7 +107,7 @@ and forced-colours mode.
 | <kbd>G</kbd> | Jump into the game log |
 | <kbd>E</kbd> | Export the game log |
 | <kbd>B</kbd> | Report a bug |
-| <kbd>N</kbd> | Advance: Continue in manual mode, or deal the next hand |
+| <kbd>N</kbd> | Advance: Continue wherever it is offered, or deal the next hand |
 | <kbd>R</kbd> | Repeat the last announcement |
 | <kbd>?</kbd> | Accessibility hints |
 
