@@ -107,6 +107,10 @@ section > :last-child { margin-bottom: 0; }
 /* ---------- forms ---------- */
 
 fieldset {
+  /* The UA floors a fieldset at its min-content width, which here is the longest
+   * <option> string. That pushed the setup screen 97px past a 320px phone and
+   * 293px past it at large text — max-width on the select cannot beat it. */
+  min-inline-size: 0;
   border: 1px solid var(--line);
   border-radius: var(--radius);
   margin: 0 0 1rem;
@@ -128,7 +132,7 @@ input[type="text"], select {
   border: 1px solid var(--line);
   border-radius: 6px;
   max-width: 100%;
-  min-width: 14rem;
+  min-width: min(14rem, 100%);   /* 14rem alone is wider than a 320px phone at large text */
 }
 input[type="checkbox"] { width: 1.1rem; height: 1.1rem; margin-top: .2rem; }
 
@@ -589,7 +593,7 @@ dialog::backdrop { background: rgba(0,0,0,.65); }
 }
 .seat { min-width: 0; text-align: center; }
 .seat-name { font-weight: 700; font-size: .95rem; }
-.seat-role { display: block; font-size: .78rem; color: var(--ink-dim); min-height: 1.1em; }
+.seat-role { display: block; font-size: .78rem; line-height: 1.4; color: var(--ink-dim); min-height: 1.4em; }
 .skin-traditional .seat-name,
 .skin-traditional .seat-role { color: #e8f1ec; }
 .seat-fan { display: flex; justify-content: center; margin-top: .3rem; min-height: 2.6rem; }
