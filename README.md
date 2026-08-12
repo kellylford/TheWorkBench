@@ -10,6 +10,9 @@ playable with a keyboard or a screen reader.
 
 [Open The Card Place][5]
 
+How both games are tested — what is covered, what is not, and what each suite exists because of —
+is written up in [TESTING.md][7].
+
 ### Cribbage
 The classic two-hander against the computer, scored to 121.
 
@@ -50,3 +53,4 @@ Contributions to existing projects are welcome. If you have a script, app or oth
 [4]:	./sheephead
 [5]:	https://kellylford.github.io/TheWorkBench/thecardplace.html
 [6]:	./Cribbage
+[7]:	./TESTING.md

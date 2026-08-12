@@ -4,7 +4,8 @@
   "description": "Cribbage against the computer, built to be playable by keyboard and screen reader.",
   "private": true,
   "scripts": {
-    "test": "node tests/audit.js",
+    "test": "node tests/rules-oracle.js && node tests/audit.js",
+    "test:rules": "node tests/rules-oracle.js",
     "audit": "node tests/audit.js"
   },
   "license": "MIT"
