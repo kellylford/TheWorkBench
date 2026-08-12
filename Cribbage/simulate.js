@@ -394,35 +394,40 @@ class CribbageGame {
         return score;
     }
 
+    /* Kept in step with the same function in game.js, which is the one people
+     * actually play. A run scores once for every distinct set of cards that
+     * forms it: 4-5-6-6 is two runs of three, not one.
+     *
+     * Note that this whole file is a second, unreferenced copy of the engine, so
+     * this is a transcription rather than a fix to anything that ships. That
+     * duplication is the real problem here — see TESTING.md. */
     findBestRun(cards) {
         const ranks = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
-        let maxScore = 0;
+        let longest = 0;
+        let howMany = 0;
 
-        for (let len = 5; len >= 3; len--) {
-            for (let i = 0; i < (1 << cards.length); i++) {
-                const subset = [];
-                for (let j = 0; j < cards.length; j++) {
-                    if (i & (1 << j)) subset.push(cards[j]);
-                }
-                
-                if (subset.length === len) {
-                    const values = subset.map(c => ranks.indexOf(c.rank)).sort((a, b) => a - b);
-                    let isRun = true;
-                    for (let k = 1; k < values.length; k++) {
-                        if (values[k] !== values[k - 1] + 1) {
-                            isRun = false;
-                            break;
-                        }
-                    }
-                    if (isRun) {
-                        maxScore = Math.max(maxScore, len);
-                    }
+        for (let mask = 1; mask < (1 << cards.length); mask++) {
+            const subset = [];
+            for (let j = 0; j < cards.length; j++) {
+                if (mask & (1 << j)) subset.push(cards[j]);
+            }
+            if (subset.length < 3 || subset.length < longest) continue;
+
+            const values = subset.map(c => ranks.indexOf(c.rank)).sort((a, b) => a - b);
+            let isRun = true;
+            for (let k = 1; k < values.length; k++) {
+                if (values[k] !== values[k - 1] + 1) {
+                    isRun = false;
+                    break;
                 }
             }
-            if (maxScore > 0) break;
+            if (!isRun) continue;
+
+            if (subset.length > longest) { longest = subset.length; howMany = 1; }
+            else { howMany++; }
         }
 
-        return maxScore;
+        return longest * howMany;
     }
 
     selectComputerDiscard() {

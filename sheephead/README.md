@@ -249,6 +249,9 @@ tests/          node scripts, no dependencies
 npm test
 ```
 
+A fuller write-up covering both card games in this repo — what each layer can and cannot see, the
+gaps, and the flaky tests that had to be fixed — is in [TESTING.md](../TESTING.md).
+
 - `tests/rules-oracle.js` — the only test that knows what Sheephead *is*. The rules are written
   out by hand from the game's own How to Play dialog — the trump order typed as fourteen literal
   cards, the points table, the follow-suit rule, the scoring thresholds — and the engine is
