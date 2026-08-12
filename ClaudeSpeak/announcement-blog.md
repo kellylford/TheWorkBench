@@ -1,0 +1,64 @@
+# ClaudeSpeak: Having Claude Code Read Its Replies Through Your Screen Reader
+
+I have been doing a lot of development work with Claude Code, and the thing that slowed me down most was not the AI. It was reading the output.
+
+In my experience both the Claude desktop app and the terminal have challenges with screen readers. The desktop app often requires scrolling around in a screen reader's view of the text, using scroll to bottom, and generally fishing around too much to find what was just said. The terminal, when a screen reader is set to echo back terminal output, rereads all sorts of terminal output, even while you are entering new commands.
+
+ClaudeSpeak is aimed at improving on both situations. It makes Claude Code speak each reply once, cleanly, as soon as it finishes — and it can speak through your screen reader rather than around it.
+
+Screen reading users of Claude's terminal may also want to try a new screen reader mode setting as well. Details on what it does and how to enable it are at [Use Claude Code CLI with a screen reader](https://support.claude.com/en/articles/15924927-use-claude-code-cli-with-a-screen-reader).
+
+That setting and this are addressing different halves of the same problem — one changes what Claude Code renders, the other changes how the reply reaches you — so they are worth trying together rather than instead of each other.
+
+The project lives here: [ClaudeSpeak on GitHub](https://github.com/kellylford/TheWorkBench/tree/main/ClaudeSpeak).
+
+Up front: I built this with Claude, and Claude wrote essentially all of the code and documentation. I directed it, tested it, and told it when something sounded wrong. I am flagging that partly for honesty and partly because it is relevant to how you read the technical claims further down — those are Claude's findings and Claude's understanding, not things I independently verified.
+
+It costs nothing in Claude usage. The text is pulled out of the session transcript by a hook, so the model is not involved and no extra tokens are spent.
+
+JAWS exposes a COM interface and NVDA has a controller client library. Going through either means Claude's replies use the voice, rate and punctuation level you already configured, and your usual silence key interrupts them like any other speech. If you would rather have a separate Windows voice so Claude is distinguishable from everything else, that works too and is a config setting.
+
+## Installing
+
+There is an `install.bat` in the repo. Run it from the ClaudeSpeak folder and it does four things: copies the PowerShell scripts into your `.claude` folder, installs the skill, writes a starter config set to pick whichever screen reader is running, and adds the hook to your Claude Code `settings.json`. Then restart Claude Code, because hooks and skills are both read at session start.
+
+The `settings.json` part is the bit that could hurt, so it is written to be careful. It merges rather than replaces, so anything already in that file stays. It takes a backup first. If you already have a Stop hook — I do, for chat logging — it adds alongside rather than on top. Re-running it is safe: an existing config or hook is left alone. And if your `settings.json` is not valid JSON it refuses to touch the file at all and prints what to add by hand.
+
+You can see what it would do without changing anything:
+
+```
+powershell -NoProfile -ExecutionPolicy Bypass -File install.ps1 -WhatIf
+```
+
+Please read the installer before you run it. I would say that about anyone's install script, but particularly one written by an AI, for a file you care about.
+
+An important caveat: the installer has only been tested on my machine. Claude exercised it against throwaway targets covering a fresh install, merging into an existing settings file, adding alongside an existing Stop hook, running it twice, and a deliberately malformed `settings.json` — and that testing did find two real bugs before they shipped. But that is one machine, one Windows version, one Claude Code version, and one person's settings file. It has never been run on anyone else's setup. If it does something unexpected on yours I would genuinely like to know, and there is a manual setup path in the README that is maybe ten lines of copying and one edit.
+
+Whichever way you install it, it applies to every Claude Code session on the machine, the desktop app as much as the terminal. It does not affect the Claude app or claude.ai in a browser, which are a different product with no hooks.
+
+## Controlling What Gets Spoken
+
+This part I did want, and it works. Thinking, tool calls and tool output are never spoken — only Claude's actual prose, and only the newest reply. On top of that you can choose what happens to code blocks (announced, skipped, or read out), tables, and URLs, and you can ask for only the first paragraph or cap the length.
+
+You can set all of that by just saying so — "stop reading me code", "just the gist", "read the actual links" — via an included Claude Code skill. If you have not used skills before, they are simply a folder with a `SKILL.md` file in it, dropped into your `.claude` folder; there is no install step beyond copying it, and the repo explains the general mechanics.
+
+## Two Things Claude Had to Sort Out With NVDA
+
+Both JAWS and NVDA work. Getting NVDA there took some digging, and the findings seem worth passing on. To repeat the caveat above: this is Claude's understanding, arrived at while debugging on my machine. I do not independently know it to be true, and I would be glad to be corrected.
+
+The first is that the NVDA controller client DLL does not appear to ship with NVDA. Claude could not find anything matching that name anywhere under the install directory on 2026.1.1. It came from NV Access's controller client package, which is a separate download.
+
+The second is architecture. The DLL apparently has to match the architecture of the process calling it, not of NVDA and not of Windows. I am on Windows on ARM, where the inbox PowerShell is ARM64 and the other one is x86, so an x64 build — the one you are most likely to already have — would not load at all. The download contains several builds and Claude picked the matching one. Claude also found that the filenames are not a reliable guide to what is inside, so the scripts read the file header instead.
+
+There was also a debugging trap worth mentioning regardless of any of the above. The engine falls back to another speech route when the configured one fails, so speech happening does not prove your route worked. A failing NVDA config fell through to a Windows voice and sounded like success — twice — before we caught it. There is now a log recording which route actually spoke. If you test this, check the log rather than trusting your ears.
+
+## Where Help Would Be Welcome
+
+- NVDA is verified on Windows on ARM. Plain x64 should be simpler, but nobody has actually run it there.
+- Narrator, VoiceOver and Orca are not wired up.
+- The macOS and Linux side is much thinner than the Windows side.
+- The choices about what to strip before speaking are guesses. If they are wrong for how you work, I would like to hear it.
+
+Suggestions, corrections and pull requests are all welcome. Issues and PRs on the repo, or leave a comment here.
+
+Kelly Ford
