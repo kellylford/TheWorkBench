@@ -10,7 +10,7 @@
   "_rate": "say: words per minute, roughly 90 to 720. null = the say default of 175. Fast-speech users tend to land between 300 and 450. IGNORED for voiceover, deliberately - rate there is your own VoiceOver setting, and overriding a choice you already made is an accessibility defect.",
   "rate": null,
 
-  "_interrupt": "Whether a new reply cuts off the previous one still speaking.",
+  "_interrupt": "Whether a new reply cuts off the previous one still speaking. Applies to the say route. On voiceover it does nothing - VoiceOver speaks in its own process and owns its own queue, so your silence key is the control there.",
   "interrupt": true,
 
   "_content": "What actually gets spoken. Only Claude's own prose is ever read - thinking, tool calls, tool output and subagent chatter are never spoken regardless of these settings, and only the newest reply is read.",

@@ -13,16 +13,23 @@ set -uo pipefail
 DEST="$HOME/.claude"
 DRY=false
 
+# "shift; shift" rather than "shift 2": in bash 3.2, which is the only bash on macOS, "shift 2"
+# with one argument left fails and shifts nothing, so a bare trailing "--dest" spins forever.
 while [ $# -gt 0 ]; do
     case "$1" in
         --dry-run|-n) DRY=true; shift ;;
-        --dest)       DEST="${2:-}"; shift 2 ;;
+        --dest)       DEST="${2:-}"; shift; shift ;;
         -h|--help)
-            sed -n '2,12p' "$0" | sed 's/^# \{0,1\}//'
+            sed -n '2,10p' "$0" | sed 's/^# \{0,1\}//'
             exit 0 ;;
         *) echo "unknown option: $1" >&2; exit 2 ;;
     esac
 done
+
+if [ -z "$DEST" ]; then
+    echo "--dest needs a directory" >&2
+    exit 2
+fi
 
 here="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
@@ -109,7 +116,11 @@ fi
 # Merged, never replaced. A settings file is the user's, and it usually has other things in
 # it; clobbering it to add one hook would be a poor trade.
 settings="$DEST/settings.json"
-hook_cmd="$DEST/speak-response.sh"
+
+# Claude Code runs a hook command through a shell, so an unquoted path with a space in it
+# splits into two words and the hook silently exits 127 on every reply. Single-quote it,
+# escaping any embedded quote the POSIX way.
+hook_cmd="'$(printf '%s' "$DEST/speak-response.sh" | sed "s/'/'\\\\''/g")'"
 
 manual_instructions() {
     say_ ''
@@ -120,7 +131,10 @@ manual_instructions() {
     say_ "  command: $hook_cmd"
 }
 
-if [ -f "$settings" ] && ! jq -e . "$settings" >/dev/null 2>&1; then
+# "jq empty" tests that the file parses. "jq -e ." would additionally reject a file whose whole
+# content is null or false, which are valid JSON and should be merged into, not refused.
+# An empty file is treated as {} below, matching the Windows installer.
+if [ -s "$settings" ] && ! jq empty "$settings" >/dev/null 2>&1; then
     say_ ''
     say_ "WARNING: $settings is not valid JSON, so it was left untouched."
     say_ 'Fix it, then re-run this installer.'
@@ -143,8 +157,8 @@ else
     act 'add the Stop hook to settings.json'
     if [ "$DRY" != true ]; then
         # Back up before writing. This file often holds settings that took a while to get right.
-        [ -f "$settings" ] && cp "$settings" "$settings.claudespeak-backup"
-        [ -f "$settings" ] || printf '{}\n' > "$settings"
+        [ -s "$settings" ] && cp "$settings" "$settings.claudespeak-backup"
+        [ -s "$settings" ] || printf '{}\n' > "$settings"
 
         tmp="$settings.claudespeak-tmp"
         if jq --arg c "$hook_cmd" '
@@ -162,6 +176,13 @@ else
             exit 1
         fi
     fi
+fi
+
+if [ "$DRY" = true ]; then
+    say_ ''
+    say_ 'Dry run - nothing was changed.'
+    say_ ''
+    exit 0
 fi
 
 say_ ''

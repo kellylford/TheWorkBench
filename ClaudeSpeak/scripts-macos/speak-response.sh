@@ -11,6 +11,12 @@
 #                 not a setting.
 set -uo pipefail
 
+# maxChars below slices with bash parameter expansion, which counts characters only when the
+# locale is UTF-8. A hook inherits whatever environment Claude Code was started with, and that
+# often has no LANG at all - in which case the slice lands mid-codepoint and produces bytes the
+# speech engine cannot read.
+if [ -z "${LC_ALL:-}" ] && [ -z "${LC_CTYPE:-}" ]; then export LC_CTYPE="UTF-8"; fi
+
 CLAUDE_DIR="$HOME/.claude"
 CONFIG="$CLAUDE_DIR/speak-config.json"
 WORKDIR="${TMPDIR:-/tmp}/claude-speak"
@@ -25,10 +31,12 @@ transcript=$(printf '%s' "$payload" | jq -r '.transcript_path // empty' 2>/dev/n
 [ -n "$transcript" ] || exit 0
 [ -f "$transcript" ] || exit 0
 
+# `// empty` cannot be used here: jq treats false as absent, so "interrupt": false would
+# silently read back as the default of true and the setting could never be turned off.
 cfg() {
     local v
-    v=$(jq -r "$1 // empty" "$CONFIG" 2>/dev/null)
-    [ -n "$v" ] && printf '%s' "$v" || printf '%s' "$2"
+    v=$(jq -r "if ($1) == null then empty else ($1) end" "$CONFIG" 2>/dev/null)
+    if [ -n "$v" ]; then printf '%s' "$v"; else printf '%s' "$2"; fi
 }
 
 codeBlocks=$(cfg '.content.codeBlocks' 'announce')
@@ -51,7 +59,8 @@ text=$(jq -Rc 'fromjson? // empty' "$transcript" 2>/dev/null | jq -rs '
        | select(.value.message != null)
        | select(
            ((.value.message.content | type) == "string")
-           or (([ .value.message.content[]? | select(.type == "tool_result") ] | length) == 0)
+           or (([ .value.message.content[]?
+                  | select(type == "object" and .type == "tool_result") ] | length) == 0)
          )
        | .key ] | last) as $lu
     | (if $lu == null then 0 else $lu + 1 end) as $from
@@ -59,7 +68,7 @@ text=$(jq -Rc 'fromjson? // empty' "$transcript" 2>/dev/null | jq -rs '
         | select(.type == "assistant")
         | select(.isSidechain != true)
         | .message.content[]?
-        | select(.type == "text")
+        | select(type == "object" and .type == "text")
         | .text
         | select(type == "string")
         | select(test("^\\s*$") | not) ]
@@ -82,8 +91,10 @@ text=$(printf '%s' "$text" | \
         my $tb = $ENV{CS_TABLES}     || "omit";
         my $ur = $ENV{CS_URLS}       || "link";
 
-        if    ($cb eq "omit") { $t =~ s/```.*?```//gs }
-        elsif ($cb eq "read") { $t =~ s/```[^\n]*\n(.*?)```/$1/gs }
+        # A space, not nothing: dropping the block outright runs the words either side of the
+        # fence together into one unpronounceable token.
+        if    ($cb eq "omit") { $t =~ s/```.*?```/ /gs }
+        elsif ($cb eq "read") { $t =~ s/```[^\n]*\n(.*?)```/ $1 /gs }
         else                  { $t =~ s/```.*?```/ Code block omitted. /gs }
 
         if ($tb eq "read") {
@@ -123,7 +134,10 @@ case "$maxChars" in
     ''|*[!0-9]*) maxChars=0 ;;
 esac
 if [ "$maxChars" -gt 0 ] && [ "${#text}" -gt "$maxChars" ]; then
-    text="${text:0:$maxChars} Response truncated."
+    # Trim the ragged edge before the announcement, so a cut mid-word does not run into
+    # "Response truncated" as one breath.
+    text=$(printf '%s' "${text:0:$maxChars}" | sed -E 's/[[:space:]]+$//')
+    text="$text. Response truncated."
 fi
 
 [ -n "$text" ] || exit 0

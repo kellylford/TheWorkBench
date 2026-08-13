@@ -24,18 +24,23 @@ if [ "$vo_running" = true ]; then
         && vo_addressable=true
 fi
 
+# "Name with spaces (and parens)   en_US    # Sample sentence."
+#
+# Parsed from the right, not on column padding. say -v '?' pads the name to a fixed width, so
+# a long name leaves only ONE space before the locale - matching on a run of two or more
+# silently drops every such voice, Samantha among them. The locale is simply the last token
+# before the "#", which is what the greedy prefix below pins down.
+#
+# Locale is not always xx_XX either: ar_001 exists. Hence [A-Za-z0-9]+ for the tail.
 voice_json=$(
-    /usr/bin/say -v '?' 2>/dev/null | while IFS= read -r line; do
-        # "Name with spaces (and parens)   en_US    # Sample sentence."
-        name=$(printf '%s' "$line" | sed -E 's/[[:space:]]{2,}[a-z]{2}_[A-Z]{2}[[:space:]]+#.*$//')
-        locale=$(printf '%s' "$line" | sed -nE 's/.*[[:space:]]{2,}([a-z]{2}_[A-Z]{2})[[:space:]]+#.*/\1/p')
-        [ -n "$name" ] && [ -n "$locale" ] || continue
-        # Skip non-English unless --all: there are 400+ voices in total.
-        if [ "$all" != true ] && [ "${locale#en_}" = "$locale" ]; then
-            continue
-        fi
-        jq -nc --arg n "$name" --arg l "$locale" '{name:$n, locale:$l, match:$n}'
-    done | jq -sc '.'
+    /usr/bin/say -v '?' 2>/dev/null \
+    | sed -E 's/^(.*[^[:space:]])[[:space:]]+([A-Za-z]{2}_[A-Za-z0-9]+)[[:space:]]+#.*$/\1'$'\t''\2/' \
+    | jq -Rc --argjson all "$all" '
+        split("\t")
+        | select(length == 2)
+        | { name: .[0], locale: .[1], match: .[0] }
+        | select($all or (.locale | startswith("en_")))' \
+    | jq -sc '.'
 )
 [ -n "$voice_json" ] || voice_json='[]'
 

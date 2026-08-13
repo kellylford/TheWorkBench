@@ -357,3 +357,14 @@ Things that were not obvious and cost time to find:
 - **An apostrophe inside a single-quoted `jq` program ends the program.** `VoiceOver's` in a
   note string broke `speak-voices.sh` in a way whose error message pointed at a line five below
   the actual fault.
+- **`say -v '?'` pads the voice name to a fixed column**, so a long name leaves exactly *one*
+  space before the locale. Parsing on a run of two-or-more spaces looks right, works on most
+  lines, and silently drops 160 of 422 voices — Samantha included. Parse from the right.
+- **jq's `//` treats `false` as absent.** `.interrupt // empty` reads back as the default on
+  `"interrupt": false`, so a boolean setting can appear to work while being impossible to
+  turn off.
+- **`shift 2` with one argument left is a no-op in bash 3.2**, which is the only bash on macOS.
+  In an option-parsing `while` loop that is an infinite spin, not an error.
+- **bash slices strings by byte unless the locale is UTF-8**, and a hook inherits whatever
+  environment the terminal had. `maxChars` cut mid-codepoint and produced bytes the synthesiser
+  refused, which presents as silence rather than as a mangled word.

@@ -16,6 +16,11 @@ VoiceOver voice next month and Claude follows, with no config edit and nothing t
 the part that is hard to appreciate until you have it — a second voice you cannot stop mid-reply
 gets old fast, and no amount of rate tuning fixes it.
 
+It is also the *only* interruption mechanism on this route. The `interrupt` setting in the
+config does nothing here: once the text is handed over, VoiceOver speaks it from its own
+process and owns its own queue, so nothing in these scripts can reach in and stop it. That
+setting applies to the `say` route, where the speaker is a child process we can signal.
+
 **Eloquence, if you use it.** Eloquence is a VoiceOver-only synthesiser on macOS. It does not
 appear in `say -v '?'` and ships no assets outside VoiceOver, so this route is the only way
 Claude can reach it. The same is true of any other voice you have set up inside VoiceOver but

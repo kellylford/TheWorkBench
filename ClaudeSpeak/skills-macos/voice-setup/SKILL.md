@@ -218,7 +218,7 @@ from the exit code.
 | `engine` | `voiceover`, `say`, or `auto` |
 | `voice` | A `say` voice name from the probe's `match` field. Empty = the machine's default Spoken Content voice. Ignored for `voiceover`. |
 | `rate` | `say` words per minute, ~90–720. Empty/null = the `say` default of 175. Ignored for `voiceover`. |
-| `interrupt` | Whether a new reply cuts off the previous one still speaking |
+| `interrupt` | Whether a new reply cuts off the previous one still speaking. `say` route only — on `voiceover` the user's own silence key is the control, and nothing here can reach VoiceOver's speech queue. Do not offer this as a fix for overlap on that route. |
 
 ### 4b. Offer control over what is spoken, not just how
 
@@ -279,7 +279,8 @@ mean rebuilding it.
 | Nothing speaks, route is `voiceover` | The AppleScript checkbox above. Check it first. |
 | Nothing speaks at all | Hook not registered, or the session needs restarting after a settings change |
 | Wrong voice speaks | The configured route was unavailable and the engine fell through to `say` |
-| Two replies overlap | `interrupt` is false, or the previous speaker was not killed |
+| Two replies overlap, route is `say` | `interrupt` is false, or the previous speaker was not killed |
+| Two replies overlap, route is `voiceover` | `interrupt` does not apply there. VoiceOver owns its own queue; the silence key is the control. |
 | Voice or rate setting ignored | Route is `voiceover`, where both are the user's own VoiceOver settings. Working as intended. |
 | Wants Claude to sound different from their screen reader | Route is `voiceover`, which by definition cannot. Switch to `say` and run the voice cards. |
 | Wants Eloquence, or any specific VoiceOver voice | Route must be `voiceover`, and the voice is changed in VoiceOver Utility, not here. |

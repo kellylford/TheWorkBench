@@ -93,7 +93,14 @@ the VoiceOver route is quiet.
    cp skills-macos/voice-setup/SKILL.md ~/.claude/skills/voice-setup/
    ```
 
-3. Add this to `~/.claude/settings.json`, merging with whatever is already there:
+3. Seed a config. Without one the engine runs in `auto`, which is a sensible default, but
+   this is where you pin a route later:
+
+   ```bash
+   cp speak-config.macos.example.json ~/.claude/speak-config.json
+   ```
+
+4. Add this to `~/.claude/settings.json`, merging with whatever is already there:
 
    ```json
    {
@@ -116,7 +123,7 @@ the VoiceOver route is quiet.
 
    Replace `YOURNAME`. The path must be absolute — `~` and `$HOME` are not expanded here.
 
-4. Restart Claude Code and ask it anything.
+5. Restart Claude Code and ask it anything.
 
 Putting it in `~/.claude/settings.json` applies it to every project on this machine. For a
 single project, use that project's `.claude/settings.json` instead.
@@ -134,7 +141,7 @@ just say "change the voice Claude reads with" and let the skill do it.
 | `engine` | `auto` | `voiceover`, `say`, `auto` |
 | `voice` | `""` | A `say` voice name. Empty = the system default. Ignored for `voiceover`. |
 | `rate` | `null` | `say` words per minute, ~90–720. Ignored for `voiceover`. |
-| `interrupt` | `true` | Whether a new reply cuts off the previous one still speaking |
+| `interrupt` | `true` | Whether a new reply cuts off the previous one still speaking. Applies to the `say` route; on `voiceover` your own silence key is what interrupts. |
 
 And under `content`:
 
@@ -185,8 +192,11 @@ one actually ran:
 cat "$TMPDIR/claude-speak/last-route.log"
 ```
 
-**Two replies talk over each other.** `interrupt` is false, or the previous speaker was not
-killed. Check that `$TMPDIR/claude-speak/speaker.pid` is being written.
+**Two replies talk over each other.** On the `say` route: `interrupt` is false, or the previous
+speaker was not killed — check that `$TMPDIR/claude-speak/speaker.pid` is being written. On the
+`voiceover` route `interrupt` does not apply at all, because VoiceOver speaks in its own process
+and nothing here can reach into its queue. Your silence key is the control, and VoiceOver's own
+speech-interruption behaviour decides the rest.
 
 **The rate setting is ignored.** The route is `voiceover`, where rate is your own VoiceOver
 setting. Working as intended.
