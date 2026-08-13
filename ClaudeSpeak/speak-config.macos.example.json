@@ -1,0 +1,33 @@
+{
+  "_comment": "Copy to ~/.claude/speak-config.json. Run scripts-macos/speak-voices.sh to see what this machine actually has. Every field is optional; omitting one keeps its default. Keys beginning with an underscore are documentation and are ignored.",
+
+  "_engine": "voiceover | say | auto  (auto = VoiceOver if it is running, else say)",
+  "engine": "auto",
+
+  "_voice": "A say voice name, from speak-voices.sh's 'match' field. Empty means the machine's default Spoken Content voice, which is a fine answer rather than a missing one. IGNORED for voiceover, which has no voice setting by design - it speaks in whatever voice VoiceOver is already configured with, and follows automatically if you change it.",
+  "voice": "",
+
+  "_rate": "say: words per minute, roughly 90 to 720. null = the say default of 175. Fast-speech users tend to land between 300 and 450. IGNORED for voiceover, deliberately - rate there is your own VoiceOver setting, and overriding a choice you already made is an accessibility defect.",
+  "rate": null,
+
+  "_interrupt": "Whether a new reply cuts off the previous one still speaking.",
+  "interrupt": true,
+
+  "_content": "What actually gets spoken. Only Claude's own prose is ever read - thinking, tool calls, tool output and subagent chatter are never spoken regardless of these settings, and only the newest reply is read.",
+  "content": {
+    "_codeBlocks": "announce (say 'Code block omitted') | omit (skip silently) | read (speak the code)",
+    "codeBlocks": "announce",
+
+    "_tables": "omit | read",
+    "tables": "omit",
+
+    "_urls": "link (say the word 'link') | omit | read (speak the whole URL)",
+    "urls": "link",
+
+    "_firstParagraphOnly": "Speak only the opening paragraph. Good for long replies you will read yourself.",
+    "firstParagraphOnly": false,
+
+    "_maxChars": "Stop after this many characters and say 'Response truncated'. 0 = no limit.",
+    "maxChars": 0
+  }
+}

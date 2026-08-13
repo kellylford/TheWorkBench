@@ -32,6 +32,17 @@ jobs:
           test -f ClaudeSpeak/install.ps1
           test -f ClaudeSpeak/scripts/speak-response.ps1
           test -f ClaudeSpeak/skills/voice-setup/SKILL.md
+          test -f ClaudeSpeak/install.sh
+          test -f ClaudeSpeak/scripts-macos/speak-response.sh
+          test -f ClaudeSpeak/scripts-macos/speak-engine.sh
+          test -f ClaudeSpeak/scripts-macos/speak-voices.sh
+          test -f ClaudeSpeak/skills-macos/voice-setup/SKILL.md
+          # The zip must preserve the executable bit, or install.sh cannot be run from the
+          # extracted folder without a chmod the README does not mention.
+          test -x ClaudeSpeak/install.sh
+          for f in ClaudeSpeak/scripts-macos/*.sh; do test -x "$f" || { echo "not executable: $f"; exit 1; }; done
+          bash -n ClaudeSpeak/install.sh
+          for f in ClaudeSpeak/scripts-macos/*.sh; do bash -n "$f"; done
           echo "payload looks complete"
 
       - name: Build the zip
@@ -46,25 +57,34 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           cat > notes.md <<'NOTES'
-          Makes Claude Code read its replies aloud — through JAWS, NVDA, or a Windows voice.
+          Makes Claude Code read its replies aloud — through JAWS, NVDA, VoiceOver, or a system
+          voice on either platform.
 
-          **Install:** download the zip below, extract it, and run `install.bat` from inside the
-          ClaudeSpeak folder. Then restart Claude Code. There is a manual path in the README if
-          you would rather not run a script, and `install.ps1 -WhatIf` shows what it would do
-          without changing anything.
+          **Install:** download the zip below, extract it, and from inside the ClaudeSpeak folder
+          run `install.bat` on Windows or `./install.sh` on macOS. Then restart Claude Code.
+          There is a manual path in the README if you would rather not run a script, and
+          `install.ps1 -WhatIf` / `install.sh --dry-run` show what they would do without changing
+          anything.
 
           Read the [README](https://github.com/kellylford/TheWorkBench/tree/main/ClaudeSpeak)
           first — particularly the note on what does and does not get read aloud.
 
-          **Scope of testing.** JAWS, NVDA, and both Windows voice engines are verified working,
-          but on one machine: Windows on ARM, one Windows version, one Claude Code version. The
-          installer was exercised against fresh installs, merging into an existing settings file,
-          adding alongside an existing Stop hook, repeat runs, and malformed JSON — but never on
-          anyone else's setup. Reports welcome.
+          **macOS needs one checkbox.** The VoiceOver route requires *VoiceOver Utility → General
+          → "Allow VoiceOver to be controlled with AppleScript"*, which is off by default. With it
+          off the route is silent **and reports success** — no error, exit status 0. Check that
+          first if nothing speaks. macOS also needs `jq`, which ships with 15 and later; on 13 or
+          14, `brew install jq`.
 
-          If something does not speak, the useful first two things are
-          `%TEMP%\claude-speak\last-route.log` and the output of `speak-voices.ps1`. A clean run
-          only proves *something* spoke, not that your chosen route did.
+          **Scope of testing.** Every route listed is verified working, but each on exactly one
+          machine — Windows on ARM, and Apple silicon on macOS 27. Both installers were exercised
+          against fresh installs, merging into an existing settings file, adding alongside an
+          existing Stop hook, repeat runs, and malformed JSON — but never on anyone else's setup.
+          Reports welcome.
+
+          If something does not speak, the useful first two things are the route log
+          (`%TEMP%\claude-speak\last-route.log`, or `$TMPDIR/claude-speak/last-route.log`) and the
+          output of `speak-voices.ps1` / `speak-voices.sh`. A clean run only proves *something*
+          spoke, not that your chosen route did.
           NOTES
 
           gh release create "$GITHUB_REF_NAME" \
