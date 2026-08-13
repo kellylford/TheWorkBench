@@ -1,7 +1,10 @@
 # ClaudeSpeak
 
-Make Claude Code read its responses aloud — through a Windows voice, or through JAWS or NVDA
-so it uses the speech settings you already have.
+Make Claude Code read its responses aloud — through a system voice, or through your screen
+reader so it uses the speech settings you already have.
+
+**Windows** — a Windows voice, or JAWS or NVDA.
+**macOS** — a `say` voice, or VoiceOver.
 
 Claude Code has no speech of its own. This hooks the event that fires when Claude finishes a
 reply, pulls the text out of the session transcript, and hands it to a speech engine.
@@ -21,23 +24,39 @@ TheWorkBench holds several unrelated projects, so ClaudeSpeak releases are tagge
 
 ## Quick start
 
-Extract the zip, then run **`install.bat`** from inside the ClaudeSpeak folder. It copies the scripts, installs the skill, seeds a
-config, and adds the hook to your Claude Code `settings.json` — merging with whatever is
-already there rather than replacing it, and backing the file up first. Then restart Claude
-Code.
+Extract the zip, then run the installer for your platform from inside the ClaudeSpeak folder.
+It copies the scripts, installs the skill, seeds a config, and adds the hook to your Claude
+Code `settings.json` — merging with whatever is already there rather than replacing it, and
+backing the file up first. Then restart Claude Code.
 
 It is safe to re-run: an existing config or hook is left alone. If `settings.json` is not
 valid JSON it refuses to touch the file and prints what to add by hand.
+
+**Windows:**
 
 ```
 install.bat
 ```
 
-To see what it would do without changing anything:
+**macOS:**
+
+```bash
+./install.sh
+```
+
+To see what either would do without changing anything:
 
 ```
 powershell -NoProfile -ExecutionPolicy Bypass -File install.ps1 -WhatIf
 ```
+
+```bash
+./install.sh --dry-run
+```
+
+macOS needs `jq` and `perl`. Both ship with macOS 15 (Sequoia) and later; on 13 or 14,
+`brew install jq`. The installer checks and stops with that message rather than letting you
+discover it as silence.
 
 ### Doing it by hand
 
@@ -65,9 +84,17 @@ powershell -NoProfile -ExecutionPolicy Bypass -File install.ps1 -WhatIf
 
 3. Restart Claude Code and ask it anything.
 
-With no config file, the engine runs in `auto`: it speaks through **JAWS or NVDA if one is
-running**, and otherwise falls back to a Windows voice at maximum rate. So for most people
-the quick start is the whole setup. Read on to pin a specific route or voice.
+That is the Windows path; the macOS equivalent is in [SETUP-macos.md](SETUP-macos.md).
+
+With no config file, the engine runs in `auto`: it speaks through **your screen reader if one
+is running** — JAWS or NVDA on Windows, VoiceOver on macOS — and otherwise falls back to a
+system voice. So for most people the quick start is the whole setup. Read on to pin a specific
+route or voice.
+
+**One macOS gotcha worth knowing up front.** The VoiceOver route needs *VoiceOver Utility →
+General → "Allow VoiceOver to be controlled with AppleScript"*, which is off by default. With
+it off the route is silent **and reports success** — no error, exit status 0. Check that box
+first if nothing speaks. Details in [VOICEOVER.md](VOICEOVER.md).
 
 ## What gets read aloud, and what does not
 
@@ -78,6 +105,7 @@ the quick start is the whole setup. Read on to pin a specific route or voice.
 - Thinking blocks
 - Tool calls and their arguments
 - Tool output — file contents, command results, search hits
+- Subagent chatter (macOS build; the Windows scripts do not yet filter this)
 - Anything from earlier in the conversation. Only the newest reply is read.
 
 That is a deliberate floor, not a setting. The point is to hear what Claude *said*, not to
@@ -143,16 +171,41 @@ project's `.claude/settings.json` rather than in your home directory.
 
 ## What is here
 
+Shared:
+
 | Path | Role |
 |---|---|
-| [SETUP.md](SETUP.md) | Full instructions, customizing, troubleshooting, macOS/Linux |
+| [SETUP.md](SETUP.md) | Windows: full instructions, customizing, troubleshooting |
+| [SETUP-macos.md](SETUP-macos.md) | macOS: the same, for the shell scripts |
 | [SCREEN-READERS.md](SCREEN-READERS.md) | Routing speech through JAWS or NVDA |
+| [VOICEOVER.md](VOICEOVER.md) | Routing speech through VoiceOver |
+
+Windows:
+
+| Path | Role |
+|---|---|
+| `install.bat` / `install.ps1` | Installer |
 | `scripts/speak-response.ps1` | The Stop hook. Extracts the reply, strips markdown, calls a speaker. |
 | `scripts/speak-onecore.ps1` | Minimal speaker — Windows OneCore voices only |
 | `scripts/speak-engine.ps1` | Configurable speaker — JAWS, NVDA, OneCore, or SAPI |
 | `scripts/speak-voices.ps1` | Reports what is installed on this machine, as JSON |
-| `skills/voice-setup/` | A Claude Code skill that configures it all conversationally |
-| `speak-config.example.json` | Config template for `speak-engine.ps1` |
+| `skills/voice-setup/` | The skill that configures it all conversationally |
+| `speak-config.example.json` | Config template |
+
+macOS:
+
+| Path | Role |
+|---|---|
+| `install.sh` | Installer |
+| `scripts-macos/speak-response.sh` | The Stop hook. Extracts the reply, strips markdown, calls the engine. |
+| `scripts-macos/speak-engine.sh` | Configurable speaker — VoiceOver or `say` |
+| `scripts-macos/speak-voices.sh` | Reports what is installed on this machine, as JSON |
+| `skills-macos/voice-setup/` | The skill, macOS wording |
+| `speak-config.macos.example.json` | Config template |
+
+The two sides are deliberately independent — same design, same config shape, no shared code.
+A PowerShell script and a shell script have little to gain from being merged, and plenty to
+lose in readability.
 
 `speak-onecore.ps1` and `speak-engine.ps1` are interchangeable — same `-Path` parameter.
 `speak-response.ps1` ships pointing at the engine; `speak-onecore.ps1` is kept as the minimal
@@ -164,9 +217,16 @@ Particularly:
 
 - **Confirm NVDA on other architectures.** It is verified on ARM64 Windows with NVDA 2026.1.1.
   Plain x64 Windows *should* be the easier case, but nobody has actually run it there.
-- **Other screen readers** — Narrator, VoiceOver, Orca. None are wired up.
-- **macOS and Linux.** `SETUP.md` has a `say` / `spd-say` version that is far less developed
-  than the Windows side.
+- **Confirm the macOS side anywhere else.** It is verified on exactly one machine: Apple
+  silicon, macOS 27, VoiceOver with Eloquence. Intel, older macOS, and the `say` route as a
+  daily driver are all unexercised.
+- **Other screen readers** — Narrator, Orca. Neither is wired up.
+- **Linux.** Nothing here. `SETUP.md` has an `spd-say` sketch that has never been run.
+- **Drop the `jq` dependency on macOS.** `jq` only ships with macOS 15 and later, so 13 and 14
+  need Homebrew for what should be a zero-install tool. Perl is present on every Mac and has
+  `JSON::PP` in core, so the extraction could be done without `jq` at all.
+- **Subagent filtering on Windows.** The macOS hook skips `isSidechain` transcript entries so
+  subagent chatter is never spoken. The PowerShell hook does not, and probably should.
 - **Better markdown-to-speech.** The current stripping is a block of regexes and a set of
   judgement calls (code blocks dropped, tables dropped, URLs read as "link"). Those are
   guesses about what people want to hear, not findings.
@@ -175,20 +235,34 @@ Open an issue or a PR on [TheWorkBench](https://github.com/kellylford/TheWorkBen
 
 ## Choosing a route
 
-**Through your screen reader** (JAWS or NVDA) — Claude's replies use your voice, your rate,
-and your punctuation level, and your usual silence key interrupts them. Nothing to configure.
+The real question is not which voice. It is whether Claude should sound **like** your screen
+reader or deliberately **unlike** it.
+
+**Through your screen reader** (JAWS, NVDA, VoiceOver) — Claude's replies use your voice, your
+rate, and your punctuation level, and your usual silence key interrupts them. Nothing to
+configure, and it follows along if you change your screen reader's voice later. On macOS this
+is also the only route that can reach **Eloquence**, which is a VoiceOver-only synthesiser and
+does not appear in `say -v '?'` at all.
+
+There is no voice setting on this route, by design — there is nothing to pick, and a screen
+reader's voice is a global setting rather than a Claude preference.
 
 **A separate system voice** — independent of the screen reader, keeps working when it is off,
-and can be set to sound distinct so Claude is unmistakable.
+and can be set to sound distinct so Claude is unmistakable. This is the only route where
+choosing a voice means anything.
 
 Neither is correct in general. Try both; the trade-off is real in both directions.
 
-To switch, copy `speak-config.example.json` to `%USERPROFILE%\.claude\speak-config.json`, set
-`engine`, and point the hook's speaker line at `speak-engine.ps1`:
+To switch on Windows, copy `speak-config.example.json` to
+`%USERPROFILE%\.claude\speak-config.json`, set `engine`, and point the hook's speaker line at
+`speak-engine.ps1`:
 
 ```powershell
 $speaker = Join-Path $env:USERPROFILE '.claude\speak-engine.ps1'
 ```
+
+On macOS, copy `speak-config.macos.example.json` to `~/.claude/speak-config.json` and set
+`engine` to `voiceover`, `say`, or `auto`. Nothing else to repoint.
 
 Or install the skill and just say "change the voice Claude reads with".
 
@@ -202,8 +276,8 @@ Copy the folder to one of two places, depending on how widely you want it:
 
 | Put it here | Available in |
 |---|---|
-| `%USERPROFILE%\.claude\skills\voice-setup\` | every project, on this machine |
-| `<project>\.claude\skills\voice-setup\` | that project only (and it can be committed, so your team gets it) |
+| `~/.claude/skills/voice-setup/` | every project, on this machine |
+| `<project>/.claude/skills/voice-setup/` | that project only (and it can be committed, so your team gets it) |
 
 For this one you almost certainly want the first:
 
@@ -211,8 +285,14 @@ For this one you almost certainly want the first:
 xcopy /E /I skills\voice-setup "%USERPROFILE%\.claude\skills\voice-setup"
 ```
 
-The result must be `...\skills\voice-setup\SKILL.md` — one folder per skill, with the file
-named exactly `SKILL.md`.
+```bash
+mkdir -p ~/.claude/skills/voice-setup
+cp skills-macos/voice-setup/SKILL.md ~/.claude/skills/voice-setup/
+```
+
+The result must be `.../skills/voice-setup/SKILL.md` — one folder per skill, with the file
+named exactly `SKILL.md`. Install the one for your platform; they are the same skill with
+different instructions, and the installers already do this for you.
 
 **Restart Claude Code.** Skills are read at session start, so a newly added one is not visible
 in a session that was already running.
@@ -229,14 +309,27 @@ restart are how Claude Code skills work generally.
 
 ## Status
 
+**Windows**
+
 - **JAWS** (`FreedomSci.JawsApi` COM) — verified working.
 - **NVDA** (`nvdaControllerClient.dll`) — verified working, on NVDA 2026.1.1. Two things to
   know: the DLL **does not ship with NVDA** (it comes from NV Access's controller-client
   package), and it must match the architecture of **PowerShell**, not of NVDA. See
   [SCREEN-READERS.md](SCREEN-READERS.md).
 - **OneCore** and **SAPI** voices — verified working.
-- Windows only for the PowerShell scripts. `SETUP.md` has a shorter macOS/Linux version using
-  `say` / `spd-say`.
+
+**macOS**
+
+- **VoiceOver** (AppleScript `output`) — verified working, including Eloquence and Control to
+  interrupt. Needs one checkbox; see [VOICEOVER.md](VOICEOVER.md).
+- **`say` voices** — verified working.
+- Verified on exactly one machine: Apple silicon, macOS 27, one Claude Code version. The
+  installer was exercised against fresh installs, merging into an existing settings file,
+  adding alongside someone else's Stop hook, repeat runs, and malformed JSON — but never on
+  anyone else's setup.
+- Needs `jq` and `perl`. Both ship with macOS 15 and later; on 13 or 14, `brew install jq`.
+
+**Linux** — nothing. `SETUP.md` has an `spd-say` sketch that has never been run.
 
 ## Design notes
 
@@ -252,4 +345,26 @@ Things that were not obvious and cost time to find:
   an accessibility defect, not a feature.
 - **The engine always falls through** to another route if the configured one is unavailable.
   Consequence: a clean exit only means *something* spoke, not that your chosen route was used.
-  Verify by listening.
+  Verify by listening, or read `last-route.log`.
+- **VoiceOver's `output` fails silently when AppleScript control is off.** Exit status 0, no
+  error, and property queries like `get version` keep answering — so the probe cannot tell the
+  difference and neither can anything else. An hour went into debugging a config that was
+  correct the whole time. It is now the first line of every macOS troubleshooting list here.
+- **Eloquence is unreachable outside VoiceOver on macOS.** It is absent from `say -v '?'` and
+  ships no assets on disk. The confusing part is that `say` *does* list Reed, Shelley, Bobby
+  and Rocko — Apple novelty voices that happen to share names with Eloquence variants, and
+  sound nothing like them.
+- **An apostrophe inside a single-quoted `jq` program ends the program.** `VoiceOver's` in a
+  note string broke `speak-voices.sh` in a way whose error message pointed at a line five below
+  the actual fault.
+- **`say -v '?'` pads the voice name to a fixed column**, so a long name leaves exactly *one*
+  space before the locale. Parsing on a run of two-or-more spaces looks right, works on most
+  lines, and silently drops 160 of 422 voices — Samantha included. Parse from the right.
+- **jq's `//` treats `false` as absent.** `.interrupt // empty` reads back as the default on
+  `"interrupt": false`, so a boolean setting can appear to work while being impossible to
+  turn off.
+- **`shift 2` with one argument left is a no-op in bash 3.2**, which is the only bash on macOS.
+  In an option-parsing `while` loop that is an infinite spin, not an error.
+- **bash slices strings by byte unless the locale is UTF-8**, and a hook inherits whatever
+  environment the terminal had. `maxChars` cut mid-codepoint and produced bytes the synthesiser
+  refused, which presents as silence rather than as a mangled word.
