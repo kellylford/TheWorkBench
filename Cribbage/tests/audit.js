@@ -20,7 +20,14 @@ for (const dir of [path.join(root, 'node_modules'), path.join(root, '..', 'sheep
 }
 if (!puppeteer) { console.log('SKIP: puppeteer not installed'); process.exit(0); }
 
-const PAGE = pathToFileURL(path.join(root, 'index.html')).href;
+/* Both pages, not just the game. rules.html went unmeasured for months, which is
+ * exactly why it was still missing a main landmark, a skip link and table
+ * captions long after the game had all three. A page nothing looks at is a page
+ * that quietly rots. */
+const PAGES = [
+  { name: 'game', url: pathToFileURL(path.join(root, 'index.html')).href, deal: true },
+  { name: 'rules', url: pathToFileURL(path.join(root, 'rules.html')).href, deal: false }
+];
 const SIZES = [
   { label: 'phone small', w: 320, h: 568 },
   { label: 'phone', w: 390, h: 844 },
@@ -145,33 +152,54 @@ const MEASURE = () => {
     worstOverlap: Math.round(worstOverlap), overlapWhere,
     minTap: minTap === Infinity ? 0 : minTap, tapWho: String(tapWho).slice(0, 24),
     dupIds, headingJumps,
-    hasSkipLink: !!document.querySelector('a[href^="#"]')
+    hasSkipLink: !!document.querySelector('a[href^="#"]'),
+    hasMain: !!document.querySelector('main, [role="main"]'),
+    // A table with no caption is anonymous in a screen reader's table list, and
+    // headers with no scope leave the cell-to-header association to guesswork.
+    tablesNoCaption: [...document.querySelectorAll('table')]
+      .filter(t => !t.querySelector('caption')).length,
+    thNoScope: [...document.querySelectorAll('th')]
+      .filter(t => !t.getAttribute('scope') && !t.getAttribute('headers')).length,
+    // Emoji and arrows inside a link land in its accessible name.
+    glyphLinks: [...document.querySelectorAll('a')]
+      .filter(a => {
+        const own = [...a.childNodes].filter(n => n.nodeType === 3).map(n => n.textContent).join('');
+        return /[←-⇿☀-➿️]|[\uD83C-\uDBFF][\uDC00-\uDFFF]/.test(own);
+      })
+      .map(a => a.textContent.trim().slice(0, 30))
   };
 };
 
 (async () => {
   const browser = await puppeteer.launch({ headless: 'new', args: ['--no-sandbox'] });
-  console.log('size          font  overflow  cards  cardW×H   ratio  overlap  minTap');
+  console.log('page   size          font  overflow  cards  cardW×H   ratio  overlap  minTap');
 
+  for (const pg of PAGES) {
   for (const size of SIZES) {
     for (const font of FONTS) {
       const page = await browser.newPage();
       await page.setViewport({ width: size.w, height: size.h });
-      await page.goto(PAGE + '?cb=' + Date.now(), { waitUntil: 'load' });
+      await page.goto(pg.url + '?cb=' + Date.now(), { waitUntil: 'load' });
       await page.evaluate(f => { document.documentElement.style.fontSize = f + 'px'; }, font);
       await new Promise(r => setTimeout(r, 150));
-      const dealt = await deal(page);
+      const dealt = pg.deal ? await deal(page) : true;
       const m = await page.evaluate(MEASURE);
 
       const ratio = m.cardW ? (m.cardH / m.cardW).toFixed(2) : '-';
       console.log(
+        pg.name.padEnd(6),
         size.label.padEnd(13), String(font).padStart(4), String(m.overflow).padStart(9),
         String(m.cardCount).padStart(6), (m.cardW + '×' + m.cardH).padStart(9),
         String(ratio).padStart(7), String(m.worstOverlap).padStart(8), String(m.minTap).padStart(7),
         m.overlapWhere ? '  ' + m.overlapWhere : '');
 
-      const at = size.label + ' @' + font + 'px';
+      const at = pg.name + ' ' + size.label + ' @' + font + 'px';
       if (!dealt) note('warn', 'harness', at + ': could not reach a dealt hand');
+      if (!m.hasMain) note('fail', 'structure', at + ': no main landmark');
+      if (m.tablesNoCaption) note('fail', 'structure', at + ': ' + m.tablesNoCaption + ' table(s) without a caption');
+      if (m.thNoScope) note('fail', 'structure', at + ': ' + m.thNoScope + ' table header(s) without scope');
+      m.glyphLinks.forEach(t => note('fail', 'structure',
+        at + ': emoji or arrow inside link text — "' + t + '"'));
       if (m.overflow > 1) note('fail', 'layout', at + ': horizontal overflow ' + m.overflow + 'px');
       if (m.worstOverlap > 4) note('fail', 'cards', at + ': card internals overlap (' + m.overlapWhere + ')');
       if (m.cardW && m.cardW < 40) note('fail', 'cards', at + ': cards only ' + m.cardW + 'px wide');
@@ -186,6 +214,7 @@ const MEASURE = () => {
       if (!m.hasSkipLink) note('warn', 'structure', at + ': no skip link');
       await page.close();
     }
+  }
   }
   await browser.close();
 
