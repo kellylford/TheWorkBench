@@ -78,6 +78,9 @@ jobs:
       - name: Randomness
         run: node tests/randomness.js
 
+      - name: Rendered appearance
+        run: node tests/appearance.js
+
   cribbage:
     name: Cribbage
     runs-on: ubuntu-latest
