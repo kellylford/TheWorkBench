@@ -137,9 +137,9 @@ no-tricks paying 2, the wrong cards removed at four players, the wrong partner c
 
 ## 2. Invariants and simulation — is it self-consistent?
 
-**Sheephead only.** Cribbage has `simulate.js`, which plays full games to 121 against a
-deliberately plain baseline opponent and reports win rates — useful for balance, but it asserts
-nothing. Cribbage still has no invariant suite; see *Known gaps*.
+Both games now have this layer. Cribbage also has `simulate.js`, which plays full games to 121
+against a deliberately plain baseline opponent and reports win rates — useful for balance, but it
+asserts nothing.
 
 | Suite | Scale | Guards |
 |---|---|---|
@@ -147,6 +147,7 @@ nothing. Cribbage still has no invariant suite; see *Known gaps*.
 | `hidden-information.js` | ~19,000 hands | Nothing observable changes on whether the picker is secretly alone; identical wording, identical opponent inference, correct reveal on the jack, silence when it is buried |
 | `transcript.js` | 1,800 hands | Per-hand accounting audit — **and deliberately corrupts hands to prove the audit catches them** |
 | `doublers.js` | ~1,000 hands | House rules played out to a scored result; zero-sum with doublers on |
+| `Cribbage/tests/invariants.js` | 1,200 games | Scores never move backwards, every game terminates and ends past 121, the deal alternates, no card is in two places at once, the count never passes 31, and the engine REFUSES an over-31 card, a repeat card and an out-of-turn play — offered on purpose, because a driver that only ever plays legal cards is testing its own filter |
 | `balance.js` | 144,000 hands | Pick rate, picker win rate, expected value. Used to tune `PICK_BASE`; not in `npm test` |
 
 `transcript.js` is the model to copy: it does not merely run the audit, it **breaks things on
@@ -260,8 +261,6 @@ Listed because an undocumented gap reads as coverage.
 - **The AI is weak.** Over 300 full games it wins 38% against a baseline that discards its two
   lowest cards and always plays its highest legal one. `simulate.js` measures this; nothing asserts
   on it, because what the right number is, is a design decision rather than a correctness one.
-- **No invariant or long-run simulation.** Nothing plays thousands of games checking that scores
-  stay sane, that a game always terminates, or that the board never disagrees with the score.
 - **The play-phase reset lives in the UI.** `currentCount = 0` and `playedPile = []` after a 31 or a
   go happen in `GameUI.handleContinue`, not in the engine, so anything headless has to replicate it.
   `simulate.js` does, in a function named `resumeAfterPause`, which is the one place it has to know
