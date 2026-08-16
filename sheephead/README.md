@@ -69,7 +69,7 @@ therefore playing alone. Only ever about your own position, never anyone else's.
 but not while you are in a text field, reading the help, or reading back through the log. The
 announcement still tells you it is your turn. You can turn the behaviour off entirely in setup.
 
-**Pace is configurable, in real seconds.** Opponent turns can advance instantly, after five seconds,
+**Pace is configurable, in real seconds.** Opponent turns can advance instantly, after four seconds,
 after ten seconds, or only when you press Continue. The timed settings are a ceiling rather than a
 wait you are held to — Continue is on screen there as well, and taking it drops the pending pause.
 Every setting except instant announces each play on its own as it happens, because there is time for

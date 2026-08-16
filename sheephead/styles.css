@@ -103,6 +103,18 @@ body {
 main { padding: 1rem clamp(1rem, 4vw, 2rem) 4rem; max-width: 88rem; }
 main:focus { outline: none; }
 
+/* The way back to the other games. Sized in rem like everything else, and it is
+ * an ordinary link with an ordinary underline: it is the last thing on the page
+ * and the last thing anyone tabs to, so it should not need explaining. */
+.site-footer {
+  padding: 0 clamp(1rem, 4vw, 2rem) 2rem;
+  max-width: 88rem;
+  border-top: 1px solid var(--line);
+  margin-top: 1rem;
+  padding-top: 1rem;
+}
+.site-footer a { color: var(--accent); font-weight: 600; }
+
 h2 { font-size: 1.3rem; margin: 1.25rem 0 .5rem; }
 h3 { font-size: 1.05rem; margin: 1rem 0 .35rem; text-transform: uppercase; letter-spacing: .06em; color: var(--ink-dim); }
 
@@ -591,11 +603,36 @@ dialog::backdrop { background: rgba(0,0,0,.65); }
   box-shadow: inset 0 .1rem .6rem rgba(0,0,0,.35);
 }
 
-/* Cards in the trick: a real face beside the player's name. The name text stays
- * in the DOM untouched; only the written-out card name is moved off screen,
- * because the face already says it. */
+/* Cards in the trick: a real face beside the player's name. The player name
+ * stays in the DOM untouched; only the written-out card name is moved off
+ * screen, because the face is supposed to say it — which means the face has to
+ * actually say it.
+ *
+ * It did not. A played card is barely half the width of one in your hand, and
+ * the full pip layout does not survive the reduction: measured, the corner suit
+ * came out at 6.4px on a desktop and 4.6px on a phone. At that size a heart, a
+ * diamond and a club are three coloured blobs, and that is exactly what players
+ * reported — while saying the cards revealed at the end of a hand were fine,
+ * which is the tell, because those are full size.
+ *
+ * So a mini card drops the pips and the corner indices and carries one large
+ * rank and one large suit instead. Sized in cqw like everything else inside a
+ * card, so it holds up at any width. */
 .trick .mini { display: none; }
-.skin-traditional .trick .mini { display: flex; width: clamp(2.6rem, 11vw, 3.4rem); }
+.skin-traditional .trick .mini {
+  display: flex;
+  width: clamp(2.6rem, 11vw, 3.4rem);
+  /* Padding stays in rem. An element with container-type is a container for its
+   * DESCENDANTS, not for itself, so `padding: 3cqw` here resolves against the
+   * viewport instead — which blew a 54px card up to 80px the first time this
+   * rule was written. Third time this trap has been sprung in this repo. */
+  padding: .2rem;
+}
+.skin-traditional .trick .mini .idx,
+.skin-traditional .trick .mini .face { display: none; }
+.skin-traditional .trick .mini .simple { display: flex; gap: 1cqw; }
+.skin-traditional .trick .mini .rank { font-size: 1.1rem; font-size: 40cqw; font-weight: 800; }
+.skin-traditional .trick .mini .suit { font-size: 1rem; font-size: 38cqw; }
 .skin-traditional .trick .what {
   position: absolute; width: 1px; height: 1px;
   padding: 0; margin: -1px; overflow: hidden;

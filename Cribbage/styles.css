@@ -545,3 +545,10 @@ body {
 .footer-links a.issue-link {
     color: #1a4dbb;
 }
+
+/* The way back to the other games. Same colour as the rules link, which is the
+ * darker of the two and comfortably past AA on this background. */
+.footer-links a.hub-link {
+    color: #0d3a6b;
+    font-weight: bold;
+}
