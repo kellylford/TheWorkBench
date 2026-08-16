@@ -539,15 +539,15 @@ async function manualPacing() {
  * under the player between opponent turns, and left alone the game still moves
  * on by itself. */
 async function timedPacing() {
-  const { window, d } = await boot({ players: 5, pace: 5000 });
+  const { window, d } = await boot({ players: 5, pace: 4000 });
   const conts = () => [...d.querySelectorAll('#actions button')].find(b => /^Continue/.test(b.textContent));
   const logLen = () => d.querySelectorAll('#log li').length;
   const headingText = () => d.getElementById('action-h').textContent;
 
   // The options offered must be exactly the four the settings screen documents.
   const opts = [...d.getElementById('opt-pace').options].map(o => o.value);
-  check(opts.join(',') === '0,5000,10000,-1',
-    'the pace options are no longer instant / 5s / 10s / manual: ' + opts.join(','));
+  check(opts.join(',') === '0,4000,10000,-1',
+    'the pace options are no longer instant / 4s / 10s / manual: ' + opts.join(','));
 
   // One log entry per card played, so this counts turns taken exactly. Log
   // length as a whole does not: a completed trick adds entries of its own.
@@ -562,15 +562,15 @@ async function timedPacing() {
       // Unlike manual mode, a timed pause does need a word of explanation beside
       // the button — otherwise a Continue button on a game that advances by
       // itself just looks like a mistake.
-      if (/five seconds/i.test(d.getElementById('actions').textContent)) sawNote++;
+      if (/four seconds/i.test(d.getElementById('actions').textContent)) sawNote++;
       headingsSeen.add(headingText());
 
       // Once, part way in, leave it alone and check the pause really does expire
       // on its own rather than the game sitting there waiting for a press.
       if (steps === 3 && !autoAdvanced) {
         const before = logLen();
-        await new Promise(r => setTimeout(r, 5600));
-        check(logLen() > before, 'a five second pace never advanced on its own after 5.6 seconds');
+        await new Promise(r => setTimeout(r, 4600));
+        check(logLen() > before, 'a four second pace never advanced on its own after 4.6 seconds');
         autoAdvanced++;
         continue;
       }
@@ -586,7 +586,7 @@ async function timedPacing() {
 
       /* Assert on the button and on focus HERE, while the state being described
        * is still the state on screen. The cancellation check below waits out a
-       * whole five second pause, and the game quite correctly moves on during
+       * whole four second pause, and the game quite correctly moves on during
        * it — so doing these afterwards made this test fail perhaps one run in
        * three, with a message that blamed the app for something the test had
        * caused by looking too late. Capture and assert in the same breath. */
@@ -600,7 +600,7 @@ async function timedPacing() {
 
       /* Taking Continue has to CANCEL the pause that was already running, not
        * just jump the queue in front of it. A stale timer does not show up
-       * quickly — it is still armed for its original five second deadline — so
+       * quickly — it is still armed for its original four second deadline — so
        * the only way to see it is to take the step and then wait that deadline
        * out. One press plus one expired pause is two turns. A stale timer makes
        * it three.
@@ -610,7 +610,7 @@ async function timedPacing() {
        * is worth remembering: a test that cannot fail is not evidence. */
       if (!timerChecked && contAfter && plays() === beforePlays + 1) {
         const mark = plays();
-        await new Promise(r => setTimeout(r, 5600));
+        await new Promise(r => setTimeout(r, 4600));
         const gained = plays() - mark;
         check(gained <= 1,
           'after taking Continue, ' + gained + ' more turns were played in one pause instead of 1 — ' +

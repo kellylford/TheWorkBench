@@ -34,9 +34,11 @@
    * v2: default pace moved from fast to relaxed.
    * v3: pace became real seconds. The old 400 and 900 millisecond values are not
    *     options any more, so a stored one would leave the select with no matching
-   *     option at all — the bump is doing real work here, not just a default. */
-  var STORE_KEY = 'sheephead.settings.v3';
-  var OLD_STORE_KEYS = ['sheephead.settings.v1', 'sheephead.settings.v2'];
+   *     option at all — the bump is doing real work here, not just a default.
+   * v4: the default pause came down from five seconds to four. Same reasoning as
+   *     v3: 5000 is no longer offered, so a stored one has to be retired. */
+  var STORE_KEY = 'sheephead.settings.v4';
+  var OLD_STORE_KEYS = ['sheephead.settings.v1', 'sheephead.settings.v2', 'sheephead.settings.v3'];
   var DIALOGS = ['rules-dialog', 'a11y-dialog', 'export-dialog', 'bug-dialog', 'settings-dialog'];
 
   function anyDialogOpen() {
@@ -127,7 +129,7 @@
 
   var DEFAULTS = {
     name: 'You', numPlayers: 5, allPass: 'leaster', difficulty: 'normal',
-    pace: 5000, verbose: true, autofocus: true, skin: 'traditional', layout: 'one',
+    pace: 4000, verbose: true, autofocus: true, skin: 'traditional', layout: 'one',
     blackQueenDoubler: false, redQueenDoubler: false, redealDoubler: false
   };
 
@@ -176,15 +178,14 @@
   }
 
   var PACE_NAMES = {
-    '0': 'Instant pace', '5000': 'Five seconds between plays',
+    '0': 'Instant pace', '4000': 'Four seconds between plays',
     '10000': 'Ten seconds between plays', '-1': 'Manual pace'
   };
 
   /* How long a pause is, said the way a person would say it. */
+  var PACE_WORDS = { '4000': 'four seconds', '10000': 'ten seconds' };
   function paceWords() {
-    return settings.pace === 5000 ? 'five seconds'
-      : settings.pace === 10000 ? 'ten seconds'
-        : Math.round(settings.pace / 1000) + ' seconds';
+    return PACE_WORDS[String(settings.pace)] || Math.round(settings.pace / 1000) + ' seconds';
   }
 
   function renderSettingsSummary() {
