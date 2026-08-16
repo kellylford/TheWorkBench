@@ -131,6 +131,20 @@ const tickOver = () => new Promise(r => setTimeout(r, 0));
  * announced again; wait past that before reading the region. */
 const settleAlert = () => new Promise(r => setTimeout(r, 120));
 
+/* Poll until a condition holds, up to a deadline. Anywhere a test would
+ * otherwise sleep for "about as long as the thing should take", this is the
+ * honest version: it survives a loaded CI runner without slowing a quiet
+ * machine down, and a timeout says the thing never happened rather than that it
+ * was merely late. */
+async function waitFor(cond, timeoutMs, stepMs) {
+  const deadline = Date.now() + timeoutMs;
+  for (;;) {
+    if (cond()) return true;
+    if (Date.now() > deadline) return false;
+    await new Promise(r => setTimeout(r, stepMs || 50));
+  }
+}
+
 function cards(d) { return [...d.querySelectorAll('#hand .card')]; }
 function legalCards(d) { return cards(d).filter(c => c.getAttribute('aria-disabled') !== 'true'); }
 function actionButtons(d) { return [...d.querySelectorAll('#actions button')]; }
@@ -567,10 +581,14 @@ async function timedPacing() {
 
       // Once, part way in, leave it alone and check the pause really does expire
       // on its own rather than the game sitting there waiting for a press.
+      //
+      // Polled to a generous deadline rather than slept for a fixed 4.6 seconds:
+      // this has to pass on a shared CI runner as well as on a quiet laptop, and
+      // "the timer had not fired yet" is not the failure this is looking for.
       if (steps === 3 && !autoAdvanced) {
         const before = logLen();
-        await new Promise(r => setTimeout(r, 4600));
-        check(logLen() > before, 'a four second pace never advanced on its own after 4.6 seconds');
+        const moved = await waitFor(() => logLen() > before, 15000);
+        check(moved, 'a four second pace never advanced on its own, even after 15 seconds');
         autoAdvanced++;
         continue;
       }
@@ -610,12 +628,23 @@ async function timedPacing() {
        * is worth remembering: a test that cannot fail is not evidence. */
       if (!timerChecked && contAfter && plays() === beforePlays + 1) {
         const mark = plays();
-        await new Promise(r => setTimeout(r, 4600));
+        // Wait until SOMETHING happens rather than for a fixed span, then look at
+        // how much happened. A stale timer and the fresh one were armed within
+        // milliseconds of each other, so if the cancellation is missing both land
+        // in the same breath and the count is 2 or more the first time it moves.
+        // Polling this way keeps the check sharp while surviving a slow runner.
+        const moved = await waitFor(() => plays() > mark, 15000);
+        // Then let it settle before counting. A stale timer and the fresh one
+        // were armed within milliseconds of each other, so polling alone can
+        // catch the state BETWEEN the two and see a tidy 1 — which is exactly
+        // what happened to the first version of this, and it let the deliberate
+        // regression through. Wait for the second one to land, then count.
+        await new Promise(r => setTimeout(r, 500));
         const gained = plays() - mark;
+        check(moved, 'the pause that follows a Continue never expired, even after 15 seconds');
         check(gained <= 1,
-          'after taking Continue, ' + gained + ' more turns were played in one pause instead of 1 — ' +
+          'after taking Continue, ' + gained + ' turns were played in a single pause instead of 1 — ' +
           'the pause that was already running was not cancelled');
-        check(gained === 1, 'the pause that follows a Continue never expired');
         timerChecked++;
       }
       continue;

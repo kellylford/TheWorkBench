@@ -23,8 +23,14 @@ const SCENES = [
   const failures = [];
   let measured = 0;
 
+  /* Both colour schemes. This used to test whichever one the machine happened to
+   * default to, so an entire palette went unmeasured — and CI, defaulting the
+   * other way, found unreadable text in the trick area on its very first run.
+   * A theme nothing measures is a theme you ship without knowing. */
+  for (const scheme of ['light', 'dark']) {
   for (const scene of SCENES) {
     const page = await browser.newPage();
+    await page.emulateMediaFeatures([{ name: 'prefers-color-scheme', value: scheme }]);
     await page.setViewport({ width: 1280, height: 900 });
     await page.goto(pathToFileURL(path.join(root, 'index.html')).href + '?cb=' + Date.now(),
       { waitUntil: 'load' });
@@ -117,9 +123,10 @@ const SCENES = [
 
     results.forEach(r => {
       measured++;
-      if (r.ratio < r.need) failures.push({ scene: scene.label, ...r });
+      if (r.ratio < r.need) failures.push({ scene: scheme + ' / ' + scene.label, ...r });
     });
     await page.close();
+  }
   }
   await browser.close();
 
@@ -132,13 +139,15 @@ const SCENES = [
   });
   const list = [...worst.values()].sort((a, b) => a.ratio - b.ratio);
 
-  console.log(measured + ' text elements measured across ' + SCENES.length + ' screens');
+  console.log(measured + ' text elements measured across ' + SCENES.length +
+    ' screens in both colour schemes');
   if (list.length) {
     console.log('\nBELOW WCAG AA:');
-    console.log('ratio  need  size  element                         text');
+    console.log('ratio  need  size  where              element                    text');
     list.forEach(f => console.log(
       String(f.ratio).padStart(5), String(f.need).padStart(5), String(f.size).padStart(5),
-      ' ' + f.sel.padEnd(30).slice(0, 30), ' ' + f.text));
+      ' ' + String(f.scene).padEnd(18).slice(0, 18),
+      ' ' + f.sel.padEnd(26).slice(0, 26), ' ' + f.text));
     process.exit(1);
   }
   console.log('\nAll visible text meets WCAG AA for its size.');

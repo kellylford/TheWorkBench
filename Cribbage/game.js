@@ -152,19 +152,27 @@ class CribbageGame {
     cutForDeal() {
         if (this.state !== 'CUT_FOR_DEAL') return;
 
-        const deck1 = new Deck();
-        const deck2 = new Deck();
-        
-        const playerCut = deck1.deal();
-        const computerCut = deck2.deal();
+        // Both players cut the SAME deck, as they would at a table. This used to
+        // build two decks and take one card from each, which meant both could cut
+        // the identical card — you and the computer both showing the jack of
+        // hearts, which is not a thing that can happen — and pushed the tie rate
+        // from 3/51 to 4/52.
+        const deck = new Deck();
+        const playerCut = deck.deal();
+        const computerCut = deck.deal();
 
         this.addMessage(`You cut: ${playerCut}`);
         this.addMessage(`Computer cut: ${computerCut}`);
 
-        if (playerCut.value < computerCut.value) {
+        // Compared by RANK, not by counting value. The rules say "the player with
+        // the lowest card becomes the first dealer", and a ten is lower than a
+        // jack — but `value` caps at ten, so a ten, jack, queen and king were all
+        // equal here. That made a tie 13% likely instead of the 5.9% it should
+        // be, and made "lowest card" mean something the rules page does not say.
+        if (playerCut.rankValue < computerCut.rankValue) {
             this.dealer = this.player;
             this.addMessage('You are the dealer!');
-        } else if (computerCut.value < playerCut.value) {
+        } else if (computerCut.rankValue < playerCut.rankValue) {
             this.dealer = this.computer;
             this.addMessage('Computer is the dealer.');
         } else {

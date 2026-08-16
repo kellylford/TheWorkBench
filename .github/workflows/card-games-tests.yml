@@ -1,0 +1,122 @@
+name: Card game tests
+
+# Runs both card games' suites on GitHub's machines rather than on a
+# contributor's. That is not only tidiness: the browser-driven suites launch real
+# headless Chrome across several viewports, and on a machine where somebody is
+# listening to a screen reader, that CPU spike is heard.
+#
+# Scoped by path so unrelated projects in this repo do not trigger a card game
+# test run, and vice versa.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'sheephead/**'
+      - 'Cribbage/**'
+      - '.github/workflows/card-games-tests.yml'
+  pull_request:
+    paths:
+      - 'sheephead/**'
+      - 'Cribbage/**'
+      - '.github/workflows/card-games-tests.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# A newer push to the same branch makes an in-flight run pointless.
+concurrency:
+  group: card-games-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  sheephead:
+    name: Sheephead
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    defaults:
+      run:
+        working-directory: sheephead
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      # Neither package.json declares dependencies — the games ship with none,
+      # and the tests skip cleanly without them so a contributor can run the
+      # pure-Node suites on a bare checkout. That is the right behaviour locally
+      # and exactly the wrong behaviour here, so CI installs them explicitly and
+      # then refuses to accept a skip. See the guard step below.
+      - name: Install test dependencies
+        run: npm install --no-save jsdom puppeteer
+
+      - name: Rules oracle
+        run: npm run test:rules
+
+      - name: Full suite
+        run: npm test
+
+      # A suite that skips is a suite that proved nothing. Locally that prints a
+      # SKIP line and exits 0, which is friendly; here it would be a green tick
+      # over an empty run — the same shape of lie as a piped exit code.
+      - name: Fail if anything skipped
+        run: |
+          set -euo pipefail
+          npm test 2>&1 | tee /tmp/out.txt
+          if grep -q '^SKIP' /tmp/out.txt; then
+            echo "::error::A test suite skipped instead of running. CI must not report success on a skip."
+            grep '^SKIP' /tmp/out.txt
+            exit 1
+          fi
+
+      - name: Layout across viewports
+        run: npm run test:layout
+
+      - name: Randomness
+        run: node tests/randomness.js
+
+  cribbage:
+    name: Cribbage
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    defaults:
+      run:
+        working-directory: Cribbage
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install test dependencies
+        run: npm install --no-save puppeteer
+
+      - name: Rules oracle
+        run: npm run test:rules
+
+      - name: Full suite
+        run: npm test
+
+      - name: Fail if anything skipped
+        run: |
+          set -euo pipefail
+          npm test 2>&1 | tee /tmp/out.txt
+          if grep -q '^SKIP' /tmp/out.txt; then
+            echo "::error::A test suite skipped instead of running. CI must not report success on a skip."
+            grep '^SKIP' /tmp/out.txt
+            exit 1
+          fi
+
+      - name: Randomness
+        run: node tests/randomness.js
+
+      # Not an assertion, just a number worth having in the log: the computer's
+      # win rate against a deliberately plain baseline opponent. A sharp move in
+      # it after an AI change is a signal even though nothing here fails on it.
+      - name: Balance (informational)
+        run: node simulate.js 200
+        continue-on-error: true

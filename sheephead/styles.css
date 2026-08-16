@@ -648,8 +648,21 @@ dialog::backdrop { background: rgba(0,0,0,.65); }
   border-color: rgba(255,255,255,.14);
 }
 .skin-traditional .trick li.winning { border-color: var(--good); }
+
+/* These tiles sit on dark green felt in BOTH colour schemes, so their text
+ * cannot take its colour from --ink, --ink-dim or --good: those flip to dark
+ * values in light mode, and the felt does not. In light mode the card names,
+ * the "winning so far" flag and the empty-trick line were therefore dark text on
+ * dark green — measured as low as 1.08:1 against a 4.5 requirement.
+ *
+ * `.who` was already pinned to a fixed light colour for exactly this reason. The
+ * rest were not, and nothing noticed because the contrast test only ever ran in
+ * whichever scheme the machine defaulted to. It now runs in both. */
+.skin-traditional .trick li,
+.skin-traditional .trick .what { color: #f2f7f4; }        /* 7.7:1 on the felt */
+.skin-traditional .trick .empty { color: #cfe0d6; }       /* 6.1:1 */
 .skin-traditional .trick .who { text-align: center; color: #dfeae4; }
-.skin-traditional .trick .flag { text-align: center; }
+.skin-traditional .trick .flag { text-align: center; color: #8ce8a4; }   /* 5.7:1 */
 
 /* Opponents, shown as a fan of face-down cards. Purely decorative: the players
  * table carries the same information for assistive technology, so this whole
