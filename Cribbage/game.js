@@ -1344,27 +1344,24 @@ class GameUI {
             cardElement.setAttribute('aria-setsize', this.game.player.hand.length);
             cardElement.setAttribute('aria-posinset', index + 1);
             
-            // Handle selection state for discard phase
-            if (this.game.state === 'DISCARD' && this.game.selectedForDiscard.has(index)) {
-                cardElement.classList.add('selected');
-                cardElement.setAttribute('aria-pressed', 'true');
-            } else {
-                cardElement.setAttribute('aria-pressed', 'false');
-            }
-            
+            // A card is a control here, and aria-pressed is only honest while
+            // choosing cards for the crib — that is the one phase where a card is
+            // pressed and unpressed rather than played once and gone.
+            const choosing = this.game.state === 'DISCARD';
+            const selected = choosing && this.game.selectedForDiscard.has(index);
+            this.makeCardInteractive(cardElement, { toggle: choosing, pressed: selected });
+            if (selected) cardElement.classList.add('selected');
+
             if (this.game.player.playedCards.includes(card)) {
                 cardElement.classList.add('played');
             }
-            
+
             if (index === this.currentCardIndex) {
                 cardElement.classList.add('focused');
                 // Make current card tabbable (roving tabindex pattern)
                 cardElement.setAttribute('tabindex', '0');
-            } else {
-                // Other cards not in tab order but can receive programmatic focus
-                cardElement.setAttribute('tabindex', '-1');
             }
-            
+
             cardElement.addEventListener('click', () => this.handleCardAction(index));
             this.elements.playerHand.appendChild(cardElement);
         });
@@ -1421,13 +1418,12 @@ class GameUI {
     }
 
     /* Face up, and deliberately not a button: during review these cards are
-     * there to be read, not played, so they should not be announced as
-     * something you can activate. */
+     * there to be read, not played, so they must not be announced as something
+     * you can activate. That is now simply what createCardElement returns —
+     * this used to have to strip the role, the tabindex and the aria-pressed
+     * back off again, which is the shape of a default pointing the wrong way. */
     createRevealedCard(card) {
         const el = this.createCardElement(card, true);
-        el.setAttribute('role', 'img');
-        el.removeAttribute('aria-pressed');
-        el.removeAttribute('tabindex');
         el.classList.add('review');
         return el;
     }
@@ -1442,10 +1438,20 @@ class GameUI {
         });
     }
 
+    /* A card you can READ. Nothing here claims to be a control.
+     *
+     * This used to hand back role="button", tabindex and aria-pressed on every
+     * card it made — which meant the played pile offered every card already on
+     * the table as a button to activate, and cards in your hand announced
+     * themselves as "not pressed" all through the play, where nothing can be
+     * toggled and a card is played and gone rather than pressed and unpressed.
+     *
+     * Only renderPlayerHand upgrades a card to a control, and only while one is
+     * genuinely there to be operated. See makeCardInteractive below. */
     createCardElement(card, faceUp) {
         const cardDiv = document.createElement('div');
         cardDiv.className = 'card';
-        
+
         if (!faceUp || !card) {
             cardDiv.classList.add('card-back');
             return cardDiv;
@@ -1462,10 +1468,20 @@ class GameUI {
         `;
         
         cardDiv.setAttribute('aria-label', card.name);
+        cardDiv.setAttribute('role', 'img');
+
+        return cardDiv;
+    }
+
+    /* Turn a readable card into an operable one. `toggle` is for the discard,
+     * where a card really is pressed and unpressed and aria-pressed says
+     * something true; during the play it is left off, because there a card is
+     * played once and gone. */
+    makeCardInteractive(cardDiv, { toggle, pressed }) {
         cardDiv.setAttribute('role', 'button');
         cardDiv.setAttribute('tabindex', '-1');
-        cardDiv.setAttribute('aria-pressed', 'false');
-        
+        if (toggle) cardDiv.setAttribute('aria-pressed', pressed ? 'true' : 'false');
+        else cardDiv.removeAttribute('aria-pressed');
         return cardDiv;
     }
 
@@ -1485,7 +1501,14 @@ class GameUI {
 
     announce(message) {
         this.elements.liveAnnouncer.textContent = message;
-        setTimeout(() => {
+        // One clear timer, reset on every announcement. Each call used to arm its
+        // own, so an older one would fire a second after ITS message and wipe
+        // whatever newer message had arrived in the meantime — announce twice
+        // inside a second and the second one gets cut off part way through being
+        // read. Anyone selecting two cards for the crib in quick succession hit
+        // this every time.
+        clearTimeout(this.announceClearTimer);
+        this.announceClearTimer = setTimeout(() => {
             this.elements.liveAnnouncer.textContent = '';
         }, 1000);
     }

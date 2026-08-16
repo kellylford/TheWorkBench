@@ -93,7 +93,7 @@ jobs:
           node-version: '20'
 
       - name: Install test dependencies
-        run: npm install --no-save puppeteer
+        run: npm install --no-save jsdom puppeteer
 
       - name: Rules oracle
         run: npm run test:rules

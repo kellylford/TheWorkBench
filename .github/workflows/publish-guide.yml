@@ -1,11 +1,27 @@
-name: Publish Guide from Markdown
+name: Publish site
+
+# Despite the original name, this publishes the WHOLE site: it rsyncs the repo
+# into _site and force-pushes that to gh-pages. Converting one markdown file with
+# pandoc is a single step among everything else it carries.
+#
+# It used to trigger only on that one markdown file, which meant every change to
+# either card game had to be published by hand — and a merge by anyone who did
+# not know that left the live site silently behind main. The games are what
+# people actually visit, so they trigger it too.
+#
+# Everything reaching main goes through a pull request and the card game tests
+# run on every pull request, so this is not publishing untested code.
 
 on:
   push:
-    paths:
-      - 'devdocs/CONTROLLING_IPHONE_FROM_MAC.md'
     branches:
       - main
+    paths:
+      - 'devdocs/CONTROLLING_IPHONE_FROM_MAC.md'
+      - 'sheephead/**'
+      - 'Cribbage/**'
+      - 'thecardplace.html'
+      - '.github/workflows/publish-guide.yml'
   workflow_dispatch:
 
 permissions:

@@ -173,7 +173,19 @@ Every one of these exists because of a specific complaint from playing the game:
 - **The Continue button must not be rebuilt between opponent turns** — a fresh element takes focus
   and gets announced again, so twenty hands meant twenty "Continue button".
 
-**Cribbage has no equivalent.** Its announcements, labels and focus behaviour are untested.
+**`Cribbage/tests/ui-dom.js`** does the same for Cribbage, and the checks are deliberately the
+same ones — there is no reason to learn each lesson twice. It found four real defects on its first
+run:
+
+| Defect | Effect |
+|---|---|
+| `createCardElement` returned `role="button"` for every card it made | Every card already on the table was offered as a control to activate |
+| `aria-pressed` set on cards during the play | Each card announced as "not pressed" on a turn where nothing can be toggled |
+| Revealed cards had their control semantics stripped back off | A default pointing the wrong way — readable is the sane default, operable the exception |
+| `announce()` armed a fresh one-second clear timer per call | An older timer wiped a newer message. Selecting two cards for the crib in quick succession cut the second announcement off every time |
+
+The first three share a root cause and were fixed together: a card is now readable by default and
+upgraded to a control only where one genuinely exists.
 
 ### A test that could not fail
 
@@ -245,9 +257,9 @@ Listed because an undocumented gap reads as coverage.
 
 ### Cribbage
 
-- **No interface tests.** No equivalent of `ui-dom.js`: announcements, labels, focus behaviour and
-  keyboard handling are entirely untested. Given that this is the layer the accessibility work lives
-  in, it is the most valuable thing to build next.
+- **The AI is weak.** Over 300 full games it wins 38% against a baseline that discards its two
+  lowest cards and always plays its highest legal one. `simulate.js` measures this; nothing asserts
+  on it, because what the right number is, is a design decision rather than a correctness one.
 - **No invariant or long-run simulation.** Nothing plays thousands of games checking that scores
   stay sane, that a game always terminates, or that the board never disagrees with the score.
 - **The play-phase reset lives in the UI.** `currentCount = 0` and `playedPile = []` after a 31 or a
