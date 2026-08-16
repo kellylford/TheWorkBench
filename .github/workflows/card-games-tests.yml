@@ -114,6 +114,9 @@ jobs:
       - name: Randomness
         run: node tests/randomness.js
 
+      - name: Invariants
+        run: node tests/invariants.js
+
       # Not an assertion, just a number worth having in the log: the computer's
       # win rate against a deliberately plain baseline opponent. A sharp move in
       # it after an AI change is a signal even though nothing here fails on it.
