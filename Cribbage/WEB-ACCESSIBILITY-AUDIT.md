@@ -28,6 +28,73 @@ The Cribbage game demonstrates **strong foundational accessibility** with excell
 
 ---
 
+## Remediation status — August 2026
+
+The audit below is kept as written in March 2026. This section records what has
+since been fixed and, more importantly, **what now guards it**, because an audit
+is a snapshot and a test is a ratchet.
+
+| # | Issue | Status |
+|---|---|---|
+| 1 | Emoji in link text | **Fixed** — emoji removed; decorative arrows on `rules.html` wrapped in `aria-hidden` spans |
+| 2 | Missing skip link | **Fixed** — on both pages |
+| 4 | Missing table captions | **Fixed** — both scoring tables captioned, all `th` given `scope` |
+| 7 | Disabled button contrast | **Fixed** — and exempt under 1.4.3 regardless |
+| 11 | Footer links not in a landmark | **Fixed** — now a named `<nav>` |
+| 12 | Card container placeholder text | **Fixed** — "Container should be ~42px high" removed from all four containers |
+| 13 | Accesskey conflicts | **Fixed** — `Cut` and `Continue` no longer both claim `n` |
+| — | `rules.html` missing main landmark | **Fixed** |
+
+Found by measurement rather than by review, and also fixed:
+
+- **The cards were not card shaped.** 100×40 on desktop, 60×24 on a phone —
+  landscape bars. The March audit scored this project 78/100 without noticing,
+  because it checked ARIA and semantics and never checked geometry.
+- **`rules.html` overflowed horizontally** by 19px on a 320px phone and **135px**
+  at 150% text. Nothing had ever measured that page.
+- **`rules.html` table headers were white on `#3498db` — 3.15:1**, and its
+  buttons white on `#27ae60` — **2.87:1**. Both need 4.5. The same blue had
+  already been fixed in the game; the rules page kept the old one.
+
+### What guards them now
+
+`tests/audit.js` drives a real headless browser over **both pages**, at five
+viewport widths and two text sizes, and fails on: horizontal overflow, card
+geometry and internal collisions, text contrast measured against what is actually
+painted behind it, tap targets under 24px, duplicate ids, heading level jumps, a
+missing main landmark, tables without captions, `th` without scope, and emoji or
+arrows inside link text.
+
+`rules.html` had gone unmeasured entirely until August 2026, which is precisely
+why it was still missing a main landmark, a skip link and table captions long
+after the game had all three. **A page nothing looks at is a page that rots.**
+
+### Still open
+
+- **#3 colour-only play count** — the count is given as text ("Count: 15"), so
+  this is not a 1.4.1 failure as written, but there is still no textual cue when
+  the count approaches 31.
+- **#6, #8, #10, #15, #16** — board focus indicator, redundant ARIA on the board,
+  focus restoration, ARIA descriptions, gradient background.
+- **No interface tests at all.** There is nothing equivalent to Sheephead's
+  `ui-dom.js`: announcements, labels, focus behaviour and keyboard handling are
+  untested. That is the layer this audit is about, and it is the most valuable
+  thing left to build. See `../TESTING.md`.
+
+### Not an accessibility finding, but worth recording here
+
+The rules oracle added in August 2026 found that hands with double, triple or
+quadruple runs had been **scored wrong since the game was written** — 4.9% of all
+hands, under by three to nine points — and that the last card of every play phase
+scored nothing at all.
+
+No accessibility audit would ever have caught either. The game announced its
+wrong answer perfectly clearly, in a well-labelled live region, at better than
+4.5:1 contrast. **It was accessible and wrong**, which for a player relying on
+that announcement is the worse of the two failures.
+
+---
+
 ## Strengths
 
 ✅ **Excellent Keyboard Navigation**

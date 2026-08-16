@@ -9,9 +9,26 @@
         .rules-container {
             max-width: 800px;
             margin: 0 auto;
-            padding: 20px;
+            /* Was a flat 20px. On a 320px phone at 150% text the page overflowed
+               by 135px — measured, not guessed — so the padding gives way before
+               the content does. */
+            padding: clamp(0.6rem, 3vw, 1.25rem);
             background: white;
             border-radius: 8px;
+        }
+
+        /* A wide table scrolls inside its own box rather than pushing the whole
+           page sideways. It stays a real <table> — switching it to display:block
+           to make it scroll would strip the table semantics a screen reader
+           needs. Focusable, because a region you can only reach by scrolling is
+           a region a keyboard cannot reach. */
+        .table-wrap {
+            overflow-x: auto;
+            max-width: 100%;
+        }
+        .table-wrap:focus-visible {
+            outline: 3px solid #1f6391;
+            outline-offset: 2px;
         }
         
         .rules-container h1 {
@@ -43,7 +60,7 @@
         
         .play-button {
             display: inline-block;
-            background: #27ae60;
+            background: #1a7a43;   /* was #27ae60: white on it is 2.87:1, needs 4.5 */
             color: white;
             padding: 15px 30px;
             border-radius: 5px;
@@ -55,7 +72,7 @@
         }
         
         .play-button:hover {
-            background: #229954;
+            background: #145f34;
         }
         
         .example {
@@ -78,20 +95,52 @@
         }
         
         .scoring-table th {
-            background: #3498db;
+            background: #1f6391;   /* was #3498db: white on it is 3.15:1, needs 4.5 */
             color: white;
         }
         
         .scoring-table tr:nth-child(even) {
             background: #f8f9fa;
         }
+
+        /* A caption names the table for anyone listing the tables on the page,
+           where "Combination, Points, Description" twice over says nothing about
+           which is which. Left aligned so it reads as a heading for the table
+           rather than a floating label. */
+        .scoring-table caption {
+            text-align: left;
+            font-weight: bold;
+            color: #2c3e50;
+            padding-bottom: 8px;
+        }
+
+        .rules-footer {
+            margin-top: 30px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .rules-footer .hub-link {
+            color: #0d3a6b;
+            font-weight: bold;
+            text-decoration: underline;
+            /* Padded to clear the 24px minimum target: as a flex item it is
+               blockified, so its own line-height was all it had. */
+            padding: 6px 2px;
+        }
     </style>
 </head>
 <body>
-    <div class="rules-container">
-        <h1>Cribbage Rules & Gameplay</h1>
-        
-        <a href="index.html" class="play-button">← Back to Game</a>
+    <a class="skip-link" href="#rules-content">Skip to main content</a>
+    <main id="rules-content" class="rules-container">
+        <h1>Cribbage Rules &amp; Gameplay</h1>
+
+        <!-- The arrows are decoration. Left in the accessible name they are read
+             as "left arrow Back to Game", or dropped silently, depending on the
+             screen reader — and neither is useful. -->
+        <a href="index.html" class="play-button"><span aria-hidden="true">←</span> Back to Game</a>
         
         <h2>Overview</h2>
         <p>Cribbage is a classic card game for two players. The objective is to be the first player to reach 121 points. Points are scored during play and by forming certain card combinations in your hand.</p>
@@ -123,12 +172,14 @@
         <p>As cards are played, a running total is kept. Face cards (J, Q, K) count as 10, Aces count as 1, and all other cards count as their face value. The count cannot exceed 31.</p>
         
         <h3>Scoring During Play</h3>
-        <table class="scoring-table">
+        <div class="table-wrap" role="region" tabindex="0" aria-labelledby="scoring-caption-1">
+            <table class="scoring-table">
+              <caption id="scoring-caption-1">Points scored during the play, as cards are laid down</caption>
             <thead>
                 <tr>
-                    <th>Combination</th>
-                    <th>Points</th>
-                    <th>Description</th>
+                    <th scope="col">Combination</th>
+                    <th scope="col">Points</th>
+                    <th scope="col">Description</th>
                 </tr>
             </thead>
             <tbody>
@@ -174,6 +225,7 @@
                 </tr>
             </tbody>
         </table>
+            </div>
         
         <div class="example">
             <strong>Example:</strong> If the count is 9 and you play a 6, the count becomes 15 and you score 2 points. If your opponent then plays another 6, they score 2 for the pair plus 2 for reaching 31 (4 points total).
@@ -193,12 +245,14 @@
         <p>Each hand (and the crib) is scored using the 4 cards kept plus the cut card.</p>
         
         <h3>Scoring Combinations in Hands</h3>
-        <table class="scoring-table">
+        <div class="table-wrap" role="region" tabindex="0" aria-labelledby="scoring-caption-2">
+            <table class="scoring-table">
+              <caption id="scoring-caption-2">Points scored when counting a hand or the crib at the end of a round</caption>
             <thead>
                 <tr>
-                    <th>Combination</th>
-                    <th>Points</th>
-                    <th>Description</th>
+                    <th scope="col">Combination</th>
+                    <th scope="col">Points</th>
+                    <th scope="col">Description</th>
                 </tr>
             </thead>
             <tbody>
@@ -239,6 +293,7 @@
                 </tr>
             </tbody>
         </table>
+            </div>
         
         <div class="example">
             <strong>Example Hand:</strong> You have 5♥ 5♦ 5♠ 10♣ and the cut card is 5♣.
@@ -275,7 +330,10 @@
             <li>Miscounting pairs in hands with three or four of a kind</li>
         </ul>
         
-        <a href="index.html" class="play-button">Play Cribbage Now →</a>
-    </div>
+        <nav class="rules-footer" aria-label="Elsewhere">
+            <a href="index.html" class="play-button">Play Cribbage Now <span aria-hidden="true">→</span></a>
+            <a href="../thecardplace.html" class="hub-link">Back to The Card Place</a>
+        </nav>
+    </main>
 </body>
 </html>

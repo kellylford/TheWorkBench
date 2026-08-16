@@ -137,7 +137,9 @@ no-tricks paying 2, the wrong cards removed at four players, the wrong partner c
 
 ## 2. Invariants and simulation — is it self-consistent?
 
-**Sheephead only.** Cribbage has no equivalent yet; see *Known gaps*.
+**Sheephead only.** Cribbage has `simulate.js`, which plays full games to 121 against a
+deliberately plain baseline opponent and reports win rates — useful for balance, but it asserts
+nothing. Cribbage still has no invariant suite; see *Known gaps*.
 
 | Suite | Scale | Guards |
 |---|---|---|
@@ -192,7 +194,7 @@ waits the deadline out, and it does catch the fault.
 | `sheephead/tests/layout.js` | Horizontal overflow, card size and aspect ratio, tap targets, the setup screen, two-column reading order — 6 viewports × 2 font sizes |
 | `sheephead/tests/card-overlap.js` | Every index, pip and court glyph measured for intersection |
 | `sheephead/tests/contrast.js` | Every text element's real colour against what is actually painted behind it, WCAG AA by size |
-| `Cribbage/tests/audit.js` | Overflow, card geometry and collisions, contrast, tap targets, duplicate ids, heading order |
+| `Cribbage/tests/audit.js` | **Both pages** — overflow, card geometry and collisions, contrast, tap targets, duplicate ids, heading order, main landmark, table captions, `th` scope, emoji or arrows in link text |
 
 These found a formal accessibility audit's blind spot: Cribbage scored 78/100 in a review that
 never noticed its cards were **100×40 pixels — landscape bars** — because it checked ARIA and
@@ -248,16 +250,13 @@ Listed because an undocumented gap reads as coverage.
   in, it is the most valuable thing to build next.
 - **No invariant or long-run simulation.** Nothing plays thousands of games checking that scores
   stay sane, that a game always terminates, or that the board never disagrees with the score.
-- **`simulate.js` is a second, unreferenced copy of the entire engine** — its own `Card`, `Deck`,
-  `Player` and `CribbageGame`, 763 lines. It carried the same run-scoring bug, now transcribed
-  across, but the duplication is the real defect: it simulates a *different game* from the one
-  people play, so any conclusion drawn from it is unsound the moment the two drift. It should be
-  deleted or reduced to importing the real engine.
 - **The play-phase reset lives in the UI.** `currentCount = 0` and `playedPile = []` after a 31 or a
-  go happen in `GameUI.handleContinue`, not in the engine, so the engine cannot be driven correctly
-  headlessly without replicating UI behaviour.
-- `WEB-ACCESSIBILITY-AUDIT.md` still lists open items: emoji in link text, missing table captions in
-  `rules.html`.
+  go happen in `GameUI.handleContinue`, not in the engine, so anything headless has to replicate it.
+  `simulate.js` does, in a function named `resumeAfterPause`, which is the one place it has to know
+  something about the interface. Worth moving into the engine.
+- `WEB-ACCESSIBILITY-AUDIT.md` still lists open items — board focus indicator, redundant ARIA,
+  focus restoration, and no textual cue as the count approaches 31. Its remediation-status section
+  records what has been closed and what guards it.
 
 ### Sheephead
 
