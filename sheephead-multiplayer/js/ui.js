@@ -56,6 +56,11 @@
     return false;
   }
 
+  /* Which seat this browser is playing. Zero offline, and it stays a variable
+   * rather than a literal so that the online build has one place to set it
+   * instead of thirty-five. */
+  var mySeat = 0;
+
   var state = null;
   var settings = null;
   var timer = null;
@@ -1406,7 +1411,7 @@
   function buildTranscript() {
     var lines = [].map.call(el.log.children, function (li) { return li.textContent; });
     var head = 'Exported: ' + new Date().toString() + '\n';
-    return head + G.transcript(state, lines);
+    return head + G.transcript(state, mySeat, lines);
   }
 
   function openExport() {
@@ -1578,7 +1583,7 @@
     var text = bugSummary();
     if (el['bug-include-log'].checked && state) {
       var lines = [].map.call(el.log.children, function (li) { return li.textContent; });
-      text += '\n\n### Game log\n\n```\n' + G.transcript(state, lines) + '\n```\n';
+      text += '\n\n### Game log\n\n```\n' + G.transcript(state, mySeat, lines) + '\n```\n';
     }
     return text;
   }

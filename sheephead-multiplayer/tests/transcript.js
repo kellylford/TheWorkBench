@@ -42,7 +42,7 @@ for (const n of [3, 4, 5, 6]) {
   });
   check(st.history.length === 300, `${n}p: expected 300 recorded hands, got ${st.history.length}`);
 
-  const text = G.transcript(st, []);
+  const text = G.transcript(st, 0, []);
   check(/all 300 completed hands add up correctly/.test(text), `${n}p: transcript header did not report a clean check`);
   check(text.split('=== Hand ').length === 301, `${n}p: transcript is missing hands`);
 }
@@ -82,7 +82,7 @@ for (const n of [3, 4, 5, 6]) {
       }
       if (st.phase === 'handOver') continue;
 
-      const text = G.transcript(st, []);
+      const text = G.transcript(st, 0, []);
       const mine = new Set(C.ids(st.players[0].hand));
       const played = new Set(st.played.map(c => c.id));
 

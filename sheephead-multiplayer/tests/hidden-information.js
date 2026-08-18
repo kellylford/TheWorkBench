@@ -1,6 +1,13 @@
 /* Verifies that nothing observable to a non-picker changes based on whether the
  * picker is secretly alone, before the Jack of Diamonds is revealed.
  *
+ * Judged through G.eventsFor(state, seat) — the same audience filter the
+ * projection layer uses — rather than by reading state.events raw. The engine
+ * now addresses private sentences to a seat instead of appending them to a
+ * public string when that seat happens to be human, so "what a bystander sees"
+ * is a real query rather than something this test had to approximate by
+ * skipping the hands where the human was the picker.
+ *
  * Method: run a hand and capture every event message emitted up to the moment of
  * reveal. None of them may contain the words "alone"/"partner is" attributable to
  * a computer picker. Also asserts allyProb for a plain opponent is identical
@@ -58,14 +65,24 @@ for (const n of [4, 5, 6]) {
       const evts = st.events.splice(0, st.events.length);
       if (st.phase === 'handOver') break;   // scoring reveals everything, by design
       if (st.partnerRevealed) break;        // the reveal itself is allowed to say it
-      pre.push(...evts.map(e => e.text));
+      pre.push(...evts);   // whole events, audience and all
     }
     if (st.isLeaster) continue;
-    if (st.picker === 0) continue;   // the human picker is told their own situation on purpose
 
-    const blob = pre.join(' ').toLowerCase();
+    /* Judge from a seat that is not the picker, using the same audience filter
+     * the projection layer uses. This used to skip hands where seat 0 picked,
+     * because the picker was told their own situation and seat 0 was the only
+     * seat that could be told anything. Now that private events are addressed to
+     * a seat rather than to "the human", every hand can be checked from a
+     * bystander's viewpoint — including the ones this test used to throw away. */
+    const viewer = st.picker === 0 ? 1 : 0;
+    const visible = G.eventsFor({ events: pre }, viewer);
+    check(visible.every(e => e.audience === undefined),
+      `${n}p: eventsFor returned an event still carrying its audience`);
+
+    const blob = visible.map(e => e.text).join(' ').toLowerCase();
     check(!blob.includes('alone'),
-      `${n}p: "alone" leaked before reveal: ` + pre.find(t => t.toLowerCase().includes('alone')));
+      `${n}p: "alone" leaked before reveal: ` + (visible.find(e => e.text.toLowerCase().includes('alone')) || {}).text);
     check(!blob.includes('secret partner'),
       `${n}p: partner hint leaked before reveal`);
     if (st.alone) checkedAlone++; else checkedPartner++;
@@ -141,7 +158,7 @@ for (const n of [4, 5, 6]) {
     }
     // Treat seat 0 as a computer picker: a human picker is deliberately told
     // their own situation, which is checked separately below.
-    st.players[0].isHuman = false;
+    st.players[0].occupant = 'bot';   // a computer picker
     st.turn = 0;
     check(G.doPick(st, 0), 'forced pick failed');
     // Bury the Jack plus whatever else is cheapest.
@@ -158,7 +175,9 @@ for (const n of [4, 5, 6]) {
       AI.act(st);
       const evts = st.events.splice(0, st.events.length);
       if (st.phase === 'handOver') break;
-      texts.push(...evts.map(e => e.text));
+      // Seat 0 is the forced picker here, so seat 1 is the bystander whose view
+      // must give nothing away.
+      texts.push(...evts.filter(e => e.audience === undefined || e.audience === 1).map(e => e.text));
       check(!st.partnerRevealed, `${n}p: buried Jack revealed mid-hand`);
     }
     // The only sentence allowed to mention the partner card is the neutral
@@ -183,11 +202,64 @@ for (const n of [4, 5, 6]) {
     st.events.length = 0;
     const hand = st.players[0].hand;
     G.doBury(st, st.picker, [hand[hand.length - 1].id, hand[hand.length - 2].id]);
-    const msg = st.events.map(e => e.text).join(' ');
+    const msg = G.eventsFor(st, 0).map(e => e.text).join(' ');
     if (st.alone) { toldAlone++; check(/you are playing alone/i.test(msg), 'human picker not told they are alone: ' + msg); }
     else { toldPartnered++; check(/secret partner/i.test(msg), 'human picker not told they have a partner: ' + msg); }
   }
   console.log('human picker told (alone/partnered):', toldAlone + '/' + toldPartnered);
+}
+
+/* --- 6. eventsFor itself, directly ---
+ *
+ * Everything above reaches the filter through a real hand, which is the right way
+ * to test what players experience and the wrong way to test the filter: when the
+ * audience check was deleted to see whether this file would notice, it did not,
+ * because section 2 had quietly reimplemented the filter inline instead of
+ * calling the one that ships. These assertions use nothing else. */
+{
+  const fake = {
+    events: [
+      { kind: 'info', text: 'public one' },
+      { kind: 'info', text: 'for seat 0', audience: 0 },
+      { kind: 'info', text: 'for seat 1', audience: 1 },
+      { kind: 'play', text: 'public two', player: 3, card: 'QC', textPlain: 'plain two' },
+      { kind: 'info', text: 'for seat 2', audience: 2 }
+    ]
+  };
+
+  for (const seat of [0, 1, 2, 3]) {
+    const got = G.eventsFor(fake, seat);
+    const texts = got.map(e => e.text);
+
+    check(texts.includes('public one') && texts.includes('public two'),
+      `seat ${seat} did not receive the public events`);
+    check(got.every(e => !('audience' in e)),
+      `seat ${seat} received an event still carrying an audience key`);
+
+    for (const other of [0, 1, 2]) {
+      const line = 'for seat ' + other;
+      if (other === seat) {
+        check(texts.includes(line), `seat ${seat} was not given its own private event`);
+      } else {
+        check(!texts.includes(line), `seat ${seat} was given seat ${other}'s private event`);
+      }
+    }
+  }
+
+  // Seat 3 has no private events of its own and must see only the public pair.
+  check(G.eventsFor(fake, 3).length === 2, 'a seat with no private events saw more than the public ones');
+
+  // Other keys survive: textPlain is what the non-verbose log renders, and losing
+  // it would silently downgrade every player who turned verbosity off.
+  const play = G.eventsFor(fake, 0).find(e => e.kind === 'play');
+  check(play && play.textPlain === 'plain two', 'eventsFor dropped textPlain');
+  check(play && play.card === 'QC' && play.player === 3, 'eventsFor dropped event detail');
+
+  // The source list is not modified — the server keeps one authoritative array
+  // and projects it once per seat, so a filter that mutated it would corrupt
+  // every later projection.
+  check(fake.events.length === 5, 'eventsFor mutated the source events');
+  check(fake.events[1].audience === 0, 'eventsFor stripped the audience from the source');
 }
 
 console.log('hidden-alone hands sampled:   ', checkedAlone);

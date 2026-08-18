@@ -32,7 +32,19 @@
       players.push({
         index: i,
         name: config.names[i],
-        isHuman: i === 0,
+        /* Who is sitting here, rather than whether this is "the" human.
+         *
+         * isHuman was a boolean that was true for exactly one seat, and the
+         * engine used it for two different jobs: deciding whose point of view a
+         * message is written from, and deciding whether a seat is played by the
+         * computer. Those come apart the moment more than one person is at the
+         * table — every seat is human, and the question that still matters is
+         * whether anybody is currently in it.
+         *
+         * 'human' | 'bot' | 'away'. A seat whose player has dropped becomes
+         * 'away' and is played by the AI until they return, which is why this is
+         * not simply a boolean the other way round. */
+        occupant: i === 0 ? 'human' : 'bot',
         hand: [],
         tricksWon: 0,
         points: 0,
@@ -132,6 +144,52 @@
     if (extra) for (var k in extra) e[k] = extra[k];
     state.events.push(e);
     return e;
+  }
+
+  /* An event only one seat may see.
+   *
+   * The engine used to say private things by appending them to a public string
+   * when the seat happened to be the human one — see assignPartner and
+   * computeDoublers below, both of which did exactly that. It worked because
+   * there was only ever one human, so "the human" and "the seat this concerns"
+   * were the same seat and nobody else was reading the log anyway.
+   *
+   * Online, every seat is human. That construction would have emitted one
+   * private sentence per player into shared state, each telling everyone else
+   * something. And because public and private were concatenated into a single
+   * string, no amount of filtering downstream could separate them — you cannot
+   * withhold half a sentence.
+   *
+   * So: a private event is addressed to a SEAT, never to "the human", and it is
+   * its own event. The projection layer sends it only to that seat and strips
+   * the `audience` key on the way out, since the mere presence of a targeted
+   * event tells a bystander that something private happened. */
+  function evTo(state, seat, kind, text, extra) {
+    var e = ev(state, kind, text, extra);
+    e.audience = seat;
+    return e;
+  }
+
+  /* The events one seat is entitled to: everything public, plus anything
+   * addressed to it, with the address removed.
+   *
+   * Stripping `audience` is not tidiness. A targeted event that still carried
+   * its address would tell the seat receiving it nothing new, but the shape of
+   * the list would tell a bystander that a private event exists — and when it
+   * was emitted is itself information. assignPartner fires one immediately after
+   * the picker is known, so "there was a private event just then" narrows down
+   * what it was about. The recipient gets a plain event; everybody else never
+   * learns one was sent. */
+  function eventsFor(state, seat) {
+    var out = [];
+    for (var i = 0; i < state.events.length; i++) {
+      var e = state.events[i];
+      if (e.audience !== undefined && e.audience !== seat) continue;
+      var copy = {};
+      for (var k in e) if (k !== 'audience') copy[k] = e[k];
+      out.push(copy);
+    }
+    return out;
   }
 
   function nameOf(state, i) { return state.players[i].name; }
@@ -284,14 +342,15 @@
     state.partnerRevealed = false;
 
     // Deliberately identical wording either way, so the log gives nothing away.
-    var msg = nameOf(state, picker) + vb(state, picker, ' is', ' are') +
-      ' the picker. The Jack of Diamonds is the partner card.';
-    if (state.players[picker].isHuman) {
-      msg += state.alone
-        ? ' You have the Jack of Diamonds yourself, so you are playing alone — nobody else knows that yet.'
-        : ' Somebody else holds it and is your secret partner.';
-    }
-    ev(state, 'info', msg);
+    ev(state, 'info', nameOf(state, picker) + vb(state, picker, ' is', ' are') +
+      ' the picker. The Jack of Diamonds is the partner card.');
+
+    // And what only the picker is told. Unconditional now: it is addressed to
+    // the picker's seat rather than emitted when the picker happens to be human,
+    // because online that condition is true for everyone.
+    evTo(state, picker, 'info', state.alone
+      ? 'You have the Jack of Diamonds yourself, so you are playing alone — nobody else knows that yet.'
+      : 'Somebody else holds it and is your secret partner.');
   }
 
   function hasCard(cards, id) {
@@ -321,9 +380,7 @@
         var hand = state.players[i].hand;
         if (hasCard(hand, pair.cards[0]) && hasCard(hand, pair.cards[1])) {
           state.doublers.push({ kind: pair.kind, player: i, text: pair.text });
-          if (state.players[i].isHuman) {
-            ev(state, 'info', 'You hold ' + pair.text + ', so this hand counts double.');
-          }
+          evTo(state, i, 'info', 'You hold ' + pair.text + ', so this hand counts double.');
           break;   // a pair can only sit in one hand
         }
       }
@@ -650,12 +707,22 @@
     if (pickerTeam.length > 1) deltas[state.partner] = sign * partnerShare;
     for (var m = 0; m < n; m++) if (isOpp[m]) deltas[m] = -sign * stake;
 
-    // Name the defending side from the player's own point of view. Calling it
-    // "the other team" when the player is standing in it reads as if the summary
-    // is about somebody else's game.
-    var humanSeat = -1;
-    for (var hs = 0; hs < n; hs++) if (state.players[hs].isHuman) humanSeat = hs;
-    var defenceText = (humanSeat >= 0 && isOpp[humanSeat]) ? 'your team' : 'the other team';
+    /* The defending side is named neutrally, and this is a deliberate loss.
+     *
+     * It used to say "your team" when the one human seat was defending, which
+     * read better — a summary that calls the side you are standing in "the other
+     * team" sounds like it is describing somebody else's game.
+     *
+     * It cannot survive multiplayer, and not merely because every seat is human.
+     * endHand hands this object to recordHand, which stores it into
+     * state.history BY REFERENCE, and the transcript prints result.summary
+     * verbatim. Personalise it for one seat and every other player's permanent
+     * exported log is wrong for them. There is one summary and it outlives the
+     * moment, so it has to be true from every seat.
+     *
+     * The client is free to compose a personalised sentence from result.deltas,
+     * which is per-seat by construction and is not stored. */
+    var defenceText = 'the defenders';
 
     var teamText = state.alone
       ? state.players[state.picker].name + ' alone'
@@ -759,13 +826,16 @@
    * completely, including everyone's cards — the hand is over, so nothing is
    * given away. The hand still in progress is reported from the player's own
    * seat only, so exporting mid-hand can never be used to see other hands. */
-  function transcript(state, extraLines) {
+  function transcript(state, seat, extraLines) {
     var n = state.config.numPlayers;
     var d = DEAL[n];
     var L = [];
     L.push('Sheephead game log');
     L.push('Players: ' + n + ' — ' + state.players.map(function (p, i) {
-      return p.name + (p.isHuman ? ' (you)' : ' (computer)');
+      // Which seat is "you" is now an argument. It used to be whichever seat had
+      // isHuman set, which online is all of them.
+      if (i === seat) return p.name + ' (you)';
+      return p.name + (p.occupant === 'bot' ? ' (computer)' : '');
     }).join(', '));
     L.push('Layout: ' + d.hand + ' cards each, ' + d.blind + ' card blind, ' +
       deckFor(n).length + ' card deck' + (d.exclude.length ? ' (without ' + cardList(d.exclude) + ')' : '') +
@@ -789,7 +859,7 @@
 
     state.history.forEach(function (h) { pushHand(L, h); });
 
-    if (state.phase !== 'handOver' && state.phase !== 'idle') pushInProgress(L, state);
+    if (state.phase !== 'handOver' && state.phase !== 'idle') pushInProgress(L, state, seat);
 
     if (extraLines && extraLines.length) {
       L.push('=== On-screen log (newest first) ===');
@@ -846,13 +916,12 @@
     L.push('');
   }
 
-  function pushInProgress(L, state) {
+  function pushInProgress(L, state, seat) {
     L.push('=== Hand ' + state.handNumber + ' (in progress) ===');
     L.push('Only what you can see from your own seat is written out here, so that');
     L.push('exporting part way through cannot be used to see anybody else\'s cards.');
     L.push('Dealer: ' + nameOf(state, state.dealer) + ', phase: ' + state.phase);
-    var me = -1;
-    for (var i = 0; i < state.players.length; i++) if (state.players[i].isHuman) me = i;
+    var me = (typeof seat === 'number' && seat >= 0 && seat < state.players.length) ? seat : -1;
     if (me >= 0) L.push('Your hand: ' + cardList(C.ids(state.players[me].hand)));
     if (state.picker >= 0) {
       L.push('Picker: ' + nameOf(state, state.picker));
@@ -947,6 +1016,7 @@
   SH.Game = {
     DEAL: DEAL,
     applyAction: applyAction,
+    eventsFor: eventsFor,
     deckFor: deckFor,
     PARTNER_CARD: PARTNER_CARD,
     createGame: createGame,
