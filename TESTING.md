@@ -7,6 +7,11 @@ Two games, two rule sets, one shared conviction: **a test that cannot fail is no
 
 - **Sheephead** — `sheephead/` → https://kellylford.github.io/TheWorkBench/sheephead/
 - **Cribbage** — `Cribbage/` → https://kellylford.github.io/TheWorkBench/Cribbage/
+- **Sheephead Multiplayer** — `sheephead-multiplayer/` → https://kellylford.github.io/TheWorkBench/sheephead-multiplayer/
+
+The third is a fork of the first and currently runs the same suites against a near-identical copy,
+which is deliberate: while the two are meant to behave the same, a divergence is a signal. Its CI
+job carries one extra check the other two do not — that the branch has not modified `sheephead/`.
 
 ---
 

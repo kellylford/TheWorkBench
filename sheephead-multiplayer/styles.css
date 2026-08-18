@@ -99,11 +99,24 @@ body {
 }
 .app-header h1 { margin: 0; font-size: 1.6rem; letter-spacing: .02em; }
 .tagline { margin: .25rem 0 .75rem; color: var(--ink-dim); }
-/* The pointer at the stable single-player game. Given an explicit colour for the
- * same reason .site-footer a has one: there is no global link rule, so an
- * unstyled link falls back to the browser default blue, which is 1.94:1 on this
- * background. tests/contrast.js caught exactly that. */
-.tagline a { color: var(--accent); font-weight: 600; }
+
+/* Says this build is unfinished, and points at the one that is not. Deliberately
+ * NOT part of .tagline: the narrow-viewport rules hide the tagline as decoration,
+ * which is fine for a strapline and wrong for the only warning on the page and
+ * the only way back to the stable game. display:none also drops it out of the
+ * accessibility tree entirely, so a phone user would never learn either fact.
+ *
+ * The link is given an explicit colour for the same reason .site-footer a is:
+ * there is no global link rule here, so an unstyled link falls back to browser
+ * default blue — 1.94:1 on this background. tests/contrast.js caught that. */
+.dev-notice {
+  margin: .25rem 0 .75rem;
+  color: var(--ink);
+  border-left: 4px solid var(--accent);
+  padding: .1rem 0 .1rem .6rem;
+  max-width: 46rem;
+}
+.dev-notice a { color: var(--accent); font-weight: 600; }
 
 main { padding: 1rem clamp(1rem, 4vw, 2rem) 4rem; max-width: 88rem; }
 main:focus { outline: none; }

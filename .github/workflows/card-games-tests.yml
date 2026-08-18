@@ -83,10 +83,14 @@ jobs:
       - name: Rendered appearance
         run: node tests/appearance.js
 
-  # The multiplayer fork runs the same suite as the game it was copied from. That
-  # is the point: the fork exists so multiplayer work cannot break the stable
-  # game, and this job is what proves the fork has not broken it either. When the
-  # two inevitably diverge, this job is the first place it will show.
+  # The multiplayer fork runs the same suite as the game it was copied from, and
+  # additionally enforces the constraint the fork exists for: that multiplayer
+  # work does not touch the stable game.
+  #
+  # That guard is here because a review pointed out the claim had no teeth. The
+  # commit that created the fork said this job "is what will tell us if that ever
+  # stops being true", and it would not have — it only ran the fork's own tests.
+  # An invariant nothing checks is a comment, not an invariant.
   sheephead-multiplayer:
     name: Sheephead Multiplayer
     runs-on: ubuntu-latest
@@ -96,6 +100,23 @@ jobs:
         working-directory: sheephead-multiplayer
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # Deliberately not scoped to this workflow's path filters: the point is to
+      # catch a change to sheephead/ arriving alongside multiplayer work, which
+      # is exactly when nobody is looking for it.
+      - name: The stable game must be untouched
+        working-directory: .
+        run: |
+          set -euo pipefail
+          git fetch --quiet origin ${{ github.event.repository.default_branch }}
+          if ! git diff --quiet FETCH_HEAD -- sheephead/; then
+            echo "::error::This branch modifies sheephead/. The multiplayer fork exists so that cannot happen — put the change in sheephead-multiplayer/, or make it a deliberate, separate pull request against the stable game."
+            git diff --stat FETCH_HEAD -- sheephead/
+            exit 1
+          fi
+          echo "sheephead/ is unchanged against the default branch."
 
       - uses: actions/setup-node@v4
         with:

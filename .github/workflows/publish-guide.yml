@@ -28,6 +28,15 @@ on:
 permissions:
   contents: write
 
+# This force-pushes an orphan branch. Without a concurrency group, two merges
+# landing close together race and the last writer wins — which may be the run
+# that checked out the OLDER commit, silently reverting the live site. Adding a
+# third trigger path (sheephead-multiplayer/) made that more likely, not less.
+# Not cancel-in-progress: a half-finished publish is worse than a queued one.
+concurrency:
+  group: publish-site
+  cancel-in-progress: false
+
 jobs:
   convert:
     runs-on: ubuntu-latest
@@ -50,8 +59,20 @@ jobs:
             --standalone \
             devdocs/CONTROLLING_IPHONE_FROM_MAC.md \
             --output _site/devdocs/controlling-iphone-from-mac.html
-          # Remove .gitignore from _site so the action doesn't exclude the generated HTML
-          rm -f _site/.gitignore
+          # The publish action runs `git add --all` inside _site, which honours any
+          # .gitignore it finds there. Exactly one root pattern is a problem — the
+          # generated HTML this job just produced — so drop that one line rather
+          # than the whole file.
+          #
+          # This used to `rm -f _site/.gitignore`, which also discarded .claude/,
+          # Config.swift and every build-output pattern. Nothing leaked, because
+          # the job runs on a fresh checkout where none of those files exist. The
+          # hazard is what comes next: once sheephead-multiplayer/ has a
+          # wrangler.toml or a .dev.vars, the instinctive place to exclude a secret
+          # is the root .gitignore — the very file this step was deleting. Nested
+          # .gitignore files are NOT removed, so a secret pattern belongs in the
+          # directory that owns it.
+          sed -i '\|^devdocs/controlling-iphone-from-mac\.html$|d' _site/.gitignore
 
       - name: Deploy to gh-pages
         uses: peaceiris/actions-gh-pages@v4

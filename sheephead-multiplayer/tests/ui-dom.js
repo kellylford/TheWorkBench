@@ -741,11 +741,29 @@ async function settingsDialog() {
   const storeKey = () => {
     for (let i = 0; i < window.localStorage.length; i++) {
       const k = window.localStorage.key(i);
-      if (/^sheephead\.settings\./.test(k)) return k;
+      if (/^sheephead-mp\.settings\./.test(k)) return k;
     }
     return null;
   };
-  check(storeKey() !== null, 'no sheephead settings key was written to localStorage');
+  check(storeKey() !== null, 'no sheephead-mp settings key was written to localStorage');
+
+  // This fork must never touch the stable game's settings. localStorage is scoped
+  // to the ORIGIN, not the path, and both builds publish under kellylford.github.io
+  // — so inheriting 'sheephead.settings.v4' meant every setting changed here also
+  // changed in the game people actually play. Worse, loadSettings() calls
+  // removeItem on everything in OLD_STORE_KEYS, so the first schema bump in this
+  // fork would have DELETED a player's real settings.
+  //
+  // Nothing caught that: it is invisible to every suite, because a test that opens
+  // one page cannot see the other page's data being clobbered. Hence this check,
+  // which is cheap and would have failed loudly.
+  const strayStableKeys = [];
+  for (let i = 0; i < window.localStorage.length; i++) {
+    const k = window.localStorage.key(i);
+    if (/^sheephead\.settings\./.test(k)) strayStableKeys.push(k);
+  }
+  check(strayStableKeys.length === 0,
+    'the multiplayer fork wrote to the stable game\'s localStorage keys: ' + strayStableKeys.join(', '));
   const stored = JSON.parse(window.localStorage.getItem(storeKey()));
   check(stored.blackQueenDoubler === true && stored.redQueenDoubler === true &&
     stored.redealDoubler === true, 'doubler settings were not persisted: ' + JSON.stringify(stored));

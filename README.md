@@ -35,6 +35,14 @@ against computer opponents. Runs entirely in the browser with no build step and 
 
 [View Project][4]
 
+### sheephead-multiplayer
+A fork of the above, being extended so people in different places can play against each other. It
+exists as a separate directory so the stable game cannot regress while it is built — a CI guard
+fails the build if a branch touching this directory also touches `sheephead/`. Not finished; see
+[PLAN.md](./sheephead-multiplayer/PLAN.md).
+
+[View Project][8]
+
 ## Getting Started
 
 ## Requirements
@@ -54,3 +62,4 @@ Contributions to existing projects are welcome. If you have a script, app or oth
 [5]:	https://kellylford.github.io/TheWorkBench/thecardplace.html
 [6]:	./Cribbage
 [7]:	./TESTING.md
+[8]:	./sheephead-multiplayer

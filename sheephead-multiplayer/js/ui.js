@@ -37,8 +37,18 @@
    *     option at all — the bump is doing real work here, not just a default.
    * v4: the default pause came down from five seconds to four. Same reasoning as
    *     v3: 5000 is no longer offered, so a stored one has to be retired. */
-  var STORE_KEY = 'sheephead.settings.v4';
-  var OLD_STORE_KEYS = ['sheephead.settings.v1', 'sheephead.settings.v2', 'sheephead.settings.v3'];
+  /* Its own key, and this is not cosmetic. localStorage is scoped to the ORIGIN,
+   * not the path — both builds live under kellylford.github.io, so inheriting
+   * 'sheephead.settings.v4' would mean every setting changed here also changed in
+   * the stable game, and vice versa.
+   *
+   * The sharp edge is below: loadSettings() calls removeItem on everything in
+   * OLD_STORE_KEYS. Bumping this fork to v2 while that list still named the
+   * stable game's v4 would DELETE a player's real settings the first time they
+   * opened the dev build. So: nothing beginning 'sheephead.settings.' may ever
+   * appear in this file again. Only keys this fork has itself retired. */
+  var STORE_KEY = 'sheephead-mp.settings.v1';
+  var OLD_STORE_KEYS = [];
   var DIALOGS = ['rules-dialog', 'a11y-dialog', 'export-dialog', 'bug-dialog', 'settings-dialog'];
 
   function anyDialogOpen() {
@@ -1417,7 +1427,7 @@
   function exportFilename() {
     var d = new Date();
     function two(v) { return (v < 10 ? '0' : '') + v; }
-    return 'sheephead-log-' + d.getFullYear() + two(d.getMonth() + 1) + two(d.getDate()) +
+    return 'sheephead-mp-log-' + d.getFullYear() + two(d.getMonth() + 1) + two(d.getDate()) +
       '-' + two(d.getHours()) + two(d.getMinutes()) + two(d.getSeconds()) + '.txt';
   }
 
@@ -1509,14 +1519,14 @@
   /* ---------------- bug reports ---------------- */
 
   var BUG_REPO = 'kellylford/TheWorkBench';
-  var GAME_URL = 'https://kellylford.github.io/TheWorkBench/sheephead/';
+  var GAME_URL = 'https://kellylford.github.io/TheWorkBench/sheephead-multiplayer/';
   /* Long URLs get rejected or silently truncated, so the link carries the summary
    * only and the full log rides on the clipboard. */
   var MAX_URL = 6000;
 
   function bugTitle() {
     var t = (el['bug-title'].value || '').trim();
-    return '[sheephead] ' + (t || 'Bug report');
+    return '[sheephead-mp] ' + (t || 'Bug report');
   }
 
   /* The part that goes in the URL: everything a maintainer needs to triage,
