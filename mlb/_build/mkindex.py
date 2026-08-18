@@ -256,12 +256,18 @@ PARKS = [
                "home again on 6 April 2026 with the roof rebuilt."),
 ]
 
-DIVISIONS = [("National League Central", PARKS[:5]),
-             ("American League West", PARKS[5:10]),
+# PARKS stays in the order the divisions were researched, because the slices below index into
+# it. DIVISIONS controls the order everything is DISPLAYED in - the ballpark cards and the
+# comparison table both iterate it - and that is the order a baseball fan expects to read:
+# American League east, central, west, then the National League the same way. Reorder the tuples
+# here to change the page; do not reorder PARKS, or every slice silently points at the wrong five
+# ballparks.
+DIVISIONS = [("American League East", PARKS[25:]),
              ("American League Central", PARKS[10:15]),
+             ("American League West", PARKS[5:10]),
              ("National League East", PARKS[15:20]),
-             ("National League West", PARKS[20:25]),
-             ("American League East", PARKS[25:])]
+             ("National League Central", PARKS[:5]),
+             ("National League West", PARKS[20:25])]
 
 
 def count(slug):
@@ -369,8 +375,7 @@ covered here you get the level, where the section sits relative to home plate, h
 is, which row the entrance is on, and which end of the row seat 1 is on.</p>
 
 <p class="prose">{TOTAL} sections across {len(PARKS)} ballparks are documented so far, covering the whole of
-the National League Central, the American League West, the American League Central, the National
-League East, the National League West and the American League East.</p>
+the American League East, Central and West, and the National League East, Central and West.</p>
 
 <h2 id="why">Why a section number on its own is not enough</h2>
 
@@ -461,6 +466,13 @@ and dark mode. No JavaScript is required to read any of the content.</p>
 sightlines that were fine last season. Everything here was compiled in August 2026 from public
 sources and is not a substitute for the team's own ticket office, which can confirm a specific seat
 and is the right place to arrange accessible seating.</p>
+
+<p class="prose">If something here is wrong &mdash; a section placed on the wrong side of the park, a
+row range that does not match the ticket in your hand, a seat-numbering rule that reads backwards
+&mdash; please <a href="https://github.com/kellylford/TheWorkBench/issues">file an issue on
+GitHub</a>. Corrections from people who know a ballpark first-hand are the fastest way this gets
+better, and the underlying data files linked from every ballpark page are there so you can check the
+working.</p>
 
 </main>
 </div>
