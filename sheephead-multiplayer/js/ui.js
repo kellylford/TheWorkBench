@@ -255,8 +255,8 @@
     el['setup-section'].hidden = true;
     el['game-section'].hidden = false;
     el.log.innerHTML = '';
-    var d = G.DEAL[settings.numPlayers];
-    pushLog('info', settings.numPlayers + ' players. ' + d.hand + ' cards each, ' +
+    var d = dealSpec();
+    pushLog('info', tableSize() + ' players. ' + d.hand + ' cards each, ' +
       d.blind + ' card blind. ' + (d.partner ? 'Jack of Diamonds partner.' : 'The picker always plays alone.'));
     dealNext();
   }
@@ -294,11 +294,31 @@
     }
   }
 
+  /* How many seats this table has, and the deal that goes with it.
+   *
+   * Read from the GAME, not from settings. tableSize() is this browser's
+   * saved preference for the next game it starts; state.config.numPlayers is the
+   * size of the table actually being played. Offline those agree, which is why
+   * seventeen places read the preference and nothing ever went wrong. Online they
+   * come apart the moment somebody whose dropdown says five joins a six-seat
+   * room, and every one of those places would then render the wrong hand size,
+   * the wrong trick count and the wrong blind.
+   *
+   * Falls back to the preference only before a game exists, which is the setup
+   * screen. */
+  function tableSize() {
+    return state ? state.config.numPlayers : settings.numPlayers;
+  }
+
+  function dealSpec() {
+    return G.DEAL[tableSize()];
+  }
+
   function isHumanTurn() {
     if (!state) return false;
-    if (state.phase === 'pick') return state.turn === 0;
-    if (state.phase === 'bury') return state.picker === 0;
-    if (state.phase === 'play') return state.turn === 0;
+    if (state.phase === 'pick') return state.turn === mySeat;
+    if (state.phase === 'bury') return state.picker === mySeat;
+    if (state.phase === 'play') return state.turn === mySeat;
     return false;
   }
 
@@ -360,7 +380,7 @@
     // Manual pacing deliberately says nothing here: it would repeat after every
     // single play, which is exactly the sort of thing that wears thin fast.
     if (!isHumanTurn()) return '';
-    var d = G.DEAL[settings.numPlayers];
+    var d = dealSpec();
     if (state.phase === 'pick') {
       return 'Your turn. Pick up the blind of ' + d.blind + ' cards, or pass? Press H to hear your hand.';
     }
@@ -377,8 +397,8 @@
 
   /* Which trick we are on, counted from the player's own remaining cards. */
   function trickNumber() {
-    var d = G.DEAL[settings.numPlayers];
-    return Math.min(d.hand, d.hand - state.players[0].hand.length + (inTrick(0) ? 0 : 1));
+    var d = dealSpec();
+    return Math.min(d.hand, d.hand - state.players[mySeat].hand.length + (inTrick(mySeat) ? 0 : 1));
   }
 
   function inTrick(p) {
@@ -416,13 +436,13 @@
    * Ace, Eight"), which changes the pattern half way through the sentence and
    * makes it harder to follow, not easier. */
   function textHand() {
-    var hand = C.sortHand(state.players[0].hand);
+    var hand = C.sortHand(state.players[mySeat].hand);
     if (!hand.length) return 'Your hand is empty.';
 
     // Just after picking, call out what came from the blind before anything else
     // — that is the thing the picker actually needs to know right now.
     var lead = '';
-    if (state.phase === 'bury' && state.picker === 0 && state.pickedUp && state.pickedUp.length) {
+    if (state.phase === 'bury' && state.picker === mySeat && state.pickedUp && state.pickedUp.length) {
       lead = 'From the blind: ' + state.pickedUp.map(function (id) {
         return C.name(C.get(id));
       }).join(', ') + '. Then your hand. ';
@@ -439,14 +459,14 @@
     var msg = lead + 'Your hand, ' + hand.length + (hand.length === 1 ? ' card. ' : ' cards. ') +
       parts.join('. ') + '.';
     if (settings.verbose) msg += ' Worth ' + C.sumPoints(hand) + ' points.';
-    if (G.DEAL[settings.numPlayers].partner && hasPartnerCard()) {
+    if (dealSpec().partner && hasPartnerCard()) {
       msg += ' You hold the Jack of Diamonds, ' + partnerCardMeaning() + '.';
     }
     return msg;
   }
 
   function textTrick() {
-    var d = G.DEAL[settings.numPlayers];
+    var d = dealSpec();
     var head = 'Trick ' + trickNumber() + ' of ' + d.hand + '. ';
     if (!state.trick.length) return head + 'Nothing played yet. ' + state.players[state.turn].name + ' to lead.';
     var list = state.trick.map(function (t) {
@@ -470,7 +490,7 @@
     }).join('. ');
     var running = state.players.map(function (p) { return p.name + ' ' + p.score; }).join(', ');
     var buried = '';
-    if (state.picker === 0 && state.buried.length) {
+    if (state.picker === mySeat && state.buried.length) {
       buried = ' You buried ' + C.sumPoints(state.buried) + ' points.';
     }
     return 'This hand: ' + hand + '.' + buried + ' Running score: ' + running + '.';
@@ -481,23 +501,23 @@
     if (state.phase === 'pick') return 'Nobody has picked yet. ' + state.players[state.turn].name + ' is deciding.';
     if (state.isLeaster) return 'Leaster. There is no picker; everyone plays for themselves and the fewest points wins. You must take at least one trick to be eligible.';
     if (state.picker < 0) return 'No picker yet.';
-    var d = G.DEAL[settings.numPlayers];
-    var msg = state.picker === 0 ? 'You are the picker.' : state.players[state.picker].name + ' is the picker.';
-    if (!d.partner) return msg + ' With ' + settings.numPlayers + ' players the picker always plays alone.';
+    var d = dealSpec();
+    var msg = state.picker === mySeat ? 'You are the picker.' : state.players[state.picker].name + ' is the picker.';
+    if (!d.partner) return msg + ' With ' + tableSize() + ' players the picker always plays alone.';
 
     // Once the Jack of Diamonds has shown, everything is public.
     if (state.partnerRevealed) {
       return msg + (state.alone
         ? ' The picker is playing alone.'
-        : ' ' + (state.partner === 0 ? 'You are' : state.players[state.partner].name + ' is') + ' the partner.');
+        : ' ' + (state.partner === mySeat ? 'You are' : state.players[state.partner].name + ' is') + ' the partner.');
     }
     // Still hidden. Only tell the player what their own cards entitle them to know.
-    if (state.picker === 0) {
+    if (state.picker === mySeat) {
       return msg + (state.alone
         ? ' You have the Jack of Diamonds yourself, so you are playing alone. Nobody else knows that yet.'
         : ' Somebody else holds the Jack of Diamonds and is your secret partner.');
     }
-    if (state.partner === 0) {
+    if (state.partner === mySeat) {
       return msg + ' You hold the Jack of Diamonds, so you are the secret partner. Nobody else knows yet.';
     }
     return msg + ' The Jack of Diamonds has not been played, so the partner is still unknown — ' +
@@ -509,8 +529,8 @@
   function textCount() {
     var seen = {};
     state.played.forEach(function (c) { seen[c.id] = 1; });
-    state.players[0].hand.forEach(function (c) { seen[c.id] = 1; });
-    if (state.picker === 0) state.buried.forEach(function (c) { seen[c.id] = 1; });
+    state.players[mySeat].hand.forEach(function (c) { seen[c.id] = 1; });
+    if (state.picker === mySeat) state.buried.forEach(function (c) { seen[c.id] = 1; });
     var unaccounted = C.newDeck().filter(function (c) { return !seen[c.id]; });
 
     var trumpPlayed = state.played.filter(C.isTrump).length;
@@ -521,7 +541,7 @@
       ? 'Highest trump you have not seen: ' + C.name(outTrump[0]) + '. ' + outTrump.length + ' unseen trump.'
       : 'You have seen every trump.');
 
-    var mine = state.players[0].hand.filter(C.isTrump).sort(function (a, b) { return C.power(b) - C.power(a); });
+    var mine = state.players[mySeat].hand.filter(C.isTrump).sort(function (a, b) { return C.power(b) - C.power(a); });
     if (mine.length) parts.push('Your highest trump: ' + C.name(mine[0]) + '.');
 
     C.FAIL_SUITS.forEach(function (s) {
@@ -548,14 +568,14 @@
   }
 
   function renderStatus() {
-    var d = G.DEAL[settings.numPlayers];
+    var d = dealSpec();
     var s;
     if (state.phase === 'pick') {
       s = isHumanTurn()
         ? 'Your turn: pick up the blind (' + d.blind + ' cards) or pass?'
         : 'Waiting for ' + state.players[state.turn].name + ' to pick or pass.';
     } else if (state.phase === 'bury') {
-      s = state.picker === 0
+      s = state.picker === mySeat
         ? 'You picked. Bury ' + d.blind + ' cards.'
         : state.players[state.picker].name + ' picked and is burying.';
     } else if (state.phase === 'play') {
@@ -612,7 +632,7 @@
     if (!actionsRebuilt) return;
     lastActionsKey = key;
     box.innerHTML = '';
-    var d = G.DEAL[settings.numPlayers];
+    var d = dealSpec();
 
     if (state.phase === 'handOver') {
       // Just the outcome here. The full accounting is announced, and sits in the
@@ -658,10 +678,10 @@
 
     if (state.phase === 'pick') {
       box.appendChild(button('Pick up the blind (' + d.blind + ' cards)', function () {
-        G.doPick(state, 0); handFocus = 0; drain(); tick();
+        G.doPick(state, mySeat); handFocus = 0; drain(); tick();
       }, true));
       box.appendChild(button('Pass', function () {
-        G.doPass(state, 0); drain(); tick();
+        G.doPass(state, mySeat); drain(); tick();
       }));
       return;
     }
@@ -701,7 +721,7 @@
     }
     // One player takes a singular verb, two take a plural, and "You" takes the
     // second person either way.
-    var youAreThem = state.picker === 0 && seatName(0).toLowerCase() === 'you';
+    var youAreThem = state.picker === mySeat && seatName(mySeat).toLowerCase() === 'you';
     if (state.alone) {
       return seatName(state.picker) +
         (r.pickerWins ? (youAreThem ? ' win' : ' wins') : (youAreThem ? ' lose' : ' loses')) +
@@ -765,10 +785,10 @@
     if (i === state.dealer) roles.push('dealer');
     if (i === state.picker) {
       roles.push('picker');
-      if (state.alone && (state.partnerRevealed || i === 0)) roles.push('alone');
+      if (state.alone && (state.partnerRevealed || i === mySeat)) roles.push('alone');
     }
     if (!state.isLeaster && !state.alone && state.partner === i &&
-        (state.partnerRevealed || i === 0)) roles.push('partner');
+        (state.partnerRevealed || i === mySeat)) roles.push('partner');
     if (state.isLeaster) roles.push('leaster');
     return roles;
   }
@@ -785,7 +805,7 @@
         : 'for review, ' + seatName(state.turn) + ' is deciding whether to pick';
     }
     if (state.phase === 'bury') {
-      return state.picker === 0
+      return state.picker === mySeat
         ? 'for review while you choose what to bury'
         : 'for review, ' + seatName(state.picker) + ' is burying';
     }
@@ -804,7 +824,7 @@
    * before or after you, which changes what it is safe to lead. */
   function textOrder() {
     if (!state) return '';
-    var n = settings.numPlayers;
+    var n = tableSize();
     var i, k, tags, line;
     var list = [];
 
@@ -834,7 +854,7 @@
     var youAt = -1, pickerAt = -1;
     for (k = 0; k < n; k++) {
       i = (startSeat + k) % n;
-      if (i === 0) youAt = k;
+      if (i === mySeat) youAt = k;
       if (i === state.picker) pickerAt = k;
       tags = roleTags(i);
       line = (k + 1) + ', ' + seatName(i) + (tags.length ? ', ' + tags.join(', ') : '');
@@ -850,7 +870,7 @@
     else if (youAt === n - 1) msg += ' You play last.';
 
     if (!state.isLeaster && state.picker >= 0) {
-      if (state.picker === 0) {
+      if (state.picker === mySeat) {
         msg += ' You are the picker.';
       } else if (pickerAt >= 0 && youAt >= 0) {
         var delta = pickerAt - youAt;
@@ -874,12 +894,12 @@
   }
 
   function hasPartnerCard() {
-    return state.players[0].hand.some(function (c) { return c.id === G.PARTNER_CARD; });
+    return state.players[mySeat].hand.some(function (c) { return c.id === G.PARTNER_CARD; });
   }
 
   function partnerCardMeaning() {
     if (state.picker < 0) return 'the partner card';
-    if (state.picker === 0) return 'the partner card, so you are playing alone';
+    if (state.picker === mySeat) return 'the partner card, so you are playing alone';
     return 'the partner card, so you are the picker\'s partner';
   }
 
@@ -1011,23 +1031,23 @@
 
   function renderHand() {
     handMode = 'idle';
-    if (state.phase === 'bury' && state.picker === 0) handMode = 'bury';
+    if (state.phase === 'bury' && state.picker === mySeat) handMode = 'bury';
     else if (state.phase === 'play' && isHumanTurn()) handMode = 'play';
 
     // While burying, the engine keeps the freshly picked-up cards at the front
     // so they are easy to spot. Sorting here would undo that; the hand is sorted
     // again the moment the bury is committed.
     var hand = handMode === 'bury'
-      ? state.players[0].hand.slice()
-      : C.sortHand(state.players[0].hand);
+      ? state.players[mySeat].hand.slice()
+      : C.sortHand(state.players[mySeat].hand);
 
     var justPicked = {};
     (state.pickedUp || []).forEach(function (id) { justPicked[id] = 1; });
-    var partnerRule = G.DEAL[settings.numPlayers].partner;
+    var partnerRule = dealSpec().partner;
 
     var legalIds = {};
     if (handMode === 'play') {
-      G.legalPlays(state, 0).forEach(function (c) { legalIds[c.id] = 1; });
+      G.legalPlays(state, mySeat).forEach(function (c) { legalIds[c.id] = 1; });
     }
     // Lets the stylesheet ring the cards you may play, rather than painting over
     // the ones you may not. Purely visual: the labels already say which is which.
@@ -1079,7 +1099,7 @@
         label += selected[c.id] ? ', selected to bury' : '';
       } else if (handMode === 'play' && !legalIds[c.id]) {
         b.setAttribute('aria-disabled', 'true');
-        label += ', cannot be played, ' + G.illegalReason(state, 0, c.id);
+        label += ', cannot be played, ' + G.illegalReason(state, mySeat, c.id);
       } else if (handMode === 'idle') {
         b.setAttribute('aria-disabled', 'true');
         label += ', ' + idleReason();
@@ -1136,10 +1156,10 @@
   function renderPlayers() {
     var tbody = el['players-table'].querySelector('tbody');
     tbody.innerHTML = '';
-    var d = G.DEAL[settings.numPlayers];
+    var d = dealSpec();
     state.players.forEach(function (p, i) {
       var tr = document.createElement('tr');
-      if (i === 0) tr.className = 'you';
+      if (i === mySeat) tr.className = 'you';
       if (state.turn === i && state.phase !== 'handOver') tr.className += ' turn';
 
       // Roles must only show what this player is entitled to know: a hidden
@@ -1271,7 +1291,7 @@
   function activateCard(id, index) {
     handFocus = index;
     if (handMode === 'bury') {
-      var d = G.DEAL[settings.numPlayers];
+      var d = dealSpec();
       if (selected[id]) {
         delete selected[id];
         alert_(C.name(C.get(id)) + ' unselected.');
@@ -1288,11 +1308,11 @@
       return;
     }
     if (handMode === 'play') {
-      if (!G.isLegal(state, 0, id)) {
-        alert_('You cannot play ' + C.name(C.get(id)) + '. ' + G.illegalReason(state, 0, id));
+      if (!G.isLegal(state, mySeat, id)) {
+        alert_('You cannot play ' + C.name(C.get(id)) + '. ' + G.illegalReason(state, mySeat, id));
         return;
       }
-      G.doPlay(state, 0, id);
+      G.doPlay(state, mySeat, id);
       drain();
       tick();
       return;
@@ -1302,7 +1322,7 @@
 
   function doBury() {
     var ids = Object.keys(selected);
-    var d = G.DEAL[settings.numPlayers];
+    var d = dealSpec();
     if (ids.length !== d.blind) { alert_('Select exactly ' + d.blind + ' cards.'); return; }
     var pts = C.sumPoints(ids.map(function (i) { return C.get(i); }));
     if (!G.doBury(state, mySeat, ids)) { alert_('Those cards could not be buried.'); return; }
@@ -1546,8 +1566,8 @@
     L.push('');
     L.push('- Page: ' + GAME_URL);
     if (state) {
-      var d = G.DEAL[settings.numPlayers];
-      L.push('- Players: ' + settings.numPlayers + ' (' +
+      var d = dealSpec();
+      L.push('- Players: ' + tableSize() + ' (' +
         state.players.map(function (p) { return p.name; }).join(', ') + ')');
       L.push('- Layout: ' + d.hand + ' cards each, ' + d.blind + ' card blind, ' +
         (d.partner ? 'Jack of Diamonds partner' : 'picker always alone'));
