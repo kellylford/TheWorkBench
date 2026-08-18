@@ -1,0 +1,222 @@
+[
+  {
+    "section": "225",
+    "zone": "Xfinity Club",
+    "location": "Terrace Level Club Seating: Includes Sections 220–231 on the 200 Level. Home Plate View noted in Section Insights.",
+    "rows": "1-7, TB1-TB9",
+    "entrance_row": "UNKNOWN",
+    "seat_direction": "When looking towards the stage/field, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights list 'Home Plate View', 'Afternoon Shade in Select Rows', and 'Rows 1-7, TB1-TB9'. Seating Notes state 'Rows TB7 and above are shaded during most late afternoon games'. Part of the Xfinity Club (Sections 220-231), which sits behind home plate; Section 226 (not 225) is stated as directly behind home plate.",
+    "source": "https://www.rateyourseats.com/truist-park/seating/sections/225"
+  },
+  {
+    "section": "226",
+    "zone": "Xfinity Club",
+    "location": "Terrace Level Club Seating: Includes Sections 220–231 on the 200 Level. 'Section 226 sits directly behind home plate for the most centered perspective.'",
+    "rows": "1-7, TB1-TB9",
+    "entrance_row": "UNKNOWN",
+    "seat_direction": "When looking towards the stage/field, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights list 'Home Plate View' and 'Rows 1-7, TB1-TB9'. 'For baseball games, desirable view from behind home plate.' Premium seating area as part of the Xfinity Club. Lowest price $152 (informational, not part of schema fields).",
+    "source": "https://www.rateyourseats.com/truist-park/seating/sections/226"
+  },
+  {
+    "section": "227",
+    "zone": "Xfinity Club",
+    "location": "Terrace Level Club Seating: Includes Sections 220–231 on the 200 Level.",
+    "rows": "1-7, TB1-TB9",
+    "entrance_row": "UNKNOWN",
+    "seat_direction": "When looking towards the stage/field, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights list 'Home Plate View' and 'Rows 1-7, TB1-TB9'. 'For baseball games, desirable view from behind home plate.' Premium seating area as part of the Xfinity Club.",
+    "source": "https://www.rateyourseats.com/truist-park/seating/sections/227"
+  },
+  {
+    "section": "228",
+    "zone": "Xfinity Club",
+    "location": "Terrace Level Club Seating: Includes Sections 220–231 on the 200 Level.",
+    "rows": "1-7, TB1-TB9",
+    "entrance_row": "UNKNOWN",
+    "seat_direction": "When looking towards the stage/field, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights list only 'Xfinity Club' and 'Rows 1-7, TB1-TB9' (no 'Home Plate View' badge unlike 225-227). Premium seating area as part of the Xfinity Club.",
+    "source": "https://www.rateyourseats.com/truist-park/seating/sections/228"
+  },
+  {
+    "section": "229",
+    "zone": "Xfinity Club",
+    "location": "Terrace Level Club Seating: Includes Sections 220–231 on the 200 Level.",
+    "rows": "1-7, TB1-TB9",
+    "entrance_row": "UNKNOWN",
+    "seat_direction": "When looking towards the stage/field, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights list only 'Xfinity Club' and 'Rows 1-7, TB1-TB9' (no 'Home Plate View' badge). Premium seating area as part of the Xfinity Club.",
+    "source": "https://www.rateyourseats.com/truist-park/seating/sections/229"
+  },
+  {
+    "section": "230",
+    "zone": "Xfinity Club",
+    "location": "Terrace Level Club Seating: Includes Sections 220–231 on the 200 Level.",
+    "rows": "1-7, TB1-TB9",
+    "entrance_row": "UNKNOWN",
+    "seat_direction": "When looking towards the stage/field, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights list only 'Xfinity Club' and 'Rows 1-7, TB1-TB9'. Premium seating area as part of the Xfinity Club. Fan reviews describe Row 1 and Row 5 seats with a small shelf for food/drinks; one reviewer paid $17 with $15 food credit for Delta 360 club seating (predates Xfinity Club rebrand per review text, but section labeled Xfinity Club by current page).",
+    "source": "https://www.rateyourseats.com/truist-park/seating/sections/230"
+  },
+  {
+    "section": "231",
+    "zone": "Xfinity Club",
+    "location": "Terrace Level Club Seating: Includes Sections 220–231 on the 200 Level.",
+    "rows": "1-11, WC",
+    "entrance_row": "UNKNOWN",
+    "seat_direction": "When looking towards the stage/field, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Rows labeled 1-11, WC. 'Wheelchair seating is available behind Row 11.' Premium seating area as part of the Xfinity Club. Row range (1-11) differs from 225-230's '1-7, TB1-TB9' pattern — recorded verbatim as published, not reconciled.",
+    "source": "https://www.rateyourseats.com/truist-park/seating/sections/231"
+  },
+  {
+    "section": "233",
+    "zone": "Terrace Infield",
+    "location": "200 Level Infield Seating: Located in Sections 216–218 (first base side) and 233–238 (third base side).",
+    "rows": "1-17, 18-19",
+    "entrance_row": "Row 19",
+    "seat_direction": "When looking towards the stage/field, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Rows labeled 1-17, 18-19 (split range as published). Wheelchair seating available behind Row 17. Rows 14 and above are under cover. 'Most sections contain about 19 numbered rows, with entry tunnels located at the very top of the section.' Fan review (Row 13): 'Seats were tight and were sold to us like they were the bigger chairs.'",
+    "source": "https://www.rateyourseats.com/truist-park/seating/sections/233"
+  },
+  {
+    "section": "235",
+    "zone": "Terrace Infield",
+    "location": "200 Level Infield Seating: Located in Sections 216–218 (first base side) and 233–238 (third base side).",
+    "rows": "1-19",
+    "entrance_row": "Row 19",
+    "seat_direction": "When looking towards the stage/field, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Rows labeled 1-19 (single range, unlike the split '1-17, 18-19' seen at 233/238/243). Rows 14 and above are under cover. No wheelchair seating statement found for this section (unlike 233/238/243).",
+    "source": "https://www.rateyourseats.com/truist-park/seating/sections/235"
+  },
+  {
+    "section": "237",
+    "zone": "Terrace Infield",
+    "location": "200 Level Infield Seating: Located in Sections 216–218 (first base side) and 233–238 (third base side).",
+    "rows": "1-19",
+    "entrance_row": "Row 19",
+    "seat_direction": "When looking towards the stage/field, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Rows labeled 1-19. Rows 14 and above are under cover. No wheelchair seating statement found for this section.",
+    "source": "https://www.rateyourseats.com/truist-park/seating/sections/237"
+  },
+  {
+    "section": "238",
+    "zone": "Terrace Infield",
+    "location": "200 Level Infield Seating: Located in Sections 216–218 (first base side) and 233–238 (third base side). This is the last-numbered Terrace Infield section on the third-base side per the RYS zone page.",
+    "rows": "1-17, 18-19",
+    "entrance_row": "Row 19",
+    "seat_direction": "When looking towards the stage/field, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Rows labeled 1-17, 18-19 (split range). Wheelchair seating available behind Row 17. Rows 14 and above are under cover.",
+    "source": "https://www.rateyourseats.com/truist-park/seating/sections/238"
+  },
+  {
+    "section": "239",
+    "zone": "Terrace Level Down the Line",
+    "location": "Terrace Level Down the Line: fans further away from home plate than Terrace Infield; more affordable than Terrace Level Infield seats. Zone described as running from Section 210 to Section 246 (the last sections on either end of right and left field on the 200 level).",
+    "rows": "1-19",
+    "entrance_row": "Row 19",
+    "seat_direction": "When looking towards the stage/field, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Rows 14 and above are under cover. Zone text: 'Sections 244-246 will be above the visitor's bullpen in left field, but fans looking for a chance to catch a foul or home run ball should look elsewhere' (applies to zone generally, section 239 itself not singled out).",
+    "source": "https://www.rateyourseats.com/truist-park/seating/sections/239"
+  },
+  {
+    "section": "240",
+    "zone": "Terrace Level Down the Line",
+    "location": "Terrace Level Down the Line: sections 210 and 246 are described as the last sections on either end of right and left field in the 200 level.",
+    "rows": "1-19",
+    "entrance_row": "Row 19",
+    "seat_direction": "When looking towards the stage/field, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Rows 14 and above are under cover.",
+    "source": "https://www.rateyourseats.com/truist-park/seating/sections/240"
+  },
+  {
+    "section": "241",
+    "zone": "Terrace Level Down the Line",
+    "location": "Terrace Level Down the Line: sections 210 and 246 are described as the last sections on either end of right and left field in the 200 level.",
+    "rows": "1-19",
+    "entrance_row": "Row 19",
+    "seat_direction": "When looking towards the stage/field, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Rows 14 and above are under cover. Panoramic seat-view photo is labeled 'Section 241/242'.",
+    "source": "https://www.rateyourseats.com/truist-park/seating/sections/241"
+  },
+  {
+    "section": "242",
+    "zone": "Terrace Level Down the Line",
+    "location": "Terrace Level Down the Line: sections 210 and 246 are described as the last sections on either end of right and left field in the 200 level.",
+    "rows": "1-19",
+    "entrance_row": "Row 19",
+    "seat_direction": "When looking towards the stage/field, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Rows 14 and above are under cover. Panoramic seat-view photo is labeled 'Section 241/242'.",
+    "source": "https://www.rateyourseats.com/truist-park/seating/sections/242"
+  },
+  {
+    "section": "243",
+    "zone": "Terrace Level Down the Line",
+    "location": "Terrace Level Down the Line: 'Sections 244-246 will be above the visitor's bullpen in left field' (zone-level statement; 243 is adjacent, moving toward that end).",
+    "rows": "1-17, 18-19",
+    "entrance_row": "Row 19",
+    "seat_direction": "When looking towards the stage/field, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Rows labeled 1-17, 18-19 (split range). Wheelchair seating available behind Row 17. Rows 14 and above are under cover. Panoramic seat-view photo is labeled 'Section 243/244'.",
+    "source": "https://www.rateyourseats.com/truist-park/seating/sections/243"
+  },
+  {
+    "section": "244",
+    "zone": "Terrace Level Down the Line",
+    "location": "'Sections 244-246 will be above the visitor's bullpen in left field, but fans looking for a chance to catch a foul or home run ball should look elsewhere.'",
+    "rows": "1-5",
+    "entrance_row": "UNKNOWN",
+    "seat_direction": "When looking towards the stage/field, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Rows labeled 1-5 (much shorter than neighboring 233-243, which run to 17-19) — recorded verbatim, not reconciled. No cover/wheelchair statement found for this section. Lowest price $166, notably higher than neighboring down-the-line sections (233-243 priced $16-$32), suggesting 244 may be a distinct premium sub-area despite sharing the 'Terrace Level Down the Line' review block; not explained by the source.",
+    "source": "https://www.rateyourseats.com/truist-park/seating/sections/244"
+  },
+  {
+    "section": "245",
+    "zone": "Terrace Level Down the Line",
+    "location": "'Sections 244-246 will be above the visitor's bullpen in left field.' Also flagged for concerts: '245 is behind the stage or to the side of the stage for most shows.'",
+    "rows": "1-3",
+    "entrance_row": "UNKNOWN",
+    "seat_direction": "When looking towards the stage/field, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights: 'Rows 1-3' and 'Behind/Side Stage (most shows)' — the latter is a concert-only note. No baseball-specific seat-view photo was returned on this page.",
+    "source": "https://www.rateyourseats.com/truist-park/seating/sections/245"
+  },
+  {
+    "section": "246",
+    "zone": "Terrace Level Down the Line",
+    "location": "Terrace Level Down the Line: 'sections 210 and 246 the last section on either end of right and left field in the 200 level.' 'Sections 244-246 will be above the visitor's bullpen in left field.' Also flagged for concerts as behind/side stage.",
+    "rows": "1-5",
+    "entrance_row": "UNKNOWN",
+    "seat_direction": "When looking towards the stage/field, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights: 'Rows 1-5' and 'Behind/Side Stage (most shows)' — the latter is a concert-only note. No baseball-specific seat-view photo was returned on this page.",
+    "source": "https://www.rateyourseats.com/truist-park/seating/sections/246"
+  },
+  {
+    "section": "250",
+    "zone": "Home Run Porch",
+    "location": "'The Home Run Porch seats at Truist Park include Sections 144–155 and Section 250 and sit just beyond the outfield wall.' Located between the left field foul pole and the start of the Chop House area in right-center.",
+    "rows": "UNKNOWN — General Admission",
+    "entrance_row": "UNKNOWN",
+    "seat_direction": "UNKNOWN",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Page states verbatim: 'This is a general admission seating area. Seats and rows are not assigned and are first-come, first-serve.' No 'lower number seats on the right' sentence appears for this section (unlike numbered sections). Zone text: 'The Braves bullpen is located beneath Sections 153 and 154, while the visiting team bullpen sits below Sections 144 and 145.' Most seats receive significant sun exposure; Sections 144-145 (not 250) have overhead coverage. Close to the Kids Zone. Also flagged for concerts as behind/side stage.",
+    "source": "https://www.rateyourseats.com/truist-park/seating/sections/250"
+  }
+]

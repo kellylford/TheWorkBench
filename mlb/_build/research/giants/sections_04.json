@@ -1,0 +1,222 @@
+[
+  {
+    "section": "213",
+    "zone": "Alaska Airlines Club Level (200 Level)",
+    "location": "\"The Alaska Airlines Club Level makes up the entire 200 level at Oracle Park, including Sections 202-234.\" and \"Sections on the first base side (Sections 204-214) are typically among the shadiest seats at Oracle Park, making them a strong choice for afternoon games.\" Section Insights list \"Home Plate View\"; Seating Notes read \"For baseball games, desirable view from behind home plate\".",
+    "rows": "A-K",
+    "entrance_row": "Row K",
+    "seat_direction": "When looking towards the field/field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Fan Feedback (verbatim): NONE - the page carries no Fan Reviews block and no Q&A. Sun/shade (verbatim): \"Rows F and above are shaded during most day games\"; the zone review adds \"The View Level overhang above covers the back couple rows of each section, helping protect fans from direct sunlight.\" INTERNAL INCONSISTENCY ON THIS PAGE, recorded unreconciled: the Row Numbers block says \"Rows in Section 213 are labeled A-K\" and \"An entrance to this section is located at Row K\", but the Section Insights and Seating Notes recommend \"rows I-M for outstanding convenience\" and the zone review says \"Row M is typically the last row in most sections\" - rows L and M are not listed as existing in this section. CONTRADICTS DISCOVERY: discovery.json 'uncertain' states that on the Club Level \"only Section 217 is confirmed to carry the 'Home Plate View' insight\"; this page carries it too. Discovery park facts that apply: numbering_direction.summary - \"SECTION NUMBERS INCREASE FROM THE FIRST-BASE / RIGHT-FIELD-CORNER SIDE TOWARD THE THIRD-BASE / LEFT-FIELD SIDE\" and \"CLUB / 200 LEVEL: 202-234, foul pole to foul pole only (does not wrap the outfield)\"; dugouts - home (Giants) dugout THIRD BASE side, visiting dugout FIRST BASE side, so this first-base-side section sits on the visitors' side; known_obstructions - the official netting statement covers \"Sections 101-135\" (lower bowl) only, so no netting is stated for this section, and the Club Level overhang flag on this page is a shade note rather than a stated view obstruction. Giants official landmarks near this section (from discovery.accessibility): Club Level family restrooms at \"Sections 213, 229\" and Club Level water fountains at \"Section 204, 213, 218, 226\".",
+    "source": "https://www.rateyourseats.com/oracle-park/seating/sections/213"
+  },
+  {
+    "section": "214",
+    "zone": "Alaska Airlines Club Level (200 Level)",
+    "location": "\"The Alaska Airlines Club Level makes up the entire 200 level at Oracle Park, including Sections 202-234.\" and \"Sections on the first base side (Sections 204-214) are typically among the shadiest seats at Oracle Park, making them a strong choice for afternoon games.\" Section Insights list \"Home Plate View\"; Seating Notes read \"For baseball games, desirable view from behind home plate\".",
+    "rows": "A-I",
+    "entrance_row": "Row I",
+    "seat_direction": "When looking towards the field/field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Fan Feedback (verbatim): NONE - the page carries no Fan Reviews block and no Q&A. Sun/shade (verbatim): \"Rows G and above are shaded during most day games\"; zone review: \"The View Level overhang above covers the back couple rows of each section, helping protect fans from direct sunlight.\" This is the LAST section named in the RateYourSeats first-base-side range 204-214. INTERNAL INCONSISTENCY, recorded unreconciled: this page says \"Rows in Section 214 are labeled A-I\" while the same page's zone review says \"Row M is typically the last row in most sections.\" CONTRADICTS DISCOVERY: discovery.json 'uncertain' states only Section 217 was confirmed to carry \"Home Plate View\" on the Club Level; 214 carries it as well. Discovery park facts that apply: numbering runs low = first base / right-field corner, high = third base / left field, and the 200 series runs foul pole to foul pole only; the visiting-team dugout is on the FIRST BASE side; the official netting statement covers \"Sections 101-135\" only, so no netting is stated for the Club Level.",
+    "source": "https://www.rateyourseats.com/oracle-park/seating/sections/214"
+  },
+  {
+    "section": "215",
+    "zone": "Alaska Airlines Club Level (200 Level)",
+    "location": "\"The Alaska Airlines Club Level makes up the entire 200 level at Oracle Park, including Sections 202-234.\" Section Insights list \"Home Plate View\"; Seating Notes read \"For baseball games, desirable view from behind home plate\". No source consulted places Section 215 on a named side of the diamond - it falls between the stated first-base range (204-214) and the stated left-field-line range (228-230).",
+    "rows": "A-I",
+    "entrance_row": "Row I",
+    "seat_direction": "When looking towards the field/field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Fan Feedback (verbatim): \"Houston Astros at San Francisco Giants - Jun 12, 2024\" (Sec 215 / Row E, Baseball) - a star rating with no review text. Sun/shade (verbatim): \"Rows H and above are shaded during most day games\"; zone review: \"The View Level overhang above covers the back couple rows of each section.\" INTERNAL INCONSISTENCY, recorded unreconciled: \"Rows in Section 215 are labeled A-I\" vs the same page's \"Row M is typically the last row in most sections.\" CONTRADICTS DISCOVERY: discovery.json 'uncertain' states only Section 217 was confirmed to carry \"Home Plate View\" on the Club Level; 215 carries it too. Discovery park facts that apply: numbering low = first base / right field, high = third base / left field; the 200 series does not wrap the outfield; the official netting statement covers \"Sections 101-135\" only, so no netting is stated here. Giants official landmark (discovery.accessibility): phone-charging stations at \"Sections: 105, 115, 119 (Guest Services behind home plate), 125, 205, 215, 315\".",
+    "source": "https://www.rateyourseats.com/oracle-park/seating/sections/215"
+  },
+  {
+    "section": "216",
+    "zone": "Alaska Airlines Club Level (200 Level)",
+    "location": "\"The Alaska Airlines Club Level makes up the entire 200 level at Oracle Park, including Sections 202-234.\" Section Insights list \"Home Plate View\"; Seating Notes read \"For baseball games, desirable view from behind home plate\". No source consulted assigns Section 216 to a named side of the diamond.",
+    "rows": "A-I",
+    "entrance_row": "Row I",
+    "seat_direction": "When looking towards the field/field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Fan Feedback (verbatim): \"Arizona Diamondbacks at San Francisco Giants - Sep 10, 2025 - Best seat in Oracle Park!\" (Sec 216 / Row A, Baseball). Sun/shade (verbatim): \"Rows I and above are shaded during most late afternoon games\"; zone review: \"The View Level overhang above covers the back couple rows of each section.\" INTERNAL INCONSISTENCY, recorded unreconciled: \"Rows in Section 216 are labeled A-I\" vs \"Row M is typically the last row in most sections\" on the same page. CONTRADICTS DISCOVERY: discovery.json 'uncertain' states only Section 217 was confirmed to carry \"Home Plate View\" on the Club Level; 216 carries it too. Discovery park facts that apply: numbering low = first base / right field, high = third base / left field; the 200 series runs foul pole to foul pole; the official netting statement covers \"Sections 101-135\" only, so no netting is stated for this section.",
+    "source": "https://www.rateyourseats.com/oracle-park/seating/sections/216"
+  },
+  {
+    "section": "217",
+    "zone": "Alaska Airlines Club Level (200 Level)",
+    "location": "\"The Alaska Airlines Club Level makes up the entire 200 level at Oracle Park, including Sections 202-234.\" Section Insights list \"Home Plate View\"; Seating Notes read \"For baseball games, desirable view from behind home plate\". No source consulted assigns Section 217 to a named side of the diamond; discovery.json treats 217 as the Club Level behind-home-plate anchor.",
+    "rows": "A-I",
+    "entrance_row": "Row I",
+    "seat_direction": "When looking towards the field/field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Fan Feedback (verbatim): NONE - the page carries no Fan Reviews block and no Q&A. Sun/shade (verbatim): \"Rows I and above are shaded during most late afternoon games\"; zone review: \"The View Level overhang above covers the back couple rows of each section.\" Row range A-I and entrance Row I match discovery.row_seat_conventions verbatim (\"Section 217 'Rows in Section 217 are labeled A-I', entrance at Row I\"). INTERNAL INCONSISTENCY, recorded unreconciled: \"Rows in Section 217 are labeled A-I\" vs the same page's \"Row M is typically the last row in most sections.\" DISCOVERY SUPPLEMENT: discovery.json flagged the Club Level home-plate anchor as \"SINGLE-SECTION AND UNDER-VERIFIED... only 217 is confirmed to carry the 'Home Plate View' insight\"; this batch found the same insight on 213, 214, 215, 216 and 218 as well, and NOT on 219 - i.e. the observed Club Level home-plate arc is 213-218. Discovery park facts that apply: the Giants (home) dugout is on the THIRD BASE side and the visitors' on the FIRST BASE side; the official netting statement covers \"Sections 101-135\" only. Giants official landmark (discovery.accessibility): \"The Nursing Room, presented by UCSF Health is located behind home plate on the Club Level (3rd level).\"",
+    "source": "https://www.rateyourseats.com/oracle-park/seating/sections/217"
+  },
+  {
+    "section": "218",
+    "zone": "Alaska Airlines Club Level (200 Level)",
+    "location": "\"The Alaska Airlines Club Level makes up the entire 200 level at Oracle Park, including Sections 202-234.\" Section Insights list \"Home Plate View\"; Seating Notes read \"For baseball games, desirable view from behind home plate\". No source consulted assigns Section 218 to a named side of the diamond.",
+    "rows": "A-K",
+    "entrance_row": "Row K",
+    "seat_direction": "When looking towards the field/field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Fan Feedback (verbatim): NONE - the page carries no Fan Reviews block and no Q&A. Sun/shade (verbatim): \"Rows K and above are shaded during most late afternoon games\"; zone review: \"The View Level overhang above covers the back couple rows of each section.\" INTERNAL INCONSISTENCY, recorded unreconciled: the Row Numbers block says \"Rows in Section 218 are labeled A-K\" with the entrance at Row K, while the Section Insights and Seating Notes recommend \"rows I-M for outstanding convenience\" and the zone review says \"Row M is typically the last row in most sections\" - rows L and M are not listed as existing here. CONTRADICTS DISCOVERY: discovery.json 'uncertain' states only Section 217 was confirmed to carry \"Home Plate View\" on the Club Level; 218 carries it too. This is the HIGHEST-numbered Club Level section observed with the home-plate insight (219 does not have it). Discovery park facts that apply: numbering low = first base / right field, high = third base / left field; the official netting statement covers \"Sections 101-135\" only. Giants official landmark (discovery.accessibility): Club Level water fountains at \"Section 204, 213, 218, 226\".",
+    "source": "https://www.rateyourseats.com/oracle-park/seating/sections/218"
+  },
+  {
+    "section": "219",
+    "zone": "Alaska Airlines Club Level (200 Level)",
+    "location": "\"The Alaska Airlines Club Level makes up the entire 200 level at Oracle Park, including Sections 202-234.\" No source consulted assigns Section 219 to a named side of the diamond, and this page does NOT carry the \"Home Plate View\" insight or the \"desirable view from behind home plate\" note.",
+    "rows": "A-K",
+    "entrance_row": "Row K",
+    "seat_direction": "When looking towards the field/field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Fan Feedback (verbatim): \"Best seat in the house! - Last night (4/30/2014) I had what I consider the best seat in the house. I use a cane to get around and seat 5 Row K..Section 219 allowed me to use the various food choices....the refreshments at the bar...the restrooms...-the elevator up and down...the great view of the field ...and best of all a seat with no one sitting directly in front of me!!! When I am looking for other seats for a game I hope that this seat is available because I am now spoiled!!!\" (Sec 219 / Row K, Baseball); \"Nobody in front and close to everything! - Last night (4/30/2014) I had what I consider the best seat in the house. I use a cane to get around and Section 219 Row K Seat 5 allowed me to use the various food choices....the refreshments at the bar...the restrooms...the elevator up and down...the great view of the field...and best of all a seat with no one sitting directly in front of me!!! When I am looking for other seats for a game I hope that this seat is available because I am now spoiled!!!\" (Sec 219 / Row K, Baseball); \"View was amazing - One of the best views in the park. Lots of leg room as well.\" (Sec 219 / Row F, Baseball); \"Arizona Diamondbacks at San Francisco Giants - May 26, 2019\" (Sec 219 / Row H, Baseball, no text). Sun/shade (verbatim): \"Rows K and above are shaded during most late afternoon games\"; zone review: \"The View Level overhang above covers the back couple rows of each section.\" INTERNAL INCONSISTENCY, recorded unreconciled: \"Rows in Section 219 are labeled A-K\" with the entrance at Row K, yet the Seating Notes recommend \"rows I-M for outstanding convenience\" and the zone review says \"Row M is typically the last row in most sections\". The two Row K reviews describe an open, step-free space in front of the row, consistent with the discovery note that Giants accessible seating tends to be \"furthest back\", but NO source states that Row K here is a designated accessible row. Discovery park facts that apply: numbering low = first base / right field, high = third base / left field; the official netting statement covers \"Sections 101-135\" only, so no netting is stated for the Club Level.",
+    "source": "https://www.rateyourseats.com/oracle-park/seating/sections/219"
+  },
+  {
+    "section": "220",
+    "zone": "Alaska Airlines Club Level (200 Level)",
+    "location": "\"The Alaska Airlines Club Level makes up the entire 200 level at Oracle Park, including Sections 202-234.\" and, for the football configuration only, \"For football games hosted at Oracle Park, Sections 220-232 are considered some of the best options due to their sideline views.\" No baseball-configuration source consulted assigns Section 220 to a named side of the diamond.",
+    "rows": "A-M",
+    "entrance_row": "Row M",
+    "seat_direction": "When looking towards the field/field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Fan Feedback (verbatim): \"St. Louis Cardinals at San Francisco Giants - Sep 23, 2025\" (Sec 220 / Row E, Baseball) - a star rating with no review text. Cover/overhang (verbatim): Section Insight \"Rows K & Above - Covered\" and Seating Note \"Rows K and above are under cover\"; zone review: \"The View Level overhang above covers the back couple rows of each section, helping protect fans from direct sunlight.\" NOTE the flag here reads \"Covered\" / \"under cover\", not the \"shaded during most day games\" wording used on 213-219. This section's A-M range and Row M entrance match the zone statements \"Row A is the first row in each Club Level section\" and \"Row M is typically the last row in most sections\" with no inconsistency. Discovery park facts that apply: numbering_direction.summary - numbering increases toward third base, so 220 sits toward the third-base side of the 213-218 home-plate arc; the Giants (home) dugout is on the THIRD BASE side; the official netting statement covers \"Sections 101-135\" (lower bowl) only, so no netting is stated for the Club Level.",
+    "source": "https://www.rateyourseats.com/oracle-park/seating/sections/220"
+  },
+  {
+    "section": "221",
+    "zone": "Alaska Airlines Club Level (200 Level)",
+    "location": "\"The Alaska Airlines Club Level makes up the entire 200 level at Oracle Park, including Sections 202-234.\" and, for the football configuration only, \"Club Level Sideline seating is made up of sections 221-231.\" / \"For football games hosted at Oracle Park, Sections 220-232 are considered some of the best options due to their sideline views.\" No baseball-configuration source consulted assigns Section 221 to a named side of the diamond.",
+    "rows": "A-M",
+    "entrance_row": "Row M",
+    "seat_direction": "When looking towards the field/field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Fan Feedback (verbatim): \"Arizona Diamondbacks at San Francisco Giants - May 14, 2025 - Great view of the ballpark and covered.\" (Sec 221 / Row M, Baseball); \"Cleveland Guardians at San Francisco Giants - Sep 13, 2023 - Great seats.\" (Sec 221 / Row F, Baseball). Cover/overhang (verbatim): Section Insight \"Rows K & Above - Covered\" and Seating Note \"Rows K and above are under cover\"; zone review: \"The View Level overhang above covers the back couple rows of each section.\" The Row M review \"Great view of the ballpark and covered\" independently corroborates the cover flag. Accessible-row note carried on this page (FOOTBALL configuration, verbatim): \"228 and 231 have 11 rows labeled A-K with row K being wheelchair accessible.\" - this names 228 and 231, NOT 221; recorded because it is the only wheelchair-row statement served on this page. Discovery park facts that apply: numbering increases toward third base; the Giants (home) dugout is on the THIRD BASE side; the official netting statement covers \"Sections 101-135\" only, so no netting is stated for the Club Level.",
+    "source": "https://www.rateyourseats.com/oracle-park/seating/sections/221"
+  },
+  {
+    "section": "222",
+    "zone": "Alaska Airlines Club Level (200 Level)",
+    "location": "\"The Alaska Airlines Club Level makes up the entire 200 level at Oracle Park, including Sections 202-234.\" and, for the football configuration only, \"Club Level Sideline seating is made up of sections 221-231.\" / \"For football games hosted at Oracle Park, Sections 220-232 are considered some of the best options due to their sideline views.\" No baseball-configuration source consulted assigns Section 222 to a named side of the diamond.",
+    "rows": "A-M",
+    "entrance_row": "Row M",
+    "seat_direction": "When looking towards the field/field/stage, lower number seats are on the right",
+    "seats_per_row": "Rows A through L have 16 seats; Row M has 13 seats",
+    "notes": "Seats-per-row is stated verbatim in this page's Q&A (Verified Feb 2026): \"How many seats are in Section CL222 Row C? Are seats 9 and 10 in the middle of the section or on an aisle?\" - \"Club level 222 has rows A through M. Rows A through L have 16 seats, which seat 1 is the right-most seat when looking at the field. Seat 16 would then be on the far left of the section. Row M has 13 seats which are numbered the same way as A through L. Seats 9 and 10 would then be in the middle of the section and not next to an aisle.\" This is an INDEPENDENT seat-level confirmation of the park-wide seat-1 rule in discovery.seat1_side_verbatim (\"lower number seats are on the right\"); it agrees, no contradiction. Fan Feedback (verbatim): \"Blackpink - Aug 22, 2023 - My friends and I enjoyed the Club Level so much! The entire floor was exclusive to only those with seats for that floor. That means less crowded compared to the main concession floor for the general admissions. We could see the stage and screens clearly and sound was great! They had plenty restrooms, food, drinks, and bars. But most importantly that floor had its own merchandise table. I'd buy Club Level seats again.\" (Sec 222 / Row M, Concert). Cover/overhang (verbatim): \"Rows K & Above - Covered\" / \"Rows K and above are under cover\"; zone review: \"The View Level overhang above covers the back couple rows of each section.\" Discovery park facts that apply: numbering increases toward third base; the Giants (home) dugout is on the THIRD BASE side; the official netting statement covers \"Sections 101-135\" only, so no netting is stated for the Club Level.",
+    "source": "https://www.rateyourseats.com/oracle-park/seating/sections/222"
+  },
+  {
+    "section": "223",
+    "zone": "Alaska Airlines Club Level (200 Level)",
+    "location": "\"The Alaska Airlines Club Level makes up the entire 200 level at Oracle Park, including Sections 202-234.\" and, for the football configuration only, \"Club Level Sideline seating is made up of sections 221-231.\" / \"For football games hosted at Oracle Park, Sections 220-232 are considered some of the best options due to their sideline views.\" No baseball-configuration source consulted assigns Section 223 to a named side of the diamond.",
+    "rows": "A-M",
+    "entrance_row": "Row M",
+    "seat_direction": "When looking towards the field/field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Fan Feedback (verbatim): NONE - the page carries no Fan Reviews block and no Q&A. Cover/overhang (verbatim): Section Insight \"Rows K & Above - Covered\" and Seating Note \"Rows K and above are under cover\"; zone review: \"The View Level overhang above covers the back couple rows of each section, helping protect fans from direct sunlight.\" Only baseball recommendation carried: \"For baseball games, we recommend these seats for great views of the field\". Discovery park facts that apply: numbering_direction.summary - numbering increases toward third base, so 223 sits on the third-base side of the observed 213-218 home-plate arc; the Giants (home) dugout is on the THIRD BASE side; the official netting statement covers \"Sections 101-135\" (lower bowl) only, so no netting is stated for the Club Level.",
+    "source": "https://www.rateyourseats.com/oracle-park/seating/sections/223"
+  },
+  {
+    "section": "224",
+    "zone": "Alaska Airlines Club Level (200 Level)",
+    "location": "\"The Alaska Airlines Club Level makes up the entire 200 level at Oracle Park, including Sections 202-234.\" and, for the football configuration only, \"Club Level Sideline seating is made up of sections 221-231.\" / \"For football games hosted at Oracle Park, Sections 220-232 are considered some of the best options due to their sideline views.\" No baseball-configuration source consulted assigns Section 224 to a named side of the diamond.",
+    "rows": "A-M",
+    "entrance_row": "Row M",
+    "seat_direction": "When looking towards the field/field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Fan Feedback (verbatim): NONE - the page carries no Fan Reviews block and no Q&A. Cover/overhang (verbatim): Section Insight \"Rows K & Above - Covered\" and Seating Note \"Rows K and above are under cover\"; zone review: \"The View Level overhang above covers the back couple rows of each section.\" Only baseball recommendation carried: \"For baseball games, we recommend rows I-M for outstanding convenience\" - consistent here because the section does run to Row M. Discovery park facts that apply: numbering increases toward third base; the Giants (home) dugout is on the THIRD BASE side; the official netting statement covers \"Sections 101-135\" only, so no netting is stated for the Club Level.",
+    "source": "https://www.rateyourseats.com/oracle-park/seating/sections/224"
+  },
+  {
+    "section": "225",
+    "zone": "Alaska Airlines Club Level (200 Level)",
+    "location": "\"The Alaska Airlines Club Level makes up the entire 200 level at Oracle Park, including Sections 202-234.\" and, for the football configuration only, \"Club Level Sideline seating is made up of sections 221-231.\" / \"For football games hosted at Oracle Park, Sections 220-232 are considered some of the best options due to their sideline views.\" This page also carries the Section Insight \"Midfield View\" with the Seating Note \"For football games, desirable view from near midfield\" - a FOOTBALL-configuration statement only, not a baseball one. No baseball-configuration source consulted assigns Section 225 to a named side of the diamond.",
+    "rows": "A-M",
+    "entrance_row": "Row M",
+    "seat_direction": "When looking towards the field/field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Fan Feedback (verbatim): NONE - the page carries no Fan Reviews block and no Q&A. Cover/overhang (verbatim): Section Insight \"Rows K & Above - Covered\" and Seating Note \"Rows K and above are under cover\"; zone review: \"The View Level overhang above covers the back couple rows of each section.\" CAUTION for downstream stages: the \"Midfield View\" insight on this page is explicitly football-configuration and must NOT be read as a baseball geometry statement. Discovery park facts that apply: numbering increases toward third base; the Giants (home) dugout is on the THIRD BASE side; the official netting statement covers \"Sections 101-135\" only, so no netting is stated for the Club Level.",
+    "source": "https://www.rateyourseats.com/oracle-park/seating/sections/225"
+  },
+  {
+    "section": "226",
+    "zone": "Alaska Airlines Club Level (200 Level)",
+    "location": "\"The Alaska Airlines Club Level makes up the entire 200 level at Oracle Park, including Sections 202-234.\" and, for the football configuration only, \"Club Level Sideline seating is made up of sections 221-231.\" / \"For football games hosted at Oracle Park, Sections 220-232 are considered some of the best options due to their sideline views.\" This page also carries the Section Insight \"Midfield View\" with the Seating Note \"For football games, desirable view from near midfield\" - a FOOTBALL-configuration statement only. No baseball-configuration source consulted assigns Section 226 to a named side of the diamond.",
+    "rows": "A-M",
+    "entrance_row": "Row M",
+    "seat_direction": "When looking towards the field/field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Fan Feedback (verbatim): \"St. Louis Cardinals at San Francisco Giants - Jul 6, 2019\" (Sec 226 / Row E, Baseball) - a star rating with no review text. Cover/overhang (verbatim): Section Insight \"Rows K & Above - Covered\" and Seating Note \"Rows K and above are under cover\"; zone review: \"The View Level overhang above covers the back couple rows of each section.\" CAUTION: the \"Midfield View\" insight is football-configuration only. Discovery park facts that apply: numbering increases toward third base; the Giants (home) dugout is on the THIRD BASE side; the official netting statement covers \"Sections 101-135\" only, so no netting is stated for the Club Level. Giants official landmark (discovery.accessibility): Club Level water fountains at \"Section 204, 213, 218, 226\".",
+    "source": "https://www.rateyourseats.com/oracle-park/seating/sections/226"
+  },
+  {
+    "section": "227",
+    "zone": "Alaska Airlines Club Level (200 Level)",
+    "location": "\"The Alaska Airlines Club Level makes up the entire 200 level at Oracle Park, including Sections 202-234.\" and, for the football configuration only, \"Club Level Sideline seating is made up of sections 221-231.\" / \"For football games hosted at Oracle Park, Sections 220-232 are considered some of the best options due to their sideline views.\" This page also carries the Section Insight \"Midfield View\" with the Seating Note \"For football games, desirable view from near midfield\" - a FOOTBALL-configuration statement only. No baseball-configuration source consulted assigns Section 227 to a named side of the diamond.",
+    "rows": "A-M",
+    "entrance_row": "Row M",
+    "seat_direction": "When looking towards the field/field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Fan Feedback (verbatim): no Fan Reviews block. The page does carry a Q&A (Verified Feb 2026): \"Does Section 227 get to take advantage of the club level eateries at AT&T Park?\" - \"Yes, all of the sections in the 200s (202-234) will have access to the Virgin America Club level concourse (located on the same level) which includes upscale food and beverage options available for purchase.\" NOTE this Q&A and its image caption use the STALE sponsor and venue names \"Virgin America Club Level\" and \"AT&T Park\"; the same page's 2026 review calls the same space the \"Alaska Airlines Club Level\" at \"Oracle Park\". Recorded unreconciled; discovery.venue already documents that RateYourSeats still serves legacy \"AT&T Park\" strings for this same building. Cover/overhang (verbatim): Section Insight \"Rows K & Above - Covered\" and Seating Note \"Rows K and above are under cover\"; zone review: \"The View Level overhang above covers the back couple rows of each section.\" Discovery park facts that apply: numbering increases toward third base; the Giants (home) dugout is on the THIRD BASE side; the official netting statement covers \"Sections 101-135\" only.",
+    "source": "https://www.rateyourseats.com/oracle-park/seating/sections/227"
+  },
+  {
+    "section": "228",
+    "zone": "Alaska Airlines Club Level (200 Level)",
+    "location": "\"The Alaska Airlines Club Level makes up the entire 200 level at Oracle Park, including Sections 202-234.\" and \"One of the highlights of the club level is the Alaska Airlines Flight Deck, located down the left field line near Sections 228-230.\" For the football configuration only: \"Club Level Sideline seating is made up of sections 221-231.\"",
+    "rows": "A-K",
+    "entrance_row": "Row K",
+    "seat_direction": "When looking towards the field/field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Fan Feedback (verbatim): \"Texas Rangers at San Francisco Giants - Apr 26, 2025 - Excellent view of the field and Jumbotron.\" (Sec 228 / Row H, Baseball); \"Athletics at San Francisco Giants - May 18, 2025 - Great seats. Nice view - no obstruction.\" (Sec 228 / Row A, Baseball). This is the FIRST of the three sections RateYourSeats places \"down the left field line\", which agrees with discovery.numbering_direction (high numbers = third base, then left field). Cover/overhang (verbatim): Section Insight \"Rows K & Above - Covered\" and Seating Note \"Rows K and above are under cover\"; zone review: \"The View Level overhang above covers the back couple rows of each section.\" ACCESSIBLE ROW, verbatim but FOOTBALL-configuration: \"228 and 231 have 11 rows labeled A-K with row K being wheelchair accessible.\" - this names Section 228 specifically and matches the A-K range shown for baseball, but the statement itself appears only in the football review, so it is NOT recorded as a confirmed baseball accessible-row label. discovery.row_seat_conventions records the accessible-row label convention as UNKNOWN. INTERNAL INCONSISTENCY, recorded unreconciled: \"Rows in Section 228 are labeled A-K\" vs the same page's \"Row M is typically the last row in most sections.\" Discovery park facts that apply: the Giants (home) dugout is on the THIRD BASE side; the official netting statement covers \"Sections 101-135\" (lower bowl) only, so no netting is stated for the Club Level.",
+    "source": "https://www.rateyourseats.com/oracle-park/seating/sections/228"
+  },
+  {
+    "section": "229",
+    "zone": "Alaska Airlines Club Level (200 Level)",
+    "location": "\"The Alaska Airlines Club Level makes up the entire 200 level at Oracle Park, including Sections 202-234.\" and \"One of the highlights of the club level is the Alaska Airlines Flight Deck, located down the left field line near Sections 228-230.\" For the football configuration only: \"Club Level Sideline seating is made up of sections 221-231.\"",
+    "rows": "A-M",
+    "entrance_row": "Row M",
+    "seat_direction": "When looking towards the field/field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Fan Feedback (verbatim): \"Dead and Company - Jul 16, 2023 - Club Level 229 Row F Seats 15\" (Sec 229 / Row F, Concert); \"New York Mets at San Francisco Giants - Jul 20, 2019\" (Sec 229 / Row D, Baseball, no text); \"Dead and Company - Jul 16, 2023\" (Sec 229 / Row F, Concert, no text). The Row F review naming \"Seats 15\" shows at least 15 seats exist in Row F, but no source states a seat count for this section, so seats_per_row remains UNKNOWN. Cover/overhang (verbatim): Section Insight \"Rows K & Above - Covered\" and Seating Note \"Rows K and above are under cover\"; zone review: \"The View Level overhang above covers the back couple rows of each section.\" This section is inside the stated Flight Deck range 228-230 \"down the left field line\", consistent with discovery.numbering_direction (high 200s = third base then left field). Discovery park facts that apply: the Giants (home) dugout is on the THIRD BASE side; the official netting statement covers \"Sections 101-135\" only, so no netting is stated for the Club Level. Giants official landmark (discovery.accessibility): Club Level family restrooms at \"Sections 213, 229\".",
+    "source": "https://www.rateyourseats.com/oracle-park/seating/sections/229"
+  },
+  {
+    "section": "230",
+    "zone": "Alaska Airlines Club Level (200 Level)",
+    "location": "\"The Alaska Airlines Club Level makes up the entire 200 level at Oracle Park, including Sections 202-234.\" and \"One of the highlights of the club level is the Alaska Airlines Flight Deck, located down the left field line near Sections 228-230.\" For the football configuration only: \"Club Level Sideline seating is made up of sections 221-231.\" / \"For football games hosted at Oracle Park, Sections 220-232 are considered some of the best options due to their sideline views.\"",
+    "rows": "A-M",
+    "entrance_row": "Row M",
+    "seat_direction": "When looking towards the field/field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Fan Feedback (verbatim): NONE - the page carries no Fan Reviews block and no Q&A. Cover/overhang (verbatim): Section Insight \"Rows K & Above - Covered\" and Seating Note \"Rows K and above are under cover\"; zone review: \"The View Level overhang above covers the back couple rows of each section.\" Only baseball recommendation carried: \"For baseball games, we recommend these seats for kids and family\". This is the LAST of the three sections RateYourSeats places \"down the left field line\" at the Flight Deck. Discovery park facts that apply: numbering_direction.summary - \"228-230 are 'down the left field line' at the Alaska Airlines Flight Deck\", which anchors the HIGH end of the 200 series on the left-field / third-base side; the Giants (home) dugout is on the THIRD BASE side; the official netting statement covers \"Sections 101-135\" only, so no netting is stated for the Club Level.",
+    "source": "https://www.rateyourseats.com/oracle-park/seating/sections/230"
+  },
+  {
+    "section": "231",
+    "zone": "Alaska Airlines Club Level (200 Level)",
+    "location": "\"The Alaska Airlines Club Level makes up the entire 200 level at Oracle Park, including Sections 202-234.\" and, for the football configuration only, \"Club Level Sideline seating is made up of sections 221-231.\" / \"For football games hosted at Oracle Park, Sections 220-232 are considered some of the best options due to their sideline views.\" Section 231 falls just past the stated Flight Deck range (228-230) \"down the left field line\"; no source consulted names Section 231's own position.",
+    "rows": "A-K",
+    "entrance_row": "Row K",
+    "seat_direction": "When looking towards the field/field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Fan Feedback (verbatim): NONE - the page carries no Fan Reviews block and no Q&A. Cover/overhang (verbatim): Section Insight \"Rows K & Above - Covered\" and Seating Note \"Rows K and above are under cover\"; zone review: \"The View Level overhang above covers the back couple rows of each section.\" ACCESSIBLE ROW, verbatim but FOOTBALL-configuration: \"228 and 231 have 11 rows labeled A-K with row K being wheelchair accessible.\" - this names Section 231 specifically and matches the A-K range shown for baseball, but it appears only in the football review, so it is NOT recorded as a confirmed baseball accessible-row label; discovery.row_seat_conventions records the accessible-row label convention as UNKNOWN. INTERNAL INCONSISTENCY, recorded unreconciled: \"Rows in Section 231 are labeled A-K\" vs the same page's \"Row M is typically the last row in most sections.\" Discovery park facts that apply: numbering increases toward third base then left field, so 231 sits beyond the Flight Deck toward the left-field end of the deck; the Giants (home) dugout is on the THIRD BASE side; the official netting statement covers \"Sections 101-135\" only, so no netting is stated for the Club Level.",
+    "source": "https://www.rateyourseats.com/oracle-park/seating/sections/231"
+  },
+  {
+    "section": "232",
+    "zone": "Alaska Airlines Club Level (200 Level)",
+    "location": "\"The Alaska Airlines Club Level makes up the entire 200 level at Oracle Park, including Sections 202-234.\" and, for the football configuration only, \"For football games hosted at Oracle Park, Sections 220-232 are considered some of the best options due to their sideline views.\" A fan review on this page states \"These seats were in the second level right on the corner in left field.\" (Sec 232 / Row 5).",
+    "rows": "A-M",
+    "entrance_row": "Row M",
+    "seat_direction": "When looking towards the field/field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Fan Feedback (verbatim): \"Great seats! - These were great seats, especially for the price... $60. Gives you access Virgin America club. Your own indoor bathrooms and food. Also access to the Virgin America Flight Deck. The Flight Deck gives you private access to an outdoor eating area that also has an outdoor bar. If I ever go back to AT&T Park, I'll look for these seat again. These seats were in the second level right on the corner in left field. Another great part, you have quick access out of the park after the game.\" (Sec 232 / Row 5, Baseball). CONTRADICTION ON ROW LABELS, recorded unreconciled: this review is filed under \"Row 5\", a NUMBERED row, while the same page's Row Numbers block says \"Rows in Section 232 are labeled A-M\" and the zone review says \"Row A is the first row in each Club Level section. Row M is typically the last row in most sections.\" discovery.row_seat_conventions likewise records the Club Level as \"LETTERS ONLY\". No numbered rows are stated to exist on the Club Level; the review's \"Row 5\" is not reconciled here. The same review also uses the stale sponsor/venue names \"Virgin America club\", \"Virgin America Flight Deck\" and \"AT&T Park\" for what the 2026 review calls the Alaska Airlines Club Level / Flight Deck at Oracle Park. The review's \"right on the corner in left field\" is the only source consulted that places Section 232 specifically, and it agrees with discovery.numbering_direction (high 200s = third base then left field). Cover/overhang (verbatim): Section Insight \"Rows K & Above - Covered\" and Seating Note \"Rows K and above are under cover\"; zone review: \"The View Level overhang above covers the back couple rows of each section.\" Discovery park facts that apply: the Giants (home) dugout is on the THIRD BASE side; the official netting statement covers \"Sections 101-135\" (lower bowl) only, so no netting is stated for the Club Level.",
+    "source": "https://www.rateyourseats.com/oracle-park/seating/sections/232"
+  }
+]

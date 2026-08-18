@@ -1,0 +1,222 @@
+[
+  {
+    "section": "143",
+    "zone": "Bleachers (RYS Expert Review header on this page: \"Bleacher Seats\")",
+    "location": "\"Bleacher seats at Oracle Park are located just beyond the outfield wall in left and center field, including Sections 136-144.\" and \"Sections 142-144 provide center field views\" and \"Outfield Bleacher Seating: Located in Sections 136-144 beyond the outfield wall.\"",
+    "rows": "5-29",
+    "entrance_row": "\"An entrance to this section is located at Row 29\"",
+    "seat_direction": "\"When looking towards the field/field/stage, lower number seats are on the right\"",
+    "seats_per_row": "Q&A (verbatim): \"Section 143 has 24 numbered seats in Rows 11 and higher, meaning that you will be just 2 seats off the aisle with Seat 22 in Row 30.\"",
+    "notes": "Section Insights list: \"Top Pick for Partying and Socializing\", \"Rows 5-29\", \"Behind/Side Stage (most shows)\". Seating Notes (verbatim): \"For baseball games, we recommend these seats for partying and socializing\". CONTRADICTION - ROWS, recorded unreconciled: the Row Numbers block states \"Rows in Section 143 are labeled 5-29\", but the same page's Q&A is headed \"Where is Section 143 Row 30 Seat 22 at AT&T Park?\" and answers \"Section 143 has 24 numbered seats in Rows 11 and higher, meaning that you will be just 2 seats off the aisle with Seat 22 in Row 30.\", and the page also carries a photo captioned \"View from Section 143 Row 33 at AT&T Park\" - i.e. Rows 30 and 33 are referenced although the labelled range stops at 29. Separately the Bleacher Seats zone review on the same page says \"Row 1 is the first row in most sections, and the first five rows are referred to as Premium Bleachers. However, this designation does not include additional amenities or benefits.\" while this section's labelled range starts at Row 5. Both readings recorded; NOT reconciled. Concert note (verbatim): \"143 is behind the stage or to the side of the stage for most concerts. This may restrict or limit your view of the performance.\" Weather/sun (zone review, verbatim): \"During day games, these seats are among the sunniest and warmest spots in Oracle Park, with little protection from direct sunlight.\" / \"During night games, the situation is often the opposite. The cool ocean breeze coming off the bay can make the bleachers some of the coldest seats in the stadium, even during summer months.\" Seating style (zone review, verbatim): \"Bleacher seats feature traditional bench-style seating rather than individual stadium chairs. Seats do not include back support, and seat numbers are typically marked along the bench to indicate each fan's reserved space.\" NETTING: the official Giants netting statement recorded in discovery.json covers \"Sections 101-135\"; Section 143 is outside that range and no netting statement was found on this page. Discovery cross-check: consistent with numbering_direction.summary, which places bleachers 142-144 in centre field (144 under the scoreboard). No fan reviews are shown on this page.",
+    "source": "https://www.rateyourseats.com/oracle-park/seating/sections/143"
+  },
+  {
+    "section": "144",
+    "zone": "Bleachers (RYS Expert Review header on this page: \"Bleacher Seats\")",
+    "location": "\"Bleacher seats at Oracle Park are located just beyond the outfield wall in left and center field, including Sections 136-144.\" and \"Sections 142-144 provide center field views\"",
+    "rows": "5-29",
+    "entrance_row": "\"An entrance to this section is located at Row 29\"",
+    "seat_direction": "\"When looking towards the field/field/stage, lower number seats are on the right\"",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights list: \"Top Pick for Partying and Socializing\", \"Rows 5-29\", \"Behind/Side Stage (most shows)\". Seating Notes (verbatim): \"For baseball games, we recommend these seats for partying and socializing\". Fan Feedback (verbatim): \"Really windy, but close to amenities - There's a reason these are among the cheapest bleacher seats in the park. They are really, really, really windy! It was 75 degrees outside of the stadium, but in these seats it was at least 25 degrees cooler. I was actually worried that my bottle of water was going to blow over. If you must sit in the bleachers, aim for seats in a lower row where the wind is less impactful. Otherwise, the view of the game is OK. You can't see all of the outfield and you're really late picking up the ball off the bat. That'll happen when you're 480 ft. from home plate. If you're appropriately dressed, these seats aren't so bad because they offer some great food nearby. I loaded up on the crab sandwich and some garlic fries and was in heaven. That and a bottle of water for $30 -- or five times more than my ticket. So what you save on the ticket you'll end up spending on some really tasty ballpark food.\" (Sec 144 / Row 33 - Baseball). CONTRADICTION - ROWS, recorded unreconciled: the Row Numbers block states \"Rows in Section 144 are labeled 5-29\", but the page's own fan review is filed as \"Sec 144 / Row 33\" and the lead photo is captioned \"Baseball Seat View From Section 144, Row 33\" - Row 33 is outside the labelled range. The Bleacher Seats zone review on the same page also says \"Row 1 is the first row in most sections, and the first five rows are referred to as Premium Bleachers.\" while this section's labelled range starts at Row 5. Both readings recorded; NOT reconciled. Concert note (verbatim): \"144 is behind the stage or to the side of the stage for most concerts. This may restrict or limit your view of the performance.\" Weather/sun (zone review, verbatim): \"During day games, these seats are among the sunniest and warmest spots in Oracle Park, with little protection from direct sunlight.\" / \"During night games... The cool ocean breeze coming off the bay can make the bleachers some of the coldest seats in the stadium, even during summer months.\" NETTING: the official Giants netting statement recorded in discovery.json covers \"Sections 101-135\"; Section 144 is outside that range and no netting statement was found on this page. Discovery cross-check: discovery.json records the Giants placing a cash-to-card machine at \"Promenade, Section 144 under the scoreboard, adjacent to the Coors Light Bar\", consistent with the centre-field placement stated here.",
+    "source": "https://www.rateyourseats.com/oracle-park/seating/sections/144"
+  },
+  {
+    "section": "145",
+    "zone": "Outfield Arcade (RYS Expert Review header on this page: \"Arcade Seats\")",
+    "location": "\"The Outfield Arcade is located directly on top of the right field wall at Oracle Park, overlooking McCovey Cove. This area includes sections 145-152 on the Giants seating chart.\" and \"Right Field Wall Seating: Located on top of the right field wall overlooking McCovey Cove.\"",
+    "rows": "1-7",
+    "entrance_row": "\"An entrance to this section is located at Row 7\"",
+    "seat_direction": "\"When looking towards the field/field/stage, lower number seats are on the right\"",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights list: \"Top Pick for Partying and Socializing\", \"Rows 1-7\", \"Behind/Side Stage (most shows)\". Seating Notes (verbatim): \"For baseball games, we recommend these seats for partying and socializing\". Zone review (verbatim): \"Each Arcade section features between three and seven rows of seating, keeping the area relatively small and intimate compared to other sections in the stadium.\" / \"Seats in this area are bleacher-style benches with back support, rather than individual stadium chairs.\" SUN (verbatim): \"Sunny Location: One of the sunniest seating areas at Oracle Park.\" and \"The Outfield Arcade is one of the sunniest areas in the ballpark, especially during day games, so fans should plan accordingly.\" CONCERT (verbatim): \"145 is behind the stage or to the side of the stage for most concerts. This may restrict or limit your view of the performance.\" and zone review \"For concerts held at Oracle Park, these seats typically offer some of the worst views of the stage due to their position in right field and the orientation of the concert setup.\" STANDING ROOM (verbatim): \"During sold-out games or major events, the area behind the Arcade seating becomes standing room only.\" NETTING: the official Giants netting statement recorded in discovery.json covers \"Sections 101-135\"; Section 145 is outside that range and no netting statement was found on this page. UNRESOLVED CONFLICT CARRIED FROM DISCOVERY (not resolved here, and not restated on this page): the Giants A-Z guide places the \"Coors Light Cove: Silver Seats\" \"in section 145 of the Arcade\", while RateYourSeats' Coors Light Silver Bullpen page says those seats \"are located in deep center field at Oracle Park\". No fan reviews are shown on this page.",
+    "source": "https://www.rateyourseats.com/oracle-park/seating/sections/145"
+  },
+  {
+    "section": "146",
+    "zone": "Outfield Arcade (RYS Expert Review header on this page: \"Arcade Seats\")",
+    "location": "\"The Outfield Arcade is located directly on top of the right field wall at Oracle Park, overlooking McCovey Cove. This area includes sections 145-152 on the Giants seating chart.\"",
+    "rows": "1-7",
+    "entrance_row": "\"An entrance to this section is located at Row 7\"",
+    "seat_direction": "\"When looking towards the field/field/stage, lower number seats are on the right\" ||| Q&A on the same page (verbatim): \"In Section 146, Rows 1-6 have a total of 23 seats per row, while Row 7 is slightly smaller with just 22 seats in the row. As you face the field, the lower numbered seats will be on the right side of the row, while the higher numbered seats are at the left side. Aisles are available at both ends of the seating rows in Section 146.\"",
+    "seats_per_row": "Q&A (verbatim): \"In Section 146, Rows 1-6 have a total of 23 seats per row, while Row 7 is slightly smaller with just 22 seats in the row.\"",
+    "notes": "Section Insights list: \"Top Pick for Partying and Socializing\", \"Rows 1-7\", \"Behind/Side Stage (most shows)\". Seating Notes (verbatim): \"For baseball games, we recommend these seats for partying and socializing\". Fan Feedback (verbatim): \"Section 146 Row 5 Seats 1-4\" (Sec 146 / Row 5 - Baseball; review title only, no body text). The Q&A independently confirms the boilerplate seat-1 direction (\"the lower numbered seats will be on the right side of the row\"), matching discovery.json seat1_side_verbatim. Also states \"Aisles are available at both ends of the seating rows in Section 146.\" SUN (verbatim): \"The Outfield Arcade is one of the sunniest areas in the ballpark, especially during day games, so fans should plan accordingly.\" CONCERT (verbatim): \"146 is behind the stage or to the side of the stage for most concerts. This may restrict or limit your view of the performance.\" NETTING: the official Giants netting statement recorded in discovery.json covers \"Sections 101-135\"; Section 146 is outside that range and no netting statement was found on this page.",
+    "source": "https://www.rateyourseats.com/oracle-park/seating/sections/146"
+  },
+  {
+    "section": "147",
+    "zone": "Outfield Arcade (RYS Expert Review header on this page: \"Arcade Seats\")",
+    "location": "\"The Outfield Arcade is located directly on top of the right field wall at Oracle Park, overlooking McCovey Cove. This area includes sections 145-152 on the Giants seating chart.\"",
+    "rows": "1-7",
+    "entrance_row": "\"An entrance to this section is located at Row 7\"",
+    "seat_direction": "\"When looking towards the field/field/stage, lower number seats are on the right\"",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights list: \"Rows 1-7\", \"Behind/Side Stage (most shows)\". This page shows NO \"Seating Notes\" block. Fan Feedback (verbatim): \"Los Angeles Dodgers at San Francisco Giants - Sep 14, 2025\" (Sec 147 / Row 6 - Baseball; review title only, no body text). SUN (verbatim): \"The Outfield Arcade is one of the sunniest areas in the ballpark, especially during day games, so fans should plan accordingly.\" CONCERT (verbatim): \"147 is behind the stage or to the side of the stage for most concerts. This may restrict or limit your view of the performance.\" NETTING: the official Giants netting statement recorded in discovery.json covers \"Sections 101-135\"; Section 147 is outside that range and no netting statement was found on this page.",
+    "source": "https://www.rateyourseats.com/oracle-park/seating/sections/147"
+  },
+  {
+    "section": "148",
+    "zone": "Outfield Arcade (RYS Expert Review header on this page: \"Arcade Seats\")",
+    "location": "\"The Outfield Arcade is located directly on top of the right field wall at Oracle Park, overlooking McCovey Cove. This area includes sections 145-152 on the Giants seating chart.\"",
+    "rows": "1-3",
+    "entrance_row": "\"An entrance to this section is located at Row 3\"",
+    "seat_direction": "\"When looking towards the field/field/stage, lower number seats are on the right\"",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights list: \"Top Pick for Partying and Socializing\", \"Rows 1-3\". Seating Notes (verbatim): \"For baseball games, we recommend these seats for partying and socializing\". Fan Feedback (verbatim): \"Front row above right field - The view of the game is amazing. You are in the front row right above right field. You may even get one of the practice balls thrown into the stands at the end of every 1/2 inning! However, the seats are bench seats.\" (Sec 148 / Row 1 - Baseball). Fan Feedback (verbatim): \"Cleveland Guardians at San Francisco Giants - Sep 13, 2023 - Seats were first row and behind you is McCovey Cove. Concessions and bathrooms are not too far. If a fly ball is hit to deep right field you have to lean over to see if it is caught but not a big deal in the first row.\" (Sec 148 / Row 1 - Baseball). Two further Row 1 reviews are title-only (\"Los Angeles Dodgers at San Francisco Giants - May 13, 2024\"). SIGHTLINE LIMITATION (fan, verbatim): \"If a fly ball is hit to deep right field you have to lean over to see if it is caught but not a big deal in the first row.\" SUN (verbatim): \"The Outfield Arcade is one of the sunniest areas in the ballpark, especially during day games, so fans should plan accordingly.\" This page shows NO concert limited-view block. NETTING: the official Giants netting statement recorded in discovery.json covers \"Sections 101-135\"; Section 148 is outside that range and no netting statement was found on this page.",
+    "source": "https://www.rateyourseats.com/oracle-park/seating/sections/148"
+  },
+  {
+    "section": "149",
+    "zone": "Outfield Arcade (RYS Expert Review header on this page: \"Arcade Seats\")",
+    "location": "\"The Outfield Arcade is located directly on top of the right field wall at Oracle Park, overlooking McCovey Cove. This area includes sections 145-152 on the Giants seating chart.\"",
+    "rows": "1-3",
+    "entrance_row": "\"An entrance to this section is located at Row 3\"",
+    "seat_direction": "\"When looking towards the field/field/stage, lower number seats are on the right\"",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights list: \"Top Pick for Partying and Socializing\", \"Rows 1-3\". Seating Notes (verbatim): \"For baseball games, we recommend these seats for partying and socializing\". No fan reviews and no Q&A are shown on this page. SUN (verbatim): \"Sunny Location: One of the sunniest seating areas at Oracle Park.\" / \"The Outfield Arcade is one of the sunniest areas in the ballpark, especially during day games, so fans should plan accordingly.\" This page shows NO concert limited-view block. NETTING: the official Giants netting statement recorded in discovery.json covers \"Sections 101-135\"; Section 149 is outside that range and no netting statement was found on this page.",
+    "source": "https://www.rateyourseats.com/oracle-park/seating/sections/149"
+  },
+  {
+    "section": "150",
+    "zone": "Outfield Arcade (RYS Expert Review header on this page: \"Arcade Seats\")",
+    "location": "\"The Outfield Arcade is located directly on top of the right field wall at Oracle Park, overlooking McCovey Cove. This area includes sections 145-152 on the Giants seating chart.\"",
+    "rows": "1-3",
+    "entrance_row": "\"An entrance to this section is located at Row 3\"",
+    "seat_direction": "\"When looking towards the field/field/stage, lower number seats are on the right\"",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights list: \"Rows 1-3\". This page shows NO \"Seating Notes\" block and no fan reviews. CONTRADICTION - ROW 0, recorded unreconciled: the Row Numbers block states \"Rows in Section 150 are labeled 1-3\", but the same page's Q&A is headed \"Where is Section 150 Row 0 at AT&T Park?\" and answers (verbatim) \"Row 0 seating in AT&T Park outfield sections are generally reserved for handicapped seating. These seats are often folding chairs set up in front of the regular permanent seating in the outfield sections, so they will be located at the front of Section 150.\" A Row 0 is therefore described but is not in the labelled range. Both readings recorded; NOT reconciled. This is the only accessible-seating placement statement found for this batch and it places accessible seating at the FRONT of the section - note that discovery.json records the opposite pattern elsewhere in the park (Section 118 Q&A: last row / \"furthest back\"). SUN (verbatim): \"The Outfield Arcade is one of the sunniest areas in the ballpark, especially during day games, so fans should plan accordingly.\" NETTING: the official Giants netting statement recorded in discovery.json covers \"Sections 101-135\"; Section 150 is outside that range and no netting statement was found on this page.",
+    "source": "https://www.rateyourseats.com/oracle-park/seating/sections/150"
+  },
+  {
+    "section": "151",
+    "zone": "Outfield Arcade (RYS Expert Review header on this page: \"Arcade Seats\")",
+    "location": "\"The Outfield Arcade is located directly on top of the right field wall at Oracle Park, overlooking McCovey Cove. This area includes sections 145-152 on the Giants seating chart.\"",
+    "rows": "1-3",
+    "entrance_row": "\"An entrance to this section is located at Row 3\"",
+    "seat_direction": "\"When looking towards the field/field/stage, lower number seats are on the right\"",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights list: \"Rows 1-3\". This page shows NO \"Seating Notes\" block. Fan Feedback (verbatim): \"SRO behind Section 151 - SRO seats behind section 151. Behind where they put up the 'K's'. For SRO they were very. Good view of much of the field, except deep right field, and has good view of scoreboard. SRO lines are maybe 2.5 feet wide, enough for a couple of people deep. Get there early in order to have space. Beware of anyone big and tall slipping in front of you. You'll have no view at all. Do 'occupy' your space. By its very nature, any space left open will be encroached on by others. Food lines at the garlic fry stand close by were very short (it's behind the main concessions) while the ones on the main concession way were packed. Food is OK, but way, way overpriced as everywhere else at ATT Park.\" (Sec 151 / Row SRO - Baseball). NOTE: that review is filed under a row label \"SRO\", which is not in the labelled range 1-3; it describes the standing-room area behind the section, consistent with the zone review \"During sold-out games or major events, the area behind the Arcade seating becomes standing room only.\" and with the discovery.json Standing Room Only note (\"The most popular SRO area is located beyond the right field wall, behind Sections 145 through 152.\"). SIGHTLINE LIMITATION (fan, verbatim, applies to the SRO area not the seats): \"Good view of much of the field, except deep right field\". SUN (verbatim): \"The Outfield Arcade is one of the sunniest areas in the ballpark, especially during day games, so fans should plan accordingly.\" This page shows NO concert limited-view block. NETTING: the official Giants netting statement recorded in discovery.json covers \"Sections 101-135\"; Section 151 is outside that range and no netting statement was found on this page.",
+    "source": "https://www.rateyourseats.com/oracle-park/seating/sections/151"
+  },
+  {
+    "section": "152",
+    "zone": "Outfield Arcade (RYS Expert Review header on this page: \"Arcade Seats\")",
+    "location": "\"The Outfield Arcade is located directly on top of the right field wall at Oracle Park, overlooking McCovey Cove. This area includes sections 145-152 on the Giants seating chart.\"",
+    "rows": "1-3 (page wording, verbatim: \"For most events, rows in Section 152 are labeled 1-3\")",
+    "entrance_row": "\"An entrance to this section is located at Row 3\"",
+    "seat_direction": "\"When looking towards the field/field/stage, lower number seats are on the right\"",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights list: \"Rows 1-3\". This page shows NO \"Seating Notes\" block. Fan Feedback (verbatim): \"My first game! - As a newcomer to baseball, I thought these seats were very good, and excellent value - paid $30.\" (Sec 152 / Row 2 - Baseball). Note the row wording is hedged on this page - \"For most events, rows in Section 152 are labeled 1-3\" - unlike the flat \"Rows in Section X are labeled...\" used on 145-151. SUN (verbatim): \"The Outfield Arcade is one of the sunniest areas in the ballpark, especially during day games, so fans should plan accordingly.\" This page shows NO concert limited-view block. NETTING: the official Giants netting statement recorded in discovery.json covers \"Sections 101-135\"; Section 152 is outside that range and no netting statement was found on this page. Discovery cross-check: 152 is the highest 100-level number and sits in RIGHT field because the 100 series wraps the outfield - consistent with numbering_direction.summary.",
+    "source": "https://www.rateyourseats.com/oracle-park/seating/sections/152"
+  },
+  {
+    "section": "202",
+    "zone": "Alaska Airlines Club Level (RYS Expert Review header on this page: \"Club Level\")",
+    "location": "\"The Alaska Airlines Club Level makes up the entire 200 level at Oracle Park, including Sections 202-234.\" ||| The only section-specific placement statement on this page is from the FOOTBALL review: \"The view from sections 202-204 is outside of the playing field, which makes the view less than ideal for football.\"",
+    "rows": "A-M",
+    "entrance_row": "\"An entrance to this section is located at Row M\"",
+    "seat_direction": "\"When looking towards the field/field/stage, lower number seats are on the right\"",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights list: \"Club Level\", \"Rows K & Above - Covered\", \"Rows A-M\". Seating Notes (verbatim): \"Premium seating area as part of the Club Level\" / \"Rows K and above are under cover\". OVERHANG/COVER (zone review, verbatim): \"The View Level overhang above covers the back couple rows of each section, helping protect fans from direct sunlight.\" NOTE ON LOCATION: no BASEBALL-specific sentence on this page places Section 202 on a side of the park; the \"first base side (Sections 204-214)\" shade sentence starts at 204, and the only 202-specific geometry is the football-configuration line quoted above. Discovery.json anchors 202-204 at the right-field end / first-base side of the club deck, but that is not restated on this page. No fan reviews and no Q&A are shown on this page. NETTING: no netting statement appears on this page; the official Giants netting range recorded in discovery.json is \"Sections 101-135\" (lower bowl only).",
+    "source": "https://www.rateyourseats.com/oracle-park/seating/sections/202"
+  },
+  {
+    "section": "203",
+    "zone": "Alaska Airlines Club Level (RYS Expert Review header on this page: \"Club Level\")",
+    "location": "\"The Alaska Airlines Club Level makes up the entire 200 level at Oracle Park, including Sections 202-234.\" ||| Q&A on the same page (verbatim): \"Finally, the O'Doul gate is easily accessed from King and 3rd streets and is the best option for fans down the first baseline, including section 203.\" ||| FOOTBALL review: \"The view from sections 202-204 is outside of the playing field, which makes the view less than ideal for football.\"",
+    "rows": "A-K",
+    "entrance_row": "\"An entrance to this section is located at Row K\"",
+    "seat_direction": "\"When looking towards the field/field/stage, lower number seats are on the right\"",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights list: \"Top Pick for Outstanding Convenience Rows I-M\", \"Club Level\", \"Rows K & Above - Covered\", \"Rows A-K\". Seating Notes (verbatim): \"For baseball games, we recommend rows I-M for outstanding convenience\" / \"Premium seating area as part of the Club Level\" / \"Rows K and above are under cover\". INTERNAL INCONSISTENCY, recorded unreconciled: the labelled row range for this section is \"A-K\", yet the Section Insight and Seating Note both recommend \"rows I-M\" - Rows L and M are not in this section's labelled range. Also note the zone review says \"Row M is typically the last row in most sections\" while this section ends at K. Both recorded; NOT reconciled. Fan Feedback (verbatim): \"Seattle Mariners at San Francisco Giants - Jul 4, 2023 - These seats were shaded for the entire game (1.35pm start time)! We had fantastic views of the bay, the Bay Bridge, and the game. Plus, we had the convenience of being quite close to the Club Level amenities. Bring a jacket, though: the shade the breeze can actually make it a bit chilly, especially in the later innings.\" (Sec 203 / Row F - Baseball). Fan Feedback (verbatim): \"Tampa Bay Rays at San Francisco Giants - Aug 16, 2023 - Great experience all around, especially the food and the fact that you have access to the indoor part of the park.\" (Sec 203 / Row J - Baseball). The gate Q&A places section 203 \"down the first baseline\", which agrees with discovery.json numbering_direction (low 200s = first base / right-field end). NETTING: no netting statement appears on this page; the official Giants netting range recorded in discovery.json is \"Sections 101-135\" (lower bowl only).",
+    "source": "https://www.rateyourseats.com/oracle-park/seating/sections/203"
+  },
+  {
+    "section": "204",
+    "zone": "Alaska Airlines Club Level (RYS Expert Review header on this page: \"Club Level\")",
+    "location": "\"Sections on the first base side (Sections 204-214) are typically among the shadiest seats at Oracle Park, making them a strong choice for afternoon games.\" and \"The Alaska Airlines Club Level makes up the entire 200 level at Oracle Park, including Sections 202-234.\" ||| FOOTBALL review: \"The view from sections 202-204 is outside of the playing field, which makes the view less than ideal for football.\"",
+    "rows": "A-M",
+    "entrance_row": "\"An entrance to this section is located at Row M\"",
+    "seat_direction": "\"When looking towards the field/field/stage, lower number seats are on the right\"",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights list: \"Top Pick for Outstanding Convenience Rows I-M\", \"Club Level\", \"Rows K & Above - Covered\", \"Rows A-M\". Seating Notes (verbatim): \"For baseball games, we recommend rows I-M for outstanding convenience\" / \"Premium seating area as part of the Club Level\" / \"Rows K and above are under cover\". Fan Feedback (verbatim): \"Perfect in every way - Perfect view of complete game. Food vendors just up the stairs, ditto restrooms. The ushers were totally helpful from front gate to seats. You can't go wrong sitting in this section.\" (Sec 204 / Row d - Baseball). SHADE (zone review, verbatim): \"Sections on the first base side (Sections 204-214) are typically among the shadiest seats at Oracle Park\" and \"The View Level overhang above covers the back couple rows of each section\". NOTE: the football sentence \"The view from sections 202-204 is outside of the playing field\" applies to the FOOTBALL configuration only and is not a baseball statement; recorded verbatim rather than reconciled with the baseball \"first base side\" placement. Discovery cross-check: the Giants list a Club Level water fountain at \"Section 204\". NETTING: no netting statement appears on this page; the official Giants netting range recorded in discovery.json is \"Sections 101-135\" (lower bowl only).",
+    "source": "https://www.rateyourseats.com/oracle-park/seating/sections/204"
+  },
+  {
+    "section": "205",
+    "zone": "Alaska Airlines Club Level (RYS Expert Review header on this page: \"Club Level\")",
+    "location": "\"Sections on the first base side (Sections 204-214) are typically among the shadiest seats at Oracle Park, making them a strong choice for afternoon games.\" and \"The Alaska Airlines Club Level makes up the entire 200 level at Oracle Park, including Sections 202-234.\"",
+    "rows": "A-K",
+    "entrance_row": "\"An entrance to this section is located at Row K\"",
+    "seat_direction": "\"When looking towards the field/field/stage, lower number seats are on the right\"",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights list: \"Top Pick for Outstanding Convenience Rows I-M\", \"Club Level\", \"Rows K & Above - Covered\", \"Rows A-K\". Seating Notes (verbatim): \"For baseball games, we recommend rows I-M for outstanding convenience\" / \"Premium seating area as part of the Club Level\" / \"Rows K and above are under cover\". INTERNAL INCONSISTENCY, recorded unreconciled: the labelled row range is \"A-K\" but the recommendation names \"rows I-M\"; Rows L and M are not in this section's labelled range. The zone review's \"Row M is typically the last row in most sections\" also does not hold here. Both recorded; NOT reconciled. No fan reviews and no Q&A are shown on this page. SHADE (zone review, verbatim): \"Sections on the first base side (Sections 204-214) are typically among the shadiest seats at Oracle Park\". Discovery cross-check: the Giants list a phone-charging station at \"205\" and an unlabelled Club Level facility at \"Sections 205, 234\". NETTING: no netting statement appears on this page; the official Giants netting range recorded in discovery.json is \"Sections 101-135\" (lower bowl only).",
+    "source": "https://www.rateyourseats.com/oracle-park/seating/sections/205"
+  },
+  {
+    "section": "207",
+    "zone": "Alaska Airlines Club Level (RYS Expert Review header on this page: \"Club Level\")",
+    "location": "\"Sections on the first base side (Sections 204-214) are typically among the shadiest seats at Oracle Park, making them a strong choice for afternoon games.\" and \"The Alaska Airlines Club Level makes up the entire 200 level at Oracle Park, including Sections 202-234.\"",
+    "rows": "A-M",
+    "entrance_row": "\"An entrance to this section is located at Row M\"",
+    "seat_direction": "\"When looking towards the field/field/stage, lower number seats are on the right\"",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights list: \"Top Pick for Great Views of the Field\", \"Club Level\", \"Rows K & Above - Covered\", \"Rows A-M\". Seating Notes (verbatim): \"For baseball games, we recommend these seats for great views of the field\" / \"Premium seating area as part of the Club Level\" / \"Rows K and above are under cover\". No fan reviews and no Q&A are shown on this page. SHADE (zone review, verbatim): \"Sections on the first base side (Sections 204-214) are typically among the shadiest seats at Oracle Park\" and \"The View Level overhang above covers the back couple rows of each section, helping protect fans from direct sunlight.\" Note: RateYourSeats does NOT flag \"Home Plate View\" on this page (per discovery.json only 217 carries that insight on the club level). NETTING: no netting statement appears on this page; the official Giants netting range recorded in discovery.json is \"Sections 101-135\" (lower bowl only).",
+    "source": "https://www.rateyourseats.com/oracle-park/seating/sections/207"
+  },
+  {
+    "section": "208",
+    "zone": "Alaska Airlines Club Level (RYS Expert Review header on this page: \"Club Level\")",
+    "location": "\"Sections on the first base side (Sections 204-214) are typically among the shadiest seats at Oracle Park, making them a strong choice for afternoon games.\" and \"The Alaska Airlines Club Level makes up the entire 200 level at Oracle Park, including Sections 202-234.\"",
+    "rows": "A-M",
+    "entrance_row": "\"An entrance to this section is located at Row M\"",
+    "seat_direction": "\"When looking towards the field/field/stage, lower number seats are on the right\"",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights list: \"Top Pick for Great Views of the Field\", \"Club Level\", \"Rows K & Above - Covered\", \"Rows A-M\". Seating Notes (verbatim): \"For baseball games, we recommend these seats for great views of the field\" / \"Premium seating area as part of the Club Level\" / \"Rows K and above are under cover\". No fan reviews and no Q&A are shown on this page. SHADE (zone review, verbatim): \"Sections on the first base side (Sections 204-214) are typically among the shadiest seats at Oracle Park\". NETTING: no netting statement appears on this page; the official Giants netting range recorded in discovery.json is \"Sections 101-135\" (lower bowl only).",
+    "source": "https://www.rateyourseats.com/oracle-park/seating/sections/208"
+  },
+  {
+    "section": "209",
+    "zone": "Alaska Airlines Club Level (RYS Expert Review header on this page: \"Club Level\")",
+    "location": "\"Sections on the first base side (Sections 204-214) are typically among the shadiest seats at Oracle Park, making them a strong choice for afternoon games.\" and \"The Alaska Airlines Club Level makes up the entire 200 level at Oracle Park, including Sections 202-234.\"",
+    "rows": "A-K",
+    "entrance_row": "\"An entrance to this section is located at Row K\"",
+    "seat_direction": "\"When looking towards the field/field/stage, lower number seats are on the right\"",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights list: \"Top Pick for Impressing a Guest\", \"Top Pick for Great Views of the Field\", \"Club Level\", \"Rows K & Above - Covered\", \"Rows A-K\". Seating Notes (verbatim): \"For baseball games, we recommend these seats for impressing a guest\" / \"For baseball games, we recommend these seats for great views of the field\" / \"Premium seating area as part of the Club Level\" / \"Rows K and above are under cover\". OBSTRUCTION - Fan Feedback (verbatim): \"Club level was awesome! - Great seats although there is a safety bar at the end of the stairs that does provide a small blind spot for the very end seat. Club level was awesome! Good food choices, clean bathrooms and easy access. Not overrun with people.\" (Sec 209 / Row C - Baseball). A second review is title-only (\"Los Angeles Dodgers at San Francisco Giants - May 13, 2024\", Sec 209 / Row E). NOTE the zone review's \"Row M is typically the last row in most sections\" does not hold for this section (labelled A-K); both recorded, NOT reconciled. SHADE (zone review, verbatim): \"Sections on the first base side (Sections 204-214) are typically among the shadiest seats at Oracle Park\". NETTING: no netting statement appears on this page; the official Giants netting range recorded in discovery.json is \"Sections 101-135\" (lower bowl only).",
+    "source": "https://www.rateyourseats.com/oracle-park/seating/sections/209"
+  },
+  {
+    "section": "210",
+    "zone": "Alaska Airlines Club Level (RYS Expert Review header on this page: \"Club Level\")",
+    "location": "\"Sections on the first base side (Sections 204-214) are typically among the shadiest seats at Oracle Park, making them a strong choice for afternoon games.\" and \"The Alaska Airlines Club Level makes up the entire 200 level at Oracle Park, including Sections 202-234.\"",
+    "rows": "A-M",
+    "entrance_row": "\"An entrance to this section is located at Row M\"",
+    "seat_direction": "\"When looking towards the field/field/stage, lower number seats are on the right\"",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights list: \"Top Pick for Impressing a Guest\", \"Top Pick for Great Views of the Field\", \"Club Level\", \"Rows K & Above - Covered\", \"Rows A-M\". Seating Notes (verbatim): \"For baseball games, we recommend these seats for impressing a guest\" / \"For baseball games, we recommend these seats for great views of the field\" / \"Premium seating area as part of the Club Level\" / \"Rows K and above are under cover\". Fan Feedback (verbatim): \"New York Mets at San Francisco Giants - Jul 18, 2019\" (Sec 210 / Row H - Baseball; review title only, no body text). SHADE (zone review, verbatim): \"Sections on the first base side (Sections 204-214) are typically among the shadiest seats at Oracle Park\" and \"The View Level overhang above covers the back couple rows of each section, helping protect fans from direct sunlight.\" NETTING: no netting statement appears on this page; the official Giants netting range recorded in discovery.json is \"Sections 101-135\" (lower bowl only).",
+    "source": "https://www.rateyourseats.com/oracle-park/seating/sections/210"
+  },
+  {
+    "section": "211",
+    "zone": "Alaska Airlines Club Level (RYS Expert Review header on this page: \"Club Level\")",
+    "location": "\"Sections on the first base side (Sections 204-214) are typically among the shadiest seats at Oracle Park, making them a strong choice for afternoon games.\" and \"The Alaska Airlines Club Level makes up the entire 200 level at Oracle Park, including Sections 202-234.\"",
+    "rows": "A-M",
+    "entrance_row": "\"An entrance to this section is located at Row M\"",
+    "seat_direction": "\"When looking towards the field/field/stage, lower number seats are on the right\"",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights list: \"Top Pick for Outstanding Convenience Rows I-M\", \"Top Pick for Impressing a Guest\", \"Club Level\", \"Rows K & Above - Covered\", \"Rows A-M\". Seating Notes (verbatim): \"For baseball games, we recommend rows I-M for outstanding convenience\" / \"For baseball games, we recommend these seats for impressing a guest\" / \"Premium seating area as part of the Club Level\" / \"Rows K and above are under cover\". Fan Feedback (verbatim): \"Boston Red Sox at San Francisco Giants - Jul 30, 2023 - Great view, close to Club concessions, in the shade!\" (Sec 211 / Row G - Baseball). SHADE (zone review, verbatim): \"Sections on the first base side (Sections 204-214) are typically among the shadiest seats at Oracle Park\"; the fan review independently corroborates shade at Row G. NETTING: no netting statement appears on this page; the official Giants netting range recorded in discovery.json is \"Sections 101-135\" (lower bowl only).",
+    "source": "https://www.rateyourseats.com/oracle-park/seating/sections/211"
+  },
+  {
+    "section": "212",
+    "zone": "Alaska Airlines Club Level (RYS Expert Review header on this page: \"Club Level\")",
+    "location": "\"Sections on the first base side (Sections 204-214) are typically among the shadiest seats at Oracle Park, making them a strong choice for afternoon games.\" and \"The Alaska Airlines Club Level makes up the entire 200 level at Oracle Park, including Sections 202-234.\"",
+    "rows": "A-K",
+    "entrance_row": "\"An entrance to this section is located at Row K\"",
+    "seat_direction": "\"When looking towards the field/field/stage, lower number seats are on the right\"",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights list: \"Top Pick for Outstanding Convenience Rows I-M\", \"Top Pick for Impressing a Guest\", \"Top Pick for Impressing a Guest\" (listed twice on the page), \"Head-on View (most shows)\", \"Club Level\", \"Afternoon Shade in Select Rows\", \"Rows A-K\". Seating Notes (verbatim): \"For baseball games, we recommend rows I-M for outstanding convenience\" / \"For baseball games, we recommend these seats for impressing a guest\" (listed twice) / \"Head-on view of the performance for end-stage concerts\" / \"Premium seating area as part of the Club Level\" / \"Rows E and above are shaded during most day games\". SHADE VARIANT: this page says \"Rows E and above are shaded during most day games\", whereas sections 202-211 in this batch all say \"Rows K and above are under cover\". Both recorded verbatim; NOT reconciled. INTERNAL INCONSISTENCY, recorded unreconciled: the labelled row range is \"A-K\" but the recommendation names \"rows I-M\"; Rows L and M are not in this section's labelled range. No fan reviews and no Q&A are shown on this page. Note: RateYourSeats does NOT flag \"Home Plate View\" on this page. NETTING: no netting statement appears on this page; the official Giants netting range recorded in discovery.json is \"Sections 101-135\" (lower bowl only).",
+    "source": "https://www.rateyourseats.com/oracle-park/seating/sections/212"
+  }
+]
