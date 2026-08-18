@@ -81,7 +81,7 @@ const BLACK_ONLY = { redQueenDoubler: false };
   stack(st, [['QC'], ['QS']]);          // black queens in two different hands
   G.doPick(st, 0);
   const h = st.players[0].hand.filter(c => c.id !== 'QC');
-  G.doBury(st, st.picker, [h[0].id, h[1].id]);
+  G.doBury(st, 0, [h[0].id, h[1].id]);
   check(st.doublers.length === 0,
     'a queen pair split across two hands must not double: ' + JSON.stringify(st.doublers));
 }
@@ -94,7 +94,7 @@ const BLACK_ONLY = { redQueenDoubler: false };
   stack(st, [['QC', 'QS']]);
   G.doPick(st, 0);
   const h = st.players[0].hand.filter(c => !/^Q[CS]$/.test(c.id));
-  G.doBury(st, st.picker, [h[0].id, h[1].id]);
+  G.doBury(st, 0, [h[0].id, h[1].id]);
   check(st.doublers.length === 1, 'one hand with both black queens should give one doubler');
   check(st.doublers[0].kind === 'black' && st.doublers[0].player === 0, 'wrong doubler recorded');
 }
@@ -107,7 +107,7 @@ const BLACK_ONLY = { redQueenDoubler: false };
   stack(st, [['QC', 'QS', 'QH', 'QD']]);
   G.doPick(st, 0);
   const h = st.players[0].hand.filter(c => c.r !== 'Q');
-  G.doBury(st, st.picker, [h[0].id, h[1].id]);
+  G.doBury(st, 0, [h[0].id, h[1].id]);
   check(st.doublers.length === 2, 'all four queens should give two doublers');
   const res = playOut(st);
   check(res.factor === 4, 'all four queens should make the hand worth 4x, got ' + res.factor);
@@ -136,7 +136,7 @@ const BLACK_ONLY = { redQueenDoubler: false };
       stack(st, [['QC', 'QS']]);
       G.doPick(st, 0);
       const h = st.players[0].hand.filter(c => !/^Q[CS]$/.test(c.id));
-      G.doBury(st, st.picker, [h[0].id, h[1].id]);
+      G.doBury(st, 0, [h[0].id, h[1].id]);
       return { st, res: playOut(st) };
     } finally {
       Math.random = realRandom;
@@ -179,7 +179,7 @@ const BLACK_ONLY = { redQueenDoubler: false };
   check(st.redealDoubler === true, 'expected a doubler after the redeal');
   st.turn = 0; G.doPick(st, 0);
   const h = st.players[0].hand;
-  G.doBury(st, st.picker, [h[0].id, h[1].id]);
+  G.doBury(st, 0, [h[0].id, h[1].id]);
   const res = playOut(st);
   check(res.factor === 2, 'the redealt hand should score 2x, got ' + res.factor);
   G.newHand(st);
@@ -194,7 +194,7 @@ const BLACK_ONLY = { redQueenDoubler: false };
   stack(st, [['QC', 'QS', 'QH', 'QD']]);
   G.doPick(st, 0);
   const h = st.players[0].hand.filter(c => c.r !== 'Q');
-  G.doBury(st, st.picker, [h[0].id, h[1].id]);
+  G.doBury(st, 0, [h[0].id, h[1].id]);
   check(st.doublers.length === 0, 'doublers should be off');
   check(playOut(st).factor === 1, 'factor should be 1 with every doubler disabled');
 }

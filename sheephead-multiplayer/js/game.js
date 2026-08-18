@@ -103,7 +103,10 @@
     };
   }
 
-  function newHand(state) {
+  /* Deal a hand, unconditionally. Internal: the only callers are newHand below
+   * and the redeal path in doPass, which legitimately deals from mid-'pick' when
+   * everybody has passed. */
+  function startHand(state) {
     var n = state.config.numPlayers;
     state.handNumber++;
     // The very first dealer is drawn at random, then the deal rotates. Otherwise
@@ -137,6 +140,20 @@
     state.turn = state.leader;
     ev(state, 'info', 'Hand ' + state.handNumber + '. ' + nameOf(state, state.dealer) + vb(state, state.dealer, ' deals.', ' deal.'));
     return state;
+  }
+
+  /* The guarded way in. Only from a standing start or a finished hand.
+   *
+   * startHand reshuffles, bumps handNumber and clears picker, partner and every
+   * trick. Nothing checked when it could be called, so a stray invocation
+   * mid-play silently threw the hand away and dealt over the top of it. That was
+   * survivable while the only caller was a Deal button a player pressed
+   * themselves; it is not once a message can reach it.
+   *
+   * Returns the state, or null if it refused. */
+  function newHand(state) {
+    if (state.phase !== 'idle' && state.phase !== 'handOver') return null;
+    return startHand(state);
   }
 
   function ev(state, kind, text, extra) {
@@ -239,7 +256,7 @@
         if (willDouble) state.nextHandDoubler = true;
         ev(state, 'info', 'Everyone passed. Redealing.' +
           (willDouble ? ' The next hand is a doubler, worth twice as much.' : ''));
-        newHand(state);
+        startHand(state);   // mid-'pick' by design; see startHand's note
       }
     } else {
       state.turn = (p + 1) % n;
@@ -264,7 +281,11 @@
   function doBury(state, p, cardIds) {
     if (state.phase !== 'bury' || state.picker !== p) return false;
     var d = DEAL[state.config.numPlayers];
-    if (!cardIds || cardIds.length !== d.blind) return false;
+    // Array.isArray, not just a length check: 'JD'.length is 2, which is exactly
+    // d.blind, so a string sailed through here and was rejected further down only
+    // because 'J' matched no card id. applyAction guards this too, but ai.js and
+    // ui.js call doBury directly and the guards have to hold on their own.
+    if (!Array.isArray(cardIds) || cardIds.length !== d.blind) return false;
     /* Validate the whole list before the hand changes at all.
      *
      * This used to splice each card out as it was found and `return false` on the
@@ -963,7 +984,15 @@
    * Returns {ok: true} or {ok: false, reason: <short string>}. The reason is safe
    * to show a player: it says what was wrong with THEIR request and never
    * anything about anybody else's cards. */
-  var ACTIONS = { pick: 1, pass: 1, bury: 1, play: 1 };
+  /* Object.create(null), not {}: a plain object inherits from Object.prototype,
+   * so ACTIONS['constructor'], ['toString'], ['__proto__'] and friends are all
+   * truthy and sail past the guard. The switch below happens to catch them
+   * today, which makes this latent rather than live — but the obvious next
+   * refactor is a HANDLERS[action.type](...) dispatch table, and on that day
+   * {type: 'constructor'} would call Object. */
+  var ACTIONS = Object.create(null);
+  ACTIONS.pick = 1; ACTIONS.pass = 1; ACTIONS.bury = 1; ACTIONS.play = 1;
+  ACTIONS.nextHand = 1;
 
   function applyAction(state, seat, action) {
     if (!state || !state.players) return { ok: false, reason: 'no game in progress' };
@@ -995,6 +1024,19 @@
           return doBury(state, seat, action.cards)
             ? { ok: true } : { ok: false, reason: 'those cards could not be buried' };
 
+        case 'nextHand':
+          /* Deal the next hand. This existed only as a direct newHand() call
+           * from the Deal button, which meant a room server had exactly two
+           * options: never get past hand one, or reach around the gate to the
+           * single most destructive function in the engine.
+           *
+           * Who may send it is deliberately open here — any seated player — and
+           * the room layers a ready-gate on top, because one player dealing
+           * while five others are still reading the result is a different
+           * problem from authorization and belongs where the seats are known. */
+          if (state.phase !== 'handOver') return { ok: false, reason: 'the hand is not over' };
+          return newHand(state) ? { ok: true } : { ok: false, reason: 'could not deal' };
+
         case 'play':
           if (state.phase !== 'play') return { ok: false, reason: 'not the playing phase' };
           if (state.turn !== seat) return { ok: false, reason: 'not your turn' };
@@ -1006,9 +1048,30 @@
             ? { ok: true } : { ok: false, reason: 'that card could not be played' };
       }
     } catch (e) {
-      // Reaching here is a bug in the engine, not in the message. Say so plainly
-      // and keep the room alive; the server logs the real error separately.
-      return { ok: false, reason: 'the game could not apply that move' };
+      /* Reaching here is a bug in the engine, not in the message — and the state
+       * is now untrustworthy, so this must NOT be reported as an ordinary
+       * refusal.
+       *
+       * The three validation failures above all happen before anything is
+       * written, so `ok: false` from them genuinely means nothing changed. A
+       * throw does not: doPlay splices the card out of the hand, pushes it into
+       * the trick and sets partnerRevealed before it ever reaches resolveTrick
+       * and scoring. An exception in there leaves the card gone, the trick full
+       * and unresolvable, and the turn not advanced — while the caller is told
+       * the move was declined.
+       *
+       * That is strictly worse than the crash it replaces. A crash loses the
+       * in-memory state and the room restarts from its last checkpoint; this
+       * would checkpoint a wedged game and tell five people nothing happened.
+       *
+       * So: `fatal` means discard this state and reload from the last known-good
+       * checkpoint. It is never a message to show a player as a refusal. */
+      return {
+        ok: false,
+        fatal: true,
+        reason: 'the game could not apply that move',
+        error: (e && e.message) || String(e)
+      };
     }
     return { ok: false, reason: 'unknown action' };
   }

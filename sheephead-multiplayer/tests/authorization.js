@@ -29,7 +29,20 @@ const path = require('path');
 const vm = require('vm');
 const root = path.join(__dirname, '..');
 
-const sandbox = { console, Math, Date, JSON, setTimeout, Set };
+/* Seeded, because coverage that varies run to run is not coverage. With real
+ * Math.random the play-phase section reached a leaster on some runs (no picker,
+ * no bury phase, half the assertions skipped) and a normal hand on others, and
+ * the illegal-card check sat behind an `if` that simply did not fire when the
+ * seat on turn happened to hold only legal cards. */
+let seed = 20260818;
+const rnd = () => {
+  seed = (seed * 1103515245 + 12345) & 0x7fffffff;
+  return seed / 0x7fffffff;
+};
+const seededMath = Object.create(Math);
+seededMath.random = rnd;
+
+const sandbox = { console, Math: seededMath, Date, JSON, setTimeout, Set };
 sandbox.window = sandbox;
 vm.createContext(sandbox);
 for (const f of ['js/cards.js', 'js/game.js', 'js/ai.js']) {
@@ -41,28 +54,43 @@ let fails = [];
 const check = (c, m) => { if (!c) fails.push(m); };
 
 const names = ['You', 'A', 'B', 'C', 'D', 'E'];
-function fresh(n) {
+function fresh(n, opts) {
   const st = G.createGame({
     numPlayers: n, names: names.slice(0, n),
-    allPass: 'leaster', difficulty: 'hard',
-    blackQueenDoubler: false, redQueenDoubler: false, redealDoubler: false
+    allPass: (opts && opts.allPass) || 'leaster', difficulty: 'hard',
+    blackQueenDoubler: !!(opts && opts.doublers),
+    redQueenDoubler: !!(opts && opts.doublers),
+    redealDoubler: !!(opts && opts.doublers)
   });
   G.newHand(st);
   return st;
 }
 
-/* A cheap structural fingerprint. Deep equality on the whole state would drag in
- * the event log, which legitimately grows; this covers everything a rejected
- * action could plausibly corrupt. */
+/* Everything except config, with events reduced to a count and a digest.
+ *
+ * This was an allowlist of thirteen fields and claimed to cover "everything a
+ * rejected action could plausibly corrupt". It did not: partnerRevealed,
+ * isLeaster, revealInfo, tricksWon, trickLog, lastTrick, played, result,
+ * history, dealer, handNumber, dealt, pickLog, doublers, redealDoubler and
+ * nextHandDoubler were all invisible to it. partnerRevealed is the one that
+ * matters most — a refused action that flipped it would leak the hidden
+ * partnership to every client and no assertion would have noticed.
+ *
+ * An allowlist here is the same mistake as an allowlist in the projection, with
+ * the failure pointing the other way: there, a forgotten field leaks; here, a
+ * forgotten field hides a leak. So: exclusion. config is skipped because it is
+ * fixed at table creation, and events because they legitimately grow — but a
+ * refusal that quietly appends an event is exactly what this file exists to
+ * catch, so they are counted and digested rather than ignored. */
 function fingerprint(st) {
-  return JSON.stringify({
-    phase: st.phase, turn: st.turn, picker: st.picker, partner: st.partner,
-    alone: st.alone, leader: st.leader, passCount: st.passCount,
-    hands: st.players.map(p => C.ids(p.hand)),
-    blind: C.ids(st.blind), buried: C.ids(st.buried), pickedUp: st.pickedUp.slice(),
-    trick: st.trick.map(t => ({ player: t.player, card: t.card.id })),
-    points: st.players.map(p => p.points), score: st.players.map(p => p.score)
-  });
+  const digest = st.events.map(e => e.kind + '|' + e.text + '|' + (e.audience === undefined ? '' : e.audience)).join('');
+  const copy = {};
+  for (const k of Object.keys(st)) {
+    if (k === 'config' || k === 'events') continue;
+    copy[k] = st[k];
+  }
+  copy.__events = { n: st.events.length, digest };
+  return JSON.stringify(copy);
 }
 
 /* --- 1. No seat may act in another seat's turn --- */
@@ -173,7 +201,11 @@ for (const n of [3, 4, 5, 6]) {
   const badSeats = [-1, 5, 99, 1.5, NaN, Infinity, '0', null, undefined, {}, [], true];
   const badActions = [
     null, undefined, 'pick', 42, [], {}, { type: null }, { type: 'PICK' },
-    { type: 'delete_everything' }, { type: 'bury' }, { type: 'bury', cards: null },
+    { type: 'delete_everything' },
+    // Prototype keys: a plain-object ACTIONS lookup makes all of these truthy.
+    { type: 'constructor' }, { type: '__proto__' }, { type: 'toString' },
+    { type: 'valueOf' }, { type: 'hasOwnProperty' },
+    { type: 'bury' }, { type: 'bury', cards: null },
     { type: 'bury', cards: 'JD' }, { type: 'bury', cards: [null, undefined] },
     { type: 'bury', cards: [{}, {}] }, { type: 'play' }, { type: 'play', card: null },
     { type: 'play', card: {} }, { type: 'play', card: 'NOT_A_CARD' }
@@ -276,30 +308,105 @@ for (const n of [3, 4, 5, 6]) {
     'a legal play from the seat on turn was refused');
 }
 
-/* --- 6. A refusal reason never names another seat's cards --- */
+/* --- 6. Refusals give nothing away --- */
+
+/* Rewritten. The previous version had three problems, and the third is the one
+ * that mattered:
+ *
+ *   - It probed every seat against ONE state, including the picker. When the
+ *     probe seat happened to be the picker, the bury SUCCEEDED, moving the phase
+ *     to 'play' — so every later probe was judged in a phase the test did not
+ *     think it was in, and which probes ran at all depended on where the picker
+ *     fell. It was sampling a moving target.
+ *   - It built "everyone else's cards" with `if (i !== 1)`, silently exempting
+ *     seat 1's whole hand from the assertion. There is nothing seat-1-relative
+ *     anywhere in the block; it was a leftover.
+ *   - It aimed at the wrong channel. The reasons here are static literals plus
+ *     illegalReason, which reads only state.trick[0] — public — so no reason
+ *     string can depend on hidden information and the assertion could not fail.
+ *     The channel that CAN leak is the ok boolean used as an oracle: ask a
+ *     question whose refusal differs depending on something you should not know.
+ */
 
 {
-  const st = fresh(5);
-  const picker = st.turn;
-  G.applyAction(st, picker, { type: 'pick' });
-
-  const everyoneElsesCards = [];
-  st.players.forEach((p, i) => { if (i !== 1) everyoneElsesCards.push(...C.ids(p.hand)); });
+  // Every probe gets its own state, so nothing a probe does can move the target.
+  const probes = [
+    { type: 'pick' }, { type: 'pass' }, { type: 'nextHand' },
+    { type: 'play', card: 'QC' }, { type: 'play', card: 'JD' },
+    { type: 'bury', cards: ['QC', 'JD'] }
+  ];
 
   const reasons = [];
   for (let seat = 0; seat < 5; seat++) {
-    for (const a of [{ type: 'pick' }, { type: 'pass' }, { type: 'play', card: 'QC' },
-                     { type: 'bury', cards: C.ids(st.players[picker].hand).slice(0, 2) }]) {
+    for (const a of probes) {
+      const st = fresh(5);
+      const picker = st.turn;
+      G.applyAction(st, picker, { type: 'pick' });
+      const allCards = [];
+      st.players.forEach(p => allCards.push(...C.ids(p.hand)));   // no exemptions
       const r = G.applyAction(st, seat, a);
-      if (!r.ok && r.reason) reasons.push(r.reason);
+      if (!r.ok && r.reason) {
+        reasons.push(r.reason);
+        for (const id of allCards) {
+          check(r.reason.indexOf(id) < 0, `a refusal named the card ${id}: "${r.reason}"`);
+        }
+        check(!/(alone|partner)/i.test(r.reason),
+          `a refusal mentioned the hidden partnership: "${r.reason}"`);
+      }
     }
   }
   check(reasons.length > 0, 'no refusals were produced to inspect');
-  for (const reason of reasons) {
-    for (const id of everyoneElsesCards) {
-      check(reason.indexOf(id) < 0, `a refusal reason leaked the card id ${id}: "${reason}"`);
+}
+
+/* --- 6b. The refusal itself must not be an oracle ---
+ *
+ * The real risk is not the wording, it is that asking a question and reading the
+ * yes/no tells you something. Two states identical except for hidden information
+ * — who holds the Jack of Diamonds, and so whether the picker is secretly alone
+ * — must answer every probe identically, byte for byte. */
+
+{
+  function twin(swapJD) {
+    const st = fresh(5);
+    const picker = st.turn;
+    G.applyAction(st, picker, { type: 'pick' });
+
+    if (swapJD) {
+      // Move the Jack between two seats that are neither the viewer nor the
+      // picker, so only the hidden partnership changes.
+      const seats = [0, 1, 2, 3, 4].filter(i => i !== picker && i !== 0);
+      let from = -1, at = -1;
+      for (const i of [picker, ...seats]) {
+        const k = st.players[i].hand.findIndex(c => c.id === 'JD');
+        if (k >= 0) { from = i; at = k; break; }
+      }
+      if (from >= 0) {
+        const to = seats.find(i => i !== from);
+        if (to !== undefined) {
+          const swapAt = st.players[to].hand.findIndex(c => c.id !== 'JD');
+          const tmp = st.players[from].hand[at];
+          st.players[from].hand[at] = st.players[to].hand[swapAt];
+          st.players[to].hand[swapAt] = tmp;
+        }
+      }
     }
-    check(!/\b(alone|partner)\b/i.test(reason), `a refusal reason mentioned the hidden partnership: "${reason}"`);
+    return st;
+  }
+
+  const a = twin(false), b = twin(true);
+  const viewer = 0;
+  const probes = [
+    { type: 'pick' }, { type: 'pass' }, { type: 'nextHand' },
+    { type: 'play', card: 'JD' }, { type: 'play', card: 'QC' },
+    { type: 'bury', cards: ['JD', 'QC'] }, { type: 'bury', cards: [] }
+  ];
+
+  for (const probe of probes) {
+    const ra = G.applyAction(a, viewer, probe);
+    const rb = G.applyAction(b, viewer, probe);
+    check(JSON.stringify(ra) === JSON.stringify(rb),
+      `the refusal for ${JSON.stringify(probe)} differed with the Jack moved: ` +
+      `${JSON.stringify(ra)} vs ${JSON.stringify(rb)}`);
   }
 }
 
@@ -343,6 +450,26 @@ for (const n of [3, 5]) {
     check(fingerprint(st) === f,
       `${n}p: a doBury refused for seat ${seat} still changed the game`);
   }
+  /* doBury's own shape check, with the gate out of the way. 'JD'.length is 2,
+   * which is exactly d.blind at every table size, so a bare string got past the
+   * length check and was refused only because 'J' matched no card id — luck, not
+   * a guard. applyAction screens this too, which is why it has to be tested
+   * here: with the gate in front, deleting doBury's Array.isArray changes
+   * nothing observable.
+   *
+   * The string cases are now harmless on their own — atomic validation refuses
+   * them before the hand changes. The one that bites is the array-LIKE built
+   * from cards the picker genuinely holds: every index lookup succeeds, so
+   * without Array.isArray it is accepted as a perfectly good bury. */
+  const arrayLike = { length: d.blind };
+  pickerCards.forEach((id, k) => { arrayLike[k] = id; });   // real cards, wrong type
+  for (const notAnArray of ['JD', 'QC', { length: d.blind }, arrayLike]) {
+    const f = fingerprint(st);
+    check(G.doBury(st, picker, notAnArray) === false,
+      `${n}p: doBury accepted ${JSON.stringify(notAnArray)}, which is not an array`);
+    check(fingerprint(st) === f, `${n}p: a doBury refused for shape still changed the game`);
+  }
+
   check(G.doBury(st, picker, pickerCards) === true, `${n}p: doBury refused the picker`);
 
   // doPlay refuses a seat that is not on turn, directly.
@@ -356,6 +483,122 @@ for (const n of [3, 5]) {
       `${n}p: doPlay accepted a seat not on turn`);
     check(fingerprint(st) === f, `${n}p: a refused doPlay changed the game`);
   }
+}
+
+/* --- 8. The bury keeps the caller's cards, in the caller's order --- */
+
+/* The atomicity fix introduced a reorder — validate all indices, splice from the
+ * back so earlier ones stay valid, then restore the requested order — and nothing
+ * tested it. Every successful bury in this repository buries hand[0] and hand[1],
+ * because doPick puts the blind at the front and every test slices from there. So
+ * the reverse-sort could be dropped (wrong cards) or the order restoration
+ * replaced with Object.keys (wrong order) and the whole suite stayed green. */
+
+{
+  for (const n of [3, 5]) {
+    const st = fresh(n);
+    const picker = st.turn;
+    G.applyAction(st, picker, { type: 'pick' });
+
+    const hand = C.ids(st.players[picker].hand);
+    const d = G.DEAL[n];
+    check(hand.length > 4, `${n}p: hand too short to pick non-adjacent cards`);
+
+    // Deliberately not the front two, and named highest-index first.
+    const wanted = [hand[4], hand[1]].slice(0, d.blind);
+    const expectRemaining = hand.filter(id => wanted.indexOf(id) < 0);
+
+    check(G.applyAction(st, picker, { type: 'bury', cards: wanted }).ok === true,
+      `${n}p: burying non-adjacent cards failed`);
+
+    check(JSON.stringify(C.ids(st.buried)) === JSON.stringify(wanted),
+      `${n}p: buried the wrong cards or in the wrong order — asked ${JSON.stringify(wanted)}, got ${JSON.stringify(C.ids(st.buried))}`);
+
+    const remaining = C.ids(st.players[picker].hand).slice().sort();
+    check(JSON.stringify(remaining) === JSON.stringify(expectRemaining.slice().sort()),
+      `${n}p: the remaining hand is not the exact complement of the bury`);
+    check(st.players[picker].hand.length === hand.length - d.blind,
+      `${n}p: hand size wrong after burying`);
+  }
+}
+
+/* --- 9. nextHand --- */
+
+{
+  const st = fresh(5);
+  const before = fingerprint(st);
+
+  // Refused mid-hand, from every seat, without touching anything.
+  for (let seat = 0; seat < 5; seat++) {
+    const r = G.applyAction(st, seat, { type: 'nextHand' });
+    check(r.ok === false, `seat ${seat} dealt a new hand mid-play`);
+    // newHand's own guard also refuses, so behaviour cannot say which layer
+    // acted. If this reads "could not deal", the gate has stopped checking.
+    check(/not over/.test(r.reason || ''),
+      `nextHand was refused by the wrong layer — reason was "${r.reason}"`);
+    check(fingerprint(st) === before, `a refused nextHand from seat ${seat} changed the game`);
+  }
+
+  // Play a hand out, then it is allowed.
+  let guard = 0;
+  while (st.phase !== 'handOver' && guard++ < 500) AI.act(st);
+  check(st.phase === 'handOver', 'could not reach handOver');
+  const handNo = st.handNumber;
+  check(G.applyAction(st, 3, { type: 'nextHand' }).ok === true, 'nextHand refused at handOver');
+  check(st.handNumber === handNo + 1, 'nextHand did not deal');
+
+  // And newHand itself refuses mid-hand, without the gate in front.
+  const n2 = st.handNumber;
+  check(G.newHand(st) === null, 'newHand dealt over a hand in progress');
+  check(st.handNumber === n2, 'a refused newHand still bumped the hand number');
+}
+
+/* --- 10. A throw mid-apply is fatal, not a refusal --- */
+
+/* The try/catch was added so a malformed payload could not take a room down with
+ * an unhandled exception. It did that, and in doing so created something worse:
+ * doPlay splices the card out of the hand, pushes it into the trick and sets
+ * partnerRevealed BEFORE it reaches resolveTrick and scoring, so an exception
+ * down there left the card gone, the trick full and unresolvable, and the turn
+ * not advanced — while the caller was told the move was simply declined.
+ *
+ * A crash loses the in-memory state and the room restarts from its checkpoint.
+ * A false refusal checkpoints a wedged game and tells five people nothing
+ * happened. So the contract is: ok:false means unchanged; ok:false with
+ * fatal:true means this state is now untrustworthy and must be discarded. */
+
+{
+  const st = fresh(5);
+  let guard = 0;
+  while (st.phase !== 'play' && guard++ < 50) AI.act(st);
+  check(st.phase === 'play', 'could not reach the play phase');
+  while (st.trick.length < 4 && guard++ < 60) AI.act(st);
+
+  const seat = st.turn;
+  const card = G.legalPlays(st, seat)[0].id;
+
+  const realSum = C.sumPoints;
+  C.sumPoints = function () { throw new Error('simulated engine bug'); };
+  let r;
+  try {
+    r = G.applyAction(st, seat, { type: 'play', card });
+  } finally {
+    C.sumPoints = realSum;
+  }
+
+  check(r.ok === false, 'a throwing apply reported success');
+  check(r.fatal === true,
+    'a throw mid-apply was reported as an ordinary refusal — the caller cannot tell a declined move from a corrupted game');
+  check(typeof r.error === 'string' && r.error.length > 0,
+    'a fatal result carried no error detail for the server to log');
+
+  // Validation refusals must NOT be fatal, or the flag means nothing.
+  const st2 = fresh(5);
+  const clean = G.applyAction(st2, (st2.turn + 1) % 5, { type: 'pick' });
+  check(clean.ok === false, 'an out-of-turn pick was accepted');
+  check(!clean.fatal, 'an ordinary refusal was marked fatal');
+  const clean2 = G.applyAction(st2, 0, { type: 'nonsense' });
+  check(!clean2.fatal, 'an unknown action was marked fatal');
 }
 
 /* --- report --- */

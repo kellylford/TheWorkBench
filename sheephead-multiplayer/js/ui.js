@@ -1305,7 +1305,7 @@
     var d = G.DEAL[settings.numPlayers];
     if (ids.length !== d.blind) { alert_('Select exactly ' + d.blind + ' cards.'); return; }
     var pts = C.sumPoints(ids.map(function (i) { return C.get(i); }));
-    if (!G.doBury(state, state.picker, ids)) { alert_('Those cards could not be buried.'); return; }
+    if (!G.doBury(state, mySeat, ids)) { alert_('Those cards could not be buried.'); return; }
     selected = {};
     handFocus = 0;
     speech.push('You buried ' + pts + ' points.');

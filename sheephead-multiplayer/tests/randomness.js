@@ -114,7 +114,13 @@ for (const players of [3, 4, 5, 6]) {
     allPass: 'leaster', difficulty: 'hard'
   });
   for (let d = 0; d < DEALS; d++) {
-    G.newHand(st);
+    // newHand deals only from 'idle' or 'handOver'. This loop reuses one game to
+    // sample thousands of deals without playing them out, so it has to say the
+    // previous hand is done — otherwise every call after the first is refused
+    // and the same deal is counted DEALS times, which reads as a catastrophic
+    // shuffle bias rather than as a test that stopped dealing.
+    st.phase = 'handOver';
+    if (G.newHand(st) === null) throw new Error('newHand refused after handOver');
     st.events.length = 0;
     st.players.forEach((p, seat) => {
       p.hand.forEach(c => { counts[seat][cardIndex[c.id]]++; });
@@ -153,6 +159,7 @@ for (const players of [3, 4, 5, 6]) {
         names: ['You', 'A', 'B', 'C', 'D', 'E'].slice(0, players),
         allPass: 'leaster', difficulty: 'hard'
       });
+      st.phase = 'handOver';
       G.newHand(st);
       st.events.length = 0;
       first[st.dealer]++;

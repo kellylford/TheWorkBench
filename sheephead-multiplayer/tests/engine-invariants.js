@@ -113,10 +113,20 @@ for (const k of Object.keys(stats)) {
       // and it rotates from there
       const first = st.dealer;
       for (let k = 1; k <= n; k++) {
-        G.newHand(st);
+        // newHand now deals only from 'idle' or 'handOver', so this has to say
+        // the previous hand finished. It used to be callable at any moment,
+        // which is what made a stray mid-play call able to throw a hand away.
+        st.phase = 'handOver';
+        check(G.newHand(st) !== null, `${n}p: newHand refused after handOver`);
         check(st.dealer === (first + k) % n,
           `${n}p: dealer should rotate, expected ${(first + k) % n} got ${st.dealer}`);
       }
+
+      // ...and it refuses to deal over a hand in progress.
+      st.phase = 'play';
+      const handNo = st.handNumber;
+      check(G.newHand(st) === null, `${n}p: newHand dealt over a hand in progress`);
+      check(st.handNumber === handNo, `${n}p: a refused newHand still bumped the hand number`);
     }
     check(counts.every(c => c > 0), `${n}p: some seats never dealt first: ${counts.join(',')}`);
     const expected = RUNS / n;
