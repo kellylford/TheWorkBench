@@ -297,7 +297,7 @@
       if (shouldPick(state, p)) SH.Game.doPick(state, p);
       else SH.Game.doPass(state, p);
     } else if (state.phase === 'bury') {
-      SH.Game.doBury(state, chooseBury(state, p));
+      SH.Game.doBury(state, p, chooseBury(state, p));
     } else if (state.phase === 'play') {
       SH.Game.doPlay(state, p, chooseCard(state, p));
     }

@@ -191,20 +191,53 @@
 
   /* ---------------- burying ---------------- */
 
-  function doBury(state, cardIds) {
-    if (state.phase !== 'bury') return false;
+  /* Takes an actor, like the other three actions, and this is not tidiness.
+   *
+   * It used to be doBury(state, cardIds) and checked only the phase, then acted
+   * on state.players[state.picker] regardless of who asked. Single-player never
+   * noticed: the only caller that could reach it was the one seat a person sits
+   * in. Online it means any connected client can bury another player's cards,
+   * which is not a bug in the bury path so much as a hole straight through the
+   * authoritative-server premise — the server would be faithfully applying a
+   * move it never checked the sender was entitled to make.
+   *
+   * Three review passes looked at this file and missed it, because they were all
+   * asking what information leaks OUT and none was asking who is allowed to act. */
+  function doBury(state, p, cardIds) {
+    if (state.phase !== 'bury' || state.picker !== p) return false;
     var d = DEAL[state.config.numPlayers];
     if (!cardIds || cardIds.length !== d.blind) return false;
+    /* Validate the whole list before the hand changes at all.
+     *
+     * This used to splice each card out as it was found and `return false` on the
+     * first one it could not find — so a bury of [a good card, a bad id] removed
+     * the good card, threw away the array it had collected, and left the picker
+     * permanently one card short in a phase that requires an exact count. The
+     * card was not misfiled; it ceased to exist.
+     *
+     * Unreachable from the single-player UI, which only ever submits ids taken
+     * from the hand it just rendered. Trivially reachable from a network message,
+     * which is the whole reason this pass exists. A rejected action must leave
+     * the game exactly as it found it.
+     *
+     * The idxs.indexOf(j) check also rejects the same card named twice, which the
+     * old loop turned into the same destructive partial write. */
     var pl = state.players[state.picker];
-    var chosen = [];
+    var idxs = [];
     for (var i = 0; i < cardIds.length; i++) {
       var idx = -1;
       for (var j = 0; j < pl.hand.length; j++) {
-        if (pl.hand[j].id === cardIds[i]) { idx = j; break; }
+        if (pl.hand[j].id === cardIds[i] && idxs.indexOf(j) < 0) { idx = j; break; }
       }
       if (idx < 0) return false;
-      chosen.push(pl.hand.splice(idx, 1)[0]);
+      idxs.push(idx);
     }
+    // Every card is known good, so the hand may now change. Remove from the back
+    // so the earlier indices stay valid, then restore the caller's order.
+    var removed = {};
+    idxs.slice().sort(function (a, b) { return b - a; })
+      .forEach(function (j) { removed[j] = pl.hand.splice(j, 1)[0]; });
+    var chosen = idxs.map(function (j) { return removed[j]; });
     state.buried = chosen;
     pl.hand = C.sortHand(pl.hand);   // back to normal order now the choice is made
     state.pickedUp = [];
@@ -844,8 +877,76 @@
     L.push('');
   }
 
+  /* ---------------- the gate ----------------
+   *
+   * applyAction is the ONLY path into the engine from anything that came off a
+   * network. doPick/doPass/doBury/doPlay stay exported because the AI and the
+   * offline UI call them directly with a seat they already own, but nothing that
+   * originated in a message may reach them except through here.
+   *
+   * The four actions each guard their own turn, so this is belt and braces on
+   * that count. What it adds is the part they cannot do: refusing input that is
+   * not shaped like an action at all. A malformed or hostile payload must come
+   * back as a rejection, never as a throw — an unhandled exception inside a
+   * Durable Object takes the room down for everyone at the table, so one bad
+   * client would end five other people's game.
+   *
+   * Returns {ok: true} or {ok: false, reason: <short string>}. The reason is safe
+   * to show a player: it says what was wrong with THEIR request and never
+   * anything about anybody else's cards. */
+  var ACTIONS = { pick: 1, pass: 1, bury: 1, play: 1 };
+
+  function applyAction(state, seat, action) {
+    if (!state || !state.players) return { ok: false, reason: 'no game in progress' };
+    if (!action || typeof action !== 'object') return { ok: false, reason: 'malformed action' };
+    if (!ACTIONS[action.type]) return { ok: false, reason: 'unknown action' };
+
+    // Seat has to be a real index before anything indexes players[] with it.
+    if (typeof seat !== 'number' || seat !== Math.floor(seat) ||
+        seat < 0 || seat >= state.players.length) {
+      return { ok: false, reason: 'not a seat at this table' };
+    }
+
+    try {
+      switch (action.type) {
+        case 'pick':
+          if (state.phase !== 'pick') return { ok: false, reason: 'not the picking phase' };
+          if (state.turn !== seat) return { ok: false, reason: 'not your turn' };
+          return doPick(state, seat) ? { ok: true } : { ok: false, reason: 'could not pick' };
+
+        case 'pass':
+          if (state.phase !== 'pick') return { ok: false, reason: 'not the picking phase' };
+          if (state.turn !== seat) return { ok: false, reason: 'not your turn' };
+          return doPass(state, seat) ? { ok: true } : { ok: false, reason: 'could not pass' };
+
+        case 'bury':
+          if (state.phase !== 'bury') return { ok: false, reason: 'nothing to bury' };
+          if (state.picker !== seat) return { ok: false, reason: 'only the picker buries' };
+          if (!Array.isArray(action.cards)) return { ok: false, reason: 'no cards given' };
+          return doBury(state, seat, action.cards)
+            ? { ok: true } : { ok: false, reason: 'those cards could not be buried' };
+
+        case 'play':
+          if (state.phase !== 'play') return { ok: false, reason: 'not the playing phase' };
+          if (state.turn !== seat) return { ok: false, reason: 'not your turn' };
+          if (typeof action.card !== 'string') return { ok: false, reason: 'no card given' };
+          if (!isLegal(state, seat, action.card)) {
+            return { ok: false, reason: illegalReason(state, seat, action.card) || 'that card cannot be played' };
+          }
+          return doPlay(state, seat, action.card)
+            ? { ok: true } : { ok: false, reason: 'that card could not be played' };
+      }
+    } catch (e) {
+      // Reaching here is a bug in the engine, not in the message. Say so plainly
+      // and keep the room alive; the server logs the real error separately.
+      return { ok: false, reason: 'the game could not apply that move' };
+    }
+    return { ok: false, reason: 'unknown action' };
+  }
+
   SH.Game = {
     DEAL: DEAL,
+    applyAction: applyAction,
     deckFor: deckFor,
     PARTNER_CARD: PARTNER_CARD,
     createGame: createGame,

@@ -148,7 +148,7 @@ for (const n of [4, 5, 6]) {
     const hand = st.players[0].hand;
     const bury = ['JD'];
     for (const c of hand) { if (bury.length < d.blind && c.id !== 'JD') bury.push(c.id); }
-    check(G.doBury(st, bury), 'forced bury failed');
+    check(G.doBury(st, st.picker, bury), 'forced bury failed');
     check(st.alone === true, `${n}p: burying the Jack should mean playing alone`);
     check(st.partnerRevealed === false, `${n}p: burying the Jack must not reveal anything`);
 
@@ -182,7 +182,7 @@ for (const n of [4, 5, 6]) {
     G.doPick(st, 0);
     st.events.length = 0;
     const hand = st.players[0].hand;
-    G.doBury(st, [hand[hand.length - 1].id, hand[hand.length - 2].id]);
+    G.doBury(st, st.picker, [hand[hand.length - 1].id, hand[hand.length - 2].id]);
     const msg = st.events.map(e => e.text).join(' ');
     if (st.alone) { toldAlone++; check(/you are playing alone/i.test(msg), 'human picker not told they are alone: ' + msg); }
     else { toldPartnered++; check(/secret partner/i.test(msg), 'human picker not told they have a partner: ' + msg); }
