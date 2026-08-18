@@ -19,6 +19,7 @@ on:
     paths:
       - 'devdocs/CONTROLLING_IPHONE_FROM_MAC.md'
       - 'sheephead/**'
+      - 'sheephead-multiplayer/**'
       - 'Cribbage/**'
       - 'thecardplace.html'
       - '.github/workflows/publish-guide.yml'

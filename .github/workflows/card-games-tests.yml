@@ -13,11 +13,13 @@ on:
     branches: [main]
     paths:
       - 'sheephead/**'
+      - 'sheephead-multiplayer/**'
       - 'Cribbage/**'
       - '.github/workflows/card-games-tests.yml'
   pull_request:
     paths:
       - 'sheephead/**'
+      - 'sheephead-multiplayer/**'
       - 'Cribbage/**'
       - '.github/workflows/card-games-tests.yml'
   workflow_dispatch:
@@ -62,6 +64,52 @@ jobs:
       # A suite that skips is a suite that proved nothing. Locally that prints a
       # SKIP line and exits 0, which is friendly; here it would be a green tick
       # over an empty run — the same shape of lie as a piped exit code.
+      - name: Fail if anything skipped
+        run: |
+          set -euo pipefail
+          npm test 2>&1 | tee /tmp/out.txt
+          if grep -q '^SKIP' /tmp/out.txt; then
+            echo "::error::A test suite skipped instead of running. CI must not report success on a skip."
+            grep '^SKIP' /tmp/out.txt
+            exit 1
+          fi
+
+      - name: Layout across viewports
+        run: npm run test:layout
+
+      - name: Randomness
+        run: node tests/randomness.js
+
+      - name: Rendered appearance
+        run: node tests/appearance.js
+
+  # The multiplayer fork runs the same suite as the game it was copied from. That
+  # is the point: the fork exists so multiplayer work cannot break the stable
+  # game, and this job is what proves the fork has not broken it either. When the
+  # two inevitably diverge, this job is the first place it will show.
+  sheephead-multiplayer:
+    name: Sheephead Multiplayer
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    defaults:
+      run:
+        working-directory: sheephead-multiplayer
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install test dependencies
+        run: npm install --no-save jsdom puppeteer
+
+      - name: Rules oracle
+        run: npm run test:rules
+
+      - name: Full suite
+        run: npm test
+
       - name: Fail if anything skipped
         run: |
           set -euo pipefail
