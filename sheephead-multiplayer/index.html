@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sheephead Multiplayer (in development)</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to main content</a>
+
+<header class="app-header">
+  <h1>Sheephead Multiplayer</h1>
+  <p class="tagline">A keyboard and screen&nbsp;reader accessible card game.</p>
+  <p class="dev-notice"><strong>In development.</strong> Playing against the computer works; playing
+    against other people is being built. <a href="../sheephead/">The stable single-player
+    Sheephead</a> is over here.</p>
+</header>
+
+<main id="main" tabindex="-1">
+
+  <!-- ============ SETUP ============ -->
+  <section id="setup-section" aria-labelledby="setup-h">
+    <h2 id="setup-h">New game</h2>
+    <form id="setup-form">
+      <fieldset>
+        <legend>Players</legend>
+        <p class="field">
+          <label for="opt-name">Your name</label>
+          <input type="text" id="opt-name" name="name" value="You" autocomplete="off" maxlength="16">
+        </p>
+        <p class="field">
+          <label for="opt-players">Number of players (you plus computer opponents)</label>
+          <select id="opt-players" name="players">
+            <option value="3">3 players — 10 cards each, picker always alone</option>
+            <option value="4">4 players — 7 cards each, 30 card deck</option>
+            <option value="5" selected>5 players — 6 cards each (the standard game)</option>
+            <option value="6">6 players — 5 cards each</option>
+          </select>
+        </p>
+      </fieldset>
+
+      <fieldset>
+        <legend>Game settings</legend>
+        <p class="hint">These are remembered, so a new game uses them again unless you change them.</p>
+        <p id="settings-summary" class="settings-summary"></p>
+        <p class="actions">
+          <button type="button" id="setup-settings">Change game settings</button>
+        </p>
+      </fieldset>
+
+      <p class="actions">
+        <button type="submit" class="primary">Start game</button>
+        <button type="button" id="setup-rules">How to play Sheephead</button>
+        <button type="button" id="setup-a11y">Accessibility hints</button>
+      </p>
+    </form>
+  </section>
+
+  <!-- ============ GAME ============ -->
+  <section id="game-section" aria-labelledby="game-h" hidden>
+    <!-- Kept for document structure and to name the section, but not shown: the
+         status line directly beneath says something far more useful, and the
+         heading was costing ~51px above the fold on every screen.
+         Named "Game", not "Table" — a screen reader is now the only thing that
+         reads this, and "Table" sent people looking for a data table. The real
+         one further down is the Players table. -->
+    <h2 id="game-h" class="sr-only">Game</h2>
+
+    <p id="status" class="status"></p>
+
+    <section aria-labelledby="action-h" id="action-section">
+      <h3 id="action-h">Your turn</h3>
+      <div id="actions" class="actions-area"></div>
+    </section>
+
+    <section aria-labelledby="hand-h">
+      <h3 id="hand-h">Your hand</h3>
+      <div id="hand" class="hand" role="group" aria-labelledby="hand-h"></div>
+    </section>
+
+    <!-- Decorative only. The players table below carries the same information
+         for assistive technology, so this is hidden from it entirely. -->
+    <div id="seats" class="seats" aria-hidden="true"></div>
+
+    <section aria-labelledby="trick-h">
+      <h3 id="trick-h">Current trick</h3>
+      <ol id="trick" class="trick"></ol>
+    </section>
+
+    <section aria-labelledby="lasttrick-h">
+      <h3 id="lasttrick-h">Last completed trick</h3>
+      <ol id="lasttrick" class="trick"></ol>
+    </section>
+
+    <section aria-labelledby="blind-h" id="blind-section" hidden>
+      <h3 id="blind-h">The blind</h3>
+      <p id="blind-note" class="hint"></p>
+      <div id="blind" class="hand static"></div>
+    </section>
+
+    <section aria-labelledby="players-h">
+      <h3 id="players-h">Players</h3>
+      <div class="table-wrap">
+        <table id="players-table">
+          <caption class="sr-only">Each player's role, cards remaining, and tricks and card points taken this hand, followed by their running game score. Card points always total 120 across the hand; game scores always total zero.</caption>
+          <thead>
+            <tr>
+              <th scope="col">Player</th>
+              <th scope="col">Role</th>
+              <th scope="col">Cards</th>
+              <th scope="col">Tricks</th>
+              <th scope="col">Card points this hand</th>
+              <th scope="col">Game score</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+          <tfoot></tfoot>
+        </table>
+      </div>
+    </section>
+
+    <!-- Grouped by what the buttons are for. Fifteen identical buttons in one row
+         meant reading every label to find the one you wanted; the group names are
+         announced by a screen reader too, so this helps in both directions. -->
+    <div class="toolbar">
+      <div class="tool-group" role="group" aria-labelledby="tg-review">
+        <span class="tool-group-name" id="tg-review">Review</span>
+        <button type="button" data-say="hand" aria-keyshortcuts="H">Hand <kbd>H</kbd></button>
+        <button type="button" data-say="trick" aria-keyshortcuts="T">Trick <kbd>T</kbd></button>
+        <button type="button" data-say="last" aria-keyshortcuts="L">Last trick <kbd>L</kbd></button>
+        <button type="button" data-say="score" aria-keyshortcuts="S">Scores <kbd>S</kbd></button>
+        <button type="button" data-say="teams" aria-keyshortcuts="P">Picker <kbd>P</kbd></button>
+        <button type="button" data-say="order" aria-keyshortcuts="O">Play order <kbd>O</kbd></button>
+        <button type="button" data-say="count" aria-keyshortcuts="C">Cards played <kbd>C</kbd></button>
+        <button type="button" data-say="repeat" aria-keyshortcuts="R">Repeat <kbd>R</kbd></button>
+      </div>
+
+      <div class="tool-group" role="group" aria-labelledby="tg-records">
+        <span class="tool-group-name" id="tg-records">Records</span>
+        <button type="button" id="btn-log" aria-keyshortcuts="G">Game log <kbd>G</kbd></button>
+        <button type="button" id="btn-export" aria-keyshortcuts="E">Export log <kbd>E</kbd></button>
+        <button type="button" id="btn-bug" aria-keyshortcuts="B">Report a bug <kbd>B</kbd></button>
+      </div>
+
+      <div class="tool-group" role="group" aria-labelledby="tg-help">
+        <span class="tool-group-name" id="tg-help">Settings and help</span>
+        <button type="button" id="btn-settings">Settings</button>
+        <button type="button" id="btn-rules">How to play</button>
+        <button type="button" id="btn-a11y" aria-keyshortcuts="?">Accessibility hints <kbd>?</kbd></button>
+        <button type="button" id="btn-newgame" class="consequential">New game</button>
+      </div>
+    </div>
+
+    <section aria-labelledby="log-h">
+      <h3 id="log-h">Game log</h3>
+      <p class="hint">Newest entry first. Press <kbd>G</kbd> to jump here, then <kbd>Up</kbd> and <kbd>Down</kbd> to move entry by entry, <kbd>Home</kbd> for the newest and <kbd>End</kbd> for the oldest. This region is never spoken automatically, so you can read back through it at your own pace.</p>
+      <ul id="log" class="log"></ul>
+    </section>
+  </section>
+</main>
+
+<!-- Outside <main> on purpose, so it is there on the setup screen and during a
+     game alike rather than appearing and disappearing with the section you
+     happen to be on. -->
+<footer class="site-footer">
+  <nav aria-label="Elsewhere">
+    <a href="../thecardplace.html">Back to The Card Place</a>
+  </nav>
+</footer>
+
+<!-- Live regions. Kept off screen but available to assistive technology. -->
+<div id="announcer" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+<div id="alerts" class="sr-only" role="alert" aria-atomic="true"></div>
+
+<dialog id="settings-dialog" aria-labelledby="settings-h">
+  <div class="dialog-body">
+    <h2 id="settings-h">Game settings</h2>
+    <p class="hint">Everything here is remembered between games. Changes to pace and speech take
+      effect straight away; rule changes take effect from the next hand, so a hand in progress is
+      never scored by rules it did not start under.</p>
+
+    <fieldset>
+      <legend>Rules</legend>
+      <p class="field">
+        <label for="opt-allpass">When everybody passes</label>
+        <select id="opt-allpass" name="allpass">
+          <option value="leaster" selected>Play a leaster — fewest points wins</option>
+          <option value="redeal">Redeal the hand</option>
+        </select>
+      </p>
+      <p class="field">
+        <label for="opt-difficulty">Opponent skill</label>
+        <select id="opt-difficulty" name="difficulty">
+          <option value="easy">Easy — they make mistakes</option>
+          <option value="normal" selected>Normal</option>
+          <option value="hard">Hard — they count cards and press advantages</option>
+        </select>
+      </p>
+    </fieldset>
+
+    <fieldset>
+      <legend>Doublers</legend>
+      <p class="hint">House rules that multiply what a hand is worth. A doubler applies to the whole
+        hand however it turns out, so holding the queens and going down costs double as well. Two
+        doublers on the same hand make it worth four times.</p>
+      <p class="field checkbox">
+        <input type="checkbox" id="opt-black-queens" name="blackqueens">
+        <label for="opt-black-queens">Both black queens in one hand doubles the hand — queen of clubs and queen of spades held by the same player after burying</label>
+      </p>
+      <p class="field checkbox">
+        <input type="checkbox" id="opt-red-queens" name="redqueens">
+        <label for="opt-red-queens">Both red queens in one hand doubles the hand — queen of hearts and queen of diamonds held by the same player</label>
+      </p>
+      <p class="field checkbox">
+        <input type="checkbox" id="opt-redeal-doubler" name="redealdoubler">
+        <label for="opt-redeal-doubler">A redeal doubles the next hand — only applies when "when everybody passes" is set to redeal, and repeated redeals do not stack</label>
+      </p>
+    </fieldset>
+
+    <fieldset>
+      <legend>Appearance</legend>
+      <p class="field">
+        <label for="opt-layout">Desktop layout</label>
+        <select id="opt-layout" name="layout">
+          <option value="one" selected>One column — everything stacked in order</option>
+          <option value="two">Two columns — pairs panels side by side on wide screens</option>
+        </select>
+        <span class="hint">Only takes effect on screens wider than about 1024px; phones and tablets
+          are unaffected either way. Two columns fits the current trick and the scores on screen
+          without scrolling, at the cost of a wider eye path. Reading order is identical in both.</span>
+      </p>
+      <p class="field">
+        <label for="opt-skin">Card and table style</label>
+        <select id="opt-skin" name="skin">
+          <option value="traditional" selected>Traditional — printed card faces on a green table</option>
+          <option value="plain">Plain — large rank and suit, flat background</option>
+        </select>
+        <span class="hint">Both styles carry exactly the same information and read identically to a
+          screen reader. Plain uses bigger, simpler glyphs and no table dressing.</span>
+      </p>
+    </fieldset>
+
+    <fieldset>
+      <legend>Pace and speech</legend>
+      <p class="field">
+        <label for="opt-pace">How opponents' turns advance</label>
+        <select id="opt-pace" name="pace">
+          <option value="0">Instant — no delay</option>
+          <option value="4000" selected>Four seconds between plays</option>
+          <option value="10000">Ten seconds between plays</option>
+          <option value="-1">Manual — I press a button after each play</option>
+        </select>
+        <span class="hint" id="pace-hint">On four and ten seconds there is a Continue button as well, so you never have to sit out a pause you did not want — press <kbd>N</kbd> or activate Continue to take the next play straight away. Screen reader users often prefer Instant or Manual. With Instant, a run of opponent plays is announced as one message so nothing gets cut off.</span>
+      </p>
+      <p class="field checkbox">
+        <input type="checkbox" id="opt-verbose" name="verbose" checked>
+        <label for="opt-verbose">Include point values when cards are announced</label>
+      </p>
+      <p class="field checkbox">
+        <input type="checkbox" id="opt-autofocus" name="autofocus" checked>
+        <label for="opt-autofocus">Move focus to my cards when it is my turn</label>
+      </p>
+    </fieldset>
+
+    <p class="actions">
+      <button type="button" id="settings-close" class="primary">Done</button>
+      <button type="button" id="settings-reset">Reset to defaults</button>
+    </p>
+  </div>
+</dialog>
+
+<dialog id="rules-dialog" aria-labelledby="rules-h">
+  <div class="dialog-body">
+    <h2 id="rules-h">How to play Sheephead</h2>
+    <p class="hint">The rules of the game. For keyboard and screen reader guidance, use the
+      Accessibility hints button at the bottom, or press <kbd>?</kbd>.</p>
+
+    <h3>The idea</h3>
+    <p>Sheephead is a trick taking game about capturing card points. One player, the picker, takes
+      on the rest of the table, usually with a secret partner. The picker's side needs more than
+      half the points in the deck to win the hand.</p>
+
+    <h3>The deck</h3>
+    <p>Thirty-two cards: seven, eight, nine, ten, jack, queen, king and ace in each suit. At four
+      players the seven and eight of diamonds come out, leaving thirty, so that everyone still gets
+      a full hand with a two card blind. Both are worth nothing, so a hand is 120 points at every
+      table size.</p>
+    <p><strong>Trump</strong> is a single fourteen card suit made of all four queens, then all four
+      jacks, then the whole diamond suit. From highest to lowest: queen of clubs, queen of spades,
+      queen of hearts, queen of diamonds, jack of clubs, jack of spades, jack of hearts, jack of
+      diamonds, then ace, ten, king, nine, eight and seven of diamonds.</p>
+    <p><strong>Fail</strong> suits are clubs, spades and hearts, ranked ace, ten, king, nine, eight,
+      seven. Two things surprise new players: the ten sits above the king, and the queens and jacks
+      are not in their fail suits at all, they are trump. So the highest club is the ace of clubs,
+      not the queen or the jack of clubs.</p>
+    <p>Card values: ace 11, ten 10, king 4, queen 3, jack 2, and nine, eight and seven nothing. That
+      is 120 points in the deck.</p>
+
+    <h3>The deal</h3>
+    <p>Everyone gets a hand and a small blind is set aside. Starting to the dealer's left, each
+      player may pick up the blind or pass. Whoever picks takes the blind into their hand and buries
+      the same number of cards face down; those buried cards count for the picker's team at the end,
+      so it pays to bury points you could not otherwise protect.</p>
+    <p>With four, five or six players the jack of diamonds is the secret partner card. Whoever holds
+      it plays with the picker but says nothing until the card hits the table. If the picker holds it
+      or buries it, the picker plays alone against everyone.</p>
+    <p>None of that is announced. The sides only become public when the jack of diamonds is actually
+      played: if somebody else plays it they are the partner, and if the picker plays it themselves
+      that is the moment everyone learns the picker is alone. If the picker buried it, nobody finds
+      out until the hand is scored. You are told your own situation, whether you picked or hold the
+      jack, but never anyone else's.</p>
+    <p>With three players there is no partner card and the picker is always alone, which everyone
+      knows in advance.</p>
+
+    <h3>Play</h3>
+    <p>The player to the dealer's left leads. You must follow the suit that was led if you can.
+      Remember that trump is its own suit: if a queen, jack or diamond is led, every queen, jack and
+      diamond in your hand must follow it, and a queen of clubs does not follow a lead of clubs.
+      Highest trump takes the trick; if no trump is played, the highest card of the led suit takes
+      it. If you cannot follow, you may play anything, including trump.</p>
+
+    <h3>Winning the hand</h3>
+    <p>The picker's team needs 61 of the 120 points. A normal win pays one unit, 91 or more pays two
+      (a schneider), and taking every trick pays three. If the picker's team falls short they pay
+      double, and more if they are held to 30 points or fewer, or take no tricks at all. Each
+      opponent settles for two units times the multiplier; the picker takes roughly two thirds of
+      that pot and the partner one third.</p>
+
+    <h3>Leaster</h3>
+    <p>If everyone passes and you chose the leaster option, there is no picker. Everyone plays for
+      themselves, the blind goes to whoever wins the last trick, and the player with the
+      <em>fewest</em> points wins. You must have taken at least one trick to be eligible, so ducking
+      every single trick loses.</p>
+
+    <h3>Two different numbers on the table</h3>
+    <p>The players table shows two things that are easy to mix up. <strong>Card points this
+      hand</strong> is what you have taken in tricks out of the 120 in the deck; those always total
+      120 across everyone, plus whatever the picker buried. <strong>Game score</strong> is the
+      running total in scoring units across all the hands you have played; those always total zero,
+      so one player being well ahead means the others are behind by the same amount. The Total row
+      at the bottom tracks points taken so far, and once the last trick is played it shows the full
+      accounting, taken plus buried, which should come to 120.</p>
+
+    <p class="actions">
+      <button type="button" id="rules-close" class="primary">Close</button>
+      <button type="button" id="rules-to-a11y">Accessibility hints</button>
+    </p>
+  </div>
+</dialog>
+
+<dialog id="a11y-dialog" aria-labelledby="a11y-h">
+  <div class="dialog-body">
+    <h2 id="a11y-h">Accessibility hints</h2>
+    <p class="hint">Keyboard, screen reader and pacing guidance. For the rules of the game, use the
+      How to play button at the bottom.</p>
+
+    <h3>You can play without learning anything</h3>
+    <p><kbd>Tab</kbd> and <kbd>Shift</kbd>+<kbd>Tab</kbd> reach every control, and <kbd>Enter</kbd>
+      or <kbd>Space</kbd> activates whatever you land on. That alone is enough to play a whole game.
+      Everything below is optional convenience.</p>
+
+    <h3>Screen reader modes</h3>
+    <p>The game does not override your reading mode. Nothing here is marked as an application
+      region, so browse mode, focus mode and forms mode all behave exactly as they normally do, and
+      you stay in charge of switching between them.</p>
+    <p>The consequence worth knowing: in browse mode your screen reader keeps single letter keys for
+      its own quick navigation, so the game's letter shortcuts below will not reach the page. Switch
+      to focus or forms mode when you want them; in NVDA that is <kbd>NVDA</kbd>+<kbd>Space</kbd>.
+      If you would rather never switch, every letter shortcut also has a button in the Review the
+      game group, and those work in any mode.</p>
+
+    <h3>Your hand</h3>
+    <ul>
+      <li><kbd>Left</kbd> and <kbd>Right</kbd> move card to card; <kbd>Home</kbd> and <kbd>End</kbd>
+        jump to the first or last card.</li>
+      <li><kbd>Enter</kbd> or <kbd>Space</kbd> plays the focused card.</li>
+      <li><kbd>1</kbd> to <kbd>9</kbd> and <kbd>0</kbd> go straight to the card at that position;
+        <kbd>0</kbd> means the tenth. Cards are numbered in the order they are announced, trump
+        first.</li>
+      <li>Each card announces its name, whether it is trump, its point value and its position, for
+        example Queen of Clubs, trump, 3 points, card 1 of 6.</li>
+      <li>A card you may not play right now says so and names the suit you have to follow. It stays
+        in the list rather than disappearing, so you can always review your whole hand. Trying to
+        play it explains why instead of doing nothing.</li>
+      <li>While burying, <kbd>Enter</kbd>, <kbd>Space</kbd> or a number key toggles a card in and out
+        of your selection instead of playing it. Each card says whether it is selected, and the Bury
+        button tells you how many you have chosen. Activate it when the count is right.</li>
+    </ul>
+
+    <h3>Review keys</h3>
+    <ul>
+      <li><kbd>H</kbd> your hand, grouped by trump and fail suit</li>
+      <li><kbd>T</kbd> the current trick, who is winning it and how many points are in it</li>
+      <li><kbd>L</kbd> the last completed trick</li>
+      <li><kbd>S</kbd> points this hand and running scores</li>
+      <li><kbd>P</kbd> who picked, and what is currently known about the partner</li>
+      <li><kbd>C</kbd> counting aid: how much trump has gone, and the highest cards not yet seen</li>
+      <li><kbd>O</kbd> play order for this trick: who plays when, where the dealer, picker and
+        partner sit in that order, what each has played so far, and — the part that usually
+        decides what is safe to lead — whether the picker plays before or after you</li>
+      <li><kbd>R</kbd> repeat the last announcement</li>
+      <li><kbd>?</kbd> these accessibility hints</li>
+    </ul>
+
+    <h3>The game log</h3>
+    <p><kbd>G</kbd> jumps to the newest entry. From there <kbd>Up</kbd> and <kbd>Down</kbd> move one
+      entry at a time, <kbd>Page Up</kbd> and <kbd>Page Down</kbd> move ten, and <kbd>Home</kbd> and
+      <kbd>End</kbd> go to the newest and oldest. The log is never spoken automatically, so you can
+      read back through it at your own pace without it interrupting play. Number keys are ignored
+      inside it, so you cannot play a card by accident while reading.</p>
+
+    <h3>Pacing and speech</h3>
+    <p>Opponents' turns can advance instantly, after four seconds, after ten seconds, or only when
+      you press a Continue button. On instant, a whole run of opponent plays is announced as one
+      message, so nothing is cut off part way through by the next play. On four seconds, ten seconds
+      and manual, each play is announced on its own as it happens — there is room for it to finish.
+      You can also turn off point values in card announcements, and stop focus moving to your cards
+      when your turn comes.</p>
+    <p>The Continue button is there on four and ten seconds too, not only in manual mode. A timed
+      pause is a ceiling, not a wait you are held to: if you have heard enough, take the next play
+      straight away and the pending pause is dropped.</p>
+    <p><kbd>N</kbd> advances the game: wherever there is a Continue button it plays the next turn,
+      and when a hand has finished it deals the next one. It does the same as pressing
+      <kbd>Enter</kbd> on the Continue or Deal next hand button, and it is ignored while you are
+      reading the game log so you cannot advance by accident.</p>
+
+    <h3>If something looks wrong</h3>
+    <p><kbd>E</kbd> exports a full written account of every finished hand, including who was dealt
+      what, who picked, what was buried and every card played, with an automatic check that the
+      points add up. <kbd>B</kbd> opens Report a bug, which builds that same log into a report along
+      with your browser and settings, copies it to your clipboard and opens a prefilled GitHub
+      issue. A read only box shows exactly what will be copied, and nothing leaves your machine
+      until you post it yourself.</p>
+
+    <p class="actions">
+      <button type="button" id="a11y-close" class="primary">Close</button>
+      <button type="button" id="a11y-to-rules">How to play Sheephead</button>
+    </p>
+  </div>
+</dialog>
+
+<dialog id="export-dialog" aria-labelledby="export-h">
+  <div class="dialog-body">
+    <h2 id="export-h">Export game log</h2>
+    <p id="export-summary" class="hint"></p>
+    <p class="hint">A complete account of every finished hand: who was dealt what, who picked, what
+      was buried, every card played, and an automatic check that the points add up. The hand you are
+      part way through is reported from your seat only, so this cannot be used to see other hands.</p>
+    <p class="actions">
+      <button type="button" id="export-download" class="primary">Download as a text file</button>
+      <button type="button" id="export-copy">Copy to clipboard</button>
+      <button type="button" id="export-close">Close</button>
+    </p>
+    <label for="export-text">Game log text (read only — select all and copy if the buttons above do not work)</label>
+    <textarea id="export-text" readonly rows="18" spellcheck="false"></textarea>
+  </div>
+</dialog>
+
+<dialog id="bug-dialog" aria-labelledby="bug-h">
+  <div class="dialog-body">
+    <h2 id="bug-h">Report a bug</h2>
+    <p class="hint">This puts the whole report on your clipboard and opens a new issue on GitHub with
+      the summary already filled in. Paste the report into the issue body and post it. You will need
+      a GitHub account. Nothing is sent anywhere until you post it yourself.</p>
+
+    <p class="field">
+      <label for="bug-title">Title</label>
+      <input type="text" id="bug-title" autocomplete="off" maxlength="120">
+    </p>
+    <p class="field">
+      <label for="bug-what">What happened, and what did you expect instead?</label>
+      <textarea id="bug-what" rows="5" spellcheck="true"></textarea>
+    </p>
+    <p class="field checkbox">
+      <input type="checkbox" id="bug-include-log" checked>
+      <label for="bug-include-log">Include the full game log, so the hand can be replayed (recommended)</label>
+    </p>
+
+    <p class="actions">
+      <button type="button" id="bug-open" class="primary">Copy report and open GitHub</button>
+      <button type="button" id="bug-copy">Copy report only</button>
+      <button type="button" id="bug-close">Close</button>
+    </p>
+
+    <label for="bug-preview">Exactly what will be copied (read only)</label>
+    <textarea id="bug-preview" readonly rows="14" spellcheck="false"></textarea>
+  </div>
+</dialog>
+
+<script src="js/cards.js"></script>
+<script src="js/game.js"></script>
+<script src="js/ai.js"></script>
+<script src="js/view.js"></script>
+<script src="js/ui.js"></script>
+</body>
+</html>

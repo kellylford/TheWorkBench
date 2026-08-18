@@ -1,0 +1,281 @@
+{
+  "venue": "Citizens Bank Park (Philadelphia, PA). CONFIRMED current and correctly named as of August 2026. Ballparks of Baseball facts box lists '-Former Name(s): None' and '-Naming Rights: Citizens Bank, $2.3 million/year though 2028'. RateYourSeats event listings fetched 2026-08-16 show 25 upcoming 2026 Phillies home games at Citizens Bank Park (e.g. 'Miami Marlins at Philadelphia Phillies, Aug 17 2026, Citizens Bank Park - Philadelphia, PA'). No relocation and no rename found. Source: https://www.ballparksofbaseball.com/ballparks/citizens-bank-park/ and https://www.rateyourseats.com/citizens-bank-park/seating/sections/101",
+  "team": "Philadelphia Phillies",
+  "rateyourseats_slug": "citizens-bank-park",
+  "sections": [
+    "101", "102", "103", "104", "105", "106", "107", "108", "109", "110",
+    "111", "112", "113", "114", "115", "116", "117", "118", "119", "120",
+    "121", "122", "123", "124", "125", "126", "127", "128", "129", "130",
+    "131", "132", "133", "134", "135", "136", "137", "138", "139", "140",
+    "141", "142", "143", "144", "145", "146", "147", "148",
+    "201", "202", "203", "204", "205", "206", "207", "208", "209", "210",
+    "211", "212", "213", "214", "215", "216", "217", "218", "219", "220",
+    "221", "222", "223", "224", "225", "226", "227", "228", "229", "230",
+    "231", "232", "233", "234", "235", "236", "237",
+    "241", "242", "243", "244", "245",
+    "301", "302", "303", "304", "305", "306", "307", "308", "309", "310",
+    "312", "313", "314", "315", "316", "317", "318", "319", "320",
+    "321", "322", "323", "324", "325", "326", "327", "328", "329", "330",
+    "331", "332", "333",
+    "412", "413", "414", "415", "416", "417", "418", "419", "420",
+    "421", "422", "423", "424", "425", "426", "427", "428", "429", "430",
+    "431", "432", "433", "434",
+    "A", "B", "C", "D", "E", "F", "G",
+    "Rooftop Bleachers"
+  ],
+  "concert_only_sections": [
+    "Field AA", "Field BB", "Field CC", "Field DD", "Field EE", "Field FF",
+    "Field GG", "Field HH", "Field JJ", "Field KK", "Field LL", "Field MM"
+  ],
+  "capacity": "CONFLICT. (a) Wikipedia (via web search, en.wikipedia.org/wiki/Citizens_Bank_Park) lists capacity by era: 42,901 (2023-present), 42,792 (2019-2021), 43,035 (2018), 43,651 (2011-2017), 43,647 (2007-2010), 43,308 (2006), 43,500 (2004-2005). (b) Ballparks of Baseball facts box states '-Capacity: 43,035' (https://www.ballparksofbaseball.com/ballparks/citizens-bank-park/) and its prose repeats 'a seating capacity of 43,035'. RECOMMENDED: 42,901 (current, 2023-present per Wikipedia). Caveat: the Phillies announced a multiyear, ~$600M renovation project in 2026 plus 2026 fan-experience enhancements (reimagined Cadillac Hall of Fame Club, suite upgrades, rebuilt team store), so capacity and some premium-area section labels may change; sources: https://philadelphia.today/2026/05/citizens-bank-park-new-renovation-project/ and https://www.mlb.com/news/phillies-fan-experience-enhancements-at-citizens-bank-park",
+  "orientation": {
+    "batter_faces": "Roughly NORTH / north-northeast (center field toward the north). Not stated as a compass bearing by any source I could quote directly. Inferred from a sourced statement: Ballparks of Baseball says the rooftop bleachers offer 'a view of the downtown Philadelphia skyline beyond the center-field fence', and Center City Philadelphia lies north of the South Philadelphia Sports Complex, so center field points north-ish and the batter looks north-ish. A web-search summary asserted 'approximately 18 degrees (NNE), center field toward north-northeast, home plate facing south-southwest' but I could not attribute that figure to a specific fetched page, so it is recorded but NOT relied on.",
+    "confidence": "medium",
+    "source": "https://www.ballparksofbaseball.com/ballparks/citizens-bank-park/ (skyline-beyond-center-field statement); unattributed web-search claim of ~18 deg NNE"
+  },
+  "numbering_direction": {
+    "summary": "Section numbers INCREASE FROM RIGHT FIELD, PAST FIRST BASE, BEHIND HOME PLATE, PAST THIRD BASE, AND OUT TO LEFT FIELD. LOW numbers = RIGHT FIELD / FIRST BASE side. HIGH numbers = LEFT FIELD / THIRD BASE side. This holds on every numbered tier (100/200/300/400). There is NO wrap-around break: the 100 level runs 101 (right-center) monotonically to 148 (left field / left-center) and simply stops - straightaway center field has no numbered sections (Ashburn Alley / batter's eye occupies that arc), so 148 does not come back around to the right-field side. The lettered field-level club sections A-G behind home plate appear to run in the OPPOSITE sense (see uncertain[]).",
+    "anchors": [
+      {
+        "section": "101",
+        "where": "RIGHT FIELD (right-center). RYS Field Level Outfield expert review: 'Section 101 in right center is a great option for home team fans as the Phillies bullpen is located just below.' Fan Feedback on same page: 'The Phillies Bullpen is to the Right of Section 101'. Ballparks of Baseball: 'The bullpens ... are located in right-center field.'",
+        "source": "https://www.rateyourseats.com/citizens-bank-park/seating/sections/101"
+      },
+      {
+        "section": "102-107",
+        "where": "RIGHT FIELD. RYS Field Level Outfield expert review: 'the last four rows of sections 102-107 in right field and 142-145 in left field do provide some relief thanks to the overhanging club level outfield seating above.'",
+        "source": "https://www.rateyourseats.com/citizens-bank-park/seating/sections/101"
+      },
+      {
+        "section": "115-118",
+        "where": "FIRST BASE side, directly behind the Phillies (home) dugout. RYS Field Level Infield expert review: 'Fans can sit directly behind the Phillies bench in sections 115-118 on the first base side'.",
+        "source": "https://www.rateyourseats.com/citizens-bank-park/seating/sections/125"
+      },
+      {
+        "section": "119-128",
+        "where": "BEHIND HOME PLATE (Field Level). RYS Field Level Infield expert review: 'Sections 119-128 are located just behind the Diamond Club seats which line the backstop wall behind the home plate'. Section 125 page also carries the Section Insight 'Home Plate View' and Seating Note 'For baseball games, desirable view from behind home plate.'",
+        "source": "https://www.rateyourseats.com/citizens-bank-park/seating/sections/125"
+      },
+      {
+        "section": "129-132",
+        "where": "THIRD BASE side, directly behind the visitors dugout. RYS Field Level Infield expert review: 'sections 129-132 are located directly behind the visitors dugout on the third base side.'",
+        "source": "https://www.rateyourseats.com/citizens-bank-park/seating/sections/125"
+      },
+      {
+        "section": "133",
+        "where": "THIRD BASE side, Field Level. Phillies disability-access guide (via web search of https://www.mlb.com/phillies/ballpark/disability-access-guide) lists an elevator 'behind Section 133 (Third Base Field Level)'.",
+        "source": "https://www.mlb.com/phillies/ballpark/disability-access-guide"
+      },
+      {
+        "section": "141",
+        "where": "LEFT FIELD. Phillies disability-access guide (via web search) lists an elevator 'behind Section 141 (Harry the K's Broadcast Bar & Grille)'; Harry the K's is the left-field restaurant at Citizens Bank Park.",
+        "source": "https://www.mlb.com/phillies/ballpark/disability-access-guide"
+      },
+      {
+        "section": "142-145",
+        "where": "LEFT FIELD. RYS Field Level Outfield expert review: '...and 142-145 in left field do provide some relief thanks to the overhanging club level outfield seating above.'",
+        "source": "https://www.rateyourseats.com/citizens-bank-park/seating/sections/148"
+      },
+      {
+        "section": "148",
+        "where": "LEFT FIELD (Field Level Outfield zone; highest-numbered 100-level section). Section page carries the Field Level Outfield expert review and no home-plate insight.",
+        "source": "https://www.rateyourseats.com/citizens-bank-park/seating/sections/148"
+      },
+      {
+        "section": "220-224",
+        "where": "BEHIND HOME PLATE (200 / Hall of Fame Club level). RYS Hall of Fame Club expert review (2026 Review): 'Sections 220-224, located behind home plate, provide the most centered views of the field'.",
+        "source": "https://www.rateyourseats.com/citizens-bank-park/seating/sections/222"
+      },
+      {
+        "section": "225-232",
+        "where": "THIRD BASE side (200 level). RYS Hall of Fame Club expert review: 'For fans attending day games, sections 225-232 may be more appealing because they tend to move into the shade earlier than sections on the first base side.' (Higher numbers = third base side.)",
+        "source": "https://www.rateyourseats.com/citizens-bank-park/seating/sections/222"
+      },
+      {
+        "section": "320",
+        "where": "BEHIND HOME PLATE (300 / Lower Terrace). Section Insights list 'Home Plate View'; Seating Notes: 'For baseball games, desirable view from behind home plate.'",
+        "source": "https://www.rateyourseats.com/citizens-bank-park/seating/sections/320"
+      },
+      {
+        "section": "333",
+        "where": "DOWN THE LINE toward the LEFT FIELD foul pole (300 level). Zone is 'Lower Terrace Down the Line', described as 'between the corner bases and the foul poles'; 333 is the highest-numbered 300-level section.",
+        "source": "https://www.rateyourseats.com/citizens-bank-park/seating/sections/333"
+      },
+      {
+        "section": "420",
+        "where": "BEHIND HOME PLATE (400 / Upper Terrace). Section Insights list 'Home Plate View'; Seating Notes: 'For baseball games, desirable view from behind home plate.'",
+        "source": "https://www.rateyourseats.com/citizens-bank-park/seating/sections/420"
+      },
+      {
+        "section": "423",
+        "where": "Upper Terrace Infield, THIRD BASE side of home plate (three sections above 420, which is the home-plate section). Page has no 'Home Plate View' insight.",
+        "source": "https://www.rateyourseats.com/citizens-bank-park/seating/sections/423"
+      }
+    ],
+    "confidence": "high for the numbered sections (100/200/300/400), cross-checked across four tiers and against the official Phillies disability-access guide's elevator landmarks (Section 133 = Third Base Field Level, Section 141 = Harry the K's in left field). Low/unverified for the lettered A-G club sections."
+  },
+  "home_plate_sections": {
+    "Field Level (100)": ["119", "120", "121", "122", "123", "124", "125", "126", "127", "128"],
+    "Philadelphia Insurance Club / field-level lettered (A-G)": ["A", "B", "C", "D", "E", "F", "G"],
+    "Hall of Fame Club / 200 Level": ["220", "221", "222", "223", "224"],
+    "Lower Terrace / 300 Level": ["320"],
+    "Upper Terrace / 400 Level": ["420"]
+  },
+  "levels": [
+    {
+      "name": "Philadelphia Insurance Club (field level, behind home plate; formerly/also called the Diamond Club; lounge called the CP Rankin Club Lounge)",
+      "sections": "A, B, C, D, E, F, G",
+      "notes": "RYS 2026 review: 'The Philadelphia Insurance Club is located at field level directly behind home plate in Sections A through G at Citizens Bank Park. These seven sections provide one of the closest and most centered perspectives of the field... Fans seated in Sections F and G will sit closest to the Phillies on-deck circle... Meanwhile, Sections A and B sit closer to the visiting team on-deck circle.' Wider padded seats, extra legroom, in-seat wait service for Phillies games, access to CP Rankin Club Lounge and to the Cadillac Hall of Fame Club on the second level. Section A rows 5-19, entrance at Row 14. These are the seats that 'line the backstop wall behind the home plate' in front of sections 119-128.",
+      "source": "https://www.rateyourseats.com/citizens-bank-park/seating/sections/A"
+    },
+    {
+      "name": "Field Level (100 Level)",
+      "sections": "101-148 (all 48 present on the RYS section index)",
+      "notes": "RYS splits it into 'Field Level Infield' (115-132: 115-118 behind Phillies bench/1B, 119-128 behind home plate, 129-132 behind visitors dugout/3B) and 'Field Level Outfield' (beyond the outfield walls; 102-107 right field and 142-145 left field get shade in their last four rows from the overhanging club level outfield seating; 101 is in right center above the Phillies bullpen). Row counts vary sharply: 101 rows 1-7, 148 rows 5-17, 125 rows 24-34.",
+      "source": "https://www.rateyourseats.com/citizens-bank-park/seating/sections/125 and https://www.rateyourseats.com/citizens-bank-park/seating/sections/101"
+    },
+    {
+      "name": "200 Level (includes the Cadillac Hall of Fame Club)",
+      "sections": "201-237 and 241-245 on the RYS index. The Cadillac Hall of Fame Club proper is sections 212-232.",
+      "notes": "RYS 2026 review: 'The Cadillac Hall of Fame Club is located along the infield on the second level of Citizens Bank Park. This area includes sections 212-232. Sections on this level feature some of the smallest seating areas in the stadium, with most sections containing between 8 and 10 rows.' Private club entrances, climate-controlled lounges, two full-service bars, Cooperstown Gallery. Section 222 rows 1-8, entrance at Row 8. RYS index shows NO pages for 238, 239, 240 - reason not stated (suites are listed separately).",
+      "source": "https://www.rateyourseats.com/citizens-bank-park/seating/sections/222"
+    },
+    {
+      "name": "Terrace Level - Lower Terrace (300 Level)",
+      "sections": "301-310 and 312-333 on the RYS index (no page for 311)",
+      "notes": "RYS: 'The Terrace level is the highest tier within the inner seating bowl at Citizens Bank Park, and is divided in to the lower and upper seating by a walkway between. The Lower Terrace Infield is located at the front of the Terrace level between first base and third base... Fans who want to be in the shade might find some relief on the third base side during the late afternoon, while the first base side will be exposed most of the day.' Zone 'Lower Terrace Down the Line' covers sections 'between the corner bases and the foul poles' (e.g. 333). Terrace-level amenities, team shops, food and the Liberty Bell Pig photo op are 'concentrated behind home plate'. Rows are short: 317 rows 1-6, 320 rows 1-4 then 5-8, 333 rows 1-8.",
+      "source": "https://www.rateyourseats.com/citizens-bank-park/seating/sections/317 and https://www.rateyourseats.com/citizens-bank-park/seating/sections/333"
+    },
+    {
+      "name": "Terrace Level - Upper Terrace (400 Level)",
+      "sections": "412-434 on the RYS index (no pages for 401-411 or 435+)",
+      "notes": "RYS: 'At the highest level of seating in Citizens Bank Park, the Upper Terrace seats are where you will find some of the less desirable views... Most sections here have less than 20 rows of seating, and despite the far views fans can find some decent protection from the sun in the highest rows thanks to a small roof above. But if you don't want to sit towards the back in these already far sections, consider the third base side as these sections will see the shade first in the later afternoon. Infield seats will be closest to the amenities on the terrace level (which are concentrated behind home plate).' Sections 420 and 423 both show rows 1-16, entrance at Row 5, rows 9 and above under cover. NOTE: the Phillies disability-access guide states the 400 Level is reachable only by stairs (no elevator service).",
+      "source": "https://www.rateyourseats.com/citizens-bank-park/seating/sections/420 and https://www.rateyourseats.com/citizens-bank-park/seating/sections/423"
+    },
+    {
+      "name": "Rooftop Bleachers (Ashburn Alley rooftop seating)",
+      "sections": "Rooftop Bleachers (single RYS section id 'rooftop_bleachers')",
+      "notes": "Ballparks of Baseball: 'Nearly 400 bleacher seats sit on the roof of the outfield pavilion, offering fans a view of the downtown Philadelphia skyline beyond the center-field fence.' The Phillies disability-access guide lists an elevator 'behind Section 103 (Ashburn Alley rooftop seating)', which places the rooftop access on the right-field side of Ashburn Alley. Exact section/row structure NOT stated by any source I fetched.",
+      "source": "https://www.ballparksofbaseball.com/ballparks/citizens-bank-park/ and https://www.rateyourseats.com/citizens-bank-park/seating/sections"
+    },
+    {
+      "name": "Luxury Suites",
+      "sections": "UNKNOWN (RYS groups them as a single 'Luxury Suites' zone page with no per-suite numbering)",
+      "notes": "Listed on the RYS section index as 'All Luxury Suites Sections' -> a single Luxury Suites page.",
+      "source": "https://www.rateyourseats.com/citizens-bank-park/seating/luxury-suites"
+    },
+    {
+      "name": "Standing Room Only",
+      "sections": "UNKNOWN (single SRO zone page)",
+      "notes": "Listed on the RYS section index as 'All Standing Room Only Sections'.",
+      "source": "https://www.rateyourseats.com/citizens-bank-park/seating/standing-room-only"
+    },
+    {
+      "name": "Concert Field Seats (NON-BASEBALL)",
+      "sections": "Field AA, BB, CC, DD, EE, FF, GG, HH, JJ, KK, LL, MM",
+      "notes": "Grouped on the RYS index under 'All Field Seats Sections', linked elsewhere on the site as 'Concert Field Seats for Concerts'. These are floor sections that exist only for concerts and must be excluded from baseball section lists.",
+      "source": "https://www.rateyourseats.com/citizens-bank-park/seating/field-seats"
+    }
+  ],
+  "dugouts": {
+    "home": "FIRST BASE side. Ballparks of Baseball facts box: '-Home Dugout: First Base'. RateYourSeats Field Level Infield expert review: 'Fans can sit directly behind the Phillies bench in sections 115-118 on the first base side'. Two independent sources agree.",
+    "visiting": "THIRD BASE side, in front of sections 129-132. RateYourSeats Field Level Infield expert review: 'sections 129-132 are located directly behind the visitors dugout on the third base side.'",
+    "source": "https://www.ballparksofbaseball.com/ballparks/citizens-bank-park/ and https://www.rateyourseats.com/citizens-bank-park/seating/sections/125"
+  },
+  "bullpens": "Both bullpens are in RIGHT-CENTER FIELD, stacked in a split-level arrangement. Ballparks of Baseball: 'The bullpens, designed with a split-level setup, are located in right-center field.' RateYourSeats: 'Section 101 in right center is a great option for home team fans as the Phillies bullpen is located just below,' and fan feedback on the same page: 'The Phillies Bullpen is to the Right of Section 101'. Ashburn Alley includes 'a special viewing area overlooking the bullpens'. Which of the two split levels belongs to which team is NOT firmly established: an unattributed web-search summary claimed 'the Phillies bullpen was originally on top, but was moved to the bottom so the visitors would be closer to the rowdy Philadelphia fans' - recorded but unverified. Sources: https://www.ballparksofbaseball.com/ballparks/citizens-bank-park/ , https://www.rateyourseats.com/citizens-bank-park/seating/sections/101",
+  "special_areas": [
+    {
+      "name": "Philadelphia Insurance Club (Diamond Club / CP Rankin Club Lounge)",
+      "where": "Field level directly behind home plate, sections A-G, in front of Field Level sections 119-128",
+      "level": "Field Level (premium)"
+    },
+    {
+      "name": "Cadillac Hall of Fame Club",
+      "where": "Along the infield on the second level, sections 212-232",
+      "level": "200 Level (premium)"
+    },
+    {
+      "name": "Cooperstown Gallery",
+      "where": "Inside the Hall of Fame Club concourse; display of Philadelphia baseball memorabilia",
+      "level": "200 Level"
+    },
+    {
+      "name": "Ashburn Alley",
+      "where": "Outfield concourse, 625 feet long / 50,000 sq ft; picnic areas, statues of Ashburn, Carlton, Schmidt, Kalas, Roberts; includes a viewing area overlooking the bullpens",
+      "level": "Outfield concourse / Field Level"
+    },
+    {
+      "name": "Rooftop Bleachers",
+      "where": "On the roof of the outfield pavilion above Ashburn Alley (elevator access is behind Section 103, right-field side); ~400 seats with a view of the downtown Philadelphia skyline beyond center field",
+      "level": "Rooftop"
+    },
+    {
+      "name": "Liberty Bell",
+      "where": "Right-center field, 50 ft high by 35 ft wide, 100 ft above street level; swings, lights and rings after every Phillies home run",
+      "level": "Outfield feature (not seating)"
+    },
+    {
+      "name": "Main HD videoboard",
+      "where": "Above the seating behind the left-field fence; 152 ft wide by 86 ft tall (installed 2023, replacing the 2011 board)",
+      "level": "Left field (not seating)"
+    },
+    {
+      "name": "Harry the K's Broadcast Bar & Grille",
+      "where": "Behind Section 141 (left field) per the Phillies disability-access guide elevator list",
+      "level": "Left field"
+    },
+    {
+      "name": "The Yard",
+      "where": "13,000 sq ft interactive kids' baseball area in Ashburn Alley (Wiffle ball field, climbing wall); added 2018",
+      "level": "Outfield concourse"
+    },
+    {
+      "name": "Left-field plaza Wall of Fame / retired-number statues",
+      "where": "Left-field plaza",
+      "level": "Plaza"
+    },
+    {
+      "name": "Liberty Bell Pig (kids photo op)",
+      "where": "Terrace Level, behind home plate, among the concentrated terrace-level shops and concessions",
+      "level": "Terrace Level (300/400)"
+    },
+    {
+      "name": "New Era Phillies Team Store (bi-level, renovated for 2026)",
+      "where": "UNKNOWN exact location",
+      "level": "UNKNOWN"
+    }
+  ],
+  "accessibility": {
+    "summary": "From the Phillies disability-access guide (retrieved via web search of https://www.mlb.com/phillies/ballpark/disability-access-guide): ADA seating is available in accessible rows at the TOP of most sections throughout the venue. Accessible seats exist on every level EXCEPT the 400 Level, which is reachable only by stairs. Companion seating is available alongside wheelchair spaces at a maximum 3:1 ratio (3 companions per wheelchair), with folding chairs provided for companions. Wheelchair-accessible gates are located at every bank of turnstiles. 14 family restrooms throughout the ballpark are wheelchair accessible with ADA-compliant toilets, grab bars and sinks. Courtesy wheelchairs are available at the Guest Services desks in Sections 122 and 318. Contact: Phillies Guest Services 215-463-1000 / ballparkops@phillies.com. Independently, RateYourSeats section 320 states 'Wheelchair seating is available behind Row 4.'",
+    "landmarks": [
+      "Elevators serving guests with disabilities behind Sections 103, 112, 119, 123 and 137 (servicing the Club Level and Terrace Level)",
+      "Elevator behind Section 133 (Third Base Field Level)",
+      "Elevator behind Section 141 (Harry the K's Broadcast Bar & Grille)",
+      "Elevator behind Section 103 (Ashburn Alley rooftop seating)",
+      "Ramps at the First Base Gate and the Left Field Gate",
+      "Escalators behind Sections 114, 126 and 140",
+      "Stairways at the First Base Gate and the Left Field Gate",
+      "Guest Services desks with courtesy wheelchairs in Sections 122 and 318",
+      "Wheelchair-accessible gates at every bank of turnstiles",
+      "400 Level is stairs-only (no accessible seating)",
+      "Named gates referenced by sources: Third Base Gate, First Base Gate, Left Field Gate (Right Field / Ashburn Alley gate exists but was not confirmed by a fetched source)"
+    ],
+    "source": "https://www.mlb.com/phillies/ballpark/disability-access-guide (content obtained via WebSearch summary, page not directly fetched) and https://www.rateyourseats.com/citizens-bank-park/seating/sections/320"
+  },
+  "row_seat_conventions": "ROWS ARE NUMERIC at every level observed; no lettered rows were seen on any section page fetched. Row ranges do not start at 1 in many sections and are stated per-section by RateYourSeats. Observed: Field Level 101 rows 1-7 (entrance at Row 7); Field Level 148 rows 5-17 (entrance at Row 15); Field Level 125 rows 24-34 (entrance at Row 34, rows 30+ covered); Philadelphia Insurance Club Section A rows 5-19 (entrance at Row 14); Hall of Fame Club 222 rows 1-8 (entrance at Row 8; RYS says most 200-level club sections have 8-10 rows); Lower Terrace 317 rows 1-6 (entrance at Row 6); Lower Terrace 320 rows '1-4, 5-8' with wheelchair seating behind Row 4 (entrance at Row 8); Lower Terrace 333 rows 1-8 (entrance at Row 8); Upper Terrace 420 and 423 rows 1-16 (entrance at Row 5, rows 9+ covered). ACCESSIBLE-ROW LABEL CONVENTION: no WC / WCH / VWC / AC-suffix label was found in any source. The Phillies guide describes ADA seating as being 'in accessible rows at the top of most sections'; RYS phrases it as 'Wheelchair seating is available behind Row 4' (section 320). Treat the accessible-row label as UNKNOWN.",
+  "seat1_side_verbatim": "\"When looking towards the field/stage, lower number seats are on the right\" - this exact sentence appears under the 'Row Numbers' heading on every RateYourSeats Citizens Bank Park section page checked, with no exceptions and no contradicting variant found. Pages verified: /sections/101, /sections/125, /sections/148, /sections/A, /sections/222, /sections/317, /sections/320, /sections/333, /sections/420, /sections/423 (all under https://www.rateyourseats.com/citizens-bank-park/seating/). Interpretation: SEAT 1 IS ON THE RIGHT AS YOU FACE THE FIELD, i.e. seat numbers increase from right to left when looking toward the field. No source contradicted this.",
+  "known_obstructions": "NETTING: RateYourSeats fan feedback appearing on multiple section pages states verbatim: 'Front of sections 115-132 are behind the netting - There is some amount of netting or screening in front of sections 115-132. The height and coverage of netting or screening will vary by section.' The same feedback item is attached to the field-level lettered club sections (it appears on the Section A page as 'Sec A & More'), so the A-G club rows behind the backstop are also behind netting. VIDEOBOARD BLOCKAGE: RYS Field Level Outfield review: 'Seats on the left field side will have a near impossible view of the large video board, located directly behind the furthest left field sections.' SUN/SHADE (not obstruction but relevant): last four rows of 102-107 (right field) and 142-145 (left field) are shaded by the overhanging club-level outfield seating; section 125 rows 30+ covered; 420/423 rows 9+ covered; 222 rows 5+ shaded in most day games. Sources: https://www.rateyourseats.com/citizens-bank-park/seating/sections/125 , /sections/A , /sections/101 , /sections/148",
+  "uncertain": [
+    "LETTERED CLUB SECTIONS A-G MAY RUN OPPOSITE TO THE NUMBERED SECTIONS. RateYourSeats (2026 review, https://www.rateyourseats.com/citizens-bank-park/seating/sections/A) states verbatim: 'Fans seated in Sections F and G will sit closest to the Phillies on-deck circle, offering an up-close view of players preparing to step up to the plate. Meanwhile, Sections A and B sit closer to the visiting team on-deck circle.' Since the Phillies (home) dugout is on the FIRST BASE side and the visitors are on the THIRD BASE side, that statement implies A/B are on the THIRD BASE side and F/G on the FIRST BASE side - i.e. the letters run third base -> first base, the REVERSE of the 101->148 numbered sweep. This is a single-source claim and I could not corroborate it; a web-search summary asserted the opposite mapping ('A and B ... toward the first base side') but did so by mis-reasoning from the same RYS sentence, not from an independent page. DO NOT emit seat-1 or direction statements for A-G without further verification.",
+    "PREMIUM-CLUB NAMING IS IN FLUX. The field-level club behind home plate is variously called the Diamond Club (older name, still used by aviewfrommyseat.com and by a RYS fan review that says 'Anywhere in the Diamond Dugout is great'), the CP Rankin Club (a Phillies Nation post refers to 'The Diamond/CP Rankin Club behind home plate at Citizens Bank Park is now the Phi...'), and the Philadelphia Insurance Club (current RYS 2026 zone name, which itself says ticketholders access 'the CP Rankin Club Lounge'). The 200-level club is called the Cadillac Hall of Fame Club and is being 'reimagined' for 2026.",
+    "SECTION-NUMBER GAPS ARE UNEXPLAINED. The RYS section index has no pages for 238, 239, 240 (200 level), 311 (300 level), or anything below 412 / above 434 on the 400 level. No source states whether those numbers do not exist, are suites, or are simply missing from RYS. Do not invent them; also do not assume the 400 level physically starts at 412.",
+    "CAPACITY CONFLICT: 42,901 (Wikipedia, 2023-present) vs 43,035 (Ballparks of Baseball facts box and prose). Recommended figure is 42,901. Ballparks of Baseball may be carrying a stale 2018 number, since Wikipedia lists 43,035 as the 2018 capacity.",
+    "COMPASS ORIENTATION IS INFERRED, NOT QUOTED. No fetched page gives a bearing. The 'center field toward north / batter faces north-ish' reading comes from the Ballparks of Baseball statement that the rooftop bleachers see 'the downtown Philadelphia skyline beyond the center-field fence' plus the known geography of the South Philadelphia sports complex. A web-search summary offered '~18 degrees (NNE)' with no attributable page.",
+    "ROOFTOP BLEACHERS GEOMETRY UNKNOWN. Section/row structure, seat numbering and exact field-side placement of the 'Rooftop Bleachers' RYS section are not stated by any source fetched; only that ~400 seats sit on the roof of the outfield pavilion with elevator access behind Section 103 (right-field side of Ashburn Alley).",
+    "LUXURY SUITES and STANDING ROOM ONLY have no per-section identifiers on RateYourSeats; they are single zone pages. Section-level detail is UNKNOWN.",
+    "ACCESSIBLE-ROW LABEL CONVENTION UNKNOWN. No WC / WCH / VWC / AC-suffix row label was found. The only concrete statement is section-specific ('Wheelchair seating is available behind Row 4' at section 320) plus the general 'accessible rows at the top of most sections'.",
+    "SPLIT-LEVEL BULLPEN ASSIGNMENT UNKNOWN. Sources agree both bullpens are in right-center on a split-level structure and that the Phillies bullpen is below/near section 101, but which deck (upper vs lower) each team currently occupies is not confirmed by a fetched page.",
+    "2026 RENOVATIONS MAY INVALIDATE DETAIL. The Phillies announced 2026 enhancements (reimagined Cadillac Hall of Fame Club, suite upgrades, new bi-level team store) and a separate multiyear ~$600M renovation project; Citizens Bank Park also hosts the 2026 All-Star Game. Premium-area names, capacity and possibly some section labels are moving targets.",
+    "THE PHILLIES DISABILITY-ACCESS GUIDE CONTENT WAS OBTAINED VIA WEBSEARCH SUMMARY, NOT A DIRECT FETCH of https://www.mlb.com/phillies/ballpark/disability-access-guide. The elevator/escalator/gate section numbers should be re-verified against the live page before publication."
+  ]
+}

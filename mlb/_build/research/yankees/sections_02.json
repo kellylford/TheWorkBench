@@ -1,0 +1,222 @@
+[
+  {
+    "section": "26",
+    "zone": "Section 26 at Yankee Stadium. Zone/insight tags: \"Legends Suite\", \"Midfield View\", \"Top Pick for Impressing a Guest\", \"Rows 1-9\".",
+    "location": "Verbatim: \"The Legends Suites comprises the first several rows of the lower bowl, stretching from dugout to dugout.\" Verbatim section-range line: \"Section Range: For New York Yankees games Sections 14A through 27A.\"",
+    "rows": "\"Rows in Section 26 are labeled 1-9\"",
+    "entrance_row": "\"An entrance to this section is located at Row 9\"",
+    "seat_direction": "BOILERPLATE (park-wide, Row Numbers block, identical on every Yankee Stadium section page), verbatim as rendered: \"When looking towards the field/field/stage/field, lower number seats are on the right\" — the repeated \"field/field/stage/field\" is a RateYourSeats multi-sport template artifact. PER-SECTION: No per-section statement. Nothing on the page names a side for seat 1 or for high-numbered seats in Section 26.",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights: \"Top Pick for Impressing a Guest / Midfield View / Legends Suite / Rows 1-9\". Seating Notes: \"For baseball games, we recommend these seats for impressing a guest\"; \"For soccer matchs, desirable view from near midfield\"; \"Premium seating area as part of the Legends Suite\". Described as part of Legends Suite premium seating with all-inclusive amenities, private entrance and dedicated club spaces. No netting, obstruction or shade line printed for this section specifically (although discovery.json records that the official Yankees netting page covers the whole 011-029 field ring, i.e. including 026). NOTE FOR CROSS-CHECK: the stated Legends range \"Sections 14A through 27A\" is narrower than the 11-29 field ring recorded in discovery.json; sections 11-13 and 27B-29 are described on their own pages as Champions Suite. No contradiction of discovery's dugout or bullpen sides appears on this page.",
+    "source": "https://www.rateyourseats.com/yankee-stadium/seating/sections/26"
+  },
+  {
+    "section": "27A",
+    "zone": "Section 27A at Yankee Stadium. Zone/insight tags: \"Legends Suite\", \"Top Pick for Impressing a Guest\", \"Rows 1-9\".",
+    "location": "Verbatim: \"The Legends Suites comprises the first several rows of the lower bowl, stretching from dugout to dugout.\" Section range printed as \"Sections 14A through 27A\" (for Yankees games).",
+    "rows": "\"Rows in Section 27A are labeled 1-9\"",
+    "entrance_row": "\"An entrance to this section is located at Row 9\"",
+    "seat_direction": "BOILERPLATE (park-wide, Row Numbers block), verbatim as rendered: \"When looking towards the field/field/stage/field, lower number seats are on the right\". PER-SECTION: No per-section statement. Nothing on the page names a side for seat 1 or high-numbered seats in Section 27A.",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights: \"Top Pick for Impressing a Guest\"; \"Legends Suite\"; \"Rows 1-9\". Seating Notes: \"Premium seating area as part of the Legends Suite\". Explicitly: no obstruction, netting or shade information is provided for this section specifically. 27A is stated as the last section of the Legends Suite range for Yankees games, with 27B-29 belonging to the Champions Suite per those sections' own pages. No statement contradicting discovery.json's dugout or bullpen sides.",
+    "source": "https://www.rateyourseats.com/yankee-stadium/seating/sections/27A"
+  },
+  {
+    "section": "27B",
+    "zone": "Section 27B at Yankee Stadium. Zone/insight tags: \"Champions Suite\", \"Legends Suite\", \"Rows 1-9\".",
+    "location": "Verbatim: \"Sections 27B–29 (along the third base line)\" [listed among the Yankees-game Champions Suite sections]. Also printed on the page for a different sport: \"For MLS matches, the Champions Suite sections are located behind the south goal\" (NYCFC context, not baseball).",
+    "rows": "\"Rows in Section 27B are labeled 1-9\"",
+    "entrance_row": "\"An entrance to this section is located at Row 9\"",
+    "seat_direction": "BOILERPLATE (park-wide, Row Numbers block), verbatim as rendered: \"When looking towards the field/field/stage/field, lower number seats are on the right\". PER-SECTION: No per-section statement. Nothing on the page names a side for seat 1 or high-numbered seats in Section 27B.",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights: Champions Suite, Legends Suite, Rows 1-9. Seating Notes: \"Premium seating area as part of the Champions Suite\"; \"Premium seating area as part of the Legends Suite\" (the page tags this section with BOTH products — recorded, not reconciled). Netting: the Champions Suite is described as \"Behind the protective netting\", consistent with the official Yankees netting page's 011-029 span. Feedback: Champions Suite seats provide \"one of the closest views in the stadium outside of the Legends Suite\". CORROBORATES discovery.json numbering direction: the page places 27B-29 \"along the third base line\" (high numbers = third base/left field) and, on the section 29 page, 11-13 \"along the first base line\".",
+    "source": "https://www.rateyourseats.com/yankee-stadium/seating/sections/27B"
+  },
+  {
+    "section": "28",
+    "zone": "Section 28 at Yankee Stadium. Zone/insight tags: \"Champions Suite\", \"Legends Suite\", \"Rows 1-9\".",
+    "location": "No sentence placing Section 28 geographically was printed on its own page beyond the product statements \"Premium seating area as part of the Champions Suite\" and \"Premium seating area as part of the Legends Suite\". The Champions Suite range that includes 28 is given on the Section 29 page as \"Sections 27B–29 (along the third base line)\".",
+    "rows": "\"Rows in Section 28 are labeled 1-9\"",
+    "entrance_row": "\"An entrance to this section is located at Row 9\"",
+    "seat_direction": "BOILERPLATE (park-wide, Row Numbers block), verbatim as rendered: \"When looking towards the field/field/stage/field, lower number seats are on the right\". PER-SECTION: No per-section statement. Nothing on the page names a side for seat 1 or high-numbered seats in Section 28.",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights list: \"Champions Suite,\" \"Legends Suite,\" \"Rows 1-9\". Seating Notes confirm membership of both premium products (recorded as printed, not reconciled). Netting: Champions Suite described as \"positioned behind the protective netting\". Fan review: \"These seats were amazing! Great view and close up to the action!\". No shade/coverage line for this section. No statement contradicting discovery.json's dugout or bullpen sides.",
+    "source": "https://www.rateyourseats.com/yankee-stadium/seating/sections/28"
+  },
+  {
+    "section": "29",
+    "zone": "Section 29 at Yankee Stadium. Zone/insight tags: \"Champions Suite\", \"Legends Suite\", \"Rows 1-9\".",
+    "location": "Verbatim: \"Champions Suite seating is located in the lower bowl adjacent to the Legends Suite.\" and \"For New York Yankees games, Champions Suite sections include: Sections 11–13 (along the first base line) [and] Sections 27B–29 (along the third base line)\".",
+    "rows": "\"Rows in Section 29 are labeled 1-9\"",
+    "entrance_row": "\"An entrance to this section is located at Row 9\"",
+    "seat_direction": "BOILERPLATE (park-wide, Row Numbers block), verbatim as rendered: \"When looking towards the field/field/stage/field, lower number seats are on the right\". PER-SECTION: No per-section statement. Nothing on the page names a side for seat 1 or high-numbered seats in Section 29.",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights: \"Champions Suite\" and \"Legends Suite\" with \"Rows 1-9\". Seating Notes: \"Premium seating area as part of the Champions Suite\" and \"Premium seating area as part of the Legends Suite\". ROW-LABEL CONTRADICTION — FLAGGED, NOT RECONCILED: the structured row line says \"Rows in Section 29 are labeled 1-9\", but a fan review refers to a Row 1WC, saying \"This is the wheelchair row (you don't need to be handicapped)\" and praising \"Amazing seats\" with \"usually the whole row to yourself\". A WC row at the FRONT (Row 1) is the opposite of the Terrace/Bleacher convention recorded in discovery.json (8WC/21W at the back), so this is directly relevant to an accessible-seating guide and should be verified. Discovery.json also lists 029 among the official outlet-equipped accessible sections. STRONGLY CORROBORATES discovery.json numbering direction: 11-13 = first base line (low numbers), 27B-29 = third base line (high numbers). No statement contradicting discovery's dugout or bullpen sides.",
+    "source": "https://www.rateyourseats.com/yankee-stadium/seating/sections/29"
+  },
+  {
+    "section": "103",
+    "zone": "Field Level Outfield (Baseball). Concert tag: \"Behind/Side Stage (most shows)\".",
+    "location": "No plain-language baseball placement sentence is printed. Tags/lines present: \"Midfield View\"; \"Behind/Side Stage (most shows)\"; and for other sports \"For soccer matchs, these seats are located behind the visitor bench\" and \"For soccer matchs, desirable view from near midfield\". The section's baseball position is established indirectly by the bullpen line quoted under seat_direction/notes.",
+    "rows": "\"Rows in Section 103 are labeled 1-10\"",
+    "entrance_row": "\"An entrance to this section is located at Row 10\"",
+    "seat_direction": "BOILERPLATE (park-wide, Row Numbers block), verbatim as rendered: \"When looking towards the field/field/stage/field, lower number seats are on the right\". PER-SECTION STATEMENT, verbatim: \"To sit near the Yankees bullpen, sit in seat 1 on the right-side of Section 103\" and \"Sitting in Seat 1 will have you right up against the wall overlooking the Yankees bullpen.\" The per-section text explicitly places seat 1 on the RIGHT side of Section 103, AGREEING with the boilerplate. No disagreement.",
+    "seats_per_row": "\"Rows 1-10 have 24 seats labeled 1-24\"",
+    "notes": "Shade: \"Avoid Sections 103-107 for afternoon games if you are sensitive to the sun\". Concerts: \"103 is behind the stage or to the side of the stage for most concerts\". Lowest ticket price listed: $30. BULLPEN CONFIRMATION consistent with discovery.json: the Yankees bullpen is stated to be on the right side of / adjacent to Section 103 (right-center field). No contradiction of discovery.json on dugouts, bullpens or numbering direction. Discovery.json lists 104-106, 109, 111, 114A and 116 (not 103) among the official outlet-equipped accessible sections.",
+    "source": "https://www.rateyourseats.com/yankee-stadium/seating/sections/103"
+  },
+  {
+    "section": "104",
+    "zone": "Section 104 at Yankee Stadium — \"Field Level Outfield (Baseball)\"; concert tag \"Behind/Side Stage (most shows)\".",
+    "location": "No sentence placing Section 104 in the ballpark is printed beyond the zone tags \"Field Level Outfield (Baseball)\" and \"Behind/Side Stage (most shows)\".",
+    "rows": "\"Rows in Section 104 are labeled 1-18\"",
+    "entrance_row": "\"An entrance to this section is located at Row 18\"",
+    "seat_direction": "BOILERPLATE (park-wide, Row Numbers block), verbatim as rendered: \"When looking towards the field/field/stage/field, lower number seats are on the right\". PER-SECTION: No per-section statement. Nothing on the page names a side for seat 1 or high-numbered seats in Section 104.",
+    "seats_per_row": "\"Rows 1-2 have 20 seats labeled 1-20\"; \"Rows 3-10 have 24 seats labeled 1-24\"; \"Row 11 has 13 seats labeled 1-13\"; \"Row 12 has 12 seats labeled 1-12\"; \"Row 13 has 10 seats labeled 1-10\"; \"Row 14 has 8 seats labeled 1-8\"; \"Row 15 has 7 seats labeled 1-7\"; \"Row 16 has 6 seats labeled 1-6\"; \"Row 17 has 5 seats labeled 1-5\". (No seats-per-row line printed for Row 18, although rows are labeled 1-18 — recorded as a gap, not filled in.)",
+    "notes": "Concerts: \"104 is behind the stage or to the side of the stage for most concerts. This may restrict or limit your view.\" Fan tip: \"Get a cheesesteak at Carls Steak in Section 104 and 222.\" No netting, obstruction or coverage line printed for this section. GAP FLAGGED: the seats-per-row table stops at Row 17 while the row label line runs to 18. Discovery.json lists 104 among the official outlet-equipped accessible sections.",
+    "source": "https://www.rateyourseats.com/yankee-stadium/seating/sections/104"
+  },
+  {
+    "section": "105",
+    "zone": "Section 105 at Yankee Stadium — Field Level Outfield.",
+    "location": "UNKNOWN. The page describes Section 105 as part of Field Level Outfield seating but prints no sentence placing it in the ballpark's geography.",
+    "rows": "\"Rows in Section 105 are labeled 1-19\"",
+    "entrance_row": "\"An entrance to this section is located at Row 19\"",
+    "seat_direction": "BOILERPLATE (park-wide, Row Numbers block), verbatim as rendered: \"When looking towards the field/field/stage/field, lower number seats are on the right\". PER-SECTION: No per-section statement. Nothing on the page names a side for seat 1 or high-numbered seats in Section 105.",
+    "seats_per_row": "\"Rows 1-17 have 24 seats labeled 1-24\" (no line printed for Rows 18-19).",
+    "notes": "Coverage/shade: Section Insight \"Rows 5 & Above - Covered\"; Seating Note \"Rows 5 and above are under cover\". Fan review: \"Completely covered and shaded. Top row so no one sitting behind. Only downside is the speakers are right in front and the sound/music is extremely loud.\" Field Level Outfield expert review cautions: \"Avoid Sections 103-107 for afternoon games if you are sensitive to the sun.\" (Note the internal tension between that zone-wide sun warning and this section's own \"Rows 5 & Above - Covered\" line — recorded, not reconciled.) GAP FLAGGED: seats-per-row stops at Row 17 while rows run to 19. Discovery.json lists 105 among the official outlet-equipped accessible sections.",
+    "source": "https://www.rateyourseats.com/yankee-stadium/seating/sections/105"
+  },
+  {
+    "section": "106",
+    "zone": "Field Level Outfield (Baseball).",
+    "location": "Zone-level sentence only, verbatim: \"Field Level Outfield seats at Yankee Stadium are hit and miss. Because the seats include outfield seating and seats down each baseline, there are a variety of seating options.\" No sentence placing Section 106 specifically.",
+    "rows": "\"Rows in Section 106 are labeled 1-19\"",
+    "entrance_row": "\"An entrance to this section is located at Row 19\"",
+    "seat_direction": "BOILERPLATE (park-wide, Row Numbers block), verbatim as rendered: \"When looking towards the field/field/stage/field, lower number seats are on the right\". PER-SECTION: No per-section statement. Nothing on the page names a side for seat 1 or high-numbered seats in Section 106.",
+    "seats_per_row": "\"Rows 1-2 have 11 seats labeled 1-11\"; \"Rows 3-4 have 12 seats labeled 1-12\"; \"Rows 5-6 have 13 seats labeled 1-13\"; \"Row 7 has 14 seats labeled 1-14\"; \"Rows 8-9 have 15 seats labeled 1-15\"; \"Rows 10-11 have 16 seats labeled 1-16\"; \"Rows 12-13 have 17 seats labeled 1-17\"; \"Rows 14-15 have 18 seats labeled 1-18\"; \"Row 16 has 19 seats labeled 1-19\"; \"Row 17 has 20 seats labeled 1-20\". (No lines printed for Rows 18-19.)",
+    "notes": "Coverage: \"Rows 5 & Above - Covered\". Shade warning: \"Avoid Sections 103-107 for afternoon games if you are sensitive to the sun\". No netting or obstruction line for this section. Row counts widen from front to back (11 seats in Row 1 up to 20 in Row 17), indicating a wedge widening away from the field. GAP FLAGGED: seats-per-row stops at Row 17 while rows run to 19. Discovery.json lists 106 among the official outlet-equipped accessible sections.",
+    "source": "https://www.rateyourseats.com/yankee-stadium/seating/sections/106"
+  },
+  {
+    "section": "107",
+    "zone": "Section 107 at Yankee Stadium — Field Level Outfield. Insight tag: \"Midfield View\".",
+    "location": "UNKNOWN. No sentence placing Section 107 in the ballpark is printed. The only positional hints are the football tag \"For football games, desirable view from near midfield\" and the foul-pole warning quoted in notes, which implies proximity to the right-field foul pole.",
+    "rows": "\"Rows in Section 107 are labeled 1-21\"",
+    "entrance_row": "\"An entrance to this section is located at Row 21\"",
+    "seat_direction": "BOILERPLATE (park-wide, Row Numbers block), verbatim as rendered: \"When looking towards the field/field/stage/field, lower number seats are on the right\". PER-SECTION: No per-section statement. Nothing on the page names a side for seat 1 or high-numbered seats in Section 107.",
+    "seats_per_row": "\"Rows 1-2 have 7 seats labeled 1-7\"; \"Row 3 has 12 seats labeled 1-12\"; \"Rows 4-5 have 13 seats labeled 1-13\"; \"Rows 6-7 have 14 seats labeled 1-14\"; \"Rows 8-9 have 15 seats labeled 1-15\"; \"Row 10 has 16 seats labeled 1-16\"; \"Rows 11-12 have 17 seats labeled 1-17\"; \"Rows 13-14 have 18 seats labeled 1-18\"; \"Row 17 has 20 seats labeled 1-20\"; \"Rows 18-19 have 21 seats labeled 1-21\"; \"Row 20 has 22 seats labeled 1-22\"; \"Row 21 has 21 seats labeled 1-22\". (No lines printed for Rows 15-16. Note the internally inconsistent final line — \"21 seats labeled 1-22\" — reproduced exactly as printed; this is the site's own way of showing a row with one seat missing from the 1-22 span.)",
+    "notes": "Insights: \"Midfield View\"; \"Rows 6 & Above - Covered\"; \"Rows 1-21\". Seating Notes: \"For football games, desirable view from near midfield\"; \"Rows 6 and above are under cover\". OBSTRUCTION: expert review warns \"some fans have complained about the foul poles in Sections 107 and 132\" — matches known_obstructions in discovery.json verbatim in substance. Shade: \"Avoid Sections 103-107 for afternoon games if you are sensitive to the sun\". GAPS FLAGGED: no seats-per-row lines for Rows 15-16, and Row 21's count/label span do not agree.",
+    "source": "https://www.rateyourseats.com/yankee-stadium/seating/sections/107"
+  },
+  {
+    "section": "108",
+    "zone": "Section 108 at Yankee Stadium — Field Level Outfield. Insight tag: \"Midfield View\".",
+    "location": "UNKNOWN. The only placement-like line printed is the insight tag \"Midfield View\" (a football/soccer tag, not a baseball placement).",
+    "rows": "\"Rows in Section 108 are labeled 1-22\"",
+    "entrance_row": "\"An entrance to this section is located at Row 22\"",
+    "seat_direction": "BOILERPLATE (park-wide, Row Numbers block), verbatim as rendered: \"When looking towards the field/field/stage/field, lower number seats are on the right\". PER-SECTION: No per-section statement. Nothing on the page names a side for seat 1 or high-numbered seats in Section 108.",
+    "seats_per_row": "\"Row 1 has 1 seats labeled 1\"; \"Rows 2-3 have 9 seats labeled 1-9\"; \"Row 4 has 10 seats labeled 1-10\"; \"Rows 5-7 have 11 seats labeled 1-11\"; \"Rows 8-9 have 12 seats labeled 1-12\"; \"Row 10 has 13 seats labeled 1-13\"; \"Rows 11-12 have 14 seats labeled 1-14\"; \"Rows 13-14 have 15 seats labeled 1-15\"; \"Rows 15-16 have 16 seats labeled 1-16\"; \"Rows 17-18 have 17 seats labeled 1-17\"; \"Row 19 has 18 seats labeled 1-18\"; \"Rows 20-21 have 19 seats labeled 1-19\"; \"Row 22 has 19 seats labeled 1-20\".",
+    "notes": "Insight: \"Rows 9 & Above - Covered\". Seating Notes: \"For football games, desirable view from near midfield\"; \"Rows 9 and above are under cover\". Fan review (view complaint): \"Can't see the scoreboard or pop ups from here\". NOTABLE: Row 1 is stated to have a single seat (\"Row 1 has 1 seats labeled 1\"), and the final row line \"Row 22 has 19 seats labeled 1-20\" is internally inconsistent — both reproduced exactly as printed, not corrected. This is a sharply tapering wedge, narrowest at the field.",
+    "source": "https://www.rateyourseats.com/yankee-stadium/seating/sections/108"
+  },
+  {
+    "section": "109",
+    "zone": "Section 109 at Yankee Stadium — Field Level Outfield. Insight tag: \"Midfield View\".",
+    "location": "UNKNOWN. The only placement-like line printed is the insight tag \"Midfield View\" (a football/soccer tag, not a baseball placement).",
+    "rows": "\"Rows in Section 109 are labeled 1-24\"",
+    "entrance_row": "\"An entrance to this section is located at Row 24\"",
+    "seat_direction": "BOILERPLATE (park-wide, Row Numbers block), verbatim as rendered: \"When looking towards the field/field/stage/field, lower number seats are on the right\". PER-SECTION: No per-section statement. Nothing on the page names a side for seat 1 or high-numbered seats in Section 109.",
+    "seats_per_row": "\"Row 1 has 2 seats labeled 1-2\"; \"Row 2 has 7 seats labeled 1-7\"; \"Row 3 has 11 seats labeled 1-11\"; \"Rows 4-5 have 12 seats labeled 1-12\"; \"Rows 6-7 have 13 seats labeled 1-13\"; \"Rows 8-9 have 14 seats labeled 1-14\"; \"Rows 10-11 have 15 seats labeled 1-15\"; \"Rows 12-13 have 16 seats labeled 1-16\"; \"Rows 14-15 have 17 seats labeled 1-17\"; \"Row 16 has 18 seats labeled 1-18\"; \"Rows 17-18 have 19 seats labeled 1-19\"; \"Rows 19-20 have 20 seats labeled 1-20\"; \"Rows 21-22 have 21 seats labeled 1-21\". (No lines printed for Rows 23-24.)",
+    "notes": "Insight: \"Rows 19 & Above - Covered\". Seating Notes: \"For football games, desirable view from near midfield\"; \"Rows 19 and above are under cover\". Fan review: \"Loved the cusions on my seats.\" GAP FLAGGED: seats-per-row stops at Row 22 while rows run to 24. Discovery.json lists 109 among the official outlet-equipped accessible sections.",
+    "source": "https://www.rateyourseats.com/yankee-stadium/seating/sections/109"
+  },
+  {
+    "section": "110",
+    "zone": "Section 110 at Yankee Stadium — Field Level Outfield.",
+    "location": "UNKNOWN. No sentence placing Section 110 in the ballpark is printed.",
+    "rows": "\"Rows in Section 110 are labeled 1-29\"",
+    "entrance_row": "\"An entrance to this section is located at Row 29\"",
+    "seat_direction": "BOILERPLATE (park-wide, Row Numbers block), verbatim as rendered: \"When looking towards the field/field/stage/field, lower number seats are on the right\". PER-SECTION: No per-section statement. Nothing on the page names a side for seat 1 or high-numbered seats in Section 110.",
+    "seats_per_row": "\"Row 1 has 5 seats labeled 1-5\"; \"Row 2 has 10 seats labeled 1-10\"; \"Rows 3-28 have 15 seats labeled 1-15\"; \"Row 29 has 14 seats labeled 1-15\".",
+    "notes": "Section Insights: \"Rows 23 & Above - Covered\". Seating Notes: \"Rows 23 and above are under cover\". OBSTRUCTION — ACCESSIBLE-PLATFORM RELEVANT: fan feedback verbatim, \"could not view half the infield (homeplate to firstbase to thirdbase). Obstructed by handicap section\"; also \"view of the field was obscured by the players standing along the sideline\". Shade: \"no sunshine on those seats\". The handicap-platform obstruction matches the pattern flagged in discovery.json's known_obstructions and is directly relevant to an accessible-seating guide. NOTE: the fan mentions seeing home plate to first base to third base, which is a viewing-angle description and does not name a dugout side; no contradiction of discovery.json.",
+    "source": "https://www.rateyourseats.com/yankee-stadium/seating/sections/110"
+  },
+  {
+    "section": "111",
+    "zone": "Field Level Outfield (Baseball).",
+    "location": "Verbatim: \"Section 111 is located approximately halfway between the end of the infield dirt on the first base side and the right field foul pole.\" CONSISTENT with discovery.json's numbering direction (low 100s = right field / first base side).",
+    "rows": "\"Rows in Section 111 are labeled 1-26, 27W, 28S\"",
+    "entrance_row": "\"An entrance to this section is located at Row 28S\"",
+    "seat_direction": "BOILERPLATE (park-wide, Row Numbers block), verbatim as rendered: \"When looking towards the field/field/stage/field, lower number seats are on the right\". PER-SECTION: No per-section statement naming a side for seat 1 or high-numbered seats in Section 111. (The only per-section advisory text is about shade, not seat side: \"Sit as close to home plate as you can for your best chance at shade. Avoid Sections 103-107 for afternoon games if you are sensitive to the sun.\")",
+    "seats_per_row": "\"Rows 1-11 have 4 seats labeled 1-4\"; \"Rows 12-26 have 16 seats labeled 1-16\". (No lines printed for Rows 27W or 28S.)",
+    "notes": "ACCESSIBLE ROW LABELS — IMPORTANT: this section uses the wheelchair/standing-room suffix convention at the BACK, \"Rows ... 1-26, 27W, 28S\", with the entrance at Row 28S. That matches the discovery.json convention of W = wheelchair row and S/SR = standing-room row behind it, and is the OPPOSITE placement to the Row 1WC referenced by a fan on the Section 29 page — flagged, not reconciled. Coverage: \"Rows 25 & Above - Covered\". COVERAGE CONTRADICTION — FLAGGED, NOT RECONCILED: the page also prints \"Row 20 will not be covered, but should have no obstructions\", which is consistent with the Rows 25+ line, but the two coverage statements use different thresholds and should be checked together. Other: \"You will be in foul ball territory and have an opportunity to get a ball\"; \"Sit as close to home plate as you can for your best chance at shade. Avoid Sections 103-107 for afternoon games if you are sensitive to the sun.\" Discovery.json lists 111 among the official outlet-equipped accessible sections; the 27W row label independently corroborates that.",
+    "source": "https://www.rateyourseats.com/yankee-stadium/seating/sections/111"
+  },
+  {
+    "section": "112",
+    "zone": "Section 112 at Yankee Stadium — Field Level Outfield.",
+    "location": "UNKNOWN. No sentence placing Section 112 in the ballpark is printed.",
+    "rows": "\"Rows in Section 112 are labeled 1-19\"",
+    "entrance_row": "\"An entrance to this section is located at Row 19\"",
+    "seat_direction": "BOILERPLATE (park-wide, Row Numbers block), verbatim as rendered: \"When looking towards the field/field/stage/field, lower number seats are on the right\". PER-SECTION: No per-section statement. Nothing on the page names a side for seat 1 or high-numbered seats in Section 112.",
+    "seats_per_row": "\"All Seat Numbers have 16 seats labeled 1-16\" (printed as a single blanket line covering every row rather than a per-row table).",
+    "notes": "Insights: \"Rows 14 & Above - Covered\"; \"Rows 1-19\". Seating Notes: \"Rows 14 and above are under cover\". Zone-level expert warnings printed on the page: \"Some fans have complained about the foul poles in Sections 107 and 132\" and \"Avoid Sections 103-107 for afternoon games if you are sensitive to the sun\" — both name OTHER sections, not 112. Only one fan review present (5 stars, May 27 2019, San Diego Padres vs Yankees, Row 15). This is a uniform-width section (16 seats in every row), unlike the tapering wedges at 106-109.",
+    "source": "https://www.rateyourseats.com/yankee-stadium/seating/sections/112"
+  },
+  {
+    "section": "113",
+    "zone": "Field Level Outfield (Baseball).",
+    "location": "UNKNOWN. No sentence placing Section 113 in the ballpark is printed.",
+    "rows": "\"Rows in Section 113 are labeled 1-19\"",
+    "entrance_row": "\"An entrance to this section is located at Row 19\"",
+    "seat_direction": "BOILERPLATE (park-wide, Row Numbers block), verbatim as rendered: \"When looking towards the field/field/stage/field, lower number seats are on the right\". PER-SECTION: No per-section statement. Nothing on the page names a side for seat 1 or high-numbered seats in Section 113.",
+    "seats_per_row": "\"Rows 1-4 have 13 seats labeled 1-13\"; \"Rows 5-18 have 16 seats labeled 1-16\"; \"Row 19 has 14 seats labeled 3-16\".",
+    "notes": "Section Insights: \"Rows 14 & Above - Covered\"; \"Rows 1-19\". Seating Notes: \"Rows 14 and above are under cover\". Fan review: \"they allowed us to get a great view of the game as well we were nicely shaded\". Zone-level warning printed: \"Avoid Sections 103-107 for afternoon games if you are sensitive to the sun\" (names other sections). WORTH NOTING FOR SEAT NUMBERING: \"Row 19 has 14 seats labeled 3-16\" — the back row starts at seat 3, not seat 1, so seats 1-2 are missing from the low-numbered end of that row. This is a rare per-section seat-numbering detail; it says which NUMBERS are absent but does NOT name a physical side, so it does not resolve the seat-1 side question.",
+    "source": "https://www.rateyourseats.com/yankee-stadium/seating/sections/113"
+  },
+  {
+    "section": "114A",
+    "zone": "Section 114A at Yankee Stadium — Field Level.",
+    "location": "UNKNOWN. No sentence placing Section 114A in the ballpark is printed. The page describes it as a \"Field Level seating category with mixed premium/non-premium access\".",
+    "rows": "\"Rows in Section 114A are labeled 1-15, 16W-17S\"",
+    "entrance_row": "\"An entrance to this section is located at Row 17S\"",
+    "seat_direction": "BOILERPLATE (park-wide, Row Numbers block), verbatim as rendered: \"When looking towards the field/field/stage/field, lower number seats are on the right\". PER-SECTION: No per-section statement. Nothing on the page names a side for seat 1 or high-numbered seats in Section 114A.",
+    "seats_per_row": "UNKNOWN",
+    "notes": "ACCESSIBLE ROW LABELS — IMPORTANT: \"Rows in Section 114A are labeled 1-15, 16W-17S\" with the entrance at Row 17S, and the page states there is \"Standing room only space\" behind Row 15. Same back-of-section W/S convention as Section 111 (W = wheelchair row, S = standing room), matching discovery.json. Note the unusual hyphenated rendering \"16W-17S\" rather than the comma-separated form used at 111 (\"27W, 28S\") — reproduced as printed. Section Insights: \"Rows 14 & Above - Covered\"; Seating Notes: \"Rows 14 and above are under cover\". Fan review: \"Seats were good and the view was awesome\" (114A / Row 14 • Baseball). Discovery.json lists 114A among the official outlet-equipped accessible sections; the 16W label corroborates that. No netting or obstruction line printed.",
+    "source": "https://www.rateyourseats.com/yankee-stadium/seating/sections/114A"
+  },
+  {
+    "section": "114B",
+    "zone": "Section 114B at Yankee Stadium — Field Level.",
+    "location": "UNKNOWN. No sentence placing Section 114B in the ballpark is printed. The page characterises it as a non-premium field level section offering similar views to adjacent premium sections at lower cost.",
+    "rows": "\"Rows in Section 114B are labeled 1-19\"",
+    "entrance_row": "\"An entrance to this section is located at Row 19\"",
+    "seat_direction": "BOILERPLATE (park-wide, Row Numbers block), verbatim as rendered: \"When looking towards the field/field/stage/field, lower number seats are on the right\". PER-SECTION: No per-section statement. Nothing on the page names a side for seat 1 or high-numbered seats in Section 114B.",
+    "seats_per_row": "\"Rows 1-18 have 16 seats labeled 1-16\"; \"Row 19 has 15 seats labeled 1-16\".",
+    "notes": "Section Insights: \"Rows 14 & Above - Covered\". Seating Notes: \"Rows 14 and above are under cover\". OVERHANG — fan review explicitly says the overhang does NOT obstruct: \"Thought these might be obstructed, but not at all. Overhang just gives lovely shade. Clear view of scoreboard too.\" Worth recording because the roof overhang is listed as an obstruction risk in discovery.json's known_obstructions; this is a first-hand counter-report for this section. Unlike 114A, 114B carries no W/S accessible row labels. \"Row 19 has 15 seats labeled 1-16\" is reproduced as printed (one seat absent from the 1-16 span, side not stated).",
+    "source": "https://www.rateyourseats.com/yankee-stadium/seating/sections/114B"
+  },
+  {
+    "section": "115",
+    "zone": "Section 115 at Yankee Stadium — Field MVP Seats (premium).",
+    "location": "Verbatim: \"Field MVP seating spans Sections 115 through 125, wrapping around the infield from behind the visitors' dugout to the home dugout.\" Also: \"Positioned approximately 10 rows from the field, offering a centered, 'big-picture' view\".",
+    "rows": "\"Rows in Section 115 are labeled 1-19\"",
+    "entrance_row": "\"An entrance to this section is located at Row 19\"",
+    "seat_direction": "BOILERPLATE (park-wide, Row Numbers block), verbatim as rendered: \"When looking towards the field/field/stage/field, lower number seats are on the right\". PER-SECTION: No per-section statement. Nothing on the page names a side for seat 1 or high-numbered seats in Section 115.",
+    "seats_per_row": "\"Rows 1-4 have 11 seats labeled 1-11\"; \"Rows 5-10 have 14 seats labeled 1-14\"; \"Rows 11-15 have 8 seats labeled 1-8\". (No lines printed for Rows 16-19; note the abrupt drop from 14 seats to 8 at Row 11, which coincides with the stated Field MVP Club / Field MVP tier split.)",
+    "notes": "DUGOUT CONFLICT — FLAGGED, NOT RECONCILED (this is the exact sentence discovery.json calls the highest-priority unresolved conflict): \"Field MVP seating spans Sections 115 through 125, wrapping around the infield from behind the visitors' dugout to the home dugout.\" Read as an ordered sweep with numbers increasing toward third base, that puts the VISITORS' dugout at the first-base end (near 115) and the HOME dugout at the third-base end (near 125), contradicting Ballparks of Baseball's \"-Home Dugout: First Base\" and Event Ticket Center. The sentence may only be describing the zone's extent without implying order. Recorded verbatim; NOT reconciled. Premium: \"Premium seating as part of Field MVP Seats\"; oversized padded chairs and in-seat service. Value/shade: \"Row 11 is widely considered the best value in the building. It is the first row likely to be shaded\". Coverage: \"Rows 14 & Above - Covered\". No netting or obstruction line for this section.",
+    "source": "https://www.rateyourseats.com/yankee-stadium/seating/sections/115"
+  },
+  {
+    "section": "116",
+    "zone": "Section 116 at Yankee Stadium — Field MVP Seats (premium).",
+    "location": "Verbatim: \"Field MVP seating spans Sections 115 through 125, wrapping around the infield from behind the visitors' dugout to the home dugout.\" and \"These sections are located on the main Field Level concourse.\"",
+    "rows": "\"Rows in Section 116 are labeled 1-17\"",
+    "entrance_row": "\"An entrance to this section is located at Row 17\"",
+    "seat_direction": "BOILERPLATE (park-wide, Row Numbers block), verbatim as rendered: \"When looking towards the field/field/stage/field, lower number seats are on the right\". PER-SECTION: No per-section statement. Nothing on the page names a side for seat 1 or high-numbered seats in Section 116.",
+    "seats_per_row": "\"Rows 1-4 have 15 seats labeled 1-15\"; \"Rows 5-10 have 18 seats labeled 1-18\"; \"Rows 11-15 have 12 seats labeled 1-12\". (No lines printed for Rows 16-17; the drop from 18 to 12 seats at Row 11 coincides with the Field MVP Club / Field MVP tier split.)",
+    "notes": "DUGOUT CONFLICT — FLAGGED, NOT RECONCILED: the same sentence as Section 115, verbatim, \"Field MVP seating spans Sections 115 through 125, wrapping around the infield from behind the visitors' dugout to the home dugout.\" This is now confirmed as boilerplate repeated across Field MVP section pages (discovery.json already saw it on 119 and 121B), which weakens any reading of it as an ordered, section-by-section sweep — but it is NOT reconciled here. Tier structure, verbatim: \"Field MVP Club (Rows 1–10): The front tier of these sections.\" and \"Field MVP (Rows 11 and Above): These rows sit directly behind the Club tier.\" Value: \"Row 11 is widely considered the best value in the building.\" Coverage: \"Rows 14 & Above - Covered\"; \"Rows 14 and above are under cover\". Premium: \"Premium seating area as part of the Field MVP Seats for Yankees games\". Discovery.json lists 116 among the official outlet-equipped accessible sections. No netting or obstruction line for this section.",
+    "source": "https://www.rateyourseats.com/yankee-stadium/seating/sections/116"
+  }
+]
