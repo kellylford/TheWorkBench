@@ -4,9 +4,10 @@
   "description": "Multiplayer build of Sheephead. Forked from sheephead/ at 160ff33; the single-player game is not modified by work here.",
   "private": true,
   "scripts": {
-    "test": "node tests/rules-oracle.js && node tests/authorization.js && node tests/engine-invariants.js && node tests/hidden-information.js && node tests/transcript.js && node tests/doublers.js && node tests/ui-dom.js && node tests/card-overlap.js && node tests/contrast.js && node tests/randomness.js && node tests/appearance.js",
+    "test": "node tests/rules-oracle.js && node tests/authorization.js && node tests/projection.js && node tests/engine-invariants.js && node tests/hidden-information.js && node tests/transcript.js && node tests/doublers.js && node tests/ui-dom.js && node tests/card-overlap.js && node tests/contrast.js && node tests/randomness.js && node tests/appearance.js",
     "test:rules": "node tests/rules-oracle.js",
     "test:auth": "node tests/authorization.js",
+    "test:projection": "node tests/projection.js",
     "test:random": "node tests/randomness.js",
     "test:invariants": "node tests/engine-invariants.js",
     "test:hidden": "node tests/hidden-information.js",
