@@ -251,18 +251,21 @@
     var cfg = {};
     Object.keys(settings).forEach(function (k) { cfg[k] = settings[k]; });
     state = G.createGame(cfg);
+    SH.Table.startLocal(state, mySeat);
+    resetSpeech();
     lastActionsKey = null;
     el['setup-section'].hidden = true;
     el['game-section'].hidden = false;
     el.log.innerHTML = '';
-    var d = G.DEAL[settings.numPlayers];
-    pushLog('info', settings.numPlayers + ' players. ' + d.hand + ' cards each, ' +
+    var d = dealSpec();
+    pushLog('info', tableSize() + ' players. ' + d.hand + ' cards each, ' +
       d.blind + ' card blind. ' + (d.partner ? 'Jack of Diamonds partner.' : 'The picker always plays alone.'));
     dealNext();
   }
 
   function backToSetup() {
     clearTimeout(timer);
+    resetSpeech();
     state = null;
     el['game-section'].hidden = true;
     el['setup-section'].hidden = false;
@@ -294,11 +297,31 @@
     }
   }
 
+  /* How many seats this table has, and the deal that goes with it.
+   *
+   * Read from the GAME, not from settings. tableSize() is this browser's
+   * saved preference for the next game it starts; state.config.numPlayers is the
+   * size of the table actually being played. Offline those agree, which is why
+   * seventeen places read the preference and nothing ever went wrong. Online they
+   * come apart the moment somebody whose dropdown says five joins a six-seat
+   * room, and every one of those places would then render the wrong hand size,
+   * the wrong trick count and the wrong blind.
+   *
+   * Falls back to the preference only before a game exists, which is the setup
+   * screen. */
+  function tableSize() {
+    return state ? state.config.numPlayers : settings.numPlayers;
+  }
+
+  function dealSpec() {
+    return G.DEAL[tableSize()];
+  }
+
   function isHumanTurn() {
     if (!state) return false;
-    if (state.phase === 'pick') return state.turn === 0;
-    if (state.phase === 'bury') return state.picker === 0;
-    if (state.phase === 'play') return state.turn === 0;
+    if (state.phase === 'pick') return state.turn === mySeat;
+    if (state.phase === 'bury') return state.picker === mySeat;
+    if (state.phase === 'play') return state.turn === mySeat;
     return false;
   }
 
@@ -332,7 +355,163 @@
     tick();
   }
 
-  /* ---------------- announcements ---------------- */
+  /* ---------------- announcements ----------------
+   *
+   * Both live regions are written the same way: blank the node, then set the text
+   * a moment later. The blank is not decoration — setting the same string twice is
+   * not a DOM change and a screen reader says nothing, so "Your turn" following
+   * "Your turn" would be silence.
+   *
+   * That pattern has a race in it, and offline nothing ever triggered it. Messages
+   * only arrive on a keystroke or a pace timer, so two never overlap. Over a
+   * socket they will: two views twenty milliseconds apart means the second blank
+   * runs before the first timeout fires, and the first message IS NEVER SPOKEN.
+   * Not delayed — gone, with no error and nothing on screen to show it happened.
+   *
+   * Four rules, and the reasoning matters more than the mechanism:
+   *
+   *   1. ONE QUEUE PER REGION. The polite announcer and the assertive alerts are
+   *      independent channels to the screen reader; a single global queue made a
+   *      card-selection confirmation delay the hand read the player then asked
+   *      for, which is a delay invented entirely by the fix.
+   *
+   *   2. PASS-THROUGH WHEN IDLE. With nothing in flight a message takes the path
+   *      it always did. Single-player at instant pace must not get slower to fix
+   *      a problem it does not have.
+   *
+   *   3. A GAME EVENT NEVER PREEMPTS A REQUEST. Press H and a remote play lands
+   *      mid-sentence and the hand read is what you lose — the one message you
+   *      explicitly asked for. Requests jump the queue; the event is REQUEUED,
+   *      not dropped, because dropping it on purpose is no better than the
+   *      accident this exists to prevent.
+   *
+   *   4. A NEWER REQUEST SUPERSEDES AN OLDER PENDING ONE, per region. Select two
+   *      cards quickly and you want the second confirmation, not both in turn;
+   *      the alternative is that every burst of feedback pushes your next answer
+   *      further away.
+   */
+
+  var SETTLE = 60;   // blank-to-text delay: long enough for the DOM change to register
+  /* Minimum time a message keeps its region before the next one replaces it.
+   * SETTLE alone is not enough — it covers writing the text, not reading it, so
+   * the next message could blank the region in the same tick the previous one
+   * appeared and nothing would ever be heard. Only bites when messages genuinely
+   * arrive in a rush, which offline they do not: a run of AI plays is batched
+   * into ONE message long before it gets here. */
+  var HOLD = 250;
+
+  function newChannel() { return { queue: [], timer: null, inFlight: null, lastAt: 0 }; }
+  var channels = { polite: newChannel(), alert: newChannel() };
+
+  function channelNode(name) { return name === 'alert' ? el.alerts : el.announcer; }
+
+  function enqueueSpeech(name, msg, requested) {
+    var ch = channels[name];
+    if (!msg || !String(msg).trim()) {
+      /* A review key with nothing to say clears its region rather than leaving
+       * the last announcement sitting there. Otherwise the player hears the
+       * answer to a question they asked several keystrokes ago as though it were
+       * the answer to this one. */
+      if (requested) {
+        if (ch.inFlight) { clearTimeout(ch.inFlight.setTimer); ch.inFlight = null; }
+        channelNode(name).textContent = '';
+      }
+      return;
+    }
+
+    // Rule 4: a newer request replaces an older one still waiting in this region.
+    if (requested) {
+      ch.queue = ch.queue.filter(function (q) { return !q.requested; });
+    }
+    ch.queue.push({ region: name, msg: String(msg), requested: !!requested });
+    pumpSpeech(name);
+  }
+
+  function takeNextSpeech(ch) {
+    for (var i = 0; i < ch.queue.length; i++) {
+      if (ch.queue[i].requested) return ch.queue.splice(i, 1)[0];
+    }
+    return ch.queue.shift();
+  }
+
+  function anyRequestedWaiting(ch) {
+    for (var i = 0; i < ch.queue.length; i++) if (ch.queue[i].requested) return true;
+    return false;
+  }
+
+  function pumpSpeech(name) {
+    var ch = channels[name];
+    if (!ch.queue.length) return;
+    var urgent = anyRequestedWaiting(ch);
+
+    // Rule 3: an in-flight game event steps aside, and goes back on the queue.
+    if (urgent && ch.inFlight && !ch.inFlight.requested) {
+      clearTimeout(ch.inFlight.setTimer);
+      ch.queue.push({ region: name, msg: ch.inFlight.msg, requested: false });
+      ch.inFlight = null;
+    }
+    // ...and so does one that is merely scheduled. Without this, pressing a
+    // review key while an event waits out its hold window puts the answer behind
+    // it, which to the player is indistinguishable from a dropped keypress.
+    if (urgent && ch.timer) { clearTimeout(ch.timer); ch.timer = null; }
+
+    /* Deliveries within a region are strictly serialized. If a message is
+     * mid-flight — blanked, text not yet written — nothing else may start,
+     * because starting would cancel its pending write and lose it. Its own
+     * completion re-enters this function, so the queue keeps moving. Leaving
+     * this out was how the first version of the queue lost four messages in five
+     * while being the thing written to stop messages being lost. */
+    if (ch.inFlight || ch.timer) return;
+
+    /* lastAt of 0 means nothing has been said yet, which must read as "long ago"
+     * rather than as 1970 — subtracting an absolute timestamp from Date.now()
+     * gives fifty-odd years and silently turns every gap into zero. */
+    var since = ch.lastAt ? (Date.now() - ch.lastAt) : HOLD;
+
+    /* Even an urgent message waits a beat after one has just LANDED. Preempting
+     * a message not yet written is right; blanking one the instant it appears is
+     * not — it gets zero time on the page, and a live region set and cleared in
+     * the same tick is never announced at all. Delivered, and silent. */
+    var wait = urgent ? Math.max(0, SETTLE - since) : Math.max(0, HOLD - since);
+    if (wait === 0) { deliverSpeech(name); return; }
+    ch.timer = setTimeout(function () {
+      ch.timer = null;
+      deliverSpeech(name);
+    }, wait);
+  }
+
+  function deliverSpeech(name) {
+    var ch = channels[name];
+    var item = takeNextSpeech(ch);
+    if (!item) return;
+    var node = channelNode(name);
+
+    if (ch.inFlight) { clearTimeout(ch.inFlight.setTimer); ch.inFlight = null; }
+
+    /* Repeat works on whatever you last heard, from either region. announce()
+     * recorded it and alert_() did not, so routing anything important to the
+     * assertive region would have made it the one message R could not bring
+     * back — while every review key could. */
+    lastSpoken = item.msg;
+
+    node.textContent = '';
+    item.setTimer = setTimeout(function () {
+      node.textContent = item.msg;
+      ch.lastAt = Date.now();
+      if (ch.inFlight === item) ch.inFlight = null;
+      pumpSpeech(name);
+    }, SETTLE);
+    ch.inFlight = item;
+  }
+
+  function resetSpeech() {
+    Object.keys(channels).forEach(function (name) {
+      var ch = channels[name];
+      clearTimeout(ch.timer);
+      if (ch.inFlight) clearTimeout(ch.inFlight.setTimer);
+      channels[name] = newChannel();
+    });
+  }
 
   function flush() {
     var extra = turnPrompt();
@@ -343,16 +522,15 @@
     announce(msg);
   }
 
-  function announce(msg) {
-    lastSpoken = msg;
-    el.announcer.textContent = '';
-    setTimeout(function () { el.announcer.textContent = msg; }, 60);
-  }
+  /* The game says something on its own. */
+  function announce(msg) { enqueueSpeech('polite', msg, false); }
 
-  function alert_(msg) {
-    el.alerts.textContent = '';
-    setTimeout(function () { el.alerts.textContent = msg; }, 60);
-  }
+  /* The player asked to hear this. Jumps ahead of queued game events. */
+  function announceRequested(msg) { enqueueSpeech('polite', msg, true); }
+
+  /* Assertive: errors, and direct feedback on a keypress. Always requested — it
+   * is a reply to something the player just did. */
+  function alert_(msg) { enqueueSpeech('alert', msg, true); }
 
   function turnPrompt() {
     if (!state) return '';
@@ -360,7 +538,7 @@
     // Manual pacing deliberately says nothing here: it would repeat after every
     // single play, which is exactly the sort of thing that wears thin fast.
     if (!isHumanTurn()) return '';
-    var d = G.DEAL[settings.numPlayers];
+    var d = dealSpec();
     if (state.phase === 'pick') {
       return 'Your turn. Pick up the blind of ' + d.blind + ' cards, or pass? Press H to hear your hand.';
     }
@@ -377,8 +555,8 @@
 
   /* Which trick we are on, counted from the player's own remaining cards. */
   function trickNumber() {
-    var d = G.DEAL[settings.numPlayers];
-    return Math.min(d.hand, d.hand - state.players[0].hand.length + (inTrick(0) ? 0 : 1));
+    var d = dealSpec();
+    return Math.min(d.hand, d.hand - state.players[mySeat].hand.length + (inTrick(mySeat) ? 0 : 1));
   }
 
   function inTrick(p) {
@@ -400,14 +578,14 @@
   function say(what) {
     if (!state) return;
     switch (what) {
-      case 'hand': announce(textHand()); break;
-      case 'trick': announce(textTrick()); break;
-      case 'last': announce(textLastTrick()); break;
-      case 'score': announce(textScores()); break;
-      case 'teams': announce(textTeams()); break;
-      case 'count': announce(textCount()); break;
-      case 'order': announce(textOrder()); break;
-      case 'repeat': announce(lastSpoken || 'Nothing to repeat.'); break;
+      case 'hand': announceRequested(textHand()); break;
+      case 'trick': announceRequested(textTrick()); break;
+      case 'last': announceRequested(textLastTrick()); break;
+      case 'score': announceRequested(textScores()); break;
+      case 'teams': announceRequested(textTeams()); break;
+      case 'count': announceRequested(textCount()); break;
+      case 'order': announceRequested(textOrder()); break;
+      case 'repeat': announceRequested(lastSpoken || 'Nothing to repeat.'); break;
     }
   }
 
@@ -416,13 +594,13 @@
    * Ace, Eight"), which changes the pattern half way through the sentence and
    * makes it harder to follow, not easier. */
   function textHand() {
-    var hand = C.sortHand(state.players[0].hand);
+    var hand = C.sortHand(state.players[mySeat].hand);
     if (!hand.length) return 'Your hand is empty.';
 
     // Just after picking, call out what came from the blind before anything else
     // — that is the thing the picker actually needs to know right now.
     var lead = '';
-    if (state.phase === 'bury' && state.picker === 0 && state.pickedUp && state.pickedUp.length) {
+    if (state.phase === 'bury' && state.picker === mySeat && state.pickedUp && state.pickedUp.length) {
       lead = 'From the blind: ' + state.pickedUp.map(function (id) {
         return C.name(C.get(id));
       }).join(', ') + '. Then your hand. ';
@@ -439,14 +617,14 @@
     var msg = lead + 'Your hand, ' + hand.length + (hand.length === 1 ? ' card. ' : ' cards. ') +
       parts.join('. ') + '.';
     if (settings.verbose) msg += ' Worth ' + C.sumPoints(hand) + ' points.';
-    if (G.DEAL[settings.numPlayers].partner && hasPartnerCard()) {
+    if (dealSpec().partner && hasPartnerCard()) {
       msg += ' You hold the Jack of Diamonds, ' + partnerCardMeaning() + '.';
     }
     return msg;
   }
 
   function textTrick() {
-    var d = G.DEAL[settings.numPlayers];
+    var d = dealSpec();
     var head = 'Trick ' + trickNumber() + ' of ' + d.hand + '. ';
     if (!state.trick.length) return head + 'Nothing played yet. ' + state.players[state.turn].name + ' to lead.';
     var list = state.trick.map(function (t) {
@@ -470,7 +648,7 @@
     }).join('. ');
     var running = state.players.map(function (p) { return p.name + ' ' + p.score; }).join(', ');
     var buried = '';
-    if (state.picker === 0 && state.buried.length) {
+    if (state.picker === mySeat && state.buried.length) {
       buried = ' You buried ' + C.sumPoints(state.buried) + ' points.';
     }
     return 'This hand: ' + hand + '.' + buried + ' Running score: ' + running + '.';
@@ -481,23 +659,23 @@
     if (state.phase === 'pick') return 'Nobody has picked yet. ' + state.players[state.turn].name + ' is deciding.';
     if (state.isLeaster) return 'Leaster. There is no picker; everyone plays for themselves and the fewest points wins. You must take at least one trick to be eligible.';
     if (state.picker < 0) return 'No picker yet.';
-    var d = G.DEAL[settings.numPlayers];
-    var msg = state.picker === 0 ? 'You are the picker.' : state.players[state.picker].name + ' is the picker.';
-    if (!d.partner) return msg + ' With ' + settings.numPlayers + ' players the picker always plays alone.';
+    var d = dealSpec();
+    var msg = state.picker === mySeat ? 'You are the picker.' : state.players[state.picker].name + ' is the picker.';
+    if (!d.partner) return msg + ' With ' + tableSize() + ' players the picker always plays alone.';
 
     // Once the Jack of Diamonds has shown, everything is public.
     if (state.partnerRevealed) {
       return msg + (state.alone
         ? ' The picker is playing alone.'
-        : ' ' + (state.partner === 0 ? 'You are' : state.players[state.partner].name + ' is') + ' the partner.');
+        : ' ' + (state.partner === mySeat ? 'You are' : state.players[state.partner].name + ' is') + ' the partner.');
     }
     // Still hidden. Only tell the player what their own cards entitle them to know.
-    if (state.picker === 0) {
+    if (state.picker === mySeat) {
       return msg + (state.alone
         ? ' You have the Jack of Diamonds yourself, so you are playing alone. Nobody else knows that yet.'
         : ' Somebody else holds the Jack of Diamonds and is your secret partner.');
     }
-    if (state.partner === 0) {
+    if (state.partner === mySeat) {
       return msg + ' You hold the Jack of Diamonds, so you are the secret partner. Nobody else knows yet.';
     }
     return msg + ' The Jack of Diamonds has not been played, so the partner is still unknown — ' +
@@ -509,8 +687,8 @@
   function textCount() {
     var seen = {};
     state.played.forEach(function (c) { seen[c.id] = 1; });
-    state.players[0].hand.forEach(function (c) { seen[c.id] = 1; });
-    if (state.picker === 0) state.buried.forEach(function (c) { seen[c.id] = 1; });
+    state.players[mySeat].hand.forEach(function (c) { seen[c.id] = 1; });
+    if (state.picker === mySeat) state.buried.forEach(function (c) { seen[c.id] = 1; });
     var unaccounted = C.newDeck().filter(function (c) { return !seen[c.id]; });
 
     var trumpPlayed = state.played.filter(C.isTrump).length;
@@ -521,7 +699,7 @@
       ? 'Highest trump you have not seen: ' + C.name(outTrump[0]) + '. ' + outTrump.length + ' unseen trump.'
       : 'You have seen every trump.');
 
-    var mine = state.players[0].hand.filter(C.isTrump).sort(function (a, b) { return C.power(b) - C.power(a); });
+    var mine = state.players[mySeat].hand.filter(C.isTrump).sort(function (a, b) { return C.power(b) - C.power(a); });
     if (mine.length) parts.push('Your highest trump: ' + C.name(mine[0]) + '.');
 
     C.FAIL_SUITS.forEach(function (s) {
@@ -548,14 +726,14 @@
   }
 
   function renderStatus() {
-    var d = G.DEAL[settings.numPlayers];
+    var d = dealSpec();
     var s;
     if (state.phase === 'pick') {
       s = isHumanTurn()
         ? 'Your turn: pick up the blind (' + d.blind + ' cards) or pass?'
         : 'Waiting for ' + state.players[state.turn].name + ' to pick or pass.';
     } else if (state.phase === 'bury') {
-      s = state.picker === 0
+      s = state.picker === mySeat
         ? 'You picked. Bury ' + d.blind + ' cards.'
         : state.players[state.picker].name + ' picked and is burying.';
     } else if (state.phase === 'play') {
@@ -612,7 +790,7 @@
     if (!actionsRebuilt) return;
     lastActionsKey = key;
     box.innerHTML = '';
-    var d = G.DEAL[settings.numPlayers];
+    var d = dealSpec();
 
     if (state.phase === 'handOver') {
       // Just the outcome here. The full accounting is announced, and sits in the
@@ -658,10 +836,10 @@
 
     if (state.phase === 'pick') {
       box.appendChild(button('Pick up the blind (' + d.blind + ' cards)', function () {
-        G.doPick(state, 0); handFocus = 0; drain(); tick();
+        G.doPick(state, mySeat); handFocus = 0; drain(); tick();
       }, true));
       box.appendChild(button('Pass', function () {
-        G.doPass(state, 0); drain(); tick();
+        G.doPass(state, mySeat); drain(); tick();
       }));
       return;
     }
@@ -701,7 +879,7 @@
     }
     // One player takes a singular verb, two take a plural, and "You" takes the
     // second person either way.
-    var youAreThem = state.picker === 0 && seatName(0).toLowerCase() === 'you';
+    var youAreThem = state.picker === mySeat && seatName(mySeat).toLowerCase() === 'you';
     if (state.alone) {
       return seatName(state.picker) +
         (r.pickerWins ? (youAreThem ? ' win' : ' wins') : (youAreThem ? ' lose' : ' loses')) +
@@ -765,10 +943,10 @@
     if (i === state.dealer) roles.push('dealer');
     if (i === state.picker) {
       roles.push('picker');
-      if (state.alone && (state.partnerRevealed || i === 0)) roles.push('alone');
+      if (state.alone && (state.partnerRevealed || i === mySeat)) roles.push('alone');
     }
     if (!state.isLeaster && !state.alone && state.partner === i &&
-        (state.partnerRevealed || i === 0)) roles.push('partner');
+        (state.partnerRevealed || i === mySeat)) roles.push('partner');
     if (state.isLeaster) roles.push('leaster');
     return roles;
   }
@@ -785,7 +963,7 @@
         : 'for review, ' + seatName(state.turn) + ' is deciding whether to pick';
     }
     if (state.phase === 'bury') {
-      return state.picker === 0
+      return state.picker === mySeat
         ? 'for review while you choose what to bury'
         : 'for review, ' + seatName(state.picker) + ' is burying';
     }
@@ -804,7 +982,7 @@
    * before or after you, which changes what it is safe to lead. */
   function textOrder() {
     if (!state) return '';
-    var n = settings.numPlayers;
+    var n = tableSize();
     var i, k, tags, line;
     var list = [];
 
@@ -834,7 +1012,7 @@
     var youAt = -1, pickerAt = -1;
     for (k = 0; k < n; k++) {
       i = (startSeat + k) % n;
-      if (i === 0) youAt = k;
+      if (i === mySeat) youAt = k;
       if (i === state.picker) pickerAt = k;
       tags = roleTags(i);
       line = (k + 1) + ', ' + seatName(i) + (tags.length ? ', ' + tags.join(', ') : '');
@@ -850,7 +1028,7 @@
     else if (youAt === n - 1) msg += ' You play last.';
 
     if (!state.isLeaster && state.picker >= 0) {
-      if (state.picker === 0) {
+      if (state.picker === mySeat) {
         msg += ' You are the picker.';
       } else if (pickerAt >= 0 && youAt >= 0) {
         var delta = pickerAt - youAt;
@@ -874,12 +1052,12 @@
   }
 
   function hasPartnerCard() {
-    return state.players[0].hand.some(function (c) { return c.id === G.PARTNER_CARD; });
+    return state.players[mySeat].hand.some(function (c) { return c.id === G.PARTNER_CARD; });
   }
 
   function partnerCardMeaning() {
     if (state.picker < 0) return 'the partner card';
-    if (state.picker === 0) return 'the partner card, so you are playing alone';
+    if (state.picker === mySeat) return 'the partner card, so you are playing alone';
     return 'the partner card, so you are the picker\'s partner';
   }
 
@@ -1011,23 +1189,23 @@
 
   function renderHand() {
     handMode = 'idle';
-    if (state.phase === 'bury' && state.picker === 0) handMode = 'bury';
+    if (state.phase === 'bury' && state.picker === mySeat) handMode = 'bury';
     else if (state.phase === 'play' && isHumanTurn()) handMode = 'play';
 
     // While burying, the engine keeps the freshly picked-up cards at the front
     // so they are easy to spot. Sorting here would undo that; the hand is sorted
     // again the moment the bury is committed.
     var hand = handMode === 'bury'
-      ? state.players[0].hand.slice()
-      : C.sortHand(state.players[0].hand);
+      ? state.players[mySeat].hand.slice()
+      : C.sortHand(state.players[mySeat].hand);
 
     var justPicked = {};
     (state.pickedUp || []).forEach(function (id) { justPicked[id] = 1; });
-    var partnerRule = G.DEAL[settings.numPlayers].partner;
+    var partnerRule = dealSpec().partner;
 
     var legalIds = {};
     if (handMode === 'play') {
-      G.legalPlays(state, 0).forEach(function (c) { legalIds[c.id] = 1; });
+      G.legalPlays(state, mySeat).forEach(function (c) { legalIds[c.id] = 1; });
     }
     // Lets the stylesheet ring the cards you may play, rather than painting over
     // the ones you may not. Purely visual: the labels already say which is which.
@@ -1079,7 +1257,7 @@
         label += selected[c.id] ? ', selected to bury' : '';
       } else if (handMode === 'play' && !legalIds[c.id]) {
         b.setAttribute('aria-disabled', 'true');
-        label += ', cannot be played, ' + G.illegalReason(state, 0, c.id);
+        label += ', cannot be played, ' + G.illegalReason(state, mySeat, c.id);
       } else if (handMode === 'idle') {
         b.setAttribute('aria-disabled', 'true');
         label += ', ' + idleReason();
@@ -1136,10 +1314,10 @@
   function renderPlayers() {
     var tbody = el['players-table'].querySelector('tbody');
     tbody.innerHTML = '';
-    var d = G.DEAL[settings.numPlayers];
+    var d = dealSpec();
     state.players.forEach(function (p, i) {
       var tr = document.createElement('tr');
-      if (i === 0) tr.className = 'you';
+      if (i === mySeat) tr.className = 'you';
       if (state.turn === i && state.phase !== 'handOver') tr.className += ' turn';
 
       // Roles must only show what this player is entitled to know: a hidden
@@ -1271,7 +1449,7 @@
   function activateCard(id, index) {
     handFocus = index;
     if (handMode === 'bury') {
-      var d = G.DEAL[settings.numPlayers];
+      var d = dealSpec();
       if (selected[id]) {
         delete selected[id];
         alert_(C.name(C.get(id)) + ' unselected.');
@@ -1288,11 +1466,11 @@
       return;
     }
     if (handMode === 'play') {
-      if (!G.isLegal(state, 0, id)) {
-        alert_('You cannot play ' + C.name(C.get(id)) + '. ' + G.illegalReason(state, 0, id));
+      if (!G.isLegal(state, mySeat, id)) {
+        alert_('You cannot play ' + C.name(C.get(id)) + '. ' + G.illegalReason(state, mySeat, id));
         return;
       }
-      G.doPlay(state, 0, id);
+      G.doPlay(state, mySeat, id);
       drain();
       tick();
       return;
@@ -1302,7 +1480,7 @@
 
   function doBury() {
     var ids = Object.keys(selected);
-    var d = G.DEAL[settings.numPlayers];
+    var d = dealSpec();
     if (ids.length !== d.blind) { alert_('Select exactly ' + d.blind + ' cards.'); return; }
     var pts = C.sumPoints(ids.map(function (i) { return C.get(i); }));
     if (!G.doBury(state, mySeat, ids)) { alert_('Those cards could not be buried.'); return; }
@@ -1426,7 +1604,7 @@
         : 'Every one of them adds up to 120 points with zero sum scoring.');
     openDialog(el['export-dialog']);
     el['export-text'].focus();
-    announce('Export game log. ' + el['export-summary'].textContent);
+    announceRequested('Export game log. ' + el['export-summary'].textContent);
   }
 
   function exportFilename() {
@@ -1546,8 +1724,8 @@
     L.push('');
     L.push('- Page: ' + GAME_URL);
     if (state) {
-      var d = G.DEAL[settings.numPlayers];
-      L.push('- Players: ' + settings.numPlayers + ' (' +
+      var d = dealSpec();
+      L.push('- Players: ' + tableSize() + ' (' +
         state.players.map(function (p) { return p.name; }).join(', ') + ')');
       L.push('- Layout: ' + d.hand + ' cards each, ' + d.blind + ' card blind, ' +
         (d.partner ? 'Jack of Diamonds partner' : 'picker always alone'));
@@ -1618,7 +1796,7 @@
     openDialog(el['bug-dialog']);
     el['bug-title'].focus();
     el['bug-title'].select();
-    announce('Report a bug. Describe what happened, then use Copy report and open GitHub. ' +
+    announceRequested('Report a bug. Describe what happened, then use Copy report and open GitHub. ' +
       'Nothing is sent until you post the issue yourself.');
   }
 
@@ -1693,6 +1871,26 @@
 
   function openRules() { openDialog(el['rules-dialog']); }
   function openA11y() { openDialog(el['a11y-dialog']); }
+
+  /* The speech subsystem, exposed deliberately.
+   *
+   * Not a test hook bolted on: connection state is game state, and the messages
+   * that say a player has dropped, that the table is waiting, or that a move was
+   * not accepted come from the transport rather than from the rules engine. They
+   * have to go through THIS queue rather than write a live region themselves, or
+   * they reintroduce exactly the race it exists to prevent — and they would do it
+   * on the messages a player can least afford to miss.
+   *
+   * tests/announcements.js drives these directly, because the timing rules here
+   * cannot be observed reliably by playing hands and hoping two messages land
+   * close together. */
+  SH.UI = {
+    announce: announce,
+    announceRequested: announceRequested,
+    alert: alert_,
+    resetSpeech: resetSpeech,
+    lastSpoken: function () { return lastSpoken; }
+  };
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
   else init();

@@ -18,7 +18,6 @@
 (function (global) {
   'use strict';
   var SH = global.SH = global.SH || {};
-  var C = SH.Cards;
 
   /* Room-level configuration. The rest of `config` is whatever the client had in
    * localStorage when it called createGame — onStart copies EVERY settings key
@@ -77,11 +76,29 @@
     var over = state.phase === 'handOver';
     var isPicker = state.picker >= 0 && state.picker === seat;
 
-    /* The sides are hidden until the Jack of Diamonds is played — that is the
-     * entire mechanic of the game. The picker is the one exception: they have
-     * always known, because they can see their own hand. */
-    var sidesKnown = state.partnerRevealed || over;
-    var mayKnowSides = sidesKnown || isPicker;
+    /* The sides are hidden until the Jack of Diamonds is played.
+     *
+     * An earlier version of this file granted the picker BOTH facts, on the
+     * reasoning that "the picker has always known, because they can see their own
+     * hand". That is true of one of them and false of the other, and the
+     * difference is the entire mechanic:
+     *
+     *   alone   — whether the picker holds the Jack themselves. They can see
+     *             their own hand, so they do know this, and always did.
+     *   partner — WHICH SEAT holds it. The picker does not know this. Having a
+     *             partner you cannot identify is the game.
+     *
+     * Sending both meant the picker's view carried the partner's seat index from
+     * the moment of the bury. It never appeared on screen, because roleTags
+     * happened not to render it — so it was invisible in the interface and
+     * present in full on the wire, which is exactly the threat this file exists
+     * to address. Measured before the fix: 152 of 152 partnered hands.
+     *
+     * In a leaster there are no sides at all, so the question is settled rather
+     * than pending — a client showing "partner not yet known" all hand would be
+     * describing a partnership that does not exist. */
+    var sidesKnown = state.partnerRevealed || over || state.isLeaster;
+    var mayKnowAlone = sidesKnown || isPicker;
 
     var players = [];
     for (var i = 0; i < state.players.length; i++) {
@@ -143,6 +160,13 @@
        * dealt.blind, below. */
       blindCount: state.blind.length,
 
+      /* Empty array at hand end, absent before it. The totals row does
+       * C.sumPoints(state.blind) inside its handOver branch, and dropping the
+       * field entirely threw a TypeError there — the blind is always empty by
+       * then anyway, so shipping the empty array costs two bytes and keeps the
+       * row alive. Before handOver there is nothing legitimate to sum. */
+      blind: over ? copyCards(state.blind) : [],
+
       /* History is deliberately absent. It grows about 2 KB per hand and holds
        * every card of every finished hand, so shipping it on each of the ~150
        * views a hand produces would be most of the traffic — and a long session
@@ -167,11 +191,9 @@
     /* The partnership. `alone` is withheld rather than defaulted, because a
      * default is a claim: sending alone:false to everyone before the reveal
      * would be a lie on exactly the hands where it matters. */
-    if (mayKnowSides) {
-      view.alone = state.alone;
-      view.partner = state.partner;
-    }
-    view.sidesKnown = mayKnowSides;
+    if (mayKnowAlone) view.alone = state.alone;
+    if (sidesKnown) view.partner = state.partner;
+    view.sidesKnown = sidesKnown;
 
     /* Queen-pair doublers name their holder — {kind, player, text} — and unlike
      * the partner card, nothing in the game ever makes that public before
@@ -187,9 +209,13 @@
      * Both facts are true, so the phase check is doing all the work. */
     view.dealt = over && state.dealt ? JSON.parse(JSON.stringify(state.dealt)) : null;
 
-    /* Only ever non-null at handOver, and seat-neutral by construction — see the
-     * note on defenceText in scoreNormal. */
-    view.result = state.result ? JSON.parse(JSON.stringify(state.result)) : null;
+    /* Gated on the phase, not on the engine's promise that state.result is null
+     * before handOver. result.summary is the most revealing string in the game —
+     * it names the partner, says whether the picker was alone, and lists the
+     * bury and the blind card by card. The first feature that computes a
+     * provisional result (a concede button, a running score, an "are you sure?")
+     * would leak the whole hand through a field nothing was watching. */
+    view.result = (over && state.result) ? JSON.parse(JSON.stringify(state.result)) : null;
 
     return view;
   }

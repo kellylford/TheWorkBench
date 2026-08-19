@@ -127,9 +127,28 @@ async function boot(opts) {
 /* jsdom runs timers on the real clock; pace 0 means each AI turn is a
  * setTimeout(...,0), so pump the loop by yielding. */
 const tickOver = () => new Promise(r => setTimeout(r, 0));
-/* Alerts are cleared and re-set on a short delay so a repeated message is
- * announced again; wait past that before reading the region. */
-const settleAlert = () => new Promise(r => setTimeout(r, 120));
+/* Announcements are cleared and re-set on a short delay so a repeated message is
+ * announced again, and they are now serialized through one queue so that two
+ * arriving together cannot wipe each other out. That means the worst case is a
+ * settle plus a wait rather than a single settle, and the old flat 120ms landed
+ * right on top of it — passing alone and failing in a full run, which is the
+ * least useful way for a test to behave.
+ *
+ * A fixed sleep tuned to an implementation delay is a standing invitation to
+ * this. Prefer waitForSaid below, which asks for what it actually wants. */
+const settleAlert = () => new Promise(r => setTimeout(r, 300));
+
+/* Wait until a live region says something (or something specific), rather than
+ * sleeping for about as long as it ought to take. */
+async function waitForSaid(d, id, match) {
+  const node = d.getElementById(id);
+  await waitFor(() => {
+    const t = node.textContent;
+    if (!t) return false;
+    return match ? match.test(t) : true;
+  }, 1500, 20);
+  return node.textContent;
+}
 
 /* Poll until a condition holds, up to a deadline. Anywhere a test would
  * otherwise sleep for "about as long as the thing should take", this is the

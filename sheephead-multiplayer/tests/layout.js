@@ -89,12 +89,30 @@ const FONTS = [16, 24];      // default, and ~150% browser text zoom
             const r = b.getBoundingClientRect();
             if (r.width > 0 && r.height > 0) minTap = Math.min(minTap, Math.round(r.height));
           });
-          // does anything stick out horizontally?
+          /* Which element actually pushes the DOCUMENT wide.
+           *
+           * This used to report whichever element had the largest right edge,
+           * which is not the same question. The players table lives inside a
+           * .table-wrap with overflow-x:auto and is legitimately wider than the
+           * screen — it scrolls inside its own box. Reporting it as the culprit
+           * for a 7px document overflow sent a real investigation down entirely
+           * the wrong path, so: skip anything with a scrollable ancestor, and
+           * only count elements that stick out past the viewport. */
+          const scrolls = e => {
+            for (let p = e.parentElement; p; p = p.parentElement) {
+              const ox = getComputedStyle(p).overflowX;
+              if (ox === 'auto' || ox === 'scroll' || ox === 'hidden') return true;
+            }
+            return false;
+          };
           let widest = 0, culprit = '';
           document.querySelectorAll('body *').forEach(e => {
             const r = e.getBoundingClientRect();
-            if (r.right > widest) { widest = r.right; culprit = e.id || e.className || e.tagName; }
+            if (r.right <= de.clientWidth + 1) return;
+            if (scrolls(e)) return;
+            if (r.right > widest) { widest = r.right; culprit = (e.id || e.className || e.tagName) + '@' + Math.round(r.right); }
           });
+          if (!culprit) culprit = 'no element sticks out — the overflow is from a margin or a scrollbar';
           return {
             overflow: de.scrollWidth - de.clientWidth,
             cardW: w, cardH: h, rows,
