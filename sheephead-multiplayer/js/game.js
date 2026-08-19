@@ -1056,7 +1056,13 @@
            * the room layers a ready-gate on top, because one player dealing
            * while five others are still reading the result is a different
            * problem from authorization and belongs where the seats are known. */
-          if (state.phase !== 'handOver') return { ok: false, reason: 'the hand is not over' };
+          /* From a finished hand, or from a standing start — the same two phases
+           * newHand itself accepts. Requiring handOver alone meant the OPENING
+           * deal was refused, because a table that has never dealt is 'idle',
+           * and the game could not begin. */
+          if (state.phase !== 'handOver' && state.phase !== 'idle') {
+            return { ok: false, reason: 'the hand is not over' };
+          }
           return newHand(state) ? { ok: true } : { ok: false, reason: 'could not deal' };
 
         case 'play':

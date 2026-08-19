@@ -61,7 +61,21 @@
    * instead of thirty-five. */
   var mySeat = 0;
 
-  var state = null;
+  /* `state` holds a VIEW — what this seat is entitled to see — never the
+   * authoritative game.
+   *
+   * Offline the authoritative game is right there in `local`, and it would be
+   * quicker to render straight from it. Rendering from the projection instead
+   * means the single-player game exercises the projection on every hand: a field
+   * missing from js/view.js becomes a broken screen on somebody's first deal
+   * rather than an online-only bug found six weeks later by the one person who
+   * hit it. The offline game is the online game's test harness, for free.
+   *
+   * 145 of the 154 `state.` reads in this file did not have to change, because
+   * the view was shaped to be state-shaped. The ones that did are the ones that
+   * asked for things a seat is not entitled to. */
+  var state = null;    // the view
+  var local = null;    // offline: the authoritative game. null when online.
   var settings = null;
   var timer = null;
   var speech = [];
@@ -250,9 +264,10 @@
     saveSettings();
     var cfg = {};
     Object.keys(settings).forEach(function (k) { cfg[k] = settings[k]; });
-    state = G.createGame(cfg);
-    SH.Table.startLocal(state, mySeat);
+    local = G.createGame(cfg);
+    SH.Table.startLocal(local, mySeat);
     resetSpeech();
+    refresh();
     lastActionsKey = null;
     el['setup-section'].hidden = true;
     el['game-section'].hidden = false;
@@ -266,7 +281,9 @@
   function backToSetup() {
     clearTimeout(timer);
     resetSpeech();
+    SH.Table.close();
     state = null;
+    local = null;
     el['game-section'].hidden = true;
     el['setup-section'].hidden = false;
     $('opt-name').focus();
@@ -277,18 +294,31 @@
     selected = {};
     handFocus = 0;
     lastActionsKey = null;
-    // Rule changes made mid-game take effect here, at a hand boundary, never
-    // part way through a hand already being scored under the old rules.
-    RULE_FIELDS.forEach(function (k) { state.config[k] = settings[k]; });
-    G.newHand(state);
+    /* Rule changes made mid-game take effect here, at a hand boundary, never part
+     * way through a hand already being scored under the old rules.
+     *
+     * Offline only. Online the rules belong to the ROOM and are fixed when the
+     * table is made — otherwise every client would quietly overwrite them from
+     * its own saved settings on every deal, and the last person to press Deal
+     * would decide what game everybody was playing. */
+    if (local) RULE_FIELDS.forEach(function (k) { local.config[k] = settings[k]; });
+    SH.Table.act({ type: 'nextHand' });
+    refresh();
     drain();
     speech.unshift(' ');            // keeps the deal line from merging with the previous hand
     tick();
   }
 
   /* Move engine events into the log and the pending speech buffer. */
+  /* Pull the latest view. Offline this projects on demand; online it is whatever
+   * the server last sent. */
+  function refresh() {
+    state = SH.Table.view();
+    return state;
+  }
+
   function drain() {
-    var evts = state.events.splice(0, state.events.length);
+    var evts = SH.Table.drainEvents();
     for (var i = 0; i < evts.length; i++) {
       var e = evts[i];
       var text = (!settings.verbose && e.textPlain) ? e.textPlain : e.text;
@@ -338,7 +368,8 @@
     // is the entire point of asking for a pause in the first place.
     if (settings.pace > 0) flush();
     timer = setTimeout(function () {
-      AI.act(state);
+      AI.act(local);
+      refresh();
       drain();
       tick();
     }, settings.pace);
@@ -350,7 +381,8 @@
   function stepOnce() {
     clearTimeout(timer);
     timer = null;
-    AI.act(state);
+    AI.act(local);
+    refresh();
     drain();
     tick();
   }
@@ -836,10 +868,10 @@
 
     if (state.phase === 'pick') {
       box.appendChild(button('Pick up the blind (' + d.blind + ' cards)', function () {
-        G.doPick(state, mySeat); handFocus = 0; drain(); tick();
+        SH.Table.act({ type: 'pick' }); handFocus = 0; refresh(); drain(); tick();
       }, true));
       box.appendChild(button('Pass', function () {
-        G.doPass(state, mySeat); drain(); tick();
+        SH.Table.act({ type: 'pass' }); refresh(); drain(); tick();
       }));
       return;
     }
@@ -1470,7 +1502,8 @@
         alert_('You cannot play ' + C.name(C.get(id)) + '. ' + G.illegalReason(state, mySeat, id));
         return;
       }
-      G.doPlay(state, mySeat, id);
+      SH.Table.act({ type: 'play', card: id });
+      refresh();
       drain();
       tick();
       return;
@@ -1483,7 +1516,8 @@
     var d = dealSpec();
     if (ids.length !== d.blind) { alert_('Select exactly ' + d.blind + ' cards.'); return; }
     var pts = C.sumPoints(ids.map(function (i) { return C.get(i); }));
-    if (!G.doBury(state, mySeat, ids)) { alert_('Those cards could not be buried.'); return; }
+    if (!SH.Table.act({ type: 'bury', cards: ids }).ok) { alert_('Those cards could not be buried.'); return; }
+    refresh();
     selected = {};
     handFocus = 0;
     speech.push('You buried ' + pts + ' points.');
@@ -1589,16 +1623,17 @@
   function buildTranscript() {
     var lines = [].map.call(el.log.children, function (li) { return li.textContent; });
     var head = 'Exported: ' + new Date().toString() + '\n';
-    return head + G.transcript(state, mySeat, lines);
+    return local ? head + G.transcript(local, mySeat, lines) : head + '(the full log lives on the server)';
   }
 
   function openExport() {
     if (!state) return;
     var text = buildTranscript();
     el['export-text'].value = text;
-    var bad = state.history.filter(function (h) { return h.problems.length; });
-    el['export-summary'].textContent = state.history.length + ' completed ' +
-      (state.history.length === 1 ? 'hand' : 'hands') + '. ' +
+    var hist = (local && local.history) || [];
+    var bad = hist.filter(function (h) { return h.problems.length; });
+    el['export-summary'].textContent = hist.length + ' completed ' +
+      (hist.length === 1 ? 'hand' : 'hands') + '. ' +
       (bad.length
         ? bad.length + ' of them did NOT add up correctly — the details are in the text below.'
         : 'Every one of them adds up to 120 points with zero sum scoring.');
@@ -1732,11 +1767,12 @@
       L.push('- Opponent skill: ' + settings.difficulty + '; all pass: ' + settings.allPass +
         '; pace: ' + (PACE_NAMES[String(settings.pace)] || settings.pace + 'ms'));
       L.push('- Hand ' + state.handNumber + ', phase ' + state.phase +
-        ', hands completed ' + state.history.length);
-      var bad = state.history.filter(function (h) { return h.problems.length; });
+        ', hands completed ' + state.handsPlayed);
+      var hist = (local && local.history) || [];
+      var bad = hist.filter(function (h) { return h.problems.length; });
       L.push('- Automatic check: ' + (bad.length
-        ? '**' + bad.length + ' of ' + state.history.length + ' completed hands FAILED**'
-        : 'all ' + state.history.length + ' completed hands add up correctly'));
+        ? '**' + bad.length + ' of ' + hist.length + ' completed hands FAILED**'
+        : 'all ' + hist.length + ' completed hands add up correctly'));
       if (bad.length) {
         L.push('');
         L.push('Failures:');
@@ -1761,7 +1797,13 @@
     var text = bugSummary();
     if (el['bug-include-log'].checked && state) {
       var lines = [].map.call(el.log.children, function (li) { return li.textContent; });
-      text += '\n\n### Game log\n\n```\n' + G.transcript(state, mySeat, lines) + '\n```\n';
+      /* The transcript is generated from the AUTHORITATIVE game and redacts
+       * itself to one seat. Handing it a view instead throws — a view has no
+       * history to write out — and the throw took the whole bug report with it,
+       * which is a poor thing for the bug reporter to be the one that breaks. */
+      text += local
+        ? '\n\n### Game log\n\n```\n' + G.transcript(local, mySeat, lines) + '\n```\n'
+        : '\n\n### Game log\n\n```\n' + lines.join('\n') + '\n```\n';
     }
     return text;
   }

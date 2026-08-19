@@ -15,6 +15,23 @@ catch (e) {
 
 const root = path.join(__dirname, '..');
 const fails = [];
+
+/* A watchdog on the whole process, not just the play loop.
+ *
+ * The per-iteration deadline added earlier did not fire when the projection was
+ * seeded with a gap: most of this suite is `await`, so a hang can sit inside a
+ * single iteration and never reach the top of the loop again. A run that hangs
+ * reports as a slow machine rather than as the defect it found, which has cost
+ * time three separate ways in this project now.
+ *
+ * unref'd on purpose: it must not keep a healthy run alive, only kill a stuck
+ * one. */
+const HARD_DEADLINE_MS = 15 * 60 * 1000;
+const hardStop = setTimeout(function () {
+  console.error('FAILED: the suite stopped making progress and was killed by its own watchdog.');
+  process.exit(1);
+}, HARD_DEADLINE_MS);
+if (typeof hardStop.unref === 'function') hardStop.unref();
 const check = (c, m) => { if (!c) fails.push(m); };
 
 /* Let jsdom load the page's own <script> tags, so the scripts run in document
@@ -175,7 +192,27 @@ async function playHands(players, howMany) {
   const seen = { focusChecks: 0, focusBad: 0, buries: 0, handsDone: 0, blockedSeen: 0, exports: 0, midChecks: 0, bugs: 0, handSaid: 0, blindMarked: 0, blindRevealed: 0, jdSeen: 0, orderSaid: 0, pickLabels: 0 };
   let guard = 0;
 
+  /* A wall-clock watchdog as well as an iteration guard.
+   *
+   * The iteration guard alone does not stop this suite hanging: most of the loop
+   * is `await`, so a game that cannot progress spends its six thousand turns
+   * waiting rather than spinning, and the run sits there for a quarter of an hour
+   * before anything says so. That reports as a slow machine, not as the defect it
+   * found — the same way an unanswered move once reported as a suite timeout.
+   *
+   * Twelve minutes is far longer than any healthy run (a full six-seat pass takes
+   * well under one) and short enough to be a failure rather than a mystery. */
+  const deadline = Date.now() + 12 * 60 * 1000;
+  let stalled = false;
+
   while (seen.handsDone < howMany && ++guard < 6000) {
+    if (Date.now() > deadline) {
+      stalled = true;
+      check(false, players + 'p: the game stopped progressing — ' +
+        seen.handsDone + ' of ' + howMany + ' hands after ' + guard + ' turns. ' +
+        'Status: ' + d.getElementById('status').textContent);
+      break;
+    }
     await tickOver();
     const next = btn(d, /Deal next hand/);
     const pick = btn(d, /Pick up the blind/);
@@ -348,6 +385,30 @@ async function playHands(players, howMany) {
           'mid-hand Total row flagged an accounting problem: ' + foot.textContent);
         check(!/= 120/.test(foot.children[4].textContent),
           'mid-hand Total row claims a 120 total: ' + foot.children[4].textContent);
+
+        /* The trick counter, which nothing checked.
+         *
+         * It is the only thing on screen fed by trickLog, so blanking trickLog in
+         * the projection changed the display and no test noticed. "A gap in the
+         * projection breaks the offline game" is only true where something
+         * actually asserts on the part of the screen that gap feeds — otherwise
+         * the offline game renders wrong and says nothing, which is the failure
+         * mode this whole arrangement was meant to prevent. */
+        const tricksCell = (foot.children[3].textContent || '').trim();
+        const m = /^(\d+) of (\d+)$/.exec(tricksCell);
+        check(!!m, 'the Total row trick counter is malformed: ' + tricksCell);
+        if (m) {
+          /* Completed tricks must equal what the per-player Tricks column adds up
+           * to. Deriving it from cards remaining does not work: between picking
+           * and burying the picker is holding two extra cards, so the total is not
+           * a clean function of tricks played — which is exactly the sort of thing
+           * that makes an invariant look wrong when it is the arithmetic that is
+           * wrong. */
+          const wonBySeats = [...d.querySelectorAll('#players-table tbody tr')]
+            .reduce((a, r) => a + Number((r.children[3].textContent || '0').trim() || 0), 0);
+          check(Number(m[1]) === wonBySeats,
+            'the Total row says ' + m[1] + ' completed tricks but the seats add up to ' + wonBySeats);
+        }
       }
       const said = d.getElementById('alerts').textContent + ' ' +
         d.getElementById('announcer').textContent + ' ' +
@@ -471,7 +532,7 @@ async function playHands(players, howMany) {
       continue;
     }
   }
-  check(guard < 6000, players + 'p: game did not finish ' + howMany + ' hands');
+  check(stalled || guard < 6000, players + 'p: game did not finish ' + howMany + ' hands');
   window.close();
   return seen;
 }
