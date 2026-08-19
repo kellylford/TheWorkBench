@@ -1108,6 +1108,10 @@
     DEAL: DEAL,
     applyAction: applyAction,
     eventsFor: eventsFor,
+    /* For the room to say something the whole table should hear — a player
+     * dropping out, the computer taking a seat over. Public by construction:
+     * anything private goes through evTo and an audience. */
+    note: function (state, text) { return ev(state, 'info', text); },
     deckFor: deckFor,
     PARTNER_CARD: PARTNER_CARD,
     createGame: createGame,

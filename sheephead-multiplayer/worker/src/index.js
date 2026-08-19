@@ -169,7 +169,14 @@ export class SheepheadRoom {
       now: () => Date.now(),
       setAlarm: at => this.ctx.storage.setAlarm(at),
       deliver: (connId, message) => this.send(connId, message),
-      botDelay: 1200
+      botDelay: 1200,
+      /* Ninety seconds before a silent seat is played by the computer.
+       *
+       * Generous on purpose. Reading a hand back with a screen reader, or
+       * thinking about a bury, is a legitimate reason to be slow, and being timed
+       * out for thinking would be a worse failure than the stall this prevents.
+       * The seat is not lost — rejoining takes it back. */
+      turnGrace: 90000
     });
     return this.room;
   }

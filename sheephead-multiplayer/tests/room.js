@@ -64,7 +64,7 @@ function config(n) {
 /* A table wrapper that can be evicted between any two operations. `evictEvery`
  * of 1 means the object is thrown away and rebuilt before every single call —
  * the harshest schedule the platform could possibly impose. */
-function makeTable(n, evictEvery) {
+function makeTable(n, evictEvery, opts) {
   const storage = makeStorage();
   const inbox = {};                 // connId -> messages received
   const live = [];                  // connections the platform would hand back
@@ -80,7 +80,8 @@ function makeTable(n, evictEvery) {
       now: () => clock,
       setAlarm: t => { alarmAt = t; },
       deliver: (id, msg) => { (inbox[id] = inbox[id] || []).push(msg); },
-      botDelay: 10
+      botDelay: 10,
+      turnGrace: (opts && opts.turnGrace) || 0
     });
   }
 
@@ -375,6 +376,62 @@ for (const evictEvery of [0, 1]) {
   check(acted,
     "a reconnected player could not move: the room still held the old connection's highest " +
     'sequence number, so every fresh keypress was treated as a duplicate and silently swallowed');
+}
+
+/* ---------------- 5c. A player who vanishes must not stall the table ---------- */
+
+/* The failure every test so far was blind to, because every test disconnects
+ * cleanly.
+ *
+ * A seat only becomes 'away' when its socket closes properly. A laptop that
+ * sleeps, a phone that loses signal, a browser killed outright: the seat stays
+ * 'human', no bot will ever play it, and the table stops for everybody with no
+ * message at all. Each other player's move timeout says "the table has not
+ * answered" once, and then silence. */
+{
+  const t = makeTable(5, 0, { turnGrace: 500 });
+  t.start();
+  t.join('ghost', 0, 'Ghost');       // sits down, and is never heard from again
+  t.join('live', 1, 'Kelly');
+
+  // Wind on until it is the vanished player's turn.
+  let guard = 0;
+  while (guard++ < 800) {
+    const truth = t.room.peek();
+    const onTurn = truth.phase === 'bury' ? truth.picker : truth.turn;
+    if (onTurn === 0 && truth.phase !== 'handOver') break;
+    if (!t.tick(50)) t.tick(50);
+  }
+  const stuckAt = t.room.peek();
+  const onTurn = stuckAt.phase === 'bury' ? stuckAt.picker : stuckAt.turn;
+  check(onTurn === 0, "never reached the vanished player's turn");
+
+  const before = JSON.stringify({ phase: stuckAt.phase, turn: stuckAt.turn, picker: stuckAt.picker });
+
+  // Time passes. Nobody says anything. The table must recover on its own.
+  for (let i = 0; i < 60; i++) t.tick(100);
+
+  const after = JSON.stringify({
+    phase: t.room.peek().phase, turn: t.room.peek().turn, picker: t.room.peek().picker
+  });
+  check(before !== after,
+    'the table stalled permanently on a player who vanished without closing their connection — ' +
+    'no turn clock, so nobody would ever have been told why the game stopped');
+
+  check(t.room.peek().players[0].occupant === 'away',
+    'the vanished seat was never marked away, so the computer will not play it');
+
+  // And the other player was TOLD, rather than left wondering.
+  const heard = (t.inbox['live'] || []).flatMap(m => (m.events || []).map(e => e.text)).join(' | ');
+  check(/stopped responding/i.test(heard),
+    'nobody at the table was told why a seat went quiet: "' + heard + '"');
+
+  // Coming back takes the seat again, and that is announced too.
+  t.live.length = 0;
+  const back = t.join('ghost2', 0, 'Ghost');
+  check(back.ok, 'the vanished player could not take their seat back');
+  const heard2 = (t.inbox['live'] || []).flatMap(m => (m.events || []).map(e => e.text)).join(' | ');
+  check(/is back/i.test(heard2), 'nobody was told the player had returned');
 }
 
 /* ---------------- 6. Seats, and the seat coming from the connection ------------- */

@@ -64,7 +64,8 @@
         lastAck: {},       // seat -> sequence to echo on the next view
         seats: {},         // seat -> {name, token} for whoever holds it
         wedged: false,
-        botDue: 0          // when the next bot move is due, 0 for none
+        botDue: 0,         // when the next bot move is due, 0 for none
+        turnSince: 0       // when the seat now on turn became responsible for it
       };
     }
 
@@ -169,10 +170,40 @@
       return state.players[seat].occupant === 'human' ? -1 : seat;
     }
 
+    /* Whose turn it is, whoever they are. */
+    function seatOnTurn() {
+      if (state.phase === 'handOver' || state.phase === 'idle') return -1;
+      return state.phase === 'bury' ? state.picker : state.turn;
+    }
+
     function scheduleBots() {
-      if (seatNeedingBot() < 0) { room.botDue = 0; persist(); return; }
-      if (room.botDue) return;                 // already scheduled
-      room.botDue = now() + botDelay;
+      var botSeat = seatNeedingBot();
+
+      if (botSeat >= 0) {
+        if (room.botDue) return;               // already scheduled
+        room.botDue = now() + botDelay;
+        persist();
+        scheduleAlarm(room.botDue);
+        return;
+      }
+
+      /* THE TURN CLOCK.
+       *
+       * A seat only becomes 'away' when its socket closes cleanly. A laptop that
+       * sleeps, a phone that loses signal, a browser killed outright: the seat
+       * stays 'human', no bot will ever play it, and the table stalls for
+       * everybody, permanently, with no message. Each other player's move
+       * timeout says "the table has not answered" once and then nothing.
+       *
+       * So a human seat that has not moved within the grace period is treated as
+       * away and played by the computer. They can take the seat back by
+       * rejoining. Generous on purpose: reading a hand back with a screen reader
+       * is a legitimate reason to be slow, and being timed out for thinking would
+       * be a worse failure than the one this prevents. */
+      var human = seatOnTurn();
+      if (human < 0 || !turnGrace) { room.botDue = 0; persist(); return; }
+      if (!room.turnSince) room.turnSince = now();
+      room.botDue = room.turnSince + turnGrace;
       persist();
       scheduleAlarm(room.botDue);
     }
@@ -181,7 +212,25 @@
       load();
       room.botDue = 0;
       var seat = seatNeedingBot();
-      if (seat < 0) { persist(); return; }
+
+      /* Nobody to play for, so this alarm is the turn clock rather than a bot's
+       * move: the seat on turn is a person who has not acted in time. */
+      if (seat < 0) {
+        var waiting = seatOnTurn();
+        if (waiting >= 0 && turnGrace && room.turnSince &&
+            now() - room.turnSince >= turnGrace &&
+            state.players[waiting].occupant === 'human') {
+          state.players[waiting].occupant = 'away';
+          G.note(state, state.players[waiting].name +
+            ' has stopped responding. The computer is playing that seat until they come back.');
+          room.turnSince = 0;
+          broadcast();
+          scheduleBots();
+          return;
+        }
+        persist();
+        return;
+      }
       try {
         AI.act(state);
       } catch (e) {
@@ -232,8 +281,24 @@
           seat < 0 || seat >= state.players.length) {
         return { ok: false, reason: 'that is not a seat at this table' };
       }
-      if (!seatIsFree(seat)) return { ok: false, reason: 'somebody is already in that seat' };
+      /* A seat we have already concluded is abandoned yields to whoever asks for
+       * it next — including the person who was in it.
+       *
+       * An ungraceful drop leaves the old connection registered until the
+       * platform notices, which can be minutes. Requiring the seat to be free of
+       * connections meant the turn clock correctly marked somebody away, the
+       * computer took over, and then they could not get back in: "somebody is
+       * already in that seat", and the somebody was them. */
+      if (!seatIsFree(seat)) {
+        if (state.players[seat].occupant !== 'away') {
+          return { ok: false, reason: 'somebody is already in that seat' };
+        }
+        Object.keys(conns).forEach(function (id) {
+          if (conns[id].seat === seat) delete conns[id];
+        });
+      }
 
+      var wasAway = state.players[seat].occupant === 'away';
       conns[connId] = { seat: seat };
       state.players[seat].occupant = 'human';
 
@@ -249,6 +314,11 @@
        * taking a seat somebody had vacated. */
       room.lastSeq[seat] = undefined;
       room.lastAck[seat] = undefined;
+      room.turnSince = now();
+
+      if (wasAway) {
+        G.note(state, state.players[seat].name + ' is back.');
+      }
       if (name) state.players[seat].name = String(name).slice(0, 16);
       if (room.cursors[seat] === undefined) room.cursors[seat] = -1;
 
@@ -265,6 +335,19 @@
         view: V.forSeat(state, seat),
         events: fresh
       });
+      /* Tell the rest of the table, not just the person who arrived.
+       *
+       * join() only ever answered the joiner, so "Ruth is back" was written into
+       * the log and delivered to Ruth. Everybody else — who had watched the
+       * computer play her seat and been told why — was never told it had
+       * stopped. Somebody sitting down is news for the table. */
+      Object.keys(conns).forEach(function (id) {
+        if (id === connId) return;
+        room.version++;
+        deliver(id, viewFor(id, conns[id].seat));
+      });
+      persist();
+
       scheduleBots();
       return { ok: true, seat: seat };
     }
@@ -371,6 +454,7 @@
         return;
       }
 
+      room.turnSince = now();
       broadcast();
       scheduleBots();
     }
