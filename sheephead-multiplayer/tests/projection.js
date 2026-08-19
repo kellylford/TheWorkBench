@@ -102,7 +102,8 @@ const RULINGS = {
   doublers: 'handOver only — entries name their holder',
   redealDoubler: 'public (this hand is doubled)',
   nextHandDoubler: 'public',
-  revealInfo: 'public; created at the moment of reveal'
+  revealInfo: 'public; created at the moment of reveal',
+  nextEventId: 'excluded — server bookkeeping, and its value counts private events'
 };
 
 {

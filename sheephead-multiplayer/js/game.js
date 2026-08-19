@@ -80,7 +80,8 @@
       doublers: [],
       redealDoubler: false,
       nextHandDoubler: false,
-      revealInfo: null
+      revealInfo: null,
+      nextEventId: 0
     };
   }
 
@@ -156,8 +157,20 @@
     return startHand(state);
   }
 
+  /* Every event carries a monotonic id.
+   *
+   * A client tracks how much of the log it has been told about. Doing that by
+   * ARRAY INDEX works only while state.events is never truncated or reset — an
+   * invariant nothing stated and nothing enforced, and the log grows for the
+   * lifetime of a room. The first person to add truncation would silently shift
+   * every cursor and seats would start missing announcements with no error at
+   * all, which for a screen reader user is the game omitting what happened.
+   *
+   * Ids make truncation safe and let a reconnecting client say what it last
+   * heard rather than being sent the whole hand again. */
   function ev(state, kind, text, extra) {
-    var e = { kind: kind, text: text };
+    if (state.nextEventId === undefined) state.nextEventId = 0;
+    var e = { id: state.nextEventId++, kind: kind, text: text };
     if (extra) for (var k in extra) e[k] = extra[k];
     state.events.push(e);
     return e;
@@ -197,13 +210,22 @@
    * the picker is known, so "there was a private event just then" narrows down
    * what it was about. The recipient gets a plain event; everybody else never
    * learns one was sent. */
-  function eventsFor(state, seat) {
+  function eventsFor(state, seat, sinceId) {
     var out = [];
+    var since = (typeof sinceId === 'number') ? sinceId : -1;
     for (var i = 0; i < state.events.length; i++) {
       var e = state.events[i];
+      if (e.id !== undefined && e.id <= since) continue;
       if (e.audience !== undefined && e.audience !== seat) continue;
       var copy = {};
-      for (var k in e) if (k !== 'audience') copy[k] = e[k];
+      /* `id` is stripped for the same reason `audience` is, and it took the
+       * projection test to notice. Ids are global and monotonic, so the gaps in
+       * the sequence a seat receives count the private events addressed to
+       * everybody else — and when one of those is "you hold both black queens",
+       * a gap appearing at the moment of the bury says a doubler exists and
+       * roughly whose it is. The server needs ids for its own bookkeeping and to
+       * replay to a reconnecting client. A client never does. */
+      for (var k in e) if (k !== 'audience' && k !== 'id') copy[k] = e[k];
       out.push(copy);
     }
     return out;

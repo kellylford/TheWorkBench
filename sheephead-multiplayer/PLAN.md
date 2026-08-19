@@ -226,6 +226,26 @@ hypothetical session length for this codebase.
 - Store history as **per-hand keys**, not one blob. Fetch on demand at export.
 - Add room expiry and `deleteAll` GC. Abandoned rooms otherwise accumulate storage forever.
 
+## What must be persisted, and which failures are silent
+
+The in-process server (`js/localserver.js`) keeps room bookkeeping in a single
+`room` object precisely so the Durable Object has one thing to persist. Losing any
+part of it produces a **wrong game that looks like a working one**, which is worse
+than a crash and much harder to diagnose:
+
+| Lost on wake | What the player sees |
+|---|---|
+| `room.version` (resets to 0) | Clients hold versions in the hundreds, so every later view is discarded as stale. **The board freezes with no error and no timeout** — views keep arriving, they are just dropped. |
+| `room.cursors` | The entire game's event log is replayed to every seat, so a screen reader re-announces the whole hand. |
+| `room.lastSeq` | A retried frame plays a second card. |
+| `connections` | The map is empty while the hibernated sockets are alive: moves apply and **nobody is told**. Must be rebuilt from `ctx.getWebSockets()`, with the seat in the socket attachment. |
+| `state` itself | Eviction loses the game mid-hand. And `applyAction`'s `fatal` contract means "reload from the last known-good checkpoint" — there has to *be* a checkpoint. |
+
+Three of those five are silent. None of them is caught by a test that runs in one
+process without eviction, so M4 needs an explicit hibernate/wake test that
+serializes everything, drops the in-memory objects, restores, and continues the
+hand.
+
 ## Hibernation kills timers — the plan needs Alarms
 
 The plan leans on WebSocket Hibernation and simultaneously requires a room-level bot delay, a

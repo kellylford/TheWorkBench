@@ -76,6 +76,13 @@
   }
 
   function reset() {
+    /* Close the old connection rather than merely forgetting it. Dropping the
+     * reference left the server-side seat occupied for ever, kept the old link
+     * delivering into the same module-level receive as the new one, and left
+     * every previously registered listener still attached. */
+    if (link && typeof link.close === 'function') {
+      try { link.close(); } catch (e) { /* already gone */ }
+    }
     clearTimeout(pendingTimer);
     pendingTimer = null;
     pendingAction = null;
@@ -161,8 +168,11 @@
 
     seq++;
     pendingAction = { seq: seq, action: action, at: Date.now() };
-    link.send({ type: 'action', seq: seq, action: action });
 
+    /* Arm the timer BEFORE sending. WebSocket.send throws on a closed socket, and
+     * that exception escapes to whatever handled the keypress — leaving the move
+     * pending with no timer, so this client could never move again and would
+     * never be told why. */
     pendingTimer = setTimeout(function () {
       if (!pendingAction) return;
       var stuck = pendingAction;
@@ -175,6 +185,15 @@
       });
       notify();
     }, ANSWER_TIMEOUT);
+
+    try {
+      link.send({ type: 'action', seq: seq, action: action });
+    } catch (e) {
+      clearPending(seq);
+      notifyRejected({ seq: seq, action: action, reason: 'the connection has gone', dropped: true });
+      notify();
+      return { ok: false, reason: 'the connection has gone' };
+    }
 
     notify();
     return { ok: 'pending', seq: seq };
@@ -198,14 +217,37 @@
        * roll the interface backwards onto a state the player has already moved
        * past. Dropping a stale view is always right; applying one is a card
        * reappearing in a hand it was played from. */
-      if (typeof msg.version === 'number' && msg.version <= latestVersion) return;
-      latestVersion = typeof msg.version === 'number' ? msg.version : latestVersion;
+      /* No version, no trust. The guard only compared when a version was
+       * present, so a frame without one sailed past it, overwrote an applied
+       * view, and left latestVersion untouched — leaving the client showing old
+       * state while rejecting the real updates that followed. */
+      if (typeof msg.version !== 'number') return;
+      if (msg.version <= latestVersion) return;
+      latestVersion = msg.version;
       latestView = msg.view;
-      if (typeof msg.seat === 'number') seat = msg.seat;
+      /* The seat is settled when the connection is made and never afterwards.
+       * Taking it from a message is the mirror image of the rule the server
+       * side is built on — and with one module-level receive shared by every
+       * connection, a stale link could otherwise move this client into another
+       * chair. Only `welcome` may set it, and only once. */
+      if (msg.type === 'welcome' && typeof msg.seat === 'number') seat = msg.seat;
       if (msg.events && msg.events.length) pendingEvents = pendingEvents.concat(msg.events);
-      // A view is the answer to whatever was outstanding: the state it describes
-      // already includes the move, if the move was taken.
-      clearPending();
+
+      /* A view answers the move it actually INCLUDES, and says so by echoing the
+       * sequence number.
+       *
+       * This used to clear the pending move on ANY view, which is not a
+       * correlation at all — version is a message counter, not "the state that
+       * contains your move". So a bot playing at another seat, or any other
+       * broadcast at all, cleared the guard while the player's own move was
+       * still on the wire, and the next keypress put a SECOND action frame out.
+       * One keypress, two moves, both live. Confirmed: two action frames on the
+       * wire from a single press.
+       *
+       * The test missed it because the pending case ran with the bots disabled,
+       * which is the one configuration where no unrelated view can arrive — a
+       * quiescent table is exactly where this bug cannot happen. */
+      if (typeof msg.ackSeq === 'number') clearPending(msg.ackSeq);
       notify();
       return;
     }
@@ -217,10 +259,21 @@
     }
 
     if (msg.type === 'rejected') {
+      /* Only the move still outstanding may be announced.
+       *
+       * A late refusal for a move the player has long forgotten — one that timed
+       * out, or was superseded — used to be spoken anyway, and its attached view
+       * was applied with no staleness check at all. That rolled the board
+       * backwards AND dropped latestVersion, so the view already applied was
+       * accepted a second time when the next frame arrived, replaying every
+       * event in it. */
+      var answersPending = pendingAction && pendingAction.seq === msg.seq;
+      if (!answersPending) return;
+
       clearPending(msg.seq);
-      if (msg.view) {
+      if (msg.view && typeof msg.version === 'number' && msg.version > latestVersion) {
         latestView = msg.view;
-        if (typeof msg.version === 'number') latestVersion = msg.version;
+        latestVersion = msg.version;
       }
       notifyRejected({ seq: msg.seq, reason: msg.reason, fatal: !!msg.fatal });
       notify();
@@ -237,8 +290,19 @@
    * it, or the projection stops being exercised. */
   function localState() { return mode === 'local' ? state : null; }
 
+  /* Hang up. Without this the only way a player learns the table has gone is the
+   * eight second answer timeout, which is a long time to sit in silence. */
+  function close() {
+    if (link && typeof link.close === 'function') {
+      try { link.close(); } catch (e) { /* already gone */ }
+    }
+    link = null;
+    clearPending();
+  }
+
   SH.Table = {
     startLocal: startLocal,
+    close: close,
     startOnline: startOnline,
     isLocal: isLocal,
     seat: currentSeat,
