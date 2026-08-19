@@ -126,4 +126,11 @@
     get: get,
     ids: ids
   };
-})(window);
+/* `window` in a browser, `globalThis` in a Worker.
+ *
+ * ES module imports are HOISTED, so a Worker entry point cannot set
+ * globalThis.window before importing this file — the assignment runs after the
+ * import has already been evaluated. Depending on a shim the importer sets is
+ * therefore not merely fragile, it cannot work at all. This file decides for
+ * itself. */
+})(typeof window !== 'undefined' ? window : globalThis);
