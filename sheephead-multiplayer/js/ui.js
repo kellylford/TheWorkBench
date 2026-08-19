@@ -51,7 +51,7 @@
   var OLD_STORE_KEYS = [];
   var LOBBY_IDS = ['lobby-section', 'lobby-status', 'lobby-choose', 'lobby-table',
     'lobby-create', 'lobby-join-form', 'lobby-code', 'lobby-code-display', 'lobby-code-read',
-    'lobby-copy', 'lobby-leave', 'lobby-seats', 'lobby-back', 'setup-online'];
+    'lobby-copy', 'lobby-leave', 'lobby-seats', 'lobby-back', 'setup-online', 'table-code-line'];
 
   var DIALOGS = ['rules-dialog', 'a11y-dialog', 'export-dialog', 'bug-dialog', 'settings-dialog'];
 
@@ -337,6 +337,20 @@
     clearTimeout(timer);
     resetSpeech();
     SH.Table.close();
+
+    /* Back to seat 0, and this is not cosmetic.
+     *
+     * mySeat survived leaving an online table, so starting a single-player game
+     * afterwards called startLocal(local, 3): createGame seats the human at 0
+     * and names it after the player, while the view is projected for seat 3. You
+     * would be dealt another seat's cards at a table that labelled somebody else
+     * "(you)". A regression INTO the offline game, which is the one thing this
+     * fork exists to leave alone. */
+    mySeat = 0;
+    if (el['table-code-line']) { el['table-code-line'].hidden = true; el['table-code-line'].textContent = ''; }
+    lobby.code = null;
+    lobby.seat = null;
+    lobby.connected = false;
     state = null;
     local = null;
     el['game-section'].hidden = true;
@@ -706,6 +720,15 @@
      * and seat are no longer on screen for somebody who wants to check. */
     if (lobby.code) {
       speech.unshift('Table ' + spellCode(lobby.code) + ', seat ' + (mySeat + 1) + '.');
+      /* And leave it on screen for the rest of the game. The lobby vanishes the
+       * moment the first hand is dealt, so without this the code was spoken once
+       * and then unavailable — and the host's whole job is to read it to
+       * somebody. */
+      var line = el['table-code-line'];
+      line.hidden = false;
+      line.textContent = 'Table ' + lobby.code + ' — seat ' + (mySeat + 1);
+      line.setAttribute('aria-label',
+        'Table code ' + spellCode(lobby.code) + '. You are in seat ' + (mySeat + 1) + '.');
     }
     render();
     flush();
@@ -1309,7 +1332,9 @@
       wrap.appendChild(c);
     }
 
-    var mine = r.deltas[0];
+    /* This seat's score change, not seat 0's. Online at seat 3 the chip
+     * labelled "You" was showing somebody else's result. */
+    var mine = r.deltas[mySeat];
     chip('You', (mine > 0 ? '+' : '') + mine, mine > 0 ? 'chip-good' : mine < 0 ? 'chip-bad' : '');
     if (state.isLeaster) {
       chip('Leaster', state.players[r.winners[0]].name + ' wins');
@@ -1446,7 +1471,7 @@
     if (state.phase === 'play') {
       var after = [];
       for (k = youAt + 1; k < n; k++) after.push(seatName((startSeat + k) % n));
-      if (youAt >= 0 && !playedBy[0]) {
+      if (youAt >= 0 && !playedBy[mySeat]) {
         msg += after.length
           ? ' ' + after.length + (after.length === 1 ? ' player plays' : ' players play') +
             ' after you: ' + after.join(', ') + '.'
@@ -1729,7 +1754,10 @@
       // partner, and a hidden "playing alone", stay off the table.
       var roles = roleTags(i);
       var cells = [
-        p.name + (i === 0 ? ' (you)' : ''),
+        /* The players table told every seat that SEAT 0 was them. A guest at
+         * seat 1 read a table where somebody else was marked "(you)" and their
+         * own row was unmarked. */
+        p.name + (i === mySeat ? ' (you)' : ''),
         roles.length ? roles.join(', ') : '—',
         String(p.hand.length),
         String(p.tricksWon),
@@ -2003,6 +2031,15 @@
     if (!state) return;
     var text = buildTranscript();
     el['export-text'].value = text;
+    if (!SH.Table.isLocal()) {
+      el['export-summary'].textContent =
+        'This is an online table, so the full log lives on the server. What is ' +
+        'below is what this seat has been told.';
+      el['export-text'].value = buildTranscript();
+      openDialog(el['export-dialog']);
+      announceRequested('Export game log. ' + el['export-summary'].textContent);
+      return;
+    }
     var hist = (local && local.history) || [];
     var bad = hist.filter(function (h) { return h.problems.length; });
     el['export-summary'].textContent = hist.length + ' completed ' +
@@ -2137,15 +2174,33 @@
         state.players.map(function (p) { return p.name; }).join(', ') + ')');
       L.push('- Layout: ' + d.hand + ' cards each, ' + d.blind + ' card blind, ' +
         (d.partner ? 'Jack of Diamonds partner' : 'picker always alone'));
-      L.push('- Opponent skill: ' + settings.difficulty + '; all pass: ' + settings.allPass +
-        '; pace: ' + (PACE_NAMES[String(settings.pace)] || settings.pace + 'ms'));
+      /* From the GAME, not from this browser's saved preferences. Online the room
+       * fixed the rules when the table was made, and reporting the local
+       * settings would describe a game nobody was playing. */
+      var cfg = (state && state.config) || settings;
+      L.push('- Opponent skill: ' + cfg.difficulty + '; all pass: ' + cfg.allPass +
+        '; pace: ' + (PACE_NAMES[String(settings.pace)] || settings.pace + 'ms') +
+        (SH.Table.isLocal() ? '' : ' (pace is local only; the room sets the tempo online)'));
       L.push('- Hand ' + state.handNumber + ', phase ' + state.phase +
         ', hands completed ' + state.handsPlayed);
-      var hist = (local && local.history) || [];
-      var bad = hist.filter(function (h) { return h.problems.length; });
-      L.push('- Automatic check: ' + (bad.length
-        ? '**' + bad.length + ' of ' + hist.length + ' completed hands FAILED**'
-        : 'all ' + hist.length + ' completed hands add up correctly'));
+      /* Never claim an audit result we do not have.
+       *
+       * Online the history lives on the server and `local` is null, so this said
+       * "all 0 completed hands add up correctly" — a fabricated all-clear, in the
+       * headline of a bug report, from a session where nothing had been checked.
+       * A report that quietly asserts everything was fine is worse than one that
+       * says nothing, because somebody triaging it will believe it. */
+      if (!SH.Table.isLocal()) {
+        L.push('- Automatic check: not run — this was an online table, and the ' +
+          'server holds the hand history.');
+        if (lobby.code) L.push('- Table: ' + lobby.code + ', seat ' + (mySeat + 1));
+      } else {
+        var hist = (local && local.history) || [];
+        var bad = hist.filter(function (h) { return h.problems.length; });
+        L.push('- Automatic check: ' + (bad.length
+          ? '**' + bad.length + ' of ' + hist.length + ' completed hands FAILED**'
+          : 'all ' + hist.length + ' completed hands add up correctly'));
+      }
       if (bad.length) {
         L.push('');
         L.push('Failures:');
@@ -2248,7 +2303,11 @@
     box.innerHTML = '';
     if (!state || settings.skin === 'plain') { box.hidden = true; return; }
     box.hidden = false;
-    for (var i = 1; i < state.players.length; i++) {
+    /* Every seat but this one. Starting at 1 drew YOUR OWN hand as a
+     * face-down opponent for anybody not in seat 0, and omitted the seat that
+     * really was an opponent. */
+    for (var i = 0; i < state.players.length; i++) {
+      if (i === mySeat) continue;
       var p = state.players[i];
       var seat = document.createElement('div');
       seat.className = 'seat' + (state.turn === i && state.phase !== 'handOver' ? ' seat-turn' : '');
@@ -2261,7 +2320,36 @@
     }
   }
 
+  /* Grey out what the room owns.
+   *
+   * Online the rules were fixed when the table was made and the tempo belongs to
+   * the server, so these controls change nothing — but they looked live, reported
+   * their new value in the summary, and "Game settings reset to defaults"
+   * announced a reset that had not happened. A control that appears to work and
+   * does nothing is worse than one that is plainly unavailable, and worst of all
+   * for somebody who cannot see it greyed out, which is why the reason is in the
+   * label rather than only in the styling. */
+  function applyOnlineSettingLocks() {
+    var online = !SH.Table.isLocal();
+    RULE_FIELDS.concat(['pace', 'players']).forEach(function (name) {
+      var ids = { allPass: 'opt-allpass', difficulty: 'opt-difficulty',
+        blackQueenDoubler: 'opt-black-queens', redQueenDoubler: 'opt-red-queens',
+        redealDoubler: 'opt-redeal-doubler', pace: 'opt-pace', players: 'opt-players' };
+      var node = $(ids[name]);
+      if (!node) return;
+      node.disabled = online && name !== 'pace';
+      if (online && name !== 'pace') {
+        node.setAttribute('aria-describedby', 'settings-online-note');
+      } else {
+        node.removeAttribute('aria-describedby');
+      }
+    });
+    var note = $('settings-online-note');
+    if (note) note.hidden = !online;
+  }
+
   function openSettings() {
+    applyOnlineSettingLocks();
     openDialog(el['settings-dialog']);
     var first = el['settings-dialog'].querySelector('select, input');
     if (first) first.focus();

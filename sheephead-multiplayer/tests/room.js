@@ -317,6 +317,66 @@ for (const evictEvery of [0, 1]) {
   check(t.room.peek().handNumber === handNo, 'the hand restarted unexpectedly');
 }
 
+/* ---------------- 5b. A reconnected player can actually move ---------------- */
+
+/* The seat unlocking is not the same as the player being able to play, and only
+ * the first was ever tested.
+ *
+ * A client numbers its moves from one again on every connection; the room keeps
+ * the highest sequence it has seen, in durable storage. So somebody who closed
+ * their tab after a dozen moves and came back had their next dozen keypresses
+ * treated as duplicates — the room echoed a view each time, which cleared the
+ * client's pending flag, so there was no timeout, no refusal and no message. The
+ * card simply did not move, over and over. */
+{
+  const t = makeTable(5, 0);
+  t.start();
+  t.join('first', 0, 'Kelly');
+
+  // Make some moves, so the room's idea of "the highest sequence seen" is high.
+  let seq = 0, guard = 0, moved = 0;
+  while (guard++ < 600 && moved < 3) {
+    const m = t.latestView('first');
+    if (m && m.view.turn === 0 && m.view.phase === 'pick') {
+      t.action('first', { seq: ++seq, action: { type: 'pick' } }); moved++;
+    } else if (m && m.view.phase === 'bury' && m.view.picker === 0) {
+      t.action('first', { seq: ++seq, action: { type: 'bury', cards: m.view.players[0].hand.map(c => c.id).slice(0, 2) } });
+      moved++;
+    } else if (m && m.view.turn === 0 && m.view.phase === 'play') {
+      const legal = G.legalPlays(m.view, 0);
+      if (legal.length) { t.action('first', { seq: ++seq, action: { type: 'play', card: legal[0].id } }); moved++; }
+    } else if (!t.tick(20)) t.tick(20);
+  }
+  check(moved >= 1, 'never made a move before disconnecting');
+  check(seq >= 1, 'no sequence numbers were used');
+
+  // The tab closes, and the same person comes back to the same seat.
+  t.room.leave('first');
+  t.live.length = 0;
+  const back = t.join('second', 0, 'Kelly');
+  check(back.ok, 'could not rejoin the seat just vacated');
+
+  // The returning client starts numbering at 1 again, as table.js does.
+  let acted = false;
+  for (let i = 0; i < 600 && !acted; i++) {
+    const m = t.latestView('second');
+    if (m && m.view.turn === 0 && (m.view.phase === 'pick' || m.view.phase === 'play')) {
+      const before = JSON.stringify(t.room.peek().pickLog) + t.room.peek().played.length;
+      if (m.view.phase === 'pick') t.action('second', { seq: 1, action: { type: 'pass' } });
+      else {
+        const legal = G.legalPlays(m.view, 0);
+        if (legal.length) t.action('second', { seq: 1, action: { type: 'play', card: legal[0].id } });
+      }
+      const after = JSON.stringify(t.room.peek().pickLog) + t.room.peek().played.length;
+      acted = after !== before;
+      if (!acted) break;
+    } else if (!t.tick(20)) t.tick(20);
+  }
+  check(acted,
+    "a reconnected player could not move: the room still held the old connection's highest " +
+    'sequence number, so every fresh keypress was treated as a duplicate and silently swallowed');
+}
+
 /* ---------------- 6. Seats, and the seat coming from the connection ------------- */
 
 {

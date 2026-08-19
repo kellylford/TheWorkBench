@@ -839,3 +839,14 @@ dialog::backdrop { background: rgba(0,0,0,.65); }
 }
 
 #lobby-seats th[scope="row"] { white-space: nowrap; }
+
+/* The table code, kept on screen for the whole online game. Quiet, because it is
+ * reference rather than news — but always there, because a code you cannot check
+ * is a code you cannot read to anybody. */
+.table-code-line {
+  margin: .25rem 0 .5rem;
+  color: var(--ink-dim);
+  font-weight: 600;
+  letter-spacing: .08em;
+}
+.table-code-line:focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; }

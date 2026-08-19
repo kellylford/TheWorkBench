@@ -338,6 +338,45 @@ function fakeWire(window, opts, shared) {
       check(own.length > 0, who + ' has no cards on screen');
     });
 
+    /* THE TABLE MUST BE RIGHT FOR THE SEAT YOU ARE ACTUALLY IN.
+     *
+     * Four separate places still assumed seat 0 was the player, and every one of
+     * them was invisible to a test that only checked for leaked card ids: the
+     * players table marked SEAT 0 as "(you)" for everybody, the score chip
+     * labelled "You" showed seat 0's result to everybody, the decorative seat fan
+     * drew your own hand as an opponent and omitted a real one, and the play
+     * order line was gated on whether seat 0 had played.
+     *
+     * This is the same class as the bug that shipped: mySeat landed in half the
+     * file. So the check is not "did a card leak" but "does this screen describe
+     * the seat this player is in". */
+    [[host, hostSeat, 'host'], [guest, guestSeat, 'guest']].forEach(function (pair) {
+      const win = pair[0], seat = pair[1], who = pair[2];
+      const rows = [...win.d.querySelectorAll('#players-table tbody tr')];
+      check(rows.length > 0, who + ' has no players table');
+
+      const marked = rows.map((r, i) => ({ i, txt: r.querySelector('th').textContent }))
+        .filter(r => /\(you\)/.test(r.txt));
+      check(marked.length === 1,
+        who + ' has ' + marked.length + ' rows marked "(you)" in the players table');
+      check(marked.length === 1 && marked[0].i === seat,
+        who + ' is in seat ' + seat + ' but the table marks row ' + (marked[0] || {}).i + ' as "(you)"');
+
+      /* The decorative fan shows the OTHER seats: one fewer than the table has.
+       *
+       * It is only drawn in the traditional skin, so the check is conditional on
+       * the box being shown rather than on the list happening to be non-empty —
+       * the latter is a silent skip that reports success either way, which is how
+       * the seat-fan bug survived its first test. */
+      const seatsBox = win.d.getElementById('seats');
+      if (!seatsBox.hidden) {
+        const fans = [...seatsBox.querySelectorAll('.seat')];
+        check(fans.length === rows.length - 1,
+          who + ': the opponent display shows ' + fans.length + ' seats at a table of ' + rows.length +
+          ' — it either draws your own hand as an opponent or omits a real one');
+      }
+    });
+
     // The guest was told where they are, out loud.
     check(/seat \d/i.test(gHeard.join(' | ')),
       'the joining player was never told which seat they got: "' + gHeard.join(' | ') + '"');

@@ -118,6 +118,10 @@
       <fieldset>
         <legend>Game settings</legend>
         <p class="hint">These are remembered, so a new game uses them again unless you change them.</p>
+        <p id="settings-online-note" class="hint" hidden>At an online table the rules were set when
+          the table was made and cannot be changed from here. Pace is the exception: the room decides
+          when the computer seats play, so that setting only affects how your own announcements are
+          grouped.</p>
         <p id="settings-summary" class="settings-summary"></p>
         <p class="actions">
           <button type="button" id="setup-settings">Change game settings</button>
@@ -142,6 +146,13 @@
          reads this, and "Table" sent people looking for a data table. The real
          one further down is the Players table. -->
     <h2 id="game-h" class="sr-only">Game</h2>
+
+    <!-- The table code, on the game screen, for the whole game.
+         The host is meant to read this to somebody on the phone, and the lobby
+         that showed it disappears the instant the first hand is dealt. Spoken
+         once and gone is no use: a code you cannot check is a code you cannot
+         share. Focusable so it can be jumped to, and it spells itself out. -->
+    <p id="table-code-line" class="table-code-line" tabindex="-1" hidden></p>
 
     <p id="status" class="status"></p>
 

@@ -236,6 +236,19 @@
 
       conns[connId] = { seat: seat };
       state.players[seat].occupant = 'human';
+
+      /* A new connection starts its sequence numbering again, so the room must
+       * forget what the last one reached.
+       *
+       * table.js resets seq to 0 on every startOnline; the room keeps lastSeq in
+       * durable storage. Without this, somebody who closed their tab after
+       * twelve moves and came back had their next twelve keypresses treated as
+       * duplicates: the room echoed a view each time, which cleared the client's
+       * pending flag, so there was no timeout, no refusal and no message — the
+       * card simply did not move. The same thing happened to a DIFFERENT person
+       * taking a seat somebody had vacated. */
+      room.lastSeq[seat] = undefined;
+      room.lastAck[seat] = undefined;
       if (name) state.players[seat].name = String(name).slice(0, 16);
       if (room.cursors[seat] === undefined) room.cursors[seat] = -1;
 
@@ -254,6 +267,22 @@
       });
       scheduleBots();
       return { ok: true, seat: seat };
+    }
+
+    /* Send this connection a fresh view.
+     *
+     * The Cloudflare wrapper cannot write a socket's seat attachment until join()
+     * has assigned one, and join() delivers the welcome before that — so on the
+     * real platform the welcome is produced while the socket is still invisible
+     * and goes nowhere. Rather than restructure join() around one platform's
+     * ordering, the wrapper asks for it again once the socket can be found. */
+    function resend(connId) {
+      load();
+      var c = conns[connId];
+      if (!c) return;
+      room.version++;
+      persist();
+      deliver(connId, viewFor(connId, c.seat));
     }
 
     function leave(connId) {
@@ -286,12 +315,33 @@
            * client is the one side that cannot be trusted to have this. */
           room.lastAck[seat] = msg.seq;
           room.version++;
+          /* viewFor advances the event cursor, so it must run BEFORE the write.
+           * Persisting first rolled the cursor back on the next eviction and
+           * replayed events this seat had already heard — the "screen reader
+           * recites the whole hand again" failure this file is written to
+           * prevent, reintroduced in the one path with no test. */
+          var reply = viewFor(connId, seat);
           persist();
-          deliver(connId, viewFor(connId, seat));
+          deliver(connId, reply);
           return;
         }
         room.lastSeq[seat] = msg.seq;
         room.lastAck[seat] = msg.seq;
+      }
+
+      /* Dealing the next hand is first-come, and the loser is told so plainly.
+       *
+       * Two people pressing Deal at handOver is not a race to be prevented — the
+       * first one is right, and the hand should start. What must not happen is
+       * the second being told "the hand is not over" while a new hand is visibly
+       * being dealt in front of them, which is what the raw engine refusal says.
+       * A view is the honest answer: somebody already did it, here is the table. */
+      if (msg.action && msg.action.type === 'nextHand' && state.phase !== 'handOver') {
+        room.version++;
+        var already = viewFor(connId, seat);
+        persist();
+        deliver(connId, already);
+        return;
       }
 
       var r = G.applyAction(state, seat, msg.action);
@@ -337,6 +387,7 @@
       join: join,
       leave: leave,
       action: action,
+      resend: resend,
       onAlarm: onAlarm,
       hibernate: hibernate,
       wake: wake,

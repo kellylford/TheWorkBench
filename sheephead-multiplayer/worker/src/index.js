@@ -50,10 +50,32 @@ function normaliseCode(raw) {
   return String(raw || '').toUpperCase().split('').filter(c => CODE_ALPHABET.includes(c)).join('');
 }
 
-function json(body, status = 200) {
+/* CORS, without which the browser never reaches this Worker at all.
+ *
+ * POST /new sends application/json, which forces a preflight. With no OPTIONS
+ * handler and no Access-Control headers, that preflight 404'd and "Start a new
+ * table" failed one hundred per cent of the time — the player heard "the table
+ * could not be made" and there was nothing in the Worker's logs to suggest why,
+ * because the request that failed never got as far as the route. */
+function corsHeaders(origin, allowed) {
+  if (!origin) return {};
+  if (allowed.length && allowed.indexOf(origin) < 0) return {};
+  return {
+    'access-control-allow-origin': origin,
+    'access-control-allow-methods': 'GET,POST,OPTIONS',
+    'access-control-allow-headers': 'content-type',
+    'access-control-max-age': '86400',
+    'vary': 'Origin'
+  };
+}
+
+function json(body, status = 200, cors = {}) {
   return new Response(JSON.stringify(body), {
     status,
-    headers: { 'content-type': 'application/json', 'cache-control': 'no-store' }
+    headers: Object.assign(
+      { 'content-type': 'application/json', 'cache-control': 'no-store' },
+      cors
+    )
   });
 }
 
@@ -67,11 +89,29 @@ export default {
     const origin = request.headers.get('Origin') || '';
     const allowed = (env.ALLOWED_ORIGINS || '').split(',').map(s => s.trim()).filter(Boolean);
     const originOk = !origin || allowed.length === 0 || allowed.includes(origin);
+    const cors = corsHeaders(origin, allowed);
 
-    if (url.pathname === '/health') return json({ ok: true });
+    if (request.method === 'OPTIONS') {
+      return new Response(null, { status: 204, headers: cors });
+    }
+
+    if (url.pathname === '/health') return json({ ok: true }, 200, cors);
 
     if (url.pathname === '/new' && request.method === 'POST') {
-      if (!originOk) return json({ error: 'not allowed from there' }, 403);
+      if (!originOk) return json({ error: 'not allowed from there' }, 403, cors);
+
+      /* The per-IP cap the wrangler.toml declares. It was declared and never
+       * consulted, while both this file and the toml claimed the code space was
+       * "not walkable" because of it — a security property asserted in a comment
+       * and implemented nowhere. */
+      if (env.NEW_TABLE_LIMIT) {
+        const ip = request.headers.get('CF-Connecting-IP') || 'unknown';
+        const { success } = await env.NEW_TABLE_LIMIT.limit({ key: ip });
+        if (!success) {
+          return json({ error: 'too many tables from here just now; wait a minute' }, 429, cors);
+        }
+      }
+
       const code = makeCode();
       const id = env.ROOM.idFromName(code);
       const stub = env.ROOM.get(id);
@@ -80,18 +120,18 @@ export default {
         method: 'POST',
         body: JSON.stringify({ code, config: body.config || null })
       });
-      return json({ code });
+      return json({ code }, 200, cors);
     }
 
     if (url.pathname === '/join') {
-      if (!originOk) return json({ error: 'not allowed from there' }, 403);
+      if (!originOk) return json({ error: 'not allowed from there' }, 403, cors);
       const code = normaliseCode(url.searchParams.get('code'));
-      if (code.length < 5) return json({ error: 'that is not a table code' }, 400);
+      if (code.length < 5) return json({ error: 'that is not a table code' }, 400, cors);
       const id = env.ROOM.idFromName(code);
       return env.ROOM.get(id).fetch(request);
     }
 
-    return json({ error: 'not found' }, 404);
+    return json({ error: 'not found' }, 404, cors);
   }
 };
 
@@ -200,13 +240,24 @@ export class SheepheadRoom {
        * would sit alone at a table their friend was not at, with nothing to say
        * anything was wrong. Refusing is far kinder than a table that works and
        * is the wrong one. */
+      const pair = new WebSocketPair();
+      const [client, server] = Object.values(pair);
+
+      /* A code nobody created is refused over the SOCKET, not with an HTTP 404.
+       *
+       * A 404 to an upgrade request reaches the browser as a bare onerror plus a
+       * close with code 1006 and no reason, so net.js could only report "the
+       * connection was lost" — telling somebody who mistyped one character that
+       * their network had broken. Accepting and closing with 4004 lets the
+       * carefully written "there is no table with that code" actually reach them.
+       * The 4004 branch in net.js was unreachable until now. */
       if (!this.cache.meta) {
-        return new Response('no such table', { status: 404 });
+        this.ctx.acceptWebSocket(server);
+        try { server.close(4004, 'no table with that code'); } catch (e) { /* gone */ }
+        return new Response(null, { status: 101, webSocket: client });
       }
 
       const room = await this.wakeRoom(defaultConfig());
-      const pair = new WebSocketPair();
-      const [client, server] = Object.values(pair);
       const connId = crypto.randomUUID();
 
       /* Hibernation, not a held socket: the object may be evicted while this
@@ -214,13 +265,28 @@ export class SheepheadRoom {
        * it the room would be billed for every second somebody sits thinking
        * about their bury. */
       this.ctx.acceptWebSocket(server);
-      server.serializeAttachment({ connId, seat });
 
+      /* THE ATTACHMENT IS WRITTEN AFTER THE SEAT IS KNOWN.
+       *
+       * It used to be written first, with whatever the client asked for — and
+       * the client deliberately asks for nothing, so it stored seat: null.
+       * liveConnections() drops anything without a numeric seat, so the socket
+       * was invisible to the room from the moment it opened: the welcome went
+       * nowhere, every broadcast went nowhere, and after an eviction the room
+       * believed the table was empty and handed the next player the same seat.
+       *
+       * The player saw "Connected to table P, 4, K, 7, M." and then silence, for
+       * ever, with no error anywhere. Online mode could not work at all. */
       const r = room.join(connId, seat, name);
       if (!r.ok) {
         try { server.close(4001, r.reason); } catch (e) { /* already gone */ }
         return new Response(null, { status: 101, webSocket: client });
       }
+      server.serializeAttachment({ connId, seat: r.seat });
+
+      /* join() delivered the welcome while the attachment was still unwritten,
+       * so send it now that this socket can be found. */
+      room.resend(connId);
       return new Response(null, { status: 101, webSocket: client });
     }
 

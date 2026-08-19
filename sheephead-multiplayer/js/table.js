@@ -296,8 +296,11 @@
     if (link && typeof link.close === 'function') {
       try { link.close(); } catch (e) { /* already gone */ }
     }
-    link = null;
-    clearPending();
+    /* Forget the table, not just the socket. Keeping latestView meant the lobby
+     * re-rendered the seats of the table you had just left, with your old seat
+     * marked "you", before you had joined anything. */
+    reset();
+    mode = 'local';
   }
 
   SH.Table = {

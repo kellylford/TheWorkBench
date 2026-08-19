@@ -247,6 +247,9 @@
         var open = true;
         connections[seat] = { handler: onMessage, token: token };
         if (room.cursors[seat] === undefined) room.cursors[seat] = -1;
+        // A new connection numbers its moves from one again; see room.js.
+        room.lastSeq[seat] = undefined;
+        room.lastAck[seat] = undefined;
         state.players[seat].occupant = 'human';
 
         later(function () {
