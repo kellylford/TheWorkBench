@@ -115,6 +115,12 @@ body {
   border-left: 4px solid var(--accent);
   padding: .1rem 0 .1rem .6rem;
   max-width: 46rem;
+  /* Prose added to a page whose layout is measured to the pixel at 150% text on a
+   * 320px screen. Font metrics differ between the machine this was written on and
+   * the one CI runs, so a line that fits here can push the page 7px wide there —
+   * which is exactly what happened. Wrapping is free; a horizontal scrollbar on a
+   * phone is not. */
+  overflow-wrap: break-word;
 }
 .dev-notice a { color: var(--accent); font-weight: 600; }
 
