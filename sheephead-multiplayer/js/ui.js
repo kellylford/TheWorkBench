@@ -399,6 +399,30 @@
    * computer seat act after the configured pause. */
   function tick() {
     render();
+
+    /* Online, pace is not this browser's to set.
+     *
+     * settings.pace does not describe how fast the player wants to read — it
+     * DRIVES THE ENGINE, by deciding when the next computer seat acts. That is a
+     * coherent thing for a game living in one tab and an incoherent one for a
+     * table: the bots belong to the room, and six clients each running their own
+     * timer would be six people trying to deal at once.
+     *
+     * So online this function renders and speaks and then stops. Moves arrive
+     * because the server sends them. What survives of the pace setting is the
+     * part that was always about the player rather than the game — how their own
+     * announcements are batched — and that lives in the speech queue.
+     *
+     * Manual pacing has no online equivalent at all, and the Continue button is
+     * not offered: it exists to advance a game this tab is running, and this tab
+     * is not running one. */
+    if (!SH.Table.isLocal()) {
+      flush();
+      if (isHumanTurn()) focusForTurn();
+      else if (state.phase === 'handOver') focusFirstAction();
+      return;
+    }
+
     if (state.phase === 'handOver') { flush(); focusFirstAction(); return; }
     if (isHumanTurn()) { flush(); focusForTurn(); return; }
     if (settings.pace < 0) { flush(); focusFirstAction(); return; }
@@ -419,6 +443,12 @@
    * game moves; on a timed pace it is a shortcut past a pause you did not want,
    * so the pending timer has to go or the same seat would play twice. */
   function stepOnce() {
+    /* Nothing to step. Offline this drives the next computer seat; online the
+     * room does that on its own clock, and reaching for the local AI here threw,
+     * because there is no local game to act on. The button is not rendered
+     * online — this is the guard for the keyboard shortcut that reaches the same
+     * function. */
+    if (!SH.Table.isLocal()) return;
     clearTimeout(timer);
     timer = null;
     AI.act(local);
@@ -636,9 +666,23 @@
     local = null;                        // the authoritative game is on the server
     el['lobby-section'].hidden = true;
     el['game-section'].hidden = false;
-    resetSpeech();
+
+    /* Deliberately NOT resetSpeech().
+     *
+     * It was, and it threw away the queued announcement of the table code —
+     * the one thing a player most needs to hear, discarded by the very
+     * transition that means the table is working. Clearing the queue makes sense
+     * when a game ends and a new one starts, because what is pending describes a
+     * game that no longer exists. Nothing pending here is stale: it is the lobby
+     * telling you where you are, and the deal is about to be announced after it. */
     refresh();
     drain();
+
+    /* Say where you are on the way in. The lobby screen is gone now, so the code
+     * and seat are no longer on screen for somebody who wants to check. */
+    if (lobby.code) {
+      speech.unshift('Table ' + spellCode(lobby.code) + ', seat ' + (mySeat + 1) + '.');
+    }
     render();
     flush();
   }
@@ -1072,7 +1116,14 @@
     // build a new one after every single opponent play — which is how the
     // "Continue button. Continue button. Continue button." problem started.
     // The heading names the seat instead, and it updates outside this guard.
-    if (!isHumanTurn()) return settings.pace === 0 ? 'waiting' : 'continue';
+    /* Waiting, never Continue, when the table is somebody else's to advance.
+     * Offering Continue online would put a button on screen that cannot do
+     * anything, which is worse than no button: a player who cannot see it greys
+     * out has no way to tell it apart from one that works. */
+    if (!isHumanTurn()) {
+      if (!SH.Table.isLocal()) return 'waiting';
+      return settings.pace === 0 ? 'waiting' : 'continue';
+    }
     if (state.phase === 'pick') return 'pick';
     if (state.phase === 'bury') return 'bury:' + Object.keys(selected).length;
     if (state.phase === 'play') {

@@ -32,7 +32,12 @@
   <section id="lobby-section" aria-labelledby="lobby-h" hidden>
     <h2 id="lobby-h">Play with other people</h2>
 
-    <p id="lobby-status" class="status" role="status"></p>
+    <!-- Visible, and deliberately NOT a live region. It carries the same words the
+         announcer speaks, and a second independent live region would say all of
+         them twice — and reintroduce exactly the race the announcement queue
+         exists to prevent, on the messages that tell a player whether they are
+         connected. Same reason the game log is not one. -->
+    <p id="lobby-status" class="status"></p>
 
     <div id="lobby-choose">
       <p class="hint">Anyone can join a table with its code. There are no accounts and nothing to
