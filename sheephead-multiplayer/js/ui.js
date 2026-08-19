@@ -251,6 +251,8 @@
     var cfg = {};
     Object.keys(settings).forEach(function (k) { cfg[k] = settings[k]; });
     state = G.createGame(cfg);
+    SH.Table.startLocal(state, mySeat);
+    resetSpeech();
     lastActionsKey = null;
     el['setup-section'].hidden = true;
     el['game-section'].hidden = false;
@@ -263,6 +265,7 @@
 
   function backToSetup() {
     clearTimeout(timer);
+    resetSpeech();
     state = null;
     el['game-section'].hidden = true;
     el['setup-section'].hidden = false;
@@ -352,7 +355,163 @@
     tick();
   }
 
-  /* ---------------- announcements ---------------- */
+  /* ---------------- announcements ----------------
+   *
+   * Both live regions are written the same way: blank the node, then set the text
+   * a moment later. The blank is not decoration — setting the same string twice is
+   * not a DOM change and a screen reader says nothing, so "Your turn" following
+   * "Your turn" would be silence.
+   *
+   * That pattern has a race in it, and offline nothing ever triggered it. Messages
+   * only arrive on a keystroke or a pace timer, so two never overlap. Over a
+   * socket they will: two views twenty milliseconds apart means the second blank
+   * runs before the first timeout fires, and the first message IS NEVER SPOKEN.
+   * Not delayed — gone, with no error and nothing on screen to show it happened.
+   *
+   * Four rules, and the reasoning matters more than the mechanism:
+   *
+   *   1. ONE QUEUE PER REGION. The polite announcer and the assertive alerts are
+   *      independent channels to the screen reader; a single global queue made a
+   *      card-selection confirmation delay the hand read the player then asked
+   *      for, which is a delay invented entirely by the fix.
+   *
+   *   2. PASS-THROUGH WHEN IDLE. With nothing in flight a message takes the path
+   *      it always did. Single-player at instant pace must not get slower to fix
+   *      a problem it does not have.
+   *
+   *   3. A GAME EVENT NEVER PREEMPTS A REQUEST. Press H and a remote play lands
+   *      mid-sentence and the hand read is what you lose — the one message you
+   *      explicitly asked for. Requests jump the queue; the event is REQUEUED,
+   *      not dropped, because dropping it on purpose is no better than the
+   *      accident this exists to prevent.
+   *
+   *   4. A NEWER REQUEST SUPERSEDES AN OLDER PENDING ONE, per region. Select two
+   *      cards quickly and you want the second confirmation, not both in turn;
+   *      the alternative is that every burst of feedback pushes your next answer
+   *      further away.
+   */
+
+  var SETTLE = 60;   // blank-to-text delay: long enough for the DOM change to register
+  /* Minimum time a message keeps its region before the next one replaces it.
+   * SETTLE alone is not enough — it covers writing the text, not reading it, so
+   * the next message could blank the region in the same tick the previous one
+   * appeared and nothing would ever be heard. Only bites when messages genuinely
+   * arrive in a rush, which offline they do not: a run of AI plays is batched
+   * into ONE message long before it gets here. */
+  var HOLD = 250;
+
+  function newChannel() { return { queue: [], timer: null, inFlight: null, lastAt: 0 }; }
+  var channels = { polite: newChannel(), alert: newChannel() };
+
+  function channelNode(name) { return name === 'alert' ? el.alerts : el.announcer; }
+
+  function enqueueSpeech(name, msg, requested) {
+    var ch = channels[name];
+    if (!msg || !String(msg).trim()) {
+      /* A review key with nothing to say clears its region rather than leaving
+       * the last announcement sitting there. Otherwise the player hears the
+       * answer to a question they asked several keystrokes ago as though it were
+       * the answer to this one. */
+      if (requested) {
+        if (ch.inFlight) { clearTimeout(ch.inFlight.setTimer); ch.inFlight = null; }
+        channelNode(name).textContent = '';
+      }
+      return;
+    }
+
+    // Rule 4: a newer request replaces an older one still waiting in this region.
+    if (requested) {
+      ch.queue = ch.queue.filter(function (q) { return !q.requested; });
+    }
+    ch.queue.push({ region: name, msg: String(msg), requested: !!requested });
+    pumpSpeech(name);
+  }
+
+  function takeNextSpeech(ch) {
+    for (var i = 0; i < ch.queue.length; i++) {
+      if (ch.queue[i].requested) return ch.queue.splice(i, 1)[0];
+    }
+    return ch.queue.shift();
+  }
+
+  function anyRequestedWaiting(ch) {
+    for (var i = 0; i < ch.queue.length; i++) if (ch.queue[i].requested) return true;
+    return false;
+  }
+
+  function pumpSpeech(name) {
+    var ch = channels[name];
+    if (!ch.queue.length) return;
+    var urgent = anyRequestedWaiting(ch);
+
+    // Rule 3: an in-flight game event steps aside, and goes back on the queue.
+    if (urgent && ch.inFlight && !ch.inFlight.requested) {
+      clearTimeout(ch.inFlight.setTimer);
+      ch.queue.push({ region: name, msg: ch.inFlight.msg, requested: false });
+      ch.inFlight = null;
+    }
+    // ...and so does one that is merely scheduled. Without this, pressing a
+    // review key while an event waits out its hold window puts the answer behind
+    // it, which to the player is indistinguishable from a dropped keypress.
+    if (urgent && ch.timer) { clearTimeout(ch.timer); ch.timer = null; }
+
+    /* Deliveries within a region are strictly serialized. If a message is
+     * mid-flight — blanked, text not yet written — nothing else may start,
+     * because starting would cancel its pending write and lose it. Its own
+     * completion re-enters this function, so the queue keeps moving. Leaving
+     * this out was how the first version of the queue lost four messages in five
+     * while being the thing written to stop messages being lost. */
+    if (ch.inFlight || ch.timer) return;
+
+    /* lastAt of 0 means nothing has been said yet, which must read as "long ago"
+     * rather than as 1970 — subtracting an absolute timestamp from Date.now()
+     * gives fifty-odd years and silently turns every gap into zero. */
+    var since = ch.lastAt ? (Date.now() - ch.lastAt) : HOLD;
+
+    /* Even an urgent message waits a beat after one has just LANDED. Preempting
+     * a message not yet written is right; blanking one the instant it appears is
+     * not — it gets zero time on the page, and a live region set and cleared in
+     * the same tick is never announced at all. Delivered, and silent. */
+    var wait = urgent ? Math.max(0, SETTLE - since) : Math.max(0, HOLD - since);
+    if (wait === 0) { deliverSpeech(name); return; }
+    ch.timer = setTimeout(function () {
+      ch.timer = null;
+      deliverSpeech(name);
+    }, wait);
+  }
+
+  function deliverSpeech(name) {
+    var ch = channels[name];
+    var item = takeNextSpeech(ch);
+    if (!item) return;
+    var node = channelNode(name);
+
+    if (ch.inFlight) { clearTimeout(ch.inFlight.setTimer); ch.inFlight = null; }
+
+    /* Repeat works on whatever you last heard, from either region. announce()
+     * recorded it and alert_() did not, so routing anything important to the
+     * assertive region would have made it the one message R could not bring
+     * back — while every review key could. */
+    lastSpoken = item.msg;
+
+    node.textContent = '';
+    item.setTimer = setTimeout(function () {
+      node.textContent = item.msg;
+      ch.lastAt = Date.now();
+      if (ch.inFlight === item) ch.inFlight = null;
+      pumpSpeech(name);
+    }, SETTLE);
+    ch.inFlight = item;
+  }
+
+  function resetSpeech() {
+    Object.keys(channels).forEach(function (name) {
+      var ch = channels[name];
+      clearTimeout(ch.timer);
+      if (ch.inFlight) clearTimeout(ch.inFlight.setTimer);
+      channels[name] = newChannel();
+    });
+  }
 
   function flush() {
     var extra = turnPrompt();
@@ -363,16 +522,15 @@
     announce(msg);
   }
 
-  function announce(msg) {
-    lastSpoken = msg;
-    el.announcer.textContent = '';
-    setTimeout(function () { el.announcer.textContent = msg; }, 60);
-  }
+  /* The game says something on its own. */
+  function announce(msg) { enqueueSpeech('polite', msg, false); }
 
-  function alert_(msg) {
-    el.alerts.textContent = '';
-    setTimeout(function () { el.alerts.textContent = msg; }, 60);
-  }
+  /* The player asked to hear this. Jumps ahead of queued game events. */
+  function announceRequested(msg) { enqueueSpeech('polite', msg, true); }
+
+  /* Assertive: errors, and direct feedback on a keypress. Always requested — it
+   * is a reply to something the player just did. */
+  function alert_(msg) { enqueueSpeech('alert', msg, true); }
 
   function turnPrompt() {
     if (!state) return '';
@@ -420,14 +578,14 @@
   function say(what) {
     if (!state) return;
     switch (what) {
-      case 'hand': announce(textHand()); break;
-      case 'trick': announce(textTrick()); break;
-      case 'last': announce(textLastTrick()); break;
-      case 'score': announce(textScores()); break;
-      case 'teams': announce(textTeams()); break;
-      case 'count': announce(textCount()); break;
-      case 'order': announce(textOrder()); break;
-      case 'repeat': announce(lastSpoken || 'Nothing to repeat.'); break;
+      case 'hand': announceRequested(textHand()); break;
+      case 'trick': announceRequested(textTrick()); break;
+      case 'last': announceRequested(textLastTrick()); break;
+      case 'score': announceRequested(textScores()); break;
+      case 'teams': announceRequested(textTeams()); break;
+      case 'count': announceRequested(textCount()); break;
+      case 'order': announceRequested(textOrder()); break;
+      case 'repeat': announceRequested(lastSpoken || 'Nothing to repeat.'); break;
     }
   }
 
@@ -1446,7 +1604,7 @@
         : 'Every one of them adds up to 120 points with zero sum scoring.');
     openDialog(el['export-dialog']);
     el['export-text'].focus();
-    announce('Export game log. ' + el['export-summary'].textContent);
+    announceRequested('Export game log. ' + el['export-summary'].textContent);
   }
 
   function exportFilename() {
@@ -1638,7 +1796,7 @@
     openDialog(el['bug-dialog']);
     el['bug-title'].focus();
     el['bug-title'].select();
-    announce('Report a bug. Describe what happened, then use Copy report and open GitHub. ' +
+    announceRequested('Report a bug. Describe what happened, then use Copy report and open GitHub. ' +
       'Nothing is sent until you post the issue yourself.');
   }
 
@@ -1713,6 +1871,26 @@
 
   function openRules() { openDialog(el['rules-dialog']); }
   function openA11y() { openDialog(el['a11y-dialog']); }
+
+  /* The speech subsystem, exposed deliberately.
+   *
+   * Not a test hook bolted on: connection state is game state, and the messages
+   * that say a player has dropped, that the table is waiting, or that a move was
+   * not accepted come from the transport rather than from the rules engine. They
+   * have to go through THIS queue rather than write a live region themselves, or
+   * they reintroduce exactly the race it exists to prevent — and they would do it
+   * on the messages a player can least afford to miss.
+   *
+   * tests/announcements.js drives these directly, because the timing rules here
+   * cannot be observed reliably by playing hands and hoping two messages land
+   * close together. */
+  SH.UI = {
+    announce: announce,
+    announceRequested: announceRequested,
+    alert: alert_,
+    resetSpeech: resetSpeech,
+    lastSpoken: function () { return lastSpoken; }
+  };
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
   else init();
