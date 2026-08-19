@@ -19,6 +19,76 @@
 
 <main id="main" tabindex="-1">
 
+  <!-- ============ LOBBY ============
+       The first screen a person meets when they want to play with somebody else,
+       and therefore the one that decides whether the rest of the game ever
+       happens for them.
+
+       Everything here is an ordinary heading, form field, button and table. The
+       code entry is a plain text input rather than five separate boxes: split
+       inputs look tidy and are miserable with a screen reader, because every
+       keystroke moves focus and the field you are in is never the field you
+       thought. -->
+  <section id="lobby-section" aria-labelledby="lobby-h" hidden>
+    <h2 id="lobby-h">Play with other people</h2>
+
+    <p id="lobby-status" class="status" role="status"></p>
+
+    <div id="lobby-choose">
+      <p class="hint">Anyone can join a table with its code. There are no accounts and nothing to
+        install. Empty seats are played by the computer, so a table works with two people or six.</p>
+
+      <p class="actions">
+        <button type="button" id="lobby-create" class="primary">Start a new table</button>
+      </p>
+
+      <form id="lobby-join-form">
+        <p class="field">
+          <label for="lobby-code">Join a table with its code</label>
+          <input type="text" id="lobby-code" name="code" autocomplete="off" spellcheck="false"
+                 maxlength="12" aria-describedby="lobby-code-hint">
+          <span id="lobby-code-hint" class="hint">Five letters and numbers. Upper or lower case both
+            work, and spaces and dashes are ignored. The letters O, I and L and the digits zero and
+            one are never used, so there is nothing to mistake for anything else.</span>
+        </p>
+        <p class="actions">
+          <button type="submit">Join this table</button>
+        </p>
+      </form>
+
+      <p class="actions">
+        <button type="button" id="lobby-back">Play against the computer instead</button>
+      </p>
+    </div>
+
+    <div id="lobby-table" hidden>
+      <h3 id="lobby-code-h">Your table code</h3>
+      <p id="lobby-code-display" class="table-code" tabindex="-1"></p>
+      <p class="hint" id="lobby-code-read"></p>
+      <p class="actions">
+        <button type="button" id="lobby-copy">Copy the code</button>
+        <button type="button" id="lobby-leave" class="consequential">Leave this table</button>
+      </p>
+
+      <h3 id="lobby-seats-h">Seats</h3>
+      <div class="table-wrap">
+        <table id="lobby-seats">
+          <caption class="sr-only">Every seat at this table, who is in it, and whether they are
+            ready. Empty seats are played by the computer.</caption>
+          <thead>
+            <tr>
+              <th scope="col">Seat</th>
+              <th scope="col">Who</th>
+              <th scope="col">Status</th>
+              <th scope="col">Action</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
   <!-- ============ SETUP ============ -->
   <section id="setup-section" aria-labelledby="setup-h">
     <h2 id="setup-h">New game</h2>
@@ -51,6 +121,7 @@
 
       <p class="actions">
         <button type="submit" class="primary">Start game</button>
+        <button type="button" id="setup-online">Play with other people</button>
         <button type="button" id="setup-rules">How to play Sheephead</button>
         <button type="button" id="setup-a11y">Accessibility hints</button>
       </p>
@@ -494,6 +565,7 @@
 <script src="js/view.js"></script>
 <script src="js/table.js"></script>
 <script src="js/localserver.js"></script>
+<script src="js/net.js"></script>
 <script src="js/ui.js"></script>
 </body>
 </html>

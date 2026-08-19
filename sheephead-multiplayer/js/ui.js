@@ -49,6 +49,10 @@
    * appear in this file again. Only keys this fork has itself retired. */
   var STORE_KEY = 'sheephead-mp.settings.v1';
   var OLD_STORE_KEYS = [];
+  var LOBBY_IDS = ['lobby-section', 'lobby-status', 'lobby-choose', 'lobby-table',
+    'lobby-create', 'lobby-join-form', 'lobby-code', 'lobby-code-display', 'lobby-code-read',
+    'lobby-copy', 'lobby-leave', 'lobby-seats', 'lobby-back', 'setup-online'];
+
   var DIALOGS = ['rules-dialog', 'a11y-dialog', 'export-dialog', 'bug-dialog', 'settings-dialog'];
 
   function anyDialogOpen() {
@@ -96,9 +100,45 @@
       'trick', 'lasttrick', 'players-table', 'log', 'announcer', 'alerts', 'blind',
       'game-h', 'export-dialog', 'export-text', 'export-summary',
       'bug-dialog', 'bug-title', 'bug-what', 'bug-include-log', 'bug-preview',
-      'rules-dialog', 'a11y-dialog', 'settings-dialog', 'settings-summary'].forEach(function (id) {
+      'rules-dialog', 'a11y-dialog', 'settings-dialog', 'settings-summary']
+      .concat(LOBBY_IDS).forEach(function (id) {
         el[id] = $(id);
       });
+
+    /* The lobby. Every control is an ordinary button or form, so there is nothing
+     * here about keyboard handling: the browser already does it. */
+    $('setup-online').addEventListener('click', function () {
+      settings = readForm();
+      saveSettings();
+      showLobby();
+    });
+    $('lobby-back').addEventListener('click', hideLobby);
+    $('lobby-create').addEventListener('click', createTable);
+    $('lobby-copy').addEventListener('click', copyCode);
+    $('lobby-leave').addEventListener('click', leaveTable);
+    $('lobby-join-form').addEventListener('submit', function (e) {
+      e.preventDefault();
+      joinTable($('lobby-code').value, pickFreeSeat());
+    });
+
+    /* Say back what was typed, once it is a whole code. Somebody who cannot see
+     * the field has otherwise no way to check they typed what they meant before
+     * committing to it. */
+    $('lobby-code').addEventListener('change', function () {
+      var clean = normaliseCode($('lobby-code').value);
+      if (clean.length >= 5) alert_('Code entered: ' + spellCode(clean) + '.');
+    });
+
+    /* A view arriving while the lobby is up means the table is live. */
+    SH.Table.onChange(function () {
+      if (!el['lobby-section'].hidden) {
+        renderSeats2();
+        maybeEnterGame();
+      }
+    });
+    SH.Table.onRejected(function (info) {
+      if (info && info.reason) alert_(info.reason + '.');
+    });
 
     loadSettings();
     el['setup-form'].addEventListener('submit', onStart);
@@ -385,6 +425,247 @@
     refresh();
     drain();
     tick();
+  }
+
+  /* ---------------- the lobby ----------------
+   *
+   * Making a table, sharing its code, and sitting down at one. The first screen
+   * a person meets when they want to play with somebody else, and so the one
+   * that decides whether the rest of the game ever happens for them.
+   *
+   * Two decisions here are worth the words:
+   *
+   * THE CODE IS ONE TEXT FIELD, not five boxes. Split inputs look tidier and are
+   * miserable with a screen reader: every keystroke moves focus, so the field
+   * you are in is never the field you think you are in, and correcting a typo
+   * means guessing where you are. One field can be read back, corrected, and
+   * pasted into.
+   *
+   * THE CODE IS READ OUT IN WORDS. "P4K7M" spoken by a screen reader is a
+   * mumble; "P, 4, K, 7, M" is a code somebody can write down. The spelled-out
+   * version is what goes in the announcement, and the compact one is what goes
+   * on screen and on the clipboard.
+   */
+
+  var lobby = {
+    code: null,
+    seat: null,
+    seats: [],
+    connected: false
+  };
+
+  /* The alphabet the server uses. No O, I or L, and no zero or one — a code gets
+   * read down a phone, and "was that a one or an I" is a poor first experience of
+   * a game built for people who cannot see the screen. */
+  var CODE_ALPHABET = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
+
+  function normaliseCode(raw) {
+    return String(raw || '').toUpperCase().split('').filter(function (c) {
+      return CODE_ALPHABET.indexOf(c) >= 0;
+    }).join('');
+  }
+
+  /* "P4K7M" -> "P, 4, K, 7, M" so it can be heard rather than guessed at. */
+  function spellCode(code) {
+    return String(code || '').split('').join(', ');
+  }
+
+  function showLobby() {
+    el['setup-section'].hidden = true;
+    el['game-section'].hidden = true;
+    el['lobby-section'].hidden = false;
+    $('lobby-choose').hidden = false;
+    $('lobby-table').hidden = true;
+    lobbyStatus('');
+    $('lobby-code').focus();
+  }
+
+  function hideLobby() {
+    el['lobby-section'].hidden = true;
+    el['setup-section'].hidden = false;
+    $('opt-name').focus();
+  }
+
+  /* The lobby's own status line. role="status" on the element, so this is spoken
+   * politely without stealing focus — and it goes through the same queue as
+   * everything else so it cannot wipe out a game announcement mid-word. */
+  function lobbyStatus(text) {
+    $('lobby-status').textContent = text || '';
+    if (text) announce(text);
+  }
+
+  function createTable() {
+    lobbyStatus('Making a table…');
+    $('lobby-create').disabled = true;
+    SH.Net.createTable({ config: roomConfig() }).then(function (code) {
+      $('lobby-create').disabled = false;
+      joinTable(code, 0);
+    }).catch(function (err) {
+      $('lobby-create').disabled = false;
+      lobbyStatus('The table could not be made. ' + (err && err.message ? err.message : '') +
+        ' You can still play against the computer.');
+    });
+  }
+
+  /* The rules the whole table plays by, fixed when it is made.
+   *
+   * Deliberately not the whole settings object: pace, skin, verbosity and the
+   * player's own name are this browser's business and nobody else's. Sending
+   * them would also make the first person to press Deal the one who decides what
+   * game everybody is playing. */
+  function roomConfig() {
+    return {
+      numPlayers: Number(settings.numPlayers) || 5,
+      names: crewNames(Number(settings.numPlayers) || 5, settings.name),
+      allPass: settings.allPass,
+      difficulty: settings.difficulty,
+      blackQueenDoubler: settings.blackQueenDoubler,
+      redQueenDoubler: settings.redQueenDoubler,
+      redealDoubler: settings.redealDoubler
+    };
+  }
+
+  function joinTable(code, seat) {
+    var clean = normaliseCode(code);
+    if (clean.length < 5) {
+      lobbyStatus('That does not look like a table code. It is five letters and numbers.');
+      $('lobby-code').focus();
+      return;
+    }
+
+    lobby.code = clean;
+    lobby.seat = seat;
+    lobbyStatus('Joining table ' + spellCode(clean) + '…');
+
+    SH.Table.startOnline(seat, function (handler) {
+      return SH.Net.connect(
+        { code: clean, seat: seat, name: settings.name },
+        handler,
+        onNetStatus
+      );
+    });
+
+    showTable(clean);
+  }
+
+  function showTable(code) {
+    $('lobby-choose').hidden = true;
+    $('lobby-table').hidden = false;
+    $('lobby-code-display').textContent = code;
+    $('lobby-code-read').textContent = 'Read it out as: ' + spellCode(code);
+    renderSeats2();
+    $('lobby-code-display').focus();
+  }
+
+  /* Connection state is game state.
+   *
+   * A player who cannot see the screen has no other way to tell a table where
+   * everybody is thinking from one that has died. Every state change is said
+   * once — not repeatedly, which wears thin fast — and the seat list carries the
+   * standing version for anyone who wants to check. */
+  function onNetStatus(s) {
+    lobby.connected = s.state === 'connected';
+    if (s.state === 'connecting') lobbyStatus('Connecting…');
+    else if (s.state === 'connected') lobbyStatus('Connected to table ' + spellCode(lobby.code) + '.');
+    else if (s.state === 'refused') {
+      lobbyStatus('That seat is not available. ' + (s.detail || '') + ' Try another seat.');
+      $('lobby-choose').hidden = false;
+      $('lobby-table').hidden = true;
+      $('lobby-code').focus();
+    } else if (s.state === 'lost') {
+      lobbyStatus('The connection to the table was lost. ' + (s.detail || ''));
+    } else if (s.state === 'fault') {
+      lobbyStatus('The table stopped: ' + (s.detail || 'something went wrong on the server') + '.');
+    } else if (s.state === 'failed') {
+      lobbyStatus('Could not reach the table. You can still play against the computer.');
+    }
+    renderSeats2();
+  }
+
+  function renderSeats2() {
+    var tbody = $('lobby-seats').querySelector('tbody');
+    var v = SH.Table.view();
+    tbody.innerHTML = '';
+
+    var n = v ? v.players.length : (Number(settings.numPlayers) || 5);
+    for (var i = 0; i < n; i++) {
+      var p = v ? v.players[i] : null;
+      var tr = document.createElement('tr');
+
+      var th = document.createElement('th');
+      th.scope = 'row';
+      th.textContent = 'Seat ' + (i + 1);
+      tr.appendChild(th);
+
+      var who = document.createElement('td');
+      who.textContent = p ? p.name : '—';
+      tr.appendChild(who);
+
+      var st = document.createElement('td');
+      if (!v) st.textContent = 'not connected yet';
+      else if (i === lobby.seat) st.textContent = 'you' + (lobby.connected ? '' : ', connecting');
+      else if (p.occupant === 'human') st.textContent = 'a person';
+      else if (p.occupant === 'away') st.textContent = 'away, played by the computer';
+      else st.textContent = 'the computer';
+      tr.appendChild(st);
+
+      var act = document.createElement('td');
+      act.textContent = '';
+      tr.appendChild(act);
+
+      tbody.appendChild(tr);
+    }
+  }
+
+  /* Which seat to ask for. The server refuses one that is taken, and says so, so
+   * this only has to be a sensible first guess rather than a negotiation. */
+  function pickFreeSeat() {
+    var v = SH.Table.view();
+    if (!v) return 0;
+    for (var i = 0; i < v.players.length; i++) {
+      if (v.players[i].occupant !== 'human') return i;
+    }
+    return 0;
+  }
+
+  /* Once the table has dealt and we have a seat, the lobby's job is done. */
+  function maybeEnterGame() {
+    var v = SH.Table.view();
+    if (!v || v.phase === 'idle') return;
+    mySeat = SH.Table.seat();
+    local = null;                        // the authoritative game is on the server
+    el['lobby-section'].hidden = true;
+    el['game-section'].hidden = false;
+    resetSpeech();
+    refresh();
+    drain();
+    render();
+    flush();
+  }
+
+  function leaveTable() {
+    SH.Table.close();
+    lobby.code = null;
+    lobby.seat = null;
+    lobby.connected = false;
+    $('lobby-choose').hidden = false;
+    $('lobby-table').hidden = true;
+    lobbyStatus('You left the table.');
+    $('lobby-code').focus();
+  }
+
+  function copyCode() {
+    var code = $('lobby-code-display').textContent;
+    if (!code) return;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(code).then(function () {
+        alert_('Table code ' + spellCode(code) + ' copied.');
+      }, function () {
+        alert_('The code could not be copied. It is ' + spellCode(code) + '.');
+      });
+    } else {
+      alert_('The code is ' + spellCode(code) + '.');
+    }
   }
 
   /* ---------------- announcements ----------------

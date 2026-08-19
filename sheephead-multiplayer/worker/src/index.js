@@ -222,6 +222,15 @@ export class SheepheadRoom {
     try { msg = JSON.parse(raw); } catch (e) { return; }
     if (!msg || typeof msg !== 'object') return;
 
+    /* Answered before the room is woken, deliberately. A keepalive must not cost
+     * a storage read and a rebuild every twenty-five seconds per player — that
+     * would turn an idle table, which is most of a card game, into the most
+     * expensive thing the room does. */
+    if (msg.type === 'ping') {
+      try { ws.send(JSON.stringify({ type: 'pong', at: msg.at })); } catch (e) { /* closing */ }
+      return;
+    }
+
     const room = await this.wakeRoom(defaultConfig());
     if (msg.type === 'action') room.action(att.connId, msg);
     else if (msg.type === 'leave') room.leave(att.connId);

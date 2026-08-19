@@ -816,3 +816,26 @@ dialog::backdrop { background: rgba(0,0,0,.65); }
     grid-column: 1 / -1;
   }
 }
+
+/* ---------- the lobby ---------- */
+
+/* The code is meant to be read aloud and typed by somebody else, so it is set
+ * large and letter-spaced, and it is focusable: after a table is made, focus
+ * lands here so the first thing announced is the thing the player needs. */
+.table-code {
+  font-size: clamp(1.6rem, 6vw, 2.4rem);
+  font-weight: 700;
+  letter-spacing: .35em;
+  margin: .25rem 0;
+  color: var(--trump);
+  overflow-wrap: break-word;
+}
+.table-code:focus-visible { outline: 3px solid var(--focus); outline-offset: 4px; }
+
+#lobby-code {
+  font-size: 1.3rem;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+}
+
+#lobby-seats th[scope="row"] { white-space: nowrap; }
