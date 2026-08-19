@@ -118,7 +118,7 @@
     $('lobby-leave').addEventListener('click', leaveTable);
     $('lobby-join-form').addEventListener('submit', function (e) {
       e.preventDefault();
-      joinTable($('lobby-code').value, pickFreeSeat());
+      joinTable($('lobby-code').value, null);   // the room decides where we sit
     });
 
     /* Say back what was typed, once it is a whole code. Somebody who cannot see
@@ -130,11 +130,26 @@
     });
 
     /* A view arriving while the lobby is up means the table is live. */
+    /* Every view, wherever we are.
+     *
+     * This used to do its work only while the lobby was on screen, so the moment
+     * a player entered the game the interface stopped listening: views kept
+     * arriving and nothing re-rendered, and the board sat frozen at whatever it
+     * had been at the instant of entry. It looked like the table had stopped —
+     * which, from the player's side, is indistinguishable from it having stopped.
+     *
+     * Offline the local loop drives rendering after each action; online there is
+     * no local loop, and this IS the loop. */
     SH.Table.onChange(function () {
       if (!el['lobby-section'].hidden) {
         renderSeats2();
         maybeEnterGame();
+        return;
       }
+      if (SH.Table.isLocal()) return;      // offline, tick() already did this
+      refresh();
+      drain();
+      tick();
     });
     SH.Table.onRejected(function (info) {
       if (info && info.reason) alert_(info.reason + '.');
@@ -529,7 +544,7 @@
     $('lobby-create').disabled = true;
     SH.Net.createTable({ config: roomConfig() }).then(function (code) {
       $('lobby-create').disabled = false;
-      joinTable(code, 0);
+      joinTable(code, null);
     }).catch(function (err) {
       $('lobby-create').disabled = false;
       lobbyStatus('The table could not be made. ' + (err && err.message ? err.message : '') +
@@ -567,6 +582,11 @@
     lobby.seat = seat;
     lobbyStatus('Joining table ' + spellCode(clean) + '…');
 
+    /* seat may be null: "put me anywhere". The client cannot choose sensibly —
+     * it does not know which seats are free until it has connected, and it
+     * cannot connect without asking. Guessing produced the obvious result: the
+     * second person to arrive asked for seat 0, was told it was taken, and could
+     * not join at all. */
     SH.Table.startOnline(seat, function (handler) {
       return SH.Net.connect(
         { code: clean, seat: seat, name: settings.name },
@@ -597,6 +617,16 @@
     lobby.connected = s.state === 'connected';
     if (s.state === 'connecting') lobbyStatus('Connecting…');
     else if (s.state === 'connected') lobbyStatus('Connected to table ' + spellCode(lobby.code) + '.');
+    else if (s.state === 'nosuch') {
+      /* A different thing from a seat being taken, and worth saying so: the
+       * commonest cause is a typo, and "that seat is not available" sends
+       * somebody looking at seats instead of at the code they typed. */
+      lobbyStatus('There is no table with that code. Check it and try again — ' +
+        'it is five letters and numbers, and the letters O, I and L are never used.');
+      $('lobby-choose').hidden = false;
+      $('lobby-table').hidden = true;
+      $('lobby-code').focus();
+    }
     else if (s.state === 'refused') {
       lobbyStatus('That seat is not available. ' + (s.detail || '') + ' Try another seat.');
       $('lobby-choose').hidden = false;
@@ -632,8 +662,13 @@
       tr.appendChild(who);
 
       var st = document.createElement('td');
+      /* Which seat is ours comes from the CONNECTION, not from what we asked
+       * for — we no longer ask. lobby.seat was null here, so no row was ever
+       * marked as yours and the seat list quietly stopped answering the one
+       * question it exists to answer. */
+      var ourSeat = v ? SH.Table.seat() : null;
       if (!v) st.textContent = 'not connected yet';
-      else if (i === lobby.seat) st.textContent = 'you' + (lobby.connected ? '' : ', connecting');
+      else if (i === ourSeat) st.textContent = 'you' + (lobby.connected ? '' : ', connecting');
       else if (p.occupant === 'human') st.textContent = 'a person';
       else if (p.occupant === 'away') st.textContent = 'away, played by the computer';
       else st.textContent = 'the computer';
@@ -645,17 +680,6 @@
 
       tbody.appendChild(tr);
     }
-  }
-
-  /* Which seat to ask for. The server refuses one that is taken, and says so, so
-   * this only has to be a sensible first guess rather than a negotiation. */
-  function pickFreeSeat() {
-    var v = SH.Table.view();
-    if (!v) return 0;
-    for (var i = 0; i < v.players.length; i++) {
-      if (v.players[i].occupant !== 'human') return i;
-    }
-    return 0;
   }
 
   /* Once the table has dealt and we have a seat, the lobby's job is done. */
@@ -1174,6 +1198,23 @@
     }
 
     if (!isHumanTurn()) {
+      /* Online there is nothing to continue.
+       *
+       * The key check in actionsKey() was guarded and this one was not, so the
+       * button was still built — and it does not merely do nothing: stepOnce
+       * reaches for a local game that is not there. Worse for somebody who
+       * cannot see it, a button that looks live and is inert is
+       * indistinguishable from one that works.
+       *
+       * Naming who is being waited for is the useful thing to say instead. */
+      if (!SH.Table.isLocal()) {
+        var wo = document.createElement('p');
+        wo.className = 'hint';
+        var whoNow = state.players[state.phase === 'bury' ? state.picker : state.turn];
+        wo.textContent = 'Waiting for ' + (whoNow ? whoNow.name : 'the table') + '…';
+        box.appendChild(wo);
+        return;
+      }
       if (settings.pace === 0) {
         // Nothing to offer: the opponents have already finished by the time
         // anyone could reach for a button.

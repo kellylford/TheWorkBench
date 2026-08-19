@@ -205,8 +205,29 @@
       return true;
     }
 
+    /* The lowest seat nobody is sitting in, or -1 if the table is full. */
+    function firstFreeSeat() {
+      for (var i = 0; i < state.players.length; i++) if (seatIsFree(i)) return i;
+      return -1;
+    }
+
+    /* THE SERVER ASSIGNS THE SEAT.
+     *
+     * A client cannot choose one sensibly: it does not know which are free until
+     * it has connected, and it cannot connect without asking for one. The first
+     * version had the client guess, which meant it guessed seat 0 — so the second
+     * person to arrive was told "that seat is taken" and could not join at all.
+     *
+     * Asking for a specific seat is still allowed, because reclaiming the seat
+     * you were in is exactly that request, and it is refused if somebody is in
+     * it. Asking for nothing means "put me anywhere", which is what joining by a
+     * code actually means. */
     function join(connId, seat, name) {
       load();
+      if (seat === undefined || seat === null) {
+        seat = firstFreeSeat();
+        if (seat < 0) return { ok: false, reason: 'this table is full' };
+      }
       if (typeof seat !== 'number' || seat !== Math.floor(seat) ||
           seat < 0 || seat >= state.players.length) {
         return { ok: false, reason: 'that is not a seat at this table' };

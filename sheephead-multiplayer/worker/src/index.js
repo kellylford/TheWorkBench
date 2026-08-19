@@ -188,8 +188,21 @@ export class SheepheadRoom {
       if (request.headers.get('Upgrade') !== 'websocket') {
         return new Response('expected a websocket', { status: 426 });
       }
-      const seat = Number(url.searchParams.get('seat'));
+      const rawSeat = url.searchParams.get('seat');
+      const seat = rawSeat === null || rawSeat === '' ? null : Number(rawSeat);
       const name = url.searchParams.get('name') || '';
+
+      await this.hydrate();
+      /* A code nobody created is not a table.
+       *
+       * idFromName() always resolves, so without this a typo'd code silently
+       * produced a BRAND NEW EMPTY ROOM that looked perfectly fine — the player
+       * would sit alone at a table their friend was not at, with nothing to say
+       * anything was wrong. Refusing is far kinder than a table that works and
+       * is the wrong one. */
+      if (!this.cache.meta) {
+        return new Response('no such table', { status: 404 });
+      }
 
       const room = await this.wakeRoom(defaultConfig());
       const pair = new WebSocketPair();

@@ -61,13 +61,15 @@ async function boot() {
 
 /* Point SH.Net at an in-process room. Same message shapes, same call signatures,
  * no socket. */
-function fakeWire(window, opts) {
+function fakeWire(window, opts, shared) {
   const SH = window.SH;
   let server = null;
-  const codes = {};
+  /* Shared between windows on purpose: two browsers joining the same code have to
+   * reach the SAME room, which is the whole thing being tested. */
+  const codes = shared || {};
 
   SH.Net.createTable = function (o) {
-    const code = 'P4K7M';
+    const code = (opts && opts.code) || 'P4K7M';
     server = SH.LocalServer.create({
       config: (o && o.config) || null,
       latency: (opts && opts.latency) || 2,
@@ -81,7 +83,7 @@ function fakeWire(window, opts) {
   SH.Net.connect = function (o, onMessage, onStatus) {
     const s = codes[o.code];
     if (!s) {
-      setTimeout(() => onStatus && onStatus({ state: 'refused', detail: 'no such table' }), 1);
+      setTimeout(() => onStatus && onStatus({ state: 'nosuch', detail: 'no table with that code' }), 1);
       return { send() {}, close() {} };
     }
     const link = s.connect(o.seat, onMessage);
@@ -93,7 +95,7 @@ function fakeWire(window, opts) {
     return link;
   };
 
-  return { get server() { return server; } };
+  return { get server() { return server; }, codes: codes };
 }
 
 (async () => {
@@ -235,7 +237,9 @@ function fakeWire(window, opts) {
   d2.getElementById('lobby-code').value = 'zzzzz';
   d2.getElementById('lobby-join-form').dispatchEvent(
     new second.window.Event('submit', { bubbles: true, cancelable: true }));
-  await sleep(150);
+  // Announcements are spaced so a burst cannot wipe itself out, so the refusal
+  // lands a moment after the "joining…" line that precedes it.
+  await sleep(900);
   /* SPOKEN, not merely displayed.
    *
    * This is the path where a player never reaches a game: a code typed wrong, a
@@ -247,7 +251,7 @@ function fakeWire(window, opts) {
   const spoken2 = heard2.join(' | ');
   check(spoken2.trim().length > 0,
     'joining a table that does not exist was never spoken — only shown on screen');
-  check(/not available|does not|could not|no such|not look like/i.test(spoken2),
+  check(/no table with that code|not available|could not|not look like/i.test(spoken2),
     'joining a nonexistent table gave no usable spoken explanation: "' + spoken2 + '"');
 
   /* --- 6. The code field forgives how people type --- */
@@ -259,6 +263,128 @@ function fakeWire(window, opts) {
   check(/P, 4, K, 7, M/.test(heard2.join(' | ')),
     'a code typed with spaces, a dash and lower case was not read back correctly: "' +
     heard2.join(' | ') + '"');
+
+  /* --- 7. TWO PEOPLE AT ONE TABLE ---
+   *
+   * The thing all of this is for, and until now nothing tested it. Everything
+   * before this point exercises one browser talking to a room; this is a second
+   * browser joining an existing table by its code, mid-hand, and both of them
+   * playing.
+   *
+   * It is also the first test of the JOINER's experience, which is different from
+   * the creator's in every way that matters: they arrive after the deal, into a
+   * seat they did not choose, at a table already in progress. */
+  {
+    const host = await boot();
+    const hostWire = fakeWire(host.window, { code: 'M7QRS' });
+    host.d.getElementById('setup-online').click();
+    await sleep(30);
+    host.d.getElementById('lobby-create').click();
+    await sleep(250);
+
+    const hostCode = host.d.getElementById('lobby-code-display').textContent.trim();
+    check(hostCode === 'M7QRS', 'the host did not get the table code: "' + hostCode + '"');
+
+    // A second browser, sharing only the code.
+    const guest = await boot();
+    fakeWire(guest.window, {}, hostWire.codes);
+    const gHeard = [];
+    ['announcer', 'alerts'].forEach(id => {
+      const node = guest.d.getElementById(id);
+      const obs = new guest.window.MutationObserver(() => {
+        const t = node.textContent;
+        if (t && gHeard[gHeard.length - 1] !== t) gHeard.push(t);
+      });
+      obs.observe(node, { childList: true, characterData: true, subtree: true });
+    });
+
+    guest.d.getElementById('setup-online').click();
+    await sleep(30);
+    // Typed the way somebody reads it out: lower case, with a space.
+    guest.d.getElementById('lobby-code').value = 'm7 qrs';
+    guest.d.getElementById('lobby-join-form').dispatchEvent(
+      new guest.window.Event('submit', { bubbles: true, cancelable: true }));
+
+    const sampleGuest = () => {
+      ['announcer', 'alerts'].forEach(id => {
+        const t = guest.d.getElementById(id).textContent;
+        if (t && gHeard.indexOf(t) < 0) gHeard.push(t);
+      });
+    };
+
+    let g2 = 0;
+    while (g2++ < 400 && guest.d.getElementById('game-section').hidden) { sampleGuest(); await sleep(20); }
+    for (let k = 0; k < 40; k++) { sampleGuest(); await sleep(20); }
+    check(guest.d.getElementById('game-section').hidden === false,
+      'the second player never got into the game: "' + guest.d.getElementById('lobby-status').textContent + '"');
+
+    const hostSeat = host.window.SH.Table.seat();
+    const guestSeat = guest.window.SH.Table.seat();
+    check(hostSeat !== guestSeat,
+      'both players were put in the same seat (' + hostSeat + ')');
+
+    /* Each sees their own cards and nobody else's. This is the whole promise. */
+    const truth = hostWire.codes['M7QRS'].peek();
+    [[host, hostSeat, 'host'], [guest, guestSeat, 'guest']].forEach(function (pair) {
+      const win = pair[0], seat = pair[1], who = pair[2];
+      const html = win.d.body.innerHTML;
+      const leaked = [];
+      truth.players.forEach((p, i) => {
+        if (i === seat) return;
+        p.hand.forEach(c => { if (html.indexOf('"' + c.id + '"') >= 0) leaked.push(c.id); });
+      });
+      check(leaked.length === 0, who + " was shown another seat's cards: " + leaked.join(", "));
+      const own = [...win.d.querySelectorAll('#hand .card')];
+      check(own.length > 0, who + ' has no cards on screen');
+    });
+
+    // The guest was told where they are, out loud.
+    check(/seat \d/i.test(gHeard.join(' | ')),
+      'the joining player was never told which seat they got: "' + gHeard.join(' | ') + '"');
+
+    /* Both of them can actually move the game along. */
+    let plays = 0;
+    for (let i = 0; i < 2500; i++) {
+      await sleep(10);
+      sampleGuest();
+      let acted = false;
+
+      for (const win of [host, guest]) {
+        const btns = [...win.d.querySelectorAll('#actions button')];
+
+        /* The Bury button exists before it is usable — it turns on once the
+         * right number of cards are selected. Clicking it while disabled and
+         * concluding the game was stuck is how this loop first reported a
+         * two-player table as unplayable. */
+        const bury = btns.find(b => /^Bury /i.test(b.textContent));
+        if (bury) {
+          if (bury.disabled) {
+            [...win.d.querySelectorAll('#hand .card')]
+              .filter(c => !/selected/.test(c.className))
+              .slice(0, 2).forEach(c => c.click());
+            acted = true;
+          } else {
+            bury.click(); plays++; acted = true;
+          }
+          continue;
+        }
+
+        const other = btns.find(b => /^(Pick up|Pass|Deal next)/i.test(b.textContent) && !b.disabled);
+        if (other) { other.click(); plays++; acted = true; continue; }
+
+        if (/your turn/i.test(win.d.getElementById('status').textContent)) {
+          const playable = [...win.d.querySelectorAll('#hand .card')]
+            .find(c => c.getAttribute('aria-disabled') !== 'true');
+          if (playable) { playable.click(); plays++; acted = true; }
+        }
+      }
+
+      if (!acted && truth.phase === 'handOver') break;
+    }
+
+    check(plays > 3, 'two players at one table could not move the game along: ' + plays + ' moves');
+  }
+
 
   /* Everything the player was told, across the whole run.
    *

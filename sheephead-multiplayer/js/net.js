@@ -60,8 +60,11 @@
    * message and must not be smuggled in as one. */
   function connect(opts, onMessage, onStatus) {
     var base = wsBase(opts.base);
+    /* No seat parameter unless one was actually asked for. Sending "seat=null"
+     * would be a request for a seat named null rather than no request at all. */
     var url = base + '/join?code=' + encodeURIComponent(opts.code) +
-      '&seat=' + encodeURIComponent(opts.seat) +
+      (opts.seat === undefined || opts.seat === null
+        ? '' : '&seat=' + encodeURIComponent(opts.seat)) +
       '&name=' + encodeURIComponent(opts.name || '') +
       '&protocol=' + PROTOCOL;
 
@@ -136,7 +139,8 @@
        * not a seat at this table. That is a different thing from the connection
        * dropping, and telling a player "connection lost" when the truth is
        * "that seat is taken" sends them looking for a network problem. */
-      if (ev && ev.code === 4001) status('refused', ev.reason || 'that seat is not available');
+      if (ev && ev.code === 4004) status('nosuch', ev.reason || 'no table with that code');
+      else if (ev && ev.code === 4001) status('refused', ev.reason || 'that seat is not available');
       else status('lost', (ev && ev.reason) || 'the connection closed');
     };
 

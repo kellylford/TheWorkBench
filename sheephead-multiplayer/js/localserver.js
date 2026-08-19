@@ -226,6 +226,16 @@
        *
        * Returns null on refusal — there is no link to hand back. */
       connect: function (seat, onMessage) {
+        /* No seat asked for means "put me anywhere", which is what joining by a
+         * code means. A client cannot choose sensibly: it does not know which
+         * seats are free until it has connected. */
+        if (seat === undefined || seat === null) {
+          seat = -1;
+          for (var f = 0; f < state.players.length; f++) {
+            if (!connections[f]) { seat = f; break; }
+          }
+          if (seat < 0) return null;                 // the table is full
+        }
         if (typeof seat !== 'number' || seat !== Math.floor(seat) ||
             seat < 0 || seat >= state.players.length) {
           return null;

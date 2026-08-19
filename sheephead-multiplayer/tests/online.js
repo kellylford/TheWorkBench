@@ -243,8 +243,16 @@ async function seatsAreNotClientChoices() {
   server.start();
   await sleep(20);
 
-  // An index that is not a seat is refused rather than throwing.
-  for (const bad of [-1, 5, 99, 1.5, '2', null, undefined, {}]) {
+  /* Asking for nothing means "put me anywhere", and is honoured — a client
+   * cannot choose a seat sensibly, because it does not know which are free until
+   * it has connected and it cannot connect without asking. Guessing was what
+   * stopped the second player joining at all. */
+  const assigned = server.connect(null, () => {});
+  check(assigned !== null, 'connect with no seat was refused; a joiner cannot then get in at all');
+  if (assigned) assigned.close();
+
+  // An index that is not a seat is still refused rather than throwing.
+  for (const bad of [-1, 5, 99, 1.5, '2', {}]) {
     let threw = false, link = null;
     try { link = server.connect(bad, () => {}); } catch (e) { threw = true; }
     check(!threw, `connect(${JSON.stringify(bad)}) threw instead of refusing`);
