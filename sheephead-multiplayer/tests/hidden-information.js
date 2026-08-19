@@ -236,6 +236,15 @@ for (const n of [4, 5, 6]) {
     check(got.every(e => !('audience' in e)),
       `seat ${seat} received an event still carrying an audience key`);
 
+    /* Ids are stripped too, and that is not tidiness. They are global and
+     * monotonic, so the GAPS in the sequence a seat receives count the private
+     * events addressed to everybody else — and one of those is "you hold both
+     * black queens", so a gap appearing at the bury says a doubler exists and
+     * roughly whose it is. The server needs ids to replay to a reconnecting
+     * client; a client never does. */
+    check(got.every(e => !('id' in e)),
+      `seat ${seat} received an event carrying its global id — the gaps count other seats' secrets`);
+
     for (const other of [0, 1, 2]) {
       const line = 'for seat ' + other;
       if (other === seat) {
@@ -260,6 +269,33 @@ for (const n of [4, 5, 6]) {
   // every later projection.
   check(fake.events.length === 5, 'eventsFor mutated the source events');
   check(fake.events[1].audience === 0, 'eventsFor stripped the audience from the source');
+}
+
+/* --- 7. Event ids never reach a client, so gaps cannot be counted --- */
+{
+  const fake = {
+    events: [
+      { id: 0, kind: 'info', text: 'public one' },
+      { id: 1, kind: 'info', text: 'secret for seat 1', audience: 1 },
+      { id: 2, kind: 'info', text: 'secret for seat 2', audience: 2 },
+      { id: 3, kind: 'info', text: 'public two' }
+    ]
+  };
+  const seen0 = G.eventsFor(fake, 0);
+  check(seen0.length === 2, 'a bystander received a private event');
+  check(seen0.every(e => e.id === undefined), 'a client received global event ids');
+
+  // Two rooms differing only in HOW MANY private events were emitted must look
+  // identical to a seat entitled to none of them.
+  const few = { events: [ { id: 0, kind: 'info', text: 'a' }, { id: 1, kind: 'info', text: 'b' } ] };
+  const many = { events: [
+    { id: 0, kind: 'info', text: 'a' },
+    { id: 1, kind: 'info', text: 'secret', audience: 3 },
+    { id: 2, kind: 'info', text: 'another secret', audience: 4 },
+    { id: 3, kind: 'info', text: 'b' }
+  ] };
+  check(JSON.stringify(G.eventsFor(few, 0)) === JSON.stringify(G.eventsFor(many, 0)),
+    'a seat could tell how many private events went to other seats by the gaps in the ids');
 }
 
 console.log('hidden-alone hands sampled:   ', checkedAlone);

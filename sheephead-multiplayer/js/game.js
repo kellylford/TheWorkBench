@@ -80,7 +80,8 @@
       doublers: [],
       redealDoubler: false,
       nextHandDoubler: false,
-      revealInfo: null
+      revealInfo: null,
+      nextEventId: 0
     };
   }
 
@@ -156,8 +157,20 @@
     return startHand(state);
   }
 
+  /* Every event carries a monotonic id.
+   *
+   * A client tracks how much of the log it has been told about. Doing that by
+   * ARRAY INDEX works only while state.events is never truncated or reset — an
+   * invariant nothing stated and nothing enforced, and the log grows for the
+   * lifetime of a room. The first person to add truncation would silently shift
+   * every cursor and seats would start missing announcements with no error at
+   * all, which for a screen reader user is the game omitting what happened.
+   *
+   * Ids make truncation safe and let a reconnecting client say what it last
+   * heard rather than being sent the whole hand again. */
   function ev(state, kind, text, extra) {
-    var e = { kind: kind, text: text };
+    if (state.nextEventId === undefined) state.nextEventId = 0;
+    var e = { id: state.nextEventId++, kind: kind, text: text };
     if (extra) for (var k in extra) e[k] = extra[k];
     state.events.push(e);
     return e;
@@ -197,13 +210,22 @@
    * the picker is known, so "there was a private event just then" narrows down
    * what it was about. The recipient gets a plain event; everybody else never
    * learns one was sent. */
-  function eventsFor(state, seat) {
+  function eventsFor(state, seat, sinceId) {
     var out = [];
+    var since = (typeof sinceId === 'number') ? sinceId : -1;
     for (var i = 0; i < state.events.length; i++) {
       var e = state.events[i];
+      if (e.id !== undefined && e.id <= since) continue;
       if (e.audience !== undefined && e.audience !== seat) continue;
       var copy = {};
-      for (var k in e) if (k !== 'audience') copy[k] = e[k];
+      /* `id` is stripped for the same reason `audience` is, and it took the
+       * projection test to notice. Ids are global and monotonic, so the gaps in
+       * the sequence a seat receives count the private events addressed to
+       * everybody else — and when one of those is "you hold both black queens",
+       * a gap appearing at the moment of the bury says a doubler exists and
+       * roughly whose it is. The server needs ids for its own bookkeeping and to
+       * replay to a reconnecting client. A client never does. */
+      for (var k in e) if (k !== 'audience' && k !== 'id') copy[k] = e[k];
       out.push(copy);
     }
     return out;
@@ -1034,7 +1056,13 @@
            * the room layers a ready-gate on top, because one player dealing
            * while five others are still reading the result is a different
            * problem from authorization and belongs where the seats are known. */
-          if (state.phase !== 'handOver') return { ok: false, reason: 'the hand is not over' };
+          /* From a finished hand, or from a standing start — the same two phases
+           * newHand itself accepts. Requiring handOver alone meant the OPENING
+           * deal was refused, because a table that has never dealt is 'idle',
+           * and the game could not begin. */
+          if (state.phase !== 'handOver' && state.phase !== 'idle') {
+            return { ok: false, reason: 'the hand is not over' };
+          }
           return newHand(state) ? { ok: true } : { ok: false, reason: 'could not deal' };
 
         case 'play':
@@ -1080,6 +1108,10 @@
     DEAL: DEAL,
     applyAction: applyAction,
     eventsFor: eventsFor,
+    /* For the room to say something the whole table should hear — a player
+     * dropping out, the computer taking a seat over. Public by construction:
+     * anything private goes through evTo and an audience. */
+    note: function (state, text) { return ev(state, 'info', text); },
     deckFor: deckFor,
     PARTNER_CARD: PARTNER_CARD,
     createGame: createGame,
@@ -1100,4 +1132,11 @@
     doublerFactorFor: doublerFactor,
     doublerListFor: doublerList
   };
-})(window);
+/* `window` in a browser, `globalThis` in a Worker.
+ *
+ * ES module imports are HOISTED, so a Worker entry point cannot set
+ * globalThis.window before importing this file — the assignment runs after the
+ * import has already been evaluated. Depending on a shim the importer sets is
+ * therefore not merely fragile, it cannot work at all. This file decides for
+ * itself. */
+})(typeof window !== 'undefined' ? window : globalThis);

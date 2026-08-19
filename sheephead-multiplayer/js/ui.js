@@ -49,6 +49,10 @@
    * appear in this file again. Only keys this fork has itself retired. */
   var STORE_KEY = 'sheephead-mp.settings.v1';
   var OLD_STORE_KEYS = [];
+  var LOBBY_IDS = ['lobby-section', 'lobby-status', 'lobby-choose', 'lobby-table',
+    'lobby-create', 'lobby-join-form', 'lobby-code', 'lobby-code-display', 'lobby-code-read',
+    'lobby-copy', 'lobby-leave', 'lobby-seats', 'lobby-back', 'setup-online', 'table-code-line'];
+
   var DIALOGS = ['rules-dialog', 'a11y-dialog', 'export-dialog', 'bug-dialog', 'settings-dialog'];
 
   function anyDialogOpen() {
@@ -61,7 +65,21 @@
    * instead of thirty-five. */
   var mySeat = 0;
 
-  var state = null;
+  /* `state` holds a VIEW — what this seat is entitled to see — never the
+   * authoritative game.
+   *
+   * Offline the authoritative game is right there in `local`, and it would be
+   * quicker to render straight from it. Rendering from the projection instead
+   * means the single-player game exercises the projection on every hand: a field
+   * missing from js/view.js becomes a broken screen on somebody's first deal
+   * rather than an online-only bug found six weeks later by the one person who
+   * hit it. The offline game is the online game's test harness, for free.
+   *
+   * 145 of the 154 `state.` reads in this file did not have to change, because
+   * the view was shaped to be state-shaped. The ones that did are the ones that
+   * asked for things a seat is not entitled to. */
+  var state = null;    // the view
+  var local = null;    // offline: the authoritative game. null when online.
   var settings = null;
   var timer = null;
   var speech = [];
@@ -82,9 +100,60 @@
       'trick', 'lasttrick', 'players-table', 'log', 'announcer', 'alerts', 'blind',
       'game-h', 'export-dialog', 'export-text', 'export-summary',
       'bug-dialog', 'bug-title', 'bug-what', 'bug-include-log', 'bug-preview',
-      'rules-dialog', 'a11y-dialog', 'settings-dialog', 'settings-summary'].forEach(function (id) {
+      'rules-dialog', 'a11y-dialog', 'settings-dialog', 'settings-summary']
+      .concat(LOBBY_IDS).forEach(function (id) {
         el[id] = $(id);
       });
+
+    /* The lobby. Every control is an ordinary button or form, so there is nothing
+     * here about keyboard handling: the browser already does it. */
+    $('setup-online').addEventListener('click', function () {
+      settings = readForm();
+      saveSettings();
+      showLobby();
+    });
+    $('lobby-back').addEventListener('click', hideLobby);
+    $('lobby-create').addEventListener('click', createTable);
+    $('lobby-copy').addEventListener('click', copyCode);
+    $('lobby-leave').addEventListener('click', leaveTable);
+    $('lobby-join-form').addEventListener('submit', function (e) {
+      e.preventDefault();
+      joinTable($('lobby-code').value, null);   // the room decides where we sit
+    });
+
+    /* Say back what was typed, once it is a whole code. Somebody who cannot see
+     * the field has otherwise no way to check they typed what they meant before
+     * committing to it. */
+    $('lobby-code').addEventListener('change', function () {
+      var clean = normaliseCode($('lobby-code').value);
+      if (clean.length >= 5) alert_('Code entered: ' + spellCode(clean) + '.');
+    });
+
+    /* A view arriving while the lobby is up means the table is live. */
+    /* Every view, wherever we are.
+     *
+     * This used to do its work only while the lobby was on screen, so the moment
+     * a player entered the game the interface stopped listening: views kept
+     * arriving and nothing re-rendered, and the board sat frozen at whatever it
+     * had been at the instant of entry. It looked like the table had stopped —
+     * which, from the player's side, is indistinguishable from it having stopped.
+     *
+     * Offline the local loop drives rendering after each action; online there is
+     * no local loop, and this IS the loop. */
+    SH.Table.onChange(function () {
+      if (!el['lobby-section'].hidden) {
+        renderSeats2();
+        maybeEnterGame();
+        return;
+      }
+      if (SH.Table.isLocal()) return;      // offline, tick() already did this
+      refresh();
+      drain();
+      tick();
+    });
+    SH.Table.onRejected(function (info) {
+      if (info && info.reason) alert_(info.reason + '.');
+    });
 
     loadSettings();
     el['setup-form'].addEventListener('submit', onStart);
@@ -250,9 +319,10 @@
     saveSettings();
     var cfg = {};
     Object.keys(settings).forEach(function (k) { cfg[k] = settings[k]; });
-    state = G.createGame(cfg);
-    SH.Table.startLocal(state, mySeat);
+    local = G.createGame(cfg);
+    SH.Table.startLocal(local, mySeat);
     resetSpeech();
+    refresh();
     lastActionsKey = null;
     el['setup-section'].hidden = true;
     el['game-section'].hidden = false;
@@ -266,7 +336,23 @@
   function backToSetup() {
     clearTimeout(timer);
     resetSpeech();
+    SH.Table.close();
+
+    /* Back to seat 0, and this is not cosmetic.
+     *
+     * mySeat survived leaving an online table, so starting a single-player game
+     * afterwards called startLocal(local, 3): createGame seats the human at 0
+     * and names it after the player, while the view is projected for seat 3. You
+     * would be dealt another seat's cards at a table that labelled somebody else
+     * "(you)". A regression INTO the offline game, which is the one thing this
+     * fork exists to leave alone. */
+    mySeat = 0;
+    if (el['table-code-line']) { el['table-code-line'].hidden = true; el['table-code-line'].textContent = ''; }
+    lobby.code = null;
+    lobby.seat = null;
+    lobby.connected = false;
     state = null;
+    local = null;
     el['game-section'].hidden = true;
     el['setup-section'].hidden = false;
     $('opt-name').focus();
@@ -277,18 +363,31 @@
     selected = {};
     handFocus = 0;
     lastActionsKey = null;
-    // Rule changes made mid-game take effect here, at a hand boundary, never
-    // part way through a hand already being scored under the old rules.
-    RULE_FIELDS.forEach(function (k) { state.config[k] = settings[k]; });
-    G.newHand(state);
+    /* Rule changes made mid-game take effect here, at a hand boundary, never part
+     * way through a hand already being scored under the old rules.
+     *
+     * Offline only. Online the rules belong to the ROOM and are fixed when the
+     * table is made — otherwise every client would quietly overwrite them from
+     * its own saved settings on every deal, and the last person to press Deal
+     * would decide what game everybody was playing. */
+    if (local) RULE_FIELDS.forEach(function (k) { local.config[k] = settings[k]; });
+    SH.Table.act({ type: 'nextHand' });
+    refresh();
     drain();
     speech.unshift(' ');            // keeps the deal line from merging with the previous hand
     tick();
   }
 
   /* Move engine events into the log and the pending speech buffer. */
+  /* Pull the latest view. Offline this projects on demand; online it is whatever
+   * the server last sent. */
+  function refresh() {
+    state = SH.Table.view();
+    return state;
+  }
+
   function drain() {
-    var evts = state.events.splice(0, state.events.length);
+    var evts = SH.Table.drainEvents();
     for (var i = 0; i < evts.length; i++) {
       var e = evts[i];
       var text = (!settings.verbose && e.textPlain) ? e.textPlain : e.text;
@@ -329,6 +428,30 @@
    * computer seat act after the configured pause. */
   function tick() {
     render();
+
+    /* Online, pace is not this browser's to set.
+     *
+     * settings.pace does not describe how fast the player wants to read — it
+     * DRIVES THE ENGINE, by deciding when the next computer seat acts. That is a
+     * coherent thing for a game living in one tab and an incoherent one for a
+     * table: the bots belong to the room, and six clients each running their own
+     * timer would be six people trying to deal at once.
+     *
+     * So online this function renders and speaks and then stops. Moves arrive
+     * because the server sends them. What survives of the pace setting is the
+     * part that was always about the player rather than the game — how their own
+     * announcements are batched — and that lives in the speech queue.
+     *
+     * Manual pacing has no online equivalent at all, and the Continue button is
+     * not offered: it exists to advance a game this tab is running, and this tab
+     * is not running one. */
+    if (!SH.Table.isLocal()) {
+      flush();
+      if (isHumanTurn()) focusForTurn();
+      else if (state.phase === 'handOver') focusFirstAction();
+      return;
+    }
+
     if (state.phase === 'handOver') { flush(); focusFirstAction(); return; }
     if (isHumanTurn()) { flush(); focusForTurn(); return; }
     if (settings.pace < 0) { flush(); focusFirstAction(); return; }
@@ -338,7 +461,8 @@
     // is the entire point of asking for a pause in the first place.
     if (settings.pace > 0) flush();
     timer = setTimeout(function () {
-      AI.act(state);
+      AI.act(local);
+      refresh();
       drain();
       tick();
     }, settings.pace);
@@ -348,11 +472,291 @@
    * game moves; on a timed pace it is a shortcut past a pause you did not want,
    * so the pending timer has to go or the same seat would play twice. */
   function stepOnce() {
+    /* Nothing to step. Offline this drives the next computer seat; online the
+     * room does that on its own clock, and reaching for the local AI here threw,
+     * because there is no local game to act on. The button is not rendered
+     * online — this is the guard for the keyboard shortcut that reaches the same
+     * function. */
+    if (!SH.Table.isLocal()) return;
     clearTimeout(timer);
     timer = null;
-    AI.act(state);
+    AI.act(local);
+    refresh();
     drain();
     tick();
+  }
+
+  /* ---------------- the lobby ----------------
+   *
+   * Making a table, sharing its code, and sitting down at one. The first screen
+   * a person meets when they want to play with somebody else, and so the one
+   * that decides whether the rest of the game ever happens for them.
+   *
+   * Two decisions here are worth the words:
+   *
+   * THE CODE IS ONE TEXT FIELD, not five boxes. Split inputs look tidier and are
+   * miserable with a screen reader: every keystroke moves focus, so the field
+   * you are in is never the field you think you are in, and correcting a typo
+   * means guessing where you are. One field can be read back, corrected, and
+   * pasted into.
+   *
+   * THE CODE IS READ OUT IN WORDS. "P4K7M" spoken by a screen reader is a
+   * mumble; "P, 4, K, 7, M" is a code somebody can write down. The spelled-out
+   * version is what goes in the announcement, and the compact one is what goes
+   * on screen and on the clipboard.
+   */
+
+  var lobby = {
+    code: null,
+    seat: null,
+    seats: [],
+    connected: false
+  };
+
+  /* The alphabet the server uses. No O, I or L, and no zero or one — a code gets
+   * read down a phone, and "was that a one or an I" is a poor first experience of
+   * a game built for people who cannot see the screen. */
+  var CODE_ALPHABET = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
+
+  function normaliseCode(raw) {
+    return String(raw || '').toUpperCase().split('').filter(function (c) {
+      return CODE_ALPHABET.indexOf(c) >= 0;
+    }).join('');
+  }
+
+  /* "P4K7M" -> "P, 4, K, 7, M" so it can be heard rather than guessed at. */
+  function spellCode(code) {
+    return String(code || '').split('').join(', ');
+  }
+
+  function showLobby() {
+    el['setup-section'].hidden = true;
+    el['game-section'].hidden = true;
+    el['lobby-section'].hidden = false;
+    $('lobby-choose').hidden = false;
+    $('lobby-table').hidden = true;
+    lobbyStatus('');
+    $('lobby-code').focus();
+  }
+
+  function hideLobby() {
+    el['lobby-section'].hidden = true;
+    el['setup-section'].hidden = false;
+    $('opt-name').focus();
+  }
+
+  /* The lobby's own status line. role="status" on the element, so this is spoken
+   * politely without stealing focus — and it goes through the same queue as
+   * everything else so it cannot wipe out a game announcement mid-word. */
+  function lobbyStatus(text) {
+    $('lobby-status').textContent = text || '';
+    if (text) announce(text);
+  }
+
+  function createTable() {
+    lobbyStatus('Making a table…');
+    $('lobby-create').disabled = true;
+    SH.Net.createTable({ config: roomConfig() }).then(function (code) {
+      $('lobby-create').disabled = false;
+      joinTable(code, null);
+    }).catch(function (err) {
+      $('lobby-create').disabled = false;
+      lobbyStatus('The table could not be made. ' + (err && err.message ? err.message : '') +
+        ' You can still play against the computer.');
+    });
+  }
+
+  /* The rules the whole table plays by, fixed when it is made.
+   *
+   * Deliberately not the whole settings object: pace, skin, verbosity and the
+   * player's own name are this browser's business and nobody else's. Sending
+   * them would also make the first person to press Deal the one who decides what
+   * game everybody is playing. */
+  function roomConfig() {
+    return {
+      numPlayers: Number(settings.numPlayers) || 5,
+      names: crewNames(Number(settings.numPlayers) || 5, settings.name),
+      allPass: settings.allPass,
+      difficulty: settings.difficulty,
+      blackQueenDoubler: settings.blackQueenDoubler,
+      redQueenDoubler: settings.redQueenDoubler,
+      redealDoubler: settings.redealDoubler
+    };
+  }
+
+  function joinTable(code, seat) {
+    var clean = normaliseCode(code);
+    if (clean.length < 5) {
+      lobbyStatus('That does not look like a table code. It is five letters and numbers.');
+      $('lobby-code').focus();
+      return;
+    }
+
+    lobby.code = clean;
+    lobby.seat = seat;
+    lobbyStatus('Joining table ' + spellCode(clean) + '…');
+
+    /* seat may be null: "put me anywhere". The client cannot choose sensibly —
+     * it does not know which seats are free until it has connected, and it
+     * cannot connect without asking. Guessing produced the obvious result: the
+     * second person to arrive asked for seat 0, was told it was taken, and could
+     * not join at all. */
+    SH.Table.startOnline(seat, function (handler) {
+      return SH.Net.connect(
+        { code: clean, seat: seat, name: settings.name },
+        handler,
+        onNetStatus
+      );
+    });
+
+    showTable(clean);
+  }
+
+  function showTable(code) {
+    $('lobby-choose').hidden = true;
+    $('lobby-table').hidden = false;
+    $('lobby-code-display').textContent = code;
+    $('lobby-code-read').textContent = 'Read it out as: ' + spellCode(code);
+    renderSeats2();
+    $('lobby-code-display').focus();
+  }
+
+  /* Connection state is game state.
+   *
+   * A player who cannot see the screen has no other way to tell a table where
+   * everybody is thinking from one that has died. Every state change is said
+   * once — not repeatedly, which wears thin fast — and the seat list carries the
+   * standing version for anyone who wants to check. */
+  function onNetStatus(s) {
+    lobby.connected = s.state === 'connected';
+    if (s.state === 'connecting') lobbyStatus('Connecting…');
+    else if (s.state === 'connected') lobbyStatus('Connected to table ' + spellCode(lobby.code) + '.');
+    else if (s.state === 'nosuch') {
+      /* A different thing from a seat being taken, and worth saying so: the
+       * commonest cause is a typo, and "that seat is not available" sends
+       * somebody looking at seats instead of at the code they typed. */
+      lobbyStatus('There is no table with that code. Check it and try again — ' +
+        'it is five letters and numbers, and the letters O, I and L are never used.');
+      $('lobby-choose').hidden = false;
+      $('lobby-table').hidden = true;
+      $('lobby-code').focus();
+    }
+    else if (s.state === 'refused') {
+      lobbyStatus('That seat is not available. ' + (s.detail || '') + ' Try another seat.');
+      $('lobby-choose').hidden = false;
+      $('lobby-table').hidden = true;
+      $('lobby-code').focus();
+    } else if (s.state === 'lost') {
+      lobbyStatus('The connection to the table was lost. ' + (s.detail || ''));
+    } else if (s.state === 'fault') {
+      lobbyStatus('The table stopped: ' + (s.detail || 'something went wrong on the server') + '.');
+    } else if (s.state === 'failed') {
+      lobbyStatus('Could not reach the table. You can still play against the computer.');
+    }
+    renderSeats2();
+  }
+
+  function renderSeats2() {
+    var tbody = $('lobby-seats').querySelector('tbody');
+    var v = SH.Table.view();
+    tbody.innerHTML = '';
+
+    var n = v ? v.players.length : (Number(settings.numPlayers) || 5);
+    for (var i = 0; i < n; i++) {
+      var p = v ? v.players[i] : null;
+      var tr = document.createElement('tr');
+
+      var th = document.createElement('th');
+      th.scope = 'row';
+      th.textContent = 'Seat ' + (i + 1);
+      tr.appendChild(th);
+
+      var who = document.createElement('td');
+      who.textContent = p ? p.name : '—';
+      tr.appendChild(who);
+
+      var st = document.createElement('td');
+      /* Which seat is ours comes from the CONNECTION, not from what we asked
+       * for — we no longer ask. lobby.seat was null here, so no row was ever
+       * marked as yours and the seat list quietly stopped answering the one
+       * question it exists to answer. */
+      var ourSeat = v ? SH.Table.seat() : null;
+      if (!v) st.textContent = 'not connected yet';
+      else if (i === ourSeat) st.textContent = 'you' + (lobby.connected ? '' : ', connecting');
+      else if (p.occupant === 'human') st.textContent = 'a person';
+      else if (p.occupant === 'away') st.textContent = 'away, played by the computer';
+      else st.textContent = 'the computer';
+      tr.appendChild(st);
+
+      var act = document.createElement('td');
+      act.textContent = '';
+      tr.appendChild(act);
+
+      tbody.appendChild(tr);
+    }
+  }
+
+  /* Once the table has dealt and we have a seat, the lobby's job is done. */
+  function maybeEnterGame() {
+    var v = SH.Table.view();
+    if (!v || v.phase === 'idle') return;
+    mySeat = SH.Table.seat();
+    local = null;                        // the authoritative game is on the server
+    el['lobby-section'].hidden = true;
+    el['game-section'].hidden = false;
+
+    /* Deliberately NOT resetSpeech().
+     *
+     * It was, and it threw away the queued announcement of the table code —
+     * the one thing a player most needs to hear, discarded by the very
+     * transition that means the table is working. Clearing the queue makes sense
+     * when a game ends and a new one starts, because what is pending describes a
+     * game that no longer exists. Nothing pending here is stale: it is the lobby
+     * telling you where you are, and the deal is about to be announced after it. */
+    refresh();
+    drain();
+
+    /* Say where you are on the way in. The lobby screen is gone now, so the code
+     * and seat are no longer on screen for somebody who wants to check. */
+    if (lobby.code) {
+      speech.unshift('Table ' + spellCode(lobby.code) + ', seat ' + (mySeat + 1) + '.');
+      /* And leave it on screen for the rest of the game. The lobby vanishes the
+       * moment the first hand is dealt, so without this the code was spoken once
+       * and then unavailable — and the host's whole job is to read it to
+       * somebody. */
+      var line = el['table-code-line'];
+      line.hidden = false;
+      line.textContent = 'Table ' + lobby.code + ' — seat ' + (mySeat + 1);
+      line.setAttribute('aria-label',
+        'Table code ' + spellCode(lobby.code) + '. You are in seat ' + (mySeat + 1) + '.');
+    }
+    render();
+    flush();
+  }
+
+  function leaveTable() {
+    SH.Table.close();
+    lobby.code = null;
+    lobby.seat = null;
+    lobby.connected = false;
+    $('lobby-choose').hidden = false;
+    $('lobby-table').hidden = true;
+    lobbyStatus('You left the table.');
+    $('lobby-code').focus();
+  }
+
+  function copyCode() {
+    var code = $('lobby-code-display').textContent;
+    if (!code) return;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(code).then(function () {
+        alert_('Table code ' + spellCode(code) + ' copied.');
+      }, function () {
+        alert_('The code could not be copied. It is ' + spellCode(code) + '.');
+      });
+    } else {
+      alert_('The code is ' + spellCode(code) + '.');
+    }
   }
 
   /* ---------------- announcements ----------------
@@ -759,7 +1163,14 @@
     // build a new one after every single opponent play — which is how the
     // "Continue button. Continue button. Continue button." problem started.
     // The heading names the seat instead, and it updates outside this guard.
-    if (!isHumanTurn()) return settings.pace === 0 ? 'waiting' : 'continue';
+    /* Waiting, never Continue, when the table is somebody else's to advance.
+     * Offering Continue online would put a button on screen that cannot do
+     * anything, which is worse than no button: a player who cannot see it greys
+     * out has no way to tell it apart from one that works. */
+    if (!isHumanTurn()) {
+      if (!SH.Table.isLocal()) return 'waiting';
+      return settings.pace === 0 ? 'waiting' : 'continue';
+    }
     if (state.phase === 'pick') return 'pick';
     if (state.phase === 'bury') return 'bury:' + Object.keys(selected).length;
     if (state.phase === 'play') {
@@ -810,6 +1221,23 @@
     }
 
     if (!isHumanTurn()) {
+      /* Online there is nothing to continue.
+       *
+       * The key check in actionsKey() was guarded and this one was not, so the
+       * button was still built — and it does not merely do nothing: stepOnce
+       * reaches for a local game that is not there. Worse for somebody who
+       * cannot see it, a button that looks live and is inert is
+       * indistinguishable from one that works.
+       *
+       * Naming who is being waited for is the useful thing to say instead. */
+      if (!SH.Table.isLocal()) {
+        var wo = document.createElement('p');
+        wo.className = 'hint';
+        var whoNow = state.players[state.phase === 'bury' ? state.picker : state.turn];
+        wo.textContent = 'Waiting for ' + (whoNow ? whoNow.name : 'the table') + '…';
+        box.appendChild(wo);
+        return;
+      }
       if (settings.pace === 0) {
         // Nothing to offer: the opponents have already finished by the time
         // anyone could reach for a button.
@@ -836,10 +1264,10 @@
 
     if (state.phase === 'pick') {
       box.appendChild(button('Pick up the blind (' + d.blind + ' cards)', function () {
-        G.doPick(state, mySeat); handFocus = 0; drain(); tick();
+        SH.Table.act({ type: 'pick' }); handFocus = 0; refresh(); drain(); tick();
       }, true));
       box.appendChild(button('Pass', function () {
-        G.doPass(state, mySeat); drain(); tick();
+        SH.Table.act({ type: 'pass' }); refresh(); drain(); tick();
       }));
       return;
     }
@@ -904,7 +1332,9 @@
       wrap.appendChild(c);
     }
 
-    var mine = r.deltas[0];
+    /* This seat's score change, not seat 0's. Online at seat 3 the chip
+     * labelled "You" was showing somebody else's result. */
+    var mine = r.deltas[mySeat];
     chip('You', (mine > 0 ? '+' : '') + mine, mine > 0 ? 'chip-good' : mine < 0 ? 'chip-bad' : '');
     if (state.isLeaster) {
       chip('Leaster', state.players[r.winners[0]].name + ' wins');
@@ -1041,7 +1471,7 @@
     if (state.phase === 'play') {
       var after = [];
       for (k = youAt + 1; k < n; k++) after.push(seatName((startSeat + k) % n));
-      if (youAt >= 0 && !playedBy[0]) {
+      if (youAt >= 0 && !playedBy[mySeat]) {
         msg += after.length
           ? ' ' + after.length + (after.length === 1 ? ' player plays' : ' players play') +
             ' after you: ' + after.join(', ') + '.'
@@ -1324,7 +1754,10 @@
       // partner, and a hidden "playing alone", stay off the table.
       var roles = roleTags(i);
       var cells = [
-        p.name + (i === 0 ? ' (you)' : ''),
+        /* The players table told every seat that SEAT 0 was them. A guest at
+         * seat 1 read a table where somebody else was marked "(you)" and their
+         * own row was unmarked. */
+        p.name + (i === mySeat ? ' (you)' : ''),
         roles.length ? roles.join(', ') : '—',
         String(p.hand.length),
         String(p.tricksWon),
@@ -1470,7 +1903,8 @@
         alert_('You cannot play ' + C.name(C.get(id)) + '. ' + G.illegalReason(state, mySeat, id));
         return;
       }
-      G.doPlay(state, mySeat, id);
+      SH.Table.act({ type: 'play', card: id });
+      refresh();
       drain();
       tick();
       return;
@@ -1483,7 +1917,8 @@
     var d = dealSpec();
     if (ids.length !== d.blind) { alert_('Select exactly ' + d.blind + ' cards.'); return; }
     var pts = C.sumPoints(ids.map(function (i) { return C.get(i); }));
-    if (!G.doBury(state, mySeat, ids)) { alert_('Those cards could not be buried.'); return; }
+    if (!SH.Table.act({ type: 'bury', cards: ids }).ok) { alert_('Those cards could not be buried.'); return; }
+    refresh();
     selected = {};
     handFocus = 0;
     speech.push('You buried ' + pts + ' points.');
@@ -1589,16 +2024,26 @@
   function buildTranscript() {
     var lines = [].map.call(el.log.children, function (li) { return li.textContent; });
     var head = 'Exported: ' + new Date().toString() + '\n';
-    return head + G.transcript(state, mySeat, lines);
+    return local ? head + G.transcript(local, mySeat, lines) : head + '(the full log lives on the server)';
   }
 
   function openExport() {
     if (!state) return;
     var text = buildTranscript();
     el['export-text'].value = text;
-    var bad = state.history.filter(function (h) { return h.problems.length; });
-    el['export-summary'].textContent = state.history.length + ' completed ' +
-      (state.history.length === 1 ? 'hand' : 'hands') + '. ' +
+    if (!SH.Table.isLocal()) {
+      el['export-summary'].textContent =
+        'This is an online table, so the full log lives on the server. What is ' +
+        'below is what this seat has been told.';
+      el['export-text'].value = buildTranscript();
+      openDialog(el['export-dialog']);
+      announceRequested('Export game log. ' + el['export-summary'].textContent);
+      return;
+    }
+    var hist = (local && local.history) || [];
+    var bad = hist.filter(function (h) { return h.problems.length; });
+    el['export-summary'].textContent = hist.length + ' completed ' +
+      (hist.length === 1 ? 'hand' : 'hands') + '. ' +
       (bad.length
         ? bad.length + ' of them did NOT add up correctly — the details are in the text below.'
         : 'Every one of them adds up to 120 points with zero sum scoring.');
@@ -1729,14 +2174,33 @@
         state.players.map(function (p) { return p.name; }).join(', ') + ')');
       L.push('- Layout: ' + d.hand + ' cards each, ' + d.blind + ' card blind, ' +
         (d.partner ? 'Jack of Diamonds partner' : 'picker always alone'));
-      L.push('- Opponent skill: ' + settings.difficulty + '; all pass: ' + settings.allPass +
-        '; pace: ' + (PACE_NAMES[String(settings.pace)] || settings.pace + 'ms'));
+      /* From the GAME, not from this browser's saved preferences. Online the room
+       * fixed the rules when the table was made, and reporting the local
+       * settings would describe a game nobody was playing. */
+      var cfg = (state && state.config) || settings;
+      L.push('- Opponent skill: ' + cfg.difficulty + '; all pass: ' + cfg.allPass +
+        '; pace: ' + (PACE_NAMES[String(settings.pace)] || settings.pace + 'ms') +
+        (SH.Table.isLocal() ? '' : ' (pace is local only; the room sets the tempo online)'));
       L.push('- Hand ' + state.handNumber + ', phase ' + state.phase +
-        ', hands completed ' + state.history.length);
-      var bad = state.history.filter(function (h) { return h.problems.length; });
-      L.push('- Automatic check: ' + (bad.length
-        ? '**' + bad.length + ' of ' + state.history.length + ' completed hands FAILED**'
-        : 'all ' + state.history.length + ' completed hands add up correctly'));
+        ', hands completed ' + state.handsPlayed);
+      /* Never claim an audit result we do not have.
+       *
+       * Online the history lives on the server and `local` is null, so this said
+       * "all 0 completed hands add up correctly" — a fabricated all-clear, in the
+       * headline of a bug report, from a session where nothing had been checked.
+       * A report that quietly asserts everything was fine is worse than one that
+       * says nothing, because somebody triaging it will believe it. */
+      if (!SH.Table.isLocal()) {
+        L.push('- Automatic check: not run — this was an online table, and the ' +
+          'server holds the hand history.');
+        if (lobby.code) L.push('- Table: ' + lobby.code + ', seat ' + (mySeat + 1));
+      } else {
+        var hist = (local && local.history) || [];
+        var bad = hist.filter(function (h) { return h.problems.length; });
+        L.push('- Automatic check: ' + (bad.length
+          ? '**' + bad.length + ' of ' + hist.length + ' completed hands FAILED**'
+          : 'all ' + hist.length + ' completed hands add up correctly'));
+      }
       if (bad.length) {
         L.push('');
         L.push('Failures:');
@@ -1761,7 +2225,13 @@
     var text = bugSummary();
     if (el['bug-include-log'].checked && state) {
       var lines = [].map.call(el.log.children, function (li) { return li.textContent; });
-      text += '\n\n### Game log\n\n```\n' + G.transcript(state, mySeat, lines) + '\n```\n';
+      /* The transcript is generated from the AUTHORITATIVE game and redacts
+       * itself to one seat. Handing it a view instead throws — a view has no
+       * history to write out — and the throw took the whole bug report with it,
+       * which is a poor thing for the bug reporter to be the one that breaks. */
+      text += local
+        ? '\n\n### Game log\n\n```\n' + G.transcript(local, mySeat, lines) + '\n```\n'
+        : '\n\n### Game log\n\n```\n' + lines.join('\n') + '\n```\n';
     }
     return text;
   }
@@ -1833,7 +2303,11 @@
     box.innerHTML = '';
     if (!state || settings.skin === 'plain') { box.hidden = true; return; }
     box.hidden = false;
-    for (var i = 1; i < state.players.length; i++) {
+    /* Every seat but this one. Starting at 1 drew YOUR OWN hand as a
+     * face-down opponent for anybody not in seat 0, and omitted the seat that
+     * really was an opponent. */
+    for (var i = 0; i < state.players.length; i++) {
+      if (i === mySeat) continue;
       var p = state.players[i];
       var seat = document.createElement('div');
       seat.className = 'seat' + (state.turn === i && state.phase !== 'handOver' ? ' seat-turn' : '');
@@ -1846,7 +2320,36 @@
     }
   }
 
+  /* Grey out what the room owns.
+   *
+   * Online the rules were fixed when the table was made and the tempo belongs to
+   * the server, so these controls change nothing — but they looked live, reported
+   * their new value in the summary, and "Game settings reset to defaults"
+   * announced a reset that had not happened. A control that appears to work and
+   * does nothing is worse than one that is plainly unavailable, and worst of all
+   * for somebody who cannot see it greyed out, which is why the reason is in the
+   * label rather than only in the styling. */
+  function applyOnlineSettingLocks() {
+    var online = !SH.Table.isLocal();
+    RULE_FIELDS.concat(['pace', 'players']).forEach(function (name) {
+      var ids = { allPass: 'opt-allpass', difficulty: 'opt-difficulty',
+        blackQueenDoubler: 'opt-black-queens', redQueenDoubler: 'opt-red-queens',
+        redealDoubler: 'opt-redeal-doubler', pace: 'opt-pace', players: 'opt-players' };
+      var node = $(ids[name]);
+      if (!node) return;
+      node.disabled = online && name !== 'pace';
+      if (online && name !== 'pace') {
+        node.setAttribute('aria-describedby', 'settings-online-note');
+      } else {
+        node.removeAttribute('aria-describedby');
+      }
+    });
+    var note = $('settings-online-note');
+    if (note) note.hidden = !online;
+  }
+
   function openSettings() {
+    applyOnlineSettingLocks();
     openDialog(el['settings-dialog']);
     var first = el['settings-dialog'].querySelector('select, input');
     if (first) first.focus();

@@ -19,6 +19,81 @@
 
 <main id="main" tabindex="-1">
 
+  <!-- ============ LOBBY ============
+       The first screen a person meets when they want to play with somebody else,
+       and therefore the one that decides whether the rest of the game ever
+       happens for them.
+
+       Everything here is an ordinary heading, form field, button and table. The
+       code entry is a plain text input rather than five separate boxes: split
+       inputs look tidy and are miserable with a screen reader, because every
+       keystroke moves focus and the field you are in is never the field you
+       thought. -->
+  <section id="lobby-section" aria-labelledby="lobby-h" hidden>
+    <h2 id="lobby-h">Play with other people</h2>
+
+    <!-- Visible, and deliberately NOT a live region. It carries the same words the
+         announcer speaks, and a second independent live region would say all of
+         them twice — and reintroduce exactly the race the announcement queue
+         exists to prevent, on the messages that tell a player whether they are
+         connected. Same reason the game log is not one. -->
+    <p id="lobby-status" class="status"></p>
+
+    <div id="lobby-choose">
+      <p class="hint">Anyone can join a table with its code. There are no accounts and nothing to
+        install. Empty seats are played by the computer, so a table works with two people or six.</p>
+
+      <p class="actions">
+        <button type="button" id="lobby-create" class="primary">Start a new table</button>
+      </p>
+
+      <form id="lobby-join-form">
+        <p class="field">
+          <label for="lobby-code">Join a table with its code</label>
+          <input type="text" id="lobby-code" name="code" autocomplete="off" spellcheck="false"
+                 maxlength="12" aria-describedby="lobby-code-hint">
+          <span id="lobby-code-hint" class="hint">Five letters and numbers. Upper or lower case both
+            work, and spaces and dashes are ignored. The letters O, I and L and the digits zero and
+            one are never used, so there is nothing to mistake for anything else.</span>
+        </p>
+        <p class="actions">
+          <button type="submit">Join this table</button>
+        </p>
+      </form>
+
+      <p class="actions">
+        <button type="button" id="lobby-back">Play against the computer instead</button>
+      </p>
+    </div>
+
+    <div id="lobby-table" hidden>
+      <h3 id="lobby-code-h">Your table code</h3>
+      <p id="lobby-code-display" class="table-code" tabindex="-1"></p>
+      <p class="hint" id="lobby-code-read"></p>
+      <p class="actions">
+        <button type="button" id="lobby-copy">Copy the code</button>
+        <button type="button" id="lobby-leave" class="consequential">Leave this table</button>
+      </p>
+
+      <h3 id="lobby-seats-h">Seats</h3>
+      <div class="table-wrap">
+        <table id="lobby-seats">
+          <caption class="sr-only">Every seat at this table, who is in it, and whether they are
+            ready. Empty seats are played by the computer.</caption>
+          <thead>
+            <tr>
+              <th scope="col">Seat</th>
+              <th scope="col">Who</th>
+              <th scope="col">Status</th>
+              <th scope="col">Action</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
   <!-- ============ SETUP ============ -->
   <section id="setup-section" aria-labelledby="setup-h">
     <h2 id="setup-h">New game</h2>
@@ -43,6 +118,10 @@
       <fieldset>
         <legend>Game settings</legend>
         <p class="hint">These are remembered, so a new game uses them again unless you change them.</p>
+        <p id="settings-online-note" class="hint" hidden>At an online table the rules were set when
+          the table was made and cannot be changed from here. Pace is the exception: the room decides
+          when the computer seats play, so that setting only affects how your own announcements are
+          grouped.</p>
         <p id="settings-summary" class="settings-summary"></p>
         <p class="actions">
           <button type="button" id="setup-settings">Change game settings</button>
@@ -51,6 +130,7 @@
 
       <p class="actions">
         <button type="submit" class="primary">Start game</button>
+        <button type="button" id="setup-online">Play with other people</button>
         <button type="button" id="setup-rules">How to play Sheephead</button>
         <button type="button" id="setup-a11y">Accessibility hints</button>
       </p>
@@ -66,6 +146,13 @@
          reads this, and "Table" sent people looking for a data table. The real
          one further down is the Players table. -->
     <h2 id="game-h" class="sr-only">Game</h2>
+
+    <!-- The table code, on the game screen, for the whole game.
+         The host is meant to read this to somebody on the phone, and the lobby
+         that showed it disappears the instant the first hand is dealt. Spoken
+         once and gone is no use: a code you cannot check is a code you cannot
+         share. Focusable so it can be jumped to, and it spells itself out. -->
+    <p id="table-code-line" class="table-code-line" tabindex="-1" hidden></p>
 
     <p id="status" class="status"></p>
 
@@ -493,6 +580,8 @@
 <script src="js/ai.js"></script>
 <script src="js/view.js"></script>
 <script src="js/table.js"></script>
+<script src="js/localserver.js"></script>
+<script src="js/net.js"></script>
 <script src="js/ui.js"></script>
 </body>
 </html>

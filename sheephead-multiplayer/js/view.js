@@ -174,6 +174,9 @@
        * limit around hand sixty. The client reads it in exactly two places, the
        * export dialog and the bug report, and both can ask for it. What it needs
        * everywhere else is these two numbers. */
+      /* Deliberately not sent: it is the server's bookkeeping for the event log,
+       * and a client that knew the next id would learn how many private events
+       * had been addressed to other seats. */
       handsPlayed: state.history.length,
       handsFailingAudit: state.history.filter(function (h) { return h.problems && h.problems.length; }).length
     };

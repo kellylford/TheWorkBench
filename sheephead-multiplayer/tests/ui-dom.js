@@ -15,6 +15,23 @@ catch (e) {
 
 const root = path.join(__dirname, '..');
 const fails = [];
+
+/* A watchdog on the whole process, not just the play loop.
+ *
+ * The per-iteration deadline added earlier did not fire when the projection was
+ * seeded with a gap: most of this suite is `await`, so a hang can sit inside a
+ * single iteration and never reach the top of the loop again. A run that hangs
+ * reports as a slow machine rather than as the defect it found, which has cost
+ * time three separate ways in this project now.
+ *
+ * unref'd on purpose: it must not keep a healthy run alive, only kill a stuck
+ * one. */
+const HARD_DEADLINE_MS = 15 * 60 * 1000;
+const hardStop = setTimeout(function () {
+  console.error('FAILED: the suite stopped making progress and was killed by its own watchdog.');
+  process.exit(1);
+}, HARD_DEADLINE_MS);
+if (typeof hardStop.unref === 'function') hardStop.unref();
 const check = (c, m) => { if (!c) fails.push(m); };
 
 /* Let jsdom load the page's own <script> tags, so the scripts run in document
@@ -175,7 +192,27 @@ async function playHands(players, howMany) {
   const seen = { focusChecks: 0, focusBad: 0, buries: 0, handsDone: 0, blockedSeen: 0, exports: 0, midChecks: 0, bugs: 0, handSaid: 0, blindMarked: 0, blindRevealed: 0, jdSeen: 0, orderSaid: 0, pickLabels: 0 };
   let guard = 0;
 
+  /* A wall-clock watchdog as well as an iteration guard.
+   *
+   * The iteration guard alone does not stop this suite hanging: most of the loop
+   * is `await`, so a game that cannot progress spends its six thousand turns
+   * waiting rather than spinning, and the run sits there for a quarter of an hour
+   * before anything says so. That reports as a slow machine, not as the defect it
+   * found — the same way an unanswered move once reported as a suite timeout.
+   *
+   * Twelve minutes is far longer than any healthy run (a full six-seat pass takes
+   * well under one) and short enough to be a failure rather than a mystery. */
+  const deadline = Date.now() + 12 * 60 * 1000;
+  let stalled = false;
+
   while (seen.handsDone < howMany && ++guard < 6000) {
+    if (Date.now() > deadline) {
+      stalled = true;
+      check(false, players + 'p: the game stopped progressing — ' +
+        seen.handsDone + ' of ' + howMany + ' hands after ' + guard + ' turns. ' +
+        'Status: ' + d.getElementById('status').textContent);
+      break;
+    }
     await tickOver();
     const next = btn(d, /Deal next hand/);
     const pick = btn(d, /Pick up the blind/);
@@ -183,6 +220,61 @@ async function playHands(players, howMany) {
 
     if (next) {
       seen.handsDone++;
+
+      /* PRIVATE MESSAGES MUST BE TRUE OF THIS SEAT.
+       *
+       * The check that was missing, and whose absence shipped a real bug: every
+       * hand in which any seat held both black queens, the player was told "You
+       * hold both black queens, so this hand counts double" — about somebody
+       * else's cards, in the second person. Reproduced against the live build at
+       * 130 hands in 400.
+       *
+       * Two halves of one change landed apart. Private messages were made
+       * per-seat, so the engine emits one for EVERY holder rather than only for
+       * the single human seat; the interface was still reading the raw event list
+       * and would not start filtering for several commits. Each half had a test.
+       * The join did not.
+       *
+       * Asked SEMANTICALLY rather than by bookkeeping. The obvious version —
+       * compare the log against the event list — cannot see this at all, because
+       * the unfiltered drain SPLICES the events out and leaves nothing to compare
+       * against. So: if the log says something that is only true of one seat,
+       * that seat had better be this one. */
+      {
+        const truth = window.SH.Table.localState();
+        const mine = window.SH.Table.seat();
+        if (truth) {
+          /* THIS HAND only. The log is newest-first and keeps every hand, so a
+           * "secret partner" line from an earlier hand — when this seat really
+           * was the picker — is still sitting there when a later hand ends with
+           * somebody else picking. Scanning the whole log found those and called
+           * them leaks, which they are not. Entries down to and including this
+           * hand's deal line are the ones that belong to it. */
+          const all = [...d.querySelectorAll('#log li')].map(li => li.textContent);
+          const dealAt = all.findIndex(t => /^Hand \d+\./.test(t));
+          const log = all.slice(0, dealAt >= 0 ? dealAt + 1 : all.length).join(' | ');
+
+          (truth.doublers || []).forEach(dbl => {
+            const claim = 'You hold ' + dbl.text;
+            if (log.indexOf(claim) >= 0) {
+              check(dbl.player === mine,
+                'the log tells this player "' + claim + '", but seat ' + dbl.player +
+                ' holds them. A private message addressed to another seat reached the screen.');
+            }
+          });
+
+          if (/You have the Jack of Diamonds yourself/.test(log)) {
+            check(truth.picker === mine && truth.alone === true,
+              'the log says this player holds the Jack and is playing alone, but the picker is seat ' +
+              truth.picker + ' and alone is ' + truth.alone);
+          }
+          if (/Somebody else holds it and is your secret partner/.test(log)) {
+            check(truth.picker === mine,
+              'the log tells this player they have a secret partner, but the picker is seat ' + truth.picker);
+          }
+        }
+      }
+
       // The action area carries only the headline now, so the button is not
       // pushed off a phone screen. The full account must still exist — it moved
       // to the log, it did not disappear.
@@ -348,11 +440,83 @@ async function playHands(players, howMany) {
           'mid-hand Total row flagged an accounting problem: ' + foot.textContent);
         check(!/= 120/.test(foot.children[4].textContent),
           'mid-hand Total row claims a 120 total: ' + foot.children[4].textContent);
+
+        /* The trick counter, which nothing checked.
+         *
+         * It is the only thing on screen fed by trickLog, so blanking trickLog in
+         * the projection changed the display and no test noticed. "A gap in the
+         * projection breaks the offline game" is only true where something
+         * actually asserts on the part of the screen that gap feeds — otherwise
+         * the offline game renders wrong and says nothing, which is the failure
+         * mode this whole arrangement was meant to prevent. */
+        const tricksCell = (foot.children[3].textContent || '').trim();
+        const m = /^(\d+) of (\d+)$/.exec(tricksCell);
+        check(!!m, 'the Total row trick counter is malformed: ' + tricksCell);
+        if (m) {
+          /* Completed tricks must equal what the per-player Tricks column adds up
+           * to. Deriving it from cards remaining does not work: between picking
+           * and burying the picker is holding two extra cards, so the total is not
+           * a clean function of tricks played — which is exactly the sort of thing
+           * that makes an invariant look wrong when it is the arithmetic that is
+           * wrong. */
+          const wonBySeats = [...d.querySelectorAll('#players-table tbody tr')]
+            .reduce((a, r) => a + Number((r.children[3].textContent || '0').trim() || 0), 0);
+          check(Number(m[1]) === wonBySeats,
+            'the Total row says ' + m[1] + ' completed tricks but the seats add up to ' + wonBySeats);
+        }
       }
       const said = d.getElementById('alerts').textContent + ' ' +
         d.getElementById('announcer').textContent + ' ' +
         [...d.querySelectorAll('#log li')].map(li => li.textContent).join(' ');
       check(!/Accounting problem/i.test(said), 'an accounting problem was reported: ' + said.slice(0, 300));
+      /* NOTHING ADDRESSED TO ANOTHER SEAT MAY REACH THIS PLAYER.
+       *
+       * This is the check that was missing, and its absence shipped a real bug:
+       * every hand where any seat held both black queens, the player was told
+       * "You hold both black queens, so this hand counts double" — about
+       * somebody else's hand, in the second person. 130 hands in 400.
+       *
+       * The cause was two halves of one change landing apart. Private events
+       * were made per-seat, so the engine emits one for EVERY holder rather than
+       * only for the single human; the interface was still reading the raw event
+       * list, unfiltered, and would not start using G.eventsFor for several
+       * commits. Each half was tested. The join was not.
+       *
+       * tests/hidden-information.js proves the filter works. tests/projection.js
+       * proves the views are clean. Neither could see this, because the question
+       * they ask is "is the filter correct" and the question that mattered was
+       * "is the filter USED". So this asks the only one that cannot be answered
+       * anywhere but here: of everything on the player's screen, is any of it
+       * addressed to somebody else? */
+      {
+        const truth = window.SH.Table.localState();
+        if (truth && truth.events) {
+          const mine = window.SH.Table.seat();
+
+          /* Compared against what this seat is ENTITLED to, not against the text
+           * alone. The same sentence recurs legitimately across hands — "somebody
+           * else holds it and is your secret partner" is addressed to seat 0 in
+           * one hand and to seat 1 in another — so matching on the words found a
+           * leak in an earlier hand's honest log entry. What matters is whether
+           * anything on screen is absent from this seat's own filtered list. */
+          const allowed = new Set();
+          window.SH.Game.eventsFor(truth, mine).forEach(e => {
+            allowed.add(e.text);
+            if (e.textPlain) allowed.add(e.textPlain);
+          });
+
+          const privateElsewhere = new Set(
+            truth.events.filter(e => e.audience !== undefined && e.audience !== mine)
+              .map(e => e.text)
+          );
+
+          const shown = [...d.querySelectorAll('#log li')].map(li => li.textContent);
+          const leaked = shown.filter(t => privateElsewhere.has(t) && !allowed.has(t));
+          check(leaked.length === 0,
+            'a message addressed to another seat reached the player: "' + (leaked[0] || '') + '"');
+        }
+      }
+
       seen.midChecks++;
     }
 
@@ -471,7 +635,7 @@ async function playHands(players, howMany) {
       continue;
     }
   }
-  check(guard < 6000, players + 'p: game did not finish ' + howMany + ' hands');
+  check(stalled || guard < 6000, players + 'p: game did not finish ' + howMany + ' hands');
   window.close();
   return seen;
 }
