@@ -22,11 +22,16 @@
   'use strict';
   var SH = global.SH = global.SH || {};
 
-  /* Where the room service lives. A plain constant because there is no build
-   * step to substitute one, and a protocol version so that a client cached in
-   * somebody's browser against a newer server is told to reload rather than
-   * failing in some inventive way. */
-  var DEFAULT_BASE = 'https://sheephead-room.kellylford.workers.dev';
+  /* Where the room service lives. A plain constant because there is no build step
+   * to substitute one.
+   *
+   * The subdomain is the ACCOUNT's, not the repository owner's — this account's
+   * workers.dev name happens to be "quickmail", after the first Worker deployed
+   * on it. Guessing it from the GitHub username produced a host that does not
+   * resolve, so the first real deploy shipped a client pointing at nothing: the
+   * Worker was live and answering, and no browser could have reached it.
+   * Confirmed against the deploy output rather than assumed a second time. */
+  var DEFAULT_BASE = 'https://sheephead-room.quickmail.workers.dev';
   var PROTOCOL = 1;
 
   var PING_EVERY = 25000;      // under any sensible idle timeout
