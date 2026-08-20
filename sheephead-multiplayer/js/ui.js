@@ -379,7 +379,14 @@
      * its own saved settings on every deal, and the last person to press Deal
      * would decide what game everybody was playing. */
     if (local) RULE_FIELDS.forEach(function (k) { local.config[k] = settings[k]; });
-    SH.Table.act({ type: 'nextHand' });
+    /* The first deal is a `start`; every later one is a `nextHand`.
+     *
+     * Splitting them is what lets an online table wait for its players instead of
+     * dealing the moment it is made — but the offline game deals from 'idle' too,
+     * and sending nextHand there was refused with "the hand is not over", so no
+     * single-player game could begin at all. */
+    var v0 = SH.Table.view();
+    SH.Table.act({ type: (v0 && v0.phase === 'idle') ? 'start' : 'nextHand' });
     refresh();
     drain();
     speech.unshift(' ');            // keeps the deal line from merging with the previous hand

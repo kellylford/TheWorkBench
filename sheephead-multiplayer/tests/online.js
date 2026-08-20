@@ -111,6 +111,7 @@ async function playAHand(n, mySeat) {
       }
       continue;
     }
+    if (v.phase === 'idle') { Table.act({ type: 'start' }); continue; }
     if (v.phase === 'handOver') {
       handsPlayed++;
       if (handsPlayed >= 2) break;
@@ -176,6 +177,7 @@ async function oneMoveInFlightWhileTheTableIsBusy() {
     if (!v) continue;
     if (v.phase === 'handOver') break;
     if (Table.pending()) continue;
+    if (v.phase === 'idle') { Table.act({ type: 'start' }); continue; }
 
     const framesBefore = sent.length;
     if (!actIfOurTurn(v, 5, 0)) continue;
@@ -366,6 +368,7 @@ async function retriesAreHarmless() {
   for (let i = 0; i < 600 && !played; i++) {
     await sleep(4);
     if (!view) continue;
+    if (view.phase === 'idle') { link.send({ type: 'action', seq: 0, action: { type: 'start' } }); await sleep(30); continue; }
     if (view.phase === 'pick' && view.turn === 1) {
       /* Count only OUR entries. The first version counted the whole pickLog,
        * which the bots write to as well, so bot passes arriving during the
@@ -534,10 +537,22 @@ async function eventsArriveOnce() {
     'a hand-start announcement was delivered more than once: ' + starts.join(' | '));
   check(heard.every(t => t !== undefined), 'an undefined event text was delivered');
 
+  /* Compared against what THIS seat is entitled to, not by matching text.
+   *
+   * The same sentence recurs legitimately across hands for different seats —
+   * "You hold both black queens" is addressed to seat 1 in one hand and seat 3 in
+   * another — so a text match found an earlier hand's honest line and called it a
+   * leak. tests/ui-dom.js had exactly this false positive; the fix there was to
+   * ask a question about entitlement rather than about words, and it is the same
+   * fix here. */
   const truth = server.peek();
-  truth.events.filter(e => e.audience !== undefined && e.audience !== 1).forEach(e => {
-    check(heard.indexOf(e.text) < 0, 'an event addressed to another seat was delivered: ' + e.text);
-  });
+  const entitled = new Set(G.eventsFor(truth, 1).map(e => e.text));
+  truth.events
+    .filter(e => e.audience !== undefined && e.audience !== 1)
+    .forEach(e => {
+      if (entitled.has(e.text)) return;          // this seat was told it too, legitimately
+      check(heard.indexOf(e.text) < 0, 'an event addressed to another seat was delivered: ' + e.text);
+    });
 
   Table.close();
   server.stop();
