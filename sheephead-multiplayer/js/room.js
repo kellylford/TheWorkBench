@@ -49,6 +49,18 @@
     var botDelay = opts.botDelay === undefined ? 1200 : opts.botDelay;
     var turnGrace = opts.turnGrace === undefined ? 0 : opts.turnGrace;
 
+    /* How long a seat may hold up the table WHILE ITS CLIENT IS DEMONSTRABLY
+     * STILL THERE, and how recently we must have heard from that client to
+     * believe it.
+     *
+     * turnGrace answers "this seat has gone quiet"; these two answer "this seat
+     * is thinking". They are not the same question and were being decided by the
+     * same number, which is what made the turn clock take a present player's
+     * cards off them — see the note in onAlarm. Zero disables the distinction
+     * entirely, which is what every test that predates it gets. */
+    var awayGrace = opts.awayGrace === undefined ? 0 : opts.awayGrace;
+    var presenceWindow = opts.presenceWindow === undefined ? 60000 : opts.presenceWindow;
+
     var state = null;
     var room = null;
     var conns = {};        // connId -> {seat}
@@ -64,7 +76,19 @@
         lastAck: {},       // seat -> sequence to echo on the next view
         seats: {},         // seat -> {name, token} for whoever holds it
         wedged: false,
-        botDue: 0,         // when the next bot move is due, 0 for none
+        botDue: 0,         // when the pending alarm is due, 0 for none
+        /* WHAT the pending alarm is for: 'bot' (a computer seat is about to
+         * move) or 'turn' (the turn clock is counting somebody out). Null when
+         * nothing is scheduled.
+         *
+         * One field held both deadlines and nothing recorded which one it was,
+         * so scheduleBots read a turn-clock deadline as "a bot move is already
+         * scheduled" and returned without arming anything. Every time a player
+         * moved and handed off to a computer seat, the next play came when the
+         * TURN CLOCK expired instead of after botDelay — up to the whole grace
+         * period later. Measured at 88 seconds against a 90 second grace, on
+         * every single hand-off, and it looks exactly like a dead table. */
+        dueKind: null,
         /* When the seat now on turn became responsible for it. null, not 0:
          * zero is a legitimate timestamp — the tests run on a clock that starts
          * there — and treating it as "unset" made the turn clock silently never
@@ -110,7 +134,13 @@
       loaded = false;
       load();
       conns = {};
-      (liveConnections || []).forEach(function (c) { conns[c.id] = { seat: c.seat }; });
+      /* seenAt rides on the socket, not in storage: it is the platform handing
+       * back "this connection last said something at". A wrapper that does not
+       * supply it simply has no presence information, and the turn clock falls
+       * back to its old behaviour rather than guessing. */
+      (liveConnections || []).forEach(function (c) {
+        conns[c.id] = { seat: c.seat, seenAt: typeof c.seenAt === 'number' ? c.seenAt : undefined };
+      });
     }
 
     /* ---------------- delivery ---------------- */
@@ -181,14 +211,56 @@
       return state.phase === 'bury' ? state.picker : state.turn;
     }
 
+    /* Arm the one alarm this object gets, and record what it is for. */
+    function armAlarm(kind, at) {
+      room.dueKind = kind;
+      room.botDue = at;
+      persist();
+      scheduleAlarm(at);
+    }
+
+    /* Has this seat's client been heard from lately?
+     *
+     * The client pings every twenty-five seconds and the Worker stamps the
+     * socket when it does, so a browser that is still open answers this even
+     * while its player reads their hand back. A laptop that has gone to sleep,
+     * a phone that lost signal and a tab that was killed all leave the socket
+     * looking open from here and stop answering — which is the distinction the
+     * turn clock actually needs and did not have. */
+    function seatIsPresent(seat) {
+      if (!presenceWindow) return false;
+      var best = null;
+      for (var id in conns) {
+        if (conns[id].seat !== seat) continue;
+        var s = conns[id].seenAt;
+        if (typeof s === 'number' && (best === null || s > best)) best = s;
+      }
+      return best !== null && now() - best <= presenceWindow;
+    }
+
     function scheduleBots() {
+      /* A wedged room schedules nothing at all.
+       *
+       * It used to fall out of this by accident, because the only path that
+       * armed anything without a live bot seat also happened to persist and
+       * return. Now that a consumed alarm re-arms the turn clock, a wedged room
+       * would otherwise wake itself every grace period for ever — and could
+       * still declare somebody away in a game that has already stopped. */
+      if (room.wedged) {
+        room.botDue = 0;
+        room.dueKind = null;
+        persist();
+        return;
+      }
+
       var botSeat = seatNeedingBot();
 
       if (botSeat >= 0) {
-        if (room.botDue) return;               // already scheduled
-        room.botDue = now() + botDelay;
-        persist();
-        scheduleAlarm(room.botDue);
+        /* Only a deadline already set FOR A BOT may be kept. Keeping any
+         * pending deadline meant the turn clock's — which can be a minute and a
+         * half out — silently became the bot's. */
+        if (room.dueKind === 'bot' && room.botDue > now()) return;
+        armAlarm('bot', now() + botDelay);
         return;
       }
 
@@ -201,40 +273,74 @@
        * timeout says "the table has not answered" once and then nothing.
        *
        * So a human seat that has not moved within the grace period is treated as
-       * away and played by the computer. They can take the seat back by
-       * rejoining. Generous on purpose: reading a hand back with a screen reader
-       * is a legitimate reason to be slow, and being timed out for thinking would
-       * be a worse failure than the one this prevents. */
+       * away and played by the computer. Generous on purpose: reading a hand
+       * back with a screen reader is a legitimate reason to be slow, and being
+       * timed out for thinking would be a worse failure than the one this
+       * prevents — which is precisely what it turned out to be doing. See
+       * onAlarm for what "not responding" now has to mean. */
       var human = seatOnTurn();
-      if (human < 0 || !turnGrace) { room.botDue = 0; persist(); return; }
+      if (human < 0 || !turnGrace) {
+        room.botDue = 0;
+        room.dueKind = null;
+        persist();
+        return;
+      }
       if (room.turnSince === null || room.turnSince === undefined) room.turnSince = now();
-      room.botDue = room.turnSince + turnGrace;
-      persist();
-      scheduleAlarm(room.botDue);
+      armAlarm('turn', room.turnSince + turnGrace);
     }
 
     function onAlarm() {
       load();
       room.botDue = 0;
+      room.dueKind = null;
+      if (room.wedged) { persist(); return; }
       var seat = seatNeedingBot();
 
       /* Nobody to play for, so this alarm is the turn clock rather than a bot's
        * move: the seat on turn is a person who has not acted in time. */
       if (seat < 0) {
         var waiting = seatOnTurn();
-        if (waiting >= 0 && turnGrace &&
-            room.turnSince !== null && room.turnSince !== undefined &&
-            now() - room.turnSince >= turnGrace &&
+        var idle = room.turnSince === null || room.turnSince === undefined
+          ? -1 : now() - room.turnSince;
+        if (waiting >= 0 && turnGrace && idle >= turnGrace &&
             state.players[waiting].occupant === 'human') {
+
+          /* NOT RESPONDING IS NOT THE SAME AS THINKING, and conflating them took
+           * a present player's cards off them and played them.
+           *
+           * Once the turn clock fired, the seat was 'away' for the rest of the
+           * session: the computer played every remaining turn while the player
+           * sat there connected, watching their own hand go down. Nothing put
+           * them back — join() is the only thing that clears 'away', and a
+           * client that never lost its socket never rejoins. Ninety seconds is
+           * an ordinary length of time to spend on a bury when the hand has to
+           * be read aloud first, so this was reachable in normal play, and once
+           * reached it was permanent.
+           *
+           * A client that is still pinging is still there. Give it far longer,
+           * and keep looking rather than deciding now — if the browser really
+           * has gone, the next check finds it silent and takes the seat over
+           * within the ordinary grace period of it going quiet. */
+          if (awayGrace && idle < awayGrace && seatIsPresent(waiting)) {
+            armAlarm('turn', now() + turnGrace);
+            return;
+          }
+
           state.players[waiting].occupant = 'away';
           G.note(state, state.players[waiting].name +
-            ' has stopped responding. The computer is playing that seat until they come back.');
+            ' has stopped responding. The computer is playing that seat until they come back. ' +
+            'Making any move takes the seat straight back.');
           room.turnSince = null;
           broadcast();
           scheduleBots();
           return;
         }
-        persist();
+        /* Not time yet, or nobody to count out. Re-arm rather than persist and
+         * walk away: this alarm has just been consumed, and leaving the turn
+         * clock disarmed means a player who genuinely vanishes a moment later
+         * stalls the table for ever, which is the exact failure the clock is
+         * here to prevent. */
+        scheduleBots();
         return;
       }
       /* The clock restarts whenever the turn changes hands, including when a bot
@@ -311,7 +417,10 @@
       }
 
       var wasAway = state.players[seat].occupant === 'away';
-      conns[connId] = { seat: seat };
+      // Arriving is itself proof of life, and the first ping is still 25 seconds
+      // away. Without this a player who joined and then thought for a minute and
+      // a half had no presence on record at all.
+      conns[connId] = { seat: seat, seenAt: now() };
       state.players[seat].occupant = 'human';
 
       /* A new connection starts its sequence numbering again, so the room must
@@ -435,6 +544,29 @@
         room.lastAck[seat] = msg.seq;
       }
 
+      /* A move is proof the player is at the table, so it takes the seat back.
+       *
+       * 'away' used to be cleared by join() alone, which means only by opening a
+       * new connection — and the client whose player was merely slow never lost
+       * its connection and so never rejoins. The computer kept playing their
+       * seat for the rest of the session while they sat there pressing keys.
+       * Nothing told them to reload, and reloading is not an obvious response to
+       * a game that is still drawing itself perfectly. */
+      conns[connId].seenAt = now();
+      if (state.players[seat].occupant === 'away') {
+        state.players[seat].occupant = 'human';
+        G.note(state, state.players[seat].name + ' is back.');
+        room.turnSince = now();
+        /* Told at once, and the pending computer move for that seat cancelled
+         * with it. Waiting for the move itself to be applied would be too late:
+         * the move that proves the player is back is very often the one that
+         * gets refused, because the computer has just played the turn they were
+         * answering — and the refusal path broadcasts nothing at all, so the
+         * table would never hear they had returned. */
+        broadcast();
+        scheduleBots();
+      }
+
       /* Dealing the next hand is first-come, and the loser is told so plainly.
        *
        * Two people pressing Deal at handOver is not a race to be prevented — the
@@ -459,6 +591,7 @@
          * everybody nothing happened. */
         room.wedged = true;
         room.botDue = 0;
+        room.dueKind = null;
         persist();
         announceFault(r.reason || 'the game could not continue');
         return;

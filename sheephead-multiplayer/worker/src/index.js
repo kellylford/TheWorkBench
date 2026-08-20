@@ -170,13 +170,19 @@ export class SheepheadRoom {
       setAlarm: at => this.ctx.storage.setAlarm(at),
       deliver: (connId, message) => this.send(connId, message),
       botDelay: 1200,
-      /* Ninety seconds before a silent seat is played by the computer.
+      /* Ninety seconds before a SILENT seat is played by the computer, and half
+       * an hour before a seat whose browser is still pinging is.
        *
-       * Generous on purpose. Reading a hand back with a screen reader, or
-       * thinking about a bury, is a legitimate reason to be slow, and being timed
-       * out for thinking would be a worse failure than the stall this prevents.
-       * The seat is not lost — rejoining takes it back. */
-      turnGrace: 90000
+       * Those were one number, and ninety seconds is an ordinary length of time
+       * to spend on a bury when the hand has to be read aloud first — so the
+       * clock ran out on players who were sitting right there, took their cards,
+       * and never gave the seat back. A client that is still answering its pings
+       * has not stopped responding, whatever it is doing with its turn.
+       *
+       * The seat is not lost either way now: any move takes it straight back. */
+      turnGrace: 90000,
+      awayGrace: 30 * 60 * 1000,
+      presenceWindow: 60000        // two ping intervals, so one may go missing
     });
     return this.room;
   }
@@ -196,7 +202,7 @@ export class SheepheadRoom {
   liveConnections() {
     return this.ctx.getWebSockets().map(ws => {
       const att = ws.deserializeAttachment() || {};
-      return { id: att.connId, seat: att.seat, ws };
+      return { id: att.connId, seat: att.seat, seenAt: att.seenAt, ws };
     }).filter(c => c.id !== undefined && typeof c.seat === 'number');
   }
 
@@ -212,7 +218,7 @@ export class SheepheadRoom {
   async wakeRoom(config) {
     await this.hydrate();
     const room = this.ensureRoom(config);
-    room.wake(this.liveConnections().map(c => ({ id: c.id, seat: c.seat })));
+    room.wake(this.liveConnections().map(c => ({ id: c.id, seat: c.seat, seenAt: c.seenAt })));
     return room;
   }
 
@@ -289,7 +295,7 @@ export class SheepheadRoom {
         try { server.close(4001, r.reason); } catch (e) { /* already gone */ }
         return new Response(null, { status: 101, webSocket: client });
       }
-      server.serializeAttachment({ connId, seat: r.seat });
+      server.serializeAttachment({ connId, seat: r.seat, seenAt: Date.now() });
 
       /* join() delivered the welcome while the attachment was still unwritten,
        * so send it now that this socket can be found. */
@@ -314,6 +320,15 @@ export class SheepheadRoom {
      * expensive thing the room does. */
     if (msg.type === 'ping') {
       try { ws.send(JSON.stringify({ type: 'pong', at: msg.at })); } catch (e) { /* closing */ }
+      /* THE PING IS THE PROOF OF LIFE, so it has to leave a mark.
+       *
+       * It goes on the socket's own attachment rather than into storage,
+       * because the attachment is the one thing that survives hibernation
+       * without a storage write and without rebuilding the room — which is the
+       * whole reason this branch answers before waking anything. The room reads
+       * it on the next wake and uses it to tell a player who is thinking from a
+       * browser that has gone away. */
+      ws.serializeAttachment(Object.assign({}, att, { seenAt: Date.now() }));
       return;
     }
 

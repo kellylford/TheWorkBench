@@ -65,6 +65,7 @@ function Client(name) {
     frames: [],
     events: [],
     seq: 0,
+    refused: 0,        // how many cards down the hand to try next
     pending: null,
     closed: null,
 
@@ -95,6 +96,12 @@ function Client(name) {
             resolve(this);
           } else if (m.type === 'rejected') {
             this.pending = null;
+            /* Move on to the next card rather than offering the same one for
+             * ever. "Tries its cards until one is accepted" was the intent and
+             * the loop never advanced, so a seat whose first card happened to be
+             * illegal sent it three hundred times and the run reported a
+             * deadline rather than the refusal it was drowning in. */
+            this.refused++;
             log('frame', name, 'REJECTED', m.reason);
           } else if (m.type === 'fault') {
             log('frame', name, 'FAULT', m.reason);
@@ -127,15 +134,26 @@ function Client(name) {
 function moveFor(c, DEAL) {
   const v = c.view;
   if (!v || c.pending !== null) return null;
+  /* Somebody has to say to begin.
+   *
+   * A room waits at 'idle' now, so that the host can read the code out before
+   * anything is dealt. This harness predates that gate and had no case for it,
+   * so every run against a real Worker sat at an empty table until the idle
+   * counter ran out and reported "the table stopped making progress" — which is
+   * true, and says nothing about why. Only the first seat asks, so two clients
+   * do not race to deal. */
+  if (v.phase === 'idle') return c.seat === 0 ? { type: 'start' } : null;
   if (v.phase === 'pick' && v.turn === c.seat) return { type: 'pick' };
   if (v.phase === 'bury' && v.picker === c.seat) {
     return { type: 'bury', cards: v.players[c.seat].hand.map(x => x.id).slice(0, DEAL) };
   }
   if (v.phase === 'play' && v.turn === c.seat) {
     const hand = v.players[c.seat].hand;
+    if (!hand.length) return null;
     /* Legality is the server's business; this tries its cards until one is
      * accepted, which is also a decent test of the refusal path. */
-    return { type: 'play', card: hand[0] && hand[0].id };
+    const pick = hand[c.refused % hand.length];
+    return { type: 'play', card: pick && pick.id };
   }
   if (v.phase === 'handOver') return { type: 'nextHand' };
   return null;
@@ -194,8 +212,10 @@ function moveFor(c, DEAL) {
   while (Date.now() < deadline && handsSeen < HANDS) {
     let acted = false;
     for (const c of clients) {
+      const before = c.version;
       const mv = moveFor(c, DEAL);
       if (mv) {
+        if (c.version > before) c.refused = 0;
         if (mv.type === 'nextHand') {
           handsSeen++;
           if (handsSeen >= HANDS) break;
@@ -205,7 +225,15 @@ function moveFor(c, DEAL) {
         await sleep(250);
       }
     }
-    if (!acted) { idle++; await sleep(250); }
+    /* CONSECUTIVE idleness, not total.
+     *
+     * It only ever counted up, so every quarter second spent legitimately
+     * waiting for the computer seats added to the same tally — and a run long
+     * enough to be interesting failed with "the table stopped making progress"
+     * while the table was making progress the whole time. Fifteen seconds with
+     * nothing happening at all is the thing worth reporting. */
+    if (acted) idle = 0;
+    else { idle++; await sleep(250); }
     if (idle > 60) { check(false, 'the table stopped making progress'); break; }
   }
 
