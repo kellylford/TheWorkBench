@@ -77,6 +77,8 @@
     var open = false;
     var pingTimer = null;
     var pongTimer = null;
+    var onVisible = null;        // the visibilitychange listener, so it can be removed
+    var awaitingPong = false;    // a ping is out and unanswered
     var closedBy = null;         // 'us' | 'them' | 'error'
 
     function status(state, detail) {
@@ -86,23 +88,91 @@
     function stopTimers() {
       clearInterval(pingTimer); pingTimer = null;
       clearTimeout(pongTimer); pongTimer = null;
+      awaitingPong = false;
+      if (onVisible) {
+        try { global.document.removeEventListener('visibilitychange', onVisible); } catch (e) { /* no document */ }
+        onVisible = null;
+      }
+    }
+
+    /* One ping, now. The interval is not the only thing entitled to send one. */
+    function pingNow() {
+      if (!open) return;
+      var sentAt = Date.now();
+
+      /* ARMED BEFORE THE SEND, and cleared by a flag rather than by whether a
+       * particular timer id is still live.
+       *
+       * Arming afterwards assumes the answer cannot beat the timer, and there is
+       * no such guarantee to lean on: the pong handler clears whatever timer
+       * exists WHEN IT RUNS, so a pong that arrives during send() clears the
+       * previous ping's timer and the fresh one is then armed with nothing left
+       * to cancel it. The client would hang up ten seconds later on a socket
+       * that had just answered. table.js learned the same lesson about its own
+       * answer timeout, in the same direction: arm first. */
+      awaitingPong = true;
+      clearTimeout(pongTimer);
+      pongTimer = setTimeout(function () {
+        /* A TIMER THAT FIRED LATE WAS FROZEN, NOT IGNORED — check the clock
+         * before accusing the wire.
+         *
+         * This is a ten second deadline. If it fires and the better part of a
+         * minute has actually passed, nothing about the connection has been
+         * demonstrated: the browser suspended this tab and ran the callback
+         * whenever it got round to it, and the pong may well have been sitting
+         * there unprocessed the whole time. Chrome does this to any backgrounded
+         * tab, and freezes them outright after a few minutes.
+         *
+         * So the client hung up on a perfectly good socket every time the player
+         * alt-tabbed for a while, and then — having closed it itself — never
+         * reconnected and left the board showing a hand that had stopped being
+         * true. Observed at a real table: the seat went quiet, the room played
+         * it out, and the browser was fine the entire time.
+         *
+         * Ping again instead. If the wire really is gone, the next attempt runs
+         * on an unthrottled timer once the tab is visible, and says so then. */
+        if (!awaitingPong) return;              // answered already
+        var late = Date.now() - sentAt;
+        if (late > PONG_GRACE * 2) { pingNow(); return; }
+        status('lost', 'the table stopped answering');
+        try { ws.close(4000, 'no pong'); } catch (e) { /* already gone */ }
+      }, PONG_GRACE);
+
+      try {
+        ws.send(JSON.stringify({ type: 'ping', at: sentAt }));
+      } catch (e) {
+        awaitingPong = false;
+        clearTimeout(pongTimer);
+        pongTimer = null;
+      }
     }
 
     function startPings() {
       stopTimers();
-      pingTimer = setInterval(function () {
-        if (!open) return;
-        try { ws.send(JSON.stringify({ type: 'ping', at: Date.now() })); } catch (e) { return; }
-        /* A socket that dies without a close frame is indistinguishable from a
-         * table where everybody is thinking, and this game has long quiet
-         * stretches by design. If the pong does not come, say so rather than
-         * leaving the player waiting on nothing. */
-        clearTimeout(pongTimer);
-        pongTimer = setTimeout(function () {
-          status('lost', 'the table stopped answering');
-          try { ws.close(4000, 'no pong'); } catch (e) { /* already gone */ }
-        }, PONG_GRACE);
-      }, PING_EVERY);
+      pingTimer = setInterval(pingNow, PING_EVERY);
+
+      /* AND A PING THE MOMENT THE TAB COMES BACK TO THE FRONT.
+       *
+       * The interval alone is not enough to prove a browser is alive, because
+       * the browser is what slows it down: Chrome throttles timers in a hidden
+       * tab to roughly once a minute, and harder after a few minutes. The
+       * server reads these pings to tell a player who is thinking from one
+       * whose browser has gone, so a throttled tab looks progressively more
+       * like a dead one the longer it sits behind another window.
+       *
+       * That was not a theory — it took both seats at a real table at once and
+       * the computer played out the hand for two people who were sitting right
+       * there. The server's window was widened to cover the throttled rate; this
+       * is the other half, and it costs one frame. Becoming visible is the one
+       * moment we can be certain somebody is looking. */
+      try {
+        if (global.document && typeof global.document.addEventListener === 'function') {
+          onVisible = function () {
+            if (global.document.visibilityState === 'visible') pingNow();
+          };
+          global.document.addEventListener('visibilitychange', onVisible);
+        }
+      } catch (e) { /* no document: tests and the Worker */ }
     }
 
     status('connecting');
@@ -124,7 +194,12 @@
       try { msg = JSON.parse(ev.data); } catch (e) { return; }
       if (!msg || typeof msg !== 'object') return;
 
-      if (msg.type === 'pong') { clearTimeout(pongTimer); pongTimer = null; return; }
+      if (msg.type === 'pong') {
+        awaitingPong = false;
+        clearTimeout(pongTimer);
+        pongTimer = null;
+        return;
+      }
 
       /* A fault is the server saying its own state is untrustworthy. It is not a
        * refusal and must not be shown as one — see the note on `fatal` in

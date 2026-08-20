@@ -83,7 +83,12 @@ function makeTable(n, evictEvery, opts) {
       botDelay: (opts && opts.botDelay !== undefined) ? opts.botDelay : 10,
       turnGrace: (opts && opts.turnGrace) || 0,
       awayGrace: (opts && opts.awayGrace) || 0,
-      presenceWindow: (opts && opts.presenceWindow !== undefined) ? opts.presenceWindow : 60000
+      /* Passed straight through, undefined and all. The harness used to supply
+       * its own 60000 fallback here, which meant the room's own default was
+       * never once exercised by any test — so a wrong default could sit in
+       * js/room.js indefinitely with a green suite. A test harness that fills in
+       * a value on the code's behalf cannot test that value. */
+      presenceWindow: opts ? opts.presenceWindow : undefined
     });
   }
 
@@ -485,7 +490,12 @@ for (const evictEvery of [0, 1]) {
  * prompt reply from a late one — which is exactly how this survived. */
 {
   const BOT = 40, GRACE = 9000;
-  const t = makeTable(5, 0, { botDelay: BOT, turnGrace: GRACE, awayGrace: 0 });
+  /* EVICTED BEFORE EVERY CALL. dueKind is the whole fix here and it lives in
+   * durable storage; a run that never hibernates cannot tell a field that
+   * survives from one that is simply still in memory. This file's entire
+   * argument is that these bugs are invisible without eviction, and the test
+   * for them was the one place not applying it. */
+  const t = makeTable(5, 1, { botDelay: BOT, turnGrace: GRACE, awayGrace: 0 });
   t.start();
   check(t.join('me', 0, 'Kelly').ok, 'could not sit down');
   t.begin('me');
@@ -547,7 +557,7 @@ for (const evictEvery of [0, 1]) {
  * A client that is still pinging is still there. */
 {
   const GRACE = 1000, AWAY = 60000;
-  const t = makeTable(5, 0, { turnGrace: GRACE, awayGrace: AWAY, presenceWindow: 3000 });
+  const t = makeTable(5, 1, { turnGrace: GRACE, awayGrace: AWAY, presenceWindow: 3000 });
   t.start();
   check(t.join('me', 0, 'Kelly').ok, 'could not sit down');
   t.join('other', 1, 'Pat');
@@ -599,7 +609,7 @@ for (const evictEvery of [0, 1]) {
  * cards are still there, and the only thing wrong is that nothing they press
  * does anything, ever again. */
 {
-  const t = makeTable(5, 0, { turnGrace: 500 });
+  const t = makeTable(5, 1, { turnGrace: 500 });
   t.start();
   check(t.join('me', 0, 'Kelly').ok, 'could not sit down');
   t.join('other', 1, 'Pat');
@@ -627,14 +637,246 @@ for (const evictEvery of [0, 1]) {
 
   // The same connection, still open, makes a move. Whatever the move is, the
   // player is plainly at the table.
+  const beforeMove = (t.inbox['me'] || []).length;
   t.action('me', { seq: 500, action: { type: 'play', card: 'JD' } });
   check(t.room.peek().players[0].occupant === 'human',
     'a player at a live connection could not get their own seat back by playing: ' +
     'the computer keeps their chair for the rest of the session');
 
+  /* AND THE MOVER HAS TO BE ANSWERED.
+   *
+   * This section checked what the rest of the TABLE heard and never what the
+   * person who pressed the key heard, which is how a real regression got past
+   * it: reclaiming broadcast a view before the move was applied, and that view
+   * carried an ackSeq for the move. table.js treats an ack as "your move is in
+   * this frame", so it cleared the pending move AND its eight second answer
+   * timer, then discarded the refusal that followed as answering nothing.
+   *
+   * The card was refused and the player was told nothing by anything. A
+   * keypress that produces silence is the failure this codebase is arranged
+   * around, and only an assertion about the mover's own inbox can see it.
+   *
+   * The move here is very likely to be refused — that is the point; it is the
+   * move of somebody whose turn the computer has just taken. Refused or
+   * applied, exactly one of those answers must reach them. */
+  const answers = (t.inbox['me'] || []).slice(beforeMove);
+  const refusal = answers.find(m => m.type === 'rejected' && m.seq === 500);
+  const acked = answers.find(m => (m.type === 'view' || m.type === 'welcome') && m.ackSeq === 500);
+  check(!!refusal || !!acked,
+    'the player who moved was told nothing at all: no refusal and no view carrying ' +
+    'their sequence number. Their move vanished in silence.');
+  check(!(refusal && acked),
+    'the mover was both acknowledged and refused for the same move (seq 500). The ack ' +
+    'makes the client throw the refusal away, so the refusal is never announced.');
+
   const heard = (t.inbox['other'] || []).flatMap(m => (m.events || []).map(e => e.text)).join(' | ');
   check(/is back/i.test(heard),
     'the rest of the table was told the seat had gone and never told it was back');
+}
+
+/* ---------------- 5g. A BACKGROUNDED tab is not a dead one ------------------- */
+
+/* Found in real play, after the presence check above had already shipped, and it
+ * took BOTH human seats at one table simultaneously: two live, responsive
+ * browsers were declared to have stopped responding and the computer played out
+ * the whole hand for two people who were sitting right there watching it.
+ *
+ * The presence window was two ping intervals — sixty seconds against a
+ * twenty-five second ping — on the reasoning that a live client pings often
+ * enough that one may go missing. That reasoning holds only while the tab is in
+ * FRONT. Chrome throttles timers in a hidden tab to roughly once a minute, and
+ * harder after a few minutes, so a healthy browser the player has alt-tabbed
+ * away from pings at about the rate the window was set to reject.
+ *
+ * Alt-tabbing is not a fault condition. It is what everybody does, and somebody
+ * reading a hand back with a screen reader may have the browser behind another
+ * window the entire time.
+ *
+ * So: a seat still pinging at the THROTTLED rate must survive. */
+{
+  const GRACE = 1000, AWAY = 600000;
+  const THROTTLED = 4000;         // stands in for Chrome's once-a-minute
+  const WINDOW = 12000;           // three throttled intervals, as production is
+
+  const t = makeTable(5, 1, { turnGrace: GRACE, awayGrace: AWAY, presenceWindow: WINDOW });
+  t.start();
+  check(t.join('me', 0, 'Kelly').ok, 'could not sit down');
+  t.join('other', 1, 'Pat');
+  t.begin('me');
+
+  const onTurn = () => {
+    const s = t.room.peek();
+    return s.phase === 'handOver' ? -1 : (s.phase === 'bury' ? s.picker : s.turn);
+  };
+
+  let guard = 0;
+  while (guard++ < 900 && onTurn() !== 0) {
+    if (!t.alarmAt) break;
+    t.tick(Math.max(1, t.alarmAt - t.now()));
+  }
+  check(onTurn() === 0, 'never reached the player own turn');
+  const held = C.ids(t.room.peek().players[0].hand).join(',');
+
+  /* Thinking for a good long while, with a tab that is alive but hidden — so it
+   * pings at the throttled rate rather than the one the client asks for. */
+  for (let i = 0; i < 15; i++) {
+    t.tick(THROTTLED);
+    t.ping('me');
+  }
+
+  check(t.room.peek().players[0].occupant === 'human',
+    'a live but backgrounded tab, pinging every ' + THROTTLED + 'ms against a ' + WINDOW +
+    'ms window, was declared to have stopped responding — this is the failure that ' +
+    'took both seats at a real table');
+  check(C.ids(t.room.peek().players[0].hand).join(',') === held,
+    'the computer played cards out of the hand of a player whose tab was merely in the background');
+
+  /* The window must still be a window. A tab that stops pinging altogether is
+   * gone, and the table must not be held for ever. */
+  let g2 = 0;
+  while (g2++ < 900 && t.room.peek().players[0].occupant === 'human') {
+    if (!t.alarmAt) break;
+    t.tick(Math.max(1, t.alarmAt - t.now()));
+  }
+  check(t.room.peek().players[0].occupant === 'away',
+    'widening the presence window stopped the turn clock working at all: a seat that ' +
+    'went completely silent was never taken over');
+}
+
+/* ---------------- 5h. The table is told this in English ---------------------- */
+
+/* "You has stopped responding" is what the whole table read when somebody left
+ * their name as You, which is the default and therefore the common case. game.js
+ * has carried a verb-agreement helper since the single-player game; the room was
+ * writing prose about players without it. Cosmetic in a game nobody is listening
+ * to, and read aloud word for word in this one. */
+{
+  const t = makeTable(5, 1, { turnGrace: 500 });
+  t.start();
+  check(t.join('me', 0, 'You').ok, 'could not sit down');   // the default name
+  t.join('other', 1, 'Pat');
+  t.begin('me');
+
+  const onTurn = () => {
+    const s = t.room.peek();
+    return s.phase === 'handOver' ? -1 : (s.phase === 'bury' ? s.picker : s.turn);
+  };
+  let guard = 0;
+  while (guard++ < 900 && onTurn() !== 0) {
+    if (!t.alarmAt) break;
+    t.tick(Math.max(1, t.alarmAt - t.now()));
+  }
+  let g2 = 0;
+  while (g2++ < 400 && t.room.peek().players[0].occupant === 'human') {
+    if (!t.alarmAt) break;
+    t.tick(Math.max(1, t.alarmAt - t.now()));
+  }
+
+  const said = t.room.peek().events.map(e => e.text).join(' | ');
+  check(!/You has /.test(said), 'the table was told "You has stopped responding": ' +
+    (said.match(/You has [^|]*/) || [''])[0]);
+  check(/You have stopped responding/.test(said) ||
+        t.room.peek().players[0].occupant !== 'away',
+    'the away message did not come out grammatically for a player named You');
+}
+
+/* ---------------- 5i. The DEFAULT presence window must be the right one ------ */
+
+/* Every other section here passes presenceWindow explicitly, so the default was
+ * never exercised — and it sat at sixty seconds long after sixty seconds had
+ * been identified as the number that took both seats at a real table. A wrapper
+ * that forgets the option, or a second one written later, silently reinstates
+ * the bug and every test still passes.
+ *
+ * awayGrace defaults to 0 because 0 is a meaningful OFF. There is no such
+ * reading of 60000; it is just a wrong answer left where somebody would pick it
+ * up. So: configure everything EXCEPT the window, and ping at a rate a
+ * backgrounded browser would manage. */
+{
+  /* THE REAL NUMBERS, because this one is about a specific wrong value rather
+   * than about a ratio. The clock here is simulated, so production timings are
+   * free: ninety second grace, and a hidden tab managing one ping every ninety
+   * seconds. The correct default of three minutes covers that; the sixty second
+   * default this exists to reject does not. A scaled-down version of this test
+   * cannot tell those two apart, which is how the first attempt at it passed
+   * against the bug. */
+  const GRACE = 90000, AWAY = 30 * 60 * 1000;
+  const THROTTLED = 90000;       // what Chrome leaves of a 25s ping in a hidden tab
+  const t = makeTable(5, 1, { turnGrace: GRACE, awayGrace: AWAY });   // no presenceWindow
+  t.start();
+  check(t.join('me', 0, 'Kelly').ok, 'could not sit down');
+  t.join('other', 1, 'Pat');
+  t.begin('me');
+
+  const onTurn = () => {
+    const s = t.room.peek();
+    return s.phase === 'handOver' ? -1 : (s.phase === 'bury' ? s.picker : s.turn);
+  };
+  /* Both browsers keep pinging while we wait for our turn to come round. They
+   * are open the whole time — that is the premise. Without this the seats go
+   * stale before the measurement even starts and the section fails for a reason
+   * that has nothing to do with what it is testing. */
+  let guard = 0;
+  while (guard++ < 900 && onTurn() !== 0) {
+    if (!t.alarmAt) break;
+    t.tick(Math.max(1, Math.min(THROTTLED, t.alarmAt - t.now())));
+    t.ping('me');
+    t.ping('other');
+  }
+  check(onTurn() === 0, 'never reached the player own turn');
+  check(t.room.peek().players[0].occupant === 'human',
+    'the seat was already taken over before the measurement began');
+
+  for (let i = 0; i < 8; i++) { t.tick(THROTTLED); t.ping('me'); t.ping('other'); }
+
+  check(t.room.peek().players[0].occupant === 'human',
+    'with no presenceWindow configured, the DEFAULT counted a still-pinging player ' +
+    'as gone. The default is the value a wrapper gets when it forgets the option, ' +
+    'and it must not be the number this whole guarantee exists to reject.');
+}
+
+/* ---------------- 5j. A turn-clock alarm is never dated in the past ---------- */
+
+/* onAlarm's re-arm branch leaves turnSince deliberately stale, because the grace
+ * period is measured from when the turn actually began rather than from the last
+ * time we looked. Every caller that reschedules afterwards refreshes turnSince
+ * first — except leave(), which re-derives turnSince + turnGrace from a base that
+ * is by then well behind the clock.
+ *
+ * Cloudflare fires a past-dated alarm immediately. It self-corrects, so nothing
+ * breaks visibly; it burns a wake, and it restarts the presence poll from now,
+ * which means a client flapping at one seat can push another seat's takeover out
+ * again and again. */
+{
+  const t = makeTable(5, 0, { turnGrace: 1000, awayGrace: 600000, presenceWindow: 5000 });
+  t.start();
+  check(t.join('me', 0, 'Kelly').ok, 'could not sit down');
+  t.join('other', 1, 'Pat');
+  t.begin('me');
+
+  const onTurn = () => {
+    const s = t.room.peek();
+    return s.phase === 'handOver' ? -1 : (s.phase === 'bury' ? s.picker : s.turn);
+  };
+  let guard = 0;
+  while (guard++ < 900 && onTurn() !== 0) {
+    if (!t.alarmAt) break;
+    t.tick(Math.max(1, t.alarmAt - t.now()));
+  }
+  check(onTurn() === 0, 'never reached the player own turn');
+
+  // Sit on the turn while pinging, so the turn clock re-arms and turnSince goes
+  // stale — which is the state the bug needs.
+  for (let i = 0; i < 6; i++) { t.tick(1200); t.ping('me'); }
+  const staleBy = t.now() - (t.room.peekRoom().turnSince || 0);
+  check(staleBy > 1000, 'never got turnSince stale enough to test the re-derivation');
+
+  // Somebody at another seat drops. leave() reschedules.
+  t.room.leave('other');
+  check(t.alarmAt === 0 || t.alarmAt >= t.now(),
+    'leave() armed the turn clock for ' + t.alarmAt + ' while the clock reads ' + t.now() +
+    ' — a deadline ' + (t.now() - t.alarmAt) + 'ms in the past, which the platform fires ' +
+    'at once and which restarts the presence poll from now');
 }
 
 /* ---------------- 6. Seats, and the seat coming from the connection ------------- */
@@ -687,3 +929,5 @@ console.log('version never went backwards; events not replayed; retries applied 
 console.log('bots kept playing on alarms across eviction; seats survived the wake');
 console.log('a computer seat moves after the bot delay, not when the turn clock expires');
 console.log('a player whose browser is still pinging keeps their own turn, and a move takes an away seat back');
+console.log('a backgrounded tab pinging at the throttled rate is not mistaken for a dead one');
+console.log('the mover is always answered; the default window is right; no alarm is dated in the past');

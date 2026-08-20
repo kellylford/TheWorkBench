@@ -169,6 +169,20 @@
       <button type="button" id="game-copy-code">Copy the table code</button>
     </p>
 
+    <!-- THE CONNECTION, SAID OUT LOUD AND LEFT ON SCREEN.
+         Connection state used to be written only to the lobby's status line, and
+         the lobby is hidden the moment play starts. So a table that had gone was
+         announced exactly once, into a live region that then held nothing, and
+         after that the board sat there rendering a hand that had stopped being
+         true — with no way back short of reloading and retyping the code.
+         role="status" rather than alert: it is spoken politely, and unlike the
+         announcement it STAYS, so it can be found again by anybody who missed it
+         or wants to check. Focusable for the same reason the code line is. -->
+    <p id="net-line" class="net-line" role="status" tabindex="-1" hidden></p>
+    <p class="actions" id="net-actions" hidden>
+      <button type="button" id="net-reconnect">Reconnect to this table</button>
+    </p>
+
     <p id="status" class="status"></p>
 
     <section aria-labelledby="action-h" id="action-section">
