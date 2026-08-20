@@ -850,3 +850,52 @@ dialog::backdrop { background: rgba(0,0,0,.65); }
   letter-spacing: .08em;
 }
 .table-code-line:focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; }
+
+
+/* ---------- the refusal you can see ----------
+ *
+ * The resting state of an unplayable card was already carefully handled above:
+ * flat, cooler, sitting low while the playable ones stand up. What had no visual
+ * form at all was the ANSWER to pressing one. alert_() went to the speech queue
+ * and nowhere else, so the commonest thing a new player does — press the card
+ * they want and find out why they cannot have it — produced, for anybody
+ * watching rather than listening, absolutely nothing.
+ *
+ * Two parts, because they answer two different questions. The line says WHY, and
+ * the nudge says WHICH — with six cards in a hand, a message on its own leaves
+ * the eye hunting for the card it is about. */
+.flash {
+  margin: .35rem 0 .5rem;
+  padding: .45rem .6rem;
+  border-left: .3rem solid var(--bad);
+  border-radius: .25rem;
+  background: var(--panel-2);
+  color: var(--ink);
+  font-weight: 600;
+  /* Wraps rather than truncates: these carry the reason, and a reason cut off
+   * mid-clause is worse than no reason. */
+  overflow-wrap: anywhere;
+}
+
+/* The nudge. Decorative only — it says which card, never what is wrong with it,
+ * because motion cannot be read and must never be the only carrier. Anybody who
+ * cannot see it has the line above and the spoken copy, both of which say more.
+ *
+ * Kept small and horizontal on purpose. A card that leaps about is a card whose
+ * face you cannot read, and the player is mid-decision. */
+@media (prefers-reduced-motion: no-preference) {
+  .card.refused { animation: card-refused .3s ease; }
+}
+
+@keyframes card-refused {
+  0%, 100% { transform: translateY(.3rem) translateX(0); }
+  25%      { transform: translateY(.3rem) translateX(-.28rem); }
+  75%      { transform: translateY(.3rem) translateX(.28rem); }
+}
+
+/* With motion turned off the card still has to answer "which one", so it says so
+ * by standing out rather than by moving: the same focus colour the keyboard uses
+ * for "this is the one you mean". */
+@media (prefers-reduced-motion: reduce) {
+  .card.refused { outline: 3px solid var(--focus); outline-offset: 2px; }
+}

@@ -209,6 +209,20 @@
 
     <section aria-labelledby="hand-h">
       <h3 id="hand-h">Your hand</h3>
+
+      <!-- WHAT THE ANNOUNCEMENTS SAY, WRITTEN DOWN.
+           This game was built announcement-first, and it shows: press a card you
+           cannot play and a screen reader user is told which rule stops them,
+           while somebody watching the screen gets nothing at all. Same keypress,
+           same refusal, and only one of them is informed. Everything alert_()
+           says now appears here too.
+
+           aria-hidden, and that is the whole point of it: the spoken copy
+           already goes through the announcer, and a second live region would say
+           everything twice. This is the visual half of a message that already
+           has an audible half — not a new message. -->
+      <p id="flash" class="flash" aria-hidden="true" hidden></p>
+
       <div id="hand" class="hand" role="group" aria-labelledby="hand-h"></div>
     </section>
 

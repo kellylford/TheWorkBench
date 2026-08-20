@@ -49,7 +49,7 @@
    * appear in this file again. Only keys this fork has itself retired. */
   var STORE_KEY = 'sheephead-mp.settings.v1';
   var OLD_STORE_KEYS = [];
-  var NET_IDS = ['net-line', 'net-actions', 'net-reconnect',
+  var NET_IDS = ['flash', 'net-line', 'net-actions', 'net-reconnect',
     'lobby-resume', 'lobby-resume-text', 'lobby-rejoin', 'lobby-forget'];
   var LOBBY_IDS = ['lobby-section', 'lobby-status', 'lobby-choose', 'lobby-table',
     'lobby-create', 'lobby-join-form', 'lobby-code', 'lobby-code-display', 'lobby-code-read',
@@ -1149,7 +1149,35 @@
 
   /* Assertive: errors, and direct feedback on a keypress. Always requested — it
    * is a reply to something the player just did. */
-  function alert_(msg) { enqueueSpeech('alert', msg, true); }
+  /* Everything alert_ says, on screen as well as out loud.
+   *
+   * alert_ is the channel for "that did not work and here is why": the card you
+   * cannot play, the selection that is already full, the move refused by the
+   * table. All of it went to the speech queue and nowhere else, so pressing an
+   * unplayable card did nothing whatsoever if you were watching rather than
+   * listening — no movement, no message, no reason. The commonest thing a new
+   * player does, answered with silence.
+   *
+   * Cleared on a timer rather than left standing: this is a reply to something
+   * the player just did, and a stale reply beside a board that has moved on is
+   * worse than none. Cleared on the next one too, so two in quick succession do
+   * not fight over the line. */
+  var flashTimer = null;
+
+  function flash(msg) {
+    var node = el.flash;
+    if (!node) return;
+    clearTimeout(flashTimer);
+    if (!msg) { node.hidden = true; node.textContent = ''; return; }
+    node.textContent = msg;
+    node.hidden = false;
+    flashTimer = setTimeout(function () {
+      node.hidden = true;
+      node.textContent = '';
+    }, 6000);
+  }
+
+  function alert_(msg) { enqueueSpeech('alert', msg, true); flash(msg); }
 
   function turnPrompt() {
     if (!state) return '';
@@ -1902,6 +1930,11 @@
         label += selected[c.id] ? ', selected to bury' : '';
       } else if (handMode === 'play' && !legalIds[c.id]) {
         b.setAttribute('aria-disabled', 'true');
+        /* No extra class: the stylesheet already keys the whole unplayable
+         * treatment off aria-disabled — flat cooler body, no lift, sitting low
+         * against the cards that stand up — and it was contrast-checked to keep
+         * a red suit above AA. A second parallel marker would be two things to
+         * keep in step for one signal. */
         label += ', cannot be played, ' + G.illegalReason(state, mySeat, c.id);
       } else if (handMode === 'idle') {
         b.setAttribute('aria-disabled', 'true');
@@ -2115,7 +2148,20 @@
     }
     if (handMode === 'play') {
       if (!G.isLegal(state, mySeat, id)) {
+        /* Say it, write it down, and move the card that was pressed.
+         *
+         * The message alone leaves the eye hunting for which of six cards was
+         * refused; nudging the card answers that without a word. Purely
+         * decorative, so it is undone straight away and honours reduced motion
+         * in the stylesheet. */
         alert_('You cannot play ' + C.name(C.get(id)) + '. ' + G.illegalReason(state, mySeat, id));
+        var pressed = el.hand.querySelector('[data-id="' + id + '"]');
+        if (pressed) {
+          pressed.classList.remove('refused');
+          void pressed.offsetWidth;              // restart the animation
+          pressed.classList.add('refused');
+          setTimeout(function () { pressed.classList.remove('refused'); }, 600);
+        }
         return;
       }
       SH.Table.act({ type: 'play', card: id });
