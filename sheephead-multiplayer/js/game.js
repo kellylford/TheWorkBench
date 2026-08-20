@@ -1124,6 +1124,9 @@
      * dropping out, the computer taking a seat over. Public by construction:
      * anything private goes through evTo and an audience. */
     note: function (state, text) { return ev(state, 'info', text); },
+    /* Exported for the room, which writes prose about players too and was
+     * producing "You has stopped responding" without it. */
+    vb: vb,
     deckFor: deckFor,
     PARTNER_CARD: PARTNER_CARD,
     createGame: createGame,

@@ -182,7 +182,28 @@ export class SheepheadRoom {
        * The seat is not lost either way now: any move takes it straight back. */
       turnGrace: 90000,
       awayGrace: 30 * 60 * 1000,
-      presenceWindow: 60000        // two ping intervals, so one may go missing
+      /* THREE MINUTES, NOT ONE, AND THE REASON IS THE BROWSER RATHER THAN THE
+       * NETWORK.
+       *
+       * This was two ping intervals — sixty seconds — on the reasoning that a
+       * live client pings every twenty-five and one may go missing. That
+       * reasoning holds only while the tab is in front. Chrome throttles timers
+       * in a BACKGROUNDED tab to roughly once a minute, and harder still after
+       * a few minutes hidden, so a perfectly healthy browser that the player
+       * has alt-tabbed away from pings at about the same rate as the window it
+       * had to beat.
+       *
+       * Caught in real play, and it took both seats at once: two live,
+       * responsive tabs were declared to have stopped responding and the
+       * computer played out the whole hand. Alt-tabbing is not a fault
+       * condition — it is what everybody does, and a screen reader user may
+       * have the browser behind something else the entire time.
+       *
+       * The cost is that a client that really has died holds the table for up
+       * to this long rather than ninety seconds. That is the right way round:
+       * a slow recovery from a genuine disconnection is an inconvenience, and
+       * playing a present player's cards for them is the bug we are fixing. */
+      presenceWindow: 180000
     });
     return this.room;
   }

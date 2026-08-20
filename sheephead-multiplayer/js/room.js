@@ -327,8 +327,13 @@
           }
 
           state.players[waiting].occupant = 'away';
+          /* "You has stopped responding" is what this said to anybody who left
+           * their name as You, which is the default. game.js has carried a verb
+           * helper for exactly this since the single-player game; the room was
+           * writing prose without it. */
           G.note(state, state.players[waiting].name +
-            ' has stopped responding. The computer is playing that seat until they come back. ' +
+            G.vb(state, waiting, ' has', ' have') +
+            ' stopped responding. The computer is playing that seat until they come back. ' +
             'Making any move takes the seat straight back.');
           room.turnSince = null;
           broadcast();

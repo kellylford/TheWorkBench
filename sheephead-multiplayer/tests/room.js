@@ -637,6 +637,112 @@ for (const evictEvery of [0, 1]) {
     'the rest of the table was told the seat had gone and never told it was back');
 }
 
+/* ---------------- 5g. A BACKGROUNDED tab is not a dead one ------------------- */
+
+/* Found in real play, after the presence check above had already shipped, and it
+ * took BOTH human seats at one table simultaneously: two live, responsive
+ * browsers were declared to have stopped responding and the computer played out
+ * the whole hand for two people who were sitting right there watching it.
+ *
+ * The presence window was two ping intervals — sixty seconds against a
+ * twenty-five second ping — on the reasoning that a live client pings often
+ * enough that one may go missing. That reasoning holds only while the tab is in
+ * FRONT. Chrome throttles timers in a hidden tab to roughly once a minute, and
+ * harder after a few minutes, so a healthy browser the player has alt-tabbed
+ * away from pings at about the rate the window was set to reject.
+ *
+ * Alt-tabbing is not a fault condition. It is what everybody does, and somebody
+ * reading a hand back with a screen reader may have the browser behind another
+ * window the entire time.
+ *
+ * So: a seat still pinging at the THROTTLED rate must survive. */
+{
+  const GRACE = 1000, AWAY = 600000;
+  const THROTTLED = 4000;         // stands in for Chrome's once-a-minute
+  const WINDOW = 12000;           // three throttled intervals, as production is
+
+  const t = makeTable(5, 0, { turnGrace: GRACE, awayGrace: AWAY, presenceWindow: WINDOW });
+  t.start();
+  check(t.join('me', 0, 'Kelly').ok, 'could not sit down');
+  t.join('other', 1, 'Pat');
+  t.begin('me');
+
+  const onTurn = () => {
+    const s = t.room.peek();
+    return s.phase === 'handOver' ? -1 : (s.phase === 'bury' ? s.picker : s.turn);
+  };
+
+  let guard = 0;
+  while (guard++ < 900 && onTurn() !== 0) {
+    if (!t.alarmAt) break;
+    t.tick(Math.max(1, t.alarmAt - t.now()));
+  }
+  check(onTurn() === 0, 'never reached the player own turn');
+  const held = C.ids(t.room.peek().players[0].hand).join(',');
+
+  /* Thinking for a good long while, with a tab that is alive but hidden — so it
+   * pings at the throttled rate rather than the one the client asks for. */
+  for (let i = 0; i < 15; i++) {
+    t.tick(THROTTLED);
+    t.ping('me');
+  }
+
+  check(t.room.peek().players[0].occupant === 'human',
+    'a live but backgrounded tab, pinging every ' + THROTTLED + 'ms against a ' + WINDOW +
+    'ms window, was declared to have stopped responding — this is the failure that ' +
+    'took both seats at a real table');
+  check(C.ids(t.room.peek().players[0].hand).join(',') === held,
+    'the computer played cards out of the hand of a player whose tab was merely in the background');
+
+  /* The window must still be a window. A tab that stops pinging altogether is
+   * gone, and the table must not be held for ever. */
+  let g2 = 0;
+  while (g2++ < 900 && t.room.peek().players[0].occupant === 'human') {
+    if (!t.alarmAt) break;
+    t.tick(Math.max(1, t.alarmAt - t.now()));
+  }
+  check(t.room.peek().players[0].occupant === 'away',
+    'widening the presence window stopped the turn clock working at all: a seat that ' +
+    'went completely silent was never taken over');
+}
+
+/* ---------------- 5h. The table is told this in English ---------------------- */
+
+/* "You has stopped responding" is what the whole table read when somebody left
+ * their name as You, which is the default and therefore the common case. game.js
+ * has carried a verb-agreement helper since the single-player game; the room was
+ * writing prose about players without it. Cosmetic in a game nobody is listening
+ * to, and read aloud word for word in this one. */
+{
+  const t = makeTable(5, 0, { turnGrace: 500 });
+  t.start();
+  check(t.join('me', 0, 'You').ok, 'could not sit down');   // the default name
+  t.join('other', 1, 'Pat');
+  t.begin('me');
+
+  const onTurn = () => {
+    const s = t.room.peek();
+    return s.phase === 'handOver' ? -1 : (s.phase === 'bury' ? s.picker : s.turn);
+  };
+  let guard = 0;
+  while (guard++ < 900 && onTurn() !== 0) {
+    if (!t.alarmAt) break;
+    t.tick(Math.max(1, t.alarmAt - t.now()));
+  }
+  let g2 = 0;
+  while (g2++ < 400 && t.room.peek().players[0].occupant === 'human') {
+    if (!t.alarmAt) break;
+    t.tick(Math.max(1, t.alarmAt - t.now()));
+  }
+
+  const said = t.room.peek().events.map(e => e.text).join(' | ');
+  check(!/You has /.test(said), 'the table was told "You has stopped responding": ' +
+    (said.match(/You has [^|]*/) || [''])[0]);
+  check(/You have stopped responding/.test(said) ||
+        t.room.peek().players[0].occupant !== 'away',
+    'the away message did not come out grammatically for a player named You');
+}
+
 /* ---------------- 6. Seats, and the seat coming from the connection ------------- */
 
 {
@@ -687,3 +793,4 @@ console.log('version never went backwards; events not replayed; retries applied 
 console.log('bots kept playing on alarms across eviction; seats survived the wake');
 console.log('a computer seat moves after the bot delay, not when the turn clock expires');
 console.log('a player whose browser is still pinging keeps their own turn, and a move takes an away seat back');
+console.log('a backgrounded tab pinging at the throttled rate is not mistaken for a dead one');
