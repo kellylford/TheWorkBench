@@ -138,6 +138,9 @@ function moveFor(c, DEAL) {
     return { type: 'play', card: hand[0] && hand[0].id };
   }
   if (v.phase === 'handOver') return { type: 'nextHand' };
+  /* A table waits to be started, so that the host has time to send the code out.
+   * Only the first client bothers — the rest would simply be refused. */
+  if (v.phase === 'idle' && c.seat === 0) return { type: 'start' };
   return null;
 }
 
