@@ -75,6 +75,17 @@
         <button type="button" id="lobby-leave" class="consequential">Leave this table</button>
       </p>
 
+      <!-- Nothing is dealt until somebody presses this. A table used to start the
+           moment it was made, which left the host no time to send anybody the
+           code — by the time they had read it out, the computer had played their
+           seat through half a hand. -->
+      <p class="actions">
+        <button type="button" id="lobby-start" class="primary">Start the game</button>
+      </p>
+      <p class="hint" id="lobby-start-hint">Send the code to the people you want to play with, wait
+        for them to appear in the seats above, then start. Any seat still empty is played by the
+        computer, so you can start whenever you like.</p>
+
       <h3 id="lobby-seats-h">Seats</h3>
       <div class="table-wrap">
         <table id="lobby-seats">
@@ -153,6 +164,9 @@
          once and gone is no use: a code you cannot check is a code you cannot
          share. Focusable so it can be jumped to, and it spells itself out. -->
     <p id="table-code-line" class="table-code-line" tabindex="-1" hidden></p>
+    <p class="actions" id="table-code-actions" hidden>
+      <button type="button" id="game-copy-code">Copy the table code</button>
+    </p>
 
     <p id="status" class="status"></p>
 

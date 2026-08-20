@@ -327,6 +327,7 @@ async function seatCannotBeSpoofed() {
   let myView = null;
   const seat2 = busy.connect(2, m => { if (m.view) myView = m.view; });
   busy.start();
+  seat2.send({ type: 'action', seq: 0, action: { type: 'start' } });
   let acted = false, seq = 0;
   for (let i = 0; i < 800 && !acted; i++) {
     await sleep(5);
@@ -359,6 +360,7 @@ async function retriesAreHarmless() {
   const replies = [];
   const link = server.connect(1, m => { replies.push(m); if (m.view) view = m.view; });
   server.start();
+  link.send({ type: 'action', seq: 0, action: { type: 'start' } });
 
   let played = false;
   for (let i = 0; i < 600 && !played; i++) {
@@ -512,6 +514,11 @@ async function eventsArriveOnce() {
     const v = Table.view();
     if (!v) continue;
     if (Table.pending()) continue;
+
+    /* A table no longer deals itself — the host needs time to send the code out —
+     * so somebody has to begin. */
+    if (v.phase === 'idle') { Table.act({ type: 'start' }); continue; }
+
     if (v.phase === 'handOver') {
       hands++;
       if (hands >= 3) break;              // across hands, not just within one

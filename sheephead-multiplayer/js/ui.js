@@ -51,7 +51,8 @@
   var OLD_STORE_KEYS = [];
   var LOBBY_IDS = ['lobby-section', 'lobby-status', 'lobby-choose', 'lobby-table',
     'lobby-create', 'lobby-join-form', 'lobby-code', 'lobby-code-display', 'lobby-code-read',
-    'lobby-copy', 'lobby-leave', 'lobby-seats', 'lobby-back', 'setup-online', 'table-code-line'];
+    'lobby-copy', 'lobby-leave', 'lobby-seats', 'lobby-back', 'setup-online', 'table-code-line', 'lobby-start', 'lobby-start-hint',
+    'table-code-actions', 'game-copy-code'];
 
   var DIALOGS = ['rules-dialog', 'a11y-dialog', 'export-dialog', 'bug-dialog', 'settings-dialog'];
 
@@ -115,6 +116,12 @@
     $('lobby-back').addEventListener('click', hideLobby);
     $('lobby-create').addEventListener('click', createTable);
     $('lobby-copy').addEventListener('click', copyCode);
+    $('game-copy-code').addEventListener('click', copyCode);
+    $('lobby-start').addEventListener('click', function () {
+      var r = SH.Table.act({ type: 'start' });
+      if (r && r.ok === false) { alert_(r.reason + '.'); return; }
+      lobbyStatus('Starting the game…');
+    });
     $('lobby-leave').addEventListener('click', leaveTable);
     $('lobby-join-form').addEventListener('submit', function (e) {
       e.preventDefault();
@@ -348,6 +355,7 @@
      * fork exists to leave alone. */
     mySeat = 0;
     if (el['table-code-line']) { el['table-code-line'].hidden = true; el['table-code-line'].textContent = ''; }
+    if (el['table-code-actions']) el['table-code-actions'].hidden = true;
     lobby.code = null;
     lobby.seat = null;
     lobby.connected = false;
@@ -729,6 +737,7 @@
       line.textContent = 'Table ' + lobby.code + ' — seat ' + (mySeat + 1);
       line.setAttribute('aria-label',
         'Table code ' + spellCode(lobby.code) + '. You are in seat ' + (mySeat + 1) + '.');
+      el['table-code-actions'].hidden = false;
     }
     render();
     flush();
@@ -746,7 +755,10 @@
   }
 
   function copyCode() {
-    var code = $('lobby-code-display').textContent;
+    /* Works from the lobby and from the game. The lobby vanishes when play
+     * starts, and the code is exactly what somebody needs at that moment — the
+     * copy button was only ever on the screen that disappears. */
+    var code = lobby.code || $('lobby-code-display').textContent;
     if (!code) return;
     if (navigator.clipboard && navigator.clipboard.writeText) {
       navigator.clipboard.writeText(code).then(function () {

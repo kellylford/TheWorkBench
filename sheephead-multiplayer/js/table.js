@@ -230,7 +230,13 @@
        * side is built on — and with one module-level receive shared by every
        * connection, a stale link could otherwise move this client into another
        * chair. Only `welcome` may set it, and only once. */
+      /* The seat is settled once, from the frame that carries it. `welcome` is
+       * the authority; view.seat is the same value the projection stamps on
+       * every view, and is accepted only while the seat is still unknown — so a
+       * client that somehow misses its welcome can still work out where it is
+       * sitting, without a later frame being able to move it. */
       if (msg.type === 'welcome' && typeof msg.seat === 'number') seat = msg.seat;
+      else if (seat === null && msg.view && typeof msg.view.seat === 'number') seat = msg.view.seat;
       if (msg.events && msg.events.length) pendingEvents = pendingEvents.concat(msg.events);
 
       /* A view answers the move it actually INCLUDES, and says so by echoing the

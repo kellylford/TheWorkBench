@@ -341,11 +341,15 @@
         };
       },
 
-      /* Deal the first hand and start the table running. */
+      /* Prepare the table, WITHOUT dealing.
+       *
+       * It used to deal here, so a table began playing the instant it was made
+       * and the host had no chance to send anybody the code. The first hand now
+       * waits for a `start` action from somebody at the table, exactly as the
+       * real room does — the two must agree, or the tests are describing a
+       * different game from the one that ships. */
       start: function () {
-        G.newHand(state);
         broadcast();
-        pumpBots();
       },
 
       stop: function () {

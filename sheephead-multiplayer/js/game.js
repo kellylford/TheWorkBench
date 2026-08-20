@@ -1015,6 +1015,7 @@
   var ACTIONS = Object.create(null);
   ACTIONS.pick = 1; ACTIONS.pass = 1; ACTIONS.bury = 1; ACTIONS.play = 1;
   ACTIONS.nextHand = 1;
+  ACTIONS.start = 1;
 
   function applyAction(state, seat, action) {
     if (!state || !state.players) return { ok: false, reason: 'no game in progress' };
@@ -1046,6 +1047,17 @@
           return doBury(state, seat, action.cards)
             ? { ok: true } : { ok: false, reason: 'those cards could not be buried' };
 
+        case 'start':
+          /* Deal the FIRST hand, when the people at the table say they are ready.
+           *
+           * A table used to deal the moment it was made, which left the host no
+           * time at all to read the code to anybody: by the time they had it
+           * written down, the computer had played their seat through half a hand.
+           * Starting is a decision somebody makes, not something that happens to
+           * them. */
+          if (state.phase !== 'idle') return { ok: false, reason: 'the game has already started' };
+          return newHand(state) ? { ok: true } : { ok: false, reason: 'could not deal' };
+
         case 'nextHand':
           /* Deal the next hand. This existed only as a direct newHand() call
            * from the Deal button, which meant a room server had exactly two
@@ -1060,7 +1072,7 @@
            * newHand itself accepts. Requiring handOver alone meant the OPENING
            * deal was refused, because a table that has never dealt is 'idle',
            * and the game could not begin. */
-          if (state.phase !== 'handOver' && state.phase !== 'idle') {
+          if (state.phase !== 'handOver') {
             return { ok: false, reason: 'the hand is not over' };
           }
           return newHand(state) ? { ok: true } : { ok: false, reason: 'could not deal' };
