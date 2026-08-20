@@ -40,6 +40,23 @@
     <p id="lobby-status" class="status"></p>
 
     <div id="lobby-choose">
+      <!-- THE TABLE YOU WERE JUST AT.
+           Reloading the page threw the table away: the code lives in memory and
+           nothing else, so a refresh — or a browser that restarts itself — left
+           you on the New game screen with no way back unless you had written the
+           code down. The code is the only thing standing between a player and
+           the game they were in the middle of, so it is worth remembering.
+           Offered rather than rejoined automatically: taking a seat is a
+           decision, and it may not be the seat you want any more. First in the
+           source order because it is the most likely thing you came here to do. -->
+      <div id="lobby-resume" hidden>
+        <p id="lobby-resume-text" class="hint"></p>
+        <p class="actions">
+          <button type="button" id="lobby-rejoin" class="primary">Rejoin that table</button>
+          <button type="button" id="lobby-forget">Forget it</button>
+        </p>
+      </div>
+
       <p class="hint">Anyone can join a table with its code. There are no accounts and nothing to
         install. Empty seats are played by the computer, so a table works with two people or six.</p>
 

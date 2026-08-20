@@ -34,8 +34,23 @@ const wsBase = BASE.replace(/^http/, 'ws');
 /* Longer than the deployed grace period, with room to spare. If the Worker is
  * configured with a different one, say so here rather than guessing. */
 const GRACE_MS = Number(arg('grace', 90000));
+
+/* HOW LONG A SILENT SEAT MAY HOLD THE TABLE, and it is not the grace period.
+ *
+ * Presence is POLLED, once per grace period, so a check that lands just inside
+ * the presence window re-arms for another whole grace period. The worst case is
+ * presenceWindow + turnGrace, and with the shipped numbers that is 180 + 90 =
+ * 270 seconds rather than the 90 this file used to wait.
+ *
+ * That mattered: after the window was widened this harness went red against a
+ * correctly behaving Worker, which is a test asserting a number the code had
+ * deliberately changed. Derived here rather than written as a constant, so it
+ * moves when the Worker's own numbers move. */
+const PRESENCE_WINDOW_MS = Number(arg('window', 180000));
+const TAKEOVER_MS = PRESENCE_WINDOW_MS + GRACE_MS;
+
 const WATCH_MS = GRACE_MS + 45000;
-const PING_EVERY = 20000;      // the browser uses 25s; under the 60s window
+const PING_EVERY = 20000;      // the browser uses 25s; well inside the window
 
 const t0 = Date.now();
 const fails = [];
@@ -133,13 +148,17 @@ async function table(name) {
   if (has('skip-silent')) { report(); return; }
   const gone = await table('Vanisher');
   check(onTurn(gone.view) === gone.seat, 'never got a turn to abandon');
-  log('silent', `saying nothing at all for ${Math.round((GRACE_MS + 20000) / 1000)}s`);
-  await sleep(GRACE_MS + 20000);
+  const wait = TAKEOVER_MS + 30000;
+  log('silent', `saying nothing at all for ${Math.round(wait / 1000)}s ` +
+    `(worst case is presence window ${PRESENCE_WINDOW_MS / 1000}s + grace ${GRACE_MS / 1000}s)`);
+  await sleep(wait);
 
-  check(gone.events.some(t => /stopped responding/i.test(t)),
-    'a seat whose client stopped answering was never taken over — the table stalls for ' +
-    'everybody else, which is the failure the turn clock exists to prevent');
-  log('taken', 'the silent seat was taken over as it should be');
+  const takenOver = gone.events.some(t => /stopped responding/i.test(t));
+  check(takenOver,
+    'a seat whose client stopped answering was never taken over within ' +
+    Math.round(wait / 1000) + 's — the table stalls for everybody else, which is the ' +
+    'failure the turn clock exists to prevent');
+  if (takenOver) log('taken', 'the silent seat was taken over as it should be');
   gone.close();
 
   report();

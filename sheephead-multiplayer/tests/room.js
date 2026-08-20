@@ -879,6 +879,65 @@ for (const evictEvery of [0, 1]) {
     'at once and which restarts the presence poll from now');
 }
 
+/* ---------------- 5k. A rejoining client is given the log back --------------- */
+
+/* The cursor exists so a seat is never told the same thing twice — a screen
+ * reader reciting the hand again is not cosmetic, it is the game claiming things
+ * are happening that are not. That reasoning is about a client which still HAS
+ * what it was told.
+ *
+ * A browser that reloaded has nothing. It came back to a board it could read and
+ * a game log that was completely empty, with no way to review the hand it was in
+ * the middle of — and for somebody playing by ear that log is the only record of
+ * what has happened. join() is only ever reached by a socket that has just
+ * opened, so there is no client here that already has these events.
+ *
+ * Delivering them and reciting them are separate decisions; only the first one
+ * belongs to the room. tests/resume.js holds the other half. */
+{
+  const t = makeTable(5, 1, { turnGrace: 0 });
+  t.start();
+  check(t.join('first', 0, 'Kelly').ok, 'could not sit down');
+  t.begin('first');
+
+  // Let a few things happen, so there is a log worth losing.
+  let guard = 0;
+  while (guard++ < 400 && t.room.peek().events.length < 8) {
+    if (!t.alarmAt) break;
+    t.tick(Math.max(1, t.alarmAt - t.now()));
+  }
+  const happened = t.room.peek().events.length;
+  check(happened >= 4, 'not enough happened at this table to test a log: ' + happened);
+
+  // The browser goes away and comes back: a NEW socket, with nothing in it.
+  t.room.leave('first');
+  t.live.length = 0;
+  const back = t.join('second', 0, 'Kelly');
+  check(back.ok, 'could not rejoin the seat after a reload');
+
+  const welcome = (t.inbox['second'] || []).find(m => m.type === 'welcome');
+  check(!!welcome, 'a rejoining client got no welcome at all');
+  const got = (welcome && welcome.events) || [];
+  check(got.length > 0,
+    'a client that had just reloaded was sent an EMPTY event list. It comes back to a ' +
+    'board it can read and no record whatever of the hand it is in the middle of — ' +
+    'which for a player reading the game by ear is the whole account of what has ' +
+    'happened. The cursor was doing its job to a client that has nothing.');
+  check(got.length >= Math.min(4, happened),
+    'the rejoining client got only ' + got.length + ' of the ' + happened +
+    ' events at this table, so its log comes back partial');
+
+  /* And still only what this seat may see. Restoring the log must not restore
+   * somebody else's cards along with it. */
+  const truth = t.room.peek();
+  const leaked = new Set();
+  got.forEach(e => {
+    if (e.audience !== undefined && e.audience !== 0) leaked.add(e.id);
+  });
+  check(leaked.size === 0,
+    'the restored log carried events addressed to another seat: ' + [...leaked]);
+}
+
 /* ---------------- 6. Seats, and the seat coming from the connection ------------- */
 
 {
@@ -931,3 +990,4 @@ console.log('a computer seat moves after the bot delay, not when the turn clock 
 console.log('a player whose browser is still pinging keeps their own turn, and a move takes an away seat back');
 console.log('a backgrounded tab pinging at the throttled rate is not mistaken for a dead one');
 console.log('the mover is always answered; the default window is right; no alarm is dated in the past');
+console.log('a client that reloaded is given its log back, and only what its seat may see');

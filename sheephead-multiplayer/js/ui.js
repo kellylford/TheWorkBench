@@ -49,7 +49,8 @@
    * appear in this file again. Only keys this fork has itself retired. */
   var STORE_KEY = 'sheephead-mp.settings.v1';
   var OLD_STORE_KEYS = [];
-  var NET_IDS = ['net-line', 'net-actions', 'net-reconnect'];
+  var NET_IDS = ['net-line', 'net-actions', 'net-reconnect',
+    'lobby-resume', 'lobby-resume-text', 'lobby-rejoin', 'lobby-forget'];
   var LOBBY_IDS = ['lobby-section', 'lobby-status', 'lobby-choose', 'lobby-table',
     'lobby-create', 'lobby-join-form', 'lobby-code', 'lobby-code-display', 'lobby-code-read',
     'lobby-copy', 'lobby-leave', 'lobby-seats', 'lobby-back', 'setup-online', 'table-code-line', 'lobby-start', 'lobby-start-hint',
@@ -119,6 +120,17 @@
     $('lobby-copy').addEventListener('click', copyCode);
     $('game-copy-code').addEventListener('click', copyCode);
     $('net-reconnect').addEventListener('click', reconnect);
+    $('lobby-rejoin').addEventListener('click', function () {
+      var t = rememberedTable();
+      if (!t) { showResume(); return; }
+      joinTable(t.code, typeof t.seat === 'number' ? t.seat : null);
+    });
+    $('lobby-forget').addEventListener('click', function () {
+      forgetTable();
+      showResume();
+      alert_('Forgotten. You can still join any table with its code.');
+      $('lobby-code').focus();
+    });
     $('lobby-start').addEventListener('click', function () {
       var r = SH.Table.act({ type: 'start' });
       if (r && r.ok === false) { alert_(r.reason + '.'); return; }
@@ -405,13 +417,34 @@
     return state;
   }
 
+  /* Set when we are about to receive a whole game's backlog rather than the next
+   * thing that happened — joining or rejoining a table already in progress. */
+  var quietDrain = false;
+
   function drain() {
     var evts = SH.Table.drainEvents();
+
+    /* THE BACKLOG GOES IN THE LOG, NOT THROUGH THE SPEECH QUEUE.
+     *
+     * Rejoining hands back everything this seat was entitled to hear, which is
+     * the fix for coming back to an empty log. Speaking all of it would replace
+     * one bad experience with a worse one: several minutes of recitation before
+     * you can find out whose turn it is, with no way to skip. The log is there
+     * to be read at your own pace — it says so in its own instructions — so put
+     * it there and say how much arrived. */
+    var quiet = quietDrain;
+    quietDrain = false;
+
     for (var i = 0; i < evts.length; i++) {
       var e = evts[i];
       var text = (!settings.verbose && e.textPlain) ? e.textPlain : e.text;
       pushLog(e.kind, text);
-      speech.push(text);
+      if (!quiet) speech.push(text);
+    }
+
+    if (quiet && evts.length) {
+      speech.push(evts.length + ' earlier ' + (evts.length === 1 ? 'message is' : 'messages are') +
+        ' in the game log. Press G to read back through them.');
     }
   }
 
@@ -532,6 +565,55 @@
     connected: false
   };
 
+  /* THE TABLE THIS TAB WAS AT, across a reload.
+   *
+   * sessionStorage rather than localStorage, deliberately. This is "the table I
+   * am in the middle of", which is a fact about this tab and this sitting — it
+   * should survive a refresh or a browser restoring its tabs, and it should not
+   * still be offered tomorrow, or in a second window where somebody is starting
+   * a different game. localStorage would do both.
+   *
+   * Wrapped because Safari in private mode throws on access rather than
+   * returning null, and losing the ability to remember a table must not take the
+   * lobby down with it. */
+  var TABLE_KEY = 'sheephead-mp.table';
+
+  function rememberTable(code, seat) {
+    try {
+      window.sessionStorage.setItem(TABLE_KEY, JSON.stringify({
+        code: code, seat: typeof seat === 'number' ? seat : null
+      }));
+    } catch (e) { /* no storage: the code is still on screen */ }
+  }
+
+  function forgetTable() {
+    try { window.sessionStorage.removeItem(TABLE_KEY); } catch (e) { /* nothing to do */ }
+  }
+
+  function rememberedTable() {
+    try {
+      var raw = window.sessionStorage.getItem(TABLE_KEY);
+      if (!raw) return null;
+      var t = JSON.parse(raw);
+      return t && t.code ? t : null;
+    } catch (e) { return null; }
+  }
+
+  /* Offer it, rather than rejoining on its own. Sitting down at a table is a
+   * decision — the computer may have been playing your seat, and it may not be
+   * the seat you want any more — so this says what is on offer and waits. */
+  function showResume() {
+    var box = el['lobby-resume'];
+    if (!box) return;
+    var t = rememberedTable();
+    if (!t) { box.hidden = true; return; }
+    box.hidden = false;
+    el['lobby-resume-text'].textContent =
+      'You were at table ' + t.code +
+      (typeof t.seat === 'number' ? ', in seat ' + (t.seat + 1) : '') +
+      '. Read as: ' + spellCode(t.code) + '.';
+  }
+
   /* Whether we have told the player something is wrong with the connection, so
    * that coming back can be announced as the news it is rather than passing in
    * silence. */
@@ -570,7 +652,18 @@
     $('lobby-choose').hidden = false;
     $('lobby-table').hidden = true;
     lobbyStatus('');
-    $('lobby-code').focus();
+    showResume();
+
+    /* Focus lands on the way back in if there is one, and on the code field
+     * otherwise. Somebody who has just reloaded mid-game is here to get back to
+     * their table, not to type a code they may not have. */
+    var resume = el['lobby-resume'];
+    if (resume && !resume.hidden) {
+      $('lobby-rejoin').focus();
+      announceRequested(el['lobby-resume-text'].textContent + ' Rejoin that table?');
+    } else {
+      $('lobby-code').focus();
+    }
   }
 
   function hideLobby() {
@@ -628,6 +721,8 @@
 
     lobby.code = clean;
     lobby.seat = seat;
+    /* Whatever arrives first from this connection is history, not news. */
+    quietDrain = true;
     lobbyStatus('Joining table ' + spellCode(clean) + '…');
 
     /* seat may be null: "put me anywhere". The client cannot choose sensibly —
@@ -810,6 +905,10 @@
     if (!v || v.phase === 'idle') return;
     mySeat = SH.Table.seat();
     local = null;                        // the authoritative game is on the server
+    /* Remembered once the SEAT is known rather than when the code is typed: the
+     * point of remembering is to come back to the same chair, and until the
+     * server has answered we do not know which chair that is. */
+    if (lobby.code) rememberTable(lobby.code, mySeat);
     el['lobby-section'].hidden = true;
     el['game-section'].hidden = false;
 
@@ -847,6 +946,8 @@
     SH.Table.close();
     netTroubled = false;
     showNetTrouble('', false);
+    forgetTable();
+    showResume();
     lobby.code = null;
     lobby.seat = null;
     lobby.connected = false;

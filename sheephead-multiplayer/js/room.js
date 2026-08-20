@@ -464,7 +464,24 @@
         G.note(state, state.players[seat].name + ' is back.');
       }
       if (name) state.players[seat].name = String(name).slice(0, 16);
-      if (room.cursors[seat] === undefined) room.cursors[seat] = -1;
+      /* A NEW CONNECTION HAS NO LOG, so it gets the whole one it is entitled to.
+       *
+       * The cursor exists to stop a seat being told things twice — a screen
+       * reader reciting the hand again is not cosmetic, it is the game claiming
+       * events are happening that are not. But that reasoning is about a client
+       * which still HAS what it was told. A browser that reloaded has nothing:
+       * it came back to a board it could read and a game log that was empty,
+       * with no way to review the hand it was in the middle of. For somebody
+       * playing by ear that log is the only record of what has happened.
+       *
+       * join() is only ever reached by a socket that has just opened, so there
+       * is no case here of re-sending to a client that already has it. The
+       * cursor still does its work for every later frame on this connection.
+       *
+       * The client's part of the bargain is not to SPEAK the backlog — see the
+       * quiet first drain in ui.js. Delivering it and reciting it are different
+       * decisions and only one of them belongs here. */
+      room.cursors[seat] = -1;
 
       var fresh = G.eventsFor(state, seat, room.cursors[seat]);
       room.cursors[seat] = highestEventIdFor(seat);
