@@ -116,6 +116,17 @@ function makeTable(n, evictEvery, opts) {
       return r;
     },
     action(id, msg) { room.action(id, msg); maybeEvict(); },
+    /* Somebody at the table says to begin. A room no longer deals when it is
+     * created — the host needs time to read the code to people first — so every
+     * test that wants a hand has to ask for one, exactly as a player does. */
+    begin(id) {
+      /* Sequence 0, not 1000. The room ignores any sequence it has already seen,
+       * so beginning at a high number made every later move look like a duplicate
+       * and the table appeared to stop responding — the idempotency guard doing
+       * its job to a test that had not thought about it. */
+      room.action(id, { seq: 0, action: { type: 'start' } });
+      maybeEvict();
+    },
     start() { room.start(); maybeEvict(); },
     latestView(id) {
       const msgs = inbox[id] || [];
@@ -134,6 +145,7 @@ for (const evictEvery of [0, 1]) {
   const t = makeTable(5, evictEvery);
   t.start();
   check(t.join('c1', 2, 'Kelly').ok, `${label}: could not sit down`);
+  t.begin('c1');
 
   let seq = 0, guard = 0, handsDone = 0;
   while (guard++ < 4000 && handsDone < 2) {
@@ -187,6 +199,7 @@ for (const evictEvery of [0, 1]) {
   const t = makeTable(4, 0);
   t.start();
   t.join('c1', 1, 'Kelly');
+  t.begin('c1');
 
   const versions = [];
   const record = () => { const m = t.latestView('c1'); if (m) versions.push(m.version); };
@@ -213,6 +226,7 @@ for (const evictEvery of [0, 1]) {
   const t = makeTable(4, 0);
   t.start();
   t.join('c1', 1, 'Kelly');
+  t.begin('c1');
 
   const heard = [];
   const collect = () => {
@@ -239,6 +253,7 @@ for (const evictEvery of [0, 1]) {
   const t = makeTable(5, 0);
   t.start();
   t.join('c1', 0, 'Kelly');
+  t.begin('c1');
 
   /* Drive to a turn we can actually take, then retry the SAME frame across two
    * evictions.
@@ -305,6 +320,7 @@ for (const evictEvery of [0, 1]) {
   const t = makeTable(5, 0);
   t.start();
   t.join('c1', 0, 'Kelly');
+  t.begin('c1');
 
   const handNo = t.room.peek().handNumber;
   let moved = 0;
@@ -333,6 +349,7 @@ for (const evictEvery of [0, 1]) {
   const t = makeTable(5, 0);
   t.start();
   t.join('first', 0, 'Kelly');
+  t.begin('first');
 
   // Make some moves, so the room's idea of "the highest sequence seen" is high.
   let seq = 0, guard = 0, moved = 0;
@@ -393,6 +410,7 @@ for (const evictEvery of [0, 1]) {
   t.start();
   t.join('ghost', 0, 'Ghost');       // sits down, and is never heard from again
   t.join('live', 1, 'Kelly');
+  t.begin('live');
 
   // Wind on until it is the vanished player's turn.
   let guard = 0;

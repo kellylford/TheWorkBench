@@ -143,6 +143,23 @@ function fakeWire(window, opts, shared) {
   $('lobby-create').click();
   await sleep(200);
 
+  /* NOTHING IS DEALT UNTIL SOMEBODY SAYS SO.
+   *
+   * A table used to start the moment it was made, so the host had no chance to
+   * send anybody the code — by the time they had read it out, the computer had
+   * played their seat through half a hand. Reported from a real session, and the
+   * whole reason the lobby now has a Start button. */
+  check($('game-section').hidden === true,
+    'the table started dealing before anybody pressed Start, so there was no time to share the code');
+  check(!!$('lobby-start'), 'there is no way to start the game');
+  check($('lobby-copy') && !$('lobby-copy').disabled, 'there is no way to copy the code');
+  await sleep(600);
+  check($('game-section').hidden === true,
+    'the table dealt itself a moment later, without anybody asking');
+
+  $('lobby-start').click();
+  await sleep(300);
+
   const code = $('lobby-code-display').textContent.trim();
   check(code.length === 5, 'the table code is not five characters: "' + code + '"');
   check(!/[OIL01]/.test(code),
@@ -311,6 +328,13 @@ function fakeWire(window, opts, shared) {
         if (t && gHeard.indexOf(t) < 0) gHeard.push(t);
       });
     };
+
+    /* The host waits for the guest before starting — which is the point of the
+     * button, and is only possible because the table no longer deals itself. */
+    await sleep(200);
+    check(host.d.getElementById('game-section').hidden === true,
+      'the host was already playing before the guest arrived');
+    host.d.getElementById('lobby-start').click();
 
     let g2 = 0;
     while (g2++ < 400 && guest.d.getElementById('game-section').hidden) { sampleGuest(); await sleep(20); }

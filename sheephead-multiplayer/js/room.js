@@ -65,7 +65,12 @@
         seats: {},         // seat -> {name, token} for whoever holds it
         wedged: false,
         botDue: 0,         // when the next bot move is due, 0 for none
-        turnSince: 0       // when the seat now on turn became responsible for it
+        /* When the seat now on turn became responsible for it. null, not 0:
+         * zero is a legitimate timestamp — the tests run on a clock that starts
+         * there — and treating it as "unset" made the turn clock silently never
+         * fire. Date.now() is never 0 in production, so this would have been a
+         * latent bug that only ever bit somebody whose table stalled. */
+        turnSince: null
       };
     }
 
@@ -164,7 +169,7 @@
      * anywhere. */
     function seatNeedingBot() {
       if (room.wedged) return -1;
-      if (state.phase === 'handOver' || state.phase === 'idle') return -1;
+      if (state.phase === 'handOver' || state.phase === 'idle') return -1;   // nothing to play yet
       var seat = state.phase === 'bury' ? state.picker : state.turn;
       if (seat < 0) return -1;
       return state.players[seat].occupant === 'human' ? -1 : seat;
@@ -202,7 +207,7 @@
        * be a worse failure than the one this prevents. */
       var human = seatOnTurn();
       if (human < 0 || !turnGrace) { room.botDue = 0; persist(); return; }
-      if (!room.turnSince) room.turnSince = now();
+      if (room.turnSince === null || room.turnSince === undefined) room.turnSince = now();
       room.botDue = room.turnSince + turnGrace;
       persist();
       scheduleAlarm(room.botDue);
@@ -217,13 +222,14 @@
        * move: the seat on turn is a person who has not acted in time. */
       if (seat < 0) {
         var waiting = seatOnTurn();
-        if (waiting >= 0 && turnGrace && room.turnSince &&
+        if (waiting >= 0 && turnGrace &&
+            room.turnSince !== null && room.turnSince !== undefined &&
             now() - room.turnSince >= turnGrace &&
             state.players[waiting].occupant === 'human') {
           state.players[waiting].occupant = 'away';
           G.note(state, state.players[waiting].name +
             ' has stopped responding. The computer is playing that seat until they come back.');
-          room.turnSince = 0;
+          room.turnSince = null;
           broadcast();
           scheduleBots();
           return;
@@ -231,6 +237,12 @@
         persist();
         return;
       }
+      /* The clock restarts whenever the turn changes hands, including when a bot
+       * moves. Measuring the grace period from the last HUMAN action meant a
+       * player could be marked away for a wait that happened while the computer
+       * seats were still playing — the clock had been running against them
+       * before it was their turn at all. */
+      room.turnSince = now();
       try {
         AI.act(state);
       } catch (e) {
@@ -364,8 +376,19 @@
       var c = conns[connId];
       if (!c) return;
       room.version++;
+      var payload = viewFor(connId, c.seat);
+      /* A WELCOME, not a view.
+       *
+       * `welcome` is the only frame that carries the seat, and it is how a client
+       * learns which chair it is in. Sending a plain view here meant every player
+       * connected successfully, received the whole game, and never found out
+       * where they were sitting — seat stayed null, so nothing was ever their
+       * turn and neither of them could move. Caught the first time this was run
+       * against the real Worker rather than a fake wire. */
+      payload.type = 'welcome';
+      payload.seat = c.seat;
       persist();
-      deliver(connId, viewFor(connId, c.seat));
+      deliver(connId, payload);
     }
 
     function leave(connId) {
@@ -459,11 +482,15 @@
       scheduleBots();
     }
 
+    /* Prepare the room without dealing.
+     *
+     * The table used to deal as soon as it was created, so the host had no chance
+     * to send anybody the code — by the time they had read it out, the computer
+     * had played their seat through half a hand. A room now waits at 'idle' until
+     * somebody at it says to begin. */
     function start() {
       load();
-      G.newHand(state);
-      broadcast();
-      scheduleBots();
+      persist();
     }
 
     return {

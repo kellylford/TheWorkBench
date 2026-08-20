@@ -111,6 +111,7 @@ async function playAHand(n, mySeat) {
       }
       continue;
     }
+    if (v.phase === 'idle') { Table.act({ type: 'start' }); continue; }
     if (v.phase === 'handOver') {
       handsPlayed++;
       if (handsPlayed >= 2) break;
@@ -176,6 +177,7 @@ async function oneMoveInFlightWhileTheTableIsBusy() {
     if (!v) continue;
     if (v.phase === 'handOver') break;
     if (Table.pending()) continue;
+    if (v.phase === 'idle') { Table.act({ type: 'start' }); continue; }
 
     const framesBefore = sent.length;
     if (!actIfOurTurn(v, 5, 0)) continue;
@@ -327,6 +329,7 @@ async function seatCannotBeSpoofed() {
   let myView = null;
   const seat2 = busy.connect(2, m => { if (m.view) myView = m.view; });
   busy.start();
+  seat2.send({ type: 'action', seq: 0, action: { type: 'start' } });
   let acted = false, seq = 0;
   for (let i = 0; i < 800 && !acted; i++) {
     await sleep(5);
@@ -359,11 +362,13 @@ async function retriesAreHarmless() {
   const replies = [];
   const link = server.connect(1, m => { replies.push(m); if (m.view) view = m.view; });
   server.start();
+  link.send({ type: 'action', seq: 0, action: { type: 'start' } });
 
   let played = false;
   for (let i = 0; i < 600 && !played; i++) {
     await sleep(4);
     if (!view) continue;
+    if (view.phase === 'idle') { link.send({ type: 'action', seq: 0, action: { type: 'start' } }); await sleep(30); continue; }
     if (view.phase === 'pick' && view.turn === 1) {
       /* Count only OUR entries. The first version counted the whole pickLog,
        * which the bots write to as well, so bot passes arriving during the
@@ -512,6 +517,11 @@ async function eventsArriveOnce() {
     const v = Table.view();
     if (!v) continue;
     if (Table.pending()) continue;
+
+    /* A table no longer deals itself — the host needs time to send the code out —
+     * so somebody has to begin. */
+    if (v.phase === 'idle') { Table.act({ type: 'start' }); continue; }
+
     if (v.phase === 'handOver') {
       hands++;
       if (hands >= 3) break;              // across hands, not just within one
@@ -527,10 +537,22 @@ async function eventsArriveOnce() {
     'a hand-start announcement was delivered more than once: ' + starts.join(' | '));
   check(heard.every(t => t !== undefined), 'an undefined event text was delivered');
 
+  /* Compared against what THIS seat is entitled to, not by matching text.
+   *
+   * The same sentence recurs legitimately across hands for different seats —
+   * "You hold both black queens" is addressed to seat 1 in one hand and seat 3 in
+   * another — so a text match found an earlier hand's honest line and called it a
+   * leak. tests/ui-dom.js had exactly this false positive; the fix there was to
+   * ask a question about entitlement rather than about words, and it is the same
+   * fix here. */
   const truth = server.peek();
-  truth.events.filter(e => e.audience !== undefined && e.audience !== 1).forEach(e => {
-    check(heard.indexOf(e.text) < 0, 'an event addressed to another seat was delivered: ' + e.text);
-  });
+  const entitled = new Set(G.eventsFor(truth, 1).map(e => e.text));
+  truth.events
+    .filter(e => e.audience !== undefined && e.audience !== 1)
+    .forEach(e => {
+      if (entitled.has(e.text)) return;          // this seat was told it too, legitimately
+      check(heard.indexOf(e.text) < 0, 'an event addressed to another seat was delivered: ' + e.text);
+    });
 
   Table.close();
   server.stop();

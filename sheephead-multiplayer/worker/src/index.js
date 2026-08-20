@@ -227,7 +227,7 @@ export class SheepheadRoom {
         await this.ctx.storage.put('meta', this.cache.meta);
       }
       const room = await this.wakeRoom(body.config || defaultConfig());
-      if (!this.cache.state) room.start();
+      room.start();   // prepares the room; the first hand waits for a player to begin
       return new Response('ok');
     }
 
