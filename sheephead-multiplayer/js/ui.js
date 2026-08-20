@@ -2356,8 +2356,16 @@
         redealDoubler: 'opt-redeal-doubler', pace: 'opt-pace', players: 'opt-players' };
       var node = $(ids[name]);
       if (!node) return;
-      node.disabled = online && name !== 'pace';
-      if (online && name !== 'pace') {
+      /* Pace is locked online too, and it is the one that mattered.
+       *
+       * It was left enabled on the grounds that it still governed how a player's
+       * own announcements were grouped. It does not: the online branch of tick()
+       * flushes unconditionally, so online the control changed nothing at all
+       * while continuing to look and read like a working setting. Somebody set
+       * it to Instant, watched the table carry on at its own speed, and
+       * reasonably concluded the game was ignoring them. */
+      node.disabled = online;
+      if (online) {
         node.setAttribute('aria-describedby', 'settings-online-note');
       } else {
         node.removeAttribute('aria-describedby');

@@ -80,8 +80,10 @@ function makeTable(n, evictEvery, opts) {
       now: () => clock,
       setAlarm: t => { alarmAt = t; },
       deliver: (id, msg) => { (inbox[id] = inbox[id] || []).push(msg); },
-      botDelay: 10,
-      turnGrace: (opts && opts.turnGrace) || 0
+      botDelay: (opts && opts.botDelay !== undefined) ? opts.botDelay : 10,
+      turnGrace: (opts && opts.turnGrace) || 0,
+      awayGrace: (opts && opts.awayGrace) || 0,
+      presenceWindow: (opts && opts.presenceWindow !== undefined) ? opts.presenceWindow : 60000
     });
   }
 
@@ -92,7 +94,7 @@ function makeTable(n, evictEvery, opts) {
   function evict() {
     room.hibernate();
     room = build();
-    room.wake(live.map(c => ({ id: c.id, seat: c.seat })));
+    room.wake(live.map(c => ({ id: c.id, seat: c.seat, seenAt: c.seenAt })));
   }
 
   function maybeEvict() {
@@ -104,6 +106,17 @@ function makeTable(n, evictEvery, opts) {
     storage, inbox, live,
     get room() { return room; },
     evict,
+    now() { return clock; },
+    get alarmAt() { return alarmAt; },
+    /* The keepalive, modelled the way the Worker actually carries it: the client
+     * pings, the wrapper stamps the SOCKET, and the room only ever learns of it
+     * when it next wakes and is handed the sockets back. There is no other
+     * channel — a room that is asleep cannot be told anything. */
+    ping(id) {
+      const c = live.find(x => x.id === id);
+      if (c) c.seenAt = clock;
+      evict();
+    },
     tick(ms) {
       clock += ms;
       if (alarmAt && clock >= alarmAt) { alarmAt = 0; room.onAlarm(); maybeEvict(); return true; }
@@ -111,7 +124,7 @@ function makeTable(n, evictEvery, opts) {
     },
     join(id, seat, name) {
       const r = room.join(id, seat, name);
-      if (r.ok) live.push({ id, seat });
+      if (r.ok) live.push({ id, seat: r.seat, seenAt: clock });
       maybeEvict();
       return r;
     },
@@ -452,6 +465,178 @@ for (const evictEvery of [0, 1]) {
   check(/is back/i.test(heard2), 'nobody was told the player had returned');
 }
 
+/* ---------------- 5d. A move must not wait out the turn clock ----------------- */
+
+/* The bug this exists to catch, reported from a real table as "sometimes there
+ * is a thirty second lag before the computer takes a turn".
+ *
+ * One field, room.botDue, carried two different deadlines: when the next bot
+ * moves, and when the turn clock gives up on somebody. Nothing recorded which
+ * one it was holding, so as soon as a player moved and handed off to a computer
+ * seat, scheduleBots read the turn clock's deadline as "a bot move is already
+ * scheduled" and armed nothing. The next play came when the TURN CLOCK expired
+ * instead — up to the whole grace period later, every single time.
+ *
+ * Against the shipped numbers (1200ms bot delay, 90 second grace) that measured
+ * 88 seconds per hand-off. From the player's side it is a table that has died.
+ *
+ * Asserted on the SCHEDULED TIME rather than on the game advancing, because a
+ * test that winds the clock forward until something happens cannot tell a
+ * prompt reply from a late one — which is exactly how this survived. */
+{
+  const BOT = 40, GRACE = 9000;
+  const t = makeTable(5, 0, { botDelay: BOT, turnGrace: GRACE, awayGrace: 0 });
+  t.start();
+  check(t.join('me', 0, 'Kelly').ok, 'could not sit down');
+  t.begin('me');
+
+  const mine = () => {
+    const s = t.room.peek();
+    if (s.phase === 'bury') return s.picker === 0;
+    if (s.phase === 'pick' || s.phase === 'play') return s.turn === 0;
+    return false;
+  };
+
+  let seq = 0, guard = 0, handOffs = [], worst = 0;
+  while (guard++ < 900 && handOffs.length < 6) {
+    const s = t.room.peek();
+    if (s.phase === 'handOver') break;
+    if (mine()) {
+      const v = t.latestView('me').view;
+      t.tick(1000);                       // a perfectly ordinary pause
+      if (t.room.peek().phase === 'handOver' || !mine()) continue;
+      if (v.phase === 'pick') t.action('me', { seq: ++seq, action: { type: 'pick' } });
+      else if (v.phase === 'bury') {
+        t.action('me', { seq: ++seq, action: { type: 'bury', cards: v.players[0].hand.slice(0, 2).map(c => c.id) } });
+      } else {
+        const legal = G.legalPlays(v, 0);
+        if (!legal.length) break;
+        t.action('me', { seq: ++seq, action: { type: 'play', card: legal[0].id } });
+      }
+      // Handed off to a computer seat? Then a bot move is owed, promptly.
+      if (!mine() && t.room.peek().phase !== 'handOver') {
+        const wait = t.alarmAt - t.now();
+        handOffs.push(wait);
+        if (wait > worst) worst = wait;
+      }
+      continue;
+    }
+    if (!t.alarmAt) { check(false, 'the table stalled with no alarm armed'); break; }
+    t.tick(Math.max(1, t.alarmAt - t.now()));
+  }
+
+  check(handOffs.length >= 3, 'never got far enough to hand off to a computer seat');
+  check(worst <= BOT,
+    'after the player moved, the next computer play was scheduled ' + worst +
+    'ms away instead of ' + BOT + 'ms: the turn clock deadline was mistaken for the bot one. ' +
+    'Waits seen: ' + handOffs.join(', '));
+}
+
+/* ---------------- 5e. A player who is there must keep their own cards --------- */
+
+/* The other half of the same report: "if you set the game to be instant, it
+ * takes not only the computer turns but also yours."
+ *
+ * The turn clock could not tell a player who was thinking from a browser that
+ * had gone away, because from the room both look identical: no action. Ninety
+ * seconds is an ordinary amount of time to spend on a bury when the hand has to
+ * be read aloud first, so ordinary players hit it — and once the seat went
+ * 'away' the computer played every remaining turn while they sat there watching
+ * their own hand go down.
+ *
+ * A client that is still pinging is still there. */
+{
+  const GRACE = 1000, AWAY = 60000;
+  const t = makeTable(5, 0, { turnGrace: GRACE, awayGrace: AWAY, presenceWindow: 3000 });
+  t.start();
+  check(t.join('me', 0, 'Kelly').ok, 'could not sit down');
+  t.join('other', 1, 'Pat');
+  t.begin('me');
+
+  const onTurn = () => {
+    const s = t.room.peek();
+    return s.phase === 'handOver' ? -1 : (s.phase === 'bury' ? s.picker : s.turn);
+  };
+
+  let guard = 0;
+  while (guard++ < 900 && onTurn() !== 0) {
+    if (!t.alarmAt) break;
+    t.tick(Math.max(1, t.alarmAt - t.now()));
+  }
+  check(onTurn() === 0, 'never reached the player own turn');
+
+  const held = C.ids(t.room.peek().players[0].hand).join(',');
+
+  // Twenty seconds of thinking, with the browser pinging away as it does.
+  for (let i = 0; i < 10; i++) {
+    t.tick(2000);
+    t.ping('me');
+  }
+
+  check(t.room.peek().players[0].occupant === 'human',
+    'a player whose browser was still pinging every two seconds was declared away after ' +
+    '20 seconds of thinking, against a grace period of ' + AWAY + 'ms');
+  check(C.ids(t.room.peek().players[0].hand).join(',') === held,
+    'the computer played cards out of a present player hand while they were deciding');
+  check(onTurn() === 0, 'the player turn was taken while they were still there');
+
+  /* And a seat whose browser really does stop answering is still taken over —
+   * that guarantee is not being traded away for this one. */
+  let g2 = 0;
+  while (g2++ < 400 && t.room.peek().players[0].occupant === 'human') {
+    if (!t.alarmAt) break;
+    t.tick(Math.max(1, t.alarmAt - t.now()));
+  }
+  check(t.room.peek().players[0].occupant === 'away',
+    'a seat whose client stopped pinging was never taken over, so the table stalls for everybody');
+}
+
+/* ---------------- 5f. Making a move takes the seat back ---------------------- */
+
+/* 'away' was cleared by join() and nothing else, which means only by opening a
+ * NEW connection. The player whose client never dropped has no way to do that
+ * and no reason to think they should: the board is still drawing itself, the
+ * cards are still there, and the only thing wrong is that nothing they press
+ * does anything, ever again. */
+{
+  const t = makeTable(5, 0, { turnGrace: 500 });
+  t.start();
+  check(t.join('me', 0, 'Kelly').ok, 'could not sit down');
+  t.join('other', 1, 'Pat');
+  t.begin('me');
+
+  const onTurn = () => {
+    const s = t.room.peek();
+    return s.phase === 'handOver' ? -1 : (s.phase === 'bury' ? s.picker : s.turn);
+  };
+
+  let guard = 0;
+  while (guard++ < 900 && onTurn() !== 0) {
+    if (!t.alarmAt) break;
+    t.tick(Math.max(1, t.alarmAt - t.now()));
+  }
+  check(onTurn() === 0, 'never reached the player own turn');
+
+  // Say nothing for long enough to be counted out.
+  let g2 = 0;
+  while (g2++ < 400 && t.room.peek().players[0].occupant === 'human') {
+    if (!t.alarmAt) break;
+    t.tick(Math.max(1, t.alarmAt - t.now()));
+  }
+  check(t.room.peek().players[0].occupant === 'away', 'the idle seat was never counted out');
+
+  // The same connection, still open, makes a move. Whatever the move is, the
+  // player is plainly at the table.
+  t.action('me', { seq: 500, action: { type: 'play', card: 'JD' } });
+  check(t.room.peek().players[0].occupant === 'human',
+    'a player at a live connection could not get their own seat back by playing: ' +
+    'the computer keeps their chair for the rest of the session');
+
+  const heard = (t.inbox['other'] || []).flatMap(m => (m.events || []).map(e => e.text)).join(' | ');
+  check(/is back/i.test(heard),
+    'the rest of the table was told the seat had gone and never told it was back');
+}
+
 /* ---------------- 6. Seats, and the seat coming from the connection ------------- */
 
 {
@@ -500,3 +685,5 @@ if (fails.length) {
 console.log('complete hands played with the room evicted before every single message');
 console.log('version never went backwards; events not replayed; retries applied once');
 console.log('bots kept playing on alarms across eviction; seats survived the wake');
+console.log('a computer seat moves after the bot delay, not when the turn clock expires');
+console.log('a player whose browser is still pinging keeps their own turn, and a move takes an away seat back');
