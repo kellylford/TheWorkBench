@@ -49,6 +49,7 @@
    * appear in this file again. Only keys this fork has itself retired. */
   var STORE_KEY = 'sheephead-mp.settings.v1';
   var OLD_STORE_KEYS = [];
+  var NET_IDS = ['net-line', 'net-actions', 'net-reconnect'];
   var LOBBY_IDS = ['lobby-section', 'lobby-status', 'lobby-choose', 'lobby-table',
     'lobby-create', 'lobby-join-form', 'lobby-code', 'lobby-code-display', 'lobby-code-read',
     'lobby-copy', 'lobby-leave', 'lobby-seats', 'lobby-back', 'setup-online', 'table-code-line', 'lobby-start', 'lobby-start-hint',
@@ -102,7 +103,7 @@
       'game-h', 'export-dialog', 'export-text', 'export-summary',
       'bug-dialog', 'bug-title', 'bug-what', 'bug-include-log', 'bug-preview',
       'rules-dialog', 'a11y-dialog', 'settings-dialog', 'settings-summary']
-      .concat(LOBBY_IDS).forEach(function (id) {
+      .concat(LOBBY_IDS).concat(NET_IDS).forEach(function (id) {
         el[id] = $(id);
       });
 
@@ -117,6 +118,7 @@
     $('lobby-create').addEventListener('click', createTable);
     $('lobby-copy').addEventListener('click', copyCode);
     $('game-copy-code').addEventListener('click', copyCode);
+    $('net-reconnect').addEventListener('click', reconnect);
     $('lobby-start').addEventListener('click', function () {
       var r = SH.Table.act({ type: 'start' });
       if (r && r.ok === false) { alert_(r.reason + '.'); return; }
@@ -354,6 +356,8 @@
      * "(you)". A regression INTO the offline game, which is the one thing this
      * fork exists to leave alone. */
     mySeat = 0;
+    netTroubled = false;
+    showNetTrouble('', false);
     if (el['table-code-line']) { el['table-code-line'].hidden = true; el['table-code-line'].textContent = ''; }
     if (el['table-code-actions']) el['table-code-actions'].hidden = true;
     lobby.code = null;
@@ -528,6 +532,21 @@
     connected: false
   };
 
+  /* Whether we have told the player something is wrong with the connection, so
+   * that coming back can be announced as the news it is rather than passing in
+   * silence. */
+  var netTroubled = false;
+
+  /* A fragment from the wire, made into a sentence. The transport hands back
+   * things like "the connection closed", which were being concatenated straight
+   * after a full stop and read out mid-sentence with a lower case start. */
+  function sentence(text) {
+    var t = String(text || '').trim();
+    if (!t) return '';
+    t = t.charAt(0).toUpperCase() + t.slice(1);
+    return /[.!?]$/.test(t) ? t : t + '.';
+  }
+
   /* The alphabet the server uses. No O, I or L, and no zero or one — a code gets
    * read down a phone, and "was that a one or an I" is a poor first experience of
    * a game built for people who cannot see the screen. */
@@ -636,6 +655,49 @@
     $('lobby-code-display').focus();
   }
 
+  /* THE STANDING VERSION OF THE CONNECTION STATE, on the game screen.
+   *
+   * The lobby's status line says all of this too, and the lobby is hidden from
+   * the moment the first hand is dealt — so during play it said it to nobody.
+   * Everything below is about the one case that matters in a game already in
+   * progress: the table has gone and the player needs to know, needs to still be
+   * able to check, and needs a way back that is not "reload and retype the
+   * code you can no longer see".
+   *
+   * Nothing is shown while the connection is healthy. A permanent "connected"
+   * badge is noise on screen and worse in a screen reader's tab order, and the
+   * table code line beside it already says which table this is. */
+  function showNetTrouble(text, offerReconnect) {
+    var line = el['net-line'];
+    var actions = el['net-actions'];
+    if (!line || !actions) return;
+    if (!text) {
+      line.hidden = true;
+      line.textContent = '';
+      actions.hidden = true;
+      return;
+    }
+    line.hidden = false;
+    line.textContent = text;
+    actions.hidden = !(offerReconnect && lobby.code);
+  }
+
+  /* Take the same seat at the same table again.
+   *
+   * Deliberately a button rather than an automatic retry. net.js is explicit
+   * that coming back is a decision with consequences — the computer may have
+   * been playing your seat, and a silent reconnect would hide that — so this
+   * asks, and says what happened afterwards. Asking for OUR seat rather than
+   * "anywhere" is what makes it the same chair: the room lets a seat marked
+   * away be reclaimed, which is exactly the state a dropped connection leaves
+   * behind. */
+  function reconnect() {
+    if (!lobby.code) return;
+    showNetTrouble('Reconnecting to table ' + lobby.code + '…', false);
+    announceRequested('Reconnecting to table ' + spellCode(lobby.code) + '.');
+    joinTable(lobby.code, typeof mySeat === 'number' ? mySeat : null);
+  }
+
   /* Connection state is game state.
    *
    * A player who cannot see the screen has no other way to tell a table where
@@ -644,8 +706,27 @@
    * standing version for anyone who wants to check. */
   function onNetStatus(s) {
     lobby.connected = s.state === 'connected';
+
+    /* Two sentences, not one run together.
+     *
+     * These read "The connection to the table was lost. the connection closed"
+     * — a detail from the wire tacked on after a full stop with no capital,
+     * which a screen reader says exactly as written. The detail is worth
+     * keeping; it just has to be a sentence. */
+    var detail = sentence(s.detail);
+
     if (s.state === 'connecting') lobbyStatus('Connecting…');
-    else if (s.state === 'connected') lobbyStatus('Connected to table ' + spellCode(lobby.code) + '.');
+    else if (s.state === 'connected') {
+      lobbyStatus('Connected to table ' + spellCode(lobby.code) + '.');
+      /* Back on. Say so — somebody who was told the table had gone needs
+       * telling that it has not — and then clear the standing notice. */
+      if (netTroubled) {
+        announceRequested('Reconnected to table ' + spellCode(lobby.code) +
+          ', seat ' + ((typeof mySeat === 'number' ? mySeat : 0) + 1) + '.');
+        netTroubled = false;
+      }
+      showNetTrouble('', false);
+    }
     else if (s.state === 'nosuch') {
       /* A different thing from a seat being taken, and worth saying so: the
        * commonest cause is a typo, and "that seat is not available" sends
@@ -662,11 +743,23 @@
       $('lobby-table').hidden = true;
       $('lobby-code').focus();
     } else if (s.state === 'lost') {
-      lobbyStatus('The connection to the table was lost. ' + (s.detail || ''));
+      netTroubled = true;
+      lobbyStatus('The connection to the table was lost. ' + detail);
+      showNetTrouble('The connection to this table was lost. ' + detail +
+        ' The computer may be playing your seat until you come back.', true);
     } else if (s.state === 'fault') {
+      netTroubled = true;
       lobbyStatus('The table stopped: ' + (s.detail || 'something went wrong on the server') + '.');
+      /* No reconnect offered on a fault: the room is telling us its own state is
+       * untrustworthy, and rejoining would land in the same broken game. */
+      showNetTrouble('The table stopped: ' +
+        (s.detail || 'something went wrong on the server') + '.', false);
     } else if (s.state === 'failed') {
+      netTroubled = true;
       lobbyStatus('Could not reach the table. You can still play against the computer.');
+      showNetTrouble('Could not reach the table.', true);
+    } else if (s.state === 'closed') {
+      showNetTrouble('', false);
     }
     renderSeats2();
   }
@@ -752,6 +845,8 @@
 
   function leaveTable() {
     SH.Table.close();
+    netTroubled = false;
+    showNetTrouble('', false);
     lobby.code = null;
     lobby.seat = null;
     lobby.connected = false;
