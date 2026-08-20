@@ -59,7 +59,16 @@
      * cards off them — see the note in onAlarm. Zero disables the distinction
      * entirely, which is what every test that predates it gets. */
     var awayGrace = opts.awayGrace === undefined ? 0 : opts.awayGrace;
-    var presenceWindow = opts.presenceWindow === undefined ? 60000 : opts.presenceWindow;
+    /* Three minutes, not sixty seconds.
+     *
+     * Sixty was the default here even after the Worker was corrected, and sixty
+     * is the exact number that took both seats at a real table: it is shorter
+     * than the rate a backgrounded Chrome tab pings at. awayGrace defaults to 0
+     * because 0 is a meaningful OFF — no presence distinction at all. There is
+     * no equivalent reading of 60000. It is simply the wrong answer sitting
+     * where the next wrapper, or a call site that forgets the option, would
+     * pick it up. */
+    var presenceWindow = opts.presenceWindow === undefined ? 180000 : opts.presenceWindow;
 
     var state = null;
     var room = null;
@@ -286,7 +295,16 @@
         return;
       }
       if (room.turnSince === null || room.turnSince === undefined) room.turnSince = now();
-      armAlarm('turn', room.turnSince + turnGrace);
+      /* Never in the past.
+       *
+       * onAlarm's re-arm branch leaves turnSince deliberately stale, because the
+       * grace period is measured from when the turn actually started. Callers
+       * that do not refresh it — leave(), notably — then re-derive a deadline
+       * that has already gone by, and Cloudflare fires a past-dated alarm at
+       * once. Harmless in itself, but it burns a wake and restarts the presence
+       * poll from now, so a flapping client at one seat could push another
+       * seat's takeover out indefinitely. */
+      armAlarm('turn', Math.max(now(), room.turnSince + turnGrace));
     }
 
     function onAlarm() {
@@ -546,7 +564,22 @@
           return;
         }
         room.lastSeq[seat] = msg.seq;
-        room.lastAck[seat] = msg.seq;
+        /* lastAck is NOT set here. A view carrying ackSeq means "the state in
+         * this frame contains your move", and nothing has been applied yet.
+         *
+         * It used to be set here, one line after the duplicate guard, which was
+         * harmless only while the next thing to leave this function was the view
+         * containing the move. The reclaim below broadcasts BEFORE the move is
+         * applied, so that early ack went out on a frame that did not contain
+         * it: table.js cleared the client's pending move and its answer timer on
+         * the ack, and then dropped the `rejected` frame that followed as
+         * answering nothing (see the answersPending check in its receive()).
+         *
+         * The player pressed a card, the card was refused, and they were told
+         * nothing at all — not by the refusal, which was discarded, and not by
+         * the eight second timeout, which had been cancelled. Silence after a
+         * keypress is the exact failure this whole codebase is arranged to
+         * prevent, and it was reintroduced by the fix written to prevent it. */
       }
 
       /* A move is proof the player is at the table, so it takes the seat back.
@@ -615,6 +648,11 @@
         return;
       }
 
+      /* Acknowledged HERE, on the way out, because this is the first frame that
+       * will actually contain the move. A refusal is answered by the rejected
+       * frame above and must not be acked at all, or the client throws the
+       * refusal away as answering nothing. */
+      if (typeof msg.seq === 'number') room.lastAck[seat] = msg.seq;
       room.turnSince = now();
       broadcast();
       scheduleBots();

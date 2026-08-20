@@ -199,10 +199,15 @@ export class SheepheadRoom {
        * condition — it is what everybody does, and a screen reader user may
        * have the browser behind something else the entire time.
        *
-       * The cost is that a client that really has died holds the table for up
-       * to this long rather than ninety seconds. That is the right way round:
-       * a slow recovery from a genuine disconnection is an inconvenience, and
-       * playing a present player's cards for them is the bug we are fixing. */
+       * The cost is that a client that really has died holds the table for
+       * longer than ninety seconds. Be honest about how much longer: presence
+       * is POLLED, once per turnGrace, so a check landing just inside the
+       * window re-arms for another ninety seconds. Worst case is
+       * presenceWindow + turnGrace — four and a half minutes, not three.
+       *
+       * Still the right way round: a slow recovery from a genuine disconnection
+       * is an inconvenience, and playing a present player's cards for them is
+       * the bug we are fixing. */
       presenceWindow: 180000
     });
     return this.room;
@@ -335,21 +340,28 @@ export class SheepheadRoom {
     try { msg = JSON.parse(raw); } catch (e) { return; }
     if (!msg || typeof msg !== 'object') return;
 
+    /* ANY FRAME IS PROOF OF LIFE, and the mark goes on the socket.
+     *
+     * The attachment is the one thing that survives hibernation without a
+     * storage write and without rebuilding the room, which is what lets the
+     * keepalive stay cheap. wake() rebuilds the room's whole connection map
+     * from these attachments, so this is not merely the cheapest channel for
+     * presence — it is the ONLY one that reaches the room at all.
+     *
+     * That is why this is not in the ping branch, where it started. The room
+     * also stamps its own in-memory record when a seat acts, and that write was
+     * silently thrown away on the very next wake: actions never touched the
+     * attachment, so the room's presence check could only ever see pings. A
+     * player actively playing cards is the least ambiguous evidence there is
+     * that somebody is there, and it was the one signal not being counted. */
+    ws.serializeAttachment(Object.assign({}, att, { seenAt: Date.now() }));
+
     /* Answered before the room is woken, deliberately. A keepalive must not cost
      * a storage read and a rebuild every twenty-five seconds per player — that
      * would turn an idle table, which is most of a card game, into the most
      * expensive thing the room does. */
     if (msg.type === 'ping') {
       try { ws.send(JSON.stringify({ type: 'pong', at: msg.at })); } catch (e) { /* closing */ }
-      /* THE PING IS THE PROOF OF LIFE, so it has to leave a mark.
-       *
-       * It goes on the socket's own attachment rather than into storage,
-       * because the attachment is the one thing that survives hibernation
-       * without a storage write and without rebuilding the room — which is the
-       * whole reason this branch answers before waking anything. The room reads
-       * it on the next wake and uses it to tell a player who is thinking from a
-       * browser that has gone away. */
-      ws.serializeAttachment(Object.assign({}, att, { seenAt: Date.now() }));
       return;
     }
 
