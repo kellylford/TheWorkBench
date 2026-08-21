@@ -59,7 +59,7 @@ function boot() {
     D.prototype.close = function () { this.open = false; this.dispatchEvent(new win.Event('close')); };
   }
   for (const f of ['js/cards.js', 'js/game.js', 'js/ai.js', 'js/view.js',
-    'js/table.js', 'js/net.js', 'js/localserver.js', 'js/ui.js']) {
+    'js/config.js', '../shared/js/table.js', '../shared/js/net.js', '../shared/js/localserver.js', 'js/ui.js']) {
     win.eval(fs.readFileSync(path.join(root, f), 'utf8'));
   }
   return win;

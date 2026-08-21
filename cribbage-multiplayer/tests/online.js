@@ -25,7 +25,7 @@ const sandbox = { console, Math: seededMath, Date, JSON, Set, setTimeout, clearT
 sandbox.window = sandbox;
 vm.createContext(sandbox);
 for (const f of ['js/cards.js', 'js/game.js', 'js/ai.js', 'js/view.js',
-  'js/table.js', 'js/localserver.js']) {
+  'js/config.js', '../shared/js/table.js', '../shared/js/localserver.js']) {
   vm.runInContext(fs.readFileSync(path.join(root, f), 'utf8'), sandbox, { filename: f });
 }
 const { Game: G, Table, LocalServer } = sandbox.SH;

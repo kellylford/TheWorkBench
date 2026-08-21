@@ -121,7 +121,11 @@ function load(world, sock, doc) {
   sandbox.window = sandbox;
   sandbox.global = sandbox;
   vm.createContext(sandbox);
-  vm.runInContext(fs.readFileSync(path.join(root, 'js/net.js'), 'utf8'), sandbox, { filename: 'js/net.js' });
+  /* config first: net.js asks SH.CONFIG where the Worker is, and says so
+     loudly if nobody told it. */
+  for (const f of ['js/config.js', '../shared/js/net.js']) {
+    vm.runInContext(fs.readFileSync(path.join(root, f), 'utf8'), sandbox, { filename: f });
+  }
   return sandbox.SH.Net;
 }
 

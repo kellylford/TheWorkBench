@@ -907,8 +907,21 @@
    * It is correct here, which is exactly what made it dangerous: a constant that
    * is right in the file it was written in and wrong in the file it was copied
    * to. A predicate the engine owns cannot come apart that way. */
+  /* May a hand be dealt right now?
+   *
+   * EXACTLY the phases applyAction accepts a nextHand in, and shared
+   * contract tests hold all three games to that. The room asks this before
+   * forwarding a Deal, and both ways of being approximately right are bugs:
+   * too narrow and the deal is swallowed with no message at all, which is
+   * what a copied handOver check did to cribbage; too broad and the player
+   * gets the raw engine refusal — "the hand is not over" — while a new hand
+   * is visibly being dealt in front of them, which is the exact confusion the
+   * gate was added to prevent.
+   *
+   * idle belongs to the start action, not to this one. A table that has never
+   * dealt is started by the people at it, deliberately. */
   function canDeal(state) {
-    return state.phase === 'idle' || state.phase === 'handOver';
+    return state.phase === 'handOver';
   }
 
   /* Whose move the table is waiting for, or -1 if it is waiting for nobody.

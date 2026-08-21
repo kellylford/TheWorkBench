@@ -1017,6 +1017,42 @@
   ACTIONS.nextHand = 1;
   ACTIONS.start = 1;
 
+  /* Whose move is it — or -1 for nobody, between hands and before the first
+   * deal. Both other engines in this repository export this; sheephead's copy
+   * of it lived inline in localserver.js instead, which is why localserver.js
+   * could not be shared until now. Same rule, one line to the left of where it
+   * was: bury is the picker's, everything else belongs to whoever has the turn.
+   *
+   * The dead phases matter. A room that asks a bot to move during handOver gets
+   * a seat number that is still valid from the last trick, and the bot plays
+   * into a hand that is over. */
+  /* May a hand be dealt right now? Both other engines export this, and the
+   * room asks rather than testing a phase name, because a room that tests a
+   * phase name is a room that swallows every deal the day the name changes —
+   * which has already happened once in this repository, in cribbage, where a
+   * check for handOver was copied into a game whose phase is called
+   * roundOver and quietly ate every deal that came over the wire. */
+  /* May a hand be dealt right now?
+   *
+   * EXACTLY the phases applyAction accepts a nextHand in, and shared
+   * contract tests hold all three games to that. The room asks this before
+   * forwarding a Deal, and both ways of being approximately right are bugs:
+   * too narrow and the deal is swallowed with no message at all, which is
+   * what a copied handOver check did to cribbage; too broad and the player
+   * gets the raw engine refusal — "the hand is not over" — while a new hand
+   * is visibly being dealt in front of them, which is the exact confusion the
+   * gate was added to prevent.
+   *
+   * idle belongs to the start action, not to this one. A table that has never
+   * dealt is started by the people at it, deliberately. */
+  function canDeal(state) {
+    return state.phase === 'handOver';
+  }
+
+  function seatToAct(state) {
+    if (state.phase === 'handOver' || state.phase === 'idle') return -1;
+    return state.phase === 'bury' ? state.picker : state.turn;
+  }
   function applyAction(state, seat, action) {
     if (!state || !state.players) return { ok: false, reason: 'no game in progress' };
     if (!action || typeof action !== 'object') return { ok: false, reason: 'malformed action' };
@@ -1068,10 +1104,11 @@
            * the room layers a ready-gate on top, because one player dealing
            * while five others are still reading the result is a different
            * problem from authorization and belongs where the seats are known. */
-          /* From a finished hand, or from a standing start — the same two phases
-           * newHand itself accepts. Requiring handOver alone meant the OPENING
-           * deal was refused, because a table that has never dealt is 'idle',
-           * and the game could not begin. */
+          /* handOver only. The opening deal is the start action, which is a
+           * separate decision the table makes together — this comment used to
+           * say idle was accepted here too, describing a fix that start had
+           * already replaced. canDeal returns exactly this set, and a shared
+           * contract test holds the two together. */
           if (state.phase !== 'handOver') {
             return { ok: false, reason: 'the hand is not over' };
           }
@@ -1119,6 +1156,8 @@
   SH.Game = {
     DEAL: DEAL,
     applyAction: applyAction,
+    seatToAct: seatToAct,
+    canDeal: canDeal,
     eventsFor: eventsFor,
     /* For the room to say something the whole table should hear — a player
      * dropping out, the computer taking a seat over. Public by construction:

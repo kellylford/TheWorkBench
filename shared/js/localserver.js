@@ -1,4 +1,4 @@
-/* Euchre - an authoritative server that happens to be in this tab.
+/* An authoritative server that happens to be in this tab.
  *
  * Same contract as the Durable Object that will replace it: it owns the only
  * real state, it decides what each seat may see, it refuses moves from seats
