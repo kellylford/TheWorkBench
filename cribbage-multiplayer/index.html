@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cribbage Multiplayer</title>
+<meta name="description" content="Cribbage for two, playable with a keyboard alone or entirely by ear with a screen reader. Against the computer, or with another person at a shared table.">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to main content</a>
+
+<header class="app-header">
+  <h1>Cribbage</h1>
+  <p class="tagline">Two players, 121 points &mdash; and every count read out card by card.</p>
+  <p class="dev-notice"><strong>This is the multiplayer build.</strong> It plays the same cribbage
+    as <a href="../Cribbage/">the stable single-player game</a>, and adds playing against another
+    person. The stable game is not modified by anything that happens here.</p>
+</header>
+
+<main id="main" tabindex="-1">
+
+  <!-- ============ LOBBY ============
+       Everything here is an ordinary heading, form field, button and table. The
+       code entry is a plain text input rather than five separate boxes: split
+       inputs look tidy and are miserable with a screen reader, because every
+       keystroke moves focus and the field you are in is never the field you
+       thought. -->
+  <section id="lobby-section" aria-labelledby="lobby-h" hidden>
+    <h2 id="lobby-h">Play with somebody else</h2>
+
+    <!-- Visible, and deliberately NOT a live region. It carries the same words the
+         announcer speaks, and a second independent live region would say all of
+         them twice — and reintroduce exactly the race the announcement queue
+         exists to prevent. Same reason the game log is not one. -->
+    <p id="lobby-status" class="status"></p>
+
+    <div id="lobby-choose">
+      <p class="hint">Anyone can join a table with its code. There are no accounts and nothing to
+        install. Cribbage is two seats; if the other one is empty, the computer plays it.</p>
+
+      <p class="actions">
+        <button type="button" id="lobby-create" class="primary">Start a new table</button>
+      </p>
+
+      <form id="lobby-join-form">
+        <p class="field">
+          <label for="lobby-code">Join a table with its code</label>
+          <input type="text" id="lobby-code" name="code" autocomplete="off" spellcheck="false"
+                 maxlength="12" aria-describedby="lobby-code-hint">
+          <span id="lobby-code-hint" class="hint">Five letters and numbers. Upper or lower case both
+            work, and spaces and dashes are ignored. The letters O, I and L and the digits zero and
+            one are never used, so there is nothing to mistake for anything else.</span>
+        </p>
+        <p class="actions">
+          <button type="submit">Join this table</button>
+        </p>
+      </form>
+
+      <p class="actions">
+        <button type="button" id="lobby-back">Play against the computer instead</button>
+      </p>
+    </div>
+
+    <div id="lobby-table" hidden>
+      <h3 id="lobby-code-h">Your table code</h3>
+      <p id="lobby-code-display" class="table-code" tabindex="-1"></p>
+      <p class="hint" id="lobby-code-read"></p>
+      <p class="actions">
+        <button type="button" id="lobby-copy">Copy the code</button>
+        <button type="button" id="lobby-leave" class="consequential">Leave this table</button>
+      </p>
+
+      <!-- Nothing is dealt until somebody presses this. A table that starts the
+           moment it is made leaves the host no time to send anybody the code. -->
+      <p class="actions">
+        <button type="button" id="lobby-start" class="primary">Start the game</button>
+      </p>
+      <p class="hint" id="lobby-start-hint">Send the code to the person you want to play with, wait
+        for them to appear in the seats below, then start. If the other seat is still empty the
+        computer plays it, so you can start whenever you like.</p>
+
+      <h3 id="lobby-seats-h">Seats</h3>
+      <div class="table-wrap">
+        <table id="lobby-seats">
+          <caption class="sr-only">Both seats at this table and who is in each. An empty seat is
+            played by the computer.</caption>
+          <thead>
+            <tr>
+              <th scope="col">Seat</th>
+              <th scope="col">Who</th>
+              <th scope="col">Status</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SETUP ============ -->
+  <section id="setup-section" aria-labelledby="setup-h">
+    <h2 id="setup-h">New game</h2>
+    <form id="setup-form">
+      <fieldset>
+        <legend>You</legend>
+        <p class="field">
+          <label for="opt-name">Your name</label>
+          <input type="text" id="opt-name" name="name" value="You" autocomplete="off" maxlength="16">
+        </p>
+        <p class="hint">Cribbage is two players. Playing on your own, the other seat is the
+          computer.</p>
+      </fieldset>
+
+      <fieldset>
+        <legend>Game settings</legend>
+        <p class="hint">These are remembered, so a new game uses them again unless you change them.</p>
+        <p id="settings-online-note" class="hint" hidden>At an online table the rules were set when
+          the table was made and cannot be changed from here, and the tempo belongs to the room.
+          Your turn is never taken while you are still at the table, however long you want to spend
+          on it.</p>
+        <p id="settings-summary" class="settings-summary"></p>
+        <p class="actions">
+          <button type="button" id="setup-settings">Change game settings</button>
+        </p>
+      </fieldset>
+
+      <p class="actions">
+        <button type="submit" class="primary">Start game</button>
+        <button type="button" id="setup-online">Play with somebody else</button>
+        <button type="button" id="setup-rules">How to play Cribbage</button>
+        <button type="button" id="setup-a11y">Accessibility hints</button>
+      </p>
+    </form>
+  </section>
+
+  <!-- ============ GAME ============ -->
+  <section id="game-section" aria-labelledby="game-h" hidden>
+    <h2 id="game-h" class="sr-only">Game</h2>
+
+    <!-- The table code, on the game screen, for the whole game. The lobby that
+         showed it disappears the instant the first hand is dealt, and a code you
+         cannot check is a code you cannot share. -->
+    <p id="table-code-line" class="table-code-line" tabindex="-1" hidden></p>
+    <p class="actions" id="table-code-actions" hidden>
+      <button type="button" id="game-copy-code">Copy the table code</button>
+    </p>
+
+    <!-- THE CONNECTION, SAID OUT LOUD AND LEFT ON SCREEN. role="status" rather
+         than alert: spoken politely, and unlike an announcement it STAYS, so it
+         can be found again by anybody who missed it. -->
+    <p id="net-line" class="net-line" role="status" tabindex="-1" hidden></p>
+    <p class="actions" id="net-actions" hidden>
+      <button type="button" id="net-reconnect">Reconnect to this table</button>
+    </p>
+
+    <p id="status" class="status"></p>
+
+    <section aria-labelledby="action-h" id="action-section">
+      <h3 id="action-h">Your turn</h3>
+      <div id="actions" class="actions-area"></div>
+    </section>
+
+    <section aria-labelledby="hand-h">
+      <h3 id="hand-h">Your hand</h3>
+      <div id="hand" class="hand" role="group" aria-labelledby="hand-h"></div>
+    </section>
+
+    <!-- The board. Decorative, and hidden from assistive technology entirely:
+         the score table below carries the same two numbers properly, and a peg
+         track read as a row of holes is noise. The pegs are here because a
+         cribbage board is what the game looks like. -->
+    <div id="board" class="board" aria-hidden="true"></div>
+
+    <section aria-labelledby="play-h">
+      <h3 id="play-h">The play</h3>
+      <p id="count-line" class="count-line"></p>
+      <ol id="pile" class="trick"></ol>
+    </section>
+
+    <section aria-labelledby="starter-h" id="starter-section" hidden>
+      <h3 id="starter-h">The starter</h3>
+      <div id="starter" class="hand static"></div>
+    </section>
+
+    <section aria-labelledby="crib-h" id="crib-section">
+      <h3 id="crib-h">The crib</h3>
+      <p id="crib-note" class="hint"></p>
+      <div id="crib" class="hand static"></div>
+    </section>
+
+    <section aria-labelledby="score-h" id="score-section">
+      <h3 id="score-h">Score</h3>
+      <div class="table-wrap">
+        <table id="score-table">
+          <caption class="sr-only">Both players, their score, how far they still have to go, and how
+            many games each has won. The dealer takes the crib.</caption>
+          <thead>
+            <tr>
+              <th scope="col">Player</th>
+              <th scope="col">Role</th>
+              <th scope="col">Score</th>
+              <th scope="col">To go</th>
+              <th scope="col">Games won</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Grouped by what the buttons are for. The group names are announced by a
+         screen reader too, so this helps in both directions. -->
+    <div class="toolbar">
+      <div class="tool-group" role="group" aria-labelledby="tg-review">
+        <span class="tool-group-name" id="tg-review">Review</span>
+        <button type="button" data-say="hand" aria-keyshortcuts="H">Hand <kbd>H</kbd></button>
+        <button type="button" data-say="play" aria-keyshortcuts="T">The play <kbd>T</kbd></button>
+        <button type="button" data-say="last" aria-keyshortcuts="L">Last count <kbd>L</kbd></button>
+        <button type="button" data-say="score" aria-keyshortcuts="S">Score <kbd>S</kbd></button>
+        <button type="button" data-say="position" aria-keyshortcuts="P">Deal and crib <kbd>P</kbd></button>
+        <button type="button" data-say="count" aria-keyshortcuts="C">Cards seen <kbd>C</kbd></button>
+        <button type="button" data-say="who" aria-keyshortcuts="W">Who is here <kbd>W</kbd></button>
+        <button type="button" data-say="repeat" aria-keyshortcuts="R">Repeat <kbd>R</kbd></button>
+      </div>
+
+      <div class="tool-group" role="group" aria-labelledby="tg-records">
+        <span class="tool-group-name" id="tg-records">Records</span>
+        <button type="button" id="btn-log" aria-keyshortcuts="G">Game log <kbd>G</kbd></button>
+        <button type="button" id="btn-export" aria-keyshortcuts="E">Export log <kbd>E</kbd></button>
+        <button type="button" id="btn-bug" aria-keyshortcuts="B">Report a bug <kbd>B</kbd></button>
+      </div>
+
+      <div class="tool-group" role="group" aria-labelledby="tg-help">
+        <span class="tool-group-name" id="tg-help">Settings and help</span>
+        <button type="button" id="btn-settings">Settings</button>
+        <button type="button" id="btn-rules">How to play</button>
+        <button type="button" id="btn-a11y" aria-keyshortcuts="?">Accessibility hints <kbd>?</kbd></button>
+        <button type="button" id="btn-newgame" class="consequential">New game</button>
+      </div>
+    </div>
+
+    <section aria-labelledby="log-h">
+      <h3 id="log-h">Game log</h3>
+      <p class="hint">Newest entry first. Press <kbd>G</kbd> to jump here, then <kbd>Up</kbd> and <kbd>Down</kbd> to move entry by entry, <kbd>Home</kbd> for the newest and <kbd>End</kbd> for the oldest. This region is never spoken automatically, so you can read back through it at your own pace.</p>
+      <ul id="log" class="log"></ul>
+    </section>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <nav aria-label="Elsewhere">
+    <a href="../thecardplace.html">Back to The Card Place</a>
+  </nav>
+</footer>
+
+<!-- Live regions. Kept off screen but available to assistive technology. -->
+<div id="announcer" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+<div id="alerts" class="sr-only" role="alert" aria-atomic="true"></div>
+
+<dialog id="settings-dialog" aria-labelledby="settings-h">
+  <div class="dialog-body">
+    <h2 id="settings-h">Game settings</h2>
+    <p class="hint">Everything here is remembered between games. Changes to pace, speech and
+      appearance take effect straight away; rule changes take effect from the next hand.</p>
+
+    <fieldset>
+      <legend>Rules</legend>
+      <p class="field">
+        <label for="opt-target">Game is played to</label>
+        <select id="opt-target" name="target">
+          <option value="121" selected>121 &mdash; the standard game</option>
+          <option value="61">61 &mdash; once round the board</option>
+        </select>
+      </p>
+      <p class="field">
+        <label for="opt-difficulty">Opponent skill</label>
+        <select id="opt-difficulty" name="difficulty">
+          <option value="easy">Easy &mdash; they throw away good cards and misplay</option>
+          <option value="normal" selected>Normal</option>
+          <option value="hard">Hard &mdash; they count what is left and play the odds</option>
+        </select>
+      </p>
+    </fieldset>
+
+    <fieldset>
+      <legend>Pace and speech</legend>
+      <p class="field">
+        <label for="opt-pace">How fast the computer moves</label>
+        <select id="opt-pace" name="pace">
+          <option value="0">Instant &mdash; a run of plays is announced as one message</option>
+          <option value="4000" selected>Four seconds between plays</option>
+          <option value="10000">Ten seconds between plays</option>
+          <option value="-1">Only when I press Continue</option>
+        </select>
+        <span class="hint">A timed pace is a ceiling, not a wait you are held to: Continue is on
+          screen as well, and taking it drops the pending pause.</span>
+      </p>
+      <p class="field checkbox">
+        <input type="checkbox" id="opt-verbose" name="verbose" checked>
+        <label for="opt-verbose">Fuller announcements &mdash; break every count down into its
+          fifteens, pairs and runs rather than giving the total</label>
+      </p>
+      <p class="field checkbox">
+        <input type="checkbox" id="opt-autofocus" name="autofocus" checked>
+        <label for="opt-autofocus">Move focus to my cards when it becomes my turn</label>
+      </p>
+    </fieldset>
+
+    <fieldset>
+      <legend>Appearance</legend>
+      <p class="field">
+        <label for="opt-skin">Card style</label>
+        <select id="opt-skin" name="skin">
+          <option value="traditional" selected>Traditional &mdash; printed card faces on a green table</option>
+          <option value="plain">Plain &mdash; large rank and suit on flat panels</option>
+        </select>
+      </p>
+      <p class="field">
+        <label for="opt-layout">Desktop layout</label>
+        <select id="opt-layout" name="layout">
+          <option value="one" selected>One column</option>
+          <option value="two">Two columns on a wide screen</option>
+        </select>
+      </p>
+    </fieldset>
+
+    <p class="actions">
+      <button type="button" id="settings-close" class="primary">Done</button>
+      <button type="button" id="settings-reset">Reset to defaults</button>
+    </p>
+  </div>
+</dialog>
+
+<dialog id="rules-dialog" aria-labelledby="rules-h">
+  <div class="dialog-body">
+    <h2 id="rules-h">How to play Cribbage</h2>
+
+    <p>Two players, 121 points, and the first one there wins &mdash; the moment they get there, not
+      at the end of the hand.</p>
+
+    <h3>Two numbers on every card</h3>
+    <p>A card's <strong>counting value</strong> is what it adds during the play and towards a
+      fifteen: ace is one, and the ten, jack, queen and king are all ten. A card's
+      <strong>order</strong> is where it sits in a run: ace is one and the king is thirteen, so a
+      ten really is lower than a jack. Confusing the two is the most common cribbage mistake there
+      is.</p>
+
+    <h3>The deal</h3>
+    <p>Cut for deal &mdash; lower card deals first and takes the first crib. The dealer gives six
+      cards each. Both players then throw <strong>two cards face down to the crib</strong>, which
+      belongs to the dealer and is counted at the end as an extra hand. Neither player sees the crib
+      until then.</p>
+    <p>Then the top of the pack is turned: the <strong>starter</strong>. If it is a jack the dealer
+      scores <strong>two for his heels</strong> straight away.</p>
+
+    <h3>The play</h3>
+    <p>Starting with the non-dealer, you take turns laying a card face up and calling the running
+      total. You may not take it past 31. Score as you go:</p>
+    <ul>
+      <li><strong>Fifteen</strong> &mdash; 2</li>
+      <li><strong>Thirty-one</strong> &mdash; 2</li>
+      <li><strong>A pair</strong> &mdash; 2. Three of a kind is 6, four is 12.</li>
+      <li><strong>A run</strong> of three or more &mdash; one per card. They need not arrive in
+        order: 5, 3, 4 is a run of three.</li>
+      <li><strong>One for the go</strong> &mdash; if your opponent cannot play, they say
+        &ldquo;go&rdquo; and you keep laying cards until you cannot either. Whoever laid last takes
+        1 &mdash; or 2 if they made exactly 31.</li>
+      <li><strong>One for the last card</strong> of the hand.</li>
+    </ul>
+    <p>When neither of you can play, the count goes back to nothing and whoever did <em>not</em> lay
+      the last card leads again. Pairs and runs only count within the current run of cards, never
+      back across a reset.</p>
+
+    <h3>The count</h3>
+    <p>Now the hands are counted, each with the starter as a fifth card. Non-dealer first, then the
+      dealer, then the dealer's crib &mdash; and that order is why being non-dealer matters when the
+      game is close.</p>
+    <ul>
+      <li><strong>Fifteens</strong> &mdash; 2 for every combination adding to 15</li>
+      <li><strong>Pairs</strong> &mdash; 2 each. Three of a kind is three pairs, so 6; four is 12.</li>
+      <li><strong>Runs</strong> &mdash; one per card, and scored once for <em>every</em> distinct
+        set that makes it. 4-5-6-6 is two runs of three, for 6.</li>
+      <li><strong>A flush</strong> &mdash; 4 for all four cards in your hand matching, 5 if the
+        starter matches too. <strong>In the crib it must be all five or it scores nothing.</strong></li>
+      <li><strong>One for his nob</strong> &mdash; the jack of the starter's suit, in your hand.</li>
+    </ul>
+    <p>The best possible hand is 29: three fives and the jack of the starter's suit, with the fourth
+      five turned.</p>
+
+    <h3>What this game does not do</h3>
+    <p>There is no muggins &mdash; nobody can claim points you failed to count, because the program
+      counts for you. Three and four handed cribbage are not implemented. A skunk is reported when it
+      happens but counts as one game, not two.</p>
+
+    <p class="actions">
+      <button type="button" id="rules-close" class="primary">Close</button>
+      <button type="button" id="rules-to-a11y">Accessibility hints</button>
+    </p>
+  </div>
+</dialog>
+
+<dialog id="a11y-dialog" aria-labelledby="a11y-h">
+  <div class="dialog-body">
+    <h2 id="a11y-h">Accessibility hints</h2>
+
+    <p>Nothing in this game is conveyed by sight alone. Every card is a real button that says what
+      it is, what it is worth, and whether you can play it right now. Nothing is marked as an
+      application region, so your screen reader's browse, focus and forms modes all behave
+      normally.</p>
+
+    <h3>Every count is broken down</h3>
+    <p>&ldquo;You scored eight&rdquo; is something a sighted player checks against the cards in
+      front of them in about a second, and something you either trust or do not if you cannot. So
+      every score is read out in its parts: <em>two fifteens for four, a pair of fives for two, and
+      one for his nob &mdash; seven.</em> The whole pleasure of cribbage is in the counting, and
+      handing over a total is handing over the game.</p>
+    <p>You count your own hand, as you would at a table: when the play is over, the button says
+      &ldquo;Count my hand&rdquo; and the breakdown follows.</p>
+
+    <h3>Keys</h3>
+    <p>Single letters are quick navigation keys in a screen reader's browse mode, so they may not
+      reach the page. That is why <strong>every one of them is also a button</strong> in the toolbar
+      &mdash; nothing depends on a shortcut being available, and <kbd>Tab</kbd>, <kbd>Enter</kbd>
+      and <kbd>Space</kbd> alone are enough to play a whole game.</p>
+
+    <table>
+      <caption>Keyboard</caption>
+      <thead><tr><th scope="col">Key</th><th scope="col">Action</th></tr></thead>
+      <tbody>
+        <tr><th scope="row"><kbd>Tab</kbd></th><td>Move between controls</td></tr>
+        <tr><th scope="row"><kbd>Left</kbd> <kbd>Right</kbd></th><td>Move card to card within your hand</td></tr>
+        <tr><th scope="row"><kbd>Home</kbd> <kbd>End</kbd></th><td>First / last card</td></tr>
+        <tr><th scope="row"><kbd>Enter</kbd> <kbd>Space</kbd></th><td>Play the focused card, or select it to throw</td></tr>
+        <tr><th scope="row"><kbd>1</kbd>&ndash;<kbd>6</kbd></th><td>Jump straight to that card</td></tr>
+        <tr><th scope="row"><kbd>H</kbd></th><td>Your hand, with what each card is worth</td></tr>
+        <tr><th scope="row"><kbd>T</kbd></th><td>The play: the count, what is down, and what you could make</td></tr>
+        <tr><th scope="row"><kbd>L</kbd></th><td>The last count that was read out</td></tr>
+        <tr><th scope="row"><kbd>S</kbd></th><td>Both scores, and how far each of you has to go</td></tr>
+        <tr><th scope="row"><kbd>P</kbd></th><td>Who dealt, whose crib it is, and the starter</td></tr>
+        <tr><th scope="row"><kbd>C</kbd></th><td>Counting aid: what you have seen and what is still out</td></tr>
+        <tr><th scope="row"><kbd>W</kbd></th><td>Who is at the table, and whether they are still connected</td></tr>
+        <tr><th scope="row"><kbd>G</kbd></th><td>Jump into the game log</td></tr>
+        <tr><th scope="row"><kbd>E</kbd></th><td>Export the game log</td></tr>
+        <tr><th scope="row"><kbd>B</kbd></th><td>Report a bug</td></tr>
+        <tr><th scope="row"><kbd>N</kbd></th><td>Advance: Continue, count, or deal the next hand</td></tr>
+        <tr><th scope="row"><kbd>R</kbd></th><td>Repeat the last announcement</td></tr>
+        <tr><th scope="row"><kbd>?</kbd></th><td>This help</td></tr>
+      </tbody>
+    </table>
+
+    <h3>The game log</h3>
+    <p>A plain focusable list, newest first, and deliberately <em>not</em> a live region &mdash; so
+      it is never spoken twice and you can read back at your own pace. Number keys are ignored
+      inside it, so you cannot play a card by accident while reading.</p>
+
+    <h3>Announcements</h3>
+    <p>A run of computer turns is collected and spoken as one polite message, so nothing is cut off
+      half way through. Anything you asked to hear jumps ahead of anything the game wanted to say,
+      and the game's message is put back in the queue rather than thrown away. Errors and direct
+      replies to a keypress go to a separate assertive region.</p>
+
+    <h3>The board</h3>
+    <p>The pegged board is decoration and is hidden from assistive technology entirely. The Score
+      table beside it carries both scores and how far each player still has to go, which is the same
+      information without a row of holes to walk through.</p>
+
+    <h3>Playing with somebody else</h3>
+    <p>At an online table you cannot see the other player, so the game says what silence means:
+      whose turn it is, how long they have been thinking, and whether the connection is healthy.
+      Press <kbd>W</kbd> at any time. If your connection drops, the computer plays your seat so the
+      table does not stall &mdash; and making any move takes it straight back.</p>
+    <p>The discard is the one moment you both act at once. The game tells you when your throw is in
+      and whether it is still waiting for the other player, rather than leaving you wondering
+      whether your keypress registered.</p>
+
+    <p class="actions">
+      <button type="button" id="a11y-close" class="primary">Close</button>
+      <button type="button" id="a11y-to-rules">How to play Cribbage</button>
+    </p>
+  </div>
+</dialog>
+
+<dialog id="export-dialog" aria-labelledby="export-h">
+  <div class="dialog-body">
+    <h2 id="export-h">Export the game log</h2>
+    <p id="export-summary" class="hint"></p>
+    <label for="export-text">The complete log</label>
+    <textarea id="export-text" rows="16" readonly spellcheck="false"></textarea>
+    <p class="actions">
+      <button type="button" id="export-download" class="primary">Download as a text file</button>
+      <button type="button" id="export-copy">Copy to the clipboard</button>
+      <button type="button" id="export-close">Close</button>
+    </p>
+  </div>
+</dialog>
+
+<dialog id="bug-dialog" aria-labelledby="bug-h">
+  <div class="dialog-body">
+    <h2 id="bug-h">Report a bug</h2>
+    <p class="hint">Nothing is sent anywhere on its own. The box at the bottom shows exactly what
+      will be copied, and posting an issue is your own action and needs a GitHub account.</p>
+    <label for="bug-title">One line: what went wrong</label>
+    <input type="text" id="bug-title" maxlength="120" autocomplete="off">
+    <label for="bug-what">What happened, and what you expected</label>
+    <textarea id="bug-what" rows="5" spellcheck="true"></textarea>
+    <p class="field checkbox">
+      <input type="checkbox" id="bug-include-log" checked>
+      <label for="bug-include-log">Include the full game log &mdash; much easier to diagnose with it</label>
+    </p>
+    <label for="bug-preview">Exactly what will be copied</label>
+    <textarea id="bug-preview" rows="10" readonly spellcheck="false"></textarea>
+    <p class="actions">
+      <button type="button" id="bug-open" class="primary">Copy report and open GitHub</button>
+      <button type="button" id="bug-copy">Copy the report only</button>
+      <button type="button" id="bug-close">Close</button>
+    </p>
+  </div>
+</dialog>
+
+<script src="js/cards.js"></script>
+<script src="js/game.js"></script>
+<script src="js/ai.js"></script>
+<script src="js/view.js"></script>
+<script src="js/table.js"></script>
+<script src="js/net.js"></script>
+<script src="js/localserver.js"></script>
+<script src="js/ui.js"></script>
+<script>SH.UI.init();</script>
+</body>
+</html>
