@@ -94,6 +94,9 @@ jobs:
       - name: Rules oracle
         run: npm run test:rules
 
+      - name: Authorization
+        run: npm run test:auth
+
       - name: Projection
         run: npm run test:projection
 
