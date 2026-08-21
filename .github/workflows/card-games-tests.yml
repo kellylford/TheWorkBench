@@ -177,6 +177,9 @@ jobs:
       - name: Layout across viewports
         run: npm run test:layout
 
+      - name: Text contrast
+        run: npm run test:contrast
+
       - name: Randomness
         run: node tests/randomness.js
 
@@ -231,6 +234,9 @@ jobs:
       # notice the layout coming apart when somebody turns their text size up.
       - name: Layout across viewports
         run: npm run test:layout
+
+      - name: Text contrast
+        run: npm run test:contrast
 
       # Not an assertion, just numbers worth having in the log: how often a suit
       # gets named, how often the makers are euchred. A sharp move in either
@@ -290,6 +296,9 @@ jobs:
 
       - name: Layout across viewports
         run: npm run test:layout
+
+      - name: Text contrast
+        run: npm run test:contrast
 
   cribbage:
     name: Cribbage

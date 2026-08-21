@@ -14,7 +14,8 @@
     "test:ui": "node tests/ui-dom.js && node tests/announcements.js && node tests/lobby.js",
     "balance": "node tests/balance.js",
     "balance:sweep": "node tests/balance.js sweep",
-    "test:layout": "node tests/layout.js"
+    "test:layout": "node tests/layout.js",
+    "test:contrast": "node ../shared/tests/browser/contrast.js euchre"
   },
   "license": "MIT"
 }

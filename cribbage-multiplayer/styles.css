@@ -25,6 +25,17 @@
   --bower-ink: #0d5c38;
   --felt: #1d5c43;
   --felt-edge: #123a2b;
+  /* Ink for text sitting DIRECTLY on the felt, rather than on a panel.
+   *
+   * Deliberately not redefined for light mode, and that is the whole point:
+   * the felt is dark green in both colour schemes, but --ink-dim flips to a
+   * dark slate in light mode. Anything on the felt using --ink-dim was
+   * therefore 1.41:1 in light mode — dark grey on dark green, well under the
+   * 4.5:1 WCAG AA needs, and identically broken in all three games.
+   *
+   * It went unseen because the text it affects only appears when a hand runs
+   * empty, which no screenshot and no audit had ever caught it doing. */
+  --ink-on-felt: #e6eef6;
   --back-a: #2a4f7c;
   --back-b: #1b3557;
   --focus: #ffd54a;
@@ -663,6 +674,12 @@ dialog::backdrop { background: rgba(0,0,0,.65); }
   border-color: var(--felt-edge);
   box-shadow: inset 0 .1rem .6rem rgba(0,0,0,.35);
 }
+
+/* On the felt, and only there. The plain skin keeps its panel background, and
+   pale ink on a pale panel would be the same bug the other way round. */
+.skin-traditional .hand > .hint,
+.skin-traditional .trick .empty,
+.skin-traditional .trick .who { color: var(--ink-on-felt); }
 
 /* Cards in the trick: a real face beside the player's name. The player name
  * stays in the DOM untouched; only the written-out card name is moved off
