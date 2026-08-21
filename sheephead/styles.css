@@ -631,7 +631,19 @@ dialog::backdrop { background: rgba(0,0,0,.65); }
 
 /* On the felt, and only there. The plain skin keeps its panel background, and
    pale ink on a pale panel would be the same bug the other way round. */
-.skin-traditional .hand > .hint,
+/* On the felt, and only there. The plain skin keeps its panel background, and
+   pale ink on a pale panel would be the same bug the other way round.
+
+   .reveal-label and the nested .hint arrived later, and by a route worth
+   recording: #deal-cards carries class="hand static", so the cards revealed at
+   the end of a hand sit on the felt too. Nothing had ever measured that screen,
+   because the script driving the audit could not outlast a computer playing on
+   a timer and never reached the end of a hand. The moment it did, "Upcard:" and
+   "Blind:" turned up at the same 1.41:1 as the first two. A descendant selector
+   rather than a child one, because the hint saying "none" is nested inside a
+   .reveal-row. */
+.skin-traditional .hand .hint,
+.skin-traditional .hand .reveal-label,
 .skin-traditional .trick .empty,
 .skin-traditional .trick .who { color: var(--ink-on-felt); }
 
