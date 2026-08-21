@@ -1,0 +1,165 @@
+name: Deploy Hearts room
+
+# The hearts multiplayer room Worker. Deployed from CI rather than a
+# maintainer's machine for the same reason the sheephead room is: the token
+# lives in one place, nobody has to remember to deploy, and what is running is
+# always what is on main.
+#
+# Setup, once — and note that this reuses the credentials the sheephead room
+# already needs, so if that Worker deploys, this one will too:
+#   gh secret set CLOUDFLARE_API_TOKEN --repo kellylford/TheWorkBench
+#   CLOUDFLARE_ACCOUNT_ID is a repository VARIABLE, not a secret — it identifies
+#   the account rather than granting anything.
+#
+# The token is scoped to Account > Workers Scripts (Edit), Account Settings
+# (Read) and User Details (Read). The dashboard's "Edit Cloudflare Workers"
+# template also hands out Edit on Pages, R2, KV and Workers Routes across the
+# whole account, which a deploy has no business with.
+
+# shared/js/** is in the paths because room.js — the Durable Object itself —
+# lives there now, shared by every game. Without it a fix to the server would
+# pass its tests, merge, and never reach the Worker: the deploy simply would
+# not run, and the live room would go on running the old code with nothing
+# anywhere saying so.
+#
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'hearts/worker/**'
+      - 'hearts/js/**'
+      - 'shared/js/**'
+      - '.github/workflows/deploy-hearts-room.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# Two deploys racing would leave whichever finished last in charge, which may not
+# be the newer commit.
+concurrency:
+  group: deploy-hearts-room
+  cancel-in-progress: false
+
+jobs:
+  test:
+    name: Tests must pass first
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    defaults:
+      run:
+        working-directory: hearts
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install test dependencies
+        run: npm install --no-save jsdom puppeteer
+
+      # The Worker is a thin shell around js/room.js, js/view.js and the engine.
+      # Everything that decides anything is tested here, in plain Node, so a
+      # deploy that skipped this would be deploying untested logic.
+      - name: Full suite
+        run: npm test
+
+      - name: Fail if anything skipped
+        run: |
+          set -euo pipefail
+          npm test 2>&1 | tee /tmp/out.txt
+          if grep -q '^SKIP' /tmp/out.txt; then
+            echo "::error::A test suite skipped instead of running."
+            grep '^SKIP' /tmp/out.txt
+            exit 1
+          fi
+
+  deploy:
+    name: Deploy the Worker
+    needs: test
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: hearts/worker
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      # Fails loudly rather than letting wrangler produce a confusing auth error
+      # that reads like a network problem.
+      - name: Check the deploy credentials are present
+        env:
+          TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          ACCOUNT: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          set -euo pipefail
+          if [ -z "${TOKEN}" ]; then
+            echo "::error::CLOUDFLARE_API_TOKEN is not set. gh secret set CLOUDFLARE_API_TOKEN --repo kellylford/TheWorkBench"
+            exit 1
+          fi
+          if [ -z "${ACCOUNT}" ]; then
+            echo "::error::CLOUDFLARE_ACCOUNT_ID variable is not set."
+            exit 1
+          fi
+          echo "Credentials present."
+
+      - name: Deploy
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+        run: npx --yes wrangler@4 deploy
+
+      # A deploy that reports success while the Worker throws on its first
+      # request is worse than one that fails, because nobody looks again. The
+      # subdomain is a repository variable because it is part of the public URL
+      # rather than a credential; without it this step says so and stops rather
+      # than pretending to have checked.
+      #
+      # It must match the DEFAULT_BASE constant in hearts/js/net.js, which is the
+      # host the browser actually dials. Guessing that from the GitHub username
+      # once shipped a client pointing at a host that does not resolve: the
+      # Worker was live and answering and no browser could have reached it.
+      - name: Smoke test the deployed Worker
+        run: |
+          set -euo pipefail
+          SUB="${{ vars.CLOUDFLARE_SUBDOMAIN }}"
+          if [ -z "$SUB" ]; then
+            echo "::warning::CLOUDFLARE_SUBDOMAIN is not set, so the deployed Worker was not checked. Set it to the workers.dev subdomain shown in the deploy output above."
+            exit 0
+          fi
+          URL="https://hearts-room.$SUB.workers.dev/health"
+          for i in 1 2 3 4 5; do
+            if curl -fsS "$URL" | grep -q '"ok":true'; then
+              echo "Worker answered $URL"
+              exit 0
+            fi
+            sleep 5
+          done
+          echo "::error::The Worker deployed but did not answer $URL"
+          exit 1
+      # The client dials a host it was told at load time, and there is no build
+      # step to substitute one. If the two ever drift apart every "Start a new
+      # table" fails and the Worker logs show nothing, because the request that
+      # failed never reached it.
+      #
+      # It reads js/config.js, which is the whole of what is per-game about the
+      # transport now. It used to read a DEFAULT_BASE constant in js/net.js, and
+      # when net.js moved into shared/js/ this step went on grepping a file that
+      # no longer existed — so it failed every deploy, AFTER the Worker had
+      # already gone out. Two of these were red for exactly that reason.
+      - name: The client must point at the Worker that was just deployed
+        working-directory: hearts
+        run: |
+          set -euo pipefail
+          SUB="${{ vars.CLOUDFLARE_SUBDOMAIN }}"
+          if [ -z "$SUB" ]; then exit 0; fi
+          EXPECT="https://hearts-room.$SUB.workers.dev"
+          if ! grep -q "workerBase: '$EXPECT'" js/config.js; then
+            echo "::error::js/config.js does not point at $EXPECT. The Worker is live and no browser can reach it."
+            grep -n "workerBase" js/config.js || echo "(no workerBase line at all)"
+            exit 1
+          fi
+          echo "The client points at $EXPECT."

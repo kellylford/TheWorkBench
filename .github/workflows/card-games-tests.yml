@@ -72,7 +72,7 @@ jobs:
         run: |
           set -euo pipefail
           npm install --no-save esbuild
-          for g in euchre cribbage-multiplayer sheephead-multiplayer; do
+          for g in euchre cribbage-multiplayer sheephead-multiplayer hearts; do
             npx esbuild --bundle "$g/worker/src/index.js" --format=esm --outfile=/dev/null
           done
 
