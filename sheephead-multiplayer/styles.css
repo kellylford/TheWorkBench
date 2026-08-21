@@ -883,19 +883,35 @@ dialog::backdrop { background: rgba(0,0,0,.65); }
  *
  * Kept small and horizontal on purpose. A card that leaps about is a card whose
  * face you cannot read, and the player is mid-decision. */
+/* The ring is not conditional on motion, and that is the point.
+ *
+ * It was: a shake when motion is allowed, a ring only when it is not. But a
+ * shake is over in three tenths of a second and you have to be looking at the
+ * right card to catch it — which is exactly what somebody who has just pressed
+ * the wrong card is not doing. The ring stays for the whole six hundred
+ * milliseconds and is still there when the eye arrives.
+ *
+ * NOT the focus gold. Trump already carries a gold border, and in Sheephead a
+ * hand is mostly trump, so the first version marked the refused card in almost
+ * exactly the colour it was already outlined in — a marker that disappears on
+ * the cards it is most often needed for. Caught by looking at a screenshot
+ * rather than by any test: #ffd54a against #f0c04a.
+ *
+ * This is the red of the message above instead, which separates it from trump
+ * and ties the ring to the line explaining it: same colour, same event. */
+.card.refused {
+  outline: 3px solid var(--bad);
+  outline-offset: 2px;
+}
+
 @media (prefers-reduced-motion: no-preference) {
   .card.refused { animation: card-refused .3s ease; }
 }
 
+/* Small and horizontal on purpose. A card that leaps about is a card whose face
+ * you cannot read, and the player is mid-decision. */
 @keyframes card-refused {
   0%, 100% { transform: translateY(.3rem) translateX(0); }
   25%      { transform: translateY(.3rem) translateX(-.28rem); }
   75%      { transform: translateY(.3rem) translateX(.28rem); }
-}
-
-/* With motion turned off the card still has to answer "which one", so it says so
- * by standing out rather than by moving: the same focus colour the keyboard uses
- * for "this is the one you mean". */
-@media (prefers-reduced-motion: reduce) {
-  .card.refused { outline: 3px solid var(--focus); outline-offset: 2px; }
 }
