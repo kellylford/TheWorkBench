@@ -140,11 +140,16 @@ jobs:
           done
           echo "::error::The Worker deployed but did not answer $URL"
           exit 1
-
-      # The client dials a hard-coded host because there is no build step to
-      # substitute one. If the two ever drift apart, every "Start a new table"
-      # fails and the Worker's logs show nothing, because the request that failed
-      # never reached it.
+      # The client dials a host it was told at load time, and there is no build
+      # step to substitute one. If the two ever drift apart every "Start a new
+      # table" fails and the Worker logs show nothing, because the request that
+      # failed never reached it.
+      #
+      # It reads js/config.js, which is the whole of what is per-game about the
+      # transport now. It used to read a DEFAULT_BASE constant in js/net.js, and
+      # when net.js moved into shared/js/ this step went on grepping a file that
+      # no longer existed — so it failed every deploy, AFTER the Worker had
+      # already gone out. Two of these were red for exactly that reason.
       - name: The client must point at the Worker that was just deployed
         working-directory: euchre
         run: |
@@ -152,9 +157,9 @@ jobs:
           SUB="${{ vars.CLOUDFLARE_SUBDOMAIN }}"
           if [ -z "$SUB" ]; then exit 0; fi
           EXPECT="https://euchre-room.$SUB.workers.dev"
-          if ! grep -q "DEFAULT_BASE = '$EXPECT'" js/net.js; then
-            echo "::error::js/net.js does not point at $EXPECT. The Worker is live and no browser can reach it."
-            grep -n "DEFAULT_BASE" js/net.js
+          if ! grep -q "workerBase: '$EXPECT'" js/config.js; then
+            echo "::error::js/config.js does not point at $EXPECT. The Worker is live and no browser can reach it."
+            grep -n "workerBase" js/config.js || echo "(no workerBase line at all)"
             exit 1
           fi
           echo "The client points at $EXPECT."
