@@ -169,8 +169,23 @@ for (const g of GAMES) {
 {
   const dir = path.join(root, '.github', 'workflows');
   const deploys = fs.readdirSync(dir).filter(f => /^deploy-.*-room\.yml$/.test(f));
-  check(deploys.length === GAMES.length,
-    'expected one deploy workflow per game, found ' + deploys.length + ': ' + deploys.join(', '));
+
+  /* EVERY GAME IN THIS LIST HAS A DEPLOY, not "the counts match".
+   *
+   * The count equality was a proxy, and it broke the first time a game had a
+   * Worker without being a client of the shared transport: hearts ships a room
+   * service but its interface still talks to the engine directly, so it is not
+   * in GAMES yet and its deploy workflow made four against three. A proxy that
+   * fails on a legitimate state is worse than no check — it teaches people to
+   * edit the test. The invariant that actually matters is below, and it is
+   * applied to every deploy workflow found, hearts included. */
+  for (const g of GAMES) {
+    const stem = g.replace("-multiplayer", "");
+    check(deploys.some(f => f === "deploy" + "-" + stem + "-room.yml"),
+      g + " has no deploy-" + stem + "-room.yml");
+  }
+  check(deploys.length >= GAMES.length,
+    "found " + deploys.length + " deploy workflows for " + GAMES.length + " games");
   for (const f of deploys) {
     const y = fs.readFileSync(path.join(dir, f), 'utf8');
     check(/^\s+-\s+'shared\/js\/\*\*'\s*$/m.test(y),
