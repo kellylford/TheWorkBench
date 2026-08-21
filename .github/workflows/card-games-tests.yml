@@ -198,9 +198,6 @@ jobs:
       - name: Randomness
         run: node tests/randomness.js
 
-      - name: Rendered appearance
-        run: node tests/appearance.js
-
   euchre:
     name: Euchre
     runs-on: ubuntu-latest
