@@ -127,7 +127,25 @@ async function main() {
   let alonePlayed = false;
   let guard = 0;
 
-  while (handsDone < 12 && guard++ < 6000) {
+  /* PLAY UNTIL THE RUN HAS COVERED WHAT IT CLAIMS TO, not for a fixed number of
+   * hands.
+   *
+   * Twelve hands and a seeded shuffle made this repeatable on one machine and
+   * not on another: the same seed produced a deal that reached the second round
+   * of bidding locally and never reached it on CI, so the coverage assertion at
+   * the bottom failed on a green tree. Seeding is still right — it makes a
+   * failure reproducible — but a seed cannot promise a particular case turns up,
+   * and asserting that it does is asserting something about the shuffle rather
+   * than about the game.
+   *
+   * Round two happens when all four players pass, which this test cannot force
+   * because three of the four are the computer. So: keep dealing until it has
+   * happened, with a cap. Thirty hands with nobody ever passing the upcard round
+   * IS worth failing on — that would mean the bidding was broken. */
+  const MIN_HANDS = 12, MAX_HANDS = 30;
+  while (guard++ < 20000) {
+    if (handsDone >= MAX_HANDS) break;
+    if (handsDone >= MIN_HANDS && seen.bid2 > 0) break;
     const v = T.view();
     if (!v) break;
     seen[v.phase] = (seen[v.phase] || 0) + 1;
@@ -365,9 +383,12 @@ async function main() {
     break;
   }
 
-  check(handsDone >= 12, 'only ' + handsDone + ' hands were played through the interface');
+  check(handsDone >= MIN_HANDS,
+    'only ' + handsDone + ' hands were played through the interface');
   check(seen.bid1 > 0 && seen.play > 0, 'the run never reached bidding or play');
-  check(seen.bid2 > 0, 'the run never reached the second round of bidding');
+  check(seen.bid2 > 0,
+    'the second round of bidding never came up in ' + handsDone + ' hands — either the ' +
+    'computer orders up absolutely everything, or the upcard round never ends');
   check(discardTested, 'the discard was never exercised');
   check(illegalRefused, 'no unplayable card ever came up, so that path is untested');
   check(bowerLabelled, 'no bower was ever in our hand, so the labelling is untested');
