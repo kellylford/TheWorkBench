@@ -45,7 +45,6 @@
   var handFocus = 0;
   var selected = {};        // card id -> true, while choosing a pass
   var botTimer = null;
-  var paused = false;       // 'wait for me to continue' mode
 
   /* ---------------- the announcer ---------------- */
 
@@ -133,11 +132,11 @@
 
   function pointsText() {
     var parts = state.players.map(function (p) {
-      var n = G.pointsOf(p.taken);
+      var n = p.takenPoints;
       return p.name + ' ' + n + (n === 1 ? ' point' : ' points');
     });
     var qs = state.players.filter(function (p) {
-      return p.taken.some(function (c) { return c.id === 'QS'; });
+      return p.hasQueen;
     });
     var tail = qs.length ? ' ' + qs[0].name + ' has the queen of spades.'
       : ' The queen of spades has not been played.';
@@ -168,8 +167,8 @@
 
   function statusText() {
     if (state.phase === 'passing') {
-      if (state.passing[mySeat]) {
-        var waiting = state.passing.filter(function (p) { return !p; }).length;
+      if (passedIn(mySeat)) {
+        var waiting = state.passedIn.filter(function (p) { return !p; }).length;
         return 'You have passed. Waiting for ' + waiting +
           (waiting === 1 ? ' player' : ' players') + '.';
       }
@@ -223,7 +222,7 @@
     el.actions.innerHTML = '';
     var add = function (b) { el.actions.appendChild(b); };
 
-    if (state.phase === 'passing' && !state.passing[mySeat]) {
+    if (state.phase === 'passing' && !passedIn(mySeat)) {
       var n = Object.keys(selected).length;
       add(button('Pass these three cards', doPass, {
         primary: true,
@@ -244,10 +243,6 @@
 
     if (state.phase === 'gameOver') {
       add(button('Start a new game', function () { startGame(); }, { primary: true }));
-    }
-
-    if (paused && state.phase === 'play' && state.turn !== mySeat) {
-      add(button('Continue', function () { runBots(true); }, { primary: true }));
     }
 
     /* Every shortcut is also a button. */
@@ -273,7 +268,7 @@
       b.dataset.id = c.id;
       b.setAttribute('tabindex', i === handFocus ? '0' : '-1');
 
-      var choosing = state.phase === 'passing' && !state.passing[mySeat];
+      var choosing = state.phase === 'passing' && !passedIn(mySeat);
       if (choosing) {
         b.setAttribute('aria-pressed', selected[c.id] ? 'true' : 'false');
       } else if (state.phase === 'play' && state.turn === mySeat && !legal[c.id]) {
@@ -345,7 +340,7 @@
 
   function handHint() {
     if (state.phase === 'passing') {
-      if (state.passing[mySeat]) return 'Your pass is in. Waiting for the others.';
+      if (passedIn(mySeat)) return 'Your pass is in. Waiting for the others.';
       return 'Select three cards, then choose Pass these three cards.';
     }
     if (state.phase === 'play' && state.turn === mySeat) {
@@ -404,7 +399,7 @@
       if (state.phase === 'play' && state.turn === i) tr.className = 'on-turn';
       cell(tr, 'th', p.name + (i === mySeat ? ' (you)' : ''));
       cell(tr, 'td', String(p.hand.length));
-      cell(tr, 'td', String(G.pointsOf(p.taken)));
+      cell(tr, 'td', String(p.takenPoints));
       cell(tr, 'td', String(p.score));
       body.appendChild(tr);
     });
@@ -440,7 +435,7 @@
   /* ---------------- doing things ---------------- */
 
   function cardActivated(c) {
-    if (state.phase === 'passing' && !state.passing[mySeat]) {
+    if (state.phase === 'passing' && !passedIn(mySeat)) {
       if (selected[c.id]) {
         delete selected[c.id];
         say(C.name(c) + ' removed. ' + Object.keys(selected).length + ' of 3.', { request: true });
@@ -470,46 +465,68 @@
     selected = {};
   }
 
-  /* Every move the player makes goes through here, and so does every event the
-   * engine produced as a result. The engine is the only thing that decides what
-   * happened; this only decides how it is said. */
-  var lastEvent = 0;
-
+  /* Every move the player makes goes through the TABLE, not the engine.
+   *
+   * Table is the seam: local play and a table on a server present the same four
+   * calls — act, view, drainEvents, onChange — and this file cannot tell which
+   * it is talking to. That is the whole point of it. A UI that reaches for the
+   * engine directly works beautifully until the day the engine is on somebody
+   * else's machine, and then every one of those reaches is a separate bug.
+   *
+   * Local play still runs the real engine and the real projection through
+   * LocalServer, so the interface is drawing from a per-seat view even when
+   * there is nobody to hide anything from. Anything else would mean the offline
+   * game exercises a path the online game never takes. */
   function act(action) {
-    var r = G.applyAction(state, mySeat, action);
-    if (r.ok) drain();
-    render();
-    if (r.ok) { focusForTurn(); runBots(); }
-    return r;
+    var r = SH.Table.act(action);
+    return r ? { ok: true } : { ok: false, reason: 'that move was not accepted' };
   }
 
+  /* Everything the table has said since we last looked. Table.drainEvents keeps
+   * the cursor, which matters more online than off: a reconnecting client must
+   * not be read the whole hand again from the beginning. */
   function drain() {
-    var events = G.eventsFor(state, mySeat, lastEvent);
+    var events = SH.Table.drainEvents();
     events.forEach(function (e) {
-      lastEvent = Math.max(lastEvent, e.id);
       log(e.text);
       say(e.text, { assertive: e.kind === 'moon' || e.kind === 'game' });
     });
   }
 
-  function runBots(force) {
-    if (botTimer) { global.clearTimeout(botTimer); botTimer = null; }
-    if (!state || state.phase === 'handOver' || state.phase === 'gameOver') return;
-    if (G.seatToAct(state) === mySeat) return;
-    if (G.seatToAct(state) < 0) return;
-    if (paused && !force) return;
+  /* Where the view came from, and what to do about it.
+   *
+   * Registered once. The table calls it whether a frame arrived over a socket or
+   * a local move produced one, so there is exactly one path from "something
+   * happened" to "the screen and the voice say so". */
+  function onTableChange() {
+    var before = state && state.phase;
+    state = SH.Table.view();
+    if (!state) return;
+    drain();
+    render();
+    if (whoActs() === mySeat && state.phase !== before) focusForTurn();
+  }
 
-    botTimer = global.setTimeout(function () {
-      botTimer = null;
-      try { AI.act(state); } catch (e) {
-        say('The computer players could not continue.', { assertive: true });
-        return;
+  /* Whose move, from the VIEW.
+   *
+   * G.seatToAct cannot be used here: it reads state.passing, which the
+   * projection deliberately never carries — the one thing in this game that must
+   * not cross a socket. The view says passedIn instead, which is the public part
+   * of the same question. */
+  function whoActs() {
+    if (!state) return -1;
+    if (state.phase === 'passing') {
+      for (var i = 0; i < state.players.length; i++) {
+        if (!state.passedIn[i]) return i;
       }
-      drain();
-      render();
-      if (G.seatToAct(state) === mySeat) focusForTurn();
-      runBots();
-    }, Math.max(pace, 0));
+      return -1;
+    }
+    if (state.phase === 'play') return state.turn;
+    return -1;
+  }
+
+  function passedIn(seat) {
+    return !!(state && state.passedIn && state.passedIn[seat]);
   }
 
   /* ---------------- focus ---------------- */
@@ -530,7 +547,7 @@
    * player is simply left nowhere, with no way to know the game is waiting. */
   function focusForTurn() {
     if (!state) return;
-    var handPhase = (state.phase === 'passing' && !state.passing[mySeat]) ||
+    var handPhase = (state.phase === 'passing' && !passedIn(mySeat)) ||
       (state.phase === 'play' && state.turn === mySeat &&
         el.hand.querySelector('.card:not([aria-disabled="true"])'));
     if (handPhase && el.hand.querySelector('.card')) { focusHand(); return; }
@@ -566,34 +583,49 @@
 
   /* ---------------- starting ---------------- */
 
+  /* Offline play runs a REAL SERVER in this tab.
+   *
+   * LocalServer is the authoritative engine, the real projection and the real
+   * room, with the network replaced by a function call. So a game against the
+   * computer takes exactly the path a game against people takes: the same seat
+   * projection, the same events, the same refusals. Anything else means the
+   * offline game — which is what almost everybody plays — is the one path that
+   * is never exercised by the online tests.
+   *
+   * It also means the bots are the server's business rather than this file's.
+   * There is no timer here any more, and no AI.act: the pace control becomes the
+   * server's botDelay, which is what it always meant. */
   function startGame() {
     var name = (el['opt-name'].value || 'You').slice(0, 16);
-    pace = parseInt(el['opt-pace'].value, 10);
-    paused = pace < 0;
-    if (paused) pace = 0;
+    var chosen = parseInt(el['opt-pace'].value, 10);
+    pace = chosen < 0 ? 0 : chosen;
 
     var skin = el['opt-skin'].value;
     global.document.body.className = 'skin-' + skin;
 
-    state = G.createGame({
-      names: [name, 'East', 'South', 'West'],
-      pointsToWin: parseInt(el['opt-points'].value, 10)
-    });
-    mySeat = 0;
-    lastEvent = 0;
     selected = {};
     handFocus = 0;
     el.log.innerHTML = '';
-
     el['setup-section'].hidden = true;
     el['game-section'].hidden = false;
 
-    G.applyAction(state, mySeat, { type: 'start' });
-    drain();
-    render();
-    focusForTurn();
-    runBots();
+    var cfg = {
+      numPlayers: 4,
+      names: [name, 'East', 'South', 'West'],
+      pointsToWin: parseInt(el['opt-points'].value, 10),
+      difficulty: 'hard'
+    };
+    var srv = SH.LocalServer.create({ config: cfg, latency: 0, botDelay: pace });
+    SH.Table.startOnline(null, function (handler) { return srv.connect(null, handler); });
+
+    /* Nothing is dealt until the table says so — the same rule online, where it
+     * is the host giving people time to arrive, and offline, where it costs one
+     * frame. Sending it before the first view has arrived would be sending it to
+     * a table that does not exist yet. */
+    dealWhenReady = true;
   }
+
+  var dealWhenReady = false;
 
   function boot() {
     ['status', 'actions', 'hand', 'hand-hint', 'trick', 'players-table', 'history-table',
@@ -609,6 +641,26 @@
       startGame();
     });
     global.document.addEventListener('keydown', onKey);
+
+    /* Registered ONCE, at start-up, and deliberately not per game: Table keeps
+     * its listeners across close() so the interface survives leaving one table
+     * and joining another. */
+    SH.Table.onChange(function () {
+      mySeat = SH.Table.seat() === null ? mySeat : SH.Table.seat();
+      onTableChange();
+      if (dealWhenReady && state && state.phase === 'idle') {
+        dealWhenReady = false;
+        SH.Table.act({ type: 'start' });
+      }
+    });
+    SH.Table.onRejected(function (info) {
+      /* The server said no. Said out loud and assertively, because the player
+       * has just done something and nothing visible happened — silence there is
+       * indistinguishable from the game having frozen. */
+      say(info && info.reason ? info.reason : 'That move was not accepted.',
+        { assertive: true, request: true });
+      render();
+    });
   }
 
   if (global.document) {

@@ -17,6 +17,94 @@
 
 <main id="main" tabindex="-1">
 
+  <!-- ============ LOBBY ============
+       The first screen a person meets when they want to play with somebody else,
+       and therefore the one that decides whether the rest of the game ever
+       happens for them.
+
+       Everything here is an ordinary heading, form field, button and table. The
+       code entry is a plain text input rather than five separate boxes: split
+       inputs look tidy and are miserable with a screen reader, because every
+       keystroke moves focus and the field you are in is never the field you
+       thought. -->
+  <section id="lobby-section" aria-labelledby="lobby-h" hidden>
+    <h2 id="lobby-h">Play with other people</h2>
+
+    <!-- Visible, and deliberately NOT a live region. It carries the same words
+         the announcer speaks, and a second independent live region would say all
+         of them twice — and reintroduce exactly the race the announcement queue
+         exists to prevent, on the messages that tell a player whether they are
+         connected. Same reason the game log is not one. -->
+    <p id="lobby-status" class="status"></p>
+
+    <div id="lobby-choose">
+      <p class="hint">Anyone can join a table with its code. There are no accounts and nothing to
+        install. A hearts table is always four seats, and any seat nobody is sitting in is played
+        by the computer &mdash; so a table works with two people, or three, or four.</p>
+
+      <p class="actions">
+        <button type="button" id="lobby-create" class="primary">Start a new table</button>
+      </p>
+
+      <form id="lobby-join-form">
+        <p class="field">
+          <label for="lobby-code">Join a table with its code</label>
+          <input type="text" id="lobby-code" name="code" autocomplete="off" spellcheck="false"
+                 maxlength="12" aria-describedby="lobby-code-hint">
+          <span id="lobby-code-hint" class="hint">Five letters and numbers. Upper or lower case both
+            work, and spaces and dashes are ignored. The letters O, I and L and the digits zero and
+            one are never used, so there is nothing to mistake for anything else.</span>
+        </p>
+        <p class="actions">
+          <button type="submit">Join this table</button>
+        </p>
+      </form>
+
+      <p class="actions">
+        <button type="button" id="lobby-back">Play against the computer instead</button>
+      </p>
+    </div>
+
+    <div id="lobby-table" hidden>
+      <h3 id="lobby-code-h">Your table code</h3>
+      <p id="lobby-code-display" class="table-code" tabindex="-1"></p>
+      <p class="hint" id="lobby-code-read"></p>
+      <p class="actions">
+        <button type="button" id="lobby-copy">Copy the code</button>
+        <button type="button" id="lobby-leave" class="consequential">Leave this table</button>
+      </p>
+
+      <!-- Nothing is dealt until somebody presses this. A table that starts the
+           moment it is made leaves the host no time to send anybody the code —
+           by the time they have read it out, the computer has played their seat
+           through half a hand. -->
+      <p class="actions">
+        <button type="button" id="lobby-start" class="primary">Start the game</button>
+      </p>
+      <p class="hint" id="lobby-start-hint">Send the code to the people you want to play with, wait
+        for them to appear in the seats below, then start. Any seat still empty is played by the
+        computer, so you can start whenever you like.</p>
+
+      <h3 id="lobby-seats-h">Seats</h3>
+      <div class="table-wrap">
+        <!-- No partnership column. Hearts is four people playing against each
+             other, and a Side heading copied from the euchre table would be a
+             confident answer to a question this game does not ask. -->
+        <table id="lobby-seats">
+          <caption class="sr-only">Every seat at this table and who is in it. Empty seats are played
+            by the computer.</caption>
+          <thead>
+            <tr>
+              <th scope="col">Seat</th>
+              <th scope="col">Who</th>
+              <th scope="col">Status</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
   <!-- ============ SETUP ============ -->
   <section id="setup-section" aria-labelledby="setup-h">
     <h2 id="setup-h">Start a game</h2>
@@ -183,11 +271,20 @@
 <div id="say-polite" class="sr-only" aria-live="polite" aria-atomic="true"></div>
 <div id="say-assertive" class="sr-only" aria-live="assertive" aria-atomic="true"></div>
 
+<!-- ORDER MATTERS. localserver.js takes a reference to SH.View when it loads,
+     not when it runs, so view.js has to be in place before the shared
+     transport is. With view.js after it the page threw "Cannot read properties
+     of undefined (reading forSeat)" on the first frame and nothing rendered at
+     all — which is at least loud. config.js is first because net.js asks it
+     where the Worker is. -->
 <script src="js/config.js"></script>
 <script src="js/cards.js"></script>
 <script src="js/game.js"></script>
 <script src="js/ai.js"></script>
 <script src="js/view.js"></script>
+<script src="../shared/js/table.js"></script>
+<script src="../shared/js/net.js"></script>
+<script src="../shared/js/localserver.js"></script>
 <script src="js/ui.js"></script>
 </body>
 </html>

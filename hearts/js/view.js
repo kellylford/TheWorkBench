@@ -107,6 +107,11 @@
          * which is below. */
         takenCount: p.taken.length,
         takenPoints: SH.Game.pointsOf(p.taken),
+        /* Public by construction: everybody watched the trick she fell in. The
+         * interface says so on request, because "who has the queen" is the
+         * single most useful question in this game and a player tracking it by
+         * memory is doing bookkeeping the table can just answer. */
+        hasQueen: p.taken.some(function (c) { return c.id === 'QS'; }),
         hand: i === seat ? copyCards(p.hand) : hiddenHand(p.hand)
       });
     }
