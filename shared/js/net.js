@@ -1,4 +1,4 @@
-/* Euchre - the actual wire.
+/* The actual wire.
  *
  * Everything above this file already works against a fake network: table.js
  * cannot tell the difference, and tests/online.js plays whole hands over a
@@ -22,22 +22,36 @@
   'use strict';
   var SH = global.SH = global.SH || {};
 
-  /* Where the room service lives. A plain constant because there is no build step
-   * to substitute one.
+  /* Where the room service lives. One Worker per game, and the game says which
+   * in its own js/config.js, which must load before this file. That indirection
+   * is the entire per-game difference in this file — it used to be a hardcoded
+   * constant, copied into three games, which is a fine way to point two games at
+   * one game's Worker and not notice until people are in the wrong room.
    *
    * The subdomain is the ACCOUNT's, not the repository owner's — this account's
    * workers.dev name happens to be "quickmail", after the first Worker deployed
    * on it. Guessing it from the GitHub username produced a host that does not
    * resolve, so the first real deploy shipped a client pointing at nothing: the
    * Worker was live and answering, and no browser could have reached it.
-   * Confirmed against the deploy output rather than assumed a second time. */
-  var DEFAULT_BASE = 'https://euchre-room.quickmail.workers.dev';
+   * Confirmed against the deploy output rather than assumed a second time.
+   *
+   * Loud rather than empty: a missing config used to be impossible and is now
+   * merely unlikely, and the failure it would cause — every request going to a
+   * relative URL on the Pages host, which answers 404 in HTML — reads as "the
+   * server is broken" rather than "you forgot a script tag". */
+  function defaultBase() {
+    var c = global.SH && global.SH.CONFIG;
+    if (!c || !c.workerBase) {
+      throw new Error('SH.CONFIG.workerBase is not set. js/config.js must be loaded before shared/js/net.js.');
+    }
+    return c.workerBase;
+  }
   var PROTOCOL = 1;
 
   var PING_EVERY = 25000;      // under any sensible idle timeout
   var PONG_GRACE = 10000;      // a pong overdue by this much means the wire is gone
 
-  function httpBase(base) { return (base || DEFAULT_BASE).replace(/\/+$/, ''); }
+  function httpBase(base) { return (base || defaultBase()).replace(/\/+$/, ''); }
   function wsBase(base) { return httpBase(base).replace(/^http/, 'ws'); }
 
   /* Ask the server for a new table. Resolves with the code people will read to
@@ -245,7 +259,7 @@
   }
 
   SH.Net = {
-    DEFAULT_BASE: DEFAULT_BASE,
+    defaultBase: defaultBase,
     PROTOCOL: PROTOCOL,
     createTable: createTable,
     connect: connect

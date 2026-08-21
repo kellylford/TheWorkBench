@@ -1,4 +1,4 @@
-/* Sheephead - the seam between the interface and wherever the game actually is.
+/* The seam between the interface and wherever the game actually is.
  *
  * Offline the game is a JavaScript object in this tab and a move is a function
  * call that returns before the next line runs. Online it is on a server

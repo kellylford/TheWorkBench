@@ -1017,6 +1017,19 @@
   ACTIONS.nextHand = 1;
   ACTIONS.start = 1;
 
+  /* Whose move is it — or -1 for nobody, between hands and before the first
+   * deal. Both other engines in this repository export this; sheephead's copy
+   * of it lived inline in localserver.js instead, which is why localserver.js
+   * could not be shared until now. Same rule, one line to the left of where it
+   * was: bury is the picker's, everything else belongs to whoever has the turn.
+   *
+   * The dead phases matter. A room that asks a bot to move during handOver gets
+   * a seat number that is still valid from the last trick, and the bot plays
+   * into a hand that is over. */
+  function seatToAct(state) {
+    if (state.phase === 'handOver' || state.phase === 'idle') return -1;
+    return state.phase === 'bury' ? state.picker : state.turn;
+  }
   function applyAction(state, seat, action) {
     if (!state || !state.players) return { ok: false, reason: 'no game in progress' };
     if (!action || typeof action !== 'object') return { ok: false, reason: 'malformed action' };
@@ -1119,6 +1132,7 @@
   SH.Game = {
     DEAL: DEAL,
     applyAction: applyAction,
+    seatToAct: seatToAct,
     eventsFor: eventsFor,
     /* For the room to say something the whole table should hear — a player
      * dropping out, the computer taking a seat over. Public by construction:

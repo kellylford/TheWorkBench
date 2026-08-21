@@ -40,7 +40,7 @@ seededMath.random = rnd;
 const sandbox = { console, Math: seededMath, Date, JSON, Set, setTimeout, clearTimeout };
 sandbox.window = sandbox;
 vm.createContext(sandbox);
-for (const f of ['js/cards.js', 'js/game.js', 'js/ai.js', 'js/view.js', 'js/table.js', 'js/localserver.js']) {
+for (const f of ['js/cards.js', 'js/game.js', 'js/ai.js', 'js/view.js', 'js/config.js', '../shared/js/table.js', '../shared/js/localserver.js']) {
   vm.runInContext(fs.readFileSync(path.join(root, f), 'utf8'), sandbox, { filename: f });
 }
 const { Game: G, Cards: C, Table, LocalServer } = sandbox.SH;
