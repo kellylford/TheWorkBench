@@ -131,7 +131,7 @@ jobs:
         run: node tests/randomness.js
 
       - name: Rendered appearance
-        run: node tests/appearance.js
+        run: npm run test:appearance
 
   # The multiplayer fork runs the same suite as the game it was copied from, and
   # additionally enforces the constraint the fork exists for: that multiplayer
