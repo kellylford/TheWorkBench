@@ -44,6 +44,46 @@ async function boot() {
 }
 
 const settle = (ms) => new Promise(r => setTimeout(r, ms || 20));
+
+/* Anything that timed out, so it can be said out loud at the end rather than
+ * quietly changing what the suite covered. */
+const waited = [];
+
+/* Wait for something to become true, against the CLOCK rather than a tick count.
+ *
+ * Every wait in this file used to count iterations of a short sleep:
+ *
+ *     while (!ui.isReviewing() && ++guard < 400) { ... await settle(30); }
+ *
+ * which reads like a generous allowance and is not one. Four hundred ticks of
+ * thirty milliseconds is twelve seconds, and the thing being waited for is the
+ * computer playing out a pegging phase one card at a time on
+ * setTimeout(..., 1000) — six call sites in game.js, a full second each. Eight
+ * computer plays, the stops at a go and at thirty-one, and the discard before
+ * them, and twelve seconds is not a margin: it is a coin toss on a busy machine.
+ *
+ * It passed every time on a laptop and failed on a loaded CI runner, which is
+ * the worst way for a test to be wrong — the failure looks like the change under
+ * review rather than like the test.
+ *
+ * So: a real deadline, generously set, and a report saying what was being waited
+ * for and what the game was actually doing when it gave up. The old message said
+ * only `state PLAY`, which sent the investigation looking for a stuck game
+ * instead of a short timer.
+ */
+async function waitUntil(pred, what, opts) {
+  const o = opts || {};
+  const limit = o.seconds || 45;
+  const started = Date.now();
+  while (Date.now() - started < limit * 1000) {
+    if (pred()) return true;
+    if (o.step) o.step();
+    await settle(o.every || 25);
+  }
+  waited.push(what + ' — gave up after ' + limit + 's');
+  return false;
+}
+
 const handCards = d => [...d.querySelectorAll('#playerHand .card')];
 const faceUp = els => els.filter(e => !e.classList.contains('card-back'));
 const vis = b => b && !b.disabled;
@@ -76,11 +116,10 @@ const vis = b => b && !b.disabled;
 
   /* ---- get to a dealt hand ---- */
   {
-    let guard = 0;
-    while (g.state === 'CUT_FOR_DEAL' && ++guard < 20) {
-      d.getElementById('cutButton').click();
-      await settle();
-    }
+    await waitUntil(() => g.state !== 'CUT_FOR_DEAL', 'the cut for deal to settle', {
+      seconds: 20,
+      step: () => d.getElementById('cutButton').click()
+    });
     check(g.state === 'DISCARD', 'could not reach the discard phase, stuck in ' + g.state);
   }
 
@@ -192,15 +231,24 @@ const vis = b => b && !b.disabled;
   /* ---- cards already on the table are not controls ---- */
   {
     // Play a card so the pile is not empty.
-    let guard = 0;
-    while (g.state === 'PLAY' && g.playedPile.length === 0 && ++guard < 20) {
-      if (g.currentTurn === g.player) {
+    await waitUntil(
+      () => g.state !== 'PLAY' || g.playedPile.length > 0,
+      'a card to reach the played pile',
+      { seconds: 20, step: () => {
+        if (g.currentTurn !== g.player) return;   // the computer is on a 1s timer
         const i = g.player.hand.findIndex(c =>
           !g.player.playedCards.includes(c) && g.currentCount + c.value <= 31);
-        if (i >= 0) { ui.handleCardAction(i); await settle(40); } else break;
-      } else { await settle(60); }
-    }
+        if (i >= 0) ui.handleCardAction(i);
+      } });
+
+    /* These checks used to be inside `if (played.length)` with nothing else.
+     * When the wait above ran out — which it could, on 1.2 seconds against a
+     * one-second timer — the pile was empty, the whole block was skipped, and
+     * the suite passed while covering less than it said it did. A test that
+     * quietly stops looking is worse than one that fails. */
     const played = [...d.querySelectorAll('#playedCards .card')];
+    check(played.length > 0,
+      'no card ever reached the played pile, so nothing here was checked at all');
     if (played.length) {
       const asButtons = played.filter(c => c.getAttribute('role') === 'button');
       check(asButtons.length === 0,
@@ -271,19 +319,19 @@ const vis = b => b && !b.disabled;
 
   /* ---- reviewing at the count ---- */
   {
-    let guard = 0;
-    while (!ui.isReviewing() && g.state !== 'GAME_OVER' && ++guard < 400) {
-      if (g.state === 'PAUSE_GO' || g.state === 'PAUSE_31') {
-        d.getElementById('continueButton').click(); await settle(30); continue;
-      }
-      if (g.state === 'PLAY' && g.currentTurn === g.player) {
+    await waitUntil(
+      () => ui.isReviewing() || g.state === 'GAME_OVER',
+      'the count to begin',
+      { seconds: 90, step: () => {
+        if (g.state === 'PAUSE_GO' || g.state === 'PAUSE_31') {
+          d.getElementById('continueButton').click(); return;
+        }
+        if (g.state !== 'PLAY' || g.currentTurn !== g.player) return;
         const i = g.player.hand.findIndex(c =>
           !g.player.playedCards.includes(c) && g.currentCount + c.value <= 31);
-        if (i >= 0) { ui.handleCardAction(i); await settle(30); continue; }
-        if (vis(d.getElementById('goButton'))) { d.getElementById('goButton').click(); await settle(30); continue; }
-      }
-      await settle(30);
-    }
+        if (i >= 0) { ui.handleCardAction(i); return; }
+        if (vis(d.getElementById('goButton'))) d.getElementById('goButton').click();
+      } });
 
     if (ui.isReviewing()) {
       const revealed = [...d.querySelectorAll('#computerHand .card')];
@@ -298,11 +346,40 @@ const vis = b => b && !b.disabled;
         'a card shown for review has no accessible name, so it cannot be read at all'));
       note('review');
     } else {
-      check(false, 'never reached the count, so the review state went untested (state ' + g.state + ')');
+      /* Say what the game was doing, not just what state it stopped in. The old
+       * message was "never reached the count ... (state PLAY)", which reads like
+       * a stuck game and is far more likely to be a wait that ran out while the
+       * computer was still playing, one card a second. */
+      check(false, 'never reached the count, so the review state went untested — ' +
+        'state ' + g.state + ', ' +
+        (g.currentTurn === g.player ? 'the player' : 'the computer') + ' to act, ' +
+        'count ' + g.currentCount + ', ' +
+        g.playedPile.length + ' cards played, ' +
+        g.player.hand.filter(c => !g.player.playedCards.includes(c)).length +
+        ' still in the player hand');
     }
   }
 
   window.close();
+
+  /* WHAT THIS SUITE IS SUPPOSED TO HAVE LOOKED AT.
+   *
+   * `covered:` was printed and never checked, so a block that did not run just
+   * made the line shorter. Several of these blocks are guarded by a wait, and a
+   * wait that runs out on a slow machine silently removed its checks from the
+   * suite while it went on reporting success — which is the same shape as a
+   * green build that never tested anything.
+   *
+   * Adding a section means adding its name here. That is the point: it should
+   * not be possible to lose one by accident. */
+  const EXPECTED = ['backs', 'buttons', 'discard', 'keyboard', 'labels', 'log',
+    'play-state', 'played-pile', 'review'];
+  const missing = EXPECTED.filter(k => !seen[k]);
+  missing.forEach(k => check(false,
+    'the "' + k + '" checks never ran, so the suite covered less than it says. ' +
+    'A wait that ran out is the usual reason.'));
+
+  waited.forEach(w => check(false, 'timed out waiting for ' + w));
 
   const covered = Object.keys(seen).sort().join(', ');
   if (fails.length) {
