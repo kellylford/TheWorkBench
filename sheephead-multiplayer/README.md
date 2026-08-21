@@ -117,6 +117,7 @@ and forced-colours mode.
 | <kbd>E</kbd> | Export the game log |
 | <kbd>B</kbd> | Report a bug |
 | <kbd>N</kbd> | Advance: Continue wherever it is offered, or deal the next hand |
+| <kbd>W</kbd> | Who is at the table, and whether they are still connected |
 | <kbd>R</kbd> | Repeat the last announcement |
 | <kbd>?</kbd> | Accessibility hints |
 

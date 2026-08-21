@@ -895,6 +895,22 @@
     L.push('');
   }
 
+  /* Could a new hand be dealt right now?
+   *
+   * The room needs this and must not hardcode a phase name to get it. This
+   * exact check, written as `state.phase !== 'handOver'`, was copied verbatim
+   * into cribbage-multiplayer/js/room.js — where the finished-hand phase is
+   * called `roundOver`, so the condition was true at every moment of every hand
+   * and every deal sent over the wire was silently swallowed. Online play there
+   * could not get past hand one and nothing said why.
+   *
+   * It is correct here, which is exactly what made it dangerous: a constant that
+   * is right in the file it was written in and wrong in the file it was copied
+   * to. A predicate the engine owns cannot come apart that way. */
+  function canDeal(state) {
+    return state.phase === 'idle' || state.phase === 'handOver';
+  }
+
   /* Whose move the table is waiting for, or -1 if it is waiting for nobody.
    *
    * Not simply `state.turn`, and the two places that assumed it was are the room
@@ -1048,6 +1064,7 @@
     partnerOf: partnerOf,
     teamName: teamName,
     seatToAct: seatToAct,
+    canDeal: canDeal,
     sideWords: sideWords,
     isActive: isActive,
     nextActive: nextActive,

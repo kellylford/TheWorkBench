@@ -189,7 +189,7 @@ function myTurn(d) { return /your turn to play/i.test(d.getElementById('status')
 
 async function playHands(players, howMany) {
   const { window, d } = await boot({ players });
-  const seen = { focusChecks: 0, focusBad: 0, buries: 0, handsDone: 0, blockedSeen: 0, exports: 0, midChecks: 0, bugs: 0, handSaid: 0, blindMarked: 0, blindRevealed: 0, jdSeen: 0, orderSaid: 0, pickLabels: 0 };
+  const seen = { focusChecks: 0, focusBad: 0, buries: 0, handsDone: 0, blockedSeen: 0, exports: 0, midChecks: 0, bugs: 0, handSaid: 0, blindMarked: 0, blindRevealed: 0, jdSeen: 0, orderSaid: 0, pickLabels: 0, whoSaid: 0};
   let guard = 0;
 
   /* A wall-clock watchdog as well as an iteration guard.
@@ -518,6 +518,32 @@ async function playHands(players, howMany) {
       }
 
       seen.midChecks++;
+    }
+
+    // WHO IS AT THE TABLE. Added when this game was brought level with euchre/
+    // and cribbage-multiplayer/, which already had it. Offline, waiting is
+    // bounded by the pace setting; online it is not, and this is the only thing
+    // that can tell a player whether silence means somebody is thinking or
+    // somebody has gone.
+    if (seen.whoSaid < 3) {
+      d.querySelector('[data-say="who"]').click();
+      await settleAlert();
+      const said = d.getElementById('announcer').textContent;
+      if (said) {
+        seen.whoSaid++;
+        check(said.length > 30, 'who-is-here said almost nothing: ' + said);
+        // Every seat named, with what is in it.
+        const names = [...d.querySelectorAll('#players-table tbody tr')]
+          .map(r => r.querySelector('th').textContent.replace(/\s*\(you\)\s*$/, '').trim());
+        names.forEach(n => check(said.indexOf(n) >= 0,
+          'who-is-here does not mention ' + n + ': ' + said));
+        check(/Seat 1,/.test(said), 'who-is-here does not number the seats: ' + said);
+        // Playing alone, it must say so rather than describing a table.
+        check(/on your own against \d+ computer opponents/.test(said),
+          'who-is-here does not say this is a single-player game: ' + said);
+        check(/\b(you|a person|the computer|away)\b/.test(said),
+          'who-is-here does not say what is in each seat: ' + said);
+      }
     }
 
     // Play order must say who plays when, and — the point of it — where the
@@ -989,8 +1015,11 @@ async function settingsDialog() {
       r.blindRevealed + ' blind reveals,',
       r.jdSeen + ' jack sightings,',
       r.orderSaid + ' play-order checks,',
+      r.whoSaid + ' who-is-here checks,',
       r.pickLabels + ' pick-label checks');
     check(r.focusChecks > 0, players + 'p: never exercised a restricted turn');
+    /* A counter that is allowed to read zero is not a check. */
+    check(r.whoSaid > 0, players + 'p: never exercised the who-is-here key');
   }
 
   if (fails.length) {
