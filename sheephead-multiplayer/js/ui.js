@@ -91,6 +91,10 @@
   var handFocus = 0;
   var logFocus = 0;
   var lastActionsKey = null;
+  /* When the seat now on move became responsible for it, so W can say how long
+   * somebody has been thinking. Offline that is never interesting; online it is
+   * the difference between "they are deciding" and "their laptop has shut". */
+  var turnWatch = { key: null, at: 0 };
   var actionsRebuilt = false;
 
   var el = {};
@@ -536,6 +540,11 @@
    * that coming back can be announced as the news it is rather than passing in
    * silence. */
   var netTroubled = false;
+  /* WHAT the connection is doing, not merely whether it is up. `lobby.connected`
+   * is a boolean and cannot tell a table that is still being reached from one
+   * that has died from one whose room has faulted — which is precisely the
+   * distinction the W key exists to report. */
+  var netState = 'offline';
 
   /* A fragment from the wire, made into a sentence. The transport hands back
    * things like "the connection closed", which were being concatenated straight
@@ -706,6 +715,7 @@
    * standing version for anyone who wants to check. */
   function onNetStatus(s) {
     lobby.connected = s.state === 'connected';
+    netState = s.state;
 
     /* Two sentences, not one run together.
      *
@@ -1103,6 +1113,7 @@
       case 'teams': announceRequested(textTeams()); break;
       case 'count': announceRequested(textCount()); break;
       case 'order': announceRequested(textOrder()); break;
+      case 'who': announceRequested(textWho()); break;
       case 'repeat': announceRequested(lastSpoken || 'Nothing to repeat.'); break;
     }
   }
@@ -1232,6 +1243,9 @@
   /* ---------------- rendering ---------------- */
 
   function render() {
+    var watchKey = state.phase + ':' + state.turn + ':' + state.handNumber;
+    if (turnWatch.key !== watchKey) { turnWatch.key = watchKey; turnWatch.at = Date.now(); }
+
     renderStatus();
     renderActions();
     renderHand();
@@ -1524,6 +1538,53 @@
   /* Where everyone sits in the running order. A sighted player reads this off
    * the table; without it there is no way to know whether the picker plays
    * before or after you, which changes what it is safe to lead. */
+  /* WHO IS AT THE TABLE, AND WHAT SILENCE MEANS.
+   *
+   * Offline, waiting is bounded by the pace setting. Online it is unbounded, and
+   * a player who cannot see the screen has no way to tell "Ruth is thinking"
+   * from "Ruth's tab froze" from "the socket dropped". Those are three different
+   * situations with three different responses, and the game is the only thing
+   * that knows which one it is.
+   *
+   * Added to bring this game level with euchre/ and cribbage-multiplayer/, where
+   * it already existed — the sort of gap that opens when three games are built
+   * one after another and nothing keeps them honest with each other. */
+  function textWho() {
+    if (!state) return '';
+    var parts = [];
+    if (SH.Table.isLocal()) {
+      parts.push('You are playing on your own against ' +
+        (tableSize() - 1) + ' computer opponents.');
+    } else {
+      parts.push('Table ' + (lobby.code ? spellCode(lobby.code) : 'unknown') +
+        '. The connection is ' +
+        (netState === 'connected' ? 'healthy'
+          : netState === 'connecting' ? 'still being made'
+            : netState === 'lost' ? 'lost — the computer may be playing your seat'
+              : netState === 'fault' ? 'up, but the table has stopped'
+                : netState) + '.');
+    }
+    for (var i = 0; i < tableSize(); i++) {
+      var p = state.players[i];
+      var who = p.occupant === 'human' ? (i === mySeat ? 'you' : 'a person')
+        : p.occupant === 'away' ? 'away, played by the computer'
+          : 'the computer';
+      var roles = roleTags(i);
+      parts.push('Seat ' + (i + 1) + ', ' + p.name + ', ' + who +
+        (roles.length ? ', ' + roles.join(', ') : '') + '.');
+    }
+    var onMove = state.phase === 'handOver' ? -1
+      : (state.phase === 'bury' ? state.picker : state.turn);
+    if (onMove >= 0) {
+      var waited = Math.round((Date.now() - turnWatch.at) / 1000);
+      parts.push((onMove === mySeat ? 'It is your turn' : 'Waiting for ' + seatName(onMove)) +
+        (waited >= 3 ? ', for ' + waited + ' seconds now' : '') + '.');
+    } else if (state.phase === 'handOver') {
+      parts.push('The hand is over; the table is waiting for somebody to deal.');
+    }
+    return parts.join(' ');
+  }
+
   function textOrder() {
     if (!state) return '';
     var n = tableSize();
@@ -2128,7 +2189,8 @@
     if (k === 'g') { e.preventDefault(); focusLogEntry(0); return; }
     if (k === 'e') { e.preventDefault(); openExport(); return; }
 
-    var map = { h: 'hand', t: 'trick', l: 'last', s: 'score', p: 'teams', c: 'count', o: 'order', r: 'repeat' };
+    var map = { h: 'hand', t: 'trick', l: 'last', s: 'score', p: 'teams', c: 'count',
+      o: 'order', w: 'who', r: 'repeat' };
     if (map[k]) { e.preventDefault(); say(map[k]); return; }
     if (e.key === '?') { e.preventDefault(); openA11y(); }
   }

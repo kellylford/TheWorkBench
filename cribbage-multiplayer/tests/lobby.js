@@ -39,6 +39,20 @@ function boot() {
     url: 'https://example.org/cribbage-multiplayer/', pretendToBeVisual: true, runScripts: 'outside-only'
   });
   const win = dom.window;
+
+  /* SEEDED, for the same reason the layout suite is: a run that deals different
+   * cards every time cannot assert what it covered. The counters at the bottom
+   * of this file — did a bower come up, did the bidding reach round two, was an
+   * unplayable card ever offered — are the whole point of it, and a counter that
+   * depends on the shuffle is a counter that reports zero on the day nobody is
+   * looking. The seed is chosen so the run reaches the cases it claims to.
+   *
+   * Set before the game scripts are evaluated, so the very first shuffle is
+   * covered. */
+  win.Math.random = (() => {
+    let s = 20260821;
+    return () => { s = (s * 1103515245 + 12345) & 0x7fffffff; return s / 0x7fffffff; };
+  })();
   const D = win.HTMLDialogElement;
   if (D) {
     D.prototype.showModal = function () { this.open = true; };

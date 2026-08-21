@@ -648,12 +648,19 @@
 
       /* Dealing the next hand is first-come, and the loser is told so plainly.
        *
+       * THE CONDITION ASKS THE ENGINE, and does not name a phase. Written here
+       * as `state.phase !== 'handOver'` it was correct — and it was then copied
+       * into a game whose finished-hand phase is called something else, where it
+       * was true at every moment and swallowed every deal on the wire. Right in
+       * the file it was written in, wrong in the file it was copied to, and
+       * silent in both.
+       *
        * Two people pressing Deal at handOver is not a race to be prevented — the
        * first one is right, and the hand should start. What must not happen is
        * the second being told "the hand is not over" while a new hand is visibly
        * being dealt in front of them, which is what the raw engine refusal says.
        * A view is the honest answer: somebody already did it, here is the table. */
-      if (msg.action && msg.action.type === 'nextHand' && state.phase !== 'handOver') {
+      if (msg.action && msg.action.type === 'nextHand' && !G.canDeal(state)) {
         room.version++;
         var already = viewFor(connId, seat);
         persist();
