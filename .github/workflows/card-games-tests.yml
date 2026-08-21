@@ -62,6 +62,18 @@ jobs:
       - name: Engine contract
         run: node shared/tests/engine-contract.js
 
+      # The Workers import shared/js/room.js from outside their own directory.
+      # Nothing else here would notice a broken import: the game suites do not
+      # bundle, and the deploy that would fail only runs after the merge — on
+      # main, against the live room. Bundling is a few milliseconds.
+      - name: Every Worker still bundles
+        run: |
+          set -euo pipefail
+          npm install --no-save esbuild
+          for g in euchre cribbage-multiplayer sheephead-multiplayer; do
+            npx esbuild --bundle "$g/worker/src/index.js" --format=esm --outfile=/dev/null
+          done
+
   sheephead:
     name: Sheephead
     runs-on: ubuntu-latest
