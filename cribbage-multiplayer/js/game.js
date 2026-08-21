@@ -573,6 +573,15 @@
         ' Games: ' + nameOf(state, 0) + ' ' + state.gamesWon[0] + ', ' +
         nameOf(state, 1) + ' ' + state.gamesWon[1] + '. Deal to start another.');
       recordHand(state);
+      /* THE DEAL PASSES HOWEVER THE HAND ENDED.
+       *
+       * doNext rotates on the path where nobody won, and every game-ending hand
+       * returns before ever reaching it — so the same player dealt the last hand
+       * of one game and the first hand of the next, and took two cribs running,
+       * at every game boundary. Rotated AFTER recordHand so the record names the
+       * dealer of the hand it describes rather than whoever is about to deal. */
+      state.dealer = other(state.dealer);
+      state.turn = state.dealer;
       return true;
     }
     return false;
@@ -663,12 +672,6 @@
       }
     }
     return { total: total, parts: parts, count: count };
-  }
-
-  function scorePlay(state, p, card) {
-    var got = pointsForPlay(state, card);
-    if (got.total) award(state, p, got.total, got.parts.join(' and '));
-    return got.total;
   }
 
   function resetCount(state, leader, why) {
@@ -822,16 +825,19 @@
 
     state.countStage = 3;
     state.phase = 'roundOver';
-    state.dealer = other(state.dealer);
-    state.turn = state.dealer;
     state.result = {
       gameOver: false,
       scores: [state.players[0].score, state.players[1].score],
       counts: state.countResults.slice()
     };
+    /* Recorded BEFORE the deal passes, so `h.dealer` is the dealer of the hand
+     * the record describes. Rotating first made it the NEXT dealer, which every
+     * reader then had to know to invert — and two of them did not. */
+    recordHand(state);
+    state.dealer = other(state.dealer);
+    state.turn = state.dealer;
     ev(state, 'info', 'Hand ' + state.handNumber + ' complete. ' + scoreLine(state) +
       ' ' + nameOf(state, state.dealer) + vb(state, state.dealer, ' deals', ' deal') + ' next.');
-    recordHand(state);
     return true;
   }
 

@@ -183,7 +183,35 @@ async function main() {
 
     if (v.phase === 'roundOver' || v.phase === 'gameOver') {
       const deal = findBtn(win, /Deal the next hand|Start a new game/);
-      if (deal) { handsSeen.add(v.gameNumber + ':' + v.handNumber); handsDone = handsSeen.size; deal.click(); }
+      /* FOCUS MUST BE SOMEWHERE, and at a hand end it must be on the button that
+       * moves the game on.
+       *
+       * This is a regression test for a bug an independent review found and this
+       * file walked straight past twice a run: tick() returns early on the online
+       * branch, so focusForTurn — not focusFirstAction — is what runs, and
+       * `roundOver` was missing from its list of button phases. It fell through
+       * to focusCard on a hand that had just been rebuilt with no cards, which
+       * does nothing, leaving focus on the <body> the re-render had dropped it
+       * to. The Deal button was on screen and unreachable except by tabbing from
+       * the top of the document. It only happened online, which is why every
+       * offline test was green.
+       *
+       * Searching for the button by its text, as this file did, cannot see that:
+       * the button exists either way. The check has to be about focus. */
+      if (deal) {
+        const focused = win.document.activeElement;
+        check(focused && focused !== win.document.body,
+          'at the end of an online hand focus was left on ' +
+          (focused ? focused.tagName : 'nothing') + ' — the Deal button is on screen ' +
+          'and reachable only by tabbing from the top of the document');
+        check(focused === deal,
+          'focus at the end of an online hand is on ' +
+          (focused ? focused.tagName + ' "' + (focused.textContent || '').trim().slice(0, 30) + '"' : 'nothing') +
+          ' rather than the button that deals the next hand');
+        handsSeen.add(v.gameNumber + ':' + v.handNumber);
+        handsDone = handsSeen.size;
+        deal.click();
+      }
       continue;
     }
 

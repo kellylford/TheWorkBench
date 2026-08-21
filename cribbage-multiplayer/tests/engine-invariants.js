@@ -55,7 +55,8 @@ const PHASES = ['idle', 'cutForDeal', 'discard', 'play', 'count', 'roundOver', '
 
 const stats = {};
 let handsPlayed = 0, gamesPlayed = 0;
-const seen = { heels: 0, go: 0, lastCard: 0, thirtyOne: 0, pegOut: 0, skunk: 0, tie: 0 };
+const seen = { heels: 0, go: 0, lastCard: 0, thirtyOne: 0, pegOut: 0, skunk: 0, tie: 0,
+  acrossGames: 0 };
 
 for (const difficulty of ['easy', 'normal', 'hard']) {
   for (const targetScore of [121, 61]) {
@@ -169,10 +170,10 @@ function checkHandEnd(st) {
   const everything = h.dealt.hands[0].concat(h.dealt.hands[1], [h.starter]);
   check(new Set(everything).size === everything.length, 'a card was dealt twice');
 
-  /* The three counts happen in order: non-dealer, dealer, crib. `dealer` has
-   * already rotated by the time the hand is recorded, so the non-dealer of the
-   * hand just played is the seat that is about to deal. */
-  const nonDealer = h.dealer;
+  /* The three counts happen in order: non-dealer, dealer, crib. `h.dealer` is
+   * the dealer OF THIS HAND — the record is written before the deal passes,
+   * precisely so that no reader has to know to invert it. */
+  const nonDealer = 1 - h.dealer;
   if (h.counts.length >= 1) check(h.counts[0].who === nonDealer && h.counts[0].kind === 'hand',
     'the non-dealer did not count first');
   if (h.counts.length >= 2) check(h.counts[1].who === 1 - nonDealer && h.counts[1].kind === 'hand',
@@ -189,6 +190,50 @@ function checkHandEnd(st) {
   }
   /* Scores only go up. */
   check(h.scores[0] >= 0 && h.scores[1] >= 0, 'a negative score');
+}
+
+/* ============ THE DEAL PASSES EVERY HAND ============
+ *
+ * Including across a game boundary, which needs several games IN ONE STATE to
+ * observe — the loop above builds a fresh game each time and so can never see a
+ * boundary at all. The first version of this check lived up there and reported
+ * zero occurrences, which is the same as no check.
+ *
+ * The bug it is guarding: rotation happened only on the path where nobody won,
+ * and every game-ending hand returned before reaching it. The same player dealt
+ * the last hand of one game and the first of the next, taking two cribs
+ * running, every time. */
+{
+  const st = G.createGame({ names: ['North', 'South'], targetScore: 61, difficulty: 'hard' });
+  G.applyAction(st, 0, { type: 'start' });
+  let guard = 0, games = 0;
+  while (games < 25 && guard++ < 90000) {
+    if (st.phase === 'roundOver' || st.phase === 'gameOver') {
+      if (st.phase === 'gameOver') games++;
+      G.applyAction(st, 0, { type: 'nextHand' });
+      continue;
+    }
+    AI.act(st);
+  }
+  check(games >= 25, 'only ' + games + ' games were played in one state');
+  check(st.history.length > 10, 'too few hands to check the rotation across');
+
+  for (let k = 1; k < st.history.length; k++) {
+    const prev = st.history[k - 1], now = st.history[k];
+    check(now.dealer === 1 - prev.dealer,
+      'the deal did not pass between hand ' + prev.handNumber + ' and hand ' +
+      now.handNumber + (prev.result && prev.result.gameOver ? ' (across a game boundary)' : ''));
+    if (prev.result && prev.result.gameOver) seen.acrossGames++;
+  }
+
+  /* And the record names the dealer OF THAT HAND, which is what makes the check
+   * above mean anything: the non-dealer counts first. */
+  for (const h of st.history) {
+    if (h.counts.length >= 1) {
+      check(h.counts[0].who === 1 - h.dealer,
+        'hand ' + h.handNumber + ' was counted by the wrong player first');
+    }
+  }
 }
 
 /* Every one of these must actually have come up, or the run proved less than it
@@ -216,7 +261,7 @@ function checkHandEnd(st) {
 }
 
 for (const [name, min] of [['heels', 20], ['thirtyOne', 100], ['pegOut', 5],
-  ['go', 100], ['lastCard', 100]]) {
+  ['go', 100], ['lastCard', 100], ['acrossGames', 20]]) {
   check(seen[name] >= min,
     `only ${seen[name]} hands reached the "${name}" case (wanted at least ${min})`);
 }

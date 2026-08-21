@@ -1614,15 +1614,31 @@
 
   function focusForTurn() {
     if (!mayTakeFocus()) return;
+
     /* Cutting, counting and dealing are decided with a button; throwing and
-     * playing are decided with the cards. */
-    if (state.phase === 'cutForDeal' || state.phase === 'count' ||
-        (state.phase === 'play' && !G.legalPlays(state, mySeat).length)) {
-      var b = el.actions.querySelector('button');
-      if (b) b.focus();
-      return;
-    }
-    focusCard(handFocus);
+     * playing are decided with the cards.
+     *
+     * THE END OF A HAND IS A BUTTON PHASE TOO, and leaving it out dropped focus
+     * on to nothing at every online hand end. tick() returns early on the online
+     * branch — the room owns the pace, so there is no local loop to fall through
+     * to — which means this function, not focusFirstAction, is what runs there.
+     * `roundOver` was not in the list, so it fell through to focusCard on a hand
+     * that had just been rebuilt with no cards in it: focusCard finds nothing,
+     * returns quietly, and focus stays on the <body> the re-render left it on.
+     * The Deal button was on screen and unreachable except by tabbing from the
+     * top of the document. Offline it never happened, because the local branch
+     * calls focusFirstAction instead.
+     *
+     * The final fallback matters as much as the list: whatever the phase, if
+     * there is no card to land on, focus goes to the action area rather than
+     * nowhere. */
+    var buttonPhase = state.phase === 'cutForDeal' || state.phase === 'count' ||
+      state.phase === 'roundOver' || state.phase === 'gameOver' ||
+      (state.phase === 'play' && !G.legalPlays(state, mySeat).length);
+
+    if (!buttonPhase && el.hand.querySelector('.card')) { focusCard(handFocus); return; }
+    var b = el.actions.querySelector('button');
+    if (b) b.focus();
   }
 
   function focusFirstAction() {

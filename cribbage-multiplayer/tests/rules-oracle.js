@@ -467,6 +467,153 @@ for (const [name, min] of [['heels', 5], ['go', 50], ['lastCard', 50], ['thirtyO
     `only ${seenCases[name]} hands reached the "${name}" case (wanted ${min})`);
 }
 
+/* ================= 7. THE LEDGER =================
+ *
+ * THE GAP THIS SECTION EXISTS TO CLOSE. Everything above validates
+ * `pointsForPlay` IN ISOLATION and re-scores the hand and crib counts. Nothing
+ * checked that the points a player actually ENDED UP WITH are the points the
+ * rules say they earned — so the whole of the pegging was covered only as a
+ * pure function, never as it is used.
+ *
+ * An independent review demonstrated the hole with six mutations that passed
+ * every suite in this directory:
+ *
+ *   resetCount never advancing runStart      (the bug this fork exists to fix)
+ *   doPlay scoring AFTER the card joins the pile, so every card pegs a phantom
+ *     pair — a 121 game finishes in six hands and the audit reports nothing
+ *   his heels paid to the non-dealer
+ *   the go point paid to the wrong player
+ *   the wrong player leading after a mutual go
+ *   the wrong player leading after thirty-one
+ *
+ * Section 5 tests the reset by SETTING runStart BY HAND, which proves
+ * pointsForPlay honours the field and never that resetCount sets it. That is the
+ * difference between testing a function and testing a game.
+ *
+ * So: replay every completed hand from the permanent record, derive every single
+ * point from the rules — his heels, every card of the pegging, the go, the last
+ * card, both hands and the crib — and assert the total for each player equals
+ * what their score actually moved by. The replay also re-derives WHOSE TURN it
+ * was at every step from the cards each player still held, which is what catches
+ * the two leader mutations: a pile is perfectly self-consistent with the wrong
+ * player leading, and only the rules say otherwise.
+ */
+function replayHand(h) {
+  const got = [0, 0];
+  const notes = [];
+
+  /* His heels: a jack turned pays the DEALER two, at the cut. */
+  if (h.starter && h.starter[0] === 'J') got[h.dealer] += 2;
+
+  /* The pegging, replayed from the cards each player kept. */
+  const remaining = [new Set(h.kept[0]), new Set(h.kept[1])];
+  let turn = 1 - h.dealer;              // the non-dealer leads
+  let count = 0;
+  let seq = [];
+
+  for (let i = 0; i < h.pile.length; i++) {
+    const e = h.pile[i];
+    if (e.player !== turn) {
+      notes.push(`card ${i + 1} was laid by seat ${e.player + 1}, the rules say seat ${turn + 1}`);
+      return { got, notes };
+    }
+    if (!remaining[e.player].has(e.card)) {
+      notes.push(`card ${i + 1} (${e.card}) was not in seat ${e.player + 1}'s hand`);
+      return { got, notes };
+    }
+    const v = VALUE[e.card[0]];
+    if (count + v > 31) {
+      notes.push(`card ${i + 1} (${e.card}) took the count to ${count + v}`);
+      return { got, notes };
+    }
+
+    count += v;
+    seq.push(e.card);
+    got[e.player] += oraclePlayPoints(seq, count);
+    remaining[e.player].delete(e.card);
+
+    if (!remaining[0].size && !remaining[1].size) {
+      /* One for the last card — unless it made thirty-one, which has already
+       * been paid two and does not also collect this. */
+      if (count !== 31) got[e.player] += 1;
+      break;
+    }
+
+    const opp = 1 - e.player;
+    const canPlay = seat => [...remaining[seat]].some(id => count + VALUE[id[0]] <= 31);
+
+    /* Who leads the next sequence after a reset.
+     *
+     * Whoever did NOT lay the last card — unless they have run out, in which
+     * case they say go to a count of nothing and the other player leads on. The
+     * first draft handed the lead to an empty-handed player and then reported
+     * every eighth card as laid by the wrong seat, which is the replay being
+     * wrong rather than the engine. A go from somebody holding no cards scores
+     * nobody anything: the count is zero, so the other player can always play. */
+    const leadAfterReset = () => (remaining[opp].size ? opp : e.player);
+
+    if (count === 31) { count = 0; seq = []; turn = leadAfterReset(); continue; }
+    if (canPlay(opp)) { turn = opp; continue; }
+    if (canPlay(e.player)) { turn = e.player; continue; }   // opponent says go, we carry on
+
+    /* Neither can play: one for the go to whoever laid last, and the other
+     * player leads the next sequence. */
+    got[e.player] += 1;
+    count = 0; seq = []; turn = leadAfterReset();
+  }
+
+  /* The counts: non-dealer's hand, dealer's hand, the crib. */
+  for (const c of h.counts) {
+    const cards = c.kind === 'crib' ? h.crib : h.kept[c.who];
+    if (!cards || cards.length !== 4) continue;
+    got[c.who] += oracleScore(cards, h.starter, c.kind === 'crib');
+  }
+  return { got, notes };
+}
+
+{
+  let ledgered = 0;
+  for (let g = 0; g < 120; g++) {
+    const st = G.createGame({
+      names: ['N', 'S'], targetScore: 121,
+      difficulty: ['easy', 'normal', 'hard'][g % 3]
+    });
+    G.applyAction(st, 0, { type: 'start' });
+    let guard = 0;
+    while (!st.gameOver && guard++ < 6000) {
+      if (st.phase === 'roundOver') { G.applyAction(st, 0, { type: 'nextHand' }); continue; }
+      AI.act(st);
+    }
+
+    let prev = [0, 0];
+    for (const h of st.history) {
+      /* Only hands that ran to the end. A hand somebody won part way through
+       * stops scoring at that moment, and deriving where it stopped would be
+       * re-implementing the win check rather than the scoring. */
+      const complete = h.counts.length === 3 && !(h.result && h.result.gameOver);
+      if (!complete) { prev = h.scores.slice(); continue; }
+
+      const { got, notes } = replayHand(h);
+      ledgered++;
+      if (notes.length) {
+        fails.push(`hand ${h.handNumber}: ${notes.join('; ')}`);
+        prev = h.scores.slice();
+        continue;
+      }
+      const moved = [h.scores[0] - prev[0], h.scores[1] - prev[1]];
+      check(got[0] === moved[0] && got[1] === moved[1],
+        `hand ${h.handNumber}: the rules give ${got.join('/')} but the scores moved ` +
+        `${moved.join('/')} (starter ${h.starter}, ` +
+        `kept ${h.kept.map(k => k.join(' ')).join(' | ')}, ` +
+        `pile ${h.pile.map(e => e.player + ':' + e.card).join(' ')})`);
+      prev = h.scores.slice();
+    }
+  }
+  check(ledgered > 600, 'only ' + ledgered + ' hands were put through the ledger');
+  console.log('  ledger: ' + ledgered.toLocaleString() +
+    ' complete hands re-derived point by point');
+}
+
 console.log('rules oracle: ' + checks.toLocaleString() + ' assertions');
 console.log('  ' + handsChecked.toLocaleString() + ' hands and ' +
   playChecks.toLocaleString() + ' plays scored twice, by different algorithms');

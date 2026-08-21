@@ -82,6 +82,12 @@ function withTrap(st, forSeat, fn) {
   guard(st.players[opp], 'kept', 'the other seat’s kept cards');
   guard(st, 'crib', 'the crib');
   guard(st, 'deck', 'the undealt pack');
+  /* `dealt` and `history` were not guarded by the first version of this trap,
+   * and `dealt` is the one a careless edit would reach for: it holds BOTH seats'
+   * six cards, live, from the moment of the deal. The computer is clean today —
+   * but a test that would not have noticed is not what is keeping it clean. */
+  guard(st, 'dealt', 'the dealt snapshot, which holds both hands');
+  guard(st, 'history', 'the record of previous hands');
 
   /* The opponent's discard, but not our own — we are entitled to remember what
    * we threw. `discarded` is one array, so the guard goes on the index. */
@@ -134,12 +140,16 @@ for (const phase of ['discard', 'play']) {
   const st = newGame();
   G.applyAction(st, 0, { type: 'start' });
   G.applyAction(st, 0, { type: 'cut' });
-  const a = withTrap(st, 0, () => st.players[1].hand.length);
-  check(a.touched.length === 1, 'the trap does not fire on the opponent’s hand');
-  const b = withTrap(st, 0, () => st.deck.length);
-  check(b.touched.length === 1, 'the trap does not fire on the undealt pack');
-  const c = withTrap(st, 0, () => st.crib.length);
-  check(c.touched.length === 1, 'the trap does not fire on the crib');
+  for (const [what, read] of [
+    ['the opponent’s hand', () => st.players[1].hand.length],
+    ['the undealt pack', () => st.deck.length],
+    ['the crib', () => st.crib.length],
+    ['the dealt snapshot', () => st.dealt && st.dealt.hands.length],
+    ['the history', () => st.history.length]
+  ]) {
+    const probe = withTrap(st, 0, read);
+    check(probe.touched.length === 1, 'the trap does not fire on ' + what);
+  }
 }
 
 /* And the honest version really is being used: the computer works from what it
