@@ -7,12 +7,21 @@
  * with no way to measure it is a knob nobody will ever turn again.
  *
  * What a euchre player would expect to see at a table of four reasonable
- * players, and therefore what these numbers are aimed at:
+ * players, and what this actually measures:
  *
- *   a suit is named on roughly nine hands in ten     (throw-ins are uncommon)
- *   the makers are euchred roughly one hand in six
- *   a march comes up roughly one hand in four
- *   somebody goes alone a few times an evening, not every hand
+ *   a suit is named on roughly nine hands in ten     measured 94-99%   met
+ *   the makers are euchred roughly one hand in six   measured 13-19%   met
+ *   somebody goes alone a few times an evening       measured 8-10%    met
+ *   a march comes up                                 measured 12-16%   LOW
+ *
+ * THE MARCH RATE IS THE ONE OPEN QUESTION. Published figures for euchre put a
+ * sweep nearer one hand in five, and this table sits below that in every
+ * configuration. It is not known whether that is the computer defending a shade
+ * too well, the makers bidding a shade too thin, or the published figure being
+ * for a livelier table than four cautious players make. Nobody has measured it
+ * properly, so it is written down as an open question rather than quietly
+ * restated as the target — a target that matches whatever the code happens to do
+ * is not a target.
  *
  *   node tests/balance.js            report the current settings
  *   node tests/balance.js sweep      sweep the two thresholds
