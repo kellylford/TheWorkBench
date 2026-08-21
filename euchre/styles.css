@@ -1,0 +1,906 @@
+/* Euchre - presentation.
+ * Aims: strong contrast, visible focus, no colour-only meaning, respects
+ * prefers-reduced-motion and prefers-contrast, and scales with the user's font size.
+ */
+
+:root {
+  --bg: #10161d;
+  --panel: #1a232e;
+  --panel-2: #223040;
+  --ink: #eef3f8;
+  --ink-dim: #ccd8e4;
+  --line: #3c4b5d;
+  --accent: #6fd0ff;
+  --accent-ink: #06212e;
+  --good: #7ee08a;
+  --bad: #ff9b9b;
+  --card-bg: #f7f9fb;
+  /* A card you cannot play. Light enough that a red suit still clears AA on it
+   * — #c2ccd6 looked better and put the pips at 4.25:1, which is a fail. */
+  --card-off: #ccd5de;
+  --card-ink: #16202a;
+  --card-red: #b3122a;
+  --trump: #f0c04a;
+  --bower: #7ad3a0;
+  --bower-ink: #0d5c38;
+  --felt: #1d5c43;
+  --felt-edge: #123a2b;
+  --back-a: #2a4f7c;
+  --back-b: #1b3557;
+  --focus: #ffd54a;
+  --radius: 8px;
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    --bg: #f2f5f8;
+    --panel: #ffffff;
+    --panel-2: #e8eef4;
+    --ink: #12181f;
+    --ink-dim: #3b4a5b;
+    --line: #b9c6d4;
+    --accent: #14556f;
+    --accent-ink: #ffffff;
+    --good: #10662a;
+    --bad: #a11226;
+    --card-bg: #ffffff;
+    --card-off: #ccd5de;
+    --card-ink: #12181f;
+    --card-red: #b3122a;
+    --trump: #8a5a00;
+    --bower: #1a7f4f;
+    --bower-ink: #0d5c38;
+    --felt: #1f6b4d;
+    --felt-edge: #14503a;
+    --back-a: #33608f;
+    --back-b: #224060;
+    --focus: #a35a00;
+  }
+}
+
+* { box-sizing: border-box; }
+
+/* A class that sets `display` outranks the browser's [hidden] rule, which left
+ * the decorative seats showing as an empty strip in the plain skin. */
+[hidden] { display: none !important; }
+
+html { font-size: 100%; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font: 1rem/1.5 system-ui, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+.sr-only {
+  position: absolute !important;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0 0 0 0);
+  white-space: nowrap; border: 0;
+}
+
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  background: var(--accent);
+  color: var(--accent-ink);
+  padding: .6rem 1rem;
+  z-index: 100;
+  font-weight: 700;
+}
+.skip-link:focus { left: 0; }
+
+.app-header {
+  padding: 1rem clamp(1rem, 4vw, 2rem) .25rem;
+  border-bottom: 1px solid var(--line);
+}
+.app-header h1 { margin: 0; font-size: 1.6rem; letter-spacing: .02em; }
+.tagline { margin: .25rem 0 .75rem; color: var(--ink-dim); }
+
+/* Says this build is unfinished, and points at the one that is not. Deliberately
+ * NOT part of .tagline: the narrow-viewport rules hide the tagline as decoration,
+ * which is fine for a strapline and wrong for the only warning on the page and
+ * the only way back to the stable game. display:none also drops it out of the
+ * accessibility tree entirely, so a phone user would never learn either fact.
+ *
+ * The link is given an explicit colour for the same reason .site-footer a is:
+ * there is no global link rule here, so an unstyled link falls back to browser
+ * default blue — 1.94:1 on this background. tests/contrast.js caught that. */
+.dev-notice {
+  margin: .25rem 0 .75rem;
+  color: var(--ink);
+  border-left: 4px solid var(--accent);
+  padding: .1rem 0 .1rem .6rem;
+  max-width: 46rem;
+  /* Prose added to a page whose layout is measured to the pixel at 150% text on a
+   * 320px screen. Font metrics differ between the machine this was written on and
+   * the one CI runs, so a line that fits here can push the page 7px wide there —
+   * which is exactly what happened. Wrapping is free; a horizontal scrollbar on a
+   * phone is not. */
+  overflow-wrap: break-word;
+}
+.dev-notice a { color: var(--accent); font-weight: 600; }
+
+main { padding: 1rem clamp(1rem, 4vw, 2rem) 4rem; max-width: 88rem; }
+main:focus { outline: none; }
+
+/* The way back to the other games. Sized in rem like everything else, and it is
+ * an ordinary link with an ordinary underline: it is the last thing on the page
+ * and the last thing anyone tabs to, so it should not need explaining. */
+.site-footer {
+  padding: 0 clamp(1rem, 4vw, 2rem) 2rem;
+  max-width: 88rem;
+  border-top: 1px solid var(--line);
+  margin-top: 1rem;
+  padding-top: 1rem;
+}
+/* The footer link is a target like any other, and at the default text size a
+ * bare inline link is about 21px tall — under the 24px WCAG 2.2 minimum. It only
+ * shows up when something measures it, because it looks perfectly fine and is
+ * perfectly clickable with a mouse; the people it fails are the ones aiming with
+ * a thumb or a head pointer. tests/layout.js measures it. */
+.site-footer a {
+  color: var(--accent);
+  font-weight: 600;
+  display: inline-block;
+  padding: .3rem 0;
+  min-height: 24px;
+}
+
+h2 { font-size: 1.3rem; margin: 1.25rem 0 .5rem; }
+h3 { font-size: 1.05rem; margin: 1rem 0 .35rem; text-transform: uppercase; letter-spacing: .06em; color: var(--ink-dim); }
+
+section > :last-child { margin-bottom: 0; }
+
+/* ---------- forms ---------- */
+
+fieldset {
+  /* The UA floors a fieldset at its min-content width, which here is the longest
+   * <option> string. That pushed the setup screen 97px past a 320px phone and
+   * 293px past it at large text — max-width on the select cannot beat it. */
+  min-inline-size: 0;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  margin: 0 0 1rem;
+  padding: .5rem 1rem 1rem;
+  background: var(--panel);
+}
+legend { padding: 0 .4rem; font-weight: 700; }
+
+.field { margin: .9rem 0; }
+.field > label { display: block; font-weight: 600; margin-bottom: .25rem; }
+.field.checkbox { display: flex; align-items: flex-start; gap: .5rem; }
+.field.checkbox > label { display: inline; font-weight: 400; margin: 0; }
+
+input[type="text"], select {
+  font: inherit;
+  padding: .45rem .5rem;
+  color: var(--ink);
+  background: var(--panel-2);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  max-width: 100%;
+  min-width: min(14rem, 100%);   /* 14rem alone is wider than a 320px phone at large text */
+}
+input[type="checkbox"] { width: 1.1rem; height: 1.1rem; margin-top: .2rem; }
+
+.hint { display: block; color: var(--ink-dim); font-size: .95rem; margin: .3rem 0; max-width: 60rem; }
+
+/* ---------- buttons ---------- */
+
+button {
+  font: inherit;
+  color: var(--ink);
+  background: var(--panel-2);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: .5rem .85rem;
+  cursor: pointer;
+}
+button:hover:not([disabled]):not([aria-disabled="true"]) { border-color: var(--accent); }
+button.primary {
+  background: var(--accent);
+  color: var(--accent-ink);
+  border-color: var(--accent);
+  font-weight: 700;
+  font-size: 1.05rem;
+  padding: .65rem 1.15rem;
+}
+button[disabled] { opacity: .5; cursor: not-allowed; }
+
+kbd {
+  font: inherit;
+  font-size: .8em;
+  border: 1px solid var(--line);
+  border-bottom-width: 2px;
+  border-radius: 4px;
+  padding: 0 .3em;
+  margin-left: .35em;
+  color: var(--ink-dim);
+}
+.primary kbd { color: inherit; border-color: currentColor; opacity: .75; }
+
+:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}
+
+.actions { display: flex; flex-wrap: wrap; gap: .6rem; margin: 1rem 0 0; }
+.actions-area { display: flex; flex-wrap: wrap; gap: .6rem; align-items: center; min-height: 2.4rem; }
+.actions-area .hint { flex: 1 1 100%; }
+.chips { flex: 1 1 100%; display: flex; flex-wrap: wrap; gap: .45rem; margin-bottom: .2rem; }
+.chip {
+  display: inline-flex; align-items: baseline; gap: .35rem;
+  padding: .3rem .6rem;
+  background: var(--panel-2);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+}
+.chip-label { font-size: .78rem; text-transform: uppercase; letter-spacing: .06em; color: var(--ink-dim); }
+.chip-value { font-weight: 700; }
+.chip-good { border-color: var(--good); }
+.chip-good .chip-value { color: var(--good); }
+.chip-bad { border-color: var(--bad); }
+.chip-bad .chip-value { color: var(--bad); }
+.chip-note { border-color: var(--trump); }
+
+.next-step { flex: 1 1 100%; margin: .1rem 0 .3rem; font-weight: 700; color: var(--ink); }
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .6rem;
+  margin-bottom: .75rem;
+}
+.tool-group {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .4rem;
+  padding: .5rem .6rem;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+.tool-group-name {
+  font-size: .78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .07em;
+  color: var(--ink-dim);
+  margin-right: .15rem;
+}
+/* New game throws away the current game, so it should not look like Scores. */
+button.consequential { border-color: var(--bad); color: var(--bad); }
+button.consequential:hover { background: color-mix(in srgb, var(--bad) 14%, transparent); }
+
+button:active:not([disabled]):not([aria-disabled="true"]) { transform: translateY(1px); }
+button:hover:not([disabled]):not([aria-disabled="true"]) { background: var(--panel); }
+button.primary:hover { background: color-mix(in srgb, var(--accent) 85%, white); }
+
+/* ---------- status ---------- */
+
+.status {
+  font-size: 1.1rem;
+  font-weight: 700;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-left: 5px solid var(--accent);
+  border-radius: var(--radius);
+  padding: .7rem .9rem;
+  margin: .5rem 0 1rem;
+}
+
+/* ---------- hand ---------- */
+
+.hand {
+  display: flex;
+  flex-wrap: wrap;
+  align-content: center;
+  gap: .5rem;
+  padding: .75rem;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  min-height: 6.5rem;
+}
+
+/* Card size adapts between a phone and a desktop, but the bounds are in rem so
+ * the user's font size always wins. Viewport units alone were how the Cribbage
+ * layout in this repo ended up unusable when text was scaled up. */
+.card {
+  position: relative;
+  width: clamp(3.5rem, 15vw, 5rem);
+  aspect-ratio: 5 / 7;
+  padding: .25rem;
+  background: var(--card-bg);
+  color: var(--card-ink);
+  border: 2px solid #7b8794;
+  border-radius: .4rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: .1rem;
+  line-height: 1.1;
+  container-type: inline-size;
+}
+.card .simple { display: flex; flex-direction: column; align-items: center; line-height: 1; }
+.card .rank { font-size: 1.5rem; font-weight: 800; }
+.card .suit { font-size: 1.5rem; }
+.card .pos {
+  position: absolute; top: 2px; left: 4px;
+  font-size: .7rem; font-weight: 700; color: #5a6672;
+}
+.card .tag {
+  position: absolute; bottom: 2px; left: 0; right: 0;
+  text-align: center;
+  font-size: .58rem;
+  font-weight: 800;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: #5a6672;
+}
+
+/* --- traditional skin: corner indices, pips, court panels ---
+ *
+ * EVERYTHING inside a card is sized in cqw — a percentage of the card's own
+ * width — never in rem. The card itself scales with the viewport, so any fixed
+ * unit in here stays put while the card shrinks, and the pips, the corner
+ * letters and the centre glyph pile into each other on a phone. That is exactly
+ * what happened the first time round.
+ *
+ * The geometry that keeps them apart is horizontal: the corner indices live in
+ * the outer 24% on each side, and the pip field spans only the middle 46%, so
+ * they cannot meet however tall anything gets. rem values are declared first as
+ * a fallback for browsers without container query units.
+ */
+.card .idx, .card .face { display: none; }
+
+.skin-traditional .card .simple { display: none; }
+.skin-traditional .card .idx {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: absolute;
+  line-height: .92;
+  font-weight: 800;
+  width: 22cqw;
+}
+.skin-traditional .card .idx-tl { top: 3cqw; left: 2cqw; }
+.skin-traditional .card .idx-br { bottom: 3cqw; right: 2cqw; transform: rotate(180deg); }
+.skin-traditional .card .idx-rank { font-size: .95rem; font-size: 19cqw; }
+.skin-traditional .card .idx-suit { font-size: .8rem; font-size: 15cqw; }
+
+.skin-traditional .card .face {
+  display: grid;
+  width: 46cqw;      /* 27% to 73% — clear of both corner columns */
+  /* Height is in cqw too, not cqh: `container-type: inline-size` only provides
+   * inline units, so cqh escapes to the viewport and stretches the card into a
+   * ribbon. The card is 1.4x as tall as it is wide, so 100cqw is ~71% of it. */
+  height: 100cqw;
+}
+.skin-traditional .card .face-pips {
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(5, 1fr);
+  place-items: center;
+}
+.skin-traditional .card .pip { font-size: .8rem; font-size: 13cqw; line-height: 1; }
+.skin-traditional .card .pip-flip { transform: rotate(180deg); }
+.skin-traditional .card .face-ace { place-items: center; }
+.skin-traditional .card .pip-big { font-size: 2.1rem; font-size: 40cqw; line-height: 1; }
+.skin-traditional .card .face-court {
+  place-items: center;
+  align-content: center;
+  gap: 1cqw;
+  border: 1px solid currentColor;
+  border-radius: 3cqw;
+  background: rgba(0, 0, 0, .04);
+}
+.skin-traditional .card .court-letter { font-size: 1.5rem; font-size: 30cqw; font-weight: 800; line-height: 1; }
+.skin-traditional .card .court-suit { font-size: .95rem; font-size: 17cqw; line-height: 1; }
+
+/* The two corners the indices do not use, so nothing lands on top of them. */
+.skin-traditional .card .pos {
+  top: 2cqw; left: auto; right: 3cqw;
+  font-size: 15cqw;
+  color: #3d4852;          /* was #8a95a1, which failed AA on a white card */
+}
+.skin-traditional .card .tag {
+  bottom: 2cqw; left: 3cqw; right: auto;
+  text-align: left;
+  font-size: 11cqw;
+  color: #3d4852;
+  opacity: 1;
+}
+
+/* The tag and position number are guides, not part of the card. Hide them once
+ * the card is small enough that they would crowd the face. */
+@container (max-width: 4.6rem) {
+  .skin-traditional .card .tag { display: none; }
+}
+/* Hearts and diamonds are red. This used to name only .rank and .suit, which
+ * exist solely in the plain skin — so in the traditional skin, the one that is
+ * on by default, every heart and diamond rendered in card ink. Black hearts on
+ * a deck of cards is the sort of thing nobody files a bug about; they just
+ * decide the game looks wrong and stop looking. */
+.card.red .rank, .card.red .suit,
+.skin-traditional .card.red .idx,
+.skin-traditional .card.red .pip,
+.skin-traditional .card.red .court-letter,
+.skin-traditional .card.red .court-suit { color: var(--card-red); }
+.card.trump { border-color: var(--trump); border-width: 3px; }
+.card.trump .tag { color: #8a5a00; }
+.card[aria-pressed="true"] {
+  outline: 4px solid var(--accent);
+  outline-offset: 1px;
+  transform: translateY(-.4rem);
+}
+/* The card the dealer took from the top of the kitty, sitting at the front of
+ * the hand until they have put one back. Lifted and outlined so it reads as
+ * "this is the new one" — a six card hand that all looks alike is exactly where
+ * a dealer discards the card they meant to keep. */
+.card.from-upcard {
+  border-color: var(--accent);
+  border-width: 3px;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 35%, transparent);
+  transform: translateY(-.35rem);
+}
+.card.from-upcard .tag { color: var(--accent); font-weight: 800; }
+
+/* A bower.
+ *
+ * The right and left bowers are the two highest cards in the game, and the left
+ * one does not look like a trump at all — with spades trump the jack of clubs is
+ * a spade, and a player scanning their hand for spades will not see it. So it is
+ * marked, and marked the same way in both skins, because "it is obvious once you
+ * know" is the whole problem: the moment you stop knowing is the moment you
+ * throw it away.
+ *
+ * Marked visually here and named in the card's own aria-label, so neither
+ * audience is depending on the other's channel. */
+.card.bower-card {
+  border-color: var(--bower);
+  border-width: 3px;
+  /* Colour and image set separately: a gradient alone leaves background-color
+   * transparent, which is both a weak fallback and unmeasurable for contrast. */
+  background-color: var(--card-bg);
+  background-image: linear-gradient(180deg, color-mix(in srgb, var(--bower) 18%, var(--card-bg)) 0%, var(--card-bg) 55%);
+}
+.card.bower-card .tag { color: var(--bower-ink); font-weight: 800; }
+.card.bower-card::before {
+  content: "★";
+  position: absolute; top: 1px; right: 4px;
+  font-size: .8rem; line-height: 1;
+  color: var(--bower-ink);
+}
+.card.from-upcard.bower-card { box-shadow: 0 0 0 3px color-mix(in srgb, var(--bower) 40%, transparent); }
+
+/* A seat sitting out because its partner is playing alone. Not "disabled" —
+ * they are still at the table and their row still carries a score. */
+tr.sitting-out th[scope="row"] { font-style: italic; }
+
+/* The deal revealed at the end of a hand: static, not interactive. */
+.hand.static { align-items: flex-start; flex-direction: column; gap: .75rem; }
+.reveal-row { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; }
+.reveal-label { font-weight: 700; min-width: 4.5rem; color: var(--ink-dim); }
+.hand.static .card { cursor: default; }
+
+/* A card you cannot play.
+ *
+ * Two earlier attempts both failed the same way: they put the signal ON the
+ * card. Translucency let the green felt through and turned the pips to mud;
+ * replacing it with 45-degree hatching was no better, because on a phone the
+ * stripes are about as wide and as dark as the pips, so the two simply merge.
+ * Greyscaling made it worse again by flattening the red suits to black.
+ *
+ * You can review your whole hand on your turn, so every card has to stay
+ * readable. The signal therefore lives entirely AROUND the card: a flat, cooler
+ * body instead of a bright one, and it sits low while the cards you can play
+ * stand up. Nothing is painted over a glyph, and it is not colour alone. */
+.card[aria-disabled="true"] {
+  background-color: var(--card-off);
+  background-image: none;
+  box-shadow: none;
+  transform: translateY(.3rem);
+}
+.card[aria-disabled="true"] .pos,
+.card[aria-disabled="true"] .tag { color: #46525e; }
+/* The court panel's faint black wash is there to lift the panel off a bright
+ * card. On a card already knocked back it lifts nothing, and it costs enough
+ * contrast to put a red suit under AA — measured at 4.28 against a 4.5 floor. */
+.card[aria-disabled="true"] .face-court { background: none; }
+
+/* The other half of the same signal: while you are choosing, the cards you may
+ * actually play stand up off the table. Emphasising what is allowed beats
+ * obscuring what is not, and it costs the face nothing. A shadow rather than a
+ * coloured ring, because the ring has to work against a white card and against
+ * the felt at the same time and no one colour does both. */
+.hand.choosing .card:not([aria-disabled="true"]) {
+  box-shadow: 0 .2rem .4rem rgba(0, 0, 0, .45);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .card { transition: transform .12s ease; }
+  .card:hover:not([aria-disabled="true"]) { transform: translateY(-.25rem); }
+}
+
+/* ---------- trick ---------- */
+
+.trick {
+  list-style: none;
+  margin: 0;
+  padding: .6rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: .5rem;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  min-height: 3rem;
+}
+.trick li {
+  background: var(--panel-2);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: .4rem .6rem;
+  min-width: 8rem;
+}
+.trick li.winning { border-color: var(--good); border-width: 2px; }
+.trick .who { display: block; font-size: .85rem; color: var(--ink-dim); }
+.trick .what { font-weight: 700; }
+.trick .what .s.red { color: var(--card-red); }
+.trick .flag { display: block; font-size: .78rem; color: var(--good); font-weight: 700; }
+.trick .empty { color: var(--ink-dim); font-style: italic; padding: .6rem .2rem; }
+.hand > .hint { align-self: center; margin: auto; font-style: italic; text-align: center; }
+
+/* ---------- table ---------- */
+
+.table-wrap { overflow-x: auto; }
+table {
+  border-collapse: collapse;
+  width: 100%;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+th, td { text-align: left; padding: .45rem .6rem; border-bottom: 1px solid var(--line); }
+thead th { background: var(--panel-2); }
+tbody tr:last-child td { border-bottom: 0; }
+tr.you td { font-weight: 700; }
+tfoot th, tfoot td { border-top: 2px solid var(--line); color: var(--ink-dim); font-size: .92rem; }
+tr.bad-total th, tr.bad-total td { color: var(--bad); font-weight: 700; }
+tr.turn td:first-child::before { content: "\25B6 "; color: var(--accent); }
+
+/* ---------- log ---------- */
+
+.log {
+  list-style: none;
+  margin: 0;
+  padding: .5rem .75rem;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  max-height: 18rem;
+  overflow-y: auto;
+}
+.log li { padding: .2rem .35rem; border-bottom: 1px solid rgba(128,128,128,.18); border-radius: 4px; }
+.log li:focus-visible { outline: 3px solid var(--focus); outline-offset: -2px; background: var(--panel-2); }
+.log li:last-child { border-bottom: 0; }
+.log li.k-score { font-weight: 700; color: var(--good); }
+.log li.k-trick { color: var(--accent); }
+.log li.k-info { color: var(--ink-dim); }
+
+/* ---------- dialog ---------- */
+
+dialog {
+  color: var(--ink);
+  background: var(--panel);
+  border: 2px solid var(--line);
+  border-radius: var(--radius);
+  max-width: 46rem;
+  width: calc(100% - 2rem);
+  padding: 0;
+}
+dialog::backdrop { background: rgba(0,0,0,.65); }
+.dialog-body { padding: 1rem 1.25rem 1.25rem; max-height: 80vh; overflow-y: auto; }
+.dialog-body h2 { margin-top: .25rem; }
+.dialog-body ul { padding-left: 1.2rem; }
+.dialog-body label { display: block; font-weight: 600; margin: .75rem 0 .25rem; }
+.dialog-body textarea {
+  width: 100%;
+  font: .85rem/1.45 ui-monospace, Consolas, "Courier New", monospace;
+  color: var(--ink);
+  background: var(--panel-2);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: .5rem;
+  white-space: pre;
+  overflow: auto;
+}
+.dialog-body li { margin: .3rem 0; }
+
+/* ---------- forced colours / high contrast ---------- */
+
+@media (prefers-contrast: more), (forced-colors: active) {
+  .card { border-width: 3px; }
+  .status { border-left-width: 6px; }
+  .card[aria-pressed="true"] { outline-width: 5px; }
+}
+@media (forced-colors: active) {
+  .card.trump { border-style: double; }
+  .card.from-upcard { border-style: dashed; }
+  .card.bower-card { outline: 3px solid; outline-offset: 1px; }
+  .trick li.winning { border-style: dashed; }
+}
+
+/* ================= traditional table dressing =================
+ * Everything below is decoration layered on the same markup. The plain skin
+ * simply does not switch it on, so both skins share one DOM and the screen
+ * reader experience is identical either way.
+ */
+
+.skin-traditional .hand,
+.skin-traditional .trick,
+.skin-traditional .seats {
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(255,255,255,.06), transparent 60%),
+    var(--felt);
+  border-color: var(--felt-edge);
+  box-shadow: inset 0 .1rem .6rem rgba(0,0,0,.35);
+}
+
+/* Cards in the trick: a real face beside the player's name. The player name
+ * stays in the DOM untouched; only the written-out card name is moved off
+ * screen, because the face is supposed to say it — which means the face has to
+ * actually say it.
+ *
+ * It did not. A played card is barely half the width of one in your hand, and
+ * the full pip layout does not survive the reduction: measured, the corner suit
+ * came out at 6.4px on a desktop and 4.6px on a phone. At that size a heart, a
+ * diamond and a club are three coloured blobs, and that is exactly what players
+ * reported — while saying the cards revealed at the end of a hand were fine,
+ * which is the tell, because those are full size.
+ *
+ * So a mini card drops the pips and the corner indices and carries one large
+ * rank and one large suit instead. Sized in cqw like everything else inside a
+ * card, so it holds up at any width. */
+.trick .mini { display: none; }
+.skin-traditional .trick .mini {
+  display: flex;
+  width: clamp(2.6rem, 11vw, 3.4rem);
+  /* Padding stays in rem. An element with container-type is a container for its
+   * DESCENDANTS, not for itself, so `padding: 3cqw` here resolves against the
+   * viewport instead — which blew a 54px card up to 80px the first time this
+   * rule was written. Third time this trap has been sprung in this repo. */
+  padding: .2rem;
+}
+.skin-traditional .trick .mini .idx,
+.skin-traditional .trick .mini .face { display: none; }
+.skin-traditional .trick .mini .simple { display: flex; gap: 1cqw; }
+.skin-traditional .trick .mini .rank { font-size: 1.1rem; font-size: 40cqw; font-weight: 800; }
+.skin-traditional .trick .mini .suit { font-size: 1rem; font-size: 38cqw; }
+.skin-traditional .trick .what {
+  position: absolute; width: 1px; height: 1px;
+  padding: 0; margin: -1px; overflow: hidden;
+  clip: rect(0 0 0 0); white-space: nowrap;
+}
+.skin-traditional .trick li {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .25rem;
+  min-width: 0;
+  background: rgba(0,0,0,.18);
+  border-color: rgba(255,255,255,.14);
+}
+.skin-traditional .trick li.winning { border-color: var(--good); }
+
+/* These tiles sit on dark green felt in BOTH colour schemes, so their text
+ * cannot take its colour from --ink, --ink-dim or --good: those flip to dark
+ * values in light mode, and the felt does not. In light mode the card names,
+ * the "winning so far" flag and the empty-trick line were therefore dark text on
+ * dark green — measured as low as 1.08:1 against a 4.5 requirement.
+ *
+ * `.who` was already pinned to a fixed light colour for exactly this reason. The
+ * rest were not, and nothing noticed because the contrast test only ever ran in
+ * whichever scheme the machine defaulted to. It now runs in both. */
+.skin-traditional .trick li,
+.skin-traditional .trick .what { color: #f2f7f4; }        /* 7.7:1 on the felt */
+.skin-traditional .trick .empty { color: #cfe0d6; }       /* 6.1:1 */
+.skin-traditional .trick .who { text-align: center; color: #dfeae4; }
+.skin-traditional .trick .flag { text-align: center; color: #8ce8a4; }   /* 5.7:1 */
+
+/* Opponents, shown as a fan of face-down cards. Purely decorative: the players
+ * table carries the same information for assistive technology, so this whole
+ * region is aria-hidden and nothing here is focusable. */
+.seats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+  gap: .75rem;
+  padding: .75rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--panel);
+  margin-bottom: .5rem;
+}
+.seat { min-width: 0; text-align: center; }
+.seat-name { font-weight: 700; font-size: .95rem; }
+.seat-role { display: block; font-size: .78rem; line-height: 1.4; color: var(--ink-dim); min-height: 1.4em; }
+.skin-traditional .seat-name,
+.skin-traditional .seat-role { color: #e8f1ec; }
+.seat-fan { display: flex; justify-content: center; margin-top: .3rem; min-height: 2.6rem; }
+.seat-fan .back {
+  width: clamp(1.5rem, 6vw, 2rem);
+  aspect-ratio: 5 / 7;
+  margin-left: -.55rem;
+  border-radius: .25rem;
+  border: 1px solid #24313d;
+  background:
+    repeating-linear-gradient(45deg, var(--back-a) 0 .22rem, var(--back-b) .22rem .44rem);
+  box-shadow: 0 .05rem .15rem rgba(0,0,0,.45);
+}
+.seat-fan .back:first-child { margin-left: 0; }
+.seat-turn .seat-name::after { content: " \25C0"; color: var(--accent); }
+
+/* Cards lift as they land, unless the reader has asked for less movement. */
+@media (prefers-reduced-motion: no-preference) {
+  .skin-traditional .trick li { animation: deal .22s ease-out both; }
+  @keyframes deal {
+    from { opacity: 0; transform: translateY(-.5rem) scale(.96); }
+    to   { opacity: 1; transform: none; }
+  }
+}
+
+/* Forced colours strips backgrounds; make sure the felt never hides anything. */
+@media (forced-colors: active) {
+  .skin-traditional .hand,
+  .skin-traditional .trick,
+  .skin-traditional .seats { background: Canvas; box-shadow: none; }
+  .seat-fan .back { background: Canvas; border: 1px solid CanvasText; }
+  .skin-traditional .card .face-court { background: Canvas; }
+}
+
+/* Forced colours replaces every background and drops the ring, so the two
+ * signals that survive are the ones that are not colour: the card still sits
+ * low, and it gets a dotted border. */
+@media (prefers-contrast: more), (forced-colors: active) {
+  .card[aria-disabled="true"] { border-style: dotted; }
+}
+
+/* ---------- narrow screens ----------
+ * Measured, not guessed: grouping the toolbar pushed it to 586px tall on a
+ * 320px phone and the hand started 1089px down the page — you scrolled past a
+ * screen and a half before seeing your cards. Three things claw that back.
+ */
+@media (max-width: 48rem) {
+  /* 1. There is no keyboard on a phone, so the shortcut badges are pure bulk.
+   *    aria-keyshortcuts stays on the buttons either way, so a screen reader
+   *    still reports them and nothing is lost to anyone who does have a keyboard
+   *    paired — they just are not printed. */
+  .toolbar kbd { display: none; }
+
+  /* 2. Tighter chrome throughout. */
+  .app-header { padding-bottom: 0; }
+  .tagline { display: none; }
+  .toolbar { gap: .4rem; }
+  .tool-group { padding: .4rem .45rem; gap: .3rem; }
+  .tool-group-name { font-size: .72rem; flex: 1 1 100%; margin: 0 0 .1rem; }
+  .toolbar button { padding: .45rem .6rem; }
+  h2 { margin: .75rem 0 .4rem; }
+  h3 { margin: 1rem 0 .35rem; }
+  main { padding-bottom: 2rem; }
+  .status { margin: .4rem 0 .6rem; }
+
+  /* 3. The log is long and rarely needed on a phone. */
+  .log { max-height: 12rem; }
+
+  /* 4. The decorative seats were the tallest region on a phone — up to 612px of
+   *    face-down card backs that a screen reader user gets nothing from, sitting
+   *    right where they push the current trick off the screen. Two per row
+   *    instead of one, and smaller backs. min() keeps rem as the preferred size
+   *    and only clamps when the container genuinely cannot fit two. */
+  .seats {
+    grid-template-columns: repeat(auto-fit, minmax(min(7rem, 45%), 1fr));
+    gap: .4rem;
+    padding: .5rem;
+  }
+  .seat-fan { min-height: 0; margin-top: .2rem; }
+  .seat-fan .back { width: clamp(1.2rem, 5vw, 1.6rem); }
+}
+
+/* ---------- optional two-column desktop layout ----------
+ * Off by default; Settings > Appearance > Desktop layout turns it on.
+ *
+ * CSS Grid auto-placement is row-major, so panels fill left-to-right in exact
+ * DOM order. Nothing is repositioned and no `order` is used, so reading order
+ * and visual order stay identical — which is the whole reason this is grid and
+ * not absolute positioning.
+ *
+ * 64rem in a media query is always 1024px regardless of the user's font size,
+ * so phones and tablets are untouched whatever this is set to.
+ */
+@media (min-width: 64rem) {
+  .layout-two-col #game-section {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    column-gap: 1.25rem;
+    align-items: start;
+  }
+  /* Anything that reads as a full-width band stays one. The rest pairs up:
+   * hand | seats, then current trick | last trick. */
+  .layout-two-col #game-section > h2,
+  .layout-two-col #game-section > #status,
+  .layout-two-col #game-section > #action-section,
+  .layout-two-col #game-section > .toolbar,
+  .layout-two-col #game-section > #deal-section,
+  .layout-two-col #game-section > #score-section,
+  .layout-two-col #game-section > section[aria-labelledby="players-h"],
+  .layout-two-col #game-section > section[aria-labelledby="log-h"] {
+    grid-column: 1 / -1;
+  }
+}
+
+/* ---------- the lobby ---------- */
+
+/* The code is meant to be read aloud and typed by somebody else, so it is set
+ * large and letter-spaced, and it is focusable: after a table is made, focus
+ * lands here so the first thing announced is the thing the player needs. */
+.table-code {
+  font-size: clamp(1.6rem, 6vw, 2.4rem);
+  font-weight: 700;
+  letter-spacing: .35em;
+  margin: .25rem 0;
+  color: var(--trump);
+  overflow-wrap: break-word;
+}
+.table-code:focus-visible { outline: 3px solid var(--focus); outline-offset: 4px; }
+
+#lobby-code {
+  font-size: 1.3rem;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+}
+
+#lobby-seats th[scope="row"] { white-space: nowrap; }
+
+/* The table code, kept on screen for the whole online game. Quiet, because it is
+ * reference rather than news — but always there, because a code you cannot check
+ * is a code you cannot read to anybody. */
+.table-code-line {
+  margin: .25rem 0 .5rem;
+  color: var(--ink-dim);
+  font-weight: 600;
+  letter-spacing: .08em;
+}
+.table-code-line:focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; }
+
+/* THE CONNECTION, WHEN THERE IS SOMETHING WRONG WITH IT.
+ *
+ * Nothing is shown while it is healthy — a standing "connected" badge is noise
+ * on screen and worse in a screen reader's tab order. When it appears it is
+ * news, so it is styled as a warning and it stays put rather than passing by in
+ * a live region: somebody who missed the announcement has to be able to find it
+ * again, and somebody who heard it has to be able to check. */
+.net-line {
+  margin: .5rem 0;
+  padding: .55rem .8rem;
+  border: 1px solid var(--bad);
+  border-left: 5px solid var(--bad);
+  border-radius: var(--radius);
+  background: var(--panel);
+  color: var(--ink);
+  font-weight: 600;
+}
+.net-line:focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; }
+
+/* The result headline. It carries the whole outcome in a sentence, and the chips
+ * above it are decoration that repeats the numbers for anybody reading by eye. */
+.result-headline { font-weight: 700; color: var(--ink); font-size: 1.05rem; }
+
+/* The score table. Your own side's row is marked, because "which of these two
+ * rows is me" is the question it exists to answer. */
+#score-table tr.you th[scope="row"] { color: var(--accent); }

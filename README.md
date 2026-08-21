@@ -5,13 +5,25 @@ The Workbench has small projects I’m working on. These may or may not be final
 ## Projects
 
 ### The Card Place
-A landing page for the browser card games — pick a game and play. Both are built to be fully
-playable with a keyboard or a screen reader.
+A landing page for the browser card games — pick a game and play. All of them are built to be
+fully playable with a keyboard or a screen reader.
 
 [Open The Card Place][5]
 
-How both games are tested — what is covered, what is not, and what each suite exists because of —
+How the games are tested — what is covered, what is not, and what each suite exists because of —
 is written up in [TESTING.md][7].
+
+### Euchre
+Euchre for four, in two fixed partnerships, first to ten points. Play against three computer
+opponents or open a table and play with other people; any empty seat is played by the computer, so
+a table works with two people or four.
+
+The interesting accessibility problem here is the left bower — the jack of the same colour as
+trump, which becomes a trump card and stops being a card of its printed suit. A sighted player
+absorbs that at a glance. So the game names both bowers wherever a card is read out, and while you
+are bidding it tells you what your hand would be worth with the suit on offer as trump.
+
+[View Project][9]
 
 ### Cribbage
 The classic two-hander against the computer, scored to 121.
@@ -63,3 +75,4 @@ Contributions to existing projects are welcome. If you have a script, app or oth
 [6]:	./Cribbage
 [7]:	./TESTING.md
 [8]:	./sheephead-multiplayer
+[9]:	./euchre

@@ -14,12 +14,14 @@ on:
     paths:
       - 'sheephead/**'
       - 'sheephead-multiplayer/**'
+      - 'euchre/**'
       - 'Cribbage/**'
       - '.github/workflows/card-games-tests.yml'
   pull_request:
     paths:
       - 'sheephead/**'
       - 'sheephead-multiplayer/**'
+      - 'euchre/**'
       - 'Cribbage/**'
       - '.github/workflows/card-games-tests.yml'
   workflow_dispatch:
@@ -149,6 +151,62 @@ jobs:
 
       - name: Rendered appearance
         run: node tests/appearance.js
+
+  euchre:
+    name: Euchre
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    defaults:
+      run:
+        working-directory: euchre
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      # The game ships with no dependencies and the tests skip cleanly without
+      # them, so a contributor can run the pure-Node suites on a bare checkout.
+      # That is the right behaviour locally and exactly the wrong behaviour here,
+      # so CI installs them and then refuses to accept a skip.
+      - name: Install test dependencies
+        run: npm install --no-save jsdom puppeteer
+
+      # First, on its own, because it is the only test that knows what euchre IS.
+      # Everything after it checks the game is consistent with itself, which a
+      # swapped rank table passes with the wrong player winning every trick.
+      - name: Rules oracle
+        run: npm run test:rules
+
+      - name: Full suite
+        run: npm test
+
+      # A suite that skips is a suite that proved nothing. Locally that prints a
+      # SKIP line and exits 0, which is friendly; here it would be a green tick
+      # over an empty run.
+      - name: Fail if anything skipped
+        run: |
+          set -euo pipefail
+          npm test 2>&1 | tee /tmp/out.txt
+          if grep -q '^SKIP' /tmp/out.txt; then
+            echo "::error::A test suite skipped instead of running. CI must not report success on a skip."
+            grep '^SKIP' /tmp/out.txt
+            exit 1
+          fi
+
+      # Real headless Chrome across six viewports at two text sizes. Kept out of
+      # `npm test` because it spins up a browser; it is the only thing that would
+      # notice the layout coming apart when somebody turns their text size up.
+      - name: Layout across viewports
+        run: npm run test:layout
+
+      # Not an assertion, just numbers worth having in the log: how often a suit
+      # gets named, how often the makers are euchred. A sharp move in either
+      # after an AI change is a signal even though nothing here fails on it.
+      - name: Balance (informational)
+        run: npm run balance
+        continue-on-error: true
 
   cribbage:
     name: Cribbage
