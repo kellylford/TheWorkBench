@@ -3,15 +3,22 @@
 What is covered, what is not, and — more usefully — what each test exists *because of*. Every
 suite here was written after something got through, and the note on each one says what.
 
-Two games, two rule sets, one shared conviction: **a test that cannot fail is not evidence.**
+Three games, three rule sets, one shared conviction: **a test that cannot fail is not evidence.**
 
 - **Sheephead** — `sheephead/` → https://kellylford.github.io/TheWorkBench/sheephead/
 - **Cribbage** — `Cribbage/` → https://kellylford.github.io/TheWorkBench/Cribbage/
 - **Sheephead Multiplayer** — `sheephead-multiplayer/` → https://kellylford.github.io/TheWorkBench/sheephead-multiplayer/
+- **Euchre** — `euchre/` → https://kellylford.github.io/TheWorkBench/euchre/
 
-The third is a fork of the first and currently runs the same suites against a near-identical copy,
-which is deliberate: while the two are meant to behave the same, a divergence is a signal. Its CI
-job carries one extra check the other two do not — that the branch has not modified `sheephead/`.
+Sheephead Multiplayer is a fork of the first and currently runs the same suites against a
+near-identical copy, which is deliberate: while the two are meant to behave the same, a divergence
+is a signal. Its CI job carries one extra check the others do not — that the branch has not
+modified `sheephead/`.
+
+Euchre is the first game written multiplayer-first, and it inherits the architecture the multiplayer
+fork worked out. Its suite is the same four categories, and it adds two the others do not have: a
+test that drives the **lobby** by clicking (create a table, read the code, start, play), and a test
+that samples what the **live regions actually said** rather than trusting that a message was queued.
 
 ---
 
@@ -23,6 +30,10 @@ cd sheephead && npm test
 
 ```bash
 cd Cribbage && npm test
+```
+
+```bash
+cd euchre && npm install --no-save jsdom && npm test
 ```
 
 Two Sheephead suites are deliberately outside `npm test`: `layout.js` needs a headless browser, and
@@ -286,7 +297,23 @@ Listed because an undocumented gap reads as coverage.
 - `rem` in media queries does not scale with user font size — `(max-width: 48rem)` is always 768px,
   so narrow-screen savings never engage for a desktop user who has scaled text up.
 
-### Both
+### Euchre
+
+- **The AI is tested for legality and for aggregate outcome, not for quality.** `balance.js` reports
+  how often a suit is named, how often the makers are euchred and how often somebody sweeps; those
+  numbers being *plausible* is not the same claim as the computer playing well.
+- **No test drives the real Cloudflare Worker.** `room.js` covers everything the Worker delegates to
+  — including eviction, which is the part that cannot be tested any other way — but the ~140 lines
+  of platform glue in `worker/src/index.js` are only exercised by the deploy smoke test hitting
+  `/health`. The Worker's own bugs to date have all been in exactly that glue.
+- **Two clients are never driven at once through the interface.** `online.js` opens several
+  connections to the in-process server, but only one of them is a real `Table`, because `Table` is a
+  module singleton. Two browsers racing for the same seat, or both pressing Deal, is covered at the
+  room level and not at the interface level.
+- **Nothing checks colour contrast.** Sheephead has `contrast.js`; euchre inherits its stylesheet
+  and has no equivalent, so a palette change here would go unmeasured.
+
+### All of them
 
 - **No pixel-level screenshot comparison.** `sheephead/tests/appearance.js` guards the specific
   properties the three real visual bugs violated — a skin silently not applying, a card painted over
