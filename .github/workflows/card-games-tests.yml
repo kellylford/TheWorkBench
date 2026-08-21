@@ -16,6 +16,7 @@ on:
       - 'sheephead-multiplayer/**'
       - 'euchre/**'
       - 'Cribbage/**'
+      - 'cribbage-multiplayer/**'
       - '.github/workflows/card-games-tests.yml'
   pull_request:
     paths:
@@ -23,6 +24,7 @@ on:
       - 'sheephead-multiplayer/**'
       - 'euchre/**'
       - 'Cribbage/**'
+      - 'cribbage-multiplayer/**'
       - '.github/workflows/card-games-tests.yml'
   workflow_dispatch:
 
@@ -207,6 +209,66 @@ jobs:
       - name: Balance (informational)
         run: npm run balance
         continue-on-error: true
+
+  # The cribbage fork runs its own suite and additionally enforces the constraint
+  # the fork exists for: that multiplayer work does not touch the stable game.
+  # An invariant nothing checks is a comment, not an invariant — which is why the
+  # sheephead fork grew the same step.
+  cribbage-multiplayer:
+    name: Cribbage Multiplayer
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    defaults:
+      run:
+        working-directory: cribbage-multiplayer
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # Deliberately not scoped to this workflow's path filters: the point is to
+      # catch a change to Cribbage/ arriving alongside multiplayer work, which is
+      # exactly when nobody is looking for it.
+      - name: The stable game must be untouched
+        working-directory: .
+        run: |
+          set -euo pipefail
+          git fetch --quiet origin ${{ github.event.repository.default_branch }}
+          if ! git diff --quiet FETCH_HEAD -- Cribbage/; then
+            echo "::error::This branch modifies Cribbage/. The multiplayer fork exists so that cannot happen — put the change in cribbage-multiplayer/, or make it a deliberate, separate pull request against the stable game."
+            git diff --stat FETCH_HEAD -- Cribbage/
+            exit 1
+          fi
+          echo "Cribbage/ is unchanged against the default branch."
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install test dependencies
+        run: npm install --no-save jsdom puppeteer
+
+      # First, on its own, because it is the only test that knows what cribbage
+      # IS. Everything after it checks the game is consistent with itself, which
+      # an under-counted double run passes happily.
+      - name: Rules oracle
+        run: npm run test:rules
+
+      - name: Full suite
+        run: npm test
+
+      - name: Fail if anything skipped
+        run: |
+          set -euo pipefail
+          npm test 2>&1 | tee /tmp/out.txt
+          if grep -q '^SKIP' /tmp/out.txt; then
+            echo "::error::A test suite skipped instead of running. CI must not report success on a skip."
+            grep '^SKIP' /tmp/out.txt
+            exit 1
+          fi
+
+      - name: Layout across viewports
+        run: npm run test:layout
 
   cribbage:
     name: Cribbage

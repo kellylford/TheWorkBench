@@ -30,6 +30,18 @@ The classic two-hander against the computer, scored to 121.
 
 [View Project][6]
 
+### cribbage-multiplayer
+A fork of the above, extended so two people in different places can play each other. It exists as a
+separate directory so the stable game cannot regress while it is built — a CI guard fails the build
+if a branch touching this directory also touches `Cribbage/`.
+
+The interesting part is what did not survive the move to a server: the computer used to read your
+hand while deciding what to lay, the count reset lived in the browser rather than the engine, and
+the discard was a single function call that moved both players at once. All three are written up in
+its README.
+
+[View Project][10]
+
 # 
 ## parallels-manager
 A macOS application for managing Parallels Desktop virtual machines.
@@ -76,3 +88,4 @@ Contributions to existing projects are welcome. If you have a script, app or oth
 [7]:	./TESTING.md
 [8]:	./sheephead-multiplayer
 [9]:	./euchre
+[10]:	./cribbage-multiplayer

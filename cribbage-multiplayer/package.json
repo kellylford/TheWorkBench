@@ -1,0 +1,17 @@
+{
+  "name": "cribbage-multiplayer",
+  "version": "1.0.0",
+  "description": "Multiplayer build of Cribbage. Forked from Cribbage/; the stable single-player game is not modified by work here.",
+  "private": true,
+  "scripts": {
+    "test": "node tests/rules-oracle.js && node tests/authorization.js && node tests/projection.js && node tests/hidden-information.js && node tests/online.js && node tests/room.js && node tests/engine-invariants.js && node tests/ui-dom.js && node tests/announcements.js && node tests/lobby.js",
+    "test:rules": "node tests/rules-oracle.js",
+    "test:auth": "node tests/authorization.js",
+    "test:projection": "node tests/projection.js && node tests/hidden-information.js",
+    "test:online": "node tests/online.js && node tests/room.js",
+    "test:invariants": "node tests/engine-invariants.js",
+    "test:ui": "node tests/ui-dom.js && node tests/announcements.js && node tests/lobby.js",
+    "test:layout": "node tests/layout.js"
+  },
+  "license": "MIT"
+}
