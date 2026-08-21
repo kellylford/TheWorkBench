@@ -46,6 +46,20 @@ function loadDrive(repo, game) {
   for (const k of ['name', 'playIn']) {
     if (!drive[k]) throw new Error(game + '/tests/drive.js has no ' + k);
   }
+  /* A field the harness does not read is worse than a missing one: it sits
+   * there looking authoritative, someone edits it to change how the game starts,
+   * and nothing happens. `setup` was the old contract — every drive file had one
+   * and the harness replaced all of it — and for one release the stable game
+   * still carried a `setup` that had stopped being used. */
+  const DEAD = { setup: 'the harness builds the setup script now; use defaults ' +
+    'and afterStart instead' };
+  for (const k of Object.keys(DEAD)) {
+    if (drive[k]) {
+      throw new Error(game + '/tests/drive.js still has "' + k + '", which nothing ' +
+        'reads: ' + DEAD[k]);
+    }
+  }
+
   for (const k of ['playIn', 'afterStart']) {
     if (drive[k] && drive[k].indexOf(String.fromCharCode(92)) >= 0) {
       throw new Error(game + '/tests/drive.js: ' + k + ' contains a backslash. ' +

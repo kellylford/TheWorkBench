@@ -124,6 +124,9 @@ jobs:
       - name: Text contrast
         run: npm run test:contrast
 
+      - name: Card faces do not collide
+        run: npm run test:overlap
+
       - name: Randomness
         run: node tests/randomness.js
 
