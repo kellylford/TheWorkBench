@@ -29,9 +29,36 @@ const FONTS = [16, 24];      // default, and ~150% browser text zoom
       for (const players of [3, 5]) {
         const page = await browser.newPage();
         await page.setViewport({ width: size.w, height: size.h, deviceScaleFactor: 1 });
+
+        /* SEEDED, BECAUSE A LAYOUT TEST THAT MEASURES A DIFFERENT PAGE EVERY RUN
+         * IS NOT A TEST.
+         *
+         * The computer players are named at random from a list, and some of
+         * those names are long — Quartermaster is thirteen characters. On a
+         * 320px phone at 150% text a long name in a table cell pushes the whole
+         * document sideways, so this job went red roughly whenever an unlucky
+         * name came up and green the rest of the time. It has been doing that
+         * for months.
+         *
+         * A suite that fails one run in five is worse than no suite: it teaches
+         * everybody to re-run it rather than read it, and then the day it is
+         * right nobody believes it. */
+        await page.evaluateOnNewDocument(() => {
+          let s = 20260821;
+          Math.random = () => { s = (s * 1103515245 + 12345) & 0x7fffffff; return s / 0x7fffffff; };
+        });
         await page.goto(pathToFileURL(path.join(root, 'index.html')).href + '?cb=' + Date.now(),
           { waitUntil: 'load' });
         await page.evaluate(f => { document.documentElement.style.fontSize = f + 'px'; }, font);
+
+        /* And the longest name the interface accepts, every run. Seeding makes
+         * the page repeatable; it does not make it the worst case. The field
+         * caps at sixteen characters, and an unbroken token is the worst case
+         * for overflow because there is nowhere to wrap. */
+        await page.evaluate(() => {
+          const n = document.getElementById('opt-name');
+          if (n) n.value = 'Maximilianabrown';
+        });
 
         // Measure the SETUP screen before starting. This test used to start a
         // game first and so never looked at the first screen a player sees —
@@ -84,31 +111,75 @@ const FONTS = [16, 24];      // default, and ~150% browser text zoom
           const w = rects.length ? Math.round(rects[0].width) : 0;
           const h = rects.length ? Math.round(rects[0].height) : 0;
           // smallest interactive target anywhere on screen
+          /* Smallest interactive target anywhere on screen.
+           *
+           * LINKS COUNT, and so does the narrow dimension. This used to look at
+           * `button` only and measure height only, which is why a 21px footer
+           * link sailed through it — the equivalent check in euchre/,
+           * cribbage-multiplayer/ and sheephead-multiplayer/ caught the same
+           * class of link on its first run in each. WCAG 2.2 Target Size
+           * (Minimum) is 24 by 24 CSS pixels and does not care what tag you
+           * used.
+           *
+           * The element is named, because "tap target 21px" is not something
+           * anybody can act on. */
           let minTap = Infinity;
-          document.querySelectorAll('button:not([hidden])').forEach(b => {
-            const r = b.getBoundingClientRect();
-            if (r.width > 0 && r.height > 0) minTap = Math.min(minTap, Math.round(r.height));
+          let minTapWhat = '';
+          document.querySelectorAll('button, a, [tabindex="0"]').forEach(el => {
+            if (el.offsetParent === null) return;
+            const r = el.getBoundingClientRect();
+            if (r.width <= 0 || r.height <= 0) return;
+            const smaller = Math.round(Math.min(r.width, r.height));
+            if (smaller < minTap) {
+              minTap = smaller;
+              minTapWhat = (el.textContent || '').trim().slice(0, 32) ||
+                el.id || el.tagName.toLowerCase();
+            }
           });
-          // does anything stick out horizontally?
-          let widest = 0, culprit = '';
-          document.querySelectorAll('body *').forEach(e => {
-            const r = e.getBoundingClientRect();
-            if (r.right > widest) { widest = r.right; culprit = e.id || e.className || e.tagName; }
-          });
+          /* WHAT IS ACTUALLY PUSHING THE PAGE SIDEWAYS.
+           *
+           * This used to report the element with the largest right edge, and
+           * that was always #players-table: 754px wide inside a 320px phone,
+           * and completely harmless, because .table-wrap scrolls it. So every
+           * overflow this suite ever reported named the one element that could
+           * not have caused it. That is why "H-OVERFLOW 35px (players-table)"
+           * went red on CI for months without anybody finding the cause —
+           * the report sent you to the wrong place, every time.
+           *
+           * An element inside an ancestor that scrolls or clips horizontally
+           * is contained by definition and cannot widen the document. Skip
+           * those, and name whatever is left. */
+          const contained = e => {
+            for (let p = e.parentElement; p && p !== de; p = p.parentElement) {
+              const ox = getComputedStyle(p).overflowX;
+              if (ox === 'auto' || ox === 'scroll' || ox === 'hidden') return true;
+            }
+            return false;
+          };
+          const culprits = [...document.querySelectorAll('body *')]
+            .filter(e => e.getBoundingClientRect().right > de.clientWidth + 1)
+            .filter(e => !contained(e))
+            .slice(0, 5)
+            .map(e => e.tagName.toLowerCase() + (e.id ? '#' + e.id : '') +
+              (e.className && typeof e.className === 'string'
+                ? '.' + e.className.split(' ')[0] : ''));
           return {
             overflow: de.scrollWidth - de.clientWidth,
             cardW: w, cardH: h, rows,
             minTap: minTap === Infinity ? 0 : minTap,
-            widest: Math.round(widest), culprit: String(culprit).slice(0, 30),
+            minTapWhat: minTapWhat,
+            culprits: culprits.join(', ') || 'nothing outside a scroller',
             clientW: de.clientWidth
           };
         });
 
         const bad = [];
-        if (m.overflow > 1) bad.push('H-OVERFLOW ' + m.overflow + 'px (' + m.culprit + ')');
+        if (m.overflow > 1) bad.push('H-OVERFLOW ' + m.overflow + 'px, pushed by ' + m.culprits);
         if (m.cardW < 40) bad.push('card too small ' + m.cardW);
         if (m.cardW > 0 && Math.abs(m.cardH / m.cardW - 1.4) > 0.15) bad.push('card ratio ' + (m.cardH / m.cardW).toFixed(2));
-        if (m.minTap && m.minTap < 24) bad.push('tap target ' + m.minTap + 'px');
+        if (m.minTap && m.minTap < 24) {
+          bad.push('tap target "' + m.minTapWhat + '" is ' + m.minTap + 'px (WCAG 2.2 wants 24)');
+        }
         if (bad.length) fails.push(size.label + ' @' + font + 'px ' + players + 'p: ' + bad.join('; '));
 
         console.log(
