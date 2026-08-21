@@ -1,0 +1,10 @@
+{
+  "name": "hearts",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Hearts - accessible, playable by ear",
+  "scripts": {
+    "test": "node tests/rules-oracle.js",
+    "test:rules": "node tests/rules-oracle.js"
+  }
+}

@@ -17,6 +17,7 @@ on:
       - 'euchre/**'
       - 'Cribbage/**'
       - 'cribbage-multiplayer/**'
+      - 'hearts/**'
       - 'shared/**'
       - '.github/workflows/card-games-tests.yml'
   pull_request:
@@ -26,6 +27,7 @@ on:
       - 'euchre/**'
       - 'Cribbage/**'
       - 'cribbage-multiplayer/**'
+      - 'hearts/**'
       - 'shared/**'
       - '.github/workflows/card-games-tests.yml'
   workflow_dispatch:
@@ -73,6 +75,34 @@ jobs:
           for g in euchre cribbage-multiplayer sheephead-multiplayer; do
             npx esbuild --bundle "$g/worker/src/index.js" --format=esm --outfile=/dev/null
           done
+
+  # Hearts. No fork and no stable twin — it was built on the shared layer from
+  # the first line, so there is no copy of it anywhere to guard against.
+  hearts:
+    name: Hearts
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: hearts
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Rules oracle
+        run: npm run test:rules
+
+      - name: Fail if anything skipped
+        run: |
+          set -euo pipefail
+          npm test 2>&1 | tee /tmp/out.txt
+          if grep -q '^SKIP' /tmp/out.txt; then
+            echo "::error::A test suite skipped instead of running. CI must not report success on a skip."
+            grep '^SKIP' /tmp/out.txt
+            exit 1
+          fi
 
   sheephead:
     name: Sheephead
