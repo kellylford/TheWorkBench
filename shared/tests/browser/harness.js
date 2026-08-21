@@ -101,6 +101,34 @@ function setupScript(drive, opts) {
     '})()';
 }
 
+/* Run a drive snippet over and over until it says it is done.
+ *
+ * A loop inside the page cannot wait for the computer: every one of these games
+ * moves its bots on a timer, so a synchronous in-page loop does what it can,
+ * runs out of things to click, and stops — long before the hand is over. That is
+ * not hypothetical. Cribbage's hand-over scene was mid-play for a while, and
+ * before that it was still sitting in the discard, and both times the audit
+ * measured a real page with real cards on it and reported success. It was
+ * looking at the wrong moment, not at nothing, which is much harder to notice.
+ *
+ * So the snippets return true when finished and this pumps them. Returns whether
+ * it actually finished, and the caller is expected to care: an audit that says
+ * "hand over" about a hand still being played is telling you something false.
+ */
+async function pump(page, snippet, opts) {
+  const o = opts || {};
+  const tries = o.tries || 80;
+  const pause = o.pause || 90;
+  for (let i = 0; i < tries; i++) {
+    let done;
+    try { done = await page.evaluate(snippet); }
+    catch (e) { return false; }
+    if (done) return true;
+    await new Promise(r => setTimeout(r, pause));
+  }
+  return false;
+}
+
 /* puppeteer is installed per game by that game's CI job, so look there first. */
 function puppeteerFor(dir) {
   try { return require(path.join(dir, 'node_modules', 'puppeteer')); }
@@ -109,4 +137,4 @@ function puppeteerFor(dir) {
   catch (e) { return null; }
 }
 
-module.exports = { loadDrive, setupScript, puppeteerFor };
+module.exports = { loadDrive, setupScript, pump, puppeteerFor };
