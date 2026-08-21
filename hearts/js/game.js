@@ -89,6 +89,11 @@
     return {
       phase: 'idle',
       players: players,
+      /* Kept whole on the server and filtered on the way out. view.js sends
+       * only the handful of keys that are the TABLE's business; the rest of
+       * what a client had in localStorage — its pace, its skin, its own name —
+       * is one seat's private preference wearing a public-looking key. */
+      config: config || {},
       dealNumber: 0,
       passDir: PASS_DIRS[0],
       passing: [null, null, null, null],   // each seat's chosen three, before the swap

@@ -94,6 +94,9 @@ jobs:
       - name: Rules oracle
         run: npm run test:rules
 
+      - name: Projection
+        run: npm run test:projection
+
       - name: Fail if anything skipped
         run: |
           set -euo pipefail
