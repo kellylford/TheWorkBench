@@ -15,7 +15,7 @@
     "test:layout": "node tests/layout.js",
     "test:overlap": "node tests/card-overlap.js",
     "test:appearance": "node tests/appearance.js",
-    "test:contrast": "node tests/contrast.js",
+    "test:contrast": "node ../shared/tests/browser/contrast.js sheephead",
     "balance": "node tests/balance.js"
   },
   "license": "MIT"

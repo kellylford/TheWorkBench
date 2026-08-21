@@ -118,6 +118,12 @@ jobs:
       - name: Layout across viewports
         run: npm run test:layout
 
+      # The stable game is audited by the same shared script as the forks. It
+      # had the identical 1.41:1 felt bug they did, which is what a shared
+      # stylesheet lineage buys you, and nothing here had ever measured it.
+      - name: Text contrast
+        run: npm run test:contrast
+
       - name: Randomness
         run: node tests/randomness.js
 
