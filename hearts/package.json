@@ -4,8 +4,9 @@
   "private": true,
   "description": "Hearts - accessible, playable by ear",
   "scripts": {
-    "test": "node tests/rules-oracle.js && node tests/projection.js",
+    "test": "node tests/rules-oracle.js && node tests/authorization.js && node tests/projection.js",
     "test:rules": "node tests/rules-oracle.js",
-    "test:projection": "node tests/projection.js"
+    "test:projection": "node tests/projection.js",
+    "test:auth": "node tests/authorization.js"
   }
 }
