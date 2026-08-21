@@ -25,7 +25,7 @@ if (!game) {
   console.error('usage: node shared/tests/browser/contrast.js <game-directory>');
   process.exit(2);
 }
-const { loadDrive, setupScript, puppeteerFor } = require('./harness.js');
+const { loadDrive, setupScript, pump, puppeteerFor } = require('./harness.js');
 
 const repo = path.join(__dirname, '..', '..', '..');
 let drive, root;
@@ -182,7 +182,15 @@ const SCENES = [
         await new Promise(r => setTimeout(r, 300));
       }
       if (scene.finish) {
-        await page.evaluate(drive.playIn);
+        /* Pumped, not called once. A single evaluate cannot outlast a computer
+         * that plays on a timer, and this scene is called "hand over" — an
+         * audit that measures mid-play under that name is stating something
+         * false about what it looked at. */
+        const finished = await pump(page, drive.playIn);
+        if (!finished) {
+          failures.push({ scene: scheme + " / " + scene.label, sel: "(never finished)",
+            text: "drive.playIn never reached the end of a hand", size: 0, ratio: 0, need: 0 });
+        }
         await new Promise(r => setTimeout(r, 600));
       }
 
@@ -191,7 +199,19 @@ const SCENES = [
        * setup screen legitimately has no cards, so only the played scenes are
        * held to it. */
       if (scene.setup) {
-        const alive = await page.evaluate(`document.querySelectorAll('#hand .card, #players-table tr, .score-table tr').length`);
+        /* Did the drive get this game onto the screen at all?
+         *
+         * Structural, not a list of selectors one game happens to use. The first
+         * version named #players-table and .score-table, which cribbage does not
+         * have — so the moment its drive started reaching the end of a hand, the
+         * guard called a perfectly good page empty. A card anywhere, or a row in
+         * any table, is what "a game is on screen" means across four games that
+         * lay their tables out differently.
+         *
+         * A hand at its end legitimately holds no cards, which is why this
+         * cannot simply count the hand. */
+        const alive = await page.evaluate(
+          () => document.querySelectorAll('.card, table tr').length);
         if (!alive) {
           failures.push({ scene: scheme + ' / ' + scene.label, sel: '(nothing rendered)',
             text: 'drive.js did not get this game onto the screen', size: 0, ratio: 0, need: 0 });

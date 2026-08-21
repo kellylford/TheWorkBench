@@ -192,11 +192,11 @@ jobs:
       - name: Card faces do not collide
         run: npm run test:overlap
 
+      - name: Rendered appearance
+        run: npm run test:appearance
+
       - name: Randomness
         run: node tests/randomness.js
-
-      - name: Rendered appearance
-        run: node tests/appearance.js
 
   euchre:
     name: Euchre
@@ -252,6 +252,9 @@ jobs:
 
       - name: Card faces do not collide
         run: npm run test:overlap
+
+      - name: Rendered appearance
+        run: npm run test:appearance
 
       # Not an assertion, just numbers worth having in the log: how often a suit
       # gets named, how often the makers are euchred. A sharp move in either
@@ -317,6 +320,9 @@ jobs:
 
       - name: Card faces do not collide
         run: npm run test:overlap
+
+      - name: Rendered appearance
+        run: npm run test:appearance
 
   cribbage:
     name: Cribbage
