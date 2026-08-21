@@ -103,6 +103,9 @@ jobs:
       - name: Projection
         run: npm run test:projection
 
+      - name: Over the transport
+        run: npm run test:online
+
       - name: Text contrast
         run: npm run test:contrast
 
