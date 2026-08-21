@@ -4,12 +4,13 @@
   "private": true,
   "description": "Hearts - accessible, playable by ear",
   "scripts": {
-    "test": "node tests/rules-oracle.js && node tests/authorization.js && node tests/projection.js",
+    "test": "node tests/rules-oracle.js && node tests/authorization.js && node tests/projection.js && node tests/online.js",
     "test:rules": "node tests/rules-oracle.js",
     "test:projection": "node tests/projection.js",
     "test:auth": "node tests/authorization.js",
     "test:contrast": "node ../shared/tests/browser/contrast.js hearts",
     "test:overlap": "node ../shared/tests/browser/card-overlap.js hearts",
-    "test:appearance": "node ../shared/tests/browser/appearance.js hearts"
+    "test:appearance": "node ../shared/tests/browser/appearance.js hearts",
+    "test:online": "node tests/online.js"
   }
 }
