@@ -29,9 +29,37 @@ const FONTS = [16, 24];      // default, and ~150% browser text zoom
       for (const players of [3, 5]) {
         const page = await browser.newPage();
         await page.setViewport({ width: size.w, height: size.h, deviceScaleFactor: 1 });
+
+        /* SEEDED, BECAUSE A LAYOUT TEST THAT MEASURES A DIFFERENT PAGE EVERY RUN
+         * IS NOT A TEST.
+         *
+         * The computer players are given names drawn at random from a list, and
+         * some of them are long — Quartermaster is thirteen characters. On a
+         * 320px phone at 150% text a long name in a table cell pushes the
+         * document sideways, so this job went red roughly whenever an unlucky
+         * name came up and green the rest of the time. It failed on #70 for
+         * exactly that reason, with main green twenty minutes earlier and
+         * nothing relevant changed in between.
+         *
+         * A suite that fails one run in five is worse than no suite: it trains
+         * everybody to re-run it rather than read it. */
+        await page.evaluateOnNewDocument(() => {
+          let s = 20260821;
+          Math.random = () => { s = (s * 1103515245 + 12345) & 0x7fffffff; return s / 0x7fffffff; };
+        });
         await page.goto(pathToFileURL(path.join(root, 'index.html')).href + '?cb=' + Date.now(),
           { waitUntil: 'load' });
         await page.evaluate(f => { document.documentElement.style.fontSize = f + 'px'; }, font);
+
+        /* And the longest name the interface will accept, every time. Seeding
+         * alone makes the run repeatable; it does not make it the worst case.
+         * The field caps at sixteen characters, so sixteen unbroken characters
+         * is the widest a name can legitimately be — and an unbroken token is
+         * the worst case for overflow, because there is nowhere to wrap. */
+        await page.evaluate(() => {
+          const n = document.getElementById('opt-name');
+          if (n) n.value = 'Maximilianabrown';
+        });
 
         // Measure the SETUP screen before starting. This test used to start a
         // game first and so never looked at the first screen a player sees —
@@ -83,11 +111,29 @@ const FONTS = [16, 24];      // default, and ~150% browser text zoom
           const rows = new Set(rects.map(r => Math.round(r.top))).size;
           const w = rects.length ? Math.round(rects[0].width) : 0;
           const h = rects.length ? Math.round(rects[0].height) : 0;
-          // smallest interactive target anywhere on screen
+          /* Smallest interactive target anywhere on screen.
+           *
+           * LINKS COUNT, and so does the narrow dimension — this used to look at
+           * `button` only and measure height only, which is why a 21px footer
+           * link sailed through it for months while the equivalent check in
+           * euchre/ and cribbage-multiplayer/ caught the same link on its first
+           * run in each. WCAG 2.2 Target Size (Minimum) is 24 by 24 CSS pixels,
+           * and it does not care what tag you used.
+           *
+           * The element is named, because "tap target 21px" is not something
+           * anybody can act on. */
           let minTap = Infinity;
-          document.querySelectorAll('button:not([hidden])').forEach(b => {
-            const r = b.getBoundingClientRect();
-            if (r.width > 0 && r.height > 0) minTap = Math.min(minTap, Math.round(r.height));
+          let minTapWhat = '';
+          document.querySelectorAll('button, a, [tabindex="0"]').forEach(el => {
+            if (el.offsetParent === null) return;
+            const r = el.getBoundingClientRect();
+            if (r.width <= 0 || r.height <= 0) return;
+            const smaller = Math.round(Math.min(r.width, r.height));
+            if (smaller < minTap) {
+              minTap = smaller;
+              minTapWhat = (el.textContent || '').trim().slice(0, 32) ||
+                el.id || el.tagName.toLowerCase();
+            }
           });
           /* Which element actually pushes the DOCUMENT wide.
            *
@@ -117,6 +163,7 @@ const FONTS = [16, 24];      // default, and ~150% browser text zoom
             overflow: de.scrollWidth - de.clientWidth,
             cardW: w, cardH: h, rows,
             minTap: minTap === Infinity ? 0 : minTap,
+            minTapWhat: minTapWhat,
             widest: Math.round(widest), culprit: String(culprit).slice(0, 30),
             clientW: de.clientWidth
           };
@@ -126,7 +173,9 @@ const FONTS = [16, 24];      // default, and ~150% browser text zoom
         if (m.overflow > 1) bad.push('H-OVERFLOW ' + m.overflow + 'px (' + m.culprit + ')');
         if (m.cardW < 40) bad.push('card too small ' + m.cardW);
         if (m.cardW > 0 && Math.abs(m.cardH / m.cardW - 1.4) > 0.15) bad.push('card ratio ' + (m.cardH / m.cardW).toFixed(2));
-        if (m.minTap && m.minTap < 24) bad.push('tap target ' + m.minTap + 'px');
+        if (m.minTap && m.minTap < 24) {
+          bad.push('tap target "' + m.minTapWhat + '" is ' + m.minTap + 'px (WCAG 2.2 wants 24)');
+        }
         if (bad.length) fails.push(size.label + ' @' + font + 'px ' + players + 'p: ' + bad.join('; '));
 
         console.log(

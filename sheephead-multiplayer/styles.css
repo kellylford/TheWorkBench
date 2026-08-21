@@ -122,7 +122,19 @@ body {
    * phone is not. */
   overflow-wrap: break-word;
 }
-.dev-notice a { color: var(--accent); font-weight: 600; }
+/* An inline link is a target like any other, and at the default text size a bare
+ * one is about 21px tall — under the 24px WCAG 2.2 minimum. It only shows up when
+ * something measures it, because it looks perfectly fine and is perfectly
+ * clickable with a mouse; the people it fails are the ones aiming with a thumb or
+ * a head pointer. tests/layout.js measures it now — it used to look at buttons
+ * only, and by height only, which is how this survived. */
+.dev-notice a {
+  color: var(--accent);
+  font-weight: 600;
+  display: inline-block;
+  padding: .3rem 0;
+  min-height: 24px;
+}
 
 main { padding: 1rem clamp(1rem, 4vw, 2rem) 4rem; max-width: 88rem; }
 main:focus { outline: none; }
@@ -137,7 +149,19 @@ main:focus { outline: none; }
   margin-top: 1rem;
   padding-top: 1rem;
 }
-.site-footer a { color: var(--accent); font-weight: 600; }
+/* An inline link is a target like any other, and at the default text size a bare
+ * one is about 21px tall — under the 24px WCAG 2.2 minimum. It only shows up when
+ * something measures it, because it looks perfectly fine and is perfectly
+ * clickable with a mouse; the people it fails are the ones aiming with a thumb or
+ * a head pointer. tests/layout.js measures it now — it used to look at buttons
+ * only, and by height only, which is how this survived. */
+.site-footer a {
+  color: var(--accent);
+  font-weight: 600;
+  display: inline-block;
+  padding: .3rem 0;
+  min-height: 24px;
+}
 
 h2 { font-size: 1.3rem; margin: 1.25rem 0 .5rem; }
 h3 { font-size: 1.05rem; margin: 1rem 0 .35rem; text-transform: uppercase; letter-spacing: .06em; color: var(--ink-dim); }

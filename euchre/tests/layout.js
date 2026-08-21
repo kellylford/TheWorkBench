@@ -57,6 +57,11 @@ const TEXT_SIZES = [
 const DRIVE = `(() => {
   document.getElementById('opt-pace').value = '-1';
   document.getElementById('opt-difficulty').value = 'hard';
+  /* The longest name the field will accept, every run. Seeding makes the page
+   * repeatable; it does not make it the worst case. Sixteen unbroken characters
+   * is the widest a name can legitimately be, and unbroken is the worst case for
+   * overflow because there is nowhere to wrap. */
+  document.getElementById('opt-name').value = 'Maximilianabrown';
   document.getElementById('setup-form').dispatchEvent(
     new Event('submit', { bubbles: true, cancelable: true }));
   const T = SH.UI._test, G = SH.Game;
@@ -122,6 +127,17 @@ const MEASURE = `(() => {
     for (const ts of TEXT_SIZES) {
       const page = await browser.newPage();
       await page.setViewport({ width: vp.width, height: vp.height, deviceScaleFactor: 1 });
+
+      /* SEEDED, BECAUSE A LAYOUT TEST THAT MEASURES A DIFFERENT PAGE EVERY RUN
+       * IS NOT A TEST. The computer players are named at random, and a long name
+       * in a table cell can push a phone sideways at large text — which is how
+       * the sibling sheephead suite went red at random for months while nothing
+       * relevant had changed. A suite that fails one run in five trains everybody
+       * to re-run it rather than read it. */
+      await page.evaluateOnNewDocument(() => {
+        let s = 20260821;
+        Math.random = () => { s = (s * 1103515245 + 12345) & 0x7fffffff; return s / 0x7fffffff; };
+      });
       await page.goto(url, { waitUntil: 'load' });
       if (ts.css) await page.evaluate(css => { document.documentElement.style.fontSize = css; }, ts.css);
       const phase = await page.evaluate(DRIVE);
