@@ -22,7 +22,7 @@ import '../../js/cards.js';
 import '../../js/game.js';
 import '../../js/ai.js';
 import '../../js/view.js';
-import '../../js/room.js';
+import '../../../shared/js/room.js';
 
 const SH = globalThis.SH;
 

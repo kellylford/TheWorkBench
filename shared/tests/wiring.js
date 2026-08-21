@@ -22,6 +22,10 @@ const root = path.join(__dirname, '..', '..');
 const GAMES = ['euchre', 'cribbage-multiplayer', 'sheephead-multiplayer'];
 const SHARED = ['table.js', 'net.js', 'localserver.js'];
 
+/* room.js is shared too, but no browser page loads it — it is the Durable
+ * Object, imported by each game's Worker. Checked separately below. */
+const SHARED_SERVER = ['room.js'];
+
 const fails = [];
 let checks = 0;
 const check = (cond, msg) => { checks++; if (!cond) fails.push(msg); };
@@ -123,7 +127,72 @@ for (const g of GAMES) {
   check(/config\.js/.test(msg),
     'an unconfigured net.js should name js/config.js in its error, said: ' + msg);
 }
+/* Is this exact line present in a workflow file? A plain line match rather than
+ * a regexp: what is being searched for is itself full of slashes and asterisks,
+ * and an escaping mistake here would quietly match nothing and report success —
+ * which is precisely the failure this section exists to catch, one level up. */
+const listed = (text, line) => text.split(String.fromCharCode(10)).some(l => l.trim() === line);
 
+
+/* ---------------- 5. the Worker imports the shared room, and CI notices ----
+
+   room.js is the Durable Object. It moved into shared/js/ because euchre's and
+   cribbage's copies were identical line for line, and sheephead's differed only
+   by MISSING the event-log cap — its log grew without bound in an object that is
+   meant to live for days.
+
+   Two things have to hold, and neither is visible from inside a game:
+
+     - every Worker imports the shared one, not a copy of its own;
+     - every deploy workflow watches shared/js/, or a fix to the server passes
+       its tests, merges, and never reaches the Worker. The deploy simply does
+       not run. The live room keeps answering, with the old code, silently.
+
+   The second is the one worth having a test for. Nothing else in this repository
+   would ever have said a word about it. */
+
+for (const g of GAMES) {
+  for (const f of SHARED_SERVER) {
+    check(!fs.existsSync(path.join(root, g, 'js', f)),
+      g + '/js/' + f + ' is back — the Durable Object belongs in shared/js/');
+  }
+
+  const worker = path.join(root, g, 'worker', 'src', 'index.js');
+  if (!fs.existsSync(worker)) { fails.push(g + ': no worker/src/index.js'); checks++; continue; }
+  const src = fs.readFileSync(worker, 'utf8');
+  check(/from ['"][^'"]*shared\/js\/room\.js['"]|import ['"][^'"]*shared\/js\/room\.js['"]/.test(src),
+    g + ': its Worker does not import shared/js/room.js');
+  check(!/import ['"]\.\.\/\.\.\/js\/room\.js['"]/.test(src),
+    g + ": its Worker still imports the game's own js/room.js");
+}
+
+{
+  const dir = path.join(root, '.github', 'workflows');
+  const deploys = fs.readdirSync(dir).filter(f => /^deploy-.*-room\.yml$/.test(f));
+  check(deploys.length === GAMES.length,
+    'expected one deploy workflow per game, found ' + deploys.length + ': ' + deploys.join(', '));
+  for (const f of deploys) {
+    const y = fs.readFileSync(path.join(dir, f), 'utf8');
+    check(/^\s+-\s+'shared\/js\/\*\*'\s*$/m.test(y),
+      f + " does not list 'shared/js/**' in its paths. room.js lives there now, " +
+      'so a fix to the Durable Object would merge green and never deploy.');
+  }
+
+  /* The site publish has the same shape of hole, and had it: euchre/ and
+   * cribbage-multiplayer/ were missing, so those two games could be changed,
+   * merged and tested green without any of it reaching a single player. It went
+   * unnoticed only because they were always merged alongside a directory that
+   * was listed. */
+  const pub = fs.readFileSync(path.join(dir, 'publish-guide.yml'), 'utf8');
+  for (const g of GAMES) {
+    check(listed(pub, "- '" + g + "/**'"),
+      "publish-guide.yml does not list '" + g + "/**', so changes to that game " +
+      'never reach the live site');
+  }
+  check(/^\s+-\s+'shared\/\*\*'\s*$/m.test(pub),
+    "publish-guide.yml does not list 'shared/**', so the transport every game " +
+    'loads could change without the site being rebuilt');
+}
 /* ---------------- report -------------------------------------------------- */
 
 console.log('shared wiring: ' + checks + ' checks across ' + GAMES.length + ' games');

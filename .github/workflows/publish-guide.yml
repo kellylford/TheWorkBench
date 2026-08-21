@@ -12,6 +12,15 @@ name: Publish site
 # Everything reaching main goes through a pull request and the card game tests
 # run on every pull request, so this is not publishing untested code.
 
+# EVERY published directory has to be listed here. It publishes the whole repo,
+# so a missing path does not publish a broken site — it publishes nothing at
+# all, and the live site silently stays on the last commit that happened to
+# touch a listed directory. euchre/, cribbage-multiplayer/ and shared/ were all
+# missing: two of the five games on The Card Place could be changed, merged and
+# tested green without any of it reaching anybody. It went unnoticed because
+# those games were only ever merged alongside sheephead-multiplayer/, which is
+# listed, so something always triggered it by accident.
+#
 on:
   push:
     branches:
@@ -21,6 +30,9 @@ on:
       - 'sheephead/**'
       - 'sheephead-multiplayer/**'
       - 'Cribbage/**'
+      - 'cribbage-multiplayer/**'
+      - 'euchre/**'
+      - 'shared/**'
       - 'thecardplace.html'
       - '.github/workflows/publish-guide.yml'
   workflow_dispatch:

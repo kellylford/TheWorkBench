@@ -1,4 +1,4 @@
-/* Sheephead - a room, with nothing platform-specific in it.
+/* A room, with nothing platform-specific in it.
  *
  * This is the game server's logic. It does not know what a Durable Object is, or
  * a WebSocket, or setTimeout. Everything that touches the outside world is passed
@@ -122,7 +122,44 @@
       loaded = true;
     }
 
+    /* THE EVENT LOG IS NOT ALLOWED TO GROW FOR EVER.
+     *
+     * The engine appends to state.events and nothing on the server ever takes
+     * anything out — in a browser the interface drains it, and there is no
+     * interface here. So the whole room state, which is written to durable
+     * storage on every single change, grows without bound for as long as the
+     * table exists. Measured before this was added: about 6.5 KB per hand, which
+     * puts a room past the Durable Object 128 KiB per-value limit at around hand
+     * nineteen. Not a theoretical session length — that is two games of euchre.
+     *
+     * And the failure is silent in the worst way. The write starts failing while
+     * everything in memory still works, so the table plays on perfectly until it
+     * is evicted, and then comes back as whatever the last successful write
+     * happened to be.
+     *
+     * The rule: never drop an event that a seat currently at the table has not
+     * been given yet. Cursors are advanced by broadcast() the moment a view goes
+     * out, so in practice this keeps a few hundred entries and drops the rest. A
+     * player who is disconnected does not hold the log open — they are not in
+     * `conns` — so when they come back they are given whatever survives, which
+     * is a bounded amount of catching up rather than a wrong game. */
+    var MAX_EVENTS = 300;
+
+    function pruneEvents() {
+      var excess = state.events.length - MAX_EVENTS;
+      if (excess <= 0) return;
+      var lowest = Infinity;
+      for (var id in conns) {
+        var c = room.cursors[conns[id].seat];
+        lowest = Math.min(lowest, (typeof c === 'number') ? c : -1);
+      }
+      var cut = 0;
+      while (cut < excess && state.events[cut].id <= lowest) cut++;
+      if (cut > 0) state.events.splice(0, cut);
+    }
+
     function persist() {
+      pruneEvents();
       storage.put(STATE_KEY, state);
       storage.put(ROOM_KEY, room);
     }
@@ -208,6 +245,11 @@
      * anywhere. */
     function seatNeedingBot() {
       if (room.wedged) return -1;
+      /* Whose move it is, is a question about the RULES, not about the room —
+       * the dealer's discard belongs to the dealer whoever is nominally on turn,
+       * and a seat sitting out while its partner plays alone is skipped
+       * entirely. Both of those live in game.js, and duplicating the reasoning
+       * here is how the two come apart. */
       var seat = G.seatToAct(state);
       if (seat < 0) return -1;
       return state.players[seat].occupant === 'human' ? -1 : seat;
@@ -329,8 +371,9 @@
            * sat there connected, watching their own hand go down. Nothing put
            * them back — join() is the only thing that clears 'away', and a
            * client that never lost its socket never rejoins. Ninety seconds is
-           * an ordinary length of time to spend on a bury when the hand has to
-           * be read aloud first, so this was reachable in normal play, and once
+           * an ordinary length of time to spend deciding whether to order it up
+           * when the hand has to be read aloud first, so this was reachable in
+           * normal play, and once
            * reached it was permanent.
            *
            * A client that is still pinging is still there. Give it far longer,
@@ -604,6 +647,13 @@
       }
 
       /* Dealing the next hand is first-come, and the loser is told so plainly.
+       *
+       * THE CONDITION ASKS THE ENGINE, and does not name a phase. Written here
+       * as `state.phase !== 'handOver'` it was correct — and it was then copied
+       * into a game whose finished-hand phase is called something else, where it
+       * was true at every moment and swallowed every deal on the wire. Right in
+       * the file it was written in, wrong in the file it was copied to, and
+       * silent in both.
        *
        * Two people pressing Deal at handOver is not a race to be prevented — the
        * first one is right, and the hand should start. What must not happen is
