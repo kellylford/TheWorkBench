@@ -186,6 +186,9 @@ jobs:
       - name: Text contrast
         run: npm run test:contrast
 
+      - name: Card faces do not collide
+        run: npm run test:overlap
+
       - name: Randomness
         run: node tests/randomness.js
 
@@ -243,6 +246,9 @@ jobs:
 
       - name: Text contrast
         run: npm run test:contrast
+
+      - name: Card faces do not collide
+        run: npm run test:overlap
 
       # Not an assertion, just numbers worth having in the log: how often a suit
       # gets named, how often the makers are euchred. A sharp move in either
@@ -305,6 +311,9 @@ jobs:
 
       - name: Text contrast
         run: npm run test:contrast
+
+      - name: Card faces do not collide
+        run: npm run test:overlap
 
   cribbage:
     name: Cribbage

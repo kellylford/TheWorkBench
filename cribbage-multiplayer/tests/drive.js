@@ -14,16 +14,13 @@
 module.exports = {
   name: 'Cribbage',
 
-  /* Start a table AND cut for the deal. Cribbage deals nothing until the cut is
-   * done, so a scene that stopped at the form would have no cards on it at all —
-   * and an audit measuring an empty table reports success. The shared audit now
-   * refuses to pass a scene that rendered nothing, which is how this was found. */
-  setup: `(() => {
-    document.getElementById('opt-pace').value = '0';
-    document.getElementById('setup-form')
-      .dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+  /* Cribbage deals nothing until the cut is done, so a scene that stopped at
+   * the form would have no cards on it at all — and an audit measuring an
+   * empty table reports success. The shared audit refuses to pass a scene
+   * that rendered nothing, which is how this was found. */
+  afterStart: `(() => {
     for (let i = 0; i < 20; i++) {
-      const cut = [...document.querySelectorAll('#actions button')]
+      const cut = [...document.querySelectorAll("#actions button")]
         .find(b => /Cut/.test(b.textContent));
       if (!cut || cut.disabled) break;
       cut.click();

@@ -15,7 +15,8 @@
     "balance": "node tests/balance.js",
     "balance:sweep": "node tests/balance.js sweep",
     "test:layout": "node tests/layout.js",
-    "test:contrast": "node ../shared/tests/browser/contrast.js euchre"
+    "test:contrast": "node ../shared/tests/browser/contrast.js euchre",
+    "test:overlap": "node ../shared/tests/browser/card-overlap.js euchre"
   },
   "license": "MIT"
 }

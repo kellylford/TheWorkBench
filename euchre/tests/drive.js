@@ -14,11 +14,7 @@
 module.exports = {
   name: 'Euchre',
 
-  setup: `(() => {
-    document.getElementById('opt-pace').value = '0';
-    document.getElementById('setup-form')
-      .dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
-  })()`,
+  /* Nothing extra: submitting the form deals. */
 
   /* Bid, discard if it lands on us, and play until the hand is over, so the
    * audits see a finished hand — the score table and the result prose do not
