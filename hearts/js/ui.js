@@ -581,6 +581,135 @@
     }
   }
 
+  /* ---------------- the lobby ----------------
+   *
+   * Everything here is ordinary HTML driven by two calls: SH.Net.createTable to
+   * make one, SH.Net.connect to join one. Table.startOnline puts the same seam
+   * in front of it that local play already uses, so nothing below this point in
+   * the file knows or cares whether the game is here or on a Worker.
+   */
+
+  var lobby = { code: null, seat: null };
+
+  function $(id) { return global.document.getElementById(id); }
+
+  function lobbyStatus(text) {
+    var node = $('lobby-status');
+    if (node) node.textContent = text || '';
+    if (text) say(text, { request: true });
+  }
+
+  /* Upper case, and only the characters a code can contain. Spaces and dashes
+   * are dropped rather than rejected: people write a code down with a dash in
+   * it, and refusing that teaches them nothing. */
+  function normaliseCode(raw) {
+    return String(raw || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
+  }
+
+  /* "9, K, Z, 2, Y" — for reading down a phone. A screen reader says a
+   * five-character run as a word, and "9KZ2Y" is not a word. */
+  function spellCode(code) { return String(code || '').split('').join(', '); }
+
+  /* The rules the whole table plays by, fixed when it is made.
+   *
+   * Deliberately not the whole settings object: pace, skin and the player's own
+   * name are this browser's business and nobody else's. */
+  function roomConfig() {
+    return {
+      numPlayers: G.SEATS,
+      names: ['Seat 1', 'Seat 2', 'Seat 3', 'Seat 4'],
+      pointsToWin: parseInt(el['opt-points'].value, 10) || G.TARGET,
+      difficulty: 'hard'
+    };
+  }
+
+  function showLobby() {
+    el['setup-section'].hidden = true;
+    el['game-section'].hidden = true;
+    el['lobby-section'].hidden = false;
+    $('lobby-choose').hidden = false;
+    $('lobby-table').hidden = true;
+    lobbyStatus('');
+    $('lobby-code').focus();
+  }
+
+  function createTable() {
+    lobbyStatus('Making a table…');
+    $('lobby-create').disabled = true;
+    SH.Net.createTable({ config: roomConfig() }).then(function (code) {
+      $('lobby-create').disabled = false;
+      joinTable(code, null);
+    }).catch(function (err) {
+      $('lobby-create').disabled = false;
+      /* Punctuated, because these two halves are glued together and read aloud
+       * as one sentence: "Failed to fetch You can still play" is what the first
+       * version said. */
+      var why = err && err.message ? String(err.message).replace(/[.s]+$/, '') + '. ' : '';
+      lobbyStatus('The table could not be made. ' + why +
+        'You can still play against the computer.');
+    });
+  }
+
+  function joinTable(code, seat) {
+    var clean = normaliseCode(code);
+    if (clean.length < 5) {
+      lobbyStatus('That does not look like a table code. It is five letters and numbers.');
+      $('lobby-code').focus();
+      return;
+    }
+
+    lobby.code = clean;
+    lobby.seat = seat;
+    lobbyStatus('Joining table ' + spellCode(clean) + '…');
+
+    /* seat may be null: "put me anywhere". The client cannot choose sensibly —
+     * it does not know which seats are free until it has connected, and it
+     * cannot connect without asking. Guessing produces the obvious result: the
+     * second person to arrive asks for seat 0, is told it is taken, and cannot
+     * join at all. */
+    var myName = (el['opt-name'].value || 'You').slice(0, 16);
+    SH.Table.startOnline(seat, function (handler) {
+      return SH.Net.connect({ code: clean, seat: seat, name: myName }, handler, onNetStatus);
+    });
+
+    $('lobby-choose').hidden = true;
+    $('lobby-table').hidden = false;
+    $('lobby-code-display').textContent = clean;
+    $('lobby-code-read').textContent = 'Read it out as: ' + spellCode(clean);
+    renderSeats();
+    $('lobby-code-display').focus();
+  }
+
+  function onNetStatus(info) {
+    if (!info) return;
+    if (info.state === 'open') { lobbyStatus('Connected to table ' + spellCode(lobby.code) + '.'); return; }
+    if (info.state === 'closed') { lobbyStatus('The connection dropped. Trying again…'); return; }
+    if (info.reason) lobbyStatus(info.reason);
+  }
+
+  function renderSeats() {
+    var body = $('lobby-seats') && $('lobby-seats').querySelector('tbody');
+    if (!body) return;
+    body.innerHTML = '';
+    var v = SH.Table.view();
+    for (var i = 0; i < G.SEATS; i++) {
+      var p = v && v.players && v.players[i];
+      var tr = global.document.createElement('tr');
+      cell(tr, 'th', 'Seat ' + (i + 1) + (i === mySeat ? ' (you)' : ''));
+      cell(tr, 'td', p ? p.name : '—');
+      cell(tr, 'td', p ? (p.occupant === 'human' ? 'a person' :
+        p.occupant === 'away' ? 'away, played by the computer' : 'computer') : 'empty');
+      body.appendChild(tr);
+    }
+  }
+
+  function leaveTable() {
+    SH.Table.close();
+    lobby.code = null;
+    lobby.seat = null;
+    showLobby();
+    say('You have left the table.', { assertive: true, request: true });
+  }
   /* ---------------- starting ---------------- */
 
   /* Offline play runs a REAL SERVER in this tab.
@@ -630,7 +759,8 @@
   function boot() {
     ['status', 'actions', 'hand', 'hand-hint', 'trick', 'players-table', 'history-table',
      'log', 'setup-section', 'game-section', 'setup-form', 'opt-name', 'opt-pace',
-     'opt-points', 'opt-skin', 'say-polite', 'say-assertive'].forEach(function (id) {
+     'opt-points', 'opt-skin', 'say-polite', 'say-assertive',
+     'lobby-section', 'lobby-status', 'lobby-seats'].forEach(function (id) {
       el[id] = global.document.getElementById(id);
     });
 
@@ -642,12 +772,44 @@
     });
     global.document.addEventListener('keydown', onKey);
 
+    /* The lobby. Every one of these is an ordinary button doing one thing, and
+     * the code entry is a plain text input rather than five separate boxes:
+     * split inputs look tidy and are miserable with a screen reader, because
+     * every keystroke moves focus and the field you are in is never the field
+     * you thought. */
+    var bind = function (id, ev, fn) { var n = $(id); if (n) n.addEventListener(ev, fn); };
+    bind('lobby-create', 'click', createTable);
+    bind('lobby-join-form', 'submit', function (e) { e.preventDefault(); joinTable($('lobby-code').value, null); });
+    bind('lobby-back', 'click', function () { el['lobby-section'].hidden = true; el['setup-section'].hidden = false; $('opt-name').focus(); });
+    bind('lobby-leave', 'click', leaveTable);
+    bind('lobby-start', 'click', function () { SH.Table.act({ type: 'start' }); });
+    bind('lobby-copy', 'click', function () {
+      var code = $('lobby-code-display').textContent;
+      if (global.navigator && global.navigator.clipboard) {
+        global.navigator.clipboard.writeText(code).then(function () {
+          say('Code copied: ' + spellCode(code) + '.', { request: true });
+        }).catch(function () { say('Could not copy. The code is ' + spellCode(code) + '.', { request: true }); });
+      } else {
+        say('The code is ' + spellCode(code) + '.', { request: true });
+      }
+    });
+    bind('play-online', 'click', showLobby);
+
     /* Registered ONCE, at start-up, and deliberately not per game: Table keeps
      * its listeners across close() so the interface survives leaving one table
      * and joining another. */
     SH.Table.onChange(function () {
       mySeat = SH.Table.seat() === null ? mySeat : SH.Table.seat();
       onTableChange();
+      /* The lobby stays up until a hand is actually dealt. Hiding it the moment
+       * a connection opens takes the table code off the screen while the host is
+       * still reading it to somebody. */
+      if (state && state.phase !== 'idle' && el['lobby-section'] && !el['lobby-section'].hidden) {
+        el['lobby-section'].hidden = true;
+        el['game-section'].hidden = false;
+        focusForTurn();
+      }
+      if (el['lobby-section'] && !el['lobby-section'].hidden) renderSeats();
       if (dealWhenReady && state && state.phase === 'idle') {
         dealWhenReady = false;
         SH.Table.act({ type: 'start' });
