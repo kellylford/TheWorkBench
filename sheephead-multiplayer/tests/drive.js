@@ -17,12 +17,9 @@ module.exports = {
   /* Fill in the setup form and start a table. Pace 0 so the computer plays
    * without waiting — an audit that sits through a human-paced hand takes
    * minutes per scene, times two colour schemes. */
-  setup: `(() => {
-    document.getElementById('opt-players').value = '5';
-    document.getElementById('opt-pace').value = '0';
-    document.getElementById('setup-form')
-      .dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
-  })()`,
+  defaults: { players: 5 },
+
+  /* Nothing extra: submitting the form deals. */
 
   /* Play a hand out to the end, so the audits see a finished hand: the score
    * table, the result prose, and the played cards, none of which exist on a

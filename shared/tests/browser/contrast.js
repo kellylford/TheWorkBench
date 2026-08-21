@@ -25,21 +25,15 @@ if (!game) {
   console.error('usage: node shared/tests/browser/contrast.js <game-directory>');
   process.exit(2);
 }
-const repo = path.join(__dirname, '..', '..', '..');
-const root = path.join(repo, game);
-if (!fs.existsSync(path.join(root, 'index.html'))) {
-  console.error('no such game: ' + root);
-  process.exit(2);
-}
-const drive = require(path.join(root, 'tests', 'drive.js'));
+const { loadDrive, setupScript, puppeteerFor } = require('./harness.js');
 
-/* puppeteer is installed per game, by that game's CI job. */
-let puppeteer;
-try { puppeteer = require(path.join(root, 'node_modules', 'puppeteer')); }
-catch (e) {
-  try { puppeteer = require('puppeteer'); }
-  catch (e2) { console.log('SKIP: puppeteer not installed'); process.exit(0); }
-}
+const repo = path.join(__dirname, '..', '..', '..');
+let drive, root;
+try { const l = loadDrive(repo, game); drive = l.drive; root = l.dir; }
+catch (e) { console.error(e.message); process.exit(2); }
+
+const puppeteer = puppeteerFor(root);
+if (!puppeteer) { console.log('SKIP: puppeteer not installed'); process.exit(0); }
 
 /* The measurement itself, unchanged from the audit this was lifted from and
  * entirely game-agnostic: relative luminance, alpha-blended against whatever
@@ -184,7 +178,7 @@ const SCENES = [
       await page.goto(pathToFileURL(path.join(root, 'index.html')).href, { waitUntil: 'load' });
 
       if (scene.setup) {
-        await page.evaluate(drive.setup);
+        await page.evaluate(setupScript(drive, {}));
         await new Promise(r => setTimeout(r, 300));
       }
       if (scene.finish) {

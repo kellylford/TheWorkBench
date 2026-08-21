@@ -4,7 +4,7 @@
   "description": "Multiplayer build of Sheephead. Forked from sheephead/ at 160ff33; the single-player game is not modified by work here.",
   "private": true,
   "scripts": {
-    "test": "node tests/rules-oracle.js && node tests/authorization.js && node tests/projection.js && node tests/online.js && node tests/room.js && node tests/keepalive.js && node tests/engine-invariants.js && node tests/hidden-information.js && node tests/transcript.js && node tests/doublers.js && node tests/ui-dom.js && node tests/announcements.js && node tests/lobby.js && node tests/connection-ui.js && node tests/card-overlap.js && node ../shared/tests/browser/contrast.js sheephead-multiplayer && node tests/randomness.js && node tests/appearance.js",
+    "test": "node tests/rules-oracle.js && node tests/authorization.js && node tests/projection.js && node tests/online.js && node tests/room.js && node tests/keepalive.js && node tests/engine-invariants.js && node tests/hidden-information.js && node tests/transcript.js && node tests/doublers.js && node tests/ui-dom.js && node tests/announcements.js && node tests/lobby.js && node tests/connection-ui.js && node ../shared/tests/browser/card-overlap.js sheephead-multiplayer && node ../shared/tests/browser/contrast.js sheephead-multiplayer && node tests/randomness.js && node tests/appearance.js",
     "test:rules": "node tests/rules-oracle.js",
     "test:auth": "node tests/authorization.js",
     "test:projection": "node tests/projection.js && node tests/online.js && node tests/room.js",
@@ -16,7 +16,7 @@
     "test:transcript": "node tests/transcript.js",
     "test:doublers": "node tests/doublers.js",
     "test:layout": "node tests/layout.js",
-    "test:overlap": "node tests/card-overlap.js",
+    "test:overlap": "node ../shared/tests/browser/card-overlap.js sheephead-multiplayer",
     "test:appearance": "node tests/appearance.js",
     "test:contrast": "node ../shared/tests/browser/contrast.js sheephead-multiplayer",
     "balance": "node tests/balance.js"

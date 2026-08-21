@@ -12,7 +12,8 @@
     "test:invariants": "node tests/engine-invariants.js",
     "test:ui": "node tests/ui-dom.js && node tests/announcements.js && node tests/lobby.js",
     "test:layout": "node tests/layout.js",
-    "test:contrast": "node ../shared/tests/browser/contrast.js cribbage-multiplayer"
+    "test:contrast": "node ../shared/tests/browser/contrast.js cribbage-multiplayer",
+    "test:overlap": "node ../shared/tests/browser/card-overlap.js cribbage-multiplayer"
   },
   "license": "MIT"
 }
