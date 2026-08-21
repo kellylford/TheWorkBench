@@ -1081,9 +1081,21 @@
    * Online play could not get past hand one, and nothing said so.
    *
    * A predicate the engine owns cannot come apart from the engine that way. */
+  /* May a hand be dealt right now?
+   *
+   * EXACTLY the phases applyAction accepts a nextHand in, and shared
+   * contract tests hold all three games to that. The room asks this before
+   * forwarding a Deal, and both ways of being approximately right are bugs:
+   * too narrow and the deal is swallowed with no message at all, which is
+   * what a copied handOver check did to cribbage; too broad and the player
+   * gets the raw engine refusal — "the hand is not over" — while a new hand
+   * is visibly being dealt in front of them, which is the exact confusion the
+   * gate was added to prevent.
+   *
+   * idle belongs to the start action, not to this one. A table that has never
+   * dealt is started by the people at it, deliberately. */
   function canDeal(state) {
-    return state.phase === 'idle' || state.phase === 'roundOver' ||
-      state.phase === 'cutForDeal' || state.phase === 'gameOver';
+    return state.phase === 'roundOver' || state.phase === 'gameOver';
   }
 
   function seatToAct(state) {

@@ -208,16 +208,14 @@
      * anywhere. */
     function seatNeedingBot() {
       if (room.wedged) return -1;
-      if (state.phase === 'handOver' || state.phase === 'idle') return -1;   // nothing to play yet
-      var seat = state.phase === 'bury' ? state.picker : state.turn;
+      var seat = G.seatToAct(state);
       if (seat < 0) return -1;
       return state.players[seat].occupant === 'human' ? -1 : seat;
     }
 
     /* Whose turn it is, whoever they are. */
     function seatOnTurn() {
-      if (state.phase === 'handOver' || state.phase === 'idle') return -1;
-      return state.phase === 'bury' ? state.picker : state.turn;
+      return G.seatToAct(state);
     }
 
     /* Arm the one alarm this object gets, and record what it is for. */
@@ -612,7 +610,7 @@
        * the second being told "the hand is not over" while a new hand is visibly
        * being dealt in front of them, which is what the raw engine refusal says.
        * A view is the honest answer: somebody already did it, here is the table. */
-      if (msg.action && msg.action.type === 'nextHand' && state.phase !== 'handOver') {
+      if (msg.action && msg.action.type === 'nextHand' && !G.canDeal(state)) {
         room.version++;
         var already = viewFor(connId, seat);
         persist();
