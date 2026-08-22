@@ -18,7 +18,8 @@
     "test:contrast": "node ../shared/tests/browser/contrast.js sheephead",
     "balance": "node tests/balance.js",
     "test:renders": "node ../shared/tests/browser/renders.js sheephead",
-    "test:keys": "node ../shared/tests/browser/keys.js sheephead"
+    "test:keys": "node ../shared/tests/browser/keys.js sheephead",
+    "test:log": "node ../shared/tests/browser/log.js sheephead"
   },
   "license": "MIT"
 }
