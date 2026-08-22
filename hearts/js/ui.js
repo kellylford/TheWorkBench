@@ -636,7 +636,7 @@
    * Registered once. The table calls it whether a frame arrived over a socket or
    * a local move produced one, so there is exactly one path from "something
    * happened" to "the screen and the voice say so". */
-  var wasMyTurn = false;
+  var lastMoment = '';
 
   function onTableChange() {
     state = SH.Table.view();
@@ -644,17 +644,38 @@
     drain();
     render();
 
-    /* Focus moves when it BECOMES this seat's turn — not when the phase changes.
+    /* Focus moves when the GAME MOVED and the move is now ours.
      *
-     * The condition here was `state.phase !== before`, which is right exactly
-     * once per hand. Every trick after the first leaves the phase at 'play', so
-     * the turn came round twelve more times and focus never went anywhere: the
-     * player was left wherever they happened to be, usually on a button, with
-     * the game silently waiting on cards they had to go and find. Whose turn it
-     * is is the thing that changed, so that is the thing to compare. */
+     * Three versions, and the third is here because a player reported the second
+     * failing in a way I could not reproduce and therefore reverted.
+     *
+     *   1. Compare the phase. Right exactly once a hand: every trick after the
+     *      first leaves the phase at 'play', so the turn came round twelve more
+     *      times and focus never moved.
+     *
+     *   2. Compare whose turn it was last time. Right whenever the turn visibly
+     *      leaves this seat and comes back — and WRONG IN THE ONE CASE THAT
+     *      MATTERS MOST. When you play the fourth card of a trick and take it,
+     *      the turn goes from you to you: finishTrick sets the leader to the
+     *      winner in the same action, so there is no frame in between and no
+     *      change to notice. Take a trick and the game sits there waiting on a
+     *      hand you cannot reach. Exactly what was reported, twice.
+     *
+     *   3. Compare a token for the MOMENT. If any of these moved and it is now
+     *      ours, the game is waiting on us and focus belongs where the cards
+     *      are. If nothing moved, nothing is taken — somebody reading the log
+     *      during their own turn is left alone.
+     *
+     * I reverted version 3 once already, on the grounds that mutation testing
+     * could not tell it from version 2. It could not because I never made it
+     * play the last card of a trick and win; the case exists, and a fix that
+     * cannot be told apart by a test that never enters the failing state is not
+     * the same as a fix that is unnecessary. */
+    var moment = [state.phase, state.dealNumber, state.tricksPlayed,
+      state.trick.length, state.turn, String(state.passedIn)].join('|');
     var mine = whoActs() === mySeat;
-    if (mine && !wasMyTurn) focusForTurn();
-    wasMyTurn = mine;
+    if (mine && moment !== lastMoment) focusForTurn();
+    lastMoment = moment;
   }
 
   /* Whose move, from the VIEW.
