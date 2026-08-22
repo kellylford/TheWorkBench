@@ -172,9 +172,13 @@
         <span class="tool-group-name" id="tg-review">Review</span>
         <button type="button" data-say="hand" aria-keyshortcuts="H">Hand <kbd>H</kbd></button>
         <button type="button" data-say="trick" aria-keyshortcuts="T">Trick <kbd>T</kbd></button>
+        <button type="button" data-say="last" aria-keyshortcuts="L">Last trick <kbd>L</kbd></button>
         <button type="button" data-say="score" aria-keyshortcuts="S">Scores <kbd>S</kbd></button>
         <button type="button" data-say="points" aria-keyshortcuts="P">Points so far <kbd>P</kbd></button>
+        <button type="button" data-say="count" aria-keyshortcuts="C">Cards played <kbd>C</kbd></button>
+        <button type="button" data-say="order" aria-keyshortcuts="O">Play order <kbd>O</kbd></button>
         <button type="button" data-say="who" aria-keyshortcuts="W">Who is here <kbd>W</kbd></button>
+        <button type="button" data-say="repeat" aria-keyshortcuts="R">Repeat <kbd>R</kbd></button>
       </div>
 
       <div class="tool-group" role="group" aria-labelledby="tg-play">
@@ -183,6 +187,7 @@
              advertised rather than hidden, because a shortcut nobody is told
              about is a shortcut nobody uses. -->
         <button type="button" id="tool-next" aria-keyshortcuts="N">Next <kbd>N</kbd></button>
+        <button type="button" id="tool-log" aria-keyshortcuts="G">Go to the log <kbd>G</kbd></button>
       </div>
     </div>
     <div class="layout-two-col">
@@ -232,7 +237,7 @@
           </table>
         </div>
 
-        <h3 id="log-h">What has happened</h3>
+        <h3 id="log-h">What has happened <kbd aria-hidden="true">G</kbd></h3>
         <ul id="log" class="log" aria-labelledby="log-h"></ul>
 
       </div>

@@ -65,8 +65,14 @@
     } else {
       queues[region].push(item);
     }
+    lastSpoken = text;
     pump(region);
   }
+
+  /* What was said last, for R. Recorded at the point it is queued rather than
+   * when it is spoken, so repeating during a run of messages gives the one the
+   * player just heard rather than whatever the queue has reached. */
+  var lastSpoken = '';
 
   function pump(region) {
     if (busy[region] || !queues[region].length) return;
@@ -141,6 +147,43 @@
     var tail = qs.length ? ' ' + qs[0].name + ' has the queen of spades.'
       : ' The queen of spades has not been played.';
     return 'This hand: ' + parts.join(', ') + '.' + tail;
+  }
+
+  /* The last completed trick, which is the question a player asks most often
+   * after "what is in my hand" — you hear four cards go past and want the one
+   * detail you missed. */
+  function lastTrickText() {
+    if (!state.lastTrick) return 'No trick has been completed yet.';
+    var lt = state.lastTrick;
+    var parts = lt.cards.map(function (t) {
+      return seatName(t.seat) + ' played the ' + C.name(t.card);
+    });
+    return parts.join(', ') + '. ' + seatName(lt.winner) + ' took it' +
+      (lt.points ? ' with ' + lt.points + (lt.points === 1 ? ' point' : ' points') : ', no points') +
+      '.';
+  }
+
+  /* What has gone, and the two facts that decide how the rest of the hand plays:
+   * whether hearts are live, and whether the queen is still out there. */
+  function countText() {
+    var played = state.tricksPlayed;
+    var left = G.HAND - played;
+    var queenGone = state.players.some(function (p) { return p.hasQueen; });
+    return played + (played === 1 ? ' trick' : ' tricks') + ' played, ' +
+      left + ' to go. Hearts ' + (state.heartsBroken ? 'are broken' : 'have not been broken') +
+      '. The queen of spades ' + (queenGone ? 'has gone' : 'is still out') + '.';
+  }
+
+  /* Who plays after whom, from the current leader round. Trick games in this
+   * repository all answer this on O, and it is the thing a new player loses
+   * track of first. */
+  function orderText() {
+    var from = state.trick.length ? state.trick[0].seat : state.leader;
+    var names = [];
+    for (var i = 0; i < state.players.length; i++) {
+      names.push(seatName((from + i) % state.players.length));
+    }
+    return 'Play goes ' + names.join(', then ') + '.';
   }
 
   function whoText() {
@@ -616,11 +659,18 @@
   var SAY = {
     hand: function () { return handText(); },
     trick: function () { return trickText(); },
+    last: function () { return lastTrickText(); },
     score: function () { return scoreText(); },
     points: function () { return pointsText(); },
-    who: function () { return whoText(); }
+    count: function () { return countText(); },
+    order: function () { return orderText(); },
+    who: function () { return whoText(); },
+    repeat: function () { return lastSpoken || 'Nothing to repeat.'; }
   };
-  var KEYS = { h: 'hand', t: 'trick', s: 'score', p: 'points', w: 'who' };
+  var KEYS = {
+    h: 'hand', t: 'trick', l: 'last', s: 'score', p: 'points',
+    c: 'count', o: 'order', w: 'who', r: 'repeat'
+  };
 
   function onKey(e) {
     if (!state) return;
@@ -642,6 +692,21 @@
     /* N moves the game forward: deal the next hand, start the game, continue.
      * An ACTION rather than a review, so it is ignored inside the log where the
      * player is reading rather than driving. */
+    /* G goes to the log, which is where a player checks what they missed. Same
+     * key, same job, in every game here. */
+    if (k === 'g') {
+      e.preventDefault();
+      var first = el.log.querySelector('li');
+      if (first) {
+        first.setAttribute('tabindex', '-1');
+        first.focus();
+        say('Log. ' + (first.textContent || ''), { request: true });
+      } else {
+        say('Nothing has happened yet.', { request: true });
+      }
+      return;
+    }
+
     if (k === 'n' && !el.log.contains(e.target)) {
       var adv = el.actions.querySelector('button[data-advance]');
       if (adv && adv.getAttribute('aria-disabled') !== 'true') {
@@ -870,6 +935,11 @@
       }
     });
     bind('play-online', 'click', showLobby);
+    bind('tool-log', 'click', function () {
+      var first = el.log.querySelector('li');
+      if (first) { first.setAttribute('tabindex', '-1'); first.focus(); }
+      else say('Nothing has happened yet.', { request: true });
+    });
     bind('tool-next', 'click', function () {
       var adv = el.actions.querySelector('button[data-advance]');
       if (adv && adv.getAttribute('aria-disabled') !== 'true') adv.click();
