@@ -531,7 +531,12 @@
     state.players[p].score += points;
     ev(state, 'score', nameOf(state, p) + vb(state, p, ' scores ', ' score ') +
       phrase + '. ' + scoreLine(state),
-      { player: p, points: points,
+      /* `phrase` travels on the event as well as inside the sentence. The
+       * interface wants to put "fifteen for two" on the table in big letters
+       * next to the count, the way the other player says it out loud, and
+       * pulling those words back out of a finished sentence would mean parsing
+       * around a name and a score line. */
+      { player: p, points: points, phrase: phrase,
         textPlain: nameOf(state, p) + ' +' + points + ' (' + phrase + ').' });
     checkWinner(state);
   }

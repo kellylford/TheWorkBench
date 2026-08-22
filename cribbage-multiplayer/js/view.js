@@ -26,9 +26,18 @@
  *   belongs to somebody. It becomes public at the moment it is counted, and not
  *   before.
  *
- *   The two hands become public one at a time, in counting order, because that
- *   is what happens at a table: you lay your hand down and count it aloud, and
- *   your opponent's stays face down until their turn.
+ *   BOTH HANDS become public the moment the play ends and the counting starts.
+ *   They used to come up one at a time in counting order, on the reasoning that
+ *   this is what happens at a table. It is not what happens at a table: both
+ *   players' four cards are lying in front of them, face up, and each can see
+ *   the other's while the count is read out. That is how you check a count, and
+ *   two people playing this together said so — one of them sighted, watching a
+ *   screen that showed him nothing to check against.
+ *
+ *   Nothing is risked by it. The play is over when counting begins, so there is
+ *   no decision left that the other hand could inform. The crib is the one thing
+ *   still held back, until its own turn, because it genuinely is face down on
+ *   the table until the dealer turns it.
  *
  * tests/projection.js holds a written ruling for every field and fails if the
  * engine grows one that has never been considered.
@@ -77,16 +86,14 @@
      * not hand a player their opponent's hand while they are still deciding
      * whether to dispute the count. */
     var counting = state.phase === 'count' || over;
-    var nonDealer = state.dealer >= 0 ? 1 - state.dealer : -1;
-    var showNonDealerHand = over || (counting && state.countStage >= 1);
-    var showDealerHand = over || (counting && state.countStage >= 2);
     var showCrib = over || (counting && state.countStage >= 3);
 
     function maySeeHand(i) {
       if (i === seat) return true;
-      if (i === nonDealer) return showNonDealerHand;
-      if (i === state.dealer) return showDealerHand;
-      return false;
+      /* Both hands, from the first moment of the count. Staging them by
+       * countStage kept the opponent's four cards hidden while their count was
+       * being read aloud, which is the one moment you most want to see them. */
+      return counting;
     }
 
     var players = [];
@@ -159,7 +166,7 @@
        * Hidden from BOTH players until it is counted — including from the dealer
        * whose crib it is, who at a real table has four cards face down in front
        * of them and does not get to look. `cribCount` is what the interface
-       * needs before then. */
+       * needs before then, and it draws that many backs. */
       cribCount: state.crib.length,
       crib: showCrib ? copyCards(state.crib) : [],
 

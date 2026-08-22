@@ -119,16 +119,22 @@ function entitled(st, seat) {
   if (st.cutForDeal) st.cutForDeal.cuts.forEach(id => ok.add(id));
   if (st.discarded[seat]) st.discarded[seat].forEach(id => ok.add(id));
 
-  /* The counting order releases the hands one at a time, and then the crib. */
-  const nonDealer = st.dealer >= 0 ? 1 - st.dealer : -1;
+  /* BOTH HANDS at the moment counting starts; the crib still on its own
+   * schedule. The hands used to come up one at a time in counting order, and
+   * that ruling was changed deliberately: play is finished when counting
+   * begins, so there is no decision left for the other hand to inform, and two
+   * people counting together need to see both. tests/hidden-information.js is
+   * the check that the first half of that sentence is true — it watches every
+   * decision made and would fail if one were ever taken from here.
+   *
+   * The crib is NOT part of the change. It is genuinely face down on the table
+   * until the dealer turns it, and it is turned last. */
   const counting = st.phase === 'count' || over;
-  if (over || (counting && st.countStage >= 1)) {
-    st.players[nonDealer].kept.forEach(c => ok.add(c.id));
-    st.players[nonDealer].hand.forEach(c => ok.add(c.id));
-  }
-  if (over || (counting && st.countStage >= 2)) {
-    st.players[st.dealer].kept.forEach(c => ok.add(c.id));
-    st.players[st.dealer].hand.forEach(c => ok.add(c.id));
+  if (counting) {
+    st.players.forEach(p => {
+      p.kept.forEach(c => ok.add(c.id));
+      p.hand.forEach(c => ok.add(c.id));
+    });
   }
   if (over || (counting && st.countStage >= 3)) st.crib.forEach(c => ok.add(c.id));
   if (over) {
@@ -170,17 +176,14 @@ for (let g = 0; g < 250; g++) {
           }
         }
 
-        /* The placeholder shape, exactly — but only while the other seat's cards
-         * are still meant to be face down. They come up in counting order, so a
-         * blanket assertion here would fire on a hand that is legitimately laid
-         * out on the table, which is the test being wrong rather than a leak. */
+        /* The placeholder shape, exactly — but only while the other seat's
+         * cards are still meant to be face down. Once counting starts they are
+         * laid out on the table, and a blanket assertion here would be the test
+         * being wrong rather than a leak. */
         const opp = 1 - seat;
         const over = st.phase === 'roundOver' || st.phase === 'gameOver';
         const counting = st.phase === 'count' || over;
-        const nonDealerSeat = st.dealer >= 0 ? 1 - st.dealer : -1;
-        const oppOpen = over ||
-          (counting && opp === nonDealerSeat && st.countStage >= 1) ||
-          (counting && opp === st.dealer && st.countStage >= 2);
+        const oppOpen = counting;
         for (const c of view.players[opp].hand.concat(view.players[opp].kept)) {
           if (oppOpen) {
             if (!c.id) fails.push('a card that should be face up is still a placeholder');
@@ -232,18 +235,21 @@ for (const p of ['discard', 'play', 'count']) {
       check(v0.cribCount === 4, 'the crib count is not reported while it is face down');
     }
 
-    /* Step through the count and watch each hand appear exactly when it should. */
+    /* Both hands are already down at stage nought — before either has been
+     * counted — and the crib is not. That pair is the whole ruling. */
     const nonDealer = 1 - st.dealer;
+    for (let seat = 0; seat < 2; seat++) {
+      const v0 = V.forSeat(st, seat);
+      check(v0.players[0].kept.every(c => c.id) && v0.players[1].kept.every(c => c.id),
+        'a hand was still face down when the counting started, so neither player ' +
+        'could check the count against it');
+    }
     G.applyAction(st, nonDealer, { type: 'next' });        // non-dealer's hand
     if (st.phase !== 'count') continue;
     for (let seat = 0; seat < 2; seat++) {
       const v1 = V.forSeat(st, seat);
       check(v1.players[nonDealer].kept.every(c => c.id),
-        'the non-dealer’s hand is still hidden after they counted it');
-      if (seat !== st.dealer) {
-        check(v1.players[st.dealer].kept.every(c => c.hidden),
-          'the dealer’s hand became visible before they counted it');
-      }
+        'the non-dealer’s hand is hidden after they counted it');
       check(v1.crib.length === 0, 'the crib appeared before it was counted');
     }
     G.applyAction(st, st.dealer, { type: 'next' });         // dealer's hand

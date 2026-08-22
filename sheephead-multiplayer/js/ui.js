@@ -1320,7 +1320,35 @@
     return 'none';
   }
 
+  /* N MUST REACH THE PRIMARY ACTION IN EVERY PHASE.
+   *
+   * The key looks for button[data-advance], and only buttons built with an
+   * explicit shortcut carried that marker — so it worked between hands and
+   * silently did nothing during the bidding, the discard, the bury. A player
+   * found it in cribbage: choose two cards for the crib, press N, nothing.
+   * Nothing is the worst answer, because there is no button to have failed.
+   *
+   * Marked here, after the actions are built, so it cannot be forgotten at any
+   * of the places that make one. The marker is NOT aria-keyshortcuts: the
+   * toolbar Next button advertises N once, and two elements claiming the same
+   * key is ambiguous to anything listing them. */
+  function markAdvance() {
+    var box = el.actions;
+    if (!box) return;
+    if (box.querySelector('button[data-advance]')) return;
+    var b = box.querySelector('button.primary') || box.querySelector('button');
+    if (b) b.setAttribute('data-advance', '1');
+  }
+
+  /* Wrapped rather than a call at the bottom, because renderActions returns
+   * early in most branches — the discard, the bury, the bidding all end with
+   * their own return, which is exactly where the marker was missing. */
   function renderActions() {
+    renderActionsInner();
+    markAdvance();
+  }
+
+  function renderActionsInner() {
     var box = el.actions;
 
     // The heading used to read "Your turn" permanently, so a finished hand

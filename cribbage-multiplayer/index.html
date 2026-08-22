@@ -182,7 +182,20 @@
     <section aria-labelledby="play-h">
       <h3 id="play-h">The play</h3>
       <p id="count-line" class="count-line"></p>
+      <!-- What a player at the table would say out loud, written down: "fifteen
+           for two", "a pair for two", "one for the go". A screen reader already
+           announced it; a sighted partner had only the score column moving by
+           two and no way to tell what for. NOT a live region - the announcer
+           says this already, and marking it live would say it twice. -->
+      <p id="score-call" class="score-call" hidden></p>
       <ol id="pile" class="trick"></ol>
+    </section>
+
+    <!-- Both hands, face up, while they are counted. Hidden until the counting
+         starts, because until then the opponent's four cards are theirs. -->
+    <section aria-labelledby="count-h" id="count-section" hidden>
+      <h3 id="count-h">The hands</h3>
+      <div id="count-hands" class="hand static"></div>
     </section>
 
     <section aria-labelledby="starter-h" id="starter-section" hidden>

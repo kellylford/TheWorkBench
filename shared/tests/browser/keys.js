@@ -164,6 +164,100 @@ const SHARED = {
     }
   }
 
+  /* ---- 4. N REACHES THE PRIMARY ACTION IN EVERY PHASE ----
+   *
+   * The check above presses N between hands, which is one moment out of a whole
+   * game — and a player found the gap by playing: in cribbage you select two
+   * cards for the crib, press N, and nothing happens. The throw button had no
+   * shortcut, so it carried no marker, so N looked for something that was not
+   * there and did nothing. Silently, because there is nothing to say when you
+   * find no button.
+   *
+   * The rule is simple and holds everywhere: WHEREVER THERE IS A PRIMARY ACTION,
+   * N MUST REACH IT. A phase with a `.primary` button in the actions area and no
+   * data-advance on it is a phase where the key quietly stops working.
+   *
+   * So this walks a whole hand and checks every distinct arrangement of buttons
+   * it meets, rather than one chosen moment. A contract that tests one state is
+   * a contract about one state.
+   */
+  {
+    /* A FRESH PAGE. This walk used to run after the section above, which pumps
+     * a whole hand to its end — so it started at the finish line and met two
+     * arrangements of buttons, both of them end-of-hand. It reported that
+     * honestly rather than passing, which is the only reason it was noticed. */
+    const page2 = await browser.newPage();
+    await page2.setViewport({ width: 1280, height: 900 });
+    await page2.evaluateOnNewDocument(() => {
+      let s = 20260821;
+      Math.random = () => { s = (s * 1103515245 + 12345) & 0x7fffffff; return s / 0x7fffffff; };
+    });
+    await page2.goto(pathToFileURL(path.join(root, 'index.html')).href, { waitUntil: 'load' });
+    await page2.evaluate(setupScript(drive, {}));
+    await new Promise(r => setTimeout(r, 400));
+
+    const seenPhases = new Set();
+    const gaps = [];
+
+    for (let step = 0; step < 220; step++) {
+      const look = await page2.evaluate(() => {
+        const box = document.getElementById('actions');
+        if (!box) return null;
+        const buttons = [...box.querySelectorAll('button')];
+        const primary = buttons.filter(b => b.classList.contains('primary'));
+        const advance = buttons.filter(b => b.hasAttribute('data-advance'));
+        return {
+          key: buttons.map(b => (b.textContent || '').trim().slice(0, 18)).join('|'),
+          primaryLabels: primary.map(b => (b.textContent || '').trim().slice(0, 30)),
+          primaryHasAdvance: primary.length ? primary.some(b => b.hasAttribute('data-advance')) : null,
+          advanceCount: advance.length
+        };
+      });
+
+      if (look && look.key && !seenPhases.has(look.key)) {
+        seenPhases.add(look.key);
+        if (look.primaryLabels.length && !look.primaryHasAdvance) {
+          gaps.push(look.primaryLabels.join(' / '));
+        }
+      }
+
+      /* Move the game on however this game moves on, without caring which game
+       * it is: take the primary action if there is one, otherwise play a card. */
+      const moved = await page2.evaluate(() => {
+        const box = document.getElementById('actions');
+        const primary = box && box.querySelector('button.primary');
+        if (primary && primary.getAttribute('aria-disabled') !== 'true' && !primary.disabled) {
+          primary.click();
+          return true;
+        }
+        /* Skip cards already chosen. Selecting is a toggle, and taking the
+         * first enabled card every time picked the one just selected, unpicked
+         * it, and repeated — the walk sat in the cribbage discard for all 220
+         * steps flipping one card, and reported two arrangements because two
+         * was honestly all it had seen. */
+        const cards = [...document.querySelectorAll('#hand .card')]
+          .filter(c => c.getAttribute('aria-disabled') !== 'true');
+        const card = cards.find(c => c.getAttribute('aria-pressed') !== 'true') || cards[0];
+        if (card) { card.click(); return true; }
+        const any = box && [...box.querySelectorAll('button')]
+          .find(b => b.getAttribute('aria-disabled') !== 'true' && !b.disabled);
+        if (any) { any.click(); return true; }
+        return false;
+      });
+      if (!moved) await new Promise(r => setTimeout(r, 80));
+    }
+
+    await page2.close();
+
+    check(seenPhases.size >= 3,
+      'only met ' + seenPhases.size + ' distinct arrangements of buttons, which is ' +
+      'too few to have checked anything about phases');
+
+    check(gaps.length === 0,
+      'a primary action N cannot reach: ' + gaps.join('; ') + '. Wherever there ' +
+      'is a primary action the key must get to it, or it stops working in that ' +
+      'phase and says nothing about why');
+  }
   await browser.close();
 
   console.log(drive.name + ': ' + checks + ' assertions');

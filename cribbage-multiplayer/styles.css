@@ -277,6 +277,32 @@ tr.sitting-out th[scope="row"] { font-style: italic; }
   color: var(--ink);
 }
 
+/* The scoring shout, on the table where the count is.
+ *
+ * The rule this follows: anything the announcer says that changes the game has
+ * to be visible too. "Fifteen for two" was spoken and then gone, and the only
+ * visible trace was a number in the score column moving by two, which tells you
+ * that something scored but never what. Sitting directly under the count, in
+ * the words a player would use, it is the same information both people get.
+ *
+ * Plain --ink on the section background, exactly like .count-line above it, so
+ * it inherits a contrast that is already measured; the colour is in the rule at
+ * the side and carries nothing on its own. */
+.score-call {
+  margin: 0 0 .6rem;
+  padding: .3rem 0 .3rem .6rem;
+  border-left: .3rem solid var(--good);
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+/* Both hands laid out for the count. The rows are the shared .reveal-row, so
+ * this is only the gap between one player's four cards and the next player's. */
+#count-hands .reveal-row { margin-bottom: .35rem; }
+
+#count-hands .card { cursor: default; }
+
 /* The starter, and cards chosen to go to the crib. `aria-pressed` already gets
  * the lift and the outline from the shared rules above; this adds the label
  * colour so the two states do not depend on position alone. */
