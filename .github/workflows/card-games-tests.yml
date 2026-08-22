@@ -115,6 +115,9 @@ jobs:
       - name: Rendered appearance
         run: npm run test:appearance
 
+      - name: Layout across viewports
+        run: npm run test:layout
+
       - name: Fail if anything skipped
         run: |
           set -euo pipefail

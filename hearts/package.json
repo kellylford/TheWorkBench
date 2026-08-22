@@ -11,6 +11,7 @@
     "test:contrast": "node ../shared/tests/browser/contrast.js hearts",
     "test:overlap": "node ../shared/tests/browser/card-overlap.js hearts",
     "test:appearance": "node ../shared/tests/browser/appearance.js hearts",
-    "test:online": "node tests/online.js"
+    "test:online": "node tests/online.js",
+    "test:layout": "node ../shared/tests/browser/layout.js hearts"
   }
 }
