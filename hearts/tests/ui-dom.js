@@ -345,12 +345,107 @@ async function until(page, fn, what, seconds) {
     await page2.close();
     note('focus-pace');
   }
+  /* ---- 8. TAKING A TRICK MUST NOT STRAND THE PLAYER ----
+   *
+   * The case a player reported twice, and the one every earlier version of the
+   * focus logic missed.
+   *
+   * Play the fourth card of a trick and win it, and the turn goes from you to
+   * you: finishTrick sets the leader to the winner inside the same action, so
+   * there is no frame in between and nothing that looks like a change. A check
+   * asking "was it my turn last time" says yes both times and moves nothing. You
+   * take the trick and the game waits on a hand you cannot reach.
+   *
+   * Seeded at 12345 SPECIFICALLY, because that deal reaches the state and the
+   * suite's usual seed does not. A regression test for a case it never enters is
+   * an assertion about nothing — which is exactly why mutation testing could not
+   * tell the broken version from the fixed one, and why I reverted a correct fix
+   * on the strength of it.
+   *
+   * Focus is moved away before each play, because a click does not move focus
+   * and the point is what the GAME does next, not where the previous turn
+   * happened to leave things.
+   */
+  {
+    const page3 = await browser.newPage();
+    await page3.setViewport({ width: 1280, height: 900 });
+    await page3.evaluateOnNewDocument(() => {
+      let s = 12345;
+      Math.random = () => { s = (s * 1103515245 + 12345) & 0x7fffffff; return s / 0x7fffffff; };
+    });
+    await page3.goto(pathToFileURL(path.join(root, 'index.html')).href, { waitUntil: 'load' });
+    await page3.evaluate(() => {
+      document.getElementById('opt-pace').value = '0';
+      document.getElementById('setup-form')
+        .dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+    });
+    await until(page3, () => {
+      const v = SH.UI._test.view();
+      return !!(v && v.phase === 'passing');
+    }, 'the deal at seed 12345');
+
+    await page3.evaluate(() => {
+      const cards = [...document.querySelectorAll('#hand .card')];
+      cards.filter(c => c.getAttribute('aria-pressed') === 'false').slice(0, 3)
+        .forEach(c => c.click());
+      const g = [...document.querySelectorAll('#actions button')]
+        .find(x => /Pass these three/.test(x.textContent));
+      if (g && g.getAttribute('aria-disabled') !== 'true') g.click();
+    });
+
+    let tookATrick = 0;
+    let strandedAfterTaking = 0;
+
+    for (let i = 0; i < 30; i++) {
+      const mine = await page3.evaluate(() => {
+        const v = SH.UI._test.view();
+        return !!(v && v.phase === 'play' && v.turn === SH.UI._test.seat());
+      });
+      if (!mine) { await sleep(60); continue; }
+
+      const onTable = await page3.evaluate(() => SH.UI._test.view().trick.length);
+
+      await page3.evaluate(() => {
+        const c = [...document.querySelectorAll('#hand .card')]
+          .find(x => x.getAttribute('aria-disabled') !== 'true');
+        if (c) c.click();
+        document.getElementById('main').focus();     // measure the game, not the click
+      });
+      await sleep(350);
+
+      const after = await page3.evaluate(() => {
+        const v = SH.UI._test.view();
+        const a = document.activeElement;
+        return {
+          stillMine: !!(v && v.phase === 'play' && v.turn === SH.UI._test.seat()),
+          inHand: !!(a && a.classList && a.classList.contains('card'))
+        };
+      });
+
+      /* Four on the table means ours completed the trick, and the turn still
+       * being ours means we took it. */
+      if (onTable === 3 && after.stillMine) {
+        tookATrick++;
+        if (!after.inHand) strandedAfterTaking++;
+      }
+      if (tookATrick >= 2) break;
+    }
+
+    check(tookATrick > 0,
+      'never took a trick as the last to play, so the case a player reported ' +
+      'twice went untested — the seed must reach it or this section proves nothing');
+    check(strandedAfterTaking === 0,
+      'took a trick and focus was left outside the hand ' + strandedAfterTaking +
+      ' time(s) — the game is waiting on cards the player has to go and find');
+    await page3.close();
+    note('won-trick');
+  }
   await browser.close();
 
   check(pageErrors.length === 0, 'the page threw: ' + pageErrors.slice(0, 2).join(' | '));
 
   /* A section that did not run is not a section that passed. */
-  const EXPECTED = ['page', 'shortcuts', 'passing', 'disabled-reason', 'why-not', 'focus', 'focus-pace'];
+  const EXPECTED = ['page', 'shortcuts', 'passing', 'disabled-reason', 'why-not', 'focus', 'focus-pace', 'won-trick'];
   EXPECTED.forEach(k => check(seen[k],
     'the "' + k + '" checks never ran, so the suite covered less than it says'));
 
