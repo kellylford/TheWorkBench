@@ -12,7 +12,7 @@
     "test:ui": "node tests/ui-dom.js",
     "test:transcript": "node tests/transcript.js",
     "test:doublers": "node tests/doublers.js",
-    "test:layout": "node tests/layout.js",
+    "test:layout": "node ../shared/tests/browser/layout.js sheephead",
     "test:overlap": "node ../shared/tests/browser/card-overlap.js sheephead",
     "test:appearance": "node ../shared/tests/browser/appearance.js sheephead",
     "test:contrast": "node ../shared/tests/browser/contrast.js sheephead",
