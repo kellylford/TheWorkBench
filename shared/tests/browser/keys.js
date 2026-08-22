@@ -50,9 +50,22 @@ const SHARED = {
   N: 'move the game forward',
   H: 'read my hand',
   T: 'read the trick or the play',
+  L: 'read the last completed trick',
   S: 'read the scores',
-  W: 'who is at the table'
+  C: 'what has been played so far',
+  W: 'who is at the table',
+  R: 'repeat the last thing said',
+  G: 'go to the log'
 };
+
+/* NOT required of every game, and the distinction matters. O is the play order,
+ * which only means something where play goes round in a fixed order — euchre,
+ * sheephead and hearts have one, cribbage does not, and demanding it there
+ * would be demanding a game answer a question it does not have. P is likewise
+ * per-game: trump and partners in euchre, points so far in hearts.
+ *
+ * The shared set is what a player CARRIES between games. Everything else is a
+ * game being itself. */
 
 (async () => {
   const browser = await puppeteer.launch({ args: ['--no-sandbox', '--disable-dev-shm-usage'] });
