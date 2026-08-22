@@ -118,6 +118,9 @@ jobs:
       - name: Shared keyboard
         run: npm run test:keys
 
+      - name: Everything renders
+        run: npm run test:renders
+
       - name: Interface
         run: npm run test:uidom
 
@@ -258,6 +261,9 @@ jobs:
       - name: Shared keyboard
         run: npm run test:keys
 
+      - name: Everything renders
+        run: npm run test:renders
+
       - name: Randomness
         run: node tests/randomness.js
 
@@ -321,6 +327,9 @@ jobs:
 
       - name: Shared keyboard
         run: npm run test:keys
+
+      - name: Everything renders
+        run: npm run test:renders
 
       # Not an assertion, just numbers worth having in the log: how often a suit
       # gets named, how often the makers are euchred. A sharp move in either
@@ -392,6 +401,9 @@ jobs:
 
       - name: Shared keyboard
         run: npm run test:keys
+
+      - name: Everything renders
+        run: npm run test:renders
 
   cribbage:
     name: Cribbage
