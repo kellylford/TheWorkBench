@@ -202,6 +202,12 @@
         <div id="hand" class="hand" role="group" aria-labelledby="hand-h"></div>
         <p id="hand-hint" class="hint"></p>
 
+        <!-- The table, drawn. aria-hidden because it says nothing the players
+             table below does not already say in words, and a screen reader
+             reading four rows of card backs is noise. It is here so a sighted
+             player can see at a glance who is holding what. -->
+        <div id="seats" class="seats" aria-hidden="true"></div>
+
         <h3 id="trick-h">This trick</h3>
         <ol id="trick" class="trick" aria-labelledby="trick-h"></ol>
 
