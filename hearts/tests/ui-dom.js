@@ -265,12 +265,92 @@ async function until(page, fn, what, seconds) {
     note('focus');
   }
 
+  /* ---- 7. focus follows the turn, AT THE FASTEST PACE ----
+   *
+   * The pace is the whole point of this section rather than a detail.
+   *
+   * The focus fix is a comparison of whose turn it was last time, and that is
+   * only sound if the in-between state is ever observed. At pace 0 the computer
+   * answers immediately, so the worry is that the turn goes ours, theirs, ours
+   * between two frames and the change is never seen.
+   *
+   * I thought I had found that failing on the live site. I had not: focus was
+   * elsewhere because I had moved it there myself and nothing had happened
+   * since, which is correct behaviour and not a bug. Mutation testing settled
+   * it — the old comparison passes this section even at pace 0 and even with
+   * focus stolen between turns, because the in-between frame IS delivered.
+   *
+   * The section stays, at the fastest pace and stealing focus each turn, which
+   * is the condition a player is actually in: a click does not move focus, and
+   * somebody who just used the toolbar is not sitting on a card. It guards the
+   * behaviour. It does not guard a bug I could not reproduce, and saying so
+   * here is cheaper than somebody later trusting a comment that overclaims. */
+  {
+    const page2 = await browser.newPage();
+    await page2.setViewport({ width: 1280, height: 900 });
+    await page2.evaluateOnNewDocument(() => {
+      let s = 20260821;
+      Math.random = () => { s = (s * 1103515245 + 12345) & 0x7fffffff; return s / 0x7fffffff; };
+    });
+    await page2.goto(pathToFileURL(path.join(root, 'index.html')).href, { waitUntil: 'load' });
+    await page2.evaluate(() => {
+      document.getElementById('opt-pace').value = '0';
+      document.getElementById('setup-form')
+        .dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+    });
+    await until(page2, () => {
+      const v = SH.UI._test.view();
+      return !!(v && v.phase === 'passing');
+    }, 'the deal at pace 0');
+
+    await page2.evaluate(() => {
+      const cards = [...document.querySelectorAll('#hand .card')];
+      cards.filter(c => c.getAttribute('aria-pressed') === 'false').slice(0, 3)
+        .forEach(c => c.click());
+      const g = [...document.querySelectorAll('#actions button')]
+        .find(x => /Pass these three/.test(x.textContent));
+      if (g && g.getAttribute('aria-disabled') !== 'true') g.click();
+    });
+
+    const landed = [];
+    for (let t = 0; t < 5; t++) {
+      const ok = await until(page2, () => {
+        const v = SH.UI._test.view();
+        return !!(v && v.phase === 'play' && v.turn === SH.UI._test.seat());
+      }, 'turn ' + (t + 1) + ' at pace 0', 15);
+      if (!ok) break;
+      landed.push(await page2.evaluate(() => {
+        const a = document.activeElement;
+        return !!(a && a.classList && a.classList.contains('card'));
+      }));
+      /* Play the card AND take focus away, which is what actually happens: a
+       * click does not move focus, and a player who just used the toolbar or
+       * read the log is not sitting on a card. If focus only ever happened to
+       * be right because the previous turn left it there, this is where that
+       * shows. */
+      await page2.evaluate(() => {
+        const c = [...document.querySelectorAll('#hand .card')]
+          .find(x => x.getAttribute('aria-disabled') !== 'true');
+        if (c) c.click();
+        document.getElementById('main').focus();
+      });
+      await sleep(120);
+    }
+
+    check(landed.length >= 4,
+      'only reached ' + landed.length + ' of our turns at pace 0');
+    check(landed.every(Boolean),
+      'focus was in the hand on ' + landed.filter(Boolean).length + ' of ' + landed.length +
+      ' turns at pace 0 — the game was waiting on cards the player had to go and find');
+    await page2.close();
+    note('focus-pace');
+  }
   await browser.close();
 
   check(pageErrors.length === 0, 'the page threw: ' + pageErrors.slice(0, 2).join(' | '));
 
   /* A section that did not run is not a section that passed. */
-  const EXPECTED = ['page', 'shortcuts', 'passing', 'disabled-reason', 'why-not', 'focus'];
+  const EXPECTED = ['page', 'shortcuts', 'passing', 'disabled-reason', 'why-not', 'focus', 'focus-pace'];
   EXPECTED.forEach(k => check(seen[k],
     'the "' + k + '" checks never ran, so the suite covered less than it says'));
 
