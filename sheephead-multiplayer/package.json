@@ -21,6 +21,7 @@
     "test:contrast": "node ../shared/tests/browser/contrast.js sheephead-multiplayer",
     "balance": "node tests/balance.js",
     "test:keys": "node ../shared/tests/browser/keys.js sheephead-multiplayer",
+    "test:log": "node ../shared/tests/browser/log.js sheephead-multiplayer",
     "test:renders": "node ../shared/tests/browser/renders.js sheephead-multiplayer"
   },
   "license": "MIT"

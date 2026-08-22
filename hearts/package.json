@@ -14,6 +14,7 @@
     "test:online": "node tests/online.js",
     "test:layout": "node ../shared/tests/browser/layout.js hearts",
     "test:keys": "node ../shared/tests/browser/keys.js hearts",
+    "test:log": "node ../shared/tests/browser/log.js hearts",
     "test:uidom": "node tests/ui-dom.js",
     "test:renders": "node ../shared/tests/browser/renders.js hearts"
   }

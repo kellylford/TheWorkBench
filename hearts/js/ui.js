@@ -43,6 +43,7 @@
   var mySeat = 0;
   var pace = 450;
   var handFocus = 0;
+  var logFocus = 0;         // which log entry holds the tab stop
   var selected = {};        // card id -> true, while choosing a pass
   var botTimer = null;
 
@@ -204,6 +205,7 @@
     renderSeatFans();
     renderPlayers();
     renderHistory();
+    syncLogTabs();
   }
 
   function renderStatus() {
@@ -563,11 +565,63 @@
     return c;
   }
 
-  function log(text) {
+  /* THE LOG, WHICH IS HOW YOU FIND OUT WHAT YOU MISSED.
+   *
+   * This was the odd one out and it was odd in the way that matters. It
+   * appended, so the newest entry was at the bottom of two hundred; G focused
+   * the FIRST child, which was therefore the oldest thing that had ever
+   * happened; and the entries carried no tab stop and answered no arrow keys,
+   * so there was no way onward from wherever you landed. A player reported it
+   * as the history not reading, which is exactly what it was.
+   *
+   * Now it is what the other four games do: newest first, one tab stop that
+   * moves with you, arrows and Home and End, and a kind on each entry so the
+   * scores and the tricks are not a wall of one colour. */
+  function pushLog(kind, text) {
     var li = global.document.createElement('li');
+    li.className = 'k-' + (kind || 'info');
+    li.tabIndex = -1;
     li.textContent = text;
-    el.log.appendChild(li);
-    while (el.log.children.length > 200) el.log.removeChild(el.log.firstChild);
+    el.log.insertBefore(li, el.log.firstChild);
+    while (el.log.children.length > 200) el.log.removeChild(el.log.lastChild);
+  }
+
+  function applyLogTabs() {
+    var items = el.log.children;
+    for (var i = 0; i < items.length; i++) items[i].tabIndex = i === logFocus ? 0 : -1;
+  }
+
+  /* Called after every render. Entries arrive at the TOP, so an index left
+   * alone would slide down the list under the reader — this re-reads the index
+   * from where focus actually is, which is the only thing that stays put. */
+  function syncLogTabs() {
+    var items = el.log.children;
+    var active = global.document.activeElement;
+    for (var i = 0; i < items.length; i++) if (items[i] === active) { logFocus = i; break; }
+    if (logFocus >= items.length) logFocus = items.length - 1;
+    if (logFocus < 0) logFocus = 0;
+    applyLogTabs();
+  }
+
+  function focusLogEntry(i) {
+    var items = el.log.children;
+    if (!items.length) { say('The game log is empty.', { request: true }); return; }
+    logFocus = Math.max(0, Math.min(items.length - 1, i));
+    applyLogTabs();
+    items[logFocus].focus();
+  }
+
+  function onLogKeys(e) {
+    var items = el.log.children;
+    if (!items.length) return;
+    switch (e.key) {
+      case 'ArrowDown': case 'ArrowRight': e.preventDefault(); focusLogEntry(logFocus + 1); break;
+      case 'ArrowUp': case 'ArrowLeft': e.preventDefault(); focusLogEntry(logFocus - 1); break;
+      case 'Home': e.preventDefault(); focusLogEntry(0); break;
+      case 'End': e.preventDefault(); focusLogEntry(items.length - 1); break;
+      case 'PageDown': e.preventDefault(); focusLogEntry(logFocus + 10); break;
+      case 'PageUp': e.preventDefault(); focusLogEntry(logFocus - 10); break;
+    }
   }
 
   /* ---------------- doing things ---------------- */
@@ -626,7 +680,7 @@
   function drain() {
     var events = SH.Table.drainEvents();
     events.forEach(function (e) {
-      log(e.text);
+      pushLog(e.kind, e.text);
       say(e.text, { assertive: e.kind === 'moon' || e.kind === 'game' });
     });
   }
@@ -772,18 +826,7 @@
     if (k === 'e') { e.preventDefault(); openExport(); return; }
     if (k === 'b') { e.preventDefault(); openBug(); return; }
 
-    if (k === 'g') {
-      e.preventDefault();
-      var first = el.log.querySelector('li');
-      if (first) {
-        first.setAttribute('tabindex', '-1');
-        first.focus();
-        say('Log. ' + (first.textContent || ''), { request: true });
-      } else {
-        say('Nothing has happened yet.', { request: true });
-      }
-      return;
-    }
+    if (k === 'g') { e.preventDefault(); focusLogEntry(0); return; }
 
     if (k === 'n' && !el.log.contains(e.target)) {
       var adv = el.actions.querySelector('button[data-advance]');
@@ -848,7 +891,10 @@
     }
     lines.push('');
     lines.push('What happened:');
-    [].forEach.call(el.log.children, function (li) { lines.push('  ' + li.textContent); });
+    /* Reversed, because the log reads newest first on screen and a transcript
+     * that starts at the end is no use to anybody reading a bug report. */
+    [].map.call(el.log.children, function (li) { return li.textContent; })
+      .reverse().forEach(function (t) { lines.push('  ' + t); });
     return lines.join('\n');
   }
 
@@ -1086,6 +1132,7 @@
 
     selected = {};
     handFocus = 0;
+    logFocus = 0;
     el.log.innerHTML = '';
     el['setup-section'].hidden = true;
     el['game-section'].hidden = false;
@@ -1125,6 +1172,7 @@
       startGame();
     });
     global.document.addEventListener('keydown', onKey);
+    el.log.addEventListener('keydown', onLogKeys);
 
     /* The lobby. Every one of these is an ordinary button doing one thing, and
      * the code entry is a plain text input rather than five separate boxes:

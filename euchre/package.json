@@ -19,6 +19,7 @@
     "test:overlap": "node ../shared/tests/browser/card-overlap.js euchre",
     "test:appearance": "node ../shared/tests/browser/appearance.js euchre",
     "test:keys": "node ../shared/tests/browser/keys.js euchre",
+    "test:log": "node ../shared/tests/browser/log.js euchre",
     "test:renders": "node ../shared/tests/browser/renders.js euchre"
   },
   "license": "MIT"
