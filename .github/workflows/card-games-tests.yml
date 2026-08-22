@@ -118,6 +118,9 @@ jobs:
       - name: Shared keyboard
         run: npm run test:keys
 
+      - name: The log reads the same way everywhere
+        run: npm run test:log
+
       - name: Everything renders
         run: npm run test:renders
 
@@ -199,6 +202,9 @@ jobs:
       - name: Shared keyboard
         run: npm run test:keys
 
+      - name: The log reads the same way everywhere
+        run: npm run test:log
+
       - name: Everything renders
         run: npm run test:renders
 
@@ -267,6 +273,9 @@ jobs:
       - name: Shared keyboard
         run: npm run test:keys
 
+      - name: The log reads the same way everywhere
+        run: npm run test:log
+
       - name: Everything renders
         run: npm run test:renders
 
@@ -333,6 +342,9 @@ jobs:
 
       - name: Shared keyboard
         run: npm run test:keys
+
+      - name: The log reads the same way everywhere
+        run: npm run test:log
 
       - name: Everything renders
         run: npm run test:renders
@@ -407,6 +419,9 @@ jobs:
 
       - name: Shared keyboard
         run: npm run test:keys
+
+      - name: The log reads the same way everywhere
+        run: npm run test:log
 
       - name: Everything renders
         run: npm run test:renders

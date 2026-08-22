@@ -16,6 +16,7 @@
     "test:overlap": "node ../shared/tests/browser/card-overlap.js cribbage-multiplayer",
     "test:appearance": "node ../shared/tests/browser/appearance.js cribbage-multiplayer",
     "test:keys": "node ../shared/tests/browser/keys.js cribbage-multiplayer",
+    "test:log": "node ../shared/tests/browser/log.js cribbage-multiplayer",
     "test:renders": "node ../shared/tests/browser/renders.js cribbage-multiplayer"
   },
   "license": "MIT"
