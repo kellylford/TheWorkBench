@@ -694,6 +694,9 @@
      * player is reading rather than driving. */
     /* G goes to the log, which is where a player checks what they missed. Same
      * key, same job, in every game here. */
+    if (k === 'e') { e.preventDefault(); openExport(); return; }
+    if (k === 'b') { e.preventDefault(); openBug(); return; }
+
     if (k === 'g') {
       e.preventDefault();
       var first = el.log.querySelector('li');
@@ -722,6 +725,139 @@
     }
   }
 
+  /* ---------------- export, and reporting a bug ----------------
+   *
+   * Both are plain <dialog> elements. A real dialog gets focus trapping, Escape
+   * and the accessible role from the browser; every hand-rolled modal gets at
+   * least one of those wrong, usually the first.
+   */
+
+  var lastFocus = null;
+
+  function openDialog(d) {
+    if (!d) return;
+    lastFocus = global.document.activeElement;
+    d.showModal();
+    var first = d.querySelector('textarea, input, button');
+    if (first) first.focus();
+  }
+
+  function closeDialog(d) {
+    if (!d) return;
+    d.close();
+    /* Back where they were. A dialog that drops focus to <body> on close leaves
+     * a screen reader user at the top of the page with no idea the game is
+     * still there. */
+    if (lastFocus && lastFocus.focus) lastFocus.focus();
+  }
+
+  /* The log as text, which is what makes a bug report worth reading. */
+  function buildTranscript() {
+    var lines = [];
+    lines.push('Hearts — game log');
+    if (state) {
+      lines.push('Hand ' + state.dealNumber + ', phase ' + state.phase);
+      lines.push('Scores: ' + state.players.map(function (p) {
+        return p.name + ' ' + p.score;
+      }).join(', '));
+      if (state.history.length) {
+        lines.push('');
+        lines.push('Hand  Passed      ' + state.players.map(function (p) {
+          return p.name;
+        }).join('  '));
+        state.history.forEach(function (h) {
+          lines.push(String(h.deal).padEnd(6) + String(h.passDir).padEnd(12) +
+            h.points.join('  ') + (h.shooter >= 0 ? '   (moon: ' + seatName(h.shooter) + ')' : ''));
+        });
+      }
+    }
+    lines.push('');
+    lines.push('What happened:');
+    [].forEach.call(el.log.children, function (li) { lines.push('  ' + li.textContent); });
+    return lines.join('\n');
+  }
+
+  function openExport() {
+    if (!state) { say('Nothing to export yet.', { assertive: true, request: true }); return; }
+    el['export-text'].value = buildTranscript();
+    el['export-summary'].textContent = state.history.length + ' completed ' +
+      (state.history.length === 1 ? 'hand' : 'hands') + '. ' +
+      /* Whether this is a REAL table, not whether Table thinks it is local.
+       * Offline play deliberately runs the same server in this tab, so
+       * Table.isLocal() is false either way and the summary said "this is an
+       * online table" to somebody playing three bots. The table code is the
+       * honest signal: it exists only when somebody joined one. */
+      (lobby.code
+        ? 'This is table ' + lobby.code + ', so what is below is what this seat has been told.'
+        : 'This game is running in this tab, against the computer.');
+    openDialog(el['export-dialog']);
+    say('Export the game log. ' + el['export-summary'].textContent, { request: true });
+  }
+
+  function bugReport() {
+    var parts = [];
+    parts.push('**What went wrong:** ' + (el['bug-title'].value || '(not said)'));
+    parts.push('');
+    parts.push(el['bug-what'].value || '(no detail given)');
+    parts.push('');
+    parts.push('Game: Hearts');
+    if (state) parts.push('Hand ' + state.dealNumber + ', phase ' + state.phase);
+    parts.push('Table: ' + (lobby.code ? 'online, ' + lobby.code : 'against the computer'));
+    if (el['bug-include-log'].checked) {
+      parts.push('');
+      parts.push('```');
+      parts.push(buildTranscript());
+      parts.push('```');
+    }
+    return parts.join('\n');
+  }
+
+  function refreshBugPreview() {
+    /* The preview is the report. Shown rather than described, because "we will
+     * include some diagnostic information" is exactly the sentence that makes a
+     * person not send one. */
+    el['bug-preview'].value = bugReport();
+  }
+
+  function openBug() {
+    refreshBugPreview();
+    openDialog(el['bug-dialog']);
+    say('Report a bug. Nothing is sent on its own; the preview shows exactly what ' +
+      'will be copied.', { request: true });
+  }
+
+  function copyText(text, what) {
+    if (global.navigator && global.navigator.clipboard) {
+      global.navigator.clipboard.writeText(text).then(function () {
+        say(what + ' copied.', { request: true });
+      }).catch(function () {
+        say('Could not copy. The text is selected instead, so copy it yourself.',
+          { assertive: true, request: true });
+      });
+    } else {
+      say('Copying is not available here. The text is in the box.',
+        { assertive: true, request: true });
+    }
+  }
+
+  function downloadTranscript() {
+    var text = el['export-text'].value;
+    try {
+      var blob = new global.Blob([text], { type: 'text/plain' });
+      var url = global.URL.createObjectURL(blob);
+      var a = global.document.createElement('a');
+      a.href = url;
+      a.download = 'hearts-log.txt';
+      global.document.body.appendChild(a);
+      a.click();
+      global.document.body.removeChild(a);
+      global.setTimeout(function () { global.URL.revokeObjectURL(url); }, 1000);
+      say('Downloaded.', { request: true });
+    } catch (e) {
+      say('The download did not start. The log is in the box, so copy it instead.',
+        { assertive: true, request: true });
+    }
+  }
   /* ---------------- the lobby ----------------
    *
    * Everything here is ordinary HTML driven by two calls: SH.Net.createTable to
@@ -901,7 +1037,9 @@
     ['status', 'actions', 'hand', 'hand-hint', 'trick', 'players-table', 'history-table',
      'log', 'setup-section', 'game-section', 'setup-form', 'opt-name', 'opt-pace',
      'opt-points', 'opt-skin', 'say-polite', 'say-assertive',
-     'lobby-section', 'lobby-status', 'lobby-seats'].forEach(function (id) {
+     'lobby-section', 'lobby-status', 'lobby-seats',
+     'export-dialog', 'export-text', 'export-summary',
+     'bug-dialog', 'bug-title', 'bug-what', 'bug-include-log', 'bug-preview'].forEach(function (id) {
       el[id] = global.document.getElementById(id);
     });
 
@@ -935,6 +1073,21 @@
       }
     });
     bind('play-online', 'click', showLobby);
+    bind('tool-export', 'click', openExport);
+    bind('tool-bug', 'click', openBug);
+    bind('export-close', 'click', function () { closeDialog(el['export-dialog']); });
+    bind('export-copy', 'click', function () { copyText(el['export-text'].value, 'The log'); });
+    bind('export-download', 'click', downloadTranscript);
+    bind('bug-close', 'click', function () { closeDialog(el['bug-dialog']); });
+    bind('bug-copy', 'click', function () { copyText(bugReport(), 'The report'); });
+    bind('bug-open', 'click', function () {
+      copyText(bugReport(), 'The report');
+      global.open('https://github.com/kellylford/TheWorkBench/issues/new', '_blank', 'noopener');
+    });
+    ['bug-title', 'bug-what', 'bug-include-log'].forEach(function (id) {
+      bind(id, 'input', refreshBugPreview);
+      bind(id, 'change', refreshBugPreview);
+    });
     bind('tool-log', 'click', function () {
       var first = el.log.querySelector('li');
       if (first) { first.setAttribute('tabindex', '-1'); first.focus(); }

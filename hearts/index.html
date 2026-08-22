@@ -188,6 +188,8 @@
              about is a shortcut nobody uses. -->
         <button type="button" id="tool-next" aria-keyshortcuts="N">Next <kbd>N</kbd></button>
         <button type="button" id="tool-log" aria-keyshortcuts="G">Go to the log <kbd>G</kbd></button>
+        <button type="button" id="tool-export" aria-keyshortcuts="E">Export the log <kbd>E</kbd></button>
+        <button type="button" id="tool-bug" aria-keyshortcuts="B">Report a bug <kbd>B</kbd></button>
       </div>
     </div>
     <div class="layout-two-col">
@@ -305,6 +307,46 @@
      of undefined (reading forSeat)" on the first frame and nothing rendered at
      all — which is at least loud. config.js is first because net.js asks it
      where the Worker is. -->
+<!-- Two ordinary <dialog> elements. Not custom modals: a real dialog gets focus
+     trapping, Escape and the accessible role from the browser, and every
+     hand-rolled version of that in the wild gets at least one of the three
+     wrong. -->
+<dialog id="export-dialog" aria-labelledby="export-h">
+  <div class="dialog-body">
+    <h2 id="export-h">Export the game log</h2>
+    <p id="export-summary" class="hint"></p>
+    <label for="export-text">The complete log</label>
+    <textarea id="export-text" rows="16" readonly spellcheck="false"></textarea>
+    <p class="actions">
+      <button type="button" id="export-download" class="primary">Download as a text file</button>
+      <button type="button" id="export-copy">Copy to the clipboard</button>
+      <button type="button" id="export-close">Close</button>
+    </p>
+  </div>
+</dialog>
+
+<dialog id="bug-dialog" aria-labelledby="bug-h">
+  <div class="dialog-body">
+    <h2 id="bug-h">Report a bug</h2>
+    <p class="hint">Nothing is sent anywhere on its own. The box at the bottom shows exactly what
+      will be copied, and posting an issue is your own action and needs a GitHub account.</p>
+    <label for="bug-title">One line: what went wrong</label>
+    <input type="text" id="bug-title" maxlength="120" autocomplete="off">
+    <label for="bug-what">What happened, and what you expected</label>
+    <textarea id="bug-what" rows="5" spellcheck="true"></textarea>
+    <p class="field checkbox">
+      <input type="checkbox" id="bug-include-log" checked>
+      <label for="bug-include-log">Include the full game log &mdash; much easier to diagnose with it</label>
+    </p>
+    <label for="bug-preview">Exactly what will be copied</label>
+    <textarea id="bug-preview" rows="10" readonly spellcheck="false"></textarea>
+    <p class="actions">
+      <button type="button" id="bug-open" class="primary">Copy report and open GitHub</button>
+      <button type="button" id="bug-copy">Copy the report only</button>
+      <button type="button" id="bug-close">Close</button>
+    </p>
+  </div>
+</dialog>
 <script src="js/config.js"></script>
 <script src="js/cards.js"></script>
 <script src="js/game.js"></script>
