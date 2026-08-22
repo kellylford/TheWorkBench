@@ -198,8 +198,10 @@
     if (!state) return;
     renderStatus();
     renderActions();
+    syncActionsHeading();
     renderHand();
     renderTrick();
+    renderSeatFans();
     renderPlayers();
     renderHistory();
   }
@@ -306,6 +308,21 @@
      * that is why its hand feels next to its actions. */
   }
 
+  /* The heading goes when the box does.
+   *
+   * "What you can do" sat over an empty area for most of a hand: on your turn
+   * to play a card there are no buttons, so the screen showed a heading, a gap,
+   * and nothing. A heading is a promise that something follows it, and for a
+   * screen reader user moving by headings it is worse than untidy — they land
+   * on it and find nothing there. */
+  function syncActionsHeading() {
+    var h = global.document.getElementById('actions-h');
+    if (!h) return;
+    var empty = !el.actions.querySelector('button');
+    h.hidden = empty;
+    el.actions.hidden = empty;
+  }
+
   function renderHand() {
     el.hand.innerHTML = '';
     var hand = state.players[mySeat].hand;
@@ -333,47 +350,12 @@
         (b.getAttribute('aria-disabled') === 'true'
           ? ', ' + G.whyNot(state, mySeat, c.id) : ''));
 
-      /* The face. Two skins, and the traditional one is drawn from the same
-       * pieces the shared card-overlap audit measures: two corner indices and a
-       * pip field. */
-      var idxTop = span('idx idx-tl', null);
-      idxTop.appendChild(span('idx-rank', C.RANK_TEXT[c.r]));
-      idxTop.appendChild(span('idx-suit', C.SUIT_SYM[c.s]));
-      var idxBot = span('idx idx-br', null);
-      idxBot.appendChild(span('idx-rank', C.RANK_TEXT[c.r]));
-      idxBot.appendChild(span('idx-suit', C.SUIT_SYM[c.s]));
-      b.appendChild(idxTop);
-
-      /* The centre goes inside a .face, and that wrapper is load-bearing rather
-       * than tidiness: the stylesheet hides the traditional face in the plain
-       * skin with
-       *
-       *     .card .idx, .card .face { display: none; }
-       *
-       * and shows it again under .skin-traditional. A pip placed directly on the
-       * card is matched by neither rule, so it stayed visible in the plain skin
-       * AND unstyled by the traditional red rule — which is how the plain skin
-       * ended up showing black hearts. */
-      var face = span('face', null);
-      face.appendChild(span('pip pip-big', C.SUIT_SYM[c.s]));
-      b.appendChild(face);
-      b.appendChild(idxBot);
-
-      /* The plain skin's face, built from a .rank and a .suit rather than one
-       * string of text — because that is what the red rule names:
-       *
-       *     .card.red .rank, .card.red .suit { color: var(--card-red); }
-       *
-       * The first version of this put "5♥" straight into .simple, which matched
-       * nothing, and every heart and diamond rendered black in the plain skin.
-       * The shared appearance audit caught it on its first run against this
-       * game, reading "4H is a red suit but one of its glyphs renders
-       * rgb(18, 24, 31)". That is the exact bug that audit was written for,
-       * in another game, a year earlier. */
-      var simple = span('simple', null);
-      simple.appendChild(span('rank', C.RANK_TEXT[c.r]));
-      simple.appendChild(span('suit', C.SUIT_SYM[c.s]));
-      b.appendChild(simple);
+      /* One painter for the hand and the trick, so there is a single answer to
+       * "what does a card look like" — and one place to be wrong. Every
+       * structural detail it gets right was learned the hard way: the .face
+       * wrapper the plain skin hides, and the .simple built from a .rank and a
+       * .suit because that is what the red rule names. */
+      paintCard(b, c);
 
       b.addEventListener('click', function () { handFocus = i; cardActivated(c); });
       b.addEventListener('focus', function () { handFocus = i; });
@@ -404,44 +386,113 @@
     return '';
   }
 
+  /* The face of a card, as the stylesheet expects to find it: two corner
+   * indices, a centre inside a .face, and a .simple that the plain skin shows
+   * instead. Shared by the hand and the trick so there is one answer to "what
+   * does a card look like". */
+  function paintCard(node, c) {
+    var idxTop = span('idx idx-tl', null);
+    idxTop.appendChild(span('idx-rank', C.RANK_TEXT[c.r]));
+    idxTop.appendChild(span('idx-suit', C.SUIT_SYM[c.s]));
+    var idxBot = span('idx idx-br', null);
+    idxBot.appendChild(span('idx-rank', C.RANK_TEXT[c.r]));
+    idxBot.appendChild(span('idx-suit', C.SUIT_SYM[c.s]));
+    var face = span('face', null);
+    face.appendChild(span('pip pip-big', C.SUIT_SYM[c.s]));
+    var simple = span('simple', null);
+    simple.appendChild(span('rank', C.RANK_TEXT[c.r]));
+    simple.appendChild(span('suit', C.SUIT_SYM[c.s]));
+    node.appendChild(idxTop);
+    node.appendChild(face);
+    node.appendChild(idxBot);
+    node.appendChild(simple);
+    return node;
+  }
+
   function renderTrick() {
     el.trick.innerHTML = '';
-    state.trick.forEach(function (t) {
+
+    if (!state.trick.length) {
+      var empty = global.document.createElement('li');
+      empty.className = 'empty';
+      empty.textContent = 'Nothing played to this trick yet.';
+      el.trick.appendChild(empty);
+      return;
+    }
+
+    /* Who is winning, worked out here rather than trusted from anywhere: the
+     * highest card of the suit led, because there is no trump. */
+    var best = 0;
+    for (var i = 1; i < state.trick.length; i++) {
+      if (C.beats(state.trick[i].card, state.trick[best].card)) best = i;
+    }
+
+    state.trick.forEach(function (t, i) {
       var li = global.document.createElement('li');
-      li.className = 'mini' + (C.isRed(t.card) ? ' red' : '');
+      if (i === best) li.className = 'winning';
+
       var who = global.document.createElement('span');
       who.className = 'who';
-      who.textContent = seatName(t.seat);
+      who.textContent = seatName(t.seat) + (i === 0 ? ' (led)' : '');
+
+      /* THE CARD ITSELF, as a .card.mini INSIDE the item.
+       *
+       * This used to put `mini` on the <li>, which reads fine and is not what
+       * the stylesheet means. `.trick .mini { display: none }` then hid the
+       * whole entry in the plain skin, and the traditional rule squeezed it into
+       * a 3.4rem box — so the trick showed two bare name chips and no cards at
+       * all. It looked like a missing feature and was a misplaced class. */
+      var mini = global.document.createElement('span');
+      mini.className = 'card mini' + (C.isRed(t.card) ? ' red' : '');
+      paintCard(mini, t.card);
+      mini.setAttribute('aria-hidden', 'true');
+
+      /* The written name is what a screen reader reads; the face beside it is
+       * what a sighted player reads. Both present, neither a substitute. */
       var what = global.document.createElement('span');
       what.className = 'what';
-      /* The suit carries class `s`, and `red` with it, because the stylesheet
-       * colours a played card with
-       *
-       *     .trick .what .s.red { color: var(--card-red); }
-       *
-       * — the suit glyph itself, not the card around it. Marking only the <li>
-       * as red left every heart in the trick rendering in the ordinary ink, and
-       * the appearance audit said so: "a red card in the trick renders
-       * rgb(242, 247, 244)". `suit` is on it as well so the audit's own glyph
-       * search finds it, the same way it finds one in a hand. */
-      what.appendChild(span('suit s' + (C.isRed(t.card) ? ' red' : ''), C.SUIT_SYM[t.card.s]));
-      what.appendChild(span('idx-rank', C.RANK_TEXT[t.card.r]));
-      /* The written-out name is what a screen reader reads; the face beside it is
-       * what a sighted player reads. Both are present, neither is a substitute. */
-      var sr = global.document.createElement('span');
-      sr.className = 'sr-only';
-      sr.textContent = C.name(t.card);
-      what.appendChild(sr);
+      what.textContent = C.name(t.card);
+
+      var flag = global.document.createElement('span');
+      flag.className = 'flag';
+      flag.textContent = i === best ? 'winning so far' : '';
+
       li.appendChild(who);
+      li.appendChild(mini);
       li.appendChild(what);
+      li.appendChild(flag);
       el.trick.appendChild(li);
     });
-    if (!state.trick.length) {
-      var p = global.document.createElement('li');
-      p.className = 'empty';
-      p.textContent = 'Nothing played yet.';
-      el.trick.appendChild(p);
-    }
+  }
+
+  /* The table, drawn: every seat with the cards it is holding, face down.
+   *
+   * aria-hidden, deliberately. The players table says all of this in words a
+   * few lines below, and a screen reader reading four rows of card backs is
+   * noise — the same trap as announcing what a king is worth. This is for the
+   * eyes only, and the words are elsewhere and better. */
+  /* Named renderSeatFans, not renderSeats.
+   *
+   * The lobby has a renderSeats of its own, further down, which fills the
+   * seats TABLE. Two function declarations with one name in the same scope is
+   * not an error — the later one simply wins — so render() called the lobby
+   * renderer, the table strip stayed empty, and nothing anywhere complained.
+   * A blank green bar where the table should be. */
+  function renderSeatFans() {
+    var box = el.seats;
+    if (!box || !state) return;
+    box.innerHTML = '';
+    state.players.forEach(function (p, i) {
+      var seat = global.document.createElement('div');
+      seat.className = 'seat' + (whoActs() === i ? ' seat-turn' : '');
+      seat.appendChild(span('seat-name', p.name));
+      seat.appendChild(span('seat-role', p.takenPoints ? p.takenPoints + ' taken' : ''));
+      var fan = global.document.createElement('div');
+      fan.className = 'seat-fan';
+      for (var k = 0; k < p.hand.length; k++) fan.appendChild(span('back'));
+      seat.appendChild(fan);
+      box.appendChild(seat);
+    });
   }
 
   function renderPlayers() {
@@ -450,7 +501,10 @@
     state.players.forEach(function (p, i) {
       var tr = global.document.createElement('tr');
       if (state.phase === 'play' && state.turn === i) tr.className = 'on-turn';
-      cell(tr, 'th', p.name + (i === mySeat ? ' (you)' : ''));
+      /* Marked only when the name does not already say it — the default name is
+       * "You", and "You (you)" reads fine on screen and sounds ridiculous. */
+      var isMe = i === mySeat && p.name.toLowerCase() !== 'you';
+      cell(tr, 'th', p.name + (isMe ? ' (you)' : ''));
       cell(tr, 'td', String(p.hand.length));
       cell(tr, 'td', String(p.takenPoints));
       cell(tr, 'td', String(p.score));
@@ -1037,7 +1091,7 @@
     ['status', 'actions', 'hand', 'hand-hint', 'trick', 'players-table', 'history-table',
      'log', 'setup-section', 'game-section', 'setup-form', 'opt-name', 'opt-pace',
      'opt-points', 'opt-skin', 'say-polite', 'say-assertive',
-     'lobby-section', 'lobby-status', 'lobby-seats',
+     'seats', 'lobby-section', 'lobby-status', 'lobby-seats',
      'export-dialog', 'export-text', 'export-summary',
      'bug-dialog', 'bug-title', 'bug-what', 'bug-include-log', 'bug-preview'].forEach(function (id) {
       el[id] = global.document.getElementById(id);
