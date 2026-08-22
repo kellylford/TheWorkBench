@@ -215,6 +215,18 @@
 
     document.querySelectorAll('[data-say]').forEach(function (b) {
       b.addEventListener('click', function () { say(b.getAttribute('data-say')); });
+
+    /* The Next button is the N key, looked up the same way. N has always
+     * worked; it was simply never advertised, so nobody was told it existed.
+     * Bound here rather than rebuilt with the actions, because the toolbar is
+     * static and only the button it points at changes. */
+    var toolNext = document.getElementById('tool-next');
+    if (toolNext) {
+      toolNext.addEventListener('click', function () {
+        var adv = el.actions.querySelector('button[data-advance]');
+        if (adv) adv.click();
+      });
+    }
     });
 
     el.hand.addEventListener('keydown', onHandKeys);

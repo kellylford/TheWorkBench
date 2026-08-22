@@ -74,18 +74,19 @@
 
   function shortText(c) { return RANK_TEXT[c.r] + SUIT_SYM[c.s]; }
 
-  /* What to say about a card beyond its name. In cribbage that is its counting
-   * value, and only when the value and the rank are not the same word — saying
-   * "Seven of Clubs, worth seven" is noise, and saying "King of Clubs, worth
-   * ten" is the thing a player actually has to hold in their head while adding
-   * up to thirty-one. */
-  var VALUE_WORD = ['nothing', 'one', 'two', 'three', 'four', 'five', 'six', 'seven',
-    'eight', 'nine', 'ten'];
-
-  function describe(c) {
-    if (VALUE[c.r] === ORDER[c.r] && c.r !== 'A') return name(c);
-    return name(c) + ', worth ' + VALUE_WORD[VALUE[c.r]];
-  }
+  /* A card is its name. Nothing else.
+   *
+   * This used to append the counting value — "King of Clubs, worth ten" — on
+   * every court card and every ace. It was my idea and it was wrong. Knowing
+   * that a king counts ten IS cribbage; a player who needs telling is being
+   * told the game instead of playing it, and a player who does not is hearing
+   * it on five ranks out of thirteen, every single card, all game.
+   *
+   * The stable game next door never did this. It shipped for years reading
+   * card names and nothing more, and the request here was multiplayer, not a
+   * tutor. Accessible means everything is reachable and nothing is hidden. It
+   * does not mean more words. */
+  function describe(c) { return name(c); }
 
   function newDeck() { return DECK.slice(); }
 

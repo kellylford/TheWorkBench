@@ -200,7 +200,14 @@
     var b = global.document.createElement('button');
     b.type = 'button';
     b.textContent = label;
-    if (opts.primary) b.className = 'primary';
+    if (opts.primary) {
+      b.className = 'primary';
+      /* N presses this. Every game in this repository marks its one
+       * game-advancing button the same way and reads it the same way — the key
+       * is the same key, and nothing about it is per-game except which button
+       * happens to be primary right now. Hearts was the only game without it. */
+      b.setAttribute('data-advance', '1');
+    }
     if (opts.disabled) {
       /* aria-disabled rather than the disabled attribute, WITH A REASON. A
        * disabled button cannot be focused, so a screen reader user tabbing
@@ -245,12 +252,15 @@
       add(button('Start a new game', function () { startGame(); }, { primary: true }));
     }
 
-    /* Every shortcut is also a button. */
-    add(button('Read my hand', function () { say(handText(), { request: true }); }));
-    add(button('Read the trick', function () { say(trickText(), { request: true }); }));
-    add(button('Read the scores', function () { say(scoreText(), { request: true }); }));
-    add(button('Points so far', function () { say(pointsText(), { request: true }); }));
-    add(button("Who's here", function () { say(whoText(), { request: true }); }));
+    /* The read-out controls are NOT here. They live in the toolbar, above the
+     * game, and the reason is the tab order.
+     *
+     * They were in this group, after the primary action and before the hand,
+     * which put five buttons between the cards and the only thing you can do
+     * with them: shift+tab six times from a card to reach "Pass these three
+     * cards". Every one of those buttons is worth having and none of them is
+     * worth crossing on the way to playing. Euchre keeps them in a toolbar and
+     * that is why its hand feels next to its actions. */
   }
 
   function renderHand() {
@@ -406,13 +416,44 @@
   }
 
   function renderHistory() {
+    /* THE COLUMN HEADINGS ARE THE PLAYERS, and they have to be written here
+     * rather than in the HTML.
+     *
+     * They were four compass points — North, East, South, West — hardcoded in
+     * index.html. The seats are not compass points: seat 0 is whatever the
+     * player typed as their name. So the table said "North 25" about a row that
+     * was the player's own score, and a screen reader moving cell by cell read
+     * out the wrong name against every number in the game. Silent, confident and
+     * wrong, which is the worst combination a table can manage. */
+    var head = el['history-table'].querySelector('thead tr');
+    if (head) {
+      head.innerHTML = '';
+      cell(head, 'th', 'Hand').setAttribute('scope', 'col');
+      cell(head, 'th', 'Passed').setAttribute('scope', 'col');
+      state.players.forEach(function (p, i) {
+        /* Marked only when the name does not already say it. The default name
+         * is "You", and "You (you)" is the kind of thing that reads fine on a
+         * screen and sounds ridiculous out loud. */
+        var mine = i === mySeat && p.name.toLowerCase() !== 'you';
+        var th = cell(head, 'th', p.name + (mine ? ' (you)' : ''));
+        th.setAttribute('scope', 'col');
+      });
+    }
+
     var body = el['history-table'].querySelector('tbody');
     body.innerHTML = '';
     state.history.forEach(function (h) {
       var tr = global.document.createElement('tr');
       cell(tr, 'th', String(h.deal));
-      cell(tr, 'td', h.passDir);
-      h.points.forEach(function (n) { cell(tr, 'td', String(n)); });
+      cell(tr, 'td', h.passDir === 'hold' ? 'nobody passed' : h.passDir);
+      h.points.forEach(function (n, i) {
+        var td = cell(tr, 'td', String(n));
+        /* Named for anybody reading a cell on its own. A bare "25" in a grid is
+         * a number without a subject unless the reader happens to be tracking
+         * both headers. */
+        td.setAttribute('aria-label', state.players[i].name + ' ' + n +
+          (n === 1 ? ' point' : ' points') + ' in hand ' + h.deal);
+      });
       body.appendChild(tr);
     });
   }
@@ -498,13 +539,25 @@
    * Registered once. The table calls it whether a frame arrived over a socket or
    * a local move produced one, so there is exactly one path from "something
    * happened" to "the screen and the voice say so". */
+  var wasMyTurn = false;
+
   function onTableChange() {
-    var before = state && state.phase;
     state = SH.Table.view();
     if (!state) return;
     drain();
     render();
-    if (whoActs() === mySeat && state.phase !== before) focusForTurn();
+
+    /* Focus moves when it BECOMES this seat's turn — not when the phase changes.
+     *
+     * The condition here was `state.phase !== before`, which is right exactly
+     * once per hand. Every trick after the first leaves the phase at 'play', so
+     * the turn came round twelve more times and focus never went anywhere: the
+     * player was left wherever they happened to be, usually on a button, with
+     * the game silently waiting on cards they had to go and find. Whose turn it
+     * is is the thing that changed, so that is the thing to compare. */
+    var mine = whoActs() === mySeat;
+    if (mine && !wasMyTurn) focusForTurn();
+    wasMyTurn = mine;
   }
 
   /* Whose move, from the VIEW.
@@ -555,6 +608,20 @@
     if (b) b.focus();
   }
 
+  /* ONE table of review actions, named the same way in three places: the
+   * toolbar buttons carry data-say, the keyboard maps a letter to a name, and
+   * this maps the name to what gets said. Adding one means adding it here and
+   * to both of the others — which is the point, because a shortcut with no
+   * button and a button with no shortcut are both half-built. */
+  var SAY = {
+    hand: function () { return handText(); },
+    trick: function () { return trickText(); },
+    score: function () { return scoreText(); },
+    points: function () { return pointsText(); },
+    who: function () { return whoText(); }
+  };
+  var KEYS = { h: 'hand', t: 'trick', s: 'score', p: 'points', w: 'who' };
+
   function onKey(e) {
     if (!state) return;
     var tag = (e.target.tagName || '').toLowerCase();
@@ -572,12 +639,21 @@
     }
 
     var k = (e.key || '').toLowerCase();
-    var map = {
-      h: handText, t: trickText, s: scoreText, p: pointsText, w: whoText
-    };
-    if (map[k] && !e.ctrlKey && !e.metaKey && !e.altKey) {
+    /* N moves the game forward: deal the next hand, start the game, continue.
+     * An ACTION rather than a review, so it is ignored inside the log where the
+     * player is reading rather than driving. */
+    if (k === 'n' && !el.log.contains(e.target)) {
+      var adv = el.actions.querySelector('button[data-advance]');
+      if (adv && adv.getAttribute('aria-disabled') !== 'true') {
+        e.preventDefault();
+        adv.click();
+      }
+      return;
+    }
+
+    if (KEYS[k] && !e.ctrlKey && !e.metaKey && !e.altKey) {
       e.preventDefault();
-      say(map[k](), { request: true });
+      say(SAY[KEYS[k]](), { request: true });
     }
   }
 
@@ -794,6 +870,25 @@
       }
     });
     bind('play-online', 'click', showLobby);
+    bind('tool-next', 'click', function () {
+      var adv = el.actions.querySelector('button[data-advance]');
+      if (adv && adv.getAttribute('aria-disabled') !== 'true') adv.click();
+      else say('Nothing to move on to yet.', { assertive: true, request: true });
+    });
+
+    /* The toolbar. One handler for the group rather than five bindings: the
+     * data-say value and the keyboard map below are the same set of names, so
+     * adding a review control means adding it in one place and it works both
+     * ways or neither. */
+    var toolbar = global.document.querySelector('.toolbar');
+    if (toolbar) {
+      toolbar.addEventListener('click', function (e) {
+        var b2 = e.target.closest && e.target.closest('button[data-say]');
+        if (!b2 || !state) return;
+        var fn = SAY[b2.getAttribute('data-say')];
+        if (fn) say(fn(), { request: true });
+      });
+    }
 
     /* Registered ONCE, at start-up, and deliberately not per game: Table keeps
      * its listeners across close() so the interface survives leaving one table

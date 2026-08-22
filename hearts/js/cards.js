@@ -78,21 +78,20 @@
 
   function name(c) { return RANK_NAME[c.r] + ' of ' + SUIT_NAME[c.s]; }
 
-  /* What is worth SAYING about a card beyond its name.
+  /* A card is its name. Nothing else.
    *
-   * Empty for almost everything, and that is deliberate — the name already
-   * contains the suit, so adding it again reads as "Queen of Hearts, hearts" on
-   * every single play. Merely untidy on screen, genuinely wearing when every
-   * card of every trick is spoken aloud.
+   * This used to add "one point" to every heart and "thirteen points" to the
+   * queen of spades. That is not information a hearts player is missing — it
+   * is the entire game, stated back to them on most of the cards in the deck,
+   * every time one is read out.
    *
-   * The queen of spades earns her mention: thirteen of the twenty-six points in
-   * a hand ride on one card, and a player who is not tracking her is playing a
-   * different game from everyone else at the table. */
-  function role(c) {
-    if (c.id === 'QS') return 'thirteen points';
-    if (c.s === 'H') return 'one point';
-    return '';
-  }
+   * Kept as a function returning nothing rather than deleted, because the
+   * shape is right: a card CAN have something worth saying beyond its name.
+   * In euchre a jack can be the second-highest card in the game while printed
+   * as a club, and not saying so is actively misleading. Hearts has no such
+   * case. The test is whether the name alone would mislead, not whether more
+   * could be said. */
+  function role(c) { return ''; }
 
   function describe(c) {
     var r = role(c);
