@@ -118,6 +118,15 @@
 
     document.querySelectorAll('[data-say]').forEach(function (b) {
       b.addEventListener('click', function () { say(b.getAttribute('data-say')); });
+
+    /* The Next button is the N key, looked up the same way. */
+    var toolNext = document.getElementById('tool-next');
+    if (toolNext) {
+      toolNext.addEventListener('click', function () {
+        var adv = el.actions.querySelector('button[data-advance]');
+        if (adv) adv.click();
+      });
+    }
     });
 
     el.hand.addEventListener('keydown', onHandKeys);

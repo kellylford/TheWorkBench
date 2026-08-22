@@ -46,6 +46,15 @@ let checks = 0;
 const check = (c, m) => { checks++; if (!c) fails.push(m); };
 
 /* The set a player carries from one game to the next. */
+/* Required only of a game that can have OTHER PEOPLE at the table.
+ *
+ * W answers "who is here", and the stable sheephead game has no lobby and no
+ * second seat — there is nobody to name. Demanding it there is the same mistake
+ * as demanding O of cribbage: making a game answer a question it does not have.
+ * Detected from the page rather than listed, so a game that gains multiplayer
+ * gains the requirement with it. */
+const MULTIPLAYER_ONLY = { W: 'who is at the table' };
+
 const SHARED = {
   N: 'move the game forward',
   H: 'read my hand',
@@ -53,7 +62,7 @@ const SHARED = {
   L: 'read the last completed trick',
   S: 'read the scores',
   C: 'what has been played so far',
-  W: 'who is at the table',
+
   R: 'repeat the last thing said',
   G: 'go to the log',
   E: 'export the log',
@@ -92,10 +101,15 @@ const SHARED = {
     return out;
   });
 
-  Object.keys(SHARED).forEach(k => {
+  /* Does this game have anybody else at the table to ask about? */
+  const multiplayer = await page.evaluate(
+    () => !!(document.getElementById('lobby-section') || (window.SH && window.SH.Net)));
+  const required = Object.assign({}, SHARED, multiplayer ? MULTIPLAYER_ONLY : {});
+
+  Object.keys(required).forEach(k => {
     check(!!advertised[k],
       k + ' is not advertised anywhere — it should be on a control, so a screen ' +
-      'reader can list it and a sighted player can see it. (' + SHARED[k] + ')');
+      'reader can list it and a sighted player can see it. (' + required[k] + ')');
   });
 
   /* ---- 2. no key claimed twice ---- */
