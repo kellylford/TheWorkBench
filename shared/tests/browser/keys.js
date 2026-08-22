@@ -55,7 +55,9 @@ const SHARED = {
   C: 'what has been played so far',
   W: 'who is at the table',
   R: 'repeat the last thing said',
-  G: 'go to the log'
+  G: 'go to the log',
+  E: 'export the log',
+  B: 'report a bug'
 };
 
 /* NOT required of every game, and the distinction matters. O is the play order,
