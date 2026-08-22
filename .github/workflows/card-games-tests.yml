@@ -115,6 +115,12 @@ jobs:
       - name: Rendered appearance
         run: npm run test:appearance
 
+      - name: Shared keyboard
+        run: npm run test:keys
+
+      - name: Interface
+        run: npm run test:uidom
+
       - name: Layout across viewports
         run: npm run test:layout
 
@@ -249,6 +255,9 @@ jobs:
       - name: Rendered appearance
         run: npm run test:appearance
 
+      - name: Shared keyboard
+        run: npm run test:keys
+
       - name: Randomness
         run: node tests/randomness.js
 
@@ -309,6 +318,9 @@ jobs:
 
       - name: Rendered appearance
         run: npm run test:appearance
+
+      - name: Shared keyboard
+        run: npm run test:keys
 
       # Not an assertion, just numbers worth having in the log: how often a suit
       # gets named, how often the makers are euchred. A sharp move in either
@@ -377,6 +389,9 @@ jobs:
 
       - name: Rendered appearance
         run: npm run test:appearance
+
+      - name: Shared keyboard
+        run: npm run test:keys
 
   cribbage:
     name: Cribbage

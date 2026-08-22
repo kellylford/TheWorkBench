@@ -19,7 +19,8 @@
     "test:overlap": "node ../shared/tests/browser/card-overlap.js sheephead-multiplayer",
     "test:appearance": "node ../shared/tests/browser/appearance.js sheephead-multiplayer",
     "test:contrast": "node ../shared/tests/browser/contrast.js sheephead-multiplayer",
-    "balance": "node tests/balance.js"
+    "balance": "node tests/balance.js",
+    "test:keys": "node ../shared/tests/browser/keys.js sheephead-multiplayer"
   },
   "license": "MIT"
 }

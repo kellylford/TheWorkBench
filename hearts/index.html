@@ -159,6 +159,32 @@
          is not one either. -->
     <p id="status" class="status"></p>
 
+    <!-- The review controls, and they are UP HERE rather than beside the hand
+         on purpose. Every one of them is also a keyboard shortcut, and every
+         shortcut is also one of these, so nothing is reachable only one way.
+
+         They started out in the actions area, which put five buttons between
+         the cards and the only thing you can do with them — six shift+tabs from
+         a card to reach "Pass these three cards". A toolbar keeps the primary
+         action next to the hand where it belongs. -->
+    <div class="toolbar">
+      <div class="tool-group" role="group" aria-labelledby="tg-review">
+        <span class="tool-group-name" id="tg-review">Review</span>
+        <button type="button" data-say="hand" aria-keyshortcuts="H">Hand <kbd>H</kbd></button>
+        <button type="button" data-say="trick" aria-keyshortcuts="T">Trick <kbd>T</kbd></button>
+        <button type="button" data-say="score" aria-keyshortcuts="S">Scores <kbd>S</kbd></button>
+        <button type="button" data-say="points" aria-keyshortcuts="P">Points so far <kbd>P</kbd></button>
+        <button type="button" data-say="who" aria-keyshortcuts="W">Who is here <kbd>W</kbd></button>
+      </div>
+
+      <div class="tool-group" role="group" aria-labelledby="tg-play">
+        <span class="tool-group-name" id="tg-play">Play</span>
+        <!-- N is the same key in every game here: move the game forward. It is
+             advertised rather than hidden, because a shortcut nobody is told
+             about is a shortcut nobody uses. -->
+        <button type="button" id="tool-next" aria-keyshortcuts="N">Next <kbd>N</kbd></button>
+      </div>
+    </div>
     <div class="layout-two-col">
       <div class="col-main">
 
@@ -197,14 +223,10 @@
           <table id="history-table">
             <caption class="sr-only">What each player scored in each hand</caption>
             <thead>
-              <tr>
-                <th scope="col">Hand</th>
-                <th scope="col">Passed</th>
-                <th scope="col">North</th>
-                <th scope="col">East</th>
-                <th scope="col">South</th>
-                <th scope="col">West</th>
-              </tr>
+              <!-- Written by ui.js from the real player names. They were
+                   four compass points here, and the seats are not compass
+                   points: seat 0 is whatever the player typed. -->
+              <tr></tr>
             </thead>
             <tbody></tbody>
           </table>

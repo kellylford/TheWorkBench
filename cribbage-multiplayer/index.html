@@ -224,6 +224,15 @@
         <button type="button" data-say="repeat" aria-keyshortcuts="R">Repeat <kbd>R</kbd></button>
       </div>
 
+      <div class="tool-group" role="group" aria-labelledby="tg-play">
+        <span class="tool-group-name" id="tg-play">Play</span>
+        <!-- N has always worked here. It was never advertised, so nobody was
+             told: no button, no aria-keyshortcuts, nothing for a screen reader
+             to list. A shortcut nobody knows about is a shortcut nobody uses,
+             and it is the same key in every game in this repository. -->
+        <button type="button" id="tool-next" aria-keyshortcuts="N">Next <kbd>N</kbd></button>
+      </div>
+
       <div class="tool-group" role="group" aria-labelledby="tg-records">
         <span class="tool-group-name" id="tg-records">Records</span>
         <button type="button" id="btn-log" aria-keyshortcuts="G">Game log <kbd>G</kbd></button>
