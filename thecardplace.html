@@ -3,6 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- Without this the browser asks for /favicon.ico at the SITE root, which
+     belongs to the user page rather than this project — so every page here
+     logged a 404 nobody could fix from this repository. -->
+<link rel="icon" href="shared/favicon.svg" type="image/svg+xml">
 <title>The Card Place</title>
 <meta name="description" content="Card games built to be fully playable with a keyboard and a screen reader.">
 <style>

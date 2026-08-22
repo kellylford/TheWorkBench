@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="A playing card">
+  <!-- One card on the felt, which is what every game here has in common.
+       SVG rather than .ico because it stays sharp at any size and is 700 bytes
+       instead of 15 kilobytes; the browsers that cannot read it fall back to
+       asking for /favicon.ico, which is exactly what they did before.
+
+       Both suits are drawn, red and black, because a single suit would be a
+       decision about which game this is and there are five of them. -->
+  <rect width="32" height="32" rx="4" fill="#1d5c43"/>
+  <rect x="7" y="5" width="18" height="22" rx="2.5" fill="#f7f9fb" stroke="#0d1b26" stroke-width="1"/>
+  <!-- spade, upper left -->
+  <path d="M13 10.5c-1.6 1.5-3 2.6-3 4a1.9 1.9 0 0 0 2.6 1.8l-.6 1.6h2l-.6-1.6a1.9 1.9 0 0 0 2.6-1.8c0-1.4-1.4-2.5-3-4z" fill="#12181f"/>
+  <!-- heart, lower right -->
+  <path d="M19 21.8c-2-1.4-3.3-2.4-3.3-3.7a1.6 1.6 0 0 1 3-.8 1.6 1.6 0 0 1 3 .8c0 1.3-1.3 2.3-3.3 3.7z" fill="#b3122a"/>
+</svg>

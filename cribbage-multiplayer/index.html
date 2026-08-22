@@ -3,6 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- Without this the browser asks for /favicon.ico at the SITE root, which
+     belongs to the user page rather than this project — so every page here
+     logged a 404 nobody could fix from this repository. -->
+<link rel="icon" href="../shared/favicon.svg" type="image/svg+xml">
 <title>Cribbage Multiplayer</title>
 <meta name="description" content="Cribbage for two, playable with a keyboard alone or entirely by ear with a screen reader. Against the computer, or with another person at a shared table.">
 <!-- The shared sheet first, this game's second. Order is the override
