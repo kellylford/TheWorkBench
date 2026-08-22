@@ -1,0 +1,222 @@
+[
+  {
+    "section": "231",
+    "zone": "Page heading: \"Section 231 at Yankee Stadium\". The page carries the Main Level Outfield / Main Level Seating expert review (the same review text that appears on 232A-234); no separate zone label was captured on this page.",
+    "location": "Zone-level review text present on the page: \"Sections 223–234 mirror this layout on the third base side, extending down the line and into the opposite outfield corner.\" A targeted second pass for a Section-231-specific location sentence returned ABSENT, so this sentence describes the 223-234 group, not 231 alone.",
+    "rows": "\"Rows in Section 231 are labeled 1-19, 20W, 21S\"",
+    "entrance_row": "\"An entrance to this section is located at Row 21S\"",
+    "seat_direction": "PARK-WIDE BOILERPLATE (Row Numbers block, identical on every Yankee Stadium section page; the repeated 'field/field/stage/field' is a RateYourSeats multi-sport template artifact): \"When looking towards the field/field/stage/field, lower number seats are on the right\". PER-SECTION STATEMENT: none. A targeted second pass specifically for a sentence naming which side seat 1 is on in Section 231 returned ABSENT. No per-section statement.",
+    "seats_per_row": "\"Rows 1-3 have 13 seats labeled 1-13\"; \"Row 4 has 14 seats labeled 1-14\"; \"Rows 5-10 have 15 seats labeled 1-15\"; \"Rows 11-12 have 16 seats labeled 1-16\"; \"Rows 13-18 have 17 seats labeled 1-17\"; \"Row 19 has 18 seats labeled 1-18\". No counts stated for Rows 20W or 21S.",
+    "notes": "Section Insights: \"Top Pick for Kids and FamilyRows 13-23\"; \"Midfield View\"; \"Rows 14 & Above - Covered\". Seating Notes: \"For baseball games, we recommend rows 13-23 for kids and family\"; \"For football games, desirable view from near midfield\"; \"Rows 14 and above are under cover\"; \"There is standing room only space behind Row 20W\". NOTE the row-label suffixes here are 20W / 21S, not the 8WC / 9SR form seen on the Terrace level - W = wheelchair row, S = standing-room row, consistent with discovery.json's accessible-row convention but spelled differently on the Main Level. Fan reviews: \"View of the entire field- great seats\" (Section 231, Row 7, ALCS Oct 15 2019); \"Great seats.\" (Section 231, Row 14, Jul 4 2024). No obstructed-view or netting sentence for this section. Note the Insights tag says \"Rows 13-23\" while the row label line stops at 21S - an internal inconsistency on the page, recorded but not reconciled. Nothing on this page contradicts discovery.json.",
+    "source": "https://www.rateyourseats.com/yankee-stadium/seating/sections/231"
+  },
+  {
+    "section": "232A",
+    "zone": "Page heading: \"Section 232A at Yankee Stadium\". Expert-review heading captured on this page: \"Main Level Seating\".",
+    "location": "UNKNOWN. Two separate passes returned ABSENT - the page states no sentence placing Section 232A relative to left field, third base or the outfield corner. (The adjacent sections 231, 233B and 234 carry the zone sentence \"Sections 223–234 mirror this layout on the third base side, extending down the line and into the opposite outfield corner.\", which would include 232A, but it is not printed on this page.)",
+    "rows": "\"Rows in Section 232A are labeled 1-23\"",
+    "entrance_row": "\"An entrance to this section is located at Row 23\"",
+    "seat_direction": "PARK-WIDE BOILERPLATE: \"When looking towards the field/field/stage/field, lower number seats are on the right\". PER-SECTION STATEMENT: none. A targeted pass for a Section-232A-specific seat-1 sentence returned only the boilerplate. No per-section statement.",
+    "seats_per_row": "\"Rows 1-3 have 12 seats labeled 1-12\"; \"Rows 4-7 have 13 seats labeled 1-13\"; \"Rows 8-11 have 14 seats labeled 1-14\"; \"Rows 12-14 have 15 seats labeled 1-15\"; \"Rows 15-18 have 16 seats labeled 1-16\"; \"Rows 19-21 have 17 seats labeled 1-17\"; \"Row 22 has 17 seats labeled 1-18\"; \"Row 23 has 16 seats labeled 1-17\".",
+    "notes": "Section Insights: \"Top Pick for Kids and Family Rows 13-23\"; \"Midfield View\"; \"Rows 14 & Above - Covered\". Seating Notes: \"For baseball games, we recommend rows 13-23 for kids and family\"; \"For football games, desirable view from near midfield\"; \"Rows 14 and above are under cover\". Fan review: \"Great seat but fully sunny!\" (Row 9, Texas Rangers at Yankees, Aug 11 2024) - i.e. rows below 14 are in the sun, consistent with the covered-rows threshold. NOTE the count/label mismatch printed by the site itself in the last two rows: \"Row 22 has 17 seats labeled 1-18\" and \"Row 23 has 16 seats labeled 1-17\" - the stated count is one less than the label range, implying a skipped seat number. Recorded verbatim, not reconciled. No netting or obstructed-view sentence. Nothing contradicts discovery.json.",
+    "source": "https://www.rateyourseats.com/yankee-stadium/seating/sections/232A"
+  },
+  {
+    "section": "232B",
+    "zone": "Page heading: \"Section 232B at Yankee Stadium\". Expert review on the page is the \"Main Level Outfield (Baseball)\" / Main Level Seating review.",
+    "location": "UNKNOWN. The extraction returned ABSENT for any sentence placing Section 232B in the ballpark; the page's Main Level Outfield review is generic zone text.",
+    "rows": "\"Rows in Section 232B are labeled 1-23\"",
+    "entrance_row": "\"An entrance to this section is located at Row 23\"",
+    "seat_direction": "PARK-WIDE BOILERPLATE: \"When looking towards the field/field/stage/field, lower number seats are on the right\". PER-SECTION STATEMENT: none found on this page. No per-section statement.",
+    "seats_per_row": "Rows 1-3 have 13 seats labeled 1-13; Rows 4-6 have 14 seats labeled 1-14; Rows 7-10 have 15 seats labeled 1-15; Rows 11-13 have 16 seats labeled 1-16; Rows 14-17 have 17 seats labeled 1-17; Rows 18-22 have 18 seats labeled 1-18; Row 23 has 15 seats labeled 1-17. (The extraction returned these as a condensed list rather than character-for-character bullets; treat the numbers as sourced but the wrapper wording as reconstructed to the site's standard \"Rows X-Y have N seats labeled 1-N\" form.)",
+    "notes": "Section Insights: \"Rows 14 & Above - Covered\". Seating Note: \"Rows 14 and above are under cover\". Fan review reports sun exposure in Row 6 - i.e. below the covered threshold. NOTE the site's own count/label mismatch in the last row: \"Row 23 has 15 seats labeled 1-17\". Recorded, not reconciled. No netting, obstructed-view, dugout or bullpen sentence for this section. Nothing contradicts discovery.json.",
+    "source": "https://www.rateyourseats.com/yankee-stadium/seating/sections/232B"
+  },
+  {
+    "section": "233A",
+    "zone": "Page heading: \"Section 233A at Yankee Stadium\". Zone/expert-review heading on the page: \"Main Level Outfield (Baseball)\", with a \"Main Level Seating\" review.",
+    "location": "UNKNOWN as a section-specific statement - the extraction returned ABSENT. Zone-level review text on the page describes the Main Level generally (overhang design and sun protection in the upper rows) and mentions \"Sections 233 or 234, which are less likely to be in the sun\".",
+    "rows": "\"Rows in Section 233A are labeled 1-23\"",
+    "entrance_row": "\"An entrance to this section is located at Row 23\"",
+    "seat_direction": "PARK-WIDE BOILERPLATE: \"When looking towards the field/field/stage/field, lower number seats are on the right\". PER-SECTION STATEMENT: none found on this page. No per-section statement.",
+    "seats_per_row": "\"Rows 1-3 have 13 seats labeled 1-13\"; \"Rows 4-6 have 14 seats labeled 1-14\"; \"Rows 7-10 have 15 seats labeled 1-15\"; \"Rows 11-13 have 16 seats labeled 1-16\"; \"Rows 14-17 have 17 seats labeled 1-17\"; \"Rows 18-21 have 18 seats labeled 1-18\"; \"Row 22 has 17 seats labeled 1-18\"; \"Row 23 has 15 seats labeled 1-17\".",
+    "notes": "Section Insights: \"Rows 14 & Above - Covered\"; \"Rows 1-23\". Seating Note: \"Rows 14 and above are under cover\". Expert review recommends \"Sections 233 or 234, which are less likely to be in the sun\" - a shade statement naming this section. Same site-printed count/label mismatch in the last two rows (\"Row 22 has 17 seats labeled 1-18\", \"Row 23 has 15 seats labeled 1-17\"); recorded, not reconciled. No netting or obstructed-view sentence. Nothing contradicts discovery.json.",
+    "source": "https://www.rateyourseats.com/yankee-stadium/seating/sections/233A"
+  },
+  {
+    "section": "233B",
+    "zone": "Page heading: \"Section 233B at Yankee Stadium\". Main Level Outfield / Main Level Seating expert review.",
+    "location": "Zone-level review text on the page: \"Sections 223–234 mirror this layout on the third base side, extending down the line and into the opposite outfield corner.\" This describes the 223-234 group; no sentence names 233B alone.",
+    "rows": "\"Rows in Section 233B are labeled 1-23\"",
+    "entrance_row": "\"An entrance to this section is located at Row 23\"",
+    "seat_direction": "PARK-WIDE BOILERPLATE: \"When looking towards the field/field/stage/field, lower number seats are on the right\". PER-SECTION Q&A STATEMENT (this is the per-section evidence the brief asks for): \"There are 18 seats in Section 233B, Row 21. As you look towards the field from these seats, seat 1 is on the right aisle and seat 18 is on the left aisle.\" The per-section statement AGREES with the boilerplate - seat 1 on the right.",
+    "seats_per_row": "\"Rows 1-3 have 13 seats labeled 1-13\"; \"Rows 4-6 have 14 seats labeled 1-14\"; \"Rows 7-10 have 15 seats labeled 1-15\"; \"Rows 11-13 have 16 seats labeled 1-16\"; \"Rows 14-17 have 17 seats labeled 1-17\"; \"Rows 18-22 have 18 seats labeled 1-18\"; \"Row 23 has 16 seats labeled 1-18\". Also, from the Q&A: \"There are 18 seats in Section 233B, Row 21.\"",
+    "notes": "Section Insights: \"Rows 14 & Above - Covered\"; \"Rows 1-23\". Seating Note: \"Rows 14 and above are under cover\". Fan review: \"Blocked view...do not sit in this row\" - an obstructed-view complaint, but the extraction did not capture which row it refers to, so the row is UNKNOWN. IMPORTANT: this is the only page in batch 06 with an explicit per-section seat-1 statement, and it corroborates the park-wide boilerplate on the THIRD-BASE / LEFT-FIELD half of the park (233B is a high-numbered section, i.e. third base / left field per discovery.json numbering_direction). No contradiction with discovery.json. Site-printed count/label mismatch again in Row 23 (\"16 seats labeled 1-18\"); recorded, not reconciled.",
+    "source": "https://www.rateyourseats.com/yankee-stadium/seating/sections/233B"
+  },
+  {
+    "section": "234",
+    "zone": "Page heading: \"Section 234 at Yankee Stadium\". Zone/expert-review heading: \"Main Level Outfield (Baseball)\".",
+    "location": "\"Sections 223–234 mirror this layout on the third base side, extending down the line and into the opposite outfield corner.\" and \"These sections sit directly above the Field Level and extend outward over the lower bowl.\" Both are zone-level sentences covering 223-234, which includes 234 as the end member of the run.",
+    "rows": "\"Rows in Section 234 are labeled 1-19, 20W, 21S\"",
+    "entrance_row": "\"An entrance to this section is located at Row 21S\"",
+    "seat_direction": "PARK-WIDE BOILERPLATE: \"When looking towards the field/field/stage/field, lower number seats are on the right\". PER-SECTION STATEMENT: none. Explicitly ABSENT - no sentence on the page names which side seat 1 is on for Section 234. No per-section statement.",
+    "seats_per_row": "\"Row 1 has 20 seats labeled 1-20\"; \"Row 2 has 21 seats labeled 1-21\"; \"Row 3 has 22 seats labeled 1-22\"; \"Row 4 has 24 seats labeled 1-24\"; \"Row 5 has 25 seats labeled 1-25\"; \"Row 6 has 24 seats labeled 1-25\"; \"Row 7 has 25 seats labeled 1-26\"; \"Row 8 has 26 seats labeled 1-27\"; \"Row 9 has 27 seats labeled 1-28\"; \"Row 10 has 29 seats labeled 1-30\"; \"Row 11 has 30 seats labeled 1-31\"; \"Row 12 has 31 seats labeled 1-32\"; \"Row 13 has 33 seats labeled 1-34\"; \"Row 14 has 34 seats labeled 1-35\"; \"Row 15 has 35 seats labeled 1-36\"; \"Row 16 has 36 seats labeled 1-37\"; \"Row 17 has 38 seats labeled 1-39\"; \"Row 18 has 39 seats labeled 1-40\"; \"Row 19 has 40 seats labeled 1-41\". No counts stated for Rows 20W or 21S.",
+    "notes": "Section Insights: \"Rows 14 & Above - Covered; Rows 1-19, 20W, 21S; Behind/Side Stage (most shows)\". Seating Notes: \"Rows 14 and above are under cover\" and \"For Concerts, Section 234 May Have a Limited View\". Standing room: \"There is standing room only space behind Row 20W\". Fan review: \"Too much SUN!!!!\" (Row 2, Baseball). Section 234 is much larger than 231-233B (up to 40 seats per row vs 18) and its rows widen steeply from front to back. From Row 6 onward the site's own count is consistently one less than the label range (e.g. \"Row 19 has 40 seats labeled 1-41\"), implying one skipped seat number per row; recorded verbatim, not reconciled. Note also the expert review on the 233A page recommends \"Sections 233 or 234, which are less likely to be in the sun\", which sits oddly beside this page's \"Too much SUN!!!!\" Row 2 review - both recorded. Nothing contradicts discovery.json.",
+    "source": "https://www.rateyourseats.com/yankee-stadium/seating/sections/234"
+  },
+  {
+    "section": "235",
+    "zone": "Page heading: \"Section 235 at Yankee Stadium\". Zone: Bleachers (for soccer, the \"Supporters Section\").",
+    "location": "\"The Bleachers are located in the outfield, stretching from left-center to right-center field.\" \"The Layout: Sections are numbered 202–204 (Right Field) and 235–238 (Left Field).\" \"Located in deep center field, providing a 'big-picture' view of the diamond from behind the bullpens.\" \"Monument Park Proximity: These sections are located directly above the famous Monument Park and the center-field plaza\". \"The Supporters Section is housed in the Left Field bleachers, specifically Sections 235, 236, 237, and 238.\"",
+    "rows": "UNKNOWN",
+    "entrance_row": "UNKNOWN. No \"An entrance to this section is located at Row ...\" line. The only entrance statement is a gate, not a row: \"Fans typically enter through Gate 8.\" (stated for the Supporters Section 235-238 as a group, for soccer).",
+    "seat_direction": "UNKNOWN. The page does NOT print the Row Numbers boilerplate - two passes, one of them targeted specifically at the string \"lower number seats are on the\", both returned ABSENT. No per-section statement either.",
+    "seats_per_row": "UNKNOWN",
+    "notes": "FINDING: the bleacher pages 235-238 do not carry the standard RateYourSeats Section Insights row/seat data blocks that every other page in this batch carries - no row-label line, no entrance-row line, no seat-numbering boilerplate, no per-row seat counts. Two independent passes confirm this. The page serves the Bleachers zone review plus section-specific concert and insight tags. Content present: Section Insights \"Top Pick for Partying and Socializing\" and \"Behind/Side Stage (most shows)\". Seating Notes: \"For baseball games, we recommend these seats for partying and socializing\"; \"235 is behind the stage or to the side of the stage for most concerts. This may restrict or limit your view.\" Obstruction: \"Center Field Obstructions: Avoid rows higher than Row 10 in Sections 202 and 238.\" and \"the 'Flag' Trade-off: Be aware that your view will likely be obstructed by large flags, banners, and tifos.\" Sun/weather: \"Completely uncovered and West-facing, making them the most sun-heavy seats in the Bronx.\" and \"the sun sets directly in your eyes during late afternoon games.\" Seating type: \"backless metal benches. You will be sitting shoulder-to-shoulder with other fans on hard aluminum.\" NOTE ON discovery.json: discovery flagged the \"West-facing\" phrase as NOT confirmed verbatim; it is confirmed verbatim here on the 235 and 236 pages. This is a compass-orientation claim from a ticketing source only - it still does not establish a park bearing and should not be promoted to the orientation config. Bullpen/Monument Park statements agree with discovery.json (visitors' bullpen in left-center, below/among 237-238).",
+    "source": "https://www.rateyourseats.com/yankee-stadium/seating/sections/235"
+  },
+  {
+    "section": "236",
+    "zone": "Page heading: \"Section 236 at Yankee Stadium\". Zone: Bleachers; for soccer the page labels it \"Supporters Section\".",
+    "location": "\"The Bleachers are located in the outfield, stretching from left-center to right-center field.\" \"The Layout: Sections are numbered 202–204 (Right Field) and 235–238 (Left Field).\" \"Monument Park Proximity: These sections are located directly above the famous Monument Park and the center-field plaza\". \"The Supporters Section is housed in the Left Field bleachers, specifically Sections 235, 236, 237, and 238.\" \"Direct Outfield Perspective: Located in deep center field, providing a 'big-picture' view of the diamond from behind the bullpens.\"",
+    "rows": "UNKNOWN",
+    "entrance_row": "UNKNOWN. Only a gate statement: \"Fans typically enter through Gate 8.\" (generic to the 235-238 Supporters Section, soccer).",
+    "seat_direction": "UNKNOWN. The Row Numbers boilerplate is not printed on this page - a targeted pass for the string \"lower number seats are on the\" returned ABSENT. No per-section statement either.",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Same structural finding as 235: no row-label, entrance-row, seat-direction or seats-per-row blocks on this bleacher page, confirmed by two passes. Section Insights: \"Top Pick for Partying and Socializing\"; \"Behind/Side Stage (most shows)\". Seating Notes: \"For baseball games, we recommend these seats for partying and socializing\"; \"236 is behind the stage or to the side of the stage for most concerts. This may restrict or limit your view of the performance.\" Bullpen: \"Section 237 and 238 look directly down into the visitors' bullpen\" - agrees with discovery.json. Obstruction: \"Center Field Obstructions: Avoid rows higher than Row 10 in Sections 202 and 238. In these upper rows, the center-field restaurant structure and sports bar can significantly clip your view\". Seating type: \"Unlike the rest of the stadium, these are backless metal benches.\" and \"Bleacher-Style Benches: Metal benches with no back support\". Sun: \"Sun-Drenched Exposure: Completely uncovered and West-facing, making them the most sun-heavy seats in the Bronx.\"; \"the sun sets directly in your eyes during late afternoon games\". Weather: \"100% uncovered. You will face direct sun for late-afternoon starts and are completely exposed to rain or snow.\" Standing: \"High-Energy Standing Zone: Chanting, singing, and flag-waving are expected for all 90 minutes.\"; \"fans remain standing.\" Fan review: \"Great seats and great deals!\" (5-star, Section 236 / Row 19) - implies at least 19 rows exist, but no row label line is published, so `rows` stays UNKNOWN. Nothing contradicts discovery.json.",
+    "source": "https://www.rateyourseats.com/yankee-stadium/seating/sections/236"
+  },
+  {
+    "section": "237",
+    "zone": "Page heading: \"Section 237 at Yankee Stadium\". Zone: Bleachers (expert review heading).",
+    "location": "\"The Bleachers are located in the outfield, stretching from left-center to right-center field.\" \"Sections are numbered 202–204 (Right Field) and 235–238 (Left Field).\" \"Located in deep center field, providing a 'big-picture' view of the diamond from behind the bullpens.\" \"Section 237 and 238 look directly down into the visitors' bullpen.\" For soccer: \"The Supporters Section is housed in the Left Field bleachers, specifically Sections 235, 236, 237, and 238.\"",
+    "rows": "UNKNOWN",
+    "entrance_row": "UNKNOWN. Only \"Fans typically enter through Gate 8\", which the page applies to the Supporters Section generally, not to Section 237 by row.",
+    "seat_direction": "UNKNOWN. No Row Numbers boilerplate on this page - targeted pass for \"lower number seats are on the\" returned ABSENT. No per-section seat-1 statement either.",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Same structural finding as 235/236: the bleacher page carries no row/seat data blocks. Section Insights: \"Top Pick for Partying and Socializing / Top Pick for Visiting Team Fans / Behind/Side Stage (most shows)\". Bullpen: \"The Visiting Team Bullpen is in Front of Section 237 and 238 — Seats in Row 1 will be closest to the bullpen.\" This directly corroborates discovery.json's bullpens entry (visitors' bullpen in left-center, in front of 237-238) and, with the confirmed numbering direction, the left-field placement of the high-numbered bleachers. Seating type: \"Unlike the rest of the stadium, these are backless metal benches. You will be sitting shoulder-to-shoulder with other fans.\" Sun: \"Completely uncovered and West-facing, making them the most sun-heavy seats in the Bronx.\" Concert: \"237 is behind the stage or to the side of the stage for most concerts.\" Note that the \"Row 1 closest to the bullpen\" line is a ROW statement, not a seat-1-side statement - it must not be read as evidence about seat numbering direction. Nothing contradicts discovery.json.",
+    "source": "https://www.rateyourseats.com/yankee-stadium/seating/sections/237"
+  },
+  {
+    "section": "238",
+    "zone": "Page heading: \"Section 238 at Yankee Stadium\". Zone: Bleachers (Left Field).",
+    "location": "\"The Bleachers are located in the outfield, stretching from left-center to right-center field.\" \"Sections are numbered 202–204 (Right Field) and 235–238 (Left Field).\" \"Section 237 and 238 look directly down into the visitors' bullpen.\" For soccer: \"The Supporters Section is housed in the Left Field bleachers, specifically Sections 235, 236, 237, and 238.\"",
+    "rows": "UNKNOWN. No \"Rows in Section 238 are labeled ...\" line - confirmed ABSENT by a targeted second pass. The only row-range text is inside a Section Insights tag: \"Obstructed/Limited ViewsRows 10-24\", which implies rows run at least to 24 but is not a row-label line and is recorded here as a note, not as `rows`.",
+    "entrance_row": "UNKNOWN. Only \"Fans typically enter through Gate 8.\" (soccer / Supporters Section).",
+    "seat_direction": "UNKNOWN. No Row Numbers boilerplate on this page - targeted pass for \"lower number seats are on the\" returned ABSENT. No per-section statement either.",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Same structural finding as 235-237. Section Insights: \"Top Pick for Partying and Socializing\"; \"Top Pick for Visiting Team Fans\"; \"Obstructed/Limited ViewsRows 10-24\"; \"Behind/Side Stage (most shows)\". Bullpen: \"The Visiting Team Bullpen is in Front of Section 237 and 238 — Seats in Row 1 will be closest to the bullpen.\" - agrees with discovery.json. Obstruction: \"From Section 238, guests in higher rows will have trouble seeing right-center field.\" and, from the sibling bleacher pages, \"Center Field Obstructions: Avoid rows higher than Row 10 in Sections 202 and 238.\" Concert: \"238 is behind the stage or to the side of the stage for most concerts. This may restrict or limit your view.\" The \"Obstructed/Limited Views Rows 10-24\" tag is the strongest published hint at the bleacher row range and matches discovery.json's observation that bleacher sections run 1-24 (203 is published as \"Rows 1-20, 21W\"), but 238's own row labels are not published. Nothing contradicts discovery.json.",
+    "source": "https://www.rateyourseats.com/yankee-stadium/seating/sections/238"
+  },
+  {
+    "section": "239",
+    "zone": "Page heading: \"Section 239 at Yankee Stadium\". Breadcrumb: Venues > Yankee Stadium > Seating > Sections > 239. No zone name printed.",
+    "location": "UNKNOWN. The extraction returned ABSENT - no sentence places Section 239 in the ballpark. (Fan-review text below implies it is at the left-field end of the bleachers, adjacent to the Bleacher Creatures, but no page sentence states its location.)",
+    "rows": "\"Rows in Section 239 are labeled 1-24\"",
+    "entrance_row": "\"An entrance to this section is located at Row 24\"",
+    "seat_direction": "PARK-WIDE BOILERPLATE: \"When looking towards the field/field/stage/field, lower number seats are on the right\". PER-SECTION STATEMENT: no direct seat-1-side sentence, but a fan review makes a comparative seat-number claim: \"If you're in Section 201, you want your seat number to be higher rather than lower, and vice-versa in Section 239\" - i.e. in 239 the LOW seat numbers are the better/less-obstructed end. This is a quality claim, not a side claim; it names no left or right. So: no per-section statement of which side seat 1 is on.",
+    "seats_per_row": "UNKNOWN. The page prints the boilerplate but no per-row seat-count bullets.",
+    "notes": "Section Insights: \"Rows 1-24\". Unlike 235-238, this page DOES carry the standard row/entrance/seat-direction blocks, which supports treating 239 as an ordinary bleacher section despite discovery.json's caveat that the 237 page's layout sentence (\"Sections are numbered 202–204 (Right Field) and 235–238 (Left Field)\") omits 201 and 239. Obstruction, from fan reviews: \"Half of right field and half of center field are completely obstructed by incredibly ill-advised placement of the center field sports bar\"; \"the center field sports bar didn't limit my view to center field\" (a contradicting review - both recorded, not reconciled); \"the view from my seats left me wondering what was going on in center field thanks to the big sports bar\". Also \"Next to the bleacher creatures and feel like a part of them\" - note the Bleacher Creatures are the RIGHT-FIELD group per discovery.json, yet 239 is a high-numbered (left-field-side) section; this fan sentence is flagged as a possible contradiction with discovery.json's right-field placement of the Bleacher Creatures in Section 203, OR the reviewer may mean the bleachers generally. NOT RECONCILED - flagged for the later judgement pass. The 201-vs-239 symmetry in the seat-number review is consistent with the two sections sitting at opposite ends of the bleacher arc.",
+    "source": "https://www.rateyourseats.com/yankee-stadium/seating/sections/239"
+  },
+  {
+    "section": "305",
+    "zone": "Page heading: \"Section 305 at Yankee Stadium\". Zone/expert-review heading: \"Terrace Level Seating\" (the page also calls it \"300 Level Seating\").",
+    "location": "\"Terrace level seats in the outfield run down both baselines and wrap around into home run territory\". The page groups \"Sections 305, 306, 333, and 334\" under \"Home Run Territory in the Outfield\", with the rating line \"305-306, 333-334: Cool view from home run porch; very far from home plate\".",
+    "rows": "\"Rows in Section 305 are labeled 1-7, 8WC, 9SR\"",
+    "entrance_row": "\"An entrance to this section is located at Row 9SR\"",
+    "seat_direction": "PARK-WIDE BOILERPLATE: \"When looking towards the field/field/stage/field, lower number seats are on the right\". PER-SECTION STATEMENT: none. No per-section statement.",
+    "seats_per_row": "\"Row 8WC has 21 seats labeled 1-21\". No counts published for Rows 1-7 or 9SR.",
+    "notes": "Section Insights: \"Behind/Side Stage (most shows)\". Accessibility-relevant: the row labels confirm discovery.json's Terrace convention exactly - 1-7, then 8WC (wheelchair row), then 9SR (standing room), with the entrance at 9SR and \"There is standing room only space behind Row 8WC\". Coverage: \"Not Covered by the Roof: Limited overhead protection\". Concert: \"305 is behind the stage or to the side of the stage for most concerts. This may restrict or limit your view\". Pricing artifact captured: \"$12 lowest price in Section 305\" (volatile, not a seating fact). Note 305 is a LOW-numbered Terrace section, i.e. the right-field / first-base end per discovery.json numbering_direction, and the page's \"home run territory\" grouping of 305-306 with 333-334 is consistent with those being the two symmetric outfield ends. Nothing contradicts discovery.json.",
+    "source": "https://www.rateyourseats.com/yankee-stadium/seating/sections/305"
+  },
+  {
+    "section": "306",
+    "zone": "Page heading: \"Section 306 at Yankee Stadium\". Zone/expert-review heading: \"Terrace Level Seating\".",
+    "location": "\"Sections 305, 306, 333, and 334\" are described as \"Home Run Territory in the Outfield\" and as sections that \"sit in prime home-run territory down the foul-lines.\" Both are zone-group sentences; no sentence names 306 alone.",
+    "rows": "\"Rows in Section 306 are labeled 1-7, 8WC, 9SR\"",
+    "entrance_row": "\"An entrance to this section is located at Row 9SR\"",
+    "seat_direction": "PARK-WIDE BOILERPLATE: \"When looking towards the field/field/stage/field, lower number seats are on the right\". PER-SECTION STATEMENT: explicitly ABSENT - the page gives directional guidance only via the boilerplate. No per-section statement.",
+    "seats_per_row": "\"Row 8WC has 20 seats labeled 1-20\". No counts published for Rows 1-7 or 9SR.",
+    "notes": "Section Insights: \"Top Pick for Kids and Family\". Seating Notes: \"For baseball games, we recommend these seats for kids and family\". Standing room: \"There is standing room only space behind Row 8WC\". Row labels again confirm the Terrace 1-7 / 8WC / 9SR accessible-row convention from discovery.json. The extraction flagged that the expert reviews on this page are generic 300-level zone content while the row/entrance/seat data is section-specific - normal for this site, not a redirect. Nothing contradicts discovery.json.",
+    "source": "https://www.rateyourseats.com/yankee-stadium/seating/sections/306"
+  },
+  {
+    "section": "307",
+    "zone": "Page heading: \"Section 307 at Yankee Stadium\". Zone: Terrace Level (the page also calls it \"300 Level Seating\").",
+    "location": "\"Terrace level seats in the outfield run down both baselines and wrap around into home run territory.\" Group rating line naming this section: \"Sections 307-309, 331-332: Decent angle to home plate; far away from the infield\" (rendered on this page as \"307-309\").",
+    "rows": "\"Rows in Section 307 are labeled 1-10\"",
+    "entrance_row": "\"An entrance to this section is located at Row 10\"",
+    "seat_direction": "PARK-WIDE BOILERPLATE: \"When looking towards the field/field/stage/field, lower number seats are on the right\". PER-SECTION STATEMENT: none. No per-section statement.",
+    "seats_per_row": "\"Rows 1-2 have 20 seats labeled 1-20\"; \"Rows 3-4 have 21 seats labeled 1-21\"; \"Rows 5-7 have 22 seats labeled 1-22\". No counts published for Rows 8-10.",
+    "notes": "Section Insights: \"Top Pick for Kids and Family; Midfield View; Rows 1-10\". Seating Notes: \"For baseball games, we recommend these seats for kids and family\"; \"For football games, desirable view from near midfield\". Coverage: \"Not Covered by the Roof: Limited overhead protection\". NOTE this section uses the plain 1-10 row scheme, NOT the 1-7/8WC/9SR accessible scheme used by neighbouring 305, 306, 309, 310 and 313 - the Terrace level alternates between the two layouts section by section, which matters for an accessible-seating guide. No obstructed-view, netting, dugout or bullpen sentence. Nothing contradicts discovery.json.",
+    "source": "https://www.rateyourseats.com/yankee-stadium/seating/sections/307"
+  },
+  {
+    "section": "308",
+    "zone": "Page heading: \"Section 308 at Yankee Stadium\". Zone/expert-review heading: \"Terrace Level Seating\".",
+    "location": "\"Terrace level seats in the outfield run down both baselines and wrap around into home run territory.\" Group rating line naming this section: \"Sections 307-309, 331-332: Decent angle to home plate; far away from the infield\".",
+    "rows": "\"Rows in Section 308 are labeled 1-10\"",
+    "entrance_row": "\"An entrance to this section is located at Row 10\"",
+    "seat_direction": "PARK-WIDE BOILERPLATE: \"When looking towards the field/field/stage/field, lower number seats are on the right\". PER-SECTION Q&A STATEMENT (Row 7 answer): \"As you look towards the field, Seat 1 is on your right and Seat 22 is on your left (closer to home plate).\" The per-section statement AGREES with the boilerplate (seat 1 on the right) AND adds a geometry cross-check: seat 22, the HIGH-numbered end, is the end \"closer to home plate\". Section 308 is a low-numbered Terrace section, i.e. the right-field / first-base side per discovery.json numbering_direction; facing the field from there, home plate is to the viewer's left, so \"seat 22 on your left, closer to home plate\" is internally consistent with both the boilerplate and the confirmed sweep direction. No contradiction.",
+    "seats_per_row": "\"Rows 1-2 have 20 seats labeled 1-20\"; \"Rows 3-5 have 21 seats labeled 1-21\"; \"Rows 6-7 have 22 seats labeled 1-22\". No counts published for Rows 8-10.",
+    "notes": "Section Insights: \"Top Pick for Kids and Family | Midfield View | Rows 1-10\". Seating Notes: \"For baseball games, we recommend these seats for kids and family\"; \"For football games, desirable view from near midfield\". Obstructed view: \"Parts of left field can not be seen from the higher rows.\" - note this is LEFT field being cut off from a section that discovery.json places on the RIGHT-field/first-base side, which is the expected geometry for a section looking across the diamond, not a contradiction. Coverage: \"Not Covered by the Roof: Limited overhead protection.\" This page carries one of only two per-section seat-1 statements in batch 06 (the other is 233B) and both agree with the boilerplate - one on each half of the park, which is exactly the two-sided corroboration the brief asks for.",
+    "source": "https://www.rateyourseats.com/yankee-stadium/seating/sections/308"
+  },
+  {
+    "section": "309",
+    "zone": "Page heading: \"Section 309 at Yankee Stadium\". Zone: \"Terrace Level Seating\"; the page also states \"300 Level Seating: Also known as the Terrace Level.\"",
+    "location": "\"300 Level Seating: Also known as the Terrace Level.\" Group rating line naming this section: \"Sections 307-309, 331-332: Decent angle to home plate; far away from the infield\". No sentence names 309 alone.",
+    "rows": "\"Rows in Section 309 are labeled 1-7, 8WC, 9SR\"",
+    "entrance_row": "\"An entrance to this section is located at Row 9SR\"",
+    "seat_direction": "PARK-WIDE BOILERPLATE: \"When looking towards the field/field/stage/field, lower number seats are on the right\". PER-SECTION STATEMENT: explicitly ABSENT. No per-section statement.",
+    "seats_per_row": "\"Row 9SR has 15 seats labeled 1-15\". No counts published for Rows 1-7 or 8WC. NOTE this is unusual - it publishes a count for the standing-room row rather than the wheelchair row (305 and 306 publish the 8WC count instead).",
+    "notes": "Section Insights: \"Top Pick for Kids and Family\"; \"Midfield View\". Seating Notes: \"For baseball games, we recommend these seats for kids and family\"; \"For football games, desirable view from near midfield\". Standing room: \"There is standing room only space behind Row 8WC\". Coverage: \"Not Covered by the Roof: Limited overhead protection.\" Accessible-row convention 1-7 / 8WC / 9SR confirmed again, matching discovery.json. Nothing contradicts discovery.json.",
+    "source": "https://www.rateyourseats.com/yankee-stadium/seating/sections/309"
+  },
+  {
+    "section": "310",
+    "zone": "Page heading: \"Section 310 at Yankee Stadium\". Zone/expert-review heading: \"Terrace Level Seating\".",
+    "location": "\"Terrace level seats in the outfield run down both baselines and wrap around into home run territory\". Group rating line naming this section: \"310-312, 328-329: Closest views; poor angle to home plate\".",
+    "rows": "\"Rows in Section 310 are labeled 1-7, 8WC, 9SR\"",
+    "entrance_row": "\"An entrance to this section is located at Row 9SR\"",
+    "seat_direction": "PARK-WIDE BOILERPLATE: \"When looking towards the field/field/stage/field, lower number seats are on the right\". PER-SECTION STATEMENT: explicitly ABSENT. No per-section statement.",
+    "seats_per_row": "\"Rows 1-3 have 19 seats labeled 1-19\"; \"Rows 4-6 have 20 seats labeled 1-20\"; \"Row 7 has 22 seats labeled 1-22\". No counts published for Rows 8WC or 9SR.",
+    "notes": "Section Insights: \"Rows 1-7, 8WC, 9SR\". Standing room: \"There is standing room only space behind Row 8WC\". The \"310-312, 328-329: Closest views; poor angle to home plate\" grouping pairs 310-312 (low numbers, right-field/first-base side) with 328-329 (high numbers, left-field/third-base side) as symmetric partners, which is consistent with discovery.json's single-sweep numbering direction. No obstruction, netting, coverage, dugout or bullpen sentence captured for this section. Nothing contradicts discovery.json.",
+    "source": "https://www.rateyourseats.com/yankee-stadium/seating/sections/310"
+  },
+  {
+    "section": "311",
+    "zone": "Page heading: \"Section 311 at Yankee Stadium\". Zone: \"Terrace Level Seating\", also called \"300 Level Seating\".",
+    "location": "\"Terrace level seats in the outfield run down both baselines and wrap around into home run territory.\" Group rating line naming this section: \"Sections 310-312, 328-329: Closest views; poor angle to home plate\".",
+    "rows": "\"Rows in Section 311 are labeled 1-10\"",
+    "entrance_row": "\"An entrance to this section is located at Row 10\"",
+    "seat_direction": "PARK-WIDE BOILERPLATE: \"When looking towards the field/field/stage/field, lower number seats are on the right\". PER-SECTION STATEMENT: explicitly ABSENT - the extraction notes only the generic directional statement, with no section-specific identification of which side seat 1 occupies. No per-section statement.",
+    "seats_per_row": "\"Rows 1-7 have 23 seats labeled 1-23\". No counts published for Rows 8-10.",
+    "notes": "Section Insights: \"Rows 1-10\". Coverage: \"Unfortunately there is no overhead coverage in any of the seating rows in Section 311\". NETTING - section-specific and important: \"a wire that holds up the net behind home plate runs down the first base line\". This is a netting-support wire crossing the sightline, and it independently places Section 311 on the FIRST BASE side, corroborating discovery.json's numbering direction (low 300s = right field / first base). Obstructed view: \"rows 8-10 is a small part of foul territory\" (i.e. the back rows lose a sliver of foul territory). The page carries section-specific photos from Row 6, fan reviews citing Section 311 / Row 9, and a section-specific Q&A. Uses the plain 1-10 row scheme, not the 8WC/9SR accessible scheme. Nothing contradicts discovery.json.",
+    "source": "https://www.rateyourseats.com/yankee-stadium/seating/sections/311"
+  },
+  {
+    "section": "312",
+    "zone": "Page heading: \"Section 312 at Yankee Stadium\". Zone: Terrace Level / 300 Level Seating.",
+    "location": "\"Terrace level seats in the outfield run down both baselines and wrap around into home run territory.\" Group rating line naming this section: \"310-312, 328-329: Closest views; poor angle to home plate\".",
+    "rows": "\"Rows in Section 312 are labeled 1-10\"",
+    "entrance_row": "\"An entrance to this section is located at Row 10\"",
+    "seat_direction": "PARK-WIDE BOILERPLATE: \"When looking towards the field/field/stage/field, lower number seats are on the right\". PER-SECTION STATEMENT: explicitly ABSENT - no statement specifying which side seat 1 is on for Section 312. No per-section statement.",
+    "seats_per_row": "\"Rows 1-7 have 24 seats labeled 1-24\". No counts published for Rows 8-10.",
+    "notes": "Coverage: \"Not Covered by the Roof: Limited overhead protection.\" Concessions detail: \"Guinness can be found at the concessions near sections 224, 232, 312, and the Delta Sky 360 club.\" - note this uses the older sponsor name \"Delta Sky 360\", which discovery.json flags as a STALE-SOURCE issue (the current official name is the Coupa Suite Level / Audi Yankees Club family); recorded verbatim but should not be propagated as a current name. The extraction flags the page as hybrid: section-specific row/seat data with generic \"Terrace Level Seating\" and \"Terrace Outfield\" zone reviews. No redirect. Uses the plain 1-10 row scheme. No obstruction or netting sentence for this section. Nothing else contradicts discovery.json.",
+    "source": "https://www.rateyourseats.com/yankee-stadium/seating/sections/312"
+  },
+  {
+    "section": "313",
+    "zone": "Page heading: \"Section 313 at Yankee Stadium\". Zone/expert-review headings: \"Terrace Infield (Baseball)\" and \"Terrace Level Seating\".",
+    "location": "\"The Terrace Level is located on the third deck at Yankee Stadium.\" This is the only location sentence; it is level-wide, not section-specific. NOTE the zone heading shifts from Terrace Outfield (307-312) to \"Terrace Infield (Baseball)\" at 313, which is itself the useful placement fact: 313 is where the Terrace infield run begins on the low-numbered (right field / first base) side.",
+    "rows": "\"Rows in Section 313 are labeled 1-7, 8WC, 9SR\"",
+    "entrance_row": "\"An entrance to this section is located at Row 9SR\"",
+    "seat_direction": "PARK-WIDE BOILERPLATE: \"When looking towards the field/field/stage/field, lower number seats are on the right\". PER-SECTION STATEMENT: explicitly ABSENT. No per-section statement.",
+    "seats_per_row": "\"Rows 1-2 have 21 seats labeled 1-21\"; \"Rows 3-4 have 22 seats labeled 1-22\"; \"Rows 5-7 have 23 seats labeled 1-23\". No counts published for Rows 8WC or 9SR.",
+    "notes": "Section Insights as extracted: \"Rows 1-7, 8WC, 9WC\" - NOTE this disagrees with the row-label line on the same page, which reads \"Rows in Section 313 are labeled 1-7, 8WC, 9SR\". One of the two prints 9WC and the other 9SR. Given the site-wide convention documented in discovery.json (8WC wheelchair row, 9SR standing-room row) and the \"standing room only space behind Row 8WC\" note on this same page, 9SR is the more likely correct form, but the discrepancy is recorded and NOT reconciled. Standing room: \"There is standing room only space behind Row 8WC\". Weather: \"these seats are not very well covered and don't offer much sun protection\". No netting, obstruction, dugout or bullpen sentence. Nothing contradicts discovery.json.",
+    "source": "https://www.rateyourseats.com/yankee-stadium/seating/sections/313"
+  }
+]

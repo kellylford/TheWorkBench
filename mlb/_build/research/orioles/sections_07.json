@@ -1,0 +1,222 @@
+[
+  {
+    "section": "288",
+    "zone": "Left Field Club Level (page heading: \"Section 288 at Oriole Park at Camden Yards\")",
+    "location": "Verbatim: \"Left Field Club Level: Located in Sections 272-288 on the Club Level overlooking left field.\" \"This area includes Sections 272 through 288 on the seating chart.\" \"These sections provide a comfortable elevated vantage point of the field while keeping fans close to the social atmosphere of left field.\"",
+    "rows": "\"Rows in Section 288 are labeled 1-6, TB\"",
+    "entrance_row": "\"An entrance to this section is located at Row TB\"",
+    "seat_direction": "BOILERPLATE (park-wide RateYourSeats \"Row Numbers\" line, identical on every Oriole Park section page): \"When looking towards the field, lower number seats are on the right\". PER-SECTION: no per-section statement naming a side for seat numbers in Section 288 was found on the page (no Q&A, expert answer or fan-review sentence naming a side).",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights, verbatim: \"Recommended seating for outstanding convenience\"; \"Recommended seating for kids and family\"; \"There is table seating behind Row 6\". The non-numeric row label here is \"TB\" (table), not the \"EAL\" label discovery.json records for the lower bowl - and TB is also the stated entrance row. No netting, obstructed-view or shade line is printed for this section. No per-section seat-numbering statement, so the park-wide boilerplate stands unchallenged here. Consistent with discovery.json: high section numbers are on the left-field side.",
+    "source": "https://www.rateyourseats.com/oriole-park/seating/sections/288"
+  },
+  {
+    "section": "306",
+    "zone": "Upper Level / 300-Level Seating (page heading: \"Section 306 at Oriole Park at Camden Yards\")",
+    "location": "RateYourSeats Upper Level zone text served on this section page, verbatim: \"300-Level Seating: Upper Level sections are labeled in the 300s on the seating chart.\" \"Upper Level seating at Oriole Park at Camden Yards includes all sections labeled in the 300s.\" \"These sections sit on the stadium's highest tier and typically contain up to 25 rows of seating.\" NO section-specific placement sentence (no side, base line, quadrant or landmark) is stated for Section 306 on this page.",
+    "rows": "\"Rows in Section 306 are labeled 1-5, 9-25\"",
+    "entrance_row": "\"An entrance to this section is located at Row 8\"",
+    "seat_direction": "BOILERPLATE (park-wide RateYourSeats \"Row Numbers\" line, identical on every Oriole Park section page): \"When looking towards the field, lower number seats are on the right\". PER-SECTION: no per-section statement naming a side for seat numbers in Section 306 was found on the page (no Q&A, expert answer or fan-review sentence naming a side).",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights / Seating Notes, verbatim: \"Rows 15 & Above - Covered\"; \"There is wheelchair seating betweeen Rows 5 and 9\" (site's own spelling of \"betweeen\"); \"Rows 15 and above are under cover\". Zone text adds: \"Most sections are entered near Row 8, meaning fans may either walk down toward the front rows or up toward the higher rows.\" and \"The back portion of many sections is protected by the stadium overhang, which can provide shade and protection from rain.\" The 6-8 gap in the row labels matches the accessible-row convention in discovery.json (accessible positions appear as a numbered gap), and here the page states the wheelchair seating explicitly. No netting or obstructed-view line. No fan reviews. No note of a different printed ticket identifier.",
+    "source": "https://www.rateyourseats.com/oriole-park/seating/sections/306"
+  },
+  {
+    "section": "308",
+    "zone": "Upper Level / 300-Level Seating (page heading: \"Section 308 at Oriole Park at Camden Yards\")",
+    "location": "RateYourSeats Upper Level zone text served on this section page, verbatim: \"300-Level Seating: Upper Level sections are labeled in the 300s on the seating chart.\" \"Upper Level seating at Oriole Park at Camden Yards includes all sections labeled in the 300s.\" \"These sections sit on the stadium's highest tier and typically contain up to 25 rows of seating.\" NO section-specific placement sentence (no side, base line, quadrant or landmark) is stated for Section 308 on this page.",
+    "rows": "\"Rows in Section 308 are labeled 1-25\"",
+    "entrance_row": "\"An entrance to this section is located at Row 8\"",
+    "seat_direction": "BOILERPLATE (park-wide RateYourSeats \"Row Numbers\" line, identical on every Oriole Park section page): \"When looking towards the field, lower number seats are on the right\". PER-SECTION: no per-section statement naming a side for seat numbers in Section 308 was found on the page (no Q&A, expert answer or fan-review sentence naming a side).",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights / Seating Notes, verbatim: \"Rows 15 & Above - Covered\"; \"Rows 15 and above are under cover\". Zone text: \"These sections sit on the stadium's highest tier and typically contain up to 25 rows of seating.\" Unbroken 1-25 row run - no wheelchair gap, unlike neighbouring 306. No netting, obstructed-view or fan-review text. No note of a different printed ticket identifier.",
+    "source": "https://www.rateyourseats.com/oriole-park/seating/sections/308"
+  },
+  {
+    "section": "310",
+    "zone": "Upper Level / 300-Level Seating (page heading: \"Section 310 at Oriole Park at Camden Yards\")",
+    "location": "RateYourSeats Upper Level zone text served on this section page, verbatim: \"300-Level Seating: Upper Level sections are labeled in the 300s on the seating chart.\" \"Upper Level seating at Oriole Park at Camden Yards includes all sections labeled in the 300s.\" \"These sections sit on the stadium's highest tier and typically contain up to 25 rows of seating.\" NO section-specific placement sentence (no side, base line, quadrant or landmark) is stated for Section 310 on this page.",
+    "rows": "\"Rows in Section 310 are labeled 1-25\"",
+    "entrance_row": "\"An entrance to this section is located at Row 8\"",
+    "seat_direction": "BOILERPLATE (park-wide RateYourSeats \"Row Numbers\" line, identical on every Oriole Park section page): \"When looking towards the field, lower number seats are on the right\". PER-SECTION: no per-section statement naming a side for seat numbers in Section 310 was found on the page (no Q&A, expert answer or fan-review sentence naming a side).",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights / Seating Notes, verbatim: \"Top Pick for Outstanding Convenience-Rows 4-12\"; \"Rows 15 & Above - Covered\"; \"Rows 4-12 are recommended for outstanding convenience\"; \"Rows 15 and above are under cover\". Zone text: \"Upper Level seats provide a wide, panoramic view of the entire field.\" Unbroken 1-25 row run. No netting, obstructed-view or fan-review text.",
+    "source": "https://www.rateyourseats.com/oriole-park/seating/sections/310"
+  },
+  {
+    "section": "312",
+    "zone": "Upper Level / 300-Level Seating (page heading: \"Section 312 at Oriole Park at Camden Yards\")",
+    "location": "RateYourSeats Upper Level zone text served on this section page, verbatim: \"300-Level Seating: Upper Level sections are labeled in the 300s on the seating chart.\" \"Upper Level seating at Oriole Park at Camden Yards includes all sections labeled in the 300s.\" \"These sections sit on the stadium's highest tier and typically contain up to 25 rows of seating.\" NO section-specific placement sentence (no side, base line, quadrant or landmark) is stated for Section 312 on this page.",
+    "rows": "\"Rows in Section 312 are labeled 1-5, 9-25\"",
+    "entrance_row": "\"An entrance to this section is located at Row 8\"",
+    "seat_direction": "BOILERPLATE (park-wide RateYourSeats \"Row Numbers\" line, identical on every Oriole Park section page): \"When looking towards the field, lower number seats are on the right\". PER-SECTION: no per-section statement naming a side for seat numbers in Section 312 was found on the page (no Q&A, expert answer or fan-review sentence naming a side).",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights / Seating Notes, verbatim: \"Top Pick for Kids and FamilyRows 1-5\" (run-together as printed); \"Rows 15 & Above - Covered\"; \"There is wheelchair seating betweeen Rows 5 and 9\"; \"Rows 1-5 are recommended for kids and family\"; \"Rows 15 and above are under cover\". The 6-8 row gap is the accessible-row gap. No netting, obstructed-view or fan-review text.",
+    "source": "https://www.rateyourseats.com/oriole-park/seating/sections/312"
+  },
+  {
+    "section": "316",
+    "zone": "Upper Level / 300-Level Seating (page heading: \"Section 316 at Oriole Park at Camden Yards\")",
+    "location": "RateYourSeats Upper Level zone text served on this section page, verbatim: \"300-Level Seating: Upper Level sections are labeled in the 300s on the seating chart.\" \"Upper Level seating at Oriole Park at Camden Yards includes all sections labeled in the 300s.\" \"These sections sit on the stadium's highest tier and typically contain up to 25 rows of seating.\" NO section-specific placement sentence (no side, base line, quadrant or landmark) is stated for Section 316 on this page.",
+    "rows": "\"Rows in Section 316 are labeled 1-25\"",
+    "entrance_row": "\"An entrance to this section is located at Row 8\"",
+    "seat_direction": "BOILERPLATE (park-wide RateYourSeats \"Row Numbers\" line, identical on every Oriole Park section page): \"When looking towards the field, lower number seats are on the right\". PER-SECTION: no per-section statement naming a side for seat numbers in Section 316 was found on the page (no Q&A, expert answer or fan-review sentence naming a side).",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights / Seating Notes, verbatim: \"Top Pick for Kids and Family Rows 1-5\"; \"Rows 15 & Above - Covered\"; \"Rows 1-25\"; \"Rows 1-5 are recommended for kids and family\"; \"Rows 15 and above are under cover\". Zone text: \"The back portion of many sections is protected by the stadium overhang, which can provide shade and protection from rain.\" Unbroken 1-25 row run. No netting or obstructed-view line, no fan reviews, no note of a different printed ticket identifier.",
+    "source": "https://www.rateyourseats.com/oriole-park/seating/sections/316"
+  },
+  {
+    "section": "318",
+    "zone": "Upper Level / 300-Level Seating (page heading: \"Section 318 at Oriole Park at Camden Yards\")",
+    "location": "RateYourSeats Upper Level zone text served on this section page, verbatim: \"300-Level Seating: Upper Level sections are labeled in the 300s on the seating chart.\" \"Upper Level seating at Oriole Park at Camden Yards includes all sections labeled in the 300s.\" \"These sections sit on the stadium's highest tier and typically contain up to 25 rows of seating.\" NO section-specific placement sentence (no side, base line, quadrant or landmark) is stated for Section 318 on this page.",
+    "rows": "\"Rows in Section 318 are labeled 1-5, 9-25\"",
+    "entrance_row": "\"An entrance to this section is located at Row 8\"",
+    "seat_direction": "BOILERPLATE (park-wide RateYourSeats \"Row Numbers\" line, identical on every Oriole Park section page): \"When looking towards the field, lower number seats are on the right\". PER-SECTION: no per-section statement naming a side for seat numbers in Section 318 was found on the page (no Q&A, expert answer or fan-review sentence naming a side).",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights / Seating Notes, verbatim: \"Rows 1-5 are recommended for kids and family\"; \"Rows 15 and above are under cover\". Zone text: \"Most sections are entered near Row 8, meaning fans may either walk down toward the front rows or up toward the higher rows.\" The 6-8 row gap is the accessible-row gap; the page associates wheelchair access with rows 5-9. No netting, obstructed-view or fan-review text.",
+    "source": "https://www.rateyourseats.com/oriole-park/seating/sections/318"
+  },
+  {
+    "section": "320",
+    "zone": "Upper Level / 300-Level Seating (page heading: \"Section 320 at Oriole Park at Camden Yards\")",
+    "location": "RateYourSeats Upper Level zone text served on this section page, verbatim: \"300-Level Seating: Upper Level sections are labeled in the 300s on the seating chart.\" \"Upper Level seating at Oriole Park at Camden Yards includes all sections labeled in the 300s.\" \"These sections sit on the stadium's highest tier and typically contain up to 25 rows of seating.\" NO section-specific placement sentence (no side, base line, quadrant or landmark) is stated for Section 320 on this page.",
+    "rows": "\"Rows in Section 320 are labeled 1-5, 6-8\"",
+    "entrance_row": "\"An entrance to this section is located at Row 8\"",
+    "seat_direction": "BOILERPLATE (park-wide RateYourSeats \"Row Numbers\" line, identical on every Oriole Park section page): \"When looking towards the field, lower number seats are on the right\". PER-SECTION: no per-section statement naming a side for seat numbers in Section 320 was found on the page (no Q&A, expert answer or fan-review sentence naming a side).",
+    "seats_per_row": "UNKNOWN",
+    "notes": "ANOMALY - the row-labels line reads \"Rows in Section 320 are labeled 1-5, 6-8\", i.e. it stops at Row 8, which is out of step with every neighbouring upper-deck section (1-25 or 1-5, 9-25) and with the zone text \"These sections sit on the stadium's highest tier and typically contain up to 25 rows of seating.\" Two independent reads of the page, the second using a targeted quote-exactly prompt, returned the same string, so this is what the page says - recorded as-is, NOT corrected. Section Insights / Seating Notes, verbatim: \"Top Pick for Kids and FamilyRows 1-5\"; \"Rows 1-5 are recommended for kids and family\". Note this section carries NO \"Rows 15 & Above - Covered\" line, unlike its neighbours - consistent with the short row list but unexplained. No netting, obstructed-view or fan-review text.",
+    "source": "https://www.rateyourseats.com/oriole-park/seating/sections/320"
+  },
+  {
+    "section": "322",
+    "zone": "Upper Level / 300-Level Seating (page heading: \"Section 322 at Oriole Park at Camden Yards\")",
+    "location": "RateYourSeats Upper Level zone text served on this section page, verbatim: \"300-Level Seating: Upper Level sections are labeled in the 300s on the seating chart.\" \"Upper Level seating at Oriole Park at Camden Yards includes all sections labeled in the 300s.\" \"These sections sit on the stadium's highest tier and typically contain up to 25 rows of seating.\" NO section-specific placement sentence (no side, base line, quadrant or landmark) is stated for Section 322 on this page.",
+    "rows": "\"Rows in Section 322 are labeled 1-5, 9-25\"",
+    "entrance_row": "\"An entrance to this section is located at Row 8\"",
+    "seat_direction": "BOILERPLATE (park-wide RateYourSeats \"Row Numbers\" line, identical on every Oriole Park section page): \"When looking towards the field, lower number seats are on the right\". PER-SECTION: no per-section statement naming a side for seat numbers in Section 322 was found on the page (no Q&A, expert answer or fan-review sentence naming a side).",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights / Seating Notes, verbatim: \"Top Pick for Kids and FamilyRows 1-5\"; \"Rows 15 & Above - Covered\"; \"Rows 1-5 are recommended for kids and family\"; \"Rows 15 and above are under cover\"; \"There is wheelchair seating betweeen Rows 5 and 9\". The 6-8 row gap is the accessible-row gap. No netting, obstructed-view or fan-review text.",
+    "source": "https://www.rateyourseats.com/oriole-park/seating/sections/322"
+  },
+  {
+    "section": "324",
+    "zone": "Upper Level / 300-Level Seating (page heading: \"Section 324 at Oriole Park at Camden Yards\")",
+    "location": "RateYourSeats Upper Level zone text served on this section page, verbatim: \"300-Level Seating: Upper Level sections are labeled in the 300s on the seating chart.\" \"Upper Level seating at Oriole Park at Camden Yards includes all sections labeled in the 300s.\" \"These sections sit on the stadium's highest tier and typically contain up to 25 rows of seating.\" NO section-specific placement sentence (no side, base line, quadrant or landmark) is stated for Section 324 on this page.",
+    "rows": "\"Rows in Section 324 are labeled 1-25\"",
+    "entrance_row": "\"An entrance to this section is located at Row 8\"",
+    "seat_direction": "BOILERPLATE (park-wide RateYourSeats \"Row Numbers\" line, identical on every Oriole Park section page): \"When looking towards the field, lower number seats are on the right\". PER-SECTION: no per-section statement naming a side for seat numbers in Section 324 was found on the page (no Q&A, expert answer or fan-review sentence naming a side).",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights / Seating Notes, verbatim: \"Top Pick for Kids and FamilyRows 1-5\"; \"Rows 15 & Above - Covered\"; \"Rows 1-25\"; \"Rows 1-5 are recommended for kids and family\"; \"Rows 15 and above are under cover\". A fan review is present but the only text returned from it is the seat tag \"Sec 324 / Row 6\" - no review sentence naming a side or a seat number. Unbroken 1-25 row run. No netting or obstructed-view line.",
+    "source": "https://www.rateyourseats.com/oriole-park/seating/sections/324"
+  },
+  {
+    "section": "326",
+    "zone": "Upper Level / 300-Level Seating (page heading: \"Section 326 at Oriole Park at Camden Yards\")",
+    "location": "RateYourSeats Upper Level zone text served on this section page, verbatim: \"300-Level Seating: Upper Level sections are labeled in the 300s on the seating chart.\" \"Upper Level seating at Oriole Park at Camden Yards includes all sections labeled in the 300s.\" \"These sections sit on the stadium's highest tier and typically contain up to 25 rows of seating.\" NO section-specific placement sentence (no side, base line, quadrant or landmark) is stated for Section 326 on this page.",
+    "rows": "\"Rows in Section 326 are labeled 1-5, 9-25\"",
+    "entrance_row": "\"An entrance to this section is located at Row 8\"",
+    "seat_direction": "BOILERPLATE (park-wide RateYourSeats \"Row Numbers\" line): \"When looking towards the field, lower number seats are on the right\". PER-SECTION: no sentence naming a side for SEAT NUMBERS in Section 326 was found. The only per-section side-ish sentence is about an AISLE, not seat numbers, and does not resolve seat-1 side: \"For the easiest access to your seats, we recommend using the aisle between Sections 326 and 328.\" Recorded here only so it is not mistaken later for a seat-numbering statement.",
+    "seats_per_row": "\"There are a total of 20 seats in Section 326 Row 17\" - a single-row count for Row 17 only; no general seats-per-row figure is stated.",
+    "notes": "TICKET-IDENTIFIER NOTE, verbatim: \"Section 326 might appear as two different sections in some seating charts as the Orioles designate the first twelve rows as Box seating and the rest of the rows as Reserve seating.\" This is the only split-designation note found anywhere in batch 07. Section Insights / Seating Notes, verbatim: \"Rows 15 & Above - Covered\"; \"Rows 15 and above are under cover\". The 6-8 row gap is the accessible-row gap. No netting or obstructed-view line.",
+    "source": "https://www.rateyourseats.com/oriole-park/seating/sections/326"
+  },
+  {
+    "section": "328",
+    "zone": "Upper Level / 300-Level Seating, at the edge of the Home Plate upper-deck block (page heading: \"Section 328 at Oriole Park at Camden Yards\")",
+    "location": "RateYourSeats headline tag on this section page, verbatim: \"Desirable view from behind home plate\". Zone text, verbatim: \"Upper Level seating at Oriole Park at Camden Yards includes all sections labeled in the 300s.\" \"300-Level Seating: Upper Level sections are labeled in the 300s\". \"Home Plate View\". \"For the best home plate views in the upper deck, consider Sections 330-342, which sit directly behind home plate\". NOTE the tension: Section 328 carries the \"Desirable view from behind home plate\" tag but is NOT inside the 330-342 range the same page names as sitting directly behind home plate - recorded, not reconciled.",
+    "rows": "\"Rows in Section 328 are labeled 1-5, 9-25\"",
+    "entrance_row": "\"An entrance to this section is located at Row 8\"",
+    "seat_direction": "BOILERPLATE (park-wide RateYourSeats \"Row Numbers\" line, identical on every Oriole Park section page): \"When looking towards the field, lower number seats are on the right\". PER-SECTION: no per-section statement naming a side for seat numbers in Section 328 was found on the page (no Q&A, expert answer or fan-review sentence naming a side).",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights / Seating Notes, verbatim: \"Rows 15 & Above - Covered\"; \"Desirable view from behind home plate\"; \"Rows 15 and above are under cover\". The 6-8 row gap is the accessible-row gap. Section 326's page names \"the aisle between Sections 326 and 328\" as the easiest access. No netting, obstructed-view or fan-review text.",
+    "source": "https://www.rateyourseats.com/oriole-park/seating/sections/328"
+  },
+  {
+    "section": "330",
+    "zone": "Upper Level / 300-Level Seating - Home Plate Upper Deck (page heading: \"Section 330 at Oriole Park at Camden Yards\")",
+    "location": "RateYourSeats headline tag on this section page, verbatim: \"Desirable view from behind home plate\". Zone text, verbatim: \"Home Plate Upper Deck Views: Sections 330-342 offer strong views of the entire field from behind home plate.\" \"For the best home plate views in the upper deck, consider Sections 330-342, which sit directly behind home plate and offer a balanced perspective of the field along with a clear view of the right field scoreboard.\" \"Upper Level seating at Oriole Park at Camden Yards includes all sections labeled in the 300s.\" \"300-Level Seating: Upper Level sections are labeled in the 300s on the seating chart.\"",
+    "rows": "\"Rows in Section 330 are labeled 1-25\"",
+    "entrance_row": "\"An entrance to this section is located at Row 8\"",
+    "seat_direction": "BOILERPLATE (park-wide RateYourSeats \"Row Numbers\" line, identical on every Oriole Park section page): \"When looking towards the field, lower number seats are on the right\". PER-SECTION: no per-section statement naming a side for seat numbers in Section 330 was found on the page (no Q&A, expert answer or fan-review sentence naming a side).",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights / Seating Notes, verbatim: \"Rows 1-5 are recommended for great views of the field\"; \"Rows 15 and above are under cover\". FAN REVIEW, verbatim: \"Behind home plate and just above press box. First row really makes a difference.\" - this CORROBORATES the behind-home-plate placement and adds the press box as a landmark, but says nothing about seat numbering or which side seat 1 is on. Unbroken 1-25 row run - no accessible-row gap. No netting or obstructed-view line.",
+    "source": "https://www.rateyourseats.com/oriole-park/seating/sections/330"
+  },
+  {
+    "section": "332",
+    "zone": "Upper Level / 300-Level Seating - Home Plate Upper Deck (page heading: \"Section 332 at Oriole Park at Camden Yards\")",
+    "location": "RateYourSeats headline tag on this section page, verbatim: \"Desirable view from behind home plate\". Zone text, verbatim: \"Home Plate Upper Deck Views: Sections 330-342 offer strong views of the entire field from behind home plate.\" \"For the best home plate views in the upper deck, consider Sections 330-342, which sit directly behind home plate and offer a balanced perspective of the field along with a clear view of the right field scoreboard.\" \"Upper Level seating at Oriole Park at Camden Yards includes all sections labeled in the 300s.\" \"300-Level Seating: Upper Level sections are labeled in the 300s on the seating chart.\"",
+    "rows": "\"Rows in Section 332 are labeled 1-25\"",
+    "entrance_row": "\"An entrance to this section is located at Row 8\"",
+    "seat_direction": "BOILERPLATE (park-wide RateYourSeats \"Row Numbers\" line, identical on every Oriole Park section page): \"When looking towards the field, lower number seats are on the right\". PER-SECTION: no per-section statement naming a side for seat numbers in Section 332 was found on the page (no Q&A, expert answer or fan-review sentence naming a side).",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights / Seating Notes, verbatim: \"Rows 4-12 are recommended for outstanding convenience\"; \"Rows 1-5 are recommended for great views of the field\"; \"Rows 15 and above are under cover\". FAN REVIEW, verbatim: \"Our seats were in the upper deck behind the pressbox and slightly to the right of home plate\" - places the section slightly to the fan's right of home plate looking out, i.e. toward the first-base/right-field side, which is consistent with discovery.json's rule that section numbers INCREASE toward third base (332 sits on the low side of the 330-342 home-plate block). Recorded verbatim; it names no seat number and so does NOT bear on the seat-1 side. Unbroken 1-25 row run. No netting or obstructed-view line.",
+    "source": "https://www.rateyourseats.com/oriole-park/seating/sections/332"
+  },
+  {
+    "section": "334",
+    "zone": "Upper Level / 300-Level Seating - Home Plate Upper Deck (page heading: \"Section 334 at Oriole Park at Camden Yards\")",
+    "location": "RateYourSeats headline tag on this section page, verbatim: \"Desirable view from behind home plate\". Zone text, verbatim: \"Home Plate Upper Deck Views: Sections 330-342 offer strong views of the entire field from behind home plate.\" \"For the best home plate views in the upper deck, consider Sections 330-342, which sit directly behind home plate and offer a balanced perspective of the field along with a clear view of the right field scoreboard.\" \"Upper Level seating at Oriole Park at Camden Yards includes all sections labeled in the 300s.\" \"300-Level Seating: Upper Level sections are labeled in the 300s on the seating chart.\"",
+    "rows": "\"Rows in Section 334 are labeled 1-5, 9-25\"",
+    "entrance_row": "\"An entrance to this section is located at Row 8\"",
+    "seat_direction": "BOILERPLATE (park-wide RateYourSeats \"Row Numbers\" line, identical on every Oriole Park section page): \"When looking towards the field, lower number seats are on the right\". PER-SECTION: no per-section statement naming a side for seat numbers in Section 334 was found on the page (no Q&A, expert answer or fan-review sentence naming a side).",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights / Seating Notes, verbatim: \"Top Pick for Great Views of the FieldRows 1-5\" (run-together as printed); \"Home Plate View\"; \"Rows 15 & Above - Covered\"; \"Rows 1-5 are recommended for great views of the field\"; \"Rows 15 and above are under cover\". The 6-8 row gap is the accessible-row gap. No netting, obstructed-view or fan-review text.",
+    "source": "https://www.rateyourseats.com/oriole-park/seating/sections/334"
+  },
+  {
+    "section": "336",
+    "zone": "Upper Level / 300-Level Seating - Home Plate Upper Deck (page heading: \"Section 336 at Oriole Park at Camden Yards\")",
+    "location": "RateYourSeats headline tag on this section page, verbatim: \"Desirable view from behind home plate\". Zone text, verbatim: \"Home Plate Upper Deck Views: Sections 330-342 offer strong views of the entire field from behind home plate.\" \"For the best home plate views in the upper deck, consider Sections 330-342, which sit directly behind home plate and offer a balanced perspective of the field along with a clear view of the right field scoreboard.\" \"Upper Level seating at Oriole Park at Camden Yards includes all sections labeled in the 300s.\" \"300-Level Seating: Upper Level sections are labeled in the 300s on the seating chart.\"",
+    "rows": "\"Rows in Section 336 are labeled 1-5, 9-25\"",
+    "entrance_row": "\"An entrance to this section is located at Row 8\"",
+    "seat_direction": "BOILERPLATE (park-wide RateYourSeats \"Row Numbers\" line, identical on every Oriole Park section page): \"When looking towards the field, lower number seats are on the right\". PER-SECTION: no per-section statement naming a side for seat numbers in Section 336 was found on the page (no Q&A, expert answer or fan-review sentence naming a side).",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights / Seating Notes, verbatim: \"Rows 1-5 are recommended for great views of the field\"; \"Rows 15 and above are under cover\". Row string 1-5, 9-25 MATCHES discovery.json's recorded value for Section 336 exactly, and the 6-8 gap is the accessible-row gap discovery.json cites as the park's accessible-row convention. Note discovery.json also records that the official Orioles accessibility guide puts an elevator \"behind home plate (near Section 36)\" - that is the lower-bowl 36, not this section. No netting, obstructed-view or fan-review text.",
+    "source": "https://www.rateyourseats.com/oriole-park/seating/sections/336"
+  },
+  {
+    "section": "338",
+    "zone": "Upper Level / 300-Level Seating - Home Plate Upper Deck (page heading: \"Section 338 at Oriole Park at Camden Yards\")",
+    "location": "RateYourSeats headline tag on this section page, verbatim: \"Desirable view from behind home plate\". Zone text, verbatim: \"Home Plate Upper Deck Views: Sections 330-342 offer strong views of the entire field from behind home plate.\" \"For the best home plate views in the upper deck, consider Sections 330-342, which sit directly behind home plate...\"",
+    "rows": "\"Rows in Section 338 are labeled 1-5, 6-8\"",
+    "entrance_row": "\"An entrance to this section is located at Row 8\"",
+    "seat_direction": "BOILERPLATE (park-wide RateYourSeats \"Row Numbers\" line, identical on every Oriole Park section page): \"When looking towards the field, lower number seats are on the right\". PER-SECTION: no per-section statement naming a side for seat numbers in Section 338 was found on the page (no Q&A, expert answer or fan-review sentence naming a side).",
+    "seats_per_row": "UNKNOWN",
+    "notes": "ANOMALY, and it is INTERNALLY CONTRADICTORY on the page itself. The row-labels line reads \"Rows in Section 338 are labeled 1-5, 6-8\" - stopping at Row 8 - yet the same page states \"The last 10 rows are covered by the stadium overhang.\" A section of 8 rows cannot have 10 covered rows. Two independent reads, the second with a targeted quote-exactly prompt, returned the identical row string, so this is what the page says; recorded as-is and NOT corrected to the 1-5, 9-25 pattern its neighbours use. This is the SECOND section in this batch with the same odd \"1-5, 6-8\" string (see Section 320) - a site-side data defect on these two pages is the likelier explanation than a real 8-row upper-deck section, but no source states that, so it stays UNRESOLVED. Section Insights / Seating Notes, verbatim: \"Rows 1-5 are recommended for great views of the field\"; \"Desirable view from behind home plate\". No netting or obstructed-view line; no fan reviews.",
+    "source": "https://www.rateyourseats.com/oriole-park/seating/sections/338"
+  },
+  {
+    "section": "340",
+    "zone": "Upper Level / 300-Level Seating - Home Plate Upper Deck (page heading: \"Section 340 at Oriole Park at Camden Yards\")",
+    "location": "RateYourSeats headline tag on this section page, verbatim: \"Desirable view from behind home plate\". Zone text, verbatim: \"Home Plate Upper Deck Views: Sections 330-342 offer strong views of the entire field from behind home plate.\" \"For the best home plate views in the upper deck, consider Sections 330-342, which sit directly behind home plate and offer a balanced perspective of the field along with a clear view of the right field scoreboard.\" \"Upper Level seating at Oriole Park at Camden Yards includes all sections labeled in the 300s.\" \"300-Level Seating: Upper Level sections are labeled in the 300s on the seating chart.\"",
+    "rows": "\"Rows in Section 340 are labeled 1-5, 9-25\"",
+    "entrance_row": "\"An entrance to this section is located at Row 8\"",
+    "seat_direction": "BOILERPLATE (park-wide RateYourSeats \"Row Numbers\" line, identical on every Oriole Park section page): \"When looking towards the field, lower number seats are on the right\". PER-SECTION: no per-section statement naming a side for seat numbers in Section 340 was found on the page (no Q&A, expert answer or fan-review sentence naming a side).",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights / Seating Notes, verbatim: \"Rows 15 & Above - Covered\"; \"Rows 4-12 are recommended for outstanding convenience\"; \"Rows 1-5 are recommended for great views of the field\"; \"Rows 15 and above are under cover\". The 6-8 row gap is the accessible-row gap. No netting, obstructed-view or fan-review text.",
+    "source": "https://www.rateyourseats.com/oriole-park/seating/sections/340"
+  },
+  {
+    "section": "342",
+    "zone": "Upper Level / 300-Level Seating - Home Plate Upper Deck (page heading: \"Section 342 at Oriole Park at Camden Yards\")",
+    "location": "RateYourSeats headline tag on this section page, verbatim: \"Desirable view from behind home plate\". Zone text, verbatim: \"Home Plate Upper Deck Views: Sections 330-342 offer strong views of the entire field from behind home plate.\" \"For the best home plate views in the upper deck, consider Sections 330-342, which sit directly behind home plate and offer a balanced perspective of the field along with a clear view of the right field scoreboard.\" \"Upper Level seating at Oriole Park at Camden Yards includes all sections labeled in the 300s.\" \"300-Level Seating: Upper Level sections are labeled in the 300s on the seating chart.\"",
+    "rows": "\"Rows in Section 342 are labeled 1-25\"",
+    "entrance_row": "\"An entrance to this section is located at Row 8\"",
+    "seat_direction": "BOILERPLATE (park-wide RateYourSeats \"Row Numbers\" line, identical on every Oriole Park section page): \"When looking towards the field, lower number seats are on the right\". PER-SECTION: no per-section statement naming a side for seat numbers in Section 342 was found on the page (no Q&A, expert answer or fan-review sentence naming a side).",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights / Seating Notes, verbatim: \"Rows 4-12 are recommended for outstanding convenience\"; \"Rows 1-5 are recommended for great views of the field\"; \"Rows 15 and above are under cover\". FAN REVIEW, verbatim: \"Great view, in shade for 3:05 game\" (tagged Row 16) - corroborates the overhang shade line for the back rows. 342 is the top end of the 330-342 home-plate block. Unbroken 1-25 row run. No netting or obstructed-view line.",
+    "source": "https://www.rateyourseats.com/oriole-park/seating/sections/342"
+  },
+  {
+    "section": "344",
+    "zone": "Upper Level / 300-Level Seating (page heading: \"Section 344 at Oriole Park at Camden Yards\")",
+    "location": "RateYourSeats zone text served on this section page, verbatim: \"300-Level Seating: Upper Level sections are labeled in the 300s on the seating chart.\" \"Upper Level seating at Oriole Park at Camden Yards includes all sections labeled in the 300s.\" \"For the best home plate views in the upper deck, consider Sections 330-342, which sit directly behind home plate...\" - NOTE that last sentence names 330-342 and therefore EXCLUDES Section 344; it appears on the page as zone context, not as a placement of 344. No section-specific placement sentence for Section 344 is stated, and the page carries NO \"Desirable view from behind home plate\" headline tag.",
+    "rows": "\"Rows in Section 344 are labeled 1-25\"",
+    "entrance_row": "\"An entrance to this section is located at Row 8\"",
+    "seat_direction": "BOILERPLATE (park-wide RateYourSeats \"Row Numbers\" line, identical on every Oriole Park section page): \"When looking towards the field, lower number seats are on the right\". PER-SECTION: no per-section statement naming a side for seat numbers in Section 344 was found on the page (no Q&A, expert answer or fan-review sentence naming a side).",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights / Seating Notes, verbatim: \"Top Pick for Great Views of the Field-Rows 1-5\"; \"Rows 15 & Above - Covered\"; \"Rows 1-5 are recommended for great views of the field\"; \"Rows 15 and above are under cover\". Unbroken 1-25 row run - no accessible-row gap. No netting, obstructed-view or fan-review text, and no note of a different printed ticket identifier.",
+    "source": "https://www.rateyourseats.com/oriole-park/seating/sections/344"
+  }
+]

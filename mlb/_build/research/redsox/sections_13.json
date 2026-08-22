@@ -1,0 +1,222 @@
+[
+ {
+  "section": "PB3",
+  "zone": "Pavilion Box 3 at Fenway Park",
+  "location": "\"Pavilion Box seats are located on Fenway Park's highest seating tier, positioned directly behind the Aura Pavilion Club sections.\" No sentence on this page names a first-base or third-base side for Section PB3; a targeted second fetch searching for \"first base\", \"third base\", \"odd\", \"even\", \"left field\", \"right field\", \"home plate\" returned only \"Top Pick for Visiting Team Fans\" and \"For baseball games, we recommend these seats for visiting team fans\".",
+  "rows": "\"Rows in Pavilion Box 3 are labeled A-E\"",
+  "entrance_row": "\"An entrance to this section is located at Row A\"",
+  "seat_direction": "BOILERPLATE (park-wide, identical on every Fenway section page): \"When looking towards the field/field/stage, lower number seats are on the left\". PER-SECTION STATEMENT: NONE. A second targeted fetch of this page specifically hunting question-and-answer text returned \"Question-and-answer text: None found on this page.\" No fan review, expert answer or note on this page names a side or a seat number for PB3.",
+  "seats_per_row": "UNKNOWN",
+  "notes": "Section Insights: \"Top Pick for Visiting Team Fans\"; \"Covered Seats\"; \"Rows A-E\". Seating Notes: \"For baseball games, we recommend these seats for visiting team fans\"; \"All seats in this section are under cover\". Fan review: \"Great view — SRO but a bar to lean on and easy to scout out seats to take later in the game\" (\"Chicago White Sox at Boston Red Sox - Sep 8, 2024\"); review attributions read \"PB3 / Row SRO • Baseball\" and \"PB3 / Row J • Baseball\" — note Row J is OUTSIDE the stated A-E range, so a real ticket can print a row this page does not list. CONTRADICTION WITH discovery.json TO FLAG, NOT RESOLVE: discovery records the parity rule \"Odd-numbered sections run along the first base line\" / \"Even-numbered sections run along the third base line\", and the Red Sox (home) dugout is on the first base side; yet RateYourSeats tags this ODD section \"Top Pick for Visiting Team Fans\". The same visiting-fan tag appears on PB3, PB5, PB7 and PB9 (all odd) and NOT on PB6, PB10, PB11, PB12, PB13 or PB14. Read literally the tag suggests the odd Pavilion Boxes are the visiting-dugout (third base) side, which inverts the parity rule. Recorded, not reconciled.",
+  "source": "https://www.rateyourseats.com/fenway-park/seating/sections/PB3"
+ },
+ {
+  "section": "PB4",
+  "zone": "Pavilion Box 4 at Fenway Park",
+  "location": "\"Pavilion Box seats are located on Fenway Park's highest seating tier, positioned directly behind the Aura Pavilion Club sections.\" No first-base/third-base side statement for PB4 on the page.",
+  "rows": "\"Rows in Pavilion Box 4 are labeled A-E\"",
+  "entrance_row": "\"An entrance to this section is located at Row A\"",
+  "seat_direction": "BOILERPLATE (park-wide): \"When looking towards the field/field/stage, lower number seats are on the left\". PER-SECTION STATEMENT: NONE — no question-and-answer, expert answer or fan comment on this page names a side or a seat number for PB4.",
+  "seats_per_row": "UNKNOWN",
+  "notes": "Section Insights / Seating Notes: \"Covered Seats\"; \"All seats in this section are under cover\". Fan review (attributed \"PB4 / Row B • Baseball\"): \"In a small ballpark there are much closer views, but these are the seats all the club ticketholders (pavilion club is just in front of these but not covered) flocked to when it started raining. In my opinion these are the best seats at Fenway on a rainy day.\" Note this review states the Pavilion Club sections in front are NOT covered while the Pavilion Boxes are.",
+  "source": "https://www.rateyourseats.com/fenway-park/seating/sections/PB4"
+ },
+ {
+  "section": "PB5",
+  "zone": "Pavilion Box 5 at Fenway Park",
+  "location": "\"Pavilion Box seats are located on Fenway Park's highest seating tier, positioned directly behind the Aura Pavilion Club sections.\" No first-base/third-base side statement for PB5 on the page.",
+  "rows": "\"Rows in Pavilion Box 5 are labeled A-E\"",
+  "entrance_row": "\"An entrance to this section is located at Row A\"",
+  "seat_direction": "BOILERPLATE (park-wide): \"When looking towards the field/field/stage, lower number seats are on the left\". PER-SECTION STATEMENT: NONE — the one fan review on this page describes sightlines but names no side for any seat number.",
+  "seats_per_row": "UNKNOWN",
+  "notes": "Section Insights: \"Top Pick for Visiting Team Fans / Covered Seats / Rows A-E\". Seating Notes: \"For baseball games, we recommend these seats for visiting team fans / All seats in this section are under cover\". Fan review (attributed \"PB5 / Row C • Baseball\"), verbatim: \"Really Good for an Upper Deck — Fenway is a smaller ballpark, so even though we were in some of the highest seats, the views were still very good and it didn't feel far from the field. Excellent line of sight right down to the pitchers mound, and we had amazing straight away views of the Green Monster - I must admit it was a fun place to watch a few White Sox home runs as they traveled above the Monster. A concession stand was incredibly close (right outside our section), which featured a really good lobster roll and super short lines. The only complaint I had was the obnoxious fans who were two rows behind us. Sure, we were rooting for the visiting White Sox and got a few snide comments which we expected, but they were also applauding ecstatically when White Sox hitters got hit by pitches and appeared hurt. But otherwise, these seats were a really good value considering the high ticket prices at Fenway!\" DIRECTIONAL HINT, NOT A SEAT STATEMENT: \"amazing straight away views of the Green Monster\" — the Green Monster is in LEFT field, and a straight-on view of it is what discovery records for the FIRST BASE side (cf. LB98, first base side, \"a head-on view of the Green Monster\"). That is consistent with odd = first base, and therefore sits AGAINST the \"Top Pick for Visiting Team Fans\" tag on the same page. Both recorded, neither reconciled.",
+  "source": "https://www.rateyourseats.com/fenway-park/seating/sections/PB5"
+ },
+ {
+  "section": "PB6",
+  "zone": "Pavilion Box 6 at Fenway Park",
+  "location": "\"Pavilion Box seats are located on Fenway Park's highest seating tier, positioned directly behind the Aura Pavilion Club sections.\" Zone/expert text: \"Upper Level Behind Pavilion Club: Located directly behind the Pavilion Club seats on Fenway Park's highest seating tier.\" No first-base/third-base side statement for PB6.",
+  "rows": "\"Rows in Pavilion Box 6 are labeled A-E\"",
+  "entrance_row": "\"An entrance to this section is located at Row A\"",
+  "seat_direction": "BOILERPLATE (park-wide): \"When looking towards the field/field/stage, lower number seats are on the left\". PER-SECTION STATEMENT: NONE — no question-and-answer, expert answer or fan review on this page names a side or a seat number for PB6.",
+  "seats_per_row": "UNKNOWN",
+  "notes": "Section Insights: \"Covered Seats\"; \"Rows A-E\". Seating Notes: \"All seats in this section are under cover\". Expert review (zone-level, not section-specific), verbatim: \"Upper Level Behind Pavilion Club: Located directly behind the Pavilion Club seats on Fenway Park's highest seating tier. Small Sections: Most sections feature fewer than five rows, keeping fans relatively close to the front of the section. Covered Seating: Sections are protected by the roof, providing shade and protection from rain. Strong Value Option: Often priced lower than Aura Pavilion Club seats while offering similar elevated views. Barstool Rows Available: Select rows feature barstool seating positioned along a drink rail.\" No \"visiting team fans\" tag on this EVEN section.",
+  "source": "https://www.rateyourseats.com/fenway-park/seating/sections/PB6"
+ },
+ {
+  "section": "PB7",
+  "zone": "Pavilion Box 7 at Fenway Park",
+  "location": "\"Pavilion Box seats are located on Fenway Park's highest seating tier, positioned directly behind the Aura Pavilion Club sections.\" No first-base/third-base side statement for PB7.",
+  "rows": "\"Rows in Pavilion Box 7 are labeled A-E\"",
+  "entrance_row": "\"An entrance to this section is located at Row A\"",
+  "seat_direction": "BOILERPLATE (park-wide): \"When looking towards the field/field/stage, lower number seats are on the left\". PER-SECTION STATEMENT: NONE — no question-and-answer, expert answer or fan review on this page names a side or a seat number for PB7.",
+  "seats_per_row": "UNKNOWN",
+  "notes": "Section Insights: \"Top Pick for Visiting Team Fans; Covered Seats; Rows A-E\". Seating Notes: \"For baseball games, we recommend these seats for visiting team fans; All seats in this section are under cover\". Expert review excerpt (zone-level): \"Located directly behind the Pavilion Club seats on Fenway Park's highest seating tier. Small Sections: Most sections feature fewer than five rows, keeping fans relatively close to the front of the section. Covered Seating: Sections are protected by the roof, providing shade and protection from rain.\" Same odd-section \"visiting team fans\" tag flagged under PB3.",
+  "source": "https://www.rateyourseats.com/fenway-park/seating/sections/PB7"
+ },
+ {
+  "section": "PB8",
+  "zone": "Pavilion Box 8 at Fenway Park",
+  "location": "\"Pavilion Box seats are located on Fenway Park's highest seating tier, positioned directly behind the Aura Pavilion Club sections.\" No editorial first-base/third-base statement; but see the fan review in notes, which is the only side-bearing evidence on the page.",
+  "rows": "\"Rows in Pavilion Box 8 are labeled A-E\"",
+  "entrance_row": "\"An entrance to this section is located at Row A\"",
+  "seat_direction": "BOILERPLATE (park-wide): \"When looking towards the field/field/stage, lower number seats are on the left\". PER-SECTION SEAT-NUMBER TEXT: the closest thing on the page is a fan review phrase, verbatim: \"at 2 seats from the aisle and just 2 rows down from the top\" — it counts seats from an aisle but does NOT say which aisle, which side, or where seat 1 is. A targeted second fetch for question-and-answer text returned \"Question-and-Answer Text: NONE\". So: no per-section statement of the seat-1 side.",
+  "seats_per_row": "UNKNOWN",
+  "notes": "Section Insights / Seating Notes: \"Covered Seats\"; \"All seats in this section are under cover\". Fan review in full (attributed \"PB8 / Row D • Baseball\"), verbatim: \"Great Convenience and Skyline Backdrop — Excellent shade during a midday game, and some good breeze as well. Bar rail seating just above so I was a bit worried something might get spilled on me, but luckily that was never the case. Concession stand right behind the seats, so at 2 seats from the aisle and just 2 rows down from the top, it doesn't get much easier for grabbing food and beverage! Views are really good except for some blockage to the left field corner. Can't really see the left field foul pole either. But a good view into the Redsox Dugout and a great view of the Boston skyline (Prudential Building) in the background. All around solid value!!\" THIS IS THE STRONGEST PER-SECTION LOCATION EVIDENCE IN THE BATCH and it SUPPORTS the parity rule for the Pavilion Box tier: a seat that looks INTO the Red Sox dugout (first base side, per discovery) from across the field, and that has the LEFT FIELD corner and left field foul pole cut off beneath it, is sitting on the THIRD BASE / left field side — which is what discovery's \"even = third base line\" predicts for PB8. Note discovery flags PB parity as INFERRED only; this fan review is independent corroboration. Also an OBSTRUCTION line: \"blockage to the left field corner. Can't really see the left field foul pole either.\" Also a SHADE line: \"Excellent shade during a midday game\".",
+  "source": "https://www.rateyourseats.com/fenway-park/seating/sections/PB8"
+ },
+ {
+  "section": "PB9",
+  "zone": "Pavilion Box 9 at Fenway Park",
+  "location": "\"Pavilion Box seats are located on Fenway Park's highest seating tier, positioned directly behind the Aura Pavilion Club sections.\" No first-base/third-base side statement for PB9.",
+  "rows": "\"Rows in Pavilion Box 9 are labeled A-E\"",
+  "entrance_row": "\"An entrance to this section is located at Row A\"",
+  "seat_direction": "BOILERPLATE (park-wide): \"When looking towards the field/field/stage, lower number seats are on the left\". PER-SECTION STATEMENT: NONE. A targeted second fetch asking for every sentence containing \"seat\"+number, \"aisle\", \"left\", \"right\", \"first base\" or \"third base\" returned ONLY the boilerplate line itself, and returned no question-and-answer text.",
+  "seats_per_row": "UNKNOWN",
+  "notes": "Section Insights: \"Top Pick for Outstanding Convenience\", \"Top Pick for Visiting Team Fans\", \"Covered Seats\", \"Rows A-E\". Seating Notes: \"All seats in this section are under cover\". Fan reviews verbatim: (1) \"Pay to cook to death; regretting my purchase — Fairly expensive and one of the worst places to sit in the park. Directly facing the sun at a 4pm game, roasting to death.\" (attributed \"PB9 / Row 2 • Baseball\" — note Row 2 is NUMERIC and outside the stated A-E lettered range, i.e. a real ticket printed a row label this page does not list); (2) \"Toronto Blue Jays at Boston Red Sox - Jun 27, 2025 — Great view of the entire field.\" (attributed \"PB9 / Row C • Baseball\"). CONTRADICTION TO FLAG: the sun review conflicts with the page's own \"Covered Seats\" / \"All seats in this section are under cover\" insight. The sun exposure of this ODD section is consistent with discovery's shade-based inference (RateYourSeats shaded/covered page names \"Pavilion Boxes 11 & 13\", both odd, as the sunny ones), but the \"Top Pick for Visiting Team Fans\" tag on the same odd section pulls the other way — see PB3 notes.",
+  "source": "https://www.rateyourseats.com/fenway-park/seating/sections/PB9"
+ },
+ {
+  "section": "PB10",
+  "zone": "Pavilion Box 10 at Fenway Park",
+  "location": "\"Located on Fenway Park's highest seating tier, positioned directly behind the Aura Pavilion Club sections.\" No first-base/third-base side statement for PB10.",
+  "rows": "\"Rows in Pavilion Box 10 are labeled A-E\"",
+  "entrance_row": "\"An entrance to this section is located at Row A\"",
+  "seat_direction": "BOILERPLATE (park-wide): \"When looking towards the field/field/stage, lower number seats are on the left\". PER-SECTION STATEMENT: NONE — no question-and-answer, expert answer or fan review on this page names a side or a seat number for PB10.",
+  "seats_per_row": "UNKNOWN",
+  "notes": "Section Insights: \"Top Pick for Outstanding Convenience\"; \"Covered Seats\"; \"Rows A-E\". Seating Notes: \"For baseball games, we recommend these seats for outstanding convenience\"; \"All seats in this section are under cover\". Expert review (zone-level): \"Pavilion Box seats are a good option for fans looking for an elevated view of Fenway Park without paying club-level prices.\" No fan reviews on the page. No \"visiting team fans\" tag on this EVEN section.",
+  "source": "https://www.rateyourseats.com/fenway-park/seating/sections/PB10"
+ },
+ {
+  "section": "PB11",
+  "zone": "Pavilion Box 11 at Fenway Park",
+  "location": "\"Located directly behind the Pavilion Club seats on Fenway Park's highest seating tier.\" No first-base/third-base side statement for PB11 on the section page.",
+  "rows": "\"Rows in Pavilion Box 11 are labeled A-E\"",
+  "entrance_row": "\"An entrance to this section is located at Row A\"",
+  "seat_direction": "BOILERPLATE (park-wide): \"When looking towards the field/field/stage, lower number seats are on the left\". PER-SECTION STATEMENT: NONE — no question-and-answer, expert answer or fan review on this page names a side or a seat number for PB11.",
+  "seats_per_row": "UNKNOWN",
+  "notes": "Section Insights: \"Top Pick for Outstanding Convenience\"; \"Midfield View\"; \"Covered Seats\"; \"Rows A-E\". Seating Notes: \"For baseball games, we recommend these seats for outstanding convenience\"; \"For football games, desirable view from near midfield\"; \"All seats in this section are under cover\". Expert review: \"Covered Seating: Sections are protected by the roof, providing shade and protection from rain.\" CONTRADICTION WORTH FLAGGING: discovery cites the RateYourSeats shaded/covered page naming \"Pavilion Boxes 11 & 13\" as the two pavilion boxes that DO catch sun, yet this section page says \"Covered Seats\" / \"All seats in this section are under cover\" for PB11. Recorded, not reconciled.",
+  "source": "https://www.rateyourseats.com/fenway-park/seating/sections/PB11"
+ },
+ {
+  "section": "PB12",
+  "zone": "Pavilion Box 12 at Fenway Park",
+  "location": "\"Pavilion Box seats are located on Fenway Park's highest seating tier, positioned directly behind the Aura Pavilion Club sections.\" No first-base/third-base side statement for PB12.",
+  "rows": "\"Rows in Pavilion Box 12 are labeled A-E\"",
+  "entrance_row": "\"An entrance to this section is located at Row A\"",
+  "seat_direction": "BOILERPLATE (park-wide): \"When looking towards the field/field/stage, lower number seats are on the left\". PER-SECTION STATEMENT: NONE — no question-and-answer, expert answer or fan review on this page names a side or a seat number for PB12.",
+  "seats_per_row": "UNKNOWN",
+  "notes": "Section Insights: \"Top Pick for Outstanding Convenience\"; \"Covered Seats\". Seating Notes: \"All seats in this section are under cover\". Expert review (zone-level): \"Small Sections: Most sections feature fewer than five rows, keeping fans relatively close to the front of the section.\" / \"Covered Seating: Sections are protected by the roof, providing shade and protection from rain.\" No fan reviews. No \"visiting team fans\" tag on this EVEN section.",
+  "source": "https://www.rateyourseats.com/fenway-park/seating/sections/PB12"
+ },
+ {
+  "section": "PB13",
+  "zone": "Pavilion Box 13 at Fenway Park",
+  "location": "\"Pavilion Box seats are located on Fenway Park's highest seating tier, positioned directly behind the Aura Pavilion Club sections.\" Expert text: \"Upper Level Behind Pavilion Club: Located directly behind the Pavilion Club seats on Fenway Park's highest seating tier.\" No first-base/third-base side statement for PB13.",
+  "rows": "\"Rows in Pavilion Box 13 are labeled A-E\"",
+  "entrance_row": "\"An entrance to this section is located at Row A\"",
+  "seat_direction": "BOILERPLATE (park-wide): \"When looking towards the field/field/stage, lower number seats are on the left\". PER-SECTION STATEMENT: NONE — no question-and-answer, expert answer or fan review on this page names a side or a seat number for PB13.",
+  "seats_per_row": "UNKNOWN",
+  "notes": "Section Insights: \"Midfield View / Covered Seats / Rows A-E\". Seating Notes: \"For football games, desirable view from near midfield / All seats in this section are under cover\". Expert review (zone-level): \"Upper Level Behind Pavilion Club: Located directly behind the Pavilion Club seats on Fenway Park's highest seating tier. / Small Sections: Most sections feature fewer than five rows, keeping fans relatively close to the front of the section. / Covered Seating: Sections are protected by the roof, providing shade and protection from rain. / Strong Value Option: Often priced lower than Aura Pavilion Club seats while offering similar elevated views.\" SAME CONTRADICTION AS PB11: discovery cites the shaded/covered page naming \"Pavilion Boxes 11 & 13\" as the sunny pavilion boxes, while this page says all seats are under cover. Recorded, not reconciled.",
+  "source": "https://www.rateyourseats.com/fenway-park/seating/sections/PB13"
+ },
+ {
+  "section": "PB14",
+  "zone": "Pavilion Box 14 at Fenway Park",
+  "location": "\"Pavilion Box seats are located on Fenway Park's highest seating tier, positioned directly behind the Aura Pavilion Club sections.\" Also, verbatim: \"These seats are labeled PB1 through PB14 on the Fenway Park seating chart.\" and \"the Pavilion Level sits under the stadium roof\". No first-base/third-base side statement for PB14.",
+  "rows": "\"Rows in Pavilion Box 14 are labeled A-E\"",
+  "entrance_row": "\"An entrance to this section is located at Row A\"",
+  "seat_direction": "BOILERPLATE (park-wide): \"When looking towards the field/field/stage, lower number seats are on the left\". PER-SECTION STATEMENT: NONE — no question-and-answer, expert answer or fan review on this page names a side or a seat number for PB14.",
+  "seats_per_row": "UNKNOWN",
+  "notes": "Section Insights: \"Covered Seats\" / \"Rows A-E\". Seating Notes: \"All seats in this section are under cover\". Expert review (zone-level): \"Located directly behind the Pavilion Club seats on Fenway Park's highest seating tier. Small Sections: Most sections feature fewer than five rows, keeping fans relatively close to the front of the section. Covered Seating: Sections are protected by the roof, providing shade and protection from rain.\" TICKET-LABEL NOTE: the page states the series is \"labeled PB1 through PB14 on the Fenway Park seating chart\", i.e. the PB prefix used in the URL is also the printed chart label, which contradicts discovery's note that the RateYourSeats INDEX prints bare \"Section PB1\"-\"PB10\" for some and \"Pavilion Box 11\"-\"Pavilion Box 14\" for others. No \"visiting team fans\" tag on this EVEN section.",
+  "source": "https://www.rateyourseats.com/fenway-park/seating/sections/PB14"
+ },
+ {
+  "section": "PR15",
+  "zone": "Pavilion Reserved 15 at Fenway Park",
+  "location": "\"Located on the first base side of the field\"; \"Offers a viewing angle looking toward the Green Monster in left field\"; \"Pavilion Reserved sections are located on the upper deck of Fenway Park\"; \"positioned along the Pavilion Level behind the Pavilion Club and Pavilion Box sections\". NOTE: these first two lines come from a \"First Base vs Third Base Side\" comparison block that appears on every Pavilion Reserved page, whose rows read \"Section 15 Located on the first base side of the field\" and \"Sections 16-20 Located on the third base side of the field\" — for PR15 that block is section-specific and agrees with discovery's parity rule (odd = first base).",
+  "rows": "\"Rows in Pavilion Reserved 15 are labeled A-K\"",
+  "entrance_row": "UNKNOWN — no entrance-row line on the page.",
+  "seat_direction": "BOILERPLATE (park-wide): \"When looking towards the field/field/stage, lower number seats are on the left\". PER-SECTION STATEMENT: NONE — the page's per-section text names a SIDE OF THE BALLPARK for the section but says nothing about which side seat 1 is on, and there is no question-and-answer or fan review text on the page.",
+  "seats_per_row": "UNKNOWN",
+  "notes": "Section Insights: \"Rows A-K\". Note the rows line says A-K (11 letters) while the zone/expert text says \"Compact Sections: Each section contains 10 rows with Row A at the front\" (seen on PR18) and discovery quotes the zone page as \"Each Pavilion Reserved section contains 10 rows of seating\" — A-K is 11 rows, so the row count and the label range disagree, the same class of internal contradiction discovery flags for the Roof Boxes. Expert review: \"Upper Deck Seating: Located on the Pavilion Level in Fenway Park's upper deck.\"; \"Uncovered Seating: These sections are fully exposed to sun and weather.\"; \"Affordable Tickets: Excluding the Bleachers, these are often the cheapest reserved seats\"; SHADE LINE: \"Section 15 typically moves into the shade earlier\" (against \"Sections 16-20 tend to remain in the sun longer during day games\"). CONTRADICTION WITH discovery.json TO FLAG: discovery infers Pavilion Box parity partly from sun/shade, treating the FIRST BASE side as the sunnier side (\"Pavilion Boxes 11 & 13\", both odd, are the ones that catch sun); here the first-base-side PR15 is the one that shades EARLIER and the third-base-side 16-20 stay in the sun LONGER. The two sun arguments point opposite ways. Recorded, not reconciled.",
+  "source": "https://www.rateyourseats.com/fenway-park/seating/sections/PR15"
+ },
+ {
+  "section": "PR16",
+  "zone": "Pavilion Reserved 16 at Fenway Park",
+  "location": "\"Located on the third base side of the field\"; \"Provide a more angled look toward home plate and the infield\"; \"Pavilion Reserved sections are located on the upper deck of Fenway Park, positioned along the Pavilion Level behind the Pavilion Club and Pavilion Box sections.\"; \"These sections include Sections 15 through 20 on the seating chart and sit high above the playing field.\" The side statement comes from the page's \"First Base vs Third Base Side\" block, whose row reads \"Sections 16-20 Located on the third base side of the field\" — it covers a range rather than PR16 alone, and it agrees with discovery's parity rule (even = third base).",
+  "rows": "\"Rows in Pavilion Reserved 16 are labeled A-K\"",
+  "entrance_row": "UNKNOWN — no entrance-row line on the page.",
+  "seat_direction": "BOILERPLATE (park-wide): \"When looking towards the field/field/stage, lower number seats are on the left\". PER-SECTION STATEMENT: NONE — no question-and-answer, expert answer or fan review on this page names a seat number or a seat-1 side for PR16.",
+  "seats_per_row": "UNKNOWN",
+  "notes": "Section Insights: \"Rows A-K\". Expert review: \"Upper Deck Seating: Located on the Pavilion Level in Fenway Park's upper deck.\"; \"Uncovered Seating: These sections are fully exposed to sun and weather.\"; SHADE LINE: \"Sections 16-20 tend to remain in the sun longer during day games\". The page says \"These sections include Sections 15 through 20 on the seating chart\", but discovery records that PR17 and PR19 have no pages in the section index — so the page's own 15-20 range implies two sections that the index does not list. Row-range vs row-count contradiction as at PR15 (A-K is 11 labels; the zone text says 10 rows).",
+  "source": "https://www.rateyourseats.com/fenway-park/seating/sections/PR16"
+ },
+ {
+  "section": "PR18",
+  "zone": "Pavilion Reserved 18 at Fenway Park",
+  "location": "\"Located on the third base side of the field\"; \"Pavilion Reserved sections are located on the upper deck of Fenway Park\"; \"positioned along the Pavilion Level behind the Pavilion Club and Pavilion Box sections\". As at PR16 the side line is the \"Sections 16-20\" row of the page's First Base vs Third Base Side block, not a PR18-only sentence. Agrees with discovery's parity rule (even = third base).",
+  "rows": "\"Rows A-K\" (Section Insights row line)",
+  "entrance_row": "UNKNOWN — no entrance-row line on the page.",
+  "seat_direction": "BOILERPLATE (park-wide): \"When looking towards the field/field/stage, lower number seats are on the left\". PER-SECTION STATEMENT: NONE — the only per-section fan artefact on the page is the review attribution \"PR18 / Row D • Baseball\", which carries a row but no seat number and no side.",
+  "seats_per_row": "UNKNOWN",
+  "notes": "Expert review: \"Upper Deck Seating: Located on the Pavilion Level in Fenway Park's upper deck.\"; \"Compact Sections: Each section contains 10 rows with Row A at the front.\"; \"Uncovered Seating: These sections are fully exposed to sun and weather.\"; \"Affordable Tickets: Excluding the Bleachers, these are often the cheapest reserved seats for Boston Red Sox games.\"; SHADE LINE: \"Sections 16-20 tend to remain in the sun longer during day games\". INTERNAL CONTRADICTION ON THIS PAGE: \"Each section contains 10 rows with Row A at the front\" versus the stated label range \"Rows A-K\", which is 11 labels. Do not rely on either.",
+  "source": "https://www.rateyourseats.com/fenway-park/seating/sections/PR18"
+ },
+ {
+  "section": "PR20",
+  "zone": "Pavilion Reserved 20 at Fenway Park",
+  "location": "AMBIGUOUS ON THE PAGE — RECORDED AS FETCHED, NOT RESOLVED. The page carries a comparison block headed \"First Base vs Third Base Side\" with the sentence \"The Pavilion Reserved sections are split across both sides of the field.\" and two rows, verbatim: \"Section 15 Located on the first base side of the field\" and \"Sections 16-20 Located on the third base side of the field\". Adjacent descriptive lines, verbatim: \"Offers a viewing angle looking toward the Green Monster in left field\" and \"Provide a more angled look toward home plate and the infield\". A first extraction pass of this page reported PR20 as \"Located on the first base side of the field\" paired with the Green Monster line; a second, targeted pass quoting every side-bearing sentence showed those are the SECTION 15 row of the comparison block, and concluded PR20 falls under \"Sections 16-20 ... third base side\". Treat the third-base reading as the page's actual claim, but note the page never writes a PR20-only side sentence.",
+  "rows": "\"Rows A-K\" (Section Insights row line)",
+  "entrance_row": "UNKNOWN — no entrance-row line on the page.",
+  "seat_direction": "BOILERPLATE (park-wide): \"When looking towards the field/field/stage, lower number seats are on the left\". PER-SECTION STATEMENT: NONE — no question-and-answer, expert answer or fan review on this page names a seat number or a seat-1 side for PR20.",
+  "seats_per_row": "UNKNOWN",
+  "notes": "Other verbatim lines: \"These sections are not covered, meaning fans will be exposed to direct sunlight for much of the game.\"; \"Section 15 typically moves into the shade earlier\"; \"Pavilion Reserved seats provide an elevated view of the entire field, allowing fans to easily follow the flow of the game from above.\" FINDING: this page is largely generic Pavilion Reserved zone content with a shared side-comparison block rather than PR20-specific text; the risk of mis-attributing the \"Section 15 / first base side\" row to PR20 is real and was hit on the first pass. Row-count contradiction as elsewhere in this tier (A-K = 11 labels vs \"10 rows\").",
+  "source": "https://www.rateyourseats.com/fenway-park/seating/sections/PR20 (fetched twice — once for the full record, once with a targeted side-quoting prompt to resolve the mis-attribution)"
+ },
+ {
+  "section": "RB23",
+  "zone": "Roof Box 23 at Fenway Park",
+  "location": "\"Located down the first base line on the top deck of Fenway Park.\"; \"These sections sit high above the field and extend down the line toward the right field corner.\" Consistent with discovery: the Roof Box series is odd-only and entirely on the first base side.",
+  "rows": "\"Rows in Roof Box 23 are labeled A-G\"",
+  "entrance_row": "\"An entrance to this section is located at Row G\"",
+  "seat_direction": "BOILERPLATE (park-wide): \"When looking towards the field/field/stage, lower number seats are on the left\". PER-SECTION STATEMENT: NONE — no question-and-answer, expert answer or fan review on this page names a side or a seat number for RB23.",
+  "seats_per_row": "UNKNOWN",
+  "notes": "Section Insights: \"Midfield View\". Verbatim lines: \"Each section features just eight rows (A-G) for easier access in and out.\" — INTERNALLY CONTRADICTORY, exactly as discovery flags: A-G is seven labels, not eight, and the section's own row line says A-G. Do not rely on either. \"Seats are uncovered and receive significant sun exposure during day games.\"; \"These seats are not covered, leaving fans exposed to sun and weather.\"; \"Day games can bring constant sun exposure to this part of the stadium.\"; \"One of the better upper-level vantage points of the Green Monster in left field.\"; \"Right Field Roof Boxes are best for fans looking for a budget-friendly seat in the upper deck who prefer smaller sections and a quieter environment.\"; VIEW-QUALITY WARNING: \"The viewing angle from the Right Field Roof Boxes is one of the biggest drawbacks of these seats.\"; \"Standing Room Only areas are located behind the Roof Box sections.\" Note the entrance is at Row G, the BACK of the section (Row A is the front) — the opposite arrangement to the Pavilion Boxes in this batch, whose entrances are all at Row A.",
+  "source": "https://www.rateyourseats.com/fenway-park/seating/sections/RB23"
+ },
+ {
+  "section": "RB25",
+  "zone": "Roof Box 25 at Fenway Park",
+  "location": "\"Right Field Roof Boxes are located along the first base line on the top deck of Fenway Park.\"; \"These sections sit high above the field and extend down the line toward the right field corner.\" Zone-level wording, not RB25-specific.",
+  "rows": "\"Rows in Roof Box 25 are labeled A-G\"",
+  "entrance_row": "\"An entrance to this section is located at Row G\"",
+  "seat_direction": "BOILERPLATE (park-wide): \"When looking towards the field/field/stage, lower number seats are on the left\". PER-SECTION STATEMENT: NONE — no question-and-answer, expert answer or fan review on this page names a side or a seat number for RB25.",
+  "seats_per_row": "UNKNOWN",
+  "notes": "Section Insights: \"Midfield View\". Verbatim: \"Each section includes eight rows labeled A through G, creating a more compact seating layout than many other upper-level areas.\" — the same eight-rows-versus-seven-letters contradiction discovery flags. \"The viewing angle from the Right Field Roof Boxes is one of the biggest drawbacks of these seats.\"; \"These seats are not covered, leaving fans exposed to sun and weather.\"; \"Day games can bring constant sun exposure to this part of the stadium.\" The page carries no RB25-specific narrative beyond the row and entrance lines — it is largely zone content.",
+  "source": "https://www.rateyourseats.com/fenway-park/seating/sections/RB25"
+ },
+ {
+  "section": "RB27",
+  "zone": "Roof Box 27 at Fenway Park",
+  "location": "\"Right Field Roof Boxes at Fenway Park are located down the first base line in the top deck.\" Zone-level wording, not RB27-specific.",
+  "rows": "\"Rows in Roof Box 27 are labeled A-G\"",
+  "entrance_row": "\"An entrance to this section is located at Row G\"",
+  "seat_direction": "UNKNOWN — NOTABLE. The park-wide boilerplate line was NOT PRESENT on the render of this page fetched. Two separate passes over this page (a full extraction, then a targeted query for any sentence beginning \"When looking towards the field\" or containing \"lower number seats\") both returned nothing. This is the only page in the batch, and the only Fenway page recorded anywhere in this project so far, that does not print the \"lower number seats are on the left\" boilerplate. There is also no per-section seat statement and no question-and-answer text (\"NONE\" on the targeted pass).",
+  "seats_per_row": "UNKNOWN",
+  "notes": "Verbatim lines: \"For football games, desirable view from near midfield\"; VIEW-QUALITY WARNING: \"The view from these seats is less than ideal as the angle towards home plate is poor.\"; \"Each section has 8 rows, labeled A through G, which makes getting in and out of the seats relatively easy.\" (again 8 rows vs 7 letters); \"Because of the intimacy of these sections, lines for concessions and restrooms tend to be lighter than on the lower level.\"; \"Roof Box SRO spaces are located behind these sections\"; \"These sections are not covered and are in constant sun\"; \"These seats have a great view of the Green Monster\". This page's wording differs from RB23/RB25/RB29 throughout, suggesting an older editorial revision is being served for RB27 — which may also explain the missing boilerplate.",
+  "source": "https://www.rateyourseats.com/fenway-park/seating/sections/RB27 (fetched twice — full extraction plus a targeted query for the seat-numbering boilerplate)"
+ },
+ {
+  "section": "RB29",
+  "zone": "Roof Box 29",
+  "location": "\"Right Field Roof Boxes are located along the first base line on the top deck of Fenway Park.\"; \"These sections sit high above the field and extend down the line toward the right field corner.\" Zone-level wording, not RB29-specific.",
+  "rows": "\"Rows in Roof Box 29 are labeled A-G\"",
+  "entrance_row": "\"An entrance to this section is located at Row G\"",
+  "seat_direction": "BOILERPLATE (park-wide): \"When looking towards the field/field/stage, lower number seats are on the left\". PER-SECTION STATEMENT: NONE — no question-and-answer, expert answer or fan review on this page names a side or a seat number for RB29.",
+  "seats_per_row": "UNKNOWN",
+  "notes": "Section Insights: \"Recommended For Outstanding Convenience (Rows C-G)\"; \"Midfield View\". Seating Notes: \"For baseball games, we recommend rows C-G for outstanding convenience\". Verbatim: \"Each section features just eight rows (A-G) for easier access in and out.\" (8 rows vs 7 letters, as elsewhere in the tier); \"Sunny Seating Area: Seats are uncovered and receive significant sun exposure during day games.\"; \"These seats are not covered, leaving fans exposed to sun and weather.\" The rows C-G recommendation is the only row-level differentiation found anywhere in the Roof Box series and implies the back rows are the convenient ones, consistent with the entrance being at Row G.",
+  "source": "https://www.rateyourseats.com/fenway-park/seating/sections/RB29"
+ }
+]

@@ -1,0 +1,25 @@
+{
+  "name": "euchre",
+  "version": "1.0.0",
+  "description": "Euchre for four, playable with a keyboard alone or entirely by ear with a screen reader. Against the computer, or with other people at a shared table.",
+  "private": true,
+  "scripts": {
+    "test": "node tests/rules-oracle.js && node tests/authorization.js && node tests/projection.js && node tests/hidden-information.js && node tests/online.js && node tests/room.js && node tests/engine-invariants.js && node tests/transcript.js && node tests/ui-dom.js && node tests/announcements.js && node tests/lobby.js",
+    "test:rules": "node tests/rules-oracle.js",
+    "test:auth": "node tests/authorization.js",
+    "test:projection": "node tests/projection.js && node tests/hidden-information.js",
+    "test:online": "node tests/online.js && node tests/room.js",
+    "test:invariants": "node tests/engine-invariants.js",
+    "test:transcript": "node tests/transcript.js",
+    "test:ui": "node tests/ui-dom.js && node tests/announcements.js && node tests/lobby.js",
+    "balance": "node tests/balance.js",
+    "balance:sweep": "node tests/balance.js sweep",
+    "test:layout": "node ../shared/tests/browser/layout.js euchre",
+    "test:contrast": "node ../shared/tests/browser/contrast.js euchre",
+    "test:overlap": "node ../shared/tests/browser/card-overlap.js euchre",
+    "test:appearance": "node ../shared/tests/browser/appearance.js euchre",
+    "test:keys": "node ../shared/tests/browser/keys.js euchre",
+    "test:renders": "node ../shared/tests/browser/renders.js euchre"
+  },
+  "license": "MIT"
+}

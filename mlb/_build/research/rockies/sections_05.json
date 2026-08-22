@@ -1,0 +1,222 @@
+[
+  {
+    "section": "238",
+    "zone": "Club Level",
+    "location": "\"Club Level seats are located on the second tier of Coors Field, running from the first base side through the third base side in Sections 214–227 and 234–247.\" / \"Elevated Views: Located on the second tier of Coors Field (Sections 214–227 and 234–247) with excellent sightlines of the field.\" (discovery.numbering_direction places the 234-247 block on the THIRD BASE side; the RYS page itself does not say which of the two blocks 238 belongs to)",
+    "rows": "1-11, C-W",
+    "entrance_row": "Row W",
+    "seat_direction": "When looking towards the field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights (verbatim): \"Top Pick for Impressing a Guest\", \"Rows 8 & Above - Covered\", \"Rows 1-11, C-W\". Seating Notes (verbatim): \"For baseball games, we recommend these seats for impressing a guest\"; \"Rows 8 and above are under cover\". Coverage (verbatim, Club Level review): \"Shade in Higher Rows: Rows 8 and higher benefit from overhead coverage from the deck above.\" CONTRADICTION RECORDED, NOT RECONCILED: the same review also says \"The best covered seats are typically found in Rows H and above\", but no Row H appears in this section's published row labels (1-11, C-W). Sun (verbatim, Club Level review): \"Seats on the third base side tend to receive more shade during day games, while seats on the first base side are more exposed to the sun.\" This agrees with discovery.orientation (ShadedSeats: third base = shade side at Coors, first base/right field = sunny side). Amenities (verbatim): \"Two Full-Service Bars near Sections 221 and 236\"; \"Short Sections: No more than 13 rows per section\". Lettered C-W rows match discovery.row_seat_conventions for Coors Field. Official netting run (Rockies, \"Sections 112-147\") is a lower-level run and does not apply to this 200-level section; no netting or obstruction is stated on this page. No fan reviews or fan feedback on this page. No seats-per-row figure stated.",
+    "source": "https://www.rateyourseats.com/coors-field/seating/sections/238"
+  },
+  {
+    "section": "239",
+    "zone": "Club Level",
+    "location": "\"Club Level seats are located on the second tier of Coors Field, running from the first base side through the third base side in Sections 214–227 and 234–247.\" / \"Elevated Views: Located on the second tier of Coors Field (Sections 214–227 and 234–247) with excellent sightlines of the field.\" (discovery.numbering_direction places the 234-247 block on the THIRD BASE side; the RYS page itself does not say which of the two blocks 239 belongs to)",
+    "rows": "1-10, C-W",
+    "entrance_row": "Row W",
+    "seat_direction": "When looking towards the field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights (verbatim): \"Top Pick for Impressing a Guest\", \"Rows 8 & Above - Covered\", \"Rows 1-10, C-W\". Seating Notes (verbatim): \"For baseball games, we recommend these seats for impressing a guest\"; \"Rows 8 and above are under cover\". Coverage (verbatim): \"Shade in Higher Rows: Rows 8 and higher benefit from overhead coverage from the deck above.\" CONTRADICTION RECORDED, NOT RECONCILED: the same review also says \"The best covered seats are typically found in Rows H and above\", but no Row H appears in this section's published row labels (1-10, C-W). Sun (verbatim): \"Seats on the third base side tend to receive more shade during day games, while seats on the first base side are more exposed to the sun.\" Agrees with discovery.orientation. Amenities (verbatim): \"Two Full-Service Bars near Sections 221 and 236\". Lettered C-W rows match discovery.row_seat_conventions. Official netting run \"Sections 112-147\" is lower-level only and does not apply here; no obstruction stated on this page. No fan reviews or fan feedback on this page. No seats-per-row figure stated.",
+    "source": "https://www.rateyourseats.com/coors-field/seating/sections/239"
+  },
+  {
+    "section": "241",
+    "zone": "Club Level",
+    "location": "\"Club Level seats are located on the second tier of Coors Field, running from the first base side through the third base side in Sections 214–227 and 234–247.\" / \"Elevated Views: Located on the second tier of Coors Field (Sections 214–227 and 234–247) with excellent sightlines of the field.\" (discovery.numbering_direction places the 234-247 block on the THIRD BASE side; the RYS page itself does not say which of the two blocks 241 belongs to)",
+    "rows": "1-10, W",
+    "entrance_row": "Row W",
+    "seat_direction": "When looking towards the field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights (verbatim): \"Top Pick for Outstanding Convenience\", \"Rows 8 & Above - Covered\", \"Rows 1-10, W\". Seating Notes (verbatim): \"For baseball games, we recommend these seats for outstanding convenience\"; \"Rows 8 and above are under cover\". Fan Review (verbatim): \"Great view of the entire field\" - Sec 241 / Row 1 • Baseball. Coverage (verbatim): \"Shade in Higher Rows: Rows 8 and higher benefit from overhead coverage from the deck above.\" CONTRADICTION RECORDED, NOT RECONCILED: the same review also says \"The best covered seats are typically found in Rows H and above\", but no Row H appears in this section's published row labels (1-10, W). Note also that neighbouring club sections 238 and 239 publish a full lettered block \"C-W\" while 241 publishes only \"W\"; both readings are recorded as printed and are not reconciled. Sun (verbatim): \"Seats on the third base side tend to receive more shade during day games, while seats on the first base side are more exposed to the sun.\" Agrees with discovery.orientation. Official netting run \"Sections 112-147\" is lower-level only; no obstruction stated on this page. No seats-per-row figure stated.",
+    "source": "https://www.rateyourseats.com/coors-field/seating/sections/241"
+  },
+  {
+    "section": "242",
+    "zone": "Club Level",
+    "location": "\"Club Level seats are located on the second tier of Coors Field, running from the first base side through the third base side in Sections 214–227 and 234–247.\" A verified fan review on this page places the section specifically: \"These seats were just above third base in the shade, club level.\" (agrees with discovery.numbering_direction, which places 234-247 on the THIRD BASE side)",
+    "rows": "1-11, W",
+    "entrance_row": "Row W",
+    "seat_direction": "When looking towards the field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights (verbatim): \"Top Pick for Outstanding Convenience\", \"Rows 8 & Above - Covered\", \"Rows 1-11, W\". Seating Notes (verbatim): \"For baseball games, we recommend these seats for outstanding convenience\"; \"Rows 8 and above are under cover\". Fan Review (verbatim): \"San Francisco Giants at Colorado Rockies - Jul 15, 2019 — These seats were just above third base in the shade, club level. The attendants made sure people were properly sitting in their seats and not blocking the view of others and children were not allowed to run and romp on the stairs. On a 90 degree day, we were very comfortable - even when the game went to crap.\" - Sec 242 / Row 10 • Baseball. Fan Feedback (verbatim): \"You can sit in the Club Level and get treated right. — Have access to an air conditioned concourse\" - Sec 242 • Baseball. Coverage (verbatim): \"Shade in Higher Rows: Rows 8 and higher benefit from overhead coverage from the deck above.\" CONTRADICTION RECORDED, NOT RECONCILED: the same review also says \"The best covered seats are typically found in Rows H and above\", but no Row H appears in this section's published row labels (1-11, W). Sun (verbatim): \"Seats on the third base side tend to receive more shade during day games, while seats on the first base side are more exposed to the sun.\" The fan report of shade above third base independently agrees with discovery.orientation. Official netting run \"Sections 112-147\" is lower-level only; no obstruction stated on this page. No seats-per-row figure stated.",
+    "source": "https://www.rateyourseats.com/coors-field/seating/sections/242"
+  },
+  {
+    "section": "243",
+    "zone": "Club Level",
+    "location": "\"Club Level seats are located on the second tier of Coors Field, running from the first base side through the third base side in Sections 214–227 and 234–247.\" / \"Elevated Views: Located on the second tier of Coors Field (Sections 214–227 and 234–247) with excellent sightlines of the field.\" (discovery.numbering_direction places the 234-247 block on the THIRD BASE side; the RYS page itself does not say which of the two blocks 243 belongs to)",
+    "rows": "1-13",
+    "entrance_row": "Row 13",
+    "seat_direction": "When looking towards the field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights (verbatim): \"Top Pick for Great Views of the Field Rows 8-13\", \"Rows 8 & Above - Covered\", \"Rows 1-13\". Seating Notes (verbatim): \"For baseball games, we recommend rows 8-13 for great views of the field\"; \"Rows 8 and above are under cover\". Coverage (verbatim): \"Shade in Higher Rows: Rows 8 and higher benefit from overhead coverage from the deck above.\" CONTRADICTION RECORDED, NOT RECONCILED: the same review also says \"The best covered seats are typically found in Rows H and above\", but this section's published row labels are purely numeric (1-13) with no lettered rows at all. Sun (verbatim): \"Seats on the third base side tend to receive more shade during day games, while seats on the first base side are more exposed to the sun.\" Agrees with discovery.orientation. Amenities (verbatim): \"Short Sections: No more than 13 rows per section, allowing easy access to the concourse.\" Official netting run \"Sections 112-147\" is lower-level only; no obstruction stated on this page. No fan reviews or fan feedback on this page. No seats-per-row figure stated.",
+    "source": "https://www.rateyourseats.com/coors-field/seating/sections/243"
+  },
+  {
+    "section": "244",
+    "zone": "Club Level",
+    "location": "\"Club Level seats are located on the second tier of Coors Field, running from the first base side through the third base side in Sections 214–227 and 234–247.\" / \"Elevated Views: Located on the second tier of Coors Field (Sections 214–227 and 234–247) with excellent sightlines of the field.\" (discovery.numbering_direction places the 234-247 block on the THIRD BASE side; the RYS page itself does not say which of the two blocks 244 belongs to)",
+    "rows": "1-13",
+    "entrance_row": "Row 13",
+    "seat_direction": "When looking towards the field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights (verbatim): \"Top Pick for Outstanding Convenience Rows 9-13\", \"Top Pick for Great Views of the Field Rows 8-13\", \"Rows 8 & Above - Covered\", \"Rows 1-13\". Seating Notes (verbatim): \"For baseball games, we recommend rows 9-13 for outstanding convenience\"; \"For baseball games, we recommend rows 8-13 for great views of the field\"; \"Rows 8 and above are under cover\". Coverage (verbatim): \"Shade in Higher Rows: Rows 8 and higher benefit from overhead coverage from the deck above.\" CONTRADICTION RECORDED, NOT RECONCILED: the same review also says \"The best covered seats are typically found in Rows H and above\", but this section's published row labels are purely numeric (1-13). Sun (verbatim): \"Seats on the third base side tend to receive more shade during day games, while seats on the first base side are more exposed to the sun.\" Agrees with discovery.orientation. Official netting run \"Sections 112-147\" is lower-level only; no obstruction stated on this page. No fan reviews or fan feedback on this page. No seats-per-row figure stated.",
+    "source": "https://www.rateyourseats.com/coors-field/seating/sections/244"
+  },
+  {
+    "section": "245",
+    "zone": "Club Level",
+    "location": "\"Club Level seats are located on the second tier of Coors Field, running from the first base side through the third base side in Sections 214–227 and 234–247.\" / \"Elevated Views: Located on the second tier of Coors Field (Sections 214–227 and 234–247) with excellent sightlines of the field.\" (discovery.numbering_direction places the 234-247 block on the THIRD BASE side; the RYS page itself does not say which of the two blocks 245 belongs to)",
+    "rows": "1-13",
+    "entrance_row": "Row 13",
+    "seat_direction": "When looking towards the field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights (verbatim): \"Top Pick for Outstanding Convenience Rows 9-13\", \"Rows 8 & Above - Covered\", \"Rows 1-13\". Seating Notes (verbatim): \"For baseball games, we recommend rows 9-13 for outstanding convenience\"; \"Rows 8 and above are under cover\". Fan Review (verbatim, 5 stars, title only): \"Boston Red Sox at Colorado Rockies - Jul 23, 2024\" - Sec 245 / Row 1 • Baseball. Coverage (verbatim): \"Shade in Higher Rows: Rows 8 and higher benefit from overhead coverage from the deck above.\" CONTRADICTION RECORDED, NOT RECONCILED: the same review also says \"The best covered seats are typically found in Rows H and above\", but this section's published row labels are purely numeric (1-13). Sun (verbatim): \"Seats on the third base side tend to receive more shade during day games, while seats on the first base side are more exposed to the sun.\" Agrees with discovery.orientation. Official netting run \"Sections 112-147\" is lower-level only; no obstruction stated on this page. No seats-per-row figure stated.",
+    "source": "https://www.rateyourseats.com/coors-field/seating/sections/245"
+  },
+  {
+    "section": "246",
+    "zone": "Club Level",
+    "location": "\"Club Level seats are located on the second tier of Coors Field, running from the first base side through the third base side in Sections 214–227 and 234–247.\" / \"Elevated Views: Located on the second tier of Coors Field (Sections 214–227 and 234–247) with excellent sightlines of the field.\" (discovery.numbering_direction places the 234-247 block on the THIRD BASE side; the RYS page itself does not say which of the two blocks 246 belongs to)",
+    "rows": "1-13",
+    "entrance_row": "Row 13",
+    "seat_direction": "When looking towards the field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights (verbatim): \"Club Level\", \"Rows 8 & Above - Covered\", \"Rows 1-13\". No Top Pick insight on this page. Seating Notes (verbatim): \"Premium seating area as part of the Club Level\"; \"Rows 8 and above are under cover\". Coverage (verbatim): \"Shade in Higher Rows: Rows 8 and higher benefit from overhead coverage from the deck above.\" CONTRADICTION RECORDED, NOT RECONCILED: the same review also says \"The best covered seats are typically found in Rows H and above\", but this section's published row labels are purely numeric (1-13). Sun (verbatim): \"Seats on the third base side tend to receive more shade during day games, while seats on the first base side are more exposed to the sun.\" Agrees with discovery.orientation. Official netting run \"Sections 112-147\" is lower-level only; no obstruction stated on this page. No fan reviews or fan feedback on this page. No seats-per-row figure stated.",
+    "source": "https://www.rateyourseats.com/coors-field/seating/sections/246"
+  },
+  {
+    "section": "247",
+    "zone": "Club Level",
+    "location": "\"Club Level seats are located on the second tier of Coors Field, running from the first base side through the third base side in Sections 214–227 and 234–247.\" / \"Elevated Views: Located on the second tier of Coors Field (Sections 214–227 and 234–247) with excellent sightlines of the field.\" (discovery.numbering_direction places 247 at the high end of the 234-247 block, i.e. the THIRD BASE / left-field-corner end, and the official Rockies Access Guide puts Gate E and an elevator at lower-level Section 147 on that same side; the RYS page itself does not state which side 247 is on)",
+    "rows": "1-13",
+    "entrance_row": "Row 13",
+    "seat_direction": "When looking towards the field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights (verbatim): \"Club Level\", \"Rows 8 & Above - Covered\", \"Rows 1-13\". No Top Pick insight on this page. Seating Notes (verbatim): \"Premium seating area as part of the Club Level\"; \"Rows 8 and above are under cover\". Coverage (verbatim): \"Shade in Higher Rows: Rows 8 and higher benefit from overhead coverage from the deck above.\" CONTRADICTION RECORDED, NOT RECONCILED: the same review also says \"The best covered seats are typically found in Rows H and above\", but this section's published row labels are purely numeric (1-13). Sun (verbatim): \"Seats on the third base side tend to receive more shade during day games, while seats on the first base side are more exposed to the sun.\" Agrees with discovery.orientation. Note this page defaults to the Concert tab (\"for Concert / Baseball\") whereas the other club section pages default to Baseball; no concert limited-view warning is shown for 247. Official netting run \"Sections 112-147\" is lower-level only; no obstruction stated on this page. No fan reviews or fan feedback on this page. No seats-per-row figure stated.",
+    "source": "https://www.rateyourseats.com/coors-field/seating/sections/247"
+  },
+  {
+    "section": "301",
+    "zone": "Reserve Level Outfield",
+    "location": "\"Reserve Level Outfield is the highest tier of outfield seating on the right field side of Coors Field.\" (same expert review continues: \"Center field seats will have a tough viewing angle to the videoboard, and fans closer to the right field corner will stay closer to the Blue Moon Brewery down the first base line.\")",
+    "rows": "1-5, W",
+    "entrance_row": "Row W",
+    "seat_direction": "When looking towards the field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights (verbatim): \"Rows 1-5, W\", \"Behind/Side Stage (most shows)\". Fan Feedback (verbatim): \"Sit in the last row and the last seat. Heck of a view of the city.\" - Sec 301 • Baseball. CONCERT-ONLY VIEW LIMIT (verbatim): \"301 is behind the stage or to the side of the stage for most concerts. This may restrict or limit your view of the performance.\" This is a concert warning only, not a baseball obstruction (matches discovery.known_obstructions). Sun (verbatim, Reserve Level Outfield review): \"Sun exposure will be some of the heaviest in these seats.\" Agrees with discovery.orientation (right field is the sunny side at Coors). Videoboard (verbatim): \"Center field seats will have a tough viewing angle to the videoboard\" - discovery notes the main board sits beyond the left-field bleachers. Home runs (verbatim): \"Home run balls this high up are a rarity even in the thin air of the Rocky Mountains.\" No Seating Notes block and no coverage/shade note on this page. No seats-per-row figure stated. Official netting run \"Sections 112-147\" is lower-level only and does not apply.",
+    "source": "https://www.rateyourseats.com/coors-field/seating/sections/301"
+  },
+  {
+    "section": "302",
+    "zone": "Reserve Level Outfield",
+    "location": "\"Reserve Level Outfield is the highest tier of outfield seating on the right field side of Coors Field.\"",
+    "rows": "1-5",
+    "entrance_row": "Row 5",
+    "seat_direction": "When looking towards the field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "CONTRADICTION ON THE PAGE ITSELF, RECORDED AND NOT RECONCILED: the Row Numbers block reads \"Rows in Section 302 are labeled 1-5\" and \"An entrance to this section is located at Row 5\", and the Section Insights list reads \"Rows 1-5\" - but the same page's Section Insights and Seating Notes both reference a Row W that is absent from that label list: \"Top Pick for Outstanding Convenience Rows 2-W\" and \"For baseball games, we recommend rows 2-W for outstanding convenience\". Both readings are recorded verbatim; the rows field uses the explicit Row Numbers statement (1-5). CONCERT-ONLY VIEW LIMIT (verbatim): \"302 is behind the stage or to the side of the stage for most concerts. This may restrict or limit your view of the performance.\" Concert warning only, not a baseball obstruction. Sun (verbatim): \"Sun exposure will be some of the heaviest in these seats.\" Agrees with discovery.orientation (right field is the sunny side at Coors). Videoboard (verbatim): \"Center field seats will have a tough viewing angle to the videoboard\". No coverage/shade note on this page. No fan reviews or fan feedback on this page. No seats-per-row figure stated.",
+    "source": "https://www.rateyourseats.com/coors-field/seating/sections/302"
+  },
+  {
+    "section": "303",
+    "zone": "Reserve Level Outfield",
+    "location": "\"Reserve Level Outfield is the highest tier of outfield seating on the right field side of Coors Field.\"",
+    "rows": "1-5",
+    "entrance_row": "Row 5",
+    "seat_direction": "When looking towards the field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights (verbatim): \"Rows 1-5\", \"Behind/Side Stage (most shows)\". CONCERT-ONLY VIEW LIMIT (verbatim): \"303 is behind the stage or to the side of the stage for most concerts. This may restrict or limit your view of the performance.\" Concert warning only, not a baseball obstruction. Sun (verbatim): \"Sun exposure will be some of the heaviest in these seats.\" Agrees with discovery.orientation. Videoboard (verbatim): \"Center field seats will have a tough viewing angle to the videoboard\". Discovery's accessibility landmark list places the CHUBurger concession at \"Section 303\" (source: official Rockies Access Guide) - not stated on this RYS page. No Seating Notes block, no coverage/shade note, no fan reviews or fan feedback on this page. No seats-per-row figure stated.",
+    "source": "https://www.rateyourseats.com/coors-field/seating/sections/303"
+  },
+  {
+    "section": "304",
+    "zone": "Reserve Level Outfield",
+    "location": "\"Reserve Level Outfield is the highest tier of outfield seating on the right field side of Coors Field.\"",
+    "rows": "1-5",
+    "entrance_row": "Row 5",
+    "seat_direction": "When looking towards the field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights (verbatim): \"Rows 1-5\", \"Behind/Side Stage (most shows)\". Fan Review (verbatim): \"Great view all around with the Rocky Mountains\" - Sec 304 / Row 2 • Baseball. CONCERT-ONLY VIEW LIMIT (verbatim): \"304 is behind the stage or to the side of the stage for most concerts. This may restrict or limit your view of the performance.\" Concert warning only, not a baseball obstruction. Sun (verbatim): \"Sun exposure will be some of the heaviest in these seats.\" Agrees with discovery.orientation. Videoboard (verbatim): \"Center field seats will have a tough viewing angle to the videoboard\". No Seating Notes block and no coverage/shade note on this page. No seats-per-row figure stated.",
+    "source": "https://www.rateyourseats.com/coors-field/seating/sections/304"
+  },
+  {
+    "section": "305",
+    "zone": "Reserve Level Outfield",
+    "location": "\"Reserve Level Outfield is the highest tier of outfield seating on the right field side of Coors Field.\"",
+    "rows": "1-5, W",
+    "entrance_row": "Row W",
+    "seat_direction": "When looking towards the field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights (verbatim): \"Rows 1-5, W\", \"Behind/Side Stage (most shows)\". CONCERT-ONLY VIEW LIMIT (verbatim): \"305 is behind the stage or to the side of the stage for most concerts. This may restrict or limit your view of the performance.\" Concert warning only, not a baseball obstruction. Sun (verbatim): \"Sun exposure will be some of the heaviest in these seats.\" Agrees with discovery.orientation. Videoboard (verbatim): \"Center field seats will have a tough viewing angle to the videoboard\". Note that the lettered Row W appears in some 300-level outfield sections (301, 305, 308, 309) and not in others (302, 303, 304, 306, 307) - recorded as printed, not reconciled. No Seating Notes block, no coverage/shade note, no fan reviews or fan feedback on this page. No seats-per-row figure stated.",
+    "source": "https://www.rateyourseats.com/coors-field/seating/sections/305"
+  },
+  {
+    "section": "306",
+    "zone": "Reserve Level Outfield",
+    "location": "\"Reserve Level Outfield is the highest tier of outfield seating on the right field side of Coors Field.\"",
+    "rows": "1-5",
+    "entrance_row": "Row 5",
+    "seat_direction": "When looking towards the field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights (verbatim): \"Rows 1-5\". NOTE: unlike neighbouring sections 301-305, this page carries NO \"Behind/Side Stage (most shows)\" insight and NO concert limited-view warning. Sun (verbatim): \"Sun exposure will be some of the heaviest in these seats.\" Agrees with discovery.orientation. Videoboard (verbatim): \"Center field seats will have a tough viewing angle to the videoboard\". Discovery's accessibility landmark list places an ATM \"Behind section 306 - The Rooftop, next to Fan Accomodations\" (source: official Rockies Access Guide) - not stated on this RYS page. No Seating Notes block, no coverage/shade note, no fan reviews or fan feedback on this page. No seats-per-row figure stated.",
+    "source": "https://www.rateyourseats.com/coors-field/seating/sections/306"
+  },
+  {
+    "section": "307",
+    "zone": "Reserve Level Outfield",
+    "location": "\"Reserve Level Outfield is the highest tier of outfield seating on the right field side of Coors Field.\"",
+    "rows": "1-5",
+    "entrance_row": "Row 5",
+    "seat_direction": "When looking towards the field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights (verbatim): \"Rows 1-5\". No \"Behind/Side Stage\" insight and no concert limited-view warning on this page. Sun (verbatim): \"Sun exposure will be some of the heaviest in these seats.\" Agrees with discovery.orientation. Videoboard (verbatim): \"Center field seats will have a tough viewing angle to the videoboard\". Home runs (verbatim): \"Home run balls this high up are a rarity even in the thin air of the Rocky Mountains.\" No Seating Notes block, no coverage/shade note, no fan reviews or fan feedback on this page. No seats-per-row figure stated.",
+    "source": "https://www.rateyourseats.com/coors-field/seating/sections/307"
+  },
+  {
+    "section": "308",
+    "zone": "Reserve Level Outfield",
+    "location": "\"Reserve Level Outfield is the highest tier of outfield seating on the right field side of Coors Field.\"",
+    "rows": "1-5, W",
+    "entrance_row": "Row W",
+    "seat_direction": "When looking towards the field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights (verbatim): \"Top Pick for Outstanding Convenience Rows 2-W\", \"Rows 1-5, W\". Seating Notes (verbatim): \"For baseball games, we recommend rows 2-W for outstanding convenience\" - here the \"Rows 2-W\" reference is consistent with the published row labels, which do include W (contrast section 302, where the identical \"rows 2-W\" wording appears alongside a label list of \"1-5\" with no W). No \"Behind/Side Stage\" insight and no concert limited-view warning on this page. Sun (verbatim): \"Sun exposure will be some of the heaviest in these seats.\" Agrees with discovery.orientation. Videoboard (verbatim): \"Center field seats will have a tough viewing angle to the videoboard\". No coverage/shade note, no fan reviews or fan feedback on this page. No seats-per-row figure stated.",
+    "source": "https://www.rateyourseats.com/coors-field/seating/sections/308"
+  },
+  {
+    "section": "309",
+    "zone": "Reserve Level Outfield",
+    "location": "\"Reserve Level Outfield is the highest tier of outfield seating on the right field side of Coors Field.\" (this page's panoramic photo is captioned \"Baseball Seat View From Section 309/310/311\")",
+    "rows": "1-5, W",
+    "entrance_row": "Row W",
+    "seat_direction": "When looking towards the field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights (verbatim): \"Rows 1-5, W\". No \"Behind/Side Stage\" insight and no concert limited-view warning on this page. Sun (verbatim): \"Sun exposure will be some of the heaviest in these seats.\" Agrees with discovery.orientation. Videoboard (verbatim): \"Center field seats will have a tough viewing angle to the videoboard, and fans closer to the right field corner will stay closer to the Blue Moon Brewery down the first base line.\" No Seating Notes block, no coverage/shade note, no fan reviews or fan feedback on this page. No seats-per-row figure stated.",
+    "source": "https://www.rateyourseats.com/coors-field/seating/sections/309"
+  },
+  {
+    "section": "310",
+    "zone": "Reserve Level Outfield",
+    "location": "\"Reserve Level Outfield is the highest tier of outfield seating on the right field side of Coors Field.\" (discovery separately records the RateYourSeats Rooftop page as saying \"The Rooftop is located in the upper level in right field\" and that \"for some games fans may also be able to access Sections 310-314 for seating\" - the section 310 page itself makes NO mention of the Rooftop, so both zone assignments are recorded and not reconciled)",
+    "rows": "12-25",
+    "entrance_row": "Row 12",
+    "seat_direction": "When looking towards the field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights (verbatim): \"Rows 19 & Above - Covered\", \"Rows 12-25\". Seating Notes (verbatim): \"Rows 19 and above are under cover\". NOTE the row range starts at 12, not 1 - no source consulted states why sections 310's rows begin at 12 while its neighbour 311 is labelled 1-25; do not assume rows 1-11 exist here. ZONE CONFLICT RECORDED, NOT RECONCILED: RYS assigns 310 the \"Reserve Level Outfield\" expert review (a right-field zone) while RYS's own Rooftop zone page lists 310-314 as sometimes-released Rooftop seating; discovery.uncertain flags this as unsettled. Sun (verbatim): \"Sun exposure will be some of the heaviest in these seats.\" Agrees with discovery.orientation (right field / first base side is the sunny side at Coors). Videoboard (verbatim): \"Center field seats will have a tough viewing angle to the videoboard, and fans closer to the right field corner will stay closer to the Blue Moon Brewery down the first base line.\" No concert limited-view warning on this page. No fan reviews or fan feedback on this page. No seats-per-row figure stated. Photo captions on this page: \"Baseball Seat View From Section 310, Row 20\"; \"Baseball Seat View From Section 309/310/311\".",
+    "source": "https://www.rateyourseats.com/coors-field/seating/sections/310"
+  },
+  {
+    "section": "311",
+    "zone": "Reserve Level Down the Line",
+    "location": "\"Sitting on the Reserve Level between the corner bases and the foul poles will leave you with some of the furthest views for a Rockies game at Coors Field.\" The same review adds: \"Scoreboard watchers get a better angle to the left field videoboard from the first base side, and will also be closer to Blue Moon Brewery (near Section 314).\" (discovery separately records the RYS Rooftop page as listing \"Sections 310-314\" as sometimes-released Rooftop seating; the section 311 page itself makes NO mention of the Rooftop - both readings recorded, not reconciled)",
+    "rows": "1-25",
+    "entrance_row": "Row 6",
+    "seat_direction": "When looking towards the field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights (verbatim): \"Rows 19 & Above - Covered\", \"Rows 1-25\". Seating Notes (verbatim): \"Rows 19 and above are under cover\". NOTE the zone change: 301-310 all carry the \"Reserve Level Outfield\" expert review, while 311 is the first section in this batch to carry \"Reserve Level Down the Line\" - the boundary between the two zones therefore falls between 310 and 311 per RateYourSeats. Sun (verbatim, Reserve Level Down the Line review): \"Seats on the first base side will see a heavy dose of sun during day games, so fans looking for shade are advised to consider the third base side (sun will be at your back earlier).\" This agrees with discovery.orientation (ShadedSeats: at Coors the third base side is the shade side and the first base side is the sunny side). Row labels here are a continuous 1-25 with the entrance at Row 6, which does NOT match the split \"1-5, C-W, 10-25\" pattern discovery.row_seat_conventions records for several other 300-level sections; recorded as printed, not reconciled. This page defaults to the Concert tab (\"for Concert / Baseball\") but carries no concert limited-view warning. Discovery's accessibility landmark list places \"Portable Grills - Sections 107, 117, 142, 147, 157, 311, 321, 341\" (official Rockies Access Guide) - not stated on this RYS page. No fan reviews or fan feedback on this page. No seats-per-row figure stated. Photo captions: \"Baseball Seat View From Section 311, Row 20\"; \"Baseball Seat View From Section 311, Row 2\"; \"Baseball Seat View From Section 309/310/311\".",
+    "source": "https://www.rateyourseats.com/coors-field/seating/sections/311"
+  }
+]

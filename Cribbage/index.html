@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- Without this the browser asks for /favicon.ico at the SITE root, which
+     belongs to the user page rather than this project — so every page here
+     logged a 404 nobody could fix from this repository. -->
+<link rel="icon" href="../shared/favicon.svg" type="image/svg+xml">
+    <title>Cribbage Game</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <a class="skip-link" href="#main-content">Skip to main content</a>
+    <div class="game-container">
+        <h1 class="page-title">Cribbage</h1>
+        
+        <main id="main-content">
+        <!-- Cribbage Board -->
+        <div class="cribbage-board" role="img" aria-label="Cribbage scoring board">
+            <div class="board-row player-row">
+                <span class="board-label" id="playerLabel">PLAYER: 0</span>
+                <div class="peg-track" id="playerTrack" role="progressbar" aria-label="Player score: 0 of 121" aria-valuemin="0" aria-valuemax="121" aria-valuenow="0"></div>
+            </div>
+            <div class="board-row computer-row">
+                <span class="board-label" id="computerLabel">COMPUTER: 0</span>
+                <div class="peg-track" id="computerTrack" role="progressbar" aria-label="Computer score: 0 of 121" aria-valuemin="0" aria-valuemax="121" aria-valuenow="0"></div>
+            </div>
+            <div id="scoreAnnouncement" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+        </div>
+
+        <!-- Game Status -->
+        <div class="game-status">
+            <h2>Game Status</h2>
+            <ul class="status-messages" id="statusMessages" tabindex="0" aria-label="Game log"></ul>
+        </div>
+
+        <!-- Computer Hand -->
+        <div class="hand-section">
+            <h2>Computer Hand</h2>
+            <div class="card-container" id="computerHand" role="group" aria-label="Computer hand"></div>
+        </div>
+
+        <!-- Crib -->
+        <div class="hand-section">
+            <h2 id="cribHeading">The Crib</h2>
+            <div class="card-container" id="cribCards" role="group" aria-label="The crib"></div>
+        </div>
+
+        <!-- Played Cards -->
+        <div class="hand-section">
+            <h2>Played Cards <span id="playCountDisplay" class="play-count-display"></span></h2>
+            <div class="card-container" id="playedCards" role="group" aria-label="Played cards"></div>
+        </div>
+
+        <!-- Player Hand -->
+        <div class="hand-section">
+            <h2>Your Hand</h2>
+            <div class="card-container" id="playerHand" role="group" aria-label="Your hand"></div>
+        </div>
+
+        <!-- Controls -->
+        <div class="controls">
+            <button id="cutButton" class="game-button" accesskey="c">Cut</button>
+            <button id="goButton" class="game-button" disabled accesskey="g">Go</button>
+            <button id="continueButton" class="game-button" disabled accesskey="n">Continue</button>
+        </div>
+        </main>
+        
+        <!-- Links. The way back to the other games goes first: it is the one a
+             player is most likely to want and least likely to guess at. -->
+        <nav class="footer-links" aria-label="Elsewhere">
+            <a href="../thecardplace.html" class="hub-link">Back to The Card Place</a>
+            <a href="rules.html" target="_blank" rel="noopener noreferrer" class="rules-link">How to Play Cribbage</a>
+            <a href="https://github.com/kellylford/TheWorkBench/issues/new" target="_blank" rel="noopener noreferrer" class="issue-link">Report an Issue</a>
+        </nav>
+    </div>
+
+    <!-- Hidden live region for screen reader announcements -->
+    <div id="liveAnnouncer" class="sr-only" role="status" aria-live="assertive" aria-atomic="true"></div>
+
+    <script src="game.js"></script>
+</body>
+</html>

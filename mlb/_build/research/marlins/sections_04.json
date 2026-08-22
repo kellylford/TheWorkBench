@@ -1,0 +1,222 @@
+[
+  {
+    "section": "222",
+    "zone": "Legends Platinum",
+    "location": "200 Level, along the infield, third base side (per discovery.json numbering direction; RateYourSeats Legends Platinum review lists sections 219-222 on the third base side)",
+    "rows": "Rows 1-7",
+    "entrance_row": "Row 7",
+    "seat_direction": "When looking towards the field/field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insight tag: Legends Platinum. Legends Platinum review states 'Sections 211 and 219, located closest to home plate, typically provide the best overall sightlines'; small sections with no more than 10 rows. Football-only review notes 'Sections 221-223 above the North Endzone offer good views of the entire field' - not applicable to baseball.",
+    "source": "https://www.rateyourseats.com/loandepot-park/seating/sections/222"
+  },
+  {
+    "section": "223",
+    "zone": "Legends Level Down the Line",
+    "location": "200 Level, past third base on the second tier Legends Level (per Legends Level Down the Line review, general area description)",
+    "rows": "Rows 1-11, WC",
+    "entrance_row": "Row WC",
+    "seat_direction": "When looking towards the field/field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Legends Level Down the Line review: 'Located just past first and third base on the second tier Legends Level... no more than 13 rows in each... Sections 202-204 feature just 8 rows of seating.' Football-only review: 'Sections 221-223 above the North Endzone' - not applicable to baseball.",
+    "source": "https://www.rateyourseats.com/loandepot-park/seating/sections/223"
+  },
+  {
+    "section": "224",
+    "zone": "Legends Level Down the Line",
+    "location": "200 Level, past first and third base on the second tier Legends Level",
+    "rows": "Rows 1-13",
+    "entrance_row": "Row 13",
+    "seat_direction": "When looking towards the field/field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Top Pick for Outstanding Convenience tag: rows 9-13. Seating Notes: 'For baseball games, we recommend rows 9-13 for outstanding convenience.' Legends Level Down the Line review as for 223.",
+    "source": "https://www.rateyourseats.com/loandepot-park/seating/sections/224"
+  },
+  {
+    "section": "225",
+    "zone": "Legends Level Down the Line",
+    "location": "200 Level, past first and third base on the second tier Legends Level",
+    "rows": "Rows 1-13",
+    "entrance_row": "Row 13",
+    "seat_direction": "When looking towards the field/field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Legends Level Down the Line review as for 223/224; no section-specific insight tag beyond row range.",
+    "source": "https://www.rateyourseats.com/loandepot-park/seating/sections/225"
+  },
+  {
+    "section": "226",
+    "zone": "Legends Level Down the Line",
+    "location": "200 Level, past first and third base on the second tier Legends Level",
+    "rows": "Rows 1-13",
+    "entrance_row": "Row 13",
+    "seat_direction": "When looking towards the field/field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Fan Feedback item: 'Favorite Seats: section 226 row 1 seat 8' (Sec 226 / Row 1, Baseball).",
+    "source": "https://www.rateyourseats.com/loandepot-park/seating/sections/226"
+  },
+  {
+    "section": "227",
+    "zone": "Legends Level Down the Line",
+    "location": "200 Level, past first and third base on the second tier Legends Level",
+    "rows": "Rows 1-13",
+    "entrance_row": "Row 13",
+    "seat_direction": "When looking towards the field/field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "No section-specific insight tags beyond row range; standard Legends Level Down the Line review applies.",
+    "source": "https://www.rateyourseats.com/loandepot-park/seating/sections/227"
+  },
+  {
+    "section": "228",
+    "zone": "Legends Level Down the Line",
+    "location": "200 Level, past first and third base on the second tier Legends Level",
+    "rows": "Rows 1-11",
+    "entrance_row": "Row 11",
+    "seat_direction": "When looking towards the field/field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "No section-specific insight tags beyond row range; standard Legends Level Down the Line review applies.",
+    "source": "https://www.rateyourseats.com/loandepot-park/seating/sections/228"
+  },
+  {
+    "section": "302",
+    "zone": "Vista Level",
+    "location": "Highest seating tier of the stadium; per football-obstruction review, section 302 is grouped with 'right field sections' (obstructed sections include 302-305)",
+    "rows": "Rows A-K, 1-7",
+    "entrance_row": "Row K",
+    "seat_direction": "When looking towards the field/field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insight tag: Obstructed/Limited Views. Obstructed Seating review (football-only): 'right field sections can not see the entire field. Obstructed sections include Field sections 1-4, outfield sections 134-141 and sections 201-204 and 302-305' - this is a football-specific note. Vista Level Down the Line review: bar located in 'outside section 302'; section 303 is 'the best option on the right field side... close to concession options and the bar located in outside section 302.'",
+    "source": "https://www.rateyourseats.com/loandepot-park/seating/sections/302"
+  },
+  {
+    "section": "303",
+    "zone": "Vista Level",
+    "location": "Highest seating tier; right field side per Vista Level Down the Line review ('Section 303 is the best option on the right field side')",
+    "rows": "Rows A-K, 1-8",
+    "entrance_row": "Row K",
+    "seat_direction": "When looking towards the field/field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insight tags: Top Pick for Outstanding Convenience (Rows G-K), Obstructed/Limited Views. Seating Notes: 'For baseball games, we recommend rows G-K for outstanding convenience' and 'Obstructed/Limited Views'. Football-only obstruction note (302-305) also applies per Obstructed Seating review.",
+    "source": "https://www.rateyourseats.com/loandepot-park/seating/sections/303"
+  },
+  {
+    "section": "304",
+    "zone": "Vista Level",
+    "location": "Highest seating tier; grouped with right-field obstructed sections (302-305) in football review",
+    "rows": "Rows A-K, 1-9",
+    "entrance_row": "Row K",
+    "seat_direction": "When looking towards the field/field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insight tags: Top Pick for Outstanding Convenience (Rows G-K), Obstructed/Limited Views. Seating Notes: 'For baseball games, we recommend rows G-K for outstanding convenience' and 'Obstructed/Limited Views'.",
+    "source": "https://www.rateyourseats.com/loandepot-park/seating/sections/304"
+  },
+  {
+    "section": "305",
+    "zone": "Vista Level",
+    "location": "Highest seating tier; grouped with right-field obstructed sections (302-305) in football review",
+    "rows": "Rows A-K, 1-10",
+    "entrance_row": "Row K",
+    "seat_direction": "When looking towards the field/field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insight tag: Obstructed/Limited Views. Seating Notes: 'Obstructed/Limited Views — See all details'.",
+    "source": "https://www.rateyourseats.com/loandepot-park/seating/sections/305"
+  },
+  {
+    "section": "306",
+    "zone": "Vista Level",
+    "location": "Highest seating tier; per Vista Level 2026 review, 'Sections 306-310 and 319-322 sit closest to the infield' and 'Sections 306-310: Closer to the infield with strong overall views'",
+    "rows": "Rows A-J, WC, 1-12",
+    "entrance_row": "Rows J and 3 (two entrances)",
+    "seat_direction": "When looking towards the field/field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "There is a walkway between Rows J and WC. Football review (Vista Level Sideline): 'Some of the best seats for football at Marlins Park are located in the front rows of 307 and 308' and 'Fans looking for a sideline perspective should consider Sections 306-309' - football-only, not baseball.",
+    "source": "https://www.rateyourseats.com/loandepot-park/seating/sections/306"
+  },
+  {
+    "section": "307",
+    "zone": "Vista Level",
+    "location": "Highest seating tier; near midfield per football review; part of 'Sections 306-310 ... closest to the infield' per baseball Vista Level review",
+    "rows": "Rows A-J, WC, 1-13",
+    "entrance_row": "Rows J and 3 (two entrances)",
+    "seat_direction": "When looking towards the field/field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insight tag: Midfield View. Seating Notes: 'For football games, desirable view from near midfield' (football-specific). There is a walkway between Rows J and WC. Football review: best seats for football in 'front rows of 307 and 308'.",
+    "source": "https://www.rateyourseats.com/loandepot-park/seating/sections/307"
+  },
+  {
+    "section": "308",
+    "zone": "Vista Level",
+    "location": "Highest seating tier; part of 'Sections 306-310 ... closest to the infield' per baseball Vista Level review",
+    "rows": "Rows A-J, WC, 1-14",
+    "entrance_row": "Rows J and 3 (two entrances)",
+    "seat_direction": "When looking towards the field/field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insight tags: Top Pick for Outstanding Convenience (Rows F-J), Midfield View. Seating Notes: 'For baseball games, we recommend rows F-J for outstanding convenience' and 'For football games, desirable view from near midfield'. There is a walkway between Rows J and WC. Fan review: 5-star, 'New York Yankees at Miami Marlins - Aug 13, 2023 — View was great.' (Sec 308 / Row A).",
+    "source": "https://www.rateyourseats.com/loandepot-park/seating/sections/308"
+  },
+  {
+    "section": "309",
+    "zone": "Vista Level",
+    "location": "Highest seating tier; part of 'Sections 306-310 ... closest to the infield' per baseball Vista Level review",
+    "rows": "Rows A-J, WC, 1-15",
+    "entrance_row": "Rows J and 3 (two entrances)",
+    "seat_direction": "When looking towards the field/field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insight tag: Top Pick for Outstanding Convenience (Rows F-J). Seating Notes: 'For baseball games, we recommend rows F-J for outstanding convenience'. There is a walkway between Rows J and WC.",
+    "source": "https://www.rateyourseats.com/loandepot-park/seating/sections/309"
+  },
+  {
+    "section": "310",
+    "zone": "Vista Level",
+    "location": "Highest seating tier; part of 'Sections 306-310 ... closest to the infield' per baseball Vista Level review",
+    "rows": "Rows A-J, WC, 1-16",
+    "entrance_row": "Rows J and 3 (two entrances)",
+    "seat_direction": "When looking towards the field/field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "No section-specific insight tags. There is a walkway between Rows J and WC.",
+    "source": "https://www.rateyourseats.com/loandepot-park/seating/sections/310"
+  },
+  {
+    "section": "311",
+    "zone": "Vista Level",
+    "location": "Highest seating tier; per Vista Level 2026 review, 'Sections 311-318 sit directly behind home plate and are positioned above the suite level below, which places them slightly higher than surrounding sections'",
+    "rows": "Rows WC, 1-16",
+    "entrance_row": "Row 3",
+    "seat_direction": "When looking towards the field/field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insight tag: Top Pick for Kids and Family. Seating Notes: 'For baseball games, we recommend these seats for kids and family'.",
+    "source": "https://www.rateyourseats.com/loandepot-park/seating/sections/311"
+  },
+  {
+    "section": "312",
+    "zone": "Vista Level",
+    "location": "Highest seating tier; behind home plate, part of Sections 311-318 per Vista Level 2026 review",
+    "rows": "Rows WC, 1-16",
+    "entrance_row": "Rows WC and 3 (two entrances)",
+    "seat_direction": "When looking towards the field/field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insight tags: Top Pick for Kids and Family, Home Plate View. Wheelchair seating is available in front of Row 1. Seating Notes: 'For baseball games, we recommend these seats for kids and family' and 'For baseball games, desirable view from behind home plate'.",
+    "source": "https://www.rateyourseats.com/loandepot-park/seating/sections/312"
+  },
+  {
+    "section": "313",
+    "zone": "Vista Level",
+    "location": "Highest seating tier; behind home plate, part of Sections 311-318 per Vista Level 2026 review",
+    "rows": "Rows A-C, 1-16",
+    "entrance_row": "Row 3",
+    "seat_direction": "When looking towards the field/field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insight tags: Top Pick for Kids and Family, Home Plate View. Seating Notes: 'For baseball games, we recommend these seats for kids and family' and 'For baseball games, desirable view from behind home plate'.",
+    "source": "https://www.rateyourseats.com/loandepot-park/seating/sections/313"
+  },
+  {
+    "section": "314",
+    "zone": "Vista Level",
+    "location": "Highest seating tier; behind home plate, part of Sections 311-318 per Vista Level 2026 review",
+    "rows": "Rows A-C, 1-16",
+    "entrance_row": "Row 3",
+    "seat_direction": "When looking towards the field/field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insight tags: Top Pick for Kids and Family, Home Plate View. Seating Notes: 'For baseball games, we recommend these seats for kids and family' and 'For baseball games, desirable view from behind home plate'.",
+    "source": "https://www.rateyourseats.com/loandepot-park/seating/sections/314"
+  }
+]

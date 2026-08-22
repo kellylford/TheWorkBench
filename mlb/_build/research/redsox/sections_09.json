@@ -1,0 +1,222 @@
+[
+ {
+  "section": "GS1",
+  "zone": "Grandstand 1 at Fenway Park (Grandstand)",
+  "location": "\"Grandstand seating wraps around much of the lower seating bowl at Fenway Park, sitting directly beneath the large roof structure that covers much of the stadium.\" The page also carries the zone line \"Sections 1–6 are covered but can still receive late afternoon sun\". No sentence on the page names a base line or field position for GS1 specifically; discovery.json already flags GS1 as having no explicit location quote.",
+  "rows": "\"Rows in Grandstand 1 are labeled 1-18\"",
+  "entrance_row": "UNKNOWN",
+  "seat_direction": "BOILERPLATE (park-wide, identical on every Fenway section page, printed in the Row Numbers block, including the site's duplicated word 'field'): \"When looking towards the field/field/stage, lower number seats are on the left\". PER-SECTION: no statement naming a side for SEAT NUMBERS in this section. The only per-section side text is about beams, not seat numbers - fan review: \"Avoid the right side — The beam at the right side of the row limits the view for seats furthest to the right in all the seating rows\". That names a side of the section but never ties it to a seat number, so it does not resolve seat 1.",
+  "seats_per_row": "UNKNOWN",
+  "notes": "Section Insights: \"Covered Seats\"; \"Rows 1-18\"; \"Behind/Side Stage (most shows)\". Seating Notes: \"All seats in this section are under cover\". Expert review: \"High Risk of Obstructed Views: Many seats have blocked or partially obstructed sightlines\" and \"Grandstand seats on the third base side generally offer better sightlines than those on the first base side\". Obstruction is on the RIGHT side of the section per the fan review quoted above. CONTRADICTION FLAG (park-level, not this section): the boilerplate above says lower numbers are on the LEFT, while https://www.rateyourseats.com/fenway-park/seating/seating-chart says \"Seat Numbers at Fenway Park go from right-to-left\". Not reconciled here.",
+  "source": "https://www.rateyourseats.com/fenway-park/seating/sections/GS1"
+ },
+ {
+  "section": "GS2",
+  "zone": "Grandstand 2 at Fenway Park (Grandstand)",
+  "location": "\"Grandstand seating wraps around much of the lower seating bowl at Fenway Park, sitting directly beneath the large roof structure that covers much of the stadium.\" No per-section sentence naming a base line or field position.",
+  "rows": "\"Rows in Grandstand 2 are labeled 1-18\"",
+  "entrance_row": "UNKNOWN",
+  "seat_direction": "BOILERPLATE (park-wide, identical on every Fenway section page): \"When looking towards the field/field/stage, lower number seats are on the left\". PER-SECTION: no statement naming a side for SEAT NUMBERS. Nearest per-section side text is a fan review titled \"Beam at the right\" whose body says the opposite side is the bad one: \"Seats near the left aisle will have a difficult view due to the support beam. Seats near the right aisle are much better.\" This is a section-side statement about beams only, with no seat number attached, so it does not resolve seat 1. NOTE the internal oddity: the review's HEADLINE says \"Beam at the right\" while its BODY blames the LEFT aisle.",
+  "seats_per_row": "UNKNOWN",
+  "notes": "Section Insights: \"Covered Seats\"; \"Rows 1-18\"; \"Behind/Side Stage (most shows)\". Seating Notes: \"All seats in this section are under cover\". Expert review: \"Support poles positioned throughout the sections can block views of different parts of the field, including home plate, the pitcher's mound, second base, or the outfield, depending on the seat location.\" GS2 is the one section in this batch whose fan feedback puts the problem beam on the LEFT rather than the right; every other section in this batch that names a beam side names the right. Recorded, not reconciled. Park-level contradiction between the boilerplate (\"lower number seats are on the left\") and the venue seating-chart page (\"Seat Numbers at Fenway Park go from right-to-left\") remains unresolved.",
+  "source": "https://www.rateyourseats.com/fenway-park/seating/sections/GS2"
+ },
+ {
+  "section": "GS3",
+  "zone": "Grandstand 3 at Fenway Park (Grandstand)",
+  "location": "\"Grandstand seating wraps around much of the lower seating bowl at Fenway Park, sitting directly beneath the large roof structure that covers much of the stadium.\" No per-section sentence naming a base line or field position.",
+  "rows": "\"Rows in Grandstand 3 are labeled 1-18\"",
+  "entrance_row": "UNKNOWN",
+  "seat_direction": "BOILERPLATE (park-wide, identical on every Fenway section page): \"When looking towards the field/field/stage, lower number seats are on the left\". PER-SECTION: no statement naming a side for SEAT NUMBERS. Per-section side text about beams only, fan review titled \"Right side has the better angle\": \"Most rows in Grandstand Section 3 have better views near the right aisle. If you sit near the left aisle, the beam at the left can impact your view of the infield.\" No seat number is attached, so it does not resolve seat 1.",
+  "seats_per_row": "UNKNOWN",
+  "notes": "Section Insights: \"Top Pick for Unobstructed Grandstand Views Rows 1\"; \"Covered Seats\"; \"Rows 1-18\". Seating Notes: \"For baseball games, we recommend rows 1 for unobstructed grandstand views\"; \"All seats in this section are under cover\". Fan review: \"Clear views at Row 1 — If you can find a seat in Row 1, you'll have a clear and unobstructed view to the field\". Like GS2, GS3 places the problem beam on the LEFT, against the right-side pattern of most other sections in this batch. Park-level seat-1 contradiction (boilerplate 'left' vs seating-chart page 'right-to-left') unresolved.",
+  "source": "https://www.rateyourseats.com/fenway-park/seating/sections/GS3"
+ },
+ {
+  "section": "GS4",
+  "zone": "Grandstand 4 at Fenway Park (Grandstand)",
+  "location": "\"Grandstand seating wraps around much of the lower seating bowl at Fenway Park, sitting directly beneath the large roof structure that covers much of the stadium.\" No per-section sentence naming a base line or field position.",
+  "rows": "\"Rows in Grandstand 4 are labeled 1-17\"",
+  "entrance_row": "UNKNOWN",
+  "seat_direction": "BOILERPLATE (park-wide, identical on every Fenway section page): \"When looking towards the field/field/stage, lower number seats are on the left\". PER-SECTION: no statement naming a side for SEAT NUMBERS. Per-section side text about beams only, fan review titled \"Avoid the left side at all costs\": \"Views from the seats near the left side of the section are incredibly difficult as you have multiple beams blocking your view of the infield. Whenever possible, stick with the seats near the right aisle in Grandstand 4 for the best views in most seating rows.\" No seat number attached, so it does not resolve seat 1.",
+  "seats_per_row": "UNKNOWN",
+  "notes": "Section Insights: \"Top Pick for Kids and Family\"; \"Top Pick for Unobstructed Grandstand Views Rows 1\"; \"Covered Seats\". Seating Notes: \"All seats in this section are under cover\". Fan review: \"Row 1 has the best views — All seats in Row 1 have a clear view to the infield\". Expert: \"High Risk of Obstructed Views: Many seats have blocked or partially obstructed sightlines due to the historic stadium structure.\" GS4 row range 1-17 differs from GS1-GS3's 1-18 - row depth varies section by section, as discovery.json warns. Park-level seat-1 contradiction unresolved.",
+  "source": "https://www.rateyourseats.com/fenway-park/seating/sections/GS4"
+ },
+ {
+  "section": "GS5",
+  "zone": "Grandstand 5 at Fenway Park (Grandstand)",
+  "location": "\"Grandstand seating wraps around much of the lower seating bowl at Fenway Park, sitting directly beneath the large roof structure that covers much of the stadium.\" Per-section fan review gives a sightline bearing: \"Basically looks down the first base foul line.\" That is the only text in this batch that names a base line for a specific section, and it corroborates discovery.json's placement of the low-numbered Grandstand sections on the FIRST BASE / right-field side.",
+  "rows": "\"Rows in Grandstand 5 are labeled 1-17\"",
+  "entrance_row": "\"An entrance to this section is located at Row 17\"",
+  "seat_direction": "BOILERPLATE (park-wide, identical on every Fenway section page): \"When looking towards the field/field/stage, lower number seats are on the left\". PER-SECTION: no statement naming a side for SEAT NUMBERS. Per-section side text names a side of the SECTION only, fan review: \"Best place to be is probably the far left side of rows 4-10.\" No seat number attached, so it does not resolve seat 1.",
+  "seats_per_row": "UNKNOWN",
+  "notes": "Section Insights: \"Top Pick for Kids and Family\"; \"Covered Seats\"; \"Rows 1-17\". Seating Notes: \"All seats in this section are under cover\". Expert review: \"Grandstand seats on the third base side generally offer better sightlines than those on the first base side\"; \"High Risk of Obstructed Views\"; \"Support poles positioned throughout the sections can block views\"; \"Excellent Weather Protection\"; \"Narrower than most modern stadium seats\". The fan line \"Basically looks down the first base foul line\" is the load-bearing location datum for this batch and AGREES with discovery.json (GS1-GS6 = first base / right field side); it does not contradict it. Park-level seat-1 contradiction unresolved.",
+  "source": "https://www.rateyourseats.com/fenway-park/seating/sections/GS5"
+ },
+ {
+  "section": "GS6",
+  "zone": "Grandstand 6 at Fenway Park (Grandstand)",
+  "location": "\"Grandstand seating wraps around much of the lower seating bowl at Fenway Park, sitting directly beneath the large roof structure that covers much of the stadium.\" Zone line also present: \"Sections 1–6 are covered but can still receive late afternoon sun\".",
+  "rows": "\"Rows in Grandstand 6 are labeled 1-12\"",
+  "entrance_row": "UNKNOWN",
+  "seat_direction": "BOILERPLATE (park-wide, identical on every Fenway section page): \"When looking towards the field/field/stage, lower number seats are on the left\". PER-SECTION: no statement naming a side for SEAT NUMBERS, but the closest thing in this batch to a seat-count-from-an-aisle datum, fan review: \"There is a beam about 7 seats in off the right aisle just in front of the first row, and more beams to the left as you look toward home plate.\" Note it counts seats FROM THE RIGHT AISLE and treats \"to the left\" as the direction of travel away from that count. It still never names seat 1, so it does not on its own resolve the seat-1 side. Also present, expert: \"Best bet for a clear view is the far left seats in the lowest rows.\"",
+  "seats_per_row": "UNKNOWN",
+  "notes": "Section Insights: \"Top Pick for Kids and Family\"; \"Covered Seats\"; \"Rows 1-12\". Seating Notes: \"For baseball games, we recommend these seats for kids and family\"; \"All seats in this section are under cover\". Expert: \"Grandstand seats on the third base side generally offer better sightlines than those on the first base side\"; \"High Risk of Obstructed Views: Many seats have blocked or partially obstructed sightlines due to the historic stadium structure.\" GS6 is the shallowest section in this batch at 12 rows. The habit of counting seats IN FROM THE RIGHT AISLE recurs on GS7, GS9 and GS18 and is the pattern that makes the GS18 evidence below meaningful. Park-level seat-1 contradiction unresolved.",
+  "source": "https://www.rateyourseats.com/fenway-park/seating/sections/GS6"
+ },
+ {
+  "section": "GS7",
+  "zone": "Grandstand 7 at Fenway Park (Grandstand)",
+  "location": "\"Grandstand seating wraps around much of the lower seating bowl at Fenway Park, sitting directly beneath the large roof structure that covers much of the stadium.\" No per-section sentence naming a base line or field position.",
+  "rows": "\"Rows in Grandstand 7 are labeled 1-17\"",
+  "entrance_row": "\"An entrance to this section is located at Row 17\"",
+  "seat_direction": "BOILERPLATE (park-wide, identical on every Fenway section page): \"When looking towards the field/field/stage, lower number seats are on the left\". PER-SECTION: no statement naming a side for SEAT NUMBERS. Seat-count-from-aisle text only, fan review titled \"Beam in the middle\": \"A support beam is about 12 seats in off the right aisle just in front of the first row - almost right in the middle of the section. With more beams to the left of the section, views here are incredibly difficut as there is little relief from obstruction\" (the misspelling \"difficut\" is in the source). Counts FROM THE RIGHT AISLE. No seat number named, so it does not resolve seat 1.",
+  "seats_per_row": "UNKNOWN - but note the fan statement that a beam 12 seats in off the right aisle is \"almost right in the middle of the section\", which implies roughly 24 seats across, though the page never states a seats-per-row figure.",
+  "notes": "Section Insights: \"Covered Seats\"; \"Rows 1-17\". Seating Notes: \"All seats in this section are under cover\". Expert: \"Grandstand seats on the third base side generally offer better sightlines than those on the first base side\". Park-level seat-1 contradiction unresolved.",
+  "source": "https://www.rateyourseats.com/fenway-park/seating/sections/GS7"
+ },
+ {
+  "section": "GS8",
+  "zone": "Grandstand 8 at Fenway Park (Grandstand)",
+  "location": "\"Grandstand seating wraps around much of the lower seating bowl at Fenway Park, sitting directly beneath the large roof structure that covers much of the stadium.\" The only positional insight is a FOOTBALL one: \"Midfield View\" / \"For football games, desirable view from near midfield\" - not a baseball placement.",
+  "rows": "\"Rows in Grandstand 8 are labeled 1-17\"",
+  "entrance_row": "\"An entrance to this section is located at Row 17\"",
+  "seat_direction": "BOILERPLATE (park-wide, identical on every Fenway section page): \"When looking towards the field/field/stage, lower number seats are on the left\". PER-SECTION: no statement naming a side for SEAT NUMBERS. Per-section side text about beams only, fan review titled \"Stay low and left or high and right\": \"The beam in front of the first row creates some really difficult views in the seats near the right aisle in the lower rows. However, fans near the left aisle in the lower rows will have clear views of the infield, as well as those near the right aisle in the upper rows.\" No seat number attached, so it does not resolve seat 1.",
+  "seats_per_row": "UNKNOWN",
+  "notes": "Section Insights: \"Midfield View\"; \"Covered Seats\"; \"Rows 1-17\". Seating Notes: \"For football games, desirable view from near midfield\"; \"All seats in this section are under cover\". Expert: \"High Risk of Obstructed Views: Many seats have blocked or partially obstructed sightlines due to the historic stadium structure.\" Park-level seat-1 contradiction unresolved.",
+  "source": "https://www.rateyourseats.com/fenway-park/seating/sections/GS8"
+ },
+ {
+  "section": "GS9",
+  "zone": "Grandstand 9 at Fenway Park (Grandstand)",
+  "location": "\"Grandstand seating wraps around much of the lower seating bowl at Fenway Park, sitting directly beneath the large roof structure that covers much of the stadium.\" Only positional insight is the football one: \"Midfield View\" / \"For football games, desirable view from near midfield\".",
+  "rows": "\"Rows in Grandstand 9 are labeled 1-17\"",
+  "entrance_row": "\"An entrance to this section is located at Row 17\"",
+  "seat_direction": "BOILERPLATE (park-wide, identical on every Fenway section page): \"When looking towards the field/field/stage, lower number seats are on the left\". PER-SECTION: no statement naming a side for SEAT NUMBERS. Seat-count-from-aisle text only, fan review: \"A beam at the right side of the first row (about 5 seats in) makes for really difficult views\"; and fan review: \"Best place to be is near the left aisle in Rows 4 through 8.\" Counts FROM THE RIGHT SIDE again. No seat number named, so it does not resolve seat 1.",
+  "seats_per_row": "UNKNOWN",
+  "notes": "Section Insights: \"Midfield View\"; \"Covered Seats\"; \"Rows 1-17\". Seating Notes: \"For football games, desirable view from near midfield\"; \"All seats in this section are under cover\". Expert: \"Grandstand seats on the third base side generally offer better sightlines than those on the first base side\". Park-level seat-1 contradiction unresolved.",
+  "source": "https://www.rateyourseats.com/fenway-park/seating/sections/GS9"
+ },
+ {
+  "section": "GS10",
+  "zone": "Grandstand 10 at Fenway Park (Grandstand)",
+  "location": "No sentence on the page places GS10 specifically. Generic zone text only: \"Grandstand seating wraps around much of the lower seating bowl at Fenway Park, sitting directly beneath the large roof structure that covers much of the stadium.\" Football insight \"Midfield View\" is present but is not a baseball placement.",
+  "rows": "\"Rows in Grandstand 10 are labeled 1-17\"",
+  "entrance_row": "\"An entrance to this section is located at Row 17\"",
+  "seat_direction": "BOILERPLATE (park-wide, identical on every Fenway section page): \"When looking towards the field/field/stage, lower number seats are on the left\". PER-SECTION: no statement naming a side for SEAT NUMBERS. Per-section side text about views only, expert answer titled \"Seats to the right are best in Rows 3 and up\": \"When sitting in rows 3 and higher in Grandstand Section 10, stick to seats near the right aisle. Seats closer to the left side of the row will have obstructed views of the infield.\" No seat number attached, so it does not resolve seat 1.",
+  "seats_per_row": "UNKNOWN",
+  "notes": "Section Insights: \"Top Pick for Unobstructed Grandstand Views Rows 1-2\"; \"Midfield View\"; \"Covered Seats\"; \"Rows 1-17\". Seating Notes: \"For baseball games, we recommend rows 1-2 for unobstructed grandstand views\"; \"All seats in this section are under cover\". Fan feedback: \"Unobstructed infield views from Rows 1 and 2 — Sitting near the front of Grandstand 10 (Rows 1 and 2) will get you clear, unobstructed views of the infield.\" Expert: \"High Risk of Obstructed Views: Many seats have blocked or partially obstructed sightlines due to the historic stadium structure.\" GS10 is one of the sections where the bad side is the LEFT, opposite to GS18/GS20. Park-level seat-1 contradiction unresolved.",
+  "source": "https://www.rateyourseats.com/fenway-park/seating/sections/GS10"
+ },
+ {
+  "section": "GS11",
+  "zone": "Grandstand 11 at Fenway Park (Grandstand)",
+  "location": "\"Grandstand seating wraps around much of the lower seating bowl at Fenway Park, sitting directly beneath the large roof structure that covers much of the stadium.\" Football insight \"Midfield View\" only; no baseball placement sentence.",
+  "rows": "\"Rows in Grandstand 11 are labeled 1-17\"",
+  "entrance_row": "\"An entrance to this section is located at Row 17\"",
+  "seat_direction": "BOILERPLATE (park-wide, identical on every Fenway section page): \"When looking towards the field/field/stage, lower number seats are on the left\". PER-SECTION: no statement naming a side for SEAT NUMBERS. Per-section side text about views only, fan review titled \"Better to be left and low\": \"Seats on the right side of the section will have the more difficult views, but if you can get a seat near the left aisle and in a low numbered row, you will have good clear views of the infield.\" Note \"low numbered row\" refers to ROWS, not seats. No seat number attached, so it does not resolve seat 1.",
+  "seats_per_row": "UNKNOWN",
+  "notes": "Section Insights: \"Midfield View\"; \"Covered Seats\"; \"Rows 1-17\". Seating Notes: \"For football games, desirable view from near midfield\"; \"All seats in this section are under cover\". Fan review: \"The obnoxious support beam just in front of Row 1 and almost right in the middle of the row.\" Expert review notes obstruction risk and weather protection. Park-level seat-1 contradiction unresolved.",
+  "source": "https://www.rateyourseats.com/fenway-park/seating/sections/GS11"
+ },
+ {
+  "section": "GS12",
+  "zone": "Grandstand 12 at Fenway Park (Grandstand)",
+  "location": "\"Grandstand seating wraps around much of the lower seating bowl at Fenway Park, sitting directly beneath the large roof structure that covers much of the stadium.\" Football insight \"Midfield View\" only; no baseball placement sentence.",
+  "rows": "\"Rows in Grandstand 12 are labeled 1-17\"",
+  "entrance_row": "\"An entrance to this section is located at Row 17\"",
+  "seat_direction": "BOILERPLATE (park-wide, identical on every Fenway section page): \"When looking towards the field/field/stage, lower number seats are on the left\". PER-SECTION: this page is the only one in the batch besides GS18 that names an ACTUAL SEAT NUMBER, but it does not attach a side to it - fan review titled \"Slightly Obstructed, But Great\": \"Seat 7 was slightly obstructed by a pole, but overall they were great.\" (GS12 / Row 14 / Baseball). The pole in GS12 is described as being on the right in the low rows - fan review titled \"Need to be either low row on the right, or high row on the left\": \"Given the position of the support beam, you either want to be at the very right side of the lower rows (1 through 3), or at the far left side of the higher rows (10 and above).\" Combining the two would put seat 7 near the pole, but NEITHER review states which aisle seat 1 is at, so this does NOT resolve the seat-1 side on its own.",
+  "seats_per_row": "UNKNOWN",
+  "notes": "Section Insights: \"Midfield View\"; \"Covered Seats\"; \"Rows 1-17\". Expert review: \"Historic Fenway Seating\" - \"One of the original seating areas of the ballpark featuring classic design\" with \"support poles and roof overhangs\"; \"Obstructed Views Risk: Many seats have blocked or partially obstructed sightlines due to the historic stadium structure.\"; \"Weather Protection: The Grandstand sits fully under the stadium roof, providing some of the best shade and rain protection.\"; \"Atmosphere: Old-style narrow seating and architecture give fans a true vintage Fenway experience.\" Fan review titled \"Best Grandstand Seats at Fenway Park?\" (GS12 / Row 15 / Baseball): \"Beautiful view of the field. No instructions, and really none that I could see in the rest of the seats in this row. Main videoboard can't be seen, but the long narrow one is unobstructed. Perfectly shaded and just in front of the grandstand walkway.\" Park-level seat-1 contradiction unresolved.",
+  "source": "https://www.rateyourseats.com/fenway-park/seating/sections/GS12"
+ },
+ {
+  "section": "GS13",
+  "zone": "Grandstand 13 at Fenway Park (Grandstand)",
+  "location": "\"Grandstand seating wraps around much of the lower seating bowl at Fenway Park, sitting directly beneath the large roof structure that covers much of the stadium.\" Football insight \"Midfield View\" only; no baseball placement sentence.",
+  "rows": "\"Rows in Grandstand 13 are labeled 1-17\"",
+  "entrance_row": "\"An entrance to this section is located at Row 17\"",
+  "seat_direction": "BOILERPLATE (park-wide, identical on every Fenway section page): \"When looking towards the field/field/stage, lower number seats are on the left\". PER-SECTION: no statement naming a side for SEAT NUMBERS. Per-section side text about views only, review titled \"Obstructed on the left side\": \"Staying in the first few seats off the right aisle in Rows 1-10 will provide a clear view into the infield.\" Counts \"first few seats off the right aisle\" but does not say what those seats are numbered, so it does not resolve seat 1.",
+  "seats_per_row": "UNKNOWN",
+  "notes": "Section Insights: \"Midfield View\"; \"Covered Seats\"; \"Rows 1-17\". Seating Notes: \"For football games, desirable view from near midfield\"; \"All seats in this section are under cover\". Expert: \"Support poles positioned throughout the sections can block views of different parts of the field.\" Park-level seat-1 contradiction unresolved.",
+  "source": "https://www.rateyourseats.com/fenway-park/seating/sections/GS13"
+ },
+ {
+  "section": "GS14",
+  "zone": "Grandstand 14 at Fenway Park (Grandstand)",
+  "location": "\"Grandstand seating wraps around much of the lower seating bowl at Fenway Park, sitting directly beneath the large roof structure that covers much of the stadium.\" No per-section sentence naming a base line or field position, though a fan review implies an infield-facing angle: \"Seats would have been great if the pole didn't block our view of the pitcher and 3rd base\".",
+  "rows": "\"Rows in Grandstand 14 are labeled 1-18\"",
+  "entrance_row": "\"An entrance to this section is located at Row 18\"",
+  "seat_direction": "BOILERPLATE (park-wide, identical on every Fenway section page): \"When looking towards the field/field/stage, lower number seats are on the left\". PER-SECTION: no statement naming a side for SEAT NUMBERS. Per-section side text about views only, expert review: \"you can find some unobstructed views in the lower row seats near the right side of the section, but you will want to avoid being on the furthest right aisle seat\" and \"especially closer to the left side of the section where your view of the pitchers mound and batters box can be limited\". Note the phrase \"the furthest right aisle seat\" refers to a single specific seat but does not number it, so it does not resolve seat 1.",
+  "seats_per_row": "UNKNOWN",
+  "notes": "Section Insights: \"Covered Seats\"; \"Rows 1-18\". Seating Notes: \"All seats in this section are under cover\". Expert: \"High Risk of Obstructed Views: Many seats have blocked or partially obstructed sightlines due to the historic stadium structure\"; \"Support poles positioned throughout the sections can block views\". Fan review (GS14 / Row 8): \"Seats would have been great if the pole didn't block our view of the pitcher and 3rd base\". Park-level seat-1 contradiction unresolved.",
+  "source": "https://www.rateyourseats.com/fenway-park/seating/sections/GS14"
+ },
+ {
+  "section": "GS15",
+  "zone": "Grandstand 15 at Fenway Park (Grandstand)",
+  "location": "\"Grandstand seating wraps around much of the lower seating bowl at Fenway Park, sitting directly beneath the large roof structure that covers much of the stadium.\" No per-section sentence naming a base line or field position, though the expert answer implies an infield-facing angle by referring to losing \"the pitchers mound\" from the right.",
+  "rows": "\"Rows in Grandstand 15 are labeled 1-19\"",
+  "entrance_row": "\"An entrance to this section is located at Row 19\"",
+  "seat_direction": "BOILERPLATE (park-wide, identical on every Fenway section page): \"When looking towards the field/field/stage, lower number seats are on the left\". PER-SECTION: no statement naming a side for SEAT NUMBERS. Per-section side text about views only, expert answer: \"Your safest bet here is to as close to the middle of the row as possible\" and \"Sit too far to the right and you lose the pitchers mound, too far left and you'll be blocked\". No seat number attached, so it does not resolve seat 1.",
+  "seats_per_row": "UNKNOWN",
+  "notes": "Section Insights: \"Top Pick for Unobstructed Grandstand Views Rows 1\"; \"Covered Seats Rows 1-19\". Seating Notes: \"All seats in this section are under cover\". Fan feedback: \"You'll have clear, unobstructed views from any seat in Row 1\"; \"Sitting in the middle of the row seems to be the best bet here\"; \"the one pole blocking RF is far enough away\". Expert: \"High Risk of Obstructed Views\"; \"Support poles positioned throughout the sections can block views\". GS15 and GS16 are the two 19-row sections in this batch. Park-level seat-1 contradiction unresolved.",
+  "source": "https://www.rateyourseats.com/fenway-park/seating/sections/GS15"
+ },
+ {
+  "section": "GS16",
+  "zone": "Grandstand 16 at Fenway Park (Grandstand)",
+  "location": "\"Grandstand seating wraps around much of the lower seating bowl at Fenway Park, sitting directly beneath the large roof structure that covers much of the stadium.\" No per-section sentence naming a base line or field position.",
+  "rows": "\"Rows in Grandstand 16 are labeled 1-19\"",
+  "entrance_row": "\"An entrance to this section is located at Row 19\"",
+  "seat_direction": "BOILERPLATE (park-wide, identical on every Fenway section page): \"When looking towards the field/field/stage, lower number seats are on the left\". PER-SECTION: no statement naming a side for SEAT NUMBERS, but the most geometrically informative aisle statement in the batch, fan review titled \"Avoid the aisles and opt for middle seats\": \"At the front row you won't have to deal with the beams blocking your view, but in the other rows you'll want to be in the middle seats. Sitting near the aisles will mean you're blocked out from the batters box (right aisle) or pitchers mound (left aisle)\". This ties each AISLE to a part of the field but still never names a seat number, so it does not resolve seat 1.",
+  "seats_per_row": "UNKNOWN",
+  "notes": "Section Insights: \"Top Pick for Unobstructed Grandstand Views Rows 1\"; \"Covered Seats Rows 1-19\". Seating Notes: \"For baseball games, we recommend rows 1 for unobstructed grandstand views\"; \"All seats in this section are under cover\". Fan review: \"Sit in Row 1 for a clear view — Views from the first row of Grandstand 16 are safely free of obstruction\". Expert: \"High Risk of Obstructed Views: Many seats have blocked or partially obstructed sightlines due to the historic stadium structure.\" USEFUL FOR ORIENTATION, NOT SEAT NUMBERING: the right aisle blocks the BATTERS BOX and the left aisle blocks the PITCHERS MOUND, which is consistent with GS16 sitting on the first-base side of home plate looking back toward the infield. Park-level seat-1 contradiction unresolved.",
+  "source": "https://www.rateyourseats.com/fenway-park/seating/sections/GS16"
+ },
+ {
+  "section": "GS17",
+  "zone": "Grandstand 17 at Fenway Park (Grandstand)",
+  "location": "\"Grandstand seating wraps around much of the lower seating bowl at Fenway Park, sitting directly beneath the large roof structure that covers much of the stadium.\" No per-section sentence naming a base line or field position, though the fan review's reference to \"pitchers mound and batters box\" implies an infield view.",
+  "rows": "\"Rows in Grandstand 17 are labeled 1-18\"",
+  "entrance_row": "\"An entrance to this section is located at Row 18\"",
+  "seat_direction": "BOILERPLATE (park-wide, identical on every Fenway section page): \"When looking towards the field/field/stage, lower number seats are on the left\". PER-SECTION: no statement naming a side for SEAT NUMBERS. Per-section side text about views only, expert answer: \"For the best views here, sit near the left aisle.\" and \"Seats near the left aisle will be great, but closer to the right aisle in Rows 4 and higher in Grandstand 17 will leave you with a tough and sometimes non-existent view\". No seat number attached, so it does not resolve seat 1.",
+  "seats_per_row": "UNKNOWN",
+  "notes": "Section Insights: \"Top Pick for Outstanding Convenience—Rows 13-18\"; \"Top Pick for Unobstructed Grandstand Views—Rows 1-3\"; \"Covered Seats, Rows 1-18\". Seating Notes: \"All seats in this section are under cover\". Fan review: \"Clear views of pitchers mound and batters box in Rows 1 through 3\". Expert: \"High Risk of Obstructed Views: Many seats have blocked or partially obstructed sightlines due to historic stadium structure.\" and \"Grandstand seats on the third base side generally offer better sightlines than those on the first base side\". GS17 joins GS18 and GS20 in putting the bad side on the RIGHT. Park-level seat-1 contradiction unresolved.",
+  "source": "https://www.rateyourseats.com/fenway-park/seating/sections/GS17"
+ },
+ {
+  "section": "GS18",
+  "zone": "Grandstand 18 at Fenway Park (Grandstand)",
+  "location": "\"Grandstand seating wraps around much of the lower seating bowl at Fenway Park, sitting directly beneath the large roof structure that covers much of the stadium.\" Section Insight \"Home Plate View\" is present, which is the page's only positional claim and matches discovery.json's GS18-GS20 behind-the-plate anchor.",
+  "rows": "\"Rows in Grandstand 18 are labeled 1-18\"",
+  "entrance_row": "\"An entrance to this section is located at Row 18\"",
+  "seat_direction": "*** THE ONE SECTION IN THIS BATCH WITH PER-SECTION EVIDENCE THAT ACTUALLY BEARS ON THE SEAT-1 SIDE, AND IT POINTS THE OPPOSITE WAY FROM THE BOILERPLATE. *** BOILERPLATE (park-wide, identical on every Fenway section page): \"When looking towards the field/field/stage, lower number seats are on the left\". PER-SECTION FAN REVIEWS, quoted verbatim with their attribution lines: (1) titled \"Don't have to worry about the beams in Row 1\" (GS18 / Row 1 / Baseball): \"There is a support beam which sits just 4 seats in from the right aisle and directly in the line for Row 1. There are no seats in Row 1 which will have an obstructed view, but be cautious if sitting any higher (Rows 2 and up)\". (2) titled \"Convenient and shaded, but crapshoot view\" (GS18 / Row 14 / Baseball): \"Last row in the section, but there's nothing really nearby to walk to. You're taking a gamble sitting here. Seats 1-4 seem to be safe but anything to the left will deal with the pole. And all seats will deal with the overhang. Small tvs are pretty much worthless.\" (3) titled \"The charm of Fenway Park is not so charming\" (GS18 / Row 2 / Baseball): \"...View of home plate and infield is outstanding. View of the outfield is a green support beam. Other seats in this row are better. But seats 3-8 are terrible. Nice shade here though.\" (4) titled \"Stay within 6 seats of the left aisle\" (GS18 / Row 2-16 / Baseball): \"Seats closer to the right side of Grandstand 18 will have to contend with the support beam for a view of the batters box and pitchers mound. But if you can stay no more than 6 seats in from the left aisle, you'll be left with tremendous views of the infield.\" READ TOGETHER, (1)+(2)+(3) locate the beam 4 seats in from the RIGHT aisle AND locate the affected seats at numbers 3-8 with \"seats 1-4 ... safe but anything to the left will deal with the pole\" - i.e. seat 1 sits at the RIGHT aisle and numbering runs right-to-left. That is the opposite of the boilerplate.",
+  "seats_per_row": "UNKNOWN",
+  "notes": "*** DIRECT CONTRADICTION, RECORDED NOT RECONCILED. *** The park-wide boilerplate on this very page says \"lower number seats are on the left\". The per-section fan reviews on the same page put the beam \"just 4 seats in from the right aisle\" and simultaneously say \"Seats 1-4 seem to be safe but anything to the left will deal with the pole\" and \"seats 3-8 are terrible\" - which only coheres if seat 1 is at the RIGHT aisle. That agrees with the venue seating-chart page (https://www.rateyourseats.com/fenway-park/seating/seating-chart : \"Seat Numbers at Fenway Park go from right-to-left\") and disagrees with the boilerplate. This is the first per-section evidence found at Fenway that bears on the question discovery.json flagged as unresolved; it is one section's fan-supplied text and is offered as evidence, not as a resolution. CAVEAT: review (4) advises staying \"no more than 6 seats in from the left aisle\", so reviews (2) and (4) recommend opposite aisles; they are consistent only if the section is wide enough that seats 1-4 (right aisle) and the leftmost 6 seats are both clear of a beam that sits 4 seats in from the right - review (3)'s \"seats 3-8 are terrible\" sits awkwardly with review (2)'s \"Seats 1-4 seem to be safe\". Other content - Section Insights: \"Top Pick for Outstanding Convenience Rows 13-18\"; \"Top Pick for Unobstructed Grandstand Views Rows 1\"; \"Home Plate View\"; \"Covered Seats\"; \"Rows 1-18\". Seating Notes: \"All seats in this section are under cover\". Expert: \"High Risk of Obstructed Views: Many seats have blocked or partially obstructed sightlines\". Review (1) also notes seats \"are about as uncomfortable as it gets\" per review (3).",
+  "source": "https://www.rateyourseats.com/fenway-park/seating/sections/GS18"
+ },
+ {
+  "section": "GS19",
+  "zone": "Grandstand 19 at Fenway Park (Grandstand)",
+  "location": "\"Grandstand seating wraps around much of the lower seating bowl at Fenway Park, sitting directly beneath the large roof structure that covers much of the stadium.\" Section Insight \"Home Plate View\" is present. A fan review refers to losing \"some of the third base area from seats near the left aisle\", implying the section faces the infield with third base off to one side.",
+  "rows": "\"Rows in Grandstand 19 are labeled 1-18\"",
+  "entrance_row": "\"An entrance to this section is located at Row 18\"",
+  "seat_direction": "BOILERPLATE (park-wide, identical on every Fenway section page): \"When looking towards the field/field/stage, lower number seats are on the left\". PER-SECTION: no statement naming a side for SEAT NUMBERS. Per-section side text about views only, fan reviews: \"You might lose some of the third base area from seats near the left aisle in Rows 5 and higher\"; \"Excellent option for fans searching for deals in the Grandstand, especially if you can find seats near the right side of the section\"; \"be sure to avoid the left aisle as these seats have a difficult view of home plate\"; \"Sitting in the middle or towards the right side of the section will help you avoid any viewing issues\". No seat number attached to any of these, so they do not resolve seat 1.",
+  "seats_per_row": "UNKNOWN",
+  "notes": "Section Insights: \"Top Pick for Unobstructed Grandstand Views Rows 1-15\"; \"Home Plate View\"; \"Covered Seats\"; \"Rows 1-18\". Seating Notes: \"For baseball games, we recommend rows 1-15 for unobstructed grandstand views\"; \"All seats in this section are under cover\". Expert: \"Grandstand seats on the third base side generally offer better sightlines than those on the first base side\". Fan: \"seats in Rows 1 through 15 in Grandstand 19 will have clear viewing angles\". ORIENTATION NOTE, NOT A CONTRADICTION: \"You might lose some of the third base area from seats near the left aisle\" means third base lies beyond the LEFT edge of the view, which is what you would expect from a section behind or just to the first-base side of home plate at Fenway; it is consistent with discovery.json. GS19's bad side is the LEFT, opposite to its immediate neighbours GS18 and GS20, whose bad side is the right - beam positions genuinely vary section to section. Park-level seat-1 contradiction unresolved.",
+  "source": "https://www.rateyourseats.com/fenway-park/seating/sections/GS19"
+ },
+ {
+  "section": "GS20",
+  "zone": "Grandstand 20 at Fenway Park (Grandstand)",
+  "location": "\"Grandstand seating wraps around much of the lower seating bowl at Fenway Park, sitting directly beneath the large roof structure that covers much of the stadium.\" Per-section seating note: \"For baseball games, desirable view from behind home plate\" and Section Insight \"Home Plate View\" - this is the explicit behind-the-plate placement that discovery.json relies on for the GS18-GS20 anchor.",
+  "rows": "\"Rows in Grandstand 20 are labeled 1-18\"",
+  "entrance_row": "\"An entrance to this section is located at Row 18\"",
+  "seat_direction": "BOILERPLATE (park-wide, identical on every Fenway section page): \"When looking towards the field/field/stage, lower number seats are on the left\". PER-SECTION: no statement naming a side for SEAT NUMBERS, but two emphatic per-section side statements about the beam, quoted verbatim: fan review titled \"Eliminate viewing obstructions by sitting in Row 1\" (GS20 / Row 1 / Baseball): \"The only row where you'll be safe from an obstructed view is Row 1. The beam at the right side of the front row doesn't impact the view for fans at the front, but will be endlessly frustrating for those on the right aisle in Rows 2 and higher.\" And fan review titled \"Avoid the right aisle if you want to see either the pitcher or batter\" (GS20 / Row 2-18 / Baseball): \"The beam at the right side or Row 1 could not be in a worse place for those sitting near the right aisle. You will struggle to see both the pitchers mound and the batters box - so avoid the seats near the right aisle at all costs. If you can find seats at the left side of the section though, you will be treated to excellent views of the game.\" (the \"or Row 1\" typo is in the source). Neither names a seat number, so neither resolves seat 1.",
+  "seats_per_row": "UNKNOWN",
+  "notes": "Section Insights: \"Top Pick for Unobstructed Grandstand Views—Rows 1\"; \"Home Plate View\"; \"Covered Seats\"; \"Rows 1-18\". Seating Notes: \"For baseball games, we recommend rows 1 for unobstructed grandstand views\"; \"For baseball games, desirable view from behind home plate\"; \"All seats in this section are under cover\". GS20's beam is on the RIGHT, matching GS18 and GS17. If the GS18 seat-numbering evidence above is correct (seat 1 at the right aisle), then the \"avoid the right aisle at all costs\" advice for GS20 would attach to the LOWEST seat numbers, and under the boilerplate it would attach to the highest - the practical stakes of the unresolved seat-1 side are visible here. Recorded, not reconciled. Park-level contradiction: boilerplate \"lower number seats are on the left\" vs https://www.rateyourseats.com/fenway-park/seating/seating-chart \"Seat Numbers at Fenway Park go from right-to-left\".",
+  "source": "https://www.rateyourseats.com/fenway-park/seating/sections/GS20"
+ }
+]

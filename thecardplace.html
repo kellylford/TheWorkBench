@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- Without this the browser asks for /favicon.ico at the SITE root, which
+     belongs to the user page rather than this project — so every page here
+     logged a 404 nobody could fix from this repository. -->
+<link rel="icon" href="shared/favicon.svg" type="image/svg+xml">
+<title>The Card Place</title>
+<meta name="description" content="Card games built to be fully playable with a keyboard and a screen reader.">
+<style>
+/* Self-contained on purpose: no shared stylesheet to keep in step with two
+ * games that are otherwise independent. Sizing is in rem throughout so it
+ * scales with the reader's font size. */
+:root {
+  --bg: #10161d;
+  --panel: #1a232e;
+  --panel-2: #223040;
+  --ink: #eef3f8;
+  --ink-dim: #ccd8e4;
+  --line: #3c4b5d;
+  --accent: #6fd0ff;
+  --accent-ink: #06212e;
+  --felt: #1d5c43;
+  --focus: #ffd54a;
+  --radius: 10px;
+}
+@media (prefers-color-scheme: light) {
+  :root {
+    --bg: #f2f5f8; --panel: #ffffff; --panel-2: #e8eef4;
+    --ink: #12181f; --ink-dim: #3b4a5b; --line: #b9c6d4;
+    --accent: #14556f; --accent-ink: #ffffff;
+    --felt: #1f6b4d; --focus: #a35a00;
+  }
+}
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html { font-size: 100%; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font: 1rem/1.6 system-ui, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+.skip-link {
+  position: absolute; left: -9999px; top: 0;
+  background: var(--accent); color: var(--accent-ink);
+  padding: .6rem 1rem; z-index: 10; font-weight: 700;
+}
+.skip-link:focus { left: 0; }
+
+:focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; }
+
+header { padding: 2rem clamp(1rem, 4vw, 2rem) .5rem; border-bottom: 1px solid var(--line); }
+h1 { margin: 0; font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: .01em; }
+.lede { margin: .5rem 0 0; max-width: 46rem; color: var(--ink-dim); font-size: 1.05rem; }
+
+main { padding: 1.5rem clamp(1rem, 4vw, 2rem) 4rem; max-width: 70rem; }
+main:focus { outline: none; }
+h2 { font-size: 1.25rem; margin: 2rem 0 .75rem; }
+
+/* auto-fit means one column on a phone and two on anything wider, with no
+ * media query and no fixed breakpoint to get wrong. */
+.games {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(20rem, 100%), 1fr));
+  gap: 1rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.game {
+  display: flex;
+  flex-direction: column;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.game-top {
+  padding: 1rem 1.1rem;
+  background:
+    radial-gradient(ellipse at 30% 0%, rgba(255,255,255,.07), transparent 60%),
+    var(--felt);
+  border-bottom: 1px solid var(--line);
+}
+.game h3 { margin: 0; font-size: 1.3rem; color: #f4faf7; }
+.game-meta { margin: .2rem 0 0; font-size: .92rem; color: #cfe4da; }
+.game-body { padding: 1rem 1.1rem 1.2rem; display: flex; flex-direction: column; flex: 1; }
+.game p { margin: 0 0 .75rem; }
+.game ul { margin: 0 0 1rem; padding-left: 1.15rem; color: var(--ink-dim); font-size: .95rem; }
+.game li { margin: .2rem 0; }
+.play {
+  margin-top: auto;
+  align-self: flex-start;
+  display: inline-block;
+  background: var(--accent);
+  color: var(--accent-ink);
+  font-weight: 700;
+  font-size: 1.05rem;
+  text-decoration: none;
+  padding: .65rem 1.2rem;
+  border: 1px solid var(--accent);
+  border-radius: 8px;
+}
+.play:hover { background: color-mix(in srgb, var(--accent) 85%, white); }
+.play:focus-visible { outline-offset: 2px; }
+
+.note {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-left: 5px solid var(--accent);
+  border-radius: var(--radius);
+  padding: 1rem 1.15rem;
+  max-width: 52rem;
+}
+.note h2 { margin-top: 0; }
+.note ul { padding-left: 1.15rem; }
+.note li { margin: .35rem 0; }
+
+footer {
+  padding: 1rem clamp(1rem, 4vw, 2rem) 3rem;
+  color: var(--ink-dim);
+  font-size: .95rem;
+}
+footer a { color: var(--accent); }
+
+@media (forced-colors: active) {
+  .game-top { background: Canvas; }
+  .play { border: 2px solid CanvasText; }
+}
+</style>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to main content</a>
+
+<header>
+  <h1>The Card Place</h1>
+  <p class="lede">Card games built to be played by anyone — with a mouse, with a keyboard alone, or
+    entirely by ear with a screen reader. No sign up, no download, nothing to install.</p>
+</header>
+
+<main id="main" tabindex="-1">
+  <h2>Choose a game</h2>
+
+  <ul class="games">
+    <li class="game">
+      <div class="game-top">
+        <h3>Sheephead</h3>
+        <p class="game-meta">3 to 6 players &middot; you against the computer</p>
+      </div>
+      <div class="game-body">
+        <p>The Wisconsin classic, also called Schafkopf. Queens and jacks are trump, the picker
+          takes the blind, and the jack of diamonds is a secret partner nobody admits to.</p>
+        <ul>
+          <li>Every card is a button that says what it is and whether you can play it</li>
+          <li>Review keys for your hand, the trick, the scores and the play order</li>
+          <li>Choose the pace, including one play at a time</li>
+        </ul>
+        <a class="play" href="sheephead/">Play Sheephead</a>
+      </div>
+    </li>
+
+    <li class="game">
+      <div class="game-top">
+        <h3>Euchre</h3>
+        <p class="game-meta">4 players &middot; on your own, or with other people</p>
+      </div>
+      <div class="game-body">
+        <p>The Midwest and Ontario standard. Two partnerships, five tricks a hand, first to ten
+          points &mdash; and the jack of the same colour as trump quietly becomes a trump too.</p>
+        <ul>
+          <li>Both bowers are named as bowers wherever a card is read out</li>
+          <li>While you bid, it tells you what your hand would be worth with that suit as trump</li>
+          <li>Play with friends using a five-letter code; empty seats are played by the computer</li>
+        </ul>
+        <a class="play" href="euchre/">Play Euchre</a>
+      </div>
+    </li>
+
+    <li class="game">
+      <div class="game-top">
+        <h3>Hearts</h3>
+        <p class="game-meta">4 players &middot; on your own</p>
+      </div>
+      <div class="game-body">
+        <p>Take no points if you can help it. Every heart is one and the queen of spades is
+          thirteen, and the <strong>lowest</strong> score wins &mdash; which is the one thing
+          that catches people out.</p>
+        <ul>
+          <li>Your hand is read out grouped by suit, not as thirteen names in a row</li>
+          <li>A card you cannot play says which rule stopped you, not just &ldquo;no&rdquo;</li>
+          <li>Ask at any time what points have been taken and who holds the queen</li>
+        </ul>
+        <a class="play" href="hearts/">Play Hearts</a>
+      </div>
+    </li>
+
+    <li class="game">
+      <div class="game-top">
+        <h3>Cribbage</h3>
+        <p class="game-meta">2 players &middot; you against the computer</p>
+      </div>
+      <div class="game-body">
+        <p>Pegging, fifteens, runs and the crib, scored to 121 on a board you can read as well as
+          see. The classic two-hander.</p>
+        <ul>
+          <li>Keyboard playable, with the board exposed as a live score</li>
+          <li>A running game log you can read back at your own pace</li>
+          <li>Full rules included for anyone learning</li>
+        </ul>
+        <a class="play" href="Cribbage/">Play Cribbage</a>
+      </div>
+    </li>
+
+    <li class="game">
+      <div class="game-top">
+        <h3>Cribbage Multiplayer</h3>
+        <p class="game-meta">2 players &middot; on your own, or with somebody else</p>
+      </div>
+      <div class="game-body">
+        <p>The same cribbage, extended so you can play it against another person rather than the
+          computer. Every count is read out in its parts &mdash; two fifteens, a pair, one for his
+          nob &mdash; because handing over a total is handing over the game.</p>
+        <ul>
+          <li>Each card says what it is worth and what count it would make</li>
+          <li>You count your own hand, as you would at a table</li>
+          <li>The stable single-player Cribbage is unaffected by anything here</li>
+        </ul>
+        <a class="play" href="cribbage-multiplayer/">Play Cribbage Multiplayer</a>
+      </div>
+    </li>
+
+    <li class="game">
+      <div class="game-top">
+        <h3>Sheephead Multiplayer</h3>
+        <p class="game-meta">3 to 6 players &middot; in development</p>
+      </div>
+      <div class="game-body">
+        <p><strong>Not finished yet.</strong> This is the same Sheephead, being extended so you can
+          play it against other people rather than against the computer. It is here so it can be
+          tested in the open — expect rough edges, and expect it to change under you.</p>
+        <ul>
+          <li>Today it plays exactly like the single-player Sheephead game</li>
+          <li>Playing with people in other places is being built now</li>
+          <li>The stable game is unaffected by anything that happens here</li>
+        </ul>
+        <a class="play" href="sheephead-multiplayer/">Open the development build</a>
+      </div>
+    </li>
+  </ul>
+
+  <div class="note">
+    <h2>Why these exist</h2>
+    <p>Most card games online are unplayable without sight. These are built the other way round:
+      the game state is text first, and the pictures are added on top where they cannot get in the
+      way.</p>
+    <ul>
+      <li><strong>Nothing is conveyed by sight alone.</strong> Every card, score and turn is
+        announced, and every visual flourish is hidden from assistive technology so it is never
+        read out twice.</li>
+      <li><strong>Your screen reader stays in charge.</strong> Nothing is marked as an application
+        region, so browse, focus and forms modes all behave normally.</li>
+      <li><strong>Everything scales.</strong> Turn your text size up and the layout follows,
+        including the cards.</li>
+      <li><strong>Keyboard only is a first-class way to play</strong>, not a fallback.</li>
+    </ul>
+    <p>Sheephead and Cribbage run entirely in your browser and send nothing anywhere. Euchre does
+      too until you choose to open a table with other people &mdash; from then on it sends your
+      moves and your chosen name to the room, and nothing else. There are no accounts, and a table
+      is a five-letter code that stops existing when everybody leaves.</p>
+  </div>
+</main>
+
+<footer>
+  <p>Built by Kelly Ford. Source and issues on
+    <a href="https://github.com/kellylford/TheWorkBench">GitHub</a>.</p>
+</footer>
+</body>
+</html>
