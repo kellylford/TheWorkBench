@@ -456,6 +456,31 @@ button.primary:hover { background: color-mix(in srgb, var(--accent) 85%, white);
 
 .hand.static .card { cursor: default; }
 
+/* A face-down card, full size, for cards that are on the table but not yet
+ * turned - the cribbage crib being the first of them.
+ *
+ * A note saying "four cards face down in the crib" is complete and it is also
+ * invisible: two people playing together, one of them sighted, could not see
+ * that anything had gone into the crib at all. Four backs on the felt say it
+ * without a sentence. The note stays, because it is what a screen reader gets;
+ * these are aria-hidden and add nothing to it.
+ *
+ * Same geometry as `.card` so a row of them lines up with a row of faces, and
+ * the same weave as the fans behind the other seats, so a back is a back
+ * everywhere in the game. */
+.card.back {
+  background:
+    repeating-linear-gradient(45deg, var(--back-a) 0 .3rem, var(--back-b) .3rem .6rem);
+  border-color: #24313d;
+  cursor: default;
+}
+
+/* In forced colours the weave collapses to nothing, so the back has to be told
+ * apart from a face by its border alone. */
+@media (forced-colors: active) {
+  .card.back { background: Canvas; border: 2px dashed CanvasText; forced-color-adjust: none; }
+}
+
 /* A card you cannot play.
  *
  * Two earlier attempts both failed the same way: they put the signal ON the

@@ -92,6 +92,9 @@ async function main() {
   let hands = 0, guard = 0;
   let goTested = false, illegalRefused = false, cribHiddenSeen = false, cribShownSeen = false;
   let arithmeticSeen = false, scoringLabelSeen = false;
+  /* The four things two people sitting at one screen asked for, each with a
+   * counter, because a check that never runs reports success. */
+  let cribBacksSeen = false, sweptSeen = false, resetSeen = false, shoutSeen = false;
 
   while (hands < 12 && guard++ < 8000) {
     const v = T.view();
@@ -125,11 +128,17 @@ async function main() {
       if (!v.players[T.seat()].hasDiscarded) {
         const hand = cards(win);
         check(hand.length === 6, 'the hand has ' + hand.length + ' cards at the discard, not 6');
+        /* aria-disabled, not disabled. A `disabled` button cannot be focused,
+         * so a screen reader user tabbing through never lands on it and never
+         * hears why it is not available — the reason is on the button and the
+         * button is unreachable. This one stays focusable and refuses. */
+        const off = b => b.getAttribute('aria-disabled') === 'true';
         const b0 = findBtn(win, /^Throw/);
-        check(!!b0 && b0.disabled, 'the throw button was live before two cards were chosen');
+        check(!!b0 && off(b0), 'the throw button was live before two cards were chosen');
+        check(!b0.disabled, 'the throw button uses the disabled attribute, which cannot be focused, so its reason cannot be read');
         hand[0].click();
         const one = findBtn(win, /^Throw/);
-        check(one.disabled, 'the throw button went live after only one card');
+        check(off(one), 'the throw button went live after only one card');
         cards(win)[1].click();
         const two = findBtn(win, /^Throw/);
         check(!two.disabled, 'choosing two cards did not make the throw button usable');
@@ -158,6 +167,36 @@ async function main() {
       cribHiddenSeen = true;
       check($(win, 'crib-note').textContent.indexOf('Neither of you may look') > 0,
         'the crib note does not say the crib is hidden from both players');
+      check(/^[A-Z]/.test($(win, 'crib-note').textContent),
+        'the crib note starts lower case: ' + $(win, 'crib-note').textContent);
+
+      /* FOUR BACKS ON THE TABLE, not just a sentence saying there are four.
+       * The note is what a screen reader gets and it was always right; the crib
+       * area was empty, so a sighted player looking at the same screen had no
+       * sign anything had been thrown. */
+      {
+        const backs = $(win, 'crib').querySelectorAll('.card.back');
+        check(backs.length === v.cribCount,
+          'the crib shows ' + backs.length + ' face-down cards, not ' + v.cribCount);
+        check(v.cribCount > 0, 'nothing is in the crib during the play');
+        cribBacksSeen = true;
+        for (const b of backs) {
+          check(b.getAttribute('aria-hidden') === 'true',
+            'a face-down crib card is exposed to a screen reader, which already has the note');
+          check(!b.textContent.trim(), 'a face-down card has a face');
+        }
+      }
+
+      /* CARDS FROM BEFORE THE RESET ARE GONE. What is listed is the current
+       * sequence and nothing else — the same slice the T key has always read
+       * out as "down this run". */
+      {
+        const listed = $(win, 'pile').querySelectorAll('li:not(.empty)').length;
+        check(listed === v.pile.length - v.runStart,
+          'the play area lists ' + listed + ' cards, but only ' +
+          (v.pile.length - v.runStart) + ' are down since the count reset');
+        if (v.runStart > 0) resetSeen = true;
+      }
       check($(win, 'starter-section').hidden === false, 'the starter is not shown during the play');
       check($(win, 'count-line').textContent === 'Count: ' + v.count,
         'the running count on screen is wrong: ' + $(win, 'count-line').textContent);
@@ -228,11 +267,71 @@ async function main() {
           'focus landed on a card that cannot be played: ' + label(focused));
       }
 
-      hand.find(x => legal.indexOf(x.dataset.id) >= 0).click();
+      /* THE SHOUT. "Fifteen for two" was spoken and then gone; visually the
+       * only trace was the score column moving by two, which says that
+       * something scored and never what for. */
+      const pick = hand.find(x => legal.indexOf(x.dataset.id) >= 0);
+      const gain = G.pointsForPlay(v, C.get(pick.dataset.id));
+      pick.click();
+      if (gain.total) {
+        const shout = $(win, 'score-call');
+        check(shout.hidden === false,
+          'a play scored ' + gain.total + ' and nothing on the table said so');
+        check(shout.textContent.indexOf('You') === 0,
+          'the shout does not say who scored: ' + shout.textContent);
+        /* Not `+gain.total`: one card can score twice — two for fifteen and
+         * then one for the last card, as two separate awards — and the shout
+         * shows the latest, which is the right thing for it to show. */
+        check(/\(\+[1-9][0-9]*\)\.$/.test(shout.textContent),
+          'the shout does not carry the points: ' + shout.textContent);
+        check(!shout.getAttribute('aria-live'),
+          'the shout is a live region as well as being announced, so it is said twice');
+        shoutSeen = true;
+      }
       continue;
     }
 
     if (v.phase === 'count') {
+      /* THE TABLE IS SWEPT and both hands are face up. Until now the play area
+       * still held every card of the last sequence while the counting happened
+       * somewhere else on the page, and the opponent's four cards stayed hidden
+       * until their own stage — which is the moment you most want to see them,
+       * because it is the count you are checking. */
+      {
+        check($(win, 'pile').querySelectorAll('li:not(.empty)').length === 0,
+          'the played cards are still on the table while the hands are counted');
+        sweptSeen = true;
+
+        const sec = $(win, 'count-section');
+        check(sec.hidden === false, 'the hands are not shown while they are counted');
+        const rows = Array.from($(win, 'count-hands').querySelectorAll('.reveal-row'));
+        const labels = rows.map(r => r.querySelector('.reveal-label').textContent);
+        check(labels.indexOf('Starter') >= 0, 'the starter is not laid out with the hands');
+        /* And exactly once on the page. The standalone starter section stands
+         * down while the hands are up, because that section shows the same one
+         * card with its own heading. */
+        check($(win, 'starter-section').hidden === true,
+          'the starter is shown twice while the hands are counted');
+        const hands2 = rows.filter(r =>
+          r.querySelector('.reveal-label').textContent !== 'Starter' &&
+          !/crib/.test(r.querySelector('.reveal-label').textContent));
+        check(hands2.length === 2,
+          'only ' + hands2.length + ' hands are laid out for the count, not both');
+        for (const r of hands2) {
+          const laid = r.querySelectorAll('.card');
+          check(laid.length === 4,
+            'a hand laid out for the count has ' + laid.length + ' cards, not four');
+          for (const c of laid) {
+            check((c.getAttribute('aria-label') || '').length > 4,
+              'a card laid out for the count has no accessible name');
+          }
+        }
+        /* The crib is the one thing still held back, and it appears at its own
+         * stage. It is face down on the table until the dealer turns it. */
+        const cribRow = rows.find(r => /crib/.test(r.querySelector('.reveal-label').textContent));
+        check(!!cribRow === (v.crib.length > 0),
+          'the crib is laid out at the wrong point in the count');
+      }
       if (v.turn !== T.seat()) {
         const cont = findBtn(win, /Continue/);
         if (cont) { cont.click(); continue; }
@@ -275,6 +374,10 @@ async function main() {
   check(illegalRefused, 'no unplayable card ever came up, so that path is untested');
   check(goTested, 'the go path was never exercised');
   check(cribHiddenSeen && cribShownSeen, 'the crib was never seen both hidden and revealed');
+  check(cribBacksSeen, 'the crib backs were never looked at, so that check proved nothing');
+  check(sweptSeen, 'the count was never reached, so the swept table proved nothing');
+  check(resetSeen, 'the count never reset in twelve hands, so the clearing proved nothing');
+  check(shoutSeen, 'nothing ever scored during the play, so the shout proved nothing');
 
   /* ---- the review keys ---- */
   for (const what of ['hand', 'play', 'score', 'position', 'count', 'who']) {

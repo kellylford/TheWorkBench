@@ -90,6 +90,15 @@
   var actionsRebuilt = false;
   var turnWatch = { key: null, at: 0 };
 
+  /* The last thing scored, and the exact moment it was scored at.
+   *
+   * Kept with its moment rather than a timer. A shout that faded after N seconds
+   * would either still be on screen after the next card - saying "fifteen for
+   * two" over a table where that is no longer true - or vanish while the player
+   * was still reading it. Tied to the moment, it is on screen for exactly as
+   * long as the position that produced it. */
+  var scoreCall = null;
+
   var el = {};
 
   function $(id) { return document.getElementById(id); }
@@ -98,6 +107,7 @@
     ['setup-section', 'setup-form', 'game-section', 'status', 'actions', 'hand',
       'pile', 'count-line', 'board', 'crib', 'crib-note', 'crib-section',
       'starter', 'starter-section', 'score-table', 'log', 'announcer', 'alerts',
+      'score-call', 'count-section', 'count-hands',
       'game-h', 'export-dialog', 'export-text', 'export-summary',
       'bug-dialog', 'bug-title', 'bug-what', 'bug-include-log', 'bug-preview',
       'rules-dialog', 'a11y-dialog', 'settings-dialog', 'settings-summary']
@@ -355,7 +365,22 @@
       pushLog(e.kind, text);
       speech.push(text);
       if (e.kind === 'count') lastCount = e.text;
+      /* `phrase` is the shout without the name or the running score around it.
+       * Older events, and any rebuilt from a log, will not carry one - fall
+       * back to nothing rather than printing a whole sentence in the shout. */
+      if (e.kind === 'score' && e.phrase) {
+        scoreCall = { who: e.player, phrase: e.phrase, points: e.points, moment: moment() };
+      }
     }
+  }
+
+  /* Where the game stands, closely enough that any change to it makes the last
+   * shout stale: a card played, the count reset, a new stage of the count, a new
+   * hand. */
+  function moment() {
+    if (!state) return '';
+    return [state.phase, state.handNumber, state.pile.length,
+      state.runStart, state.countStage].join('|');
   }
 
   /* Is this browser's seat the one the table is waiting for?
@@ -1023,6 +1048,8 @@
     renderHand();
     renderBoard();
     renderPile();
+    renderScoreCall();
+    renderCountHands();
     renderStarter();
     renderCrib();
     renderScore();
@@ -1070,7 +1097,35 @@
     return 'none';
   }
 
+  /* N MUST REACH THE PRIMARY ACTION IN EVERY PHASE.
+   *
+   * The key looks for button[data-advance], and only buttons built with an
+   * explicit shortcut carried that marker — so it worked between hands and
+   * silently did nothing during the bidding, the discard, the bury. A player
+   * found it in cribbage: choose two cards for the crib, press N, nothing.
+   * Nothing is the worst answer, because there is no button to have failed.
+   *
+   * Marked here, after the actions are built, so it cannot be forgotten at any
+   * of the places that make one. The marker is NOT aria-keyshortcuts: the
+   * toolbar Next button advertises N once, and two elements claiming the same
+   * key is ambiguous to anything listing them. */
+  function markAdvance() {
+    var box = el.actions;
+    if (!box) return;
+    if (box.querySelector('button[data-advance]')) return;
+    var b = box.querySelector('button.primary') || box.querySelector('button');
+    if (b) b.setAttribute('data-advance', '1');
+  }
+
+  /* Wrapped rather than a call at the bottom, because renderActions returns
+   * early in most branches — the discard, the bury, the bidding all end with
+   * their own return, which is exactly where the marker was missing. */
   function renderActions() {
+    renderActionsInner();
+    markAdvance();
+  }
+
+  function renderActionsInner() {
     var box = el.actions;
     var heading = $('action-h');
     if (heading) {
@@ -1149,13 +1204,29 @@
       var b = button(n === 2
         ? 'Throw the ' + C.listNames(Object.keys(selected).map(C.get))
         : 'Throw the ' + G.numWord(n) + ' selected ' + (n === 1 ? 'card' : 'cards'),
+      /* No shortcut argument: markAdvance gives this the marker N follows, and
+       * the toolbar Next button is the one place N is advertised. Two elements
+       * claiming the same key is ambiguous to anything listing them. */
       doThrow, true);
-      b.disabled = n !== 2;
+      /* aria-disabled, NOT the disabled attribute, and this is the button N
+       * presses. A disabled button cannot be focused and its click does
+       * nothing, so pressing N with one card chosen did nothing at all and said
+       * nothing about why — reported from playing it. Marked this way the key
+       * still reaches it and it can answer. */
+      var why = n < 2 ? 'Choose ' + (2 - n) + ' more card' + (2 - n === 1 ? '' : 's') + ' first.'
+        : 'Choose exactly two.';
+      if (n !== 2) {
+        b.setAttribute('aria-disabled', 'true');
+        b.setAttribute('title', why);
+      }
       box.appendChild(b);
       var clr = button('Clear selection', function () {
         selected = {}; render(); alert_('Selection cleared.');
       });
-      clr.disabled = n === 0;
+      if (n === 0) {
+        clr.setAttribute('aria-disabled', 'true');
+        clr.setAttribute('title', 'Nothing is selected yet.');
+      }
       box.appendChild(clr);
       return;
     }
@@ -1424,24 +1495,43 @@
     });
   }
 
+  /* The play, showing THE CURRENT SEQUENCE ONLY.
+   *
+   * Cards from before the last reset used to stay on screen, greyed and flagged
+   * "before the reset". They are gone now, and the reason is that the speech was
+   * already right: the T key has always read `pile.slice(runStart)` and called
+   * it "down this run", because that is the only part you can pair or run onto.
+   * The screen was showing a growing column of dead cards beside a spoken
+   * account that had already cleared them — two people at one table being told
+   * different things about what was in front of them.
+   *
+   * Nothing is lost: C reads everything played this hand, and the log has every
+   * card of it. */
   function renderPile() {
     var node = el.pile;
-    el['count-line'].textContent = state.phase === 'play' || state.pile.length
+    var counting = state.phase === 'count' || state.phase === 'roundOver' ||
+      state.phase === 'gameOver';
+    el['count-line'].textContent = !counting && (state.phase === 'play' || state.pile.length)
       ? 'Count: ' + state.count : '';
     node.innerHTML = '';
-    if (!state.pile.length) {
+
+    /* Once the play is over the table is swept, the way it is swept by hand
+     * before anybody counts. What matters now is the four cards in front of each
+     * player, which is the section below this one. */
+    var live = counting ? [] : state.pile.slice(state.runStart);
+
+    if (!live.length) {
       var li = document.createElement('li');
       li.className = 'empty';
-      li.textContent = 'Nothing played yet.';
+      li.textContent = counting ? 'The play is over. The hands are below.'
+        : state.pile.length ? 'The count reset. Nothing down since.'
+          : 'Nothing played yet.';
       node.appendChild(li);
       return;
     }
-    state.pile.forEach(function (e, i) {
+    live.forEach(function (e, i) {
       var li = document.createElement('li');
-      /* Cards from before the last reset are still shown — they are on the table
-       * — but marked, because they can no longer be paired or run onto. */
-      if (i < state.runStart) li.className = 'spent';
-      var who = span('who', nameFor(e.player) + (i === state.runStart ? ' (led)' : ''));
+      var who = span('who', nameFor(e.player) + (i === 0 ? ' (led)' : ''));
       var mini = document.createElement('span');
       mini.className = cardClasses(e.card) + ' mini';
       paintCard(mini, e.card, {});
@@ -1449,8 +1539,78 @@
       li.appendChild(who);
       li.appendChild(mini);
       li.appendChild(span('what', C.name(e.card)));
-      li.appendChild(span('flag', i < state.runStart ? 'before the reset' : ''));
       node.appendChild(li);
+    });
+  }
+
+  /* "Fifteen for two", written where the count is.
+   *
+   * Shown only for the moment that produced it — see `moment()` — so it never
+   * describes a table that has moved on. */
+  function renderScoreCall() {
+    var box = el['score-call'];
+    if (!box) return;
+    if (!scoreCall || scoreCall.moment !== moment()) {
+      box.hidden = true;
+      box.textContent = '';
+      return;
+    }
+    var who = scoreCall.who === mySeat ? 'You' : state.players[scoreCall.who].name;
+    box.hidden = false;
+    box.textContent = who + ': ' + scoreCall.phrase + ' (+' + scoreCall.points + ').';
+  }
+
+  /* Both hands, face up, for the count.
+   *
+   * The four cards each player kept, with the starter alongside, so that both
+   * people can add it up alongside the computer instead of taking its word for
+   * it. The crib joins them when it is turned. */
+  function renderCountHands() {
+    var sec = el['count-section'];
+    var box = el['count-hands'];
+    if (!sec || !box) return;
+    var counting = state.phase === 'count' || state.phase === 'roundOver' ||
+      state.phase === 'gameOver';
+    box.innerHTML = '';
+    if (!counting) { sec.hidden = true; return; }
+
+    var rows = [];
+    [G.other(mySeat), mySeat].forEach(function (i) {
+      var p = state.players[i];
+      var cards = (p.kept && p.kept.length ? p.kept : p.played) || [];
+      /* A hidden placeholder has no id. If the projection is still holding this
+       * hand back there is nothing to lay out, so the row is skipped rather
+       * than drawn as four blanks. */
+      if (!cards.length || !cards[0].id) return;
+      rows.push({
+        label: (i === mySeat ? 'You' : p.name) + (i === state.dealer ? ' (dealer)' : ''),
+        cards: C.sortHand(cards.slice())
+      });
+    });
+    if (state.starter) rows.push({ label: 'Starter', cards: [state.starter] });
+    if (state.crib.length && state.crib[0].id) {
+      rows.push({
+        label: (state.dealer === mySeat ? 'Your crib'
+          : state.players[state.dealer].name + '’s crib'),
+        cards: C.sortHand(state.crib.slice())
+      });
+    }
+    if (!rows.length) { sec.hidden = true; return; }
+    sec.hidden = false;
+
+    rows.forEach(function (r) {
+      var row = document.createElement('div');
+      row.className = 'reveal-row';
+      row.appendChild(span('reveal-label', r.label));
+      r.cards.forEach(function (c) {
+        var b = document.createElement('span');
+        b.className = cardClasses(c);
+        paintCard(b, c, {});
+        b.setAttribute('role', 'img');
+        b.setAttribute('aria-label', C.describe(c));
+        row.appendChild(b);
+      });
+      box.appendChild(row);
     });
   }
 
@@ -1458,6 +1618,13 @@
     var sec = el['starter-section'];
     if (!sec) return;
     if (!state.starter) { sec.hidden = true; return; }
+    /* Put away once the hands are laid out, because they are laid out WITH the
+     * starter beside them — which is the whole point of that section, and is
+     * where you want it while you are counting. Leaving this one up as well
+     * gives the page two headed regions holding the same single card, and a
+     * second "the starter is the seven of clubs" to arrow past. */
+    if (state.phase === 'count' || state.phase === 'roundOver' ||
+      state.phase === 'gameOver') { sec.hidden = true; return; }
     sec.hidden = false;
     el.starter.innerHTML = '';
     var b = document.createElement('span');
@@ -1471,6 +1638,16 @@
   function renderCrib() {
     var note = el['crib-note'];
     el.crib.innerHTML = '';
+
+    /* IN A ROW. #crib is a .hand.static, which stacks its children in a column
+     * so that a revealed deal can put one labelled row under another. Four cards
+     * dropped straight into it therefore came out as a vertical strip four cards
+     * tall with a screen of empty felt beside it. One row wrapper is all it
+     * takes, and it is the same wrapper the counted hands use. */
+    var row = document.createElement('div');
+    row.className = 'reveal-row';
+    el.crib.appendChild(row);
+
     if (state.crib.length && state.crib[0].id) {
       note.textContent = (state.dealer === mySeat ? 'Your crib' : opponentName() + '’s crib') +
         ', turned over and counted.';
@@ -1480,15 +1657,31 @@
         paintCard(b, c, {});
         b.setAttribute('role', 'img');
         b.setAttribute('aria-label', C.describe(c));
-        el.crib.appendChild(b);
+        row.appendChild(b);
       });
       return;
     }
-    note.textContent = state.cribCount
-      ? G.numWord(state.cribCount) + ' cards face down in ' +
-        (state.dealer === mySeat ? 'your crib' : opponentName() + '’s crib') +
-        '. Neither of you may look until the hand is counted.'
-      : 'Nothing in the crib yet.';
+    if (!state.cribCount) {
+      note.textContent = 'Nothing in the crib yet.';
+      return;
+    }
+    /* Capitalised: numWord returns "four", and this is the start of a sentence. */
+    var n = G.numWord(state.cribCount);
+    note.textContent = n.charAt(0).toUpperCase() + n.slice(1) + ' cards face down in ' +
+      (state.dealer === mySeat ? 'your crib' : opponentName() + '’s crib') +
+      '. Neither of you may look until the hand is counted.';
+
+    /* Draw the backs. A sentence saying four cards are face down is the whole
+     * truth and it is also invisible — the crib area sat empty all hand, so a
+     * player watching the screen had no sign anything had been thrown at all.
+     * These are aria-hidden: the note above already says how many and whose,
+     * and four unlabelled images would be four more things to arrow past. */
+    for (var i = 0; i < state.cribCount; i++) {
+      var back = document.createElement('span');
+      back.className = 'card back';
+      back.setAttribute('aria-hidden', 'true');
+      row.appendChild(back);
+    }
   }
 
   function renderScore() {
