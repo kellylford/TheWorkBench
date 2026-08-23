@@ -18,7 +18,8 @@
 
 <header class="app-header">
   <h1>Sheephead Multiplayer</h1>
-  <p class="tagline">A keyboard and screen&nbsp;reader accessible card game.</p>
+  <p class="tagline">Three to six players, queens and jacks are trump, and the picker takes
+    the blind.</p>
   <p class="dev-notice"><strong>In development.</strong> Playing against the computer works; playing
     against other people is being built. <a href="../sheephead/">The stable single-player
     Sheephead</a> is over here.</p>
@@ -76,9 +77,15 @@
     <div id="lobby-table" hidden>
       <h3 id="lobby-code-h">Your table code</h3>
       <p id="lobby-code-display" class="table-code" tabindex="-1"></p>
-      <p class="hint" id="lobby-code-read"></p>
+      <!-- The invite link, and the code above it. Both, because they are
+           for different situations: the link for anywhere you can paste,
+           the code for reading down a phone. -->
+      <p class="hint" id="lobby-invite-hint">Send the link to whoever you want to play
+        with. It opens the game with this table already chosen; they still pick their own
+        name. If it is easier to read the code out, that works too.</p>
+      <p class="table-link"><a id="lobby-invite" href="#">Invite link</a></p>
       <p class="actions">
-        <button type="button" id="lobby-copy">Copy the code</button>
+        <button type="button" id="lobby-copy">Copy the invite link</button>
         <button type="button" id="lobby-leave" class="consequential">Leave this table</button>
       </p>
 
@@ -116,11 +123,14 @@
   <section id="setup-section" aria-labelledby="setup-h">
     <h2 id="setup-h">New game</h2>
     <form id="setup-form">
+      <!-- Shown only when somebody has arrived on an invite link. -->
+      <p id="invite-note" class="invite-note" hidden></p>
       <fieldset>
         <legend>Players</legend>
         <p class="field">
           <label for="opt-name">Your name</label>
-          <input type="text" id="opt-name" name="name" value="You" autocomplete="off" maxlength="16">
+          <span id="opt-name-hint" class="hint">This is what everybody else at the table sees, so it is worth changing.</span>
+          <input type="text" id="opt-name" name="name" value="MyPlayerName" aria-describedby="opt-name-hint" autocomplete="off" maxlength="16">
         </p>
         <p class="field">
           <label for="opt-players">Number of players (you plus computer opponents)</label>
@@ -173,7 +183,7 @@
          share. Focusable so it can be jumped to, and it spells itself out. -->
     <p id="table-code-line" class="table-code-line" tabindex="-1" hidden></p>
     <p class="actions" id="table-code-actions" hidden>
-      <button type="button" id="game-copy-code">Copy the table code</button>
+      <button type="button" id="game-copy-code">Copy the invite link</button>
     </p>
 
     <!-- THE CONNECTION, SAID OUT LOUD AND LEFT ON SCREEN.
@@ -403,84 +413,95 @@
   </div>
 </dialog>
 
-<dialog id="rules-dialog" aria-labelledby="rules-h">
-  <div class="dialog-body">
-    <h2 id="rules-h">How to play Sheephead</h2>
-    <p class="hint">The rules of the game. For keyboard and screen reader guidance, use the
-      Accessibility hints button at the bottom, or press <kbd>?</kbd>.</p>
+<!-- THE RULES, ON THE PAGE.
 
-    <h3>The idea</h3>
-    <p>Sheephead is a trick taking game about capturing card points. One player, the picker, takes
-      on the rest of the table, usually with a secret partner. The picker's side needs more than
-      half the points in the deck to win the hand.</p>
+     These used to live in a modal, which cannot be linked to: the
+     text was written and complete and reachable only by pressing a
+     button inside the game. The landing page wants to point somebody at
+     the rules before they start, and a modal has no address.
 
-    <h3>The deck</h3>
-    <p>Thirty-two cards: seven, eight, nine, ten, jack, queen, king and ace in each suit. At four
-      players the seven and eight of diamonds come out, leaving thirty, so that everyone still gets
-      a full hand with a two card blind. Both are worth nothing, so a hand is 120 points at every
-      table size.</p>
-    <p><strong>Trump</strong> is a single fourteen card suit made of all four queens, then all four
-      jacks, then the whole diamond suit. From highest to lowest: queen of clubs, queen of spades,
-      queen of hearts, queen of diamonds, jack of clubs, jack of spades, jack of hearts, jack of
-      diamonds, then ace, ten, king, nine, eight and seven of diamonds.</p>
-    <p><strong>Fail</strong> suits are clubs, spades and hearts, ranked ace, ten, king, nine, eight,
-      seven. Two things surprise new players: the ten sits above the king, and the queens and jacks
-      are not in their fail suits at all, they are trump. So the highest club is the ace of clubs,
-      not the queen or the jack of clubs.</p>
-    <p>Card values: ace 11, ten 10, king 4, queen 3, jack 2, and nine, eight and seven nothing. That
-      is 120 points in the deck.</p>
+     Not copied into a separate guide page, for the obvious reason: two
+     copies of the rules is one copy that goes stale. This is the copy,
+     and the How to play button now moves focus here. -->
+<section id="rules-section" aria-labelledby="rules-h">
+  <h2 id="rules-h">How to play Sheephead</h2>
+  <p class="hint">The rules of the game. For keyboard and screen reader guidance, use the
+    Accessibility hints button at the bottom, or press <kbd>?</kbd>.</p>
 
-    <h3>The deal</h3>
-    <p>Everyone gets a hand and a small blind is set aside. Starting to the dealer's left, each
-      player may pick up the blind or pass. Whoever picks takes the blind into their hand and buries
-      the same number of cards face down; those buried cards count for the picker's team at the end,
-      so it pays to bury points you could not otherwise protect.</p>
-    <p>With four, five or six players the jack of diamonds is the secret partner card. Whoever holds
-      it plays with the picker but says nothing until the card hits the table. If the picker holds it
-      or buries it, the picker plays alone against everyone.</p>
-    <p>None of that is announced. The sides only become public when the jack of diamonds is actually
-      played: if somebody else plays it they are the partner, and if the picker plays it themselves
-      that is the moment everyone learns the picker is alone. If the picker buried it, nobody finds
-      out until the hand is scored. You are told your own situation, whether you picked or hold the
-      jack, but never anyone else's.</p>
-    <p>With three players there is no partner card and the picker is always alone, which everyone
-      knows in advance.</p>
+  <h3>The idea</h3>
+  <p>Sheephead is a trick taking game about capturing card points. One player, the picker, takes
+    on the rest of the table, usually with a secret partner. The picker's side needs more than
+    half the points in the deck to win the hand.</p>
 
-    <h3>Play</h3>
-    <p>The player to the dealer's left leads. You must follow the suit that was led if you can.
-      Remember that trump is its own suit: if a queen, jack or diamond is led, every queen, jack and
-      diamond in your hand must follow it, and a queen of clubs does not follow a lead of clubs.
-      Highest trump takes the trick; if no trump is played, the highest card of the led suit takes
-      it. If you cannot follow, you may play anything, including trump.</p>
+  <h3>The deck</h3>
+  <p>Thirty-two cards: seven, eight, nine, ten, jack, queen, king and ace in each suit. At four
+    players the seven and eight of diamonds come out, leaving thirty, so that everyone still gets
+    a full hand with a two card blind. Both are worth nothing, so a hand is 120 points at every
+    table size.</p>
+  <p><strong>Trump</strong> is a single fourteen card suit made of all four queens, then all four
+    jacks, then the whole diamond suit. From highest to lowest: queen of clubs, queen of spades,
+    queen of hearts, queen of diamonds, jack of clubs, jack of spades, jack of hearts, jack of
+    diamonds, then ace, ten, king, nine, eight and seven of diamonds.</p>
+  <p><strong>Fail</strong> suits are clubs, spades and hearts, ranked ace, ten, king, nine, eight,
+    seven. Two things surprise new players: the ten sits above the king, and the queens and jacks
+    are not in their fail suits at all, they are trump. So the highest club is the ace of clubs,
+    not the queen or the jack of clubs.</p>
+  <p>Card values: ace 11, ten 10, king 4, queen 3, jack 2, and nine, eight and seven nothing. That
+    is 120 points in the deck.</p>
 
-    <h3>Winning the hand</h3>
-    <p>The picker's team needs 61 of the 120 points. A normal win pays one unit, 91 or more pays two
-      (a schneider), and taking every trick pays three. If the picker's team falls short they pay
-      double, and more if they are held to 30 points or fewer, or take no tricks at all. Each
-      opponent settles for two units times the multiplier; the picker takes roughly two thirds of
-      that pot and the partner one third.</p>
+  <h3>The deal</h3>
+  <p>Everyone gets a hand and a small blind is set aside. Starting to the dealer's left, each
+    player may pick up the blind or pass. Whoever picks takes the blind into their hand and buries
+    the same number of cards face down; those buried cards count for the picker's team at the end,
+    so it pays to bury points you could not otherwise protect.</p>
+  <p>With four, five or six players the jack of diamonds is the secret partner card. Whoever holds
+    it plays with the picker but says nothing until the card hits the table. If the picker holds it
+    or buries it, the picker plays alone against everyone.</p>
+  <p>None of that is announced. The sides only become public when the jack of diamonds is actually
+    played: if somebody else plays it they are the partner, and if the picker plays it themselves
+    that is the moment everyone learns the picker is alone. If the picker buried it, nobody finds
+    out until the hand is scored. You are told your own situation, whether you picked or hold the
+    jack, but never anyone else's.</p>
+  <p>With three players there is no partner card and the picker is always alone, which everyone
+    knows in advance.</p>
 
-    <h3>Leaster</h3>
-    <p>If everyone passes and you chose the leaster option, there is no picker. Everyone plays for
-      themselves, the blind goes to whoever wins the last trick, and the player with the
-      <em>fewest</em> points wins. You must have taken at least one trick to be eligible, so ducking
-      every single trick loses.</p>
+  <h3>Play</h3>
+  <p>The player to the dealer's left leads. You must follow the suit that was led if you can.
+    Remember that trump is its own suit: if a queen, jack or diamond is led, every queen, jack and
+    diamond in your hand must follow it, and a queen of clubs does not follow a lead of clubs.
+    Highest trump takes the trick; if no trump is played, the highest card of the led suit takes
+    it. If you cannot follow, you may play anything, including trump.</p>
 
-    <h3>Two different numbers on the table</h3>
-    <p>The players table shows two things that are easy to mix up. <strong>Card points this
-      hand</strong> is what you have taken in tricks out of the 120 in the deck; those always total
-      120 across everyone, plus whatever the picker buried. <strong>Game score</strong> is the
-      running total in scoring units across all the hands you have played; those always total zero,
-      so one player being well ahead means the others are behind by the same amount. The Total row
-      at the bottom tracks points taken so far, and once the last trick is played it shows the full
-      accounting, taken plus buried, which should come to 120.</p>
+  <h3>Winning the hand</h3>
+  <p>The picker's team needs 61 of the 120 points. A normal win pays one unit, 91 or more pays two
+    (a schneider), and taking every trick pays three. If the picker's team falls short they pay
+    double, and more if they are held to 30 points or fewer, or take no tricks at all. Each
+    opponent settles for two units times the multiplier; the picker takes roughly two thirds of
+    that pot and the partner one third.</p>
 
-    <p class="actions">
-      <button type="button" id="rules-close" class="primary">Close</button>
-      <button type="button" id="rules-to-a11y">Accessibility hints</button>
-    </p>
-  </div>
-</dialog>
+  <h3>Leaster</h3>
+  <p>If everyone passes and you chose the leaster option, there is no picker. Everyone plays for
+    themselves, the blind goes to whoever wins the last trick, and the player with the
+    <em>fewest</em> points wins. You must have taken at least one trick to be eligible, so ducking
+    every single trick loses.</p>
+
+  <h3>Two different numbers on the table</h3>
+  <p>The players table shows two things that are easy to mix up. <strong>Card points this
+    hand</strong> is what you have taken in tricks out of the 120 in the deck; those always total
+    120 across everyone, plus whatever the picker buried. <strong>Game score</strong> is the
+    running total in scoring units across all the hands you have played; those always total zero,
+    so one player being well ahead means the others are behind by the same amount. The Total row
+    at the bottom tracks points taken so far, and once the last trick is played it shows the full
+    accounting, taken plus buried, which should come to 120.</p>
+
+
+  <!-- The Close button that used to sit here went with the dialog; this one
+       did not, and removing it by accident took the only route from the
+       rules to the keyboard guidance. -->
+  <p class="actions">
+    <button type="button" id="rules-to-a11y">Accessibility hints</button>
+  </p>
+</section>
 
 <dialog id="a11y-dialog" aria-labelledby="a11y-h">
   <div class="dialog-body">

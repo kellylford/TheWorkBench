@@ -56,12 +56,12 @@
 
   var NET_IDS = ['net-line', 'net-actions', 'net-reconnect'];
   var LOBBY_IDS = ['lobby-section', 'lobby-status', 'lobby-choose', 'lobby-table',
-    'lobby-create', 'lobby-join-form', 'lobby-code', 'lobby-code-display', 'lobby-code-read',
+    'lobby-create', 'lobby-join-form', 'lobby-code', 'lobby-code-display', 'lobby-invite',
     'lobby-copy', 'lobby-leave', 'lobby-seats', 'lobby-back', 'setup-online',
     'table-code-line', 'lobby-start', 'lobby-start-hint',
     'table-code-actions', 'game-copy-code'];
 
-  var DIALOGS = ['rules-dialog', 'a11y-dialog', 'export-dialog', 'bug-dialog', 'settings-dialog'];
+  var DIALOGS = ['a11y-dialog', 'export-dialog', 'bug-dialog', 'settings-dialog'];
 
   function anyDialogOpen() {
     for (var i = 0; i < DIALOGS.length; i++) if (el[DIALOGS[i]] && el[DIALOGS[i]].open) return true;
@@ -111,7 +111,7 @@
       'deal-section', 'deal-note', 'deal-cards', 'seats',
       'game-h', 'export-dialog', 'export-text', 'export-summary',
       'bug-dialog', 'bug-title', 'bug-what', 'bug-include-log', 'bug-preview',
-      'rules-dialog', 'a11y-dialog', 'settings-dialog', 'settings-summary']
+      'a11y-dialog', 'settings-dialog', 'settings-summary']
       .concat(LOBBY_IDS).concat(NET_IDS).forEach(function (id) {
         el[id] = $(id);
       });
@@ -174,11 +174,13 @@
     $('setup-a11y').addEventListener('click', openA11y);
     $('btn-rules').addEventListener('click', openRules);
     $('btn-a11y').addEventListener('click', openA11y);
-    $('rules-close').addEventListener('click', function () { closeDialog(el['rules-dialog']); });
     $('a11y-close').addEventListener('click', function () { closeDialog(el['a11y-dialog']); });
     // Each help dialog offers the other, so neither is a dead end.
-    $('rules-to-a11y').addEventListener('click', function () { switchDialog('rules-dialog', 'a11y-dialog'); });
-    $('a11y-to-rules').addEventListener('click', function () { switchDialog('a11y-dialog', 'rules-dialog'); });
+    $('rules-to-a11y').addEventListener('click', openA11y);
+    $('a11y-to-rules').addEventListener('click', function () {
+      closeDialog(el['a11y-dialog']);
+      goToSection('rules-h');
+    });
     // Escape closes a native dialog without going through our button.
     DIALOGS.forEach(function (id) {
       el[id].addEventListener('close', restoreDialogFocus);
@@ -231,12 +233,16 @@
     el.hand.addEventListener('keydown', onHandKeys);
     el.log.addEventListener('keydown', onLogKeys);
     document.addEventListener('keydown', onGlobalKeys);
+
+    /* Last, so everything it may touch already exists. */
+    var invited = codeFromUrl();
+    if (invited) offerInvite(invited);
   }
 
   /* ---------------- settings ---------------- */
 
   var DEFAULTS = {
-    name: 'You', pointsToWin: 10, stickTheDealer: false, allowAlone: true,
+    name: 'MyPlayerName', pointsToWin: 10, stickTheDealer: false, allowAlone: true,
     difficulty: 'normal', pace: 4000, verbose: true, autofocus: true,
     skin: 'traditional', layout: 'one'
   };
@@ -309,7 +315,7 @@
   }
 
   function readForm() {
-    var name = ($('opt-name').value || 'You').trim().slice(0, 16) || 'You';
+    var name = ($('opt-name').value || 'MyPlayerName').trim().slice(0, 16) || 'MyPlayerName';
     var names = [name].concat(crewNames(3, name));
     return {
       name: name,
@@ -333,6 +339,17 @@
     e.preventDefault();
     settings = readForm();
     saveSettings();
+
+    /* An invite turns this form into a join. The name has just been read out of
+     * it, which is the whole reason the link lands here rather than dropping
+     * somebody nameless into a game already in progress. */
+    if (pendingInvite) {
+      var code = pendingInvite;
+      pendingInvite = '';
+      showLobby();
+      joinTable(code, null);
+      return;
+    }
     var cfg = {};
     Object.keys(settings).forEach(function (k) { cfg[k] = settings[k]; });
     local = G.createGame(cfg);
@@ -550,6 +567,31 @@
 
   function spellCode(code) { return String(code || '').split('').join(', '); }
 
+  /* Somebody followed an invite link.
+   *
+   * They land on the START screen rather than straight in the game, and that is
+   * deliberate: the one thing the link cannot carry is who they are. Sending a
+   * name in the URL would mean the host naming their guests, and an empty name
+   * at a table is worse than a slow one. So the code is held, the button says
+   * what pressing it will do, and the name field is where focus goes. */
+  var pendingInvite = '';
+
+  function offerInvite(code) {
+    pendingInvite = code;
+    el['setup-section'].hidden = false;
+    el['lobby-section'].hidden = true;
+    var note = $('invite-note');
+    if (note) {
+      note.hidden = false;
+      note.textContent = 'You have been invited to table ' + code +
+        '. Choose the name the others will see, then join.';
+    }
+    var go = el['setup-form'] && el['setup-form'].querySelector('button[type="submit"]');
+    if (go) go.textContent = 'Join table ' + code;
+    var nm = $('opt-name');
+    if (nm) { nm.focus(); if (nm.select) nm.select(); }
+  }
+
   function showLobby() {
     el['setup-section'].hidden = true;
     el['game-section'].hidden = true;
@@ -630,11 +672,33 @@
     showTable(clean);
   }
 
+  /* The address of this page with the table already chosen.
+   *
+   * Built from location rather than hard coded, so it is right on the
+   * published site, right on a local file, and right behind whatever
+   * anybody puts in front of it. The query string carries the code and
+   * nothing else — no name, no seat: the person arriving chooses their own
+   * name, and the seat is the room's to hand out. */
+  function inviteLink(code) {
+    var base = location.origin + location.pathname;
+    return base + '?table=' + encodeURIComponent(code);
+  }
+
+  /* A table code in the address bar, if there is one. */
+  function codeFromUrl() {
+    try {
+      var m = /[?&]table=([^&#]+)/.exec(location.search || '');
+      return m ? normaliseCode(decodeURIComponent(m[1])) : '';
+    } catch (e) { return ''; }
+  }
+
   function showTable(code) {
     $('lobby-choose').hidden = true;
     $('lobby-table').hidden = false;
     $('lobby-code-display').textContent = code;
-    $('lobby-code-read').textContent = 'Read it out as: ' + spellCode(code);
+    var invite = inviteLink(code);
+    var a = $('lobby-invite');
+    if (a) { a.href = invite; a.textContent = invite; }
     renderSeats2();
     $('lobby-code-display').focus();
   }
@@ -831,14 +895,19 @@
      * starts, and the code is exactly what somebody needs at that moment. */
     var code = lobby.code || $('lobby-code-display').textContent;
     if (!code) return;
+    /* THE LINK, not the code. A code has to be typed by the person receiving
+     * it, into a field they have to find first; a link is one activation. The
+     * code is still on screen and still gets read out here, because reading it
+     * down a phone is the fastest route when somebody is in the room. */
+    var link = inviteLink(code);
     if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(code).then(function () {
-        alert_('Table code ' + spellCode(code) + ' copied.');
+      navigator.clipboard.writeText(link).then(function () {
+        alert_('Invite link copied. The table code is ' + code + '.');
       }, function () {
-        alert_('The code could not be copied. It is ' + spellCode(code) + '.');
+        alert_('The link could not be copied. The table code is ' + code + '.');
       });
     } else {
-      alert_('The code is ' + spellCode(code) + '.');
+      alert_('The table code is ' + code + '.');
     }
   }
 
@@ -2720,7 +2789,25 @@
     announceRequested('Settings reset to the defaults. ' + el['settings-summary'].textContent);
   }
 
-  function openRules() { openDialog(el['rules-dialog']); }
+  /* The rules live on the page now, so this moves to them rather than
+   * opening a modal. A modal has no address; the landing page needed one. */
+  function openRules() { goToSection('rules-h'); }
+
+  /* Move to a section of this page and start reading there.
+   *
+   * Focus goes to the heading itself, with tabindex -1 so it can take focus
+   * without joining the tab order — which is what a screen reader needs in
+   * order to begin reading from that point rather than announcing a jump and
+   * leaving the reader where they were. */
+  function goToSection(id) {
+    var h = document.getElementById(id);
+    if (!h) return;
+    h.setAttribute('tabindex', '-1');
+    h.focus();
+    if (h.scrollIntoView) h.scrollIntoView({ block: 'start' });
+    announceRequested(h.textContent || '');
+  }
+
   function openA11y() { openDialog(el['a11y-dialog']); }
 
   SH.UI = {

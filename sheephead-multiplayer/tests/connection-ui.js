@@ -33,7 +33,7 @@ const dom=await JSDOM.fromFile(path.join(root,'index.html'),{runScripts:'dangero
   beforeParse(w){const s={};Object.defineProperty(w,'localStorage',{configurable:true,value:{getItem:k=>k in s?s[k]:null,setItem:(k,v)=>{s[k]=String(v);},removeItem:k=>{delete s[k];},clear:()=>{},key:i=>Object.keys(s)[i]||null,get length(){return Object.keys(s).length;}}});}});
 const {window}=dom,d=window.document;
 await new Promise(r=>{if(d.readyState==='complete')r();else window.addEventListener('load',r);});
-['rules-dialog','a11y-dialog','export-dialog','bug-dialog','settings-dialog'].forEach(id=>{const g=d.getElementById(id);if(g&&typeof g.showModal!=='function'){g.showModal=()=>{g.open=true;};g.close=()=>{g.open=false;};}});
+['a11y-dialog','export-dialog','bug-dialog','settings-dialog'].forEach(id=>{const g=d.getElementById(id);if(g&&typeof g.showModal!=='function'){g.showModal=()=>{g.open=true;};g.close=()=>{g.open=false;};}});
 
 const line=d.getElementById('net-line'), acts=d.getElementById('net-actions'), btn=d.getElementById('net-reconnect');
 const fails=[];

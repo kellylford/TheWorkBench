@@ -67,7 +67,7 @@ async function boot(opts) {
   });
 
   // jsdom does not implement <dialog>; stub only what ui.js touches.
-  ['rules-dialog', 'a11y-dialog', 'export-dialog', 'bug-dialog', 'settings-dialog'].forEach(id => {
+  ['a11y-dialog', 'export-dialog', 'bug-dialog', 'settings-dialog'].forEach(id => {
     const dlg = window.document.getElementById(id);
     if (typeof dlg.showModal !== 'function') { dlg.showModal = () => { dlg.open = true; }; dlg.close = () => { dlg.open = false; }; }
   });
@@ -85,15 +85,17 @@ async function boot(opts) {
 
   // Help is two separate experiences: game rules, and accessibility guidance.
   {
-    const rules = d.getElementById('rules-dialog');
+    /* A section on the page now, not a dialog — the landing page needed
+     * something it could link to, and a modal has no address. */
+    const rules = d.getElementById('rules-section');
     const a11y = d.getElementById('a11y-dialog');
     const rulesText = rules.textContent;
     const a11yText = a11y.textContent;
 
     // The rules must not be cluttered with keyboard mechanics...
     check(!/roving|browse mode|NVDA|Tab and Shift/i.test(rulesText),
-      'the rules dialog still contains keyboard or screen reader guidance');
-    check(/trump|trick|blind|picker/i.test(rulesText), 'the rules dialog lost the game rules');
+      'the rules still contain keyboard or screen reader guidance');
+    check(/trump|trick|blind|picker/i.test(rulesText), 'the rules section lost the game rules');
     // ...and the accessibility hints must not be re-teaching the game.
     check(!/queen of clubs, queen of spades/i.test(a11yText),
       'the accessibility dialog still contains the trump order');
@@ -104,9 +106,17 @@ async function boot(opts) {
       check(d.getElementById(id), 'missing setup entry point: ' + id));
 
     d.getElementById('setup-a11y').click();
-    check(a11y.open && !rules.open, '? entry point did not open the accessibility dialog');
+    check(a11y.open, '? entry point did not open the accessibility dialog');
+
+    /* The rules are a page section now, so "go to the rules" closes the dialog
+     * and moves focus to the heading rather than opening a second modal. The
+     * old check asked whether one dialog had replaced the other, which is a
+     * question about the mechanism rather than about the reader getting there. */
     d.getElementById('a11y-to-rules').click();
-    check(rules.open && !a11y.open, 'switching from accessibility to rules failed');
+    check(!a11y.open, 'going to the rules left the accessibility dialog open on top of them');
+    check(d.activeElement === d.getElementById('rules-h'),
+      'going to the rules did not put focus on the rules heading, so a screen ' +
+      'reader is left where it was with no idea anything happened');
     d.getElementById('rules-to-a11y').click();
     check(a11y.open && !rules.open, 'switching from rules to accessibility failed');
     d.getElementById('a11y-close').click();

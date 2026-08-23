@@ -42,6 +42,60 @@
   var state = null;
   var mySeat = 0;
   var pace = 450;
+
+  /* SETTINGS, REMEMBERED. Hearts was the only game here that forgot everything
+   * the moment you left: pick the plain card style, finish a game, come back,
+   * and it is traditional faces again.
+   *
+   * Its own key, and that is not cosmetic. localStorage is scoped to the ORIGIN
+   * and every game in this repository lives under the same one, so a key shared
+   * with another game means a setting changed here changes it there too. */
+  var STORE_KEY = 'hearts.settings.v1';
+  var DEFAULTS = { pace: 450, points: 100, skin: 'traditional', autofocus: true };
+  var settings = { pace: 450, points: 100, skin: 'traditional', autofocus: true };
+
+  function loadSettings() {
+    var stored = {};
+    try { stored = JSON.parse(global.localStorage.getItem(STORE_KEY) || '{}'); }
+    catch (e) { stored = {}; }
+    Object.keys(DEFAULTS).forEach(function (k) {
+      settings[k] = stored[k] === undefined ? DEFAULTS[k] : stored[k];
+    });
+    settingsToForm();
+    applySkin();
+  }
+
+  function saveSettings() {
+    try { global.localStorage.setItem(STORE_KEY, JSON.stringify(settings)); }
+    catch (e) { /* private browsing, a full disk: the game still plays */ }
+  }
+
+  function applySkin() {
+    global.document.body.className = 'skin-' + settings.skin;
+  }
+
+  /* The dialog and the start screen hold the same four settings between them,
+   * so both are written from `settings` and both write back to it. Two forms
+   * that disagree about the current pace is worse than one form. */
+  function settingsToForm() {
+    if (el['set-pace']) el['set-pace'].value = String(settings.pace);
+    if (el['set-points']) el['set-points'].value = String(settings.points);
+    if (el['set-skin']) el['set-skin'].value = settings.skin;
+    if (el['set-autofocus']) el['set-autofocus'].checked = !!settings.autofocus;
+    if (el['opt-pace']) el['opt-pace'].value = String(settings.pace);
+    if (el['opt-points']) el['opt-points'].value = String(settings.points);
+    if (el['opt-skin']) el['opt-skin'].value = settings.skin;
+  }
+
+  function readSettingsDialog() {
+    settings.pace = parseInt(el['set-pace'].value, 10);
+    settings.points = parseInt(el['set-points'].value, 10);
+    settings.skin = el['set-skin'].value;
+    settings.autofocus = !!el['set-autofocus'].checked;
+    saveSettings();
+    settingsToForm();
+    applySkin();
+  }
   var handFocus = 0;
   var logFocus = 0;         // which log entry holds the tab stop
   var selected = {};        // card id -> true, while choosing a pass
@@ -771,7 +825,10 @@
     var moment = [state.phase, state.dealNumber, state.tricksPlayed,
       state.trick.length, state.turn, String(state.passedIn)].join('|');
     var mine = whoActs() === mySeat;
-    if (mine && moment !== lastMoment) focusForTurn();
+    /* Only if they asked for it. Moving focus is help when you are waiting to
+     * play and an interruption when you are reading the log — which is why it
+     * is a setting in the other games and now here. */
+    if (mine && moment !== lastMoment && settings.autofocus) focusForTurn();
     lastMoment = moment;
   }
 
@@ -845,9 +902,19 @@
   };
 
   function onKey(e) {
-    if (!state) return;
     var tag = (e.target.tagName || '').toLowerCase();
     if (tag === 'input' || tag === 'select' || tag === 'textarea') return;
+
+    /* ? BEFORE THE STATE GUARD, and that ordering is the point.
+     *
+     * Everything below needs a game in progress. The keyboard hints do not —
+     * they are most wanted by somebody who has just arrived at the start screen
+     * and wants to know whether this thing can be played by keyboard at all.
+     * Behind the guard it did nothing there, silently, which is the answer
+     * "no". */
+    if (e.key === '?') { e.preventDefault(); goToSection('keys-h'); return; }
+
+    if (!state) return;
 
     var inHand = e.target.classList && e.target.classList.contains('card');
     if (inHand && (e.key === 'ArrowRight' || e.key === 'ArrowLeft')) {
@@ -892,6 +959,20 @@
    * and the accessible role from the browser; every hand-rolled modal gets at
    * least one of those wrong, usually the first.
    */
+
+  /* How to play, and the keyboard hints. Both are already written into this
+   * page under real headings, so these move to them rather than opening a
+   * dialog with a second copy in it. Focus goes to the heading itself, with a
+   * tabindex of -1 so it can take focus without joining the tab order — which
+   * is what a screen reader needs to start reading from there. */
+  function goToSection(id) {
+    var h = global.document.getElementById(id);
+    if (!h) return;
+    h.setAttribute('tabindex', '-1');
+    h.focus();
+    if (h.scrollIntoView) h.scrollIntoView({ block: 'start' });
+    say(h.textContent || '', { request: true });
+  }
 
   var lastFocus = null;
 
@@ -1108,7 +1189,7 @@
      * cannot connect without asking. Guessing produces the obvious result: the
      * second person to arrive asks for seat 0, is told it is taken, and cannot
      * join at all. */
-    var myName = (el['opt-name'].value || 'You').slice(0, 16);
+    var myName = (el['opt-name'].value || 'MyPlayerName').slice(0, 16);
     SH.Table.startOnline(seat, function (handler) {
       return SH.Net.connect({ code: clean, seat: seat, name: myName }, handler, onNetStatus);
     });
@@ -1116,9 +1197,48 @@
     $('lobby-choose').hidden = true;
     $('lobby-table').hidden = false;
     $('lobby-code-display').textContent = clean;
-    $('lobby-code-read').textContent = 'Read it out as: ' + spellCode(clean);
+    var a = $('lobby-invite');
+    if (a) { a.href = inviteLink(clean); a.textContent = inviteLink(clean); }
     renderSeats();
     $('lobby-code-display').focus();
+  }
+
+  /* The address of this page with the table already chosen.
+   *
+   * Built from location rather than hard coded, so it is right on the published
+   * site, right on a local file and right behind whatever anybody puts in front
+   * of it. It carries the code and nothing else — no name and no seat: the seat
+   * is the room's to hand out and the name is the guest's to choose. */
+  function inviteLink(code) {
+    return global.location.origin + global.location.pathname + '?table=' + encodeURIComponent(code);
+  }
+
+  function codeFromUrl() {
+    try {
+      var m = /[?&]table=([^&#]+)/.exec(global.location.search || '');
+      return m ? normaliseCode(decodeURIComponent(m[1])) : '';
+    } catch (e) { return ''; }
+  }
+
+  /* Somebody followed an invite link. They land on the START screen rather than
+   * straight in the game, deliberately: the one thing a link cannot carry is who
+   * they are, and an unnamed player at a table is worse than a slow one. */
+  var pendingInvite = '';
+
+  function offerInvite(code) {
+    pendingInvite = code;
+    el['setup-section'].hidden = false;
+    el['lobby-section'].hidden = true;
+    var note = $('invite-note');
+    if (note) {
+      note.hidden = false;
+      note.textContent = 'You have been invited to table ' + code +
+        '. Choose the name the others will see, then join.';
+    }
+    var go = el['setup-form'] && el['setup-form'].querySelector('button[type="submit"]');
+    if (go) go.textContent = 'Join table ' + code;
+    var nm = $('opt-name');
+    if (nm) { nm.focus(); if (nm.select) nm.select(); }
   }
 
   function onNetStatus(info) {
@@ -1166,12 +1286,17 @@
    * There is no timer here any more, and no AI.act: the pace control becomes the
    * server's botDelay, which is what it always meant. */
   function startGame() {
-    var name = (el['opt-name'].value || 'You').slice(0, 16);
-    var chosen = parseInt(el['opt-pace'].value, 10);
-    pace = chosen < 0 ? 0 : chosen;
+    var name = (el['opt-name'].value || 'MyPlayerName').slice(0, 16);
+    /* The start screen is one of the two places these live; read it back into
+     * `settings` so what was chosen here is what the dialog shows next time. */
+    settings.pace = parseInt(el['opt-pace'].value, 10);
+    settings.points = parseInt(el['opt-points'].value, 10);
+    settings.skin = el['opt-skin'].value;
+    saveSettings();
+    settingsToForm();
+    applySkin();
 
-    var skin = el['opt-skin'].value;
-    global.document.body.className = 'skin-' + skin;
+    pace = settings.pace < 0 ? 0 : settings.pace;
 
     selected = {};
     handFocus = 0;
@@ -1183,7 +1308,7 @@
     var cfg = {
       numPlayers: 4,
       names: [name, 'East', 'South', 'West'],
-      pointsToWin: parseInt(el['opt-points'].value, 10),
+      pointsToWin: settings.points,
       difficulty: 'hard'
     };
     var srv = SH.LocalServer.create({ config: cfg, latency: 0, botDelay: pace });
@@ -1203,6 +1328,7 @@
      'log', 'setup-section', 'game-section', 'setup-form', 'opt-name', 'opt-pace',
      'opt-points', 'opt-skin', 'say-polite', 'say-assertive',
      'seats', 'lobby-section', 'lobby-status', 'lobby-seats',
+     'settings-dialog', 'set-pace', 'set-points', 'set-skin', 'set-autofocus',
      'export-dialog', 'export-text', 'export-summary',
      'bug-dialog', 'bug-title', 'bug-what', 'bug-include-log', 'bug-preview'].forEach(function (id) {
       el[id] = global.document.getElementById(id);
@@ -1212,10 +1338,20 @@
 
     el['setup-form'].addEventListener('submit', function (e) {
       e.preventDefault();
+      /* An invite turns this form into a join. The name has just been read out
+       * of it, which is the whole reason the link lands here. */
+      if (pendingInvite) {
+        var code = pendingInvite;
+        pendingInvite = '';
+        showLobby();
+        joinTable(code, null);
+        return;
+      }
       startGame();
     });
     global.document.addEventListener('keydown', onKey);
     el.log.addEventListener('keydown', onLogKeys);
+
 
     /* The lobby. Every one of these is an ordinary button doing one thing, and
      * the code entry is a plain text input rather than five separate boxes:
@@ -1223,6 +1359,34 @@
      * every keystroke moves focus and the field you are in is never the field
      * you thought. */
     var bind = function (id, ev, fn) { var n = $(id); if (n) n.addEventListener(ev, fn); };
+
+    bind('tool-settings', 'click', function () { openDialog(el['settings-dialog']); });
+    bind('settings-close', 'click', function () { closeDialog(el['settings-dialog']); });
+    bind('settings-reset', 'click', function () {
+      Object.keys(DEFAULTS).forEach(function (k) { settings[k] = DEFAULTS[k]; });
+      saveSettings();
+      settingsToForm();
+      applySkin();
+      say('Settings reset to their defaults.', { request: true });
+    });
+    ['set-pace', 'set-points', 'set-skin', 'set-autofocus'].forEach(function (id) {
+      bind(id, 'change', readSettingsDialog);
+    });
+
+    bind('tool-rules', 'click', function () { goToSection('rules-h'); });
+    bind('tool-a11y', 'click', function () { goToSection('keys-h'); });
+    bind('tool-newgame', 'click', function () {
+      if (!global.confirm || global.confirm('Start a new game? The one in progress is lost.')) {
+        global.location.reload();
+      }
+    });
+
+    loadSettings();
+
+    /* Last, so everything it may touch already exists. */
+    var invited = codeFromUrl();
+    if (invited) offerInvite(invited);
+
     bind('lobby-create', 'click', createTable);
     bind('lobby-join-form', 'submit', function (e) { e.preventDefault(); joinTable($('lobby-code').value, null); });
     bind('lobby-back', 'click', function () { el['lobby-section'].hidden = true; el['setup-section'].hidden = false; $('opt-name').focus(); });
@@ -1232,10 +1396,10 @@
       var code = $('lobby-code-display').textContent;
       if (global.navigator && global.navigator.clipboard) {
         global.navigator.clipboard.writeText(code).then(function () {
-          say('Code copied: ' + spellCode(code) + '.', { request: true });
-        }).catch(function () { say('Could not copy. The code is ' + spellCode(code) + '.', { request: true }); });
+          say('Invite link copied. The table code is ' + code + '.', { request: true });
+        }).catch(function () { say('Could not copy. The table code is ' + code + '.', { request: true }); });
       } else {
-        say('The code is ' + spellCode(code) + '.', { request: true });
+        say('The table code is ' + code + '.', { request: true });
       }
     });
     bind('play-online', 'click', showLobby);
