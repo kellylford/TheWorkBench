@@ -210,8 +210,13 @@ async function main() {
       const legal = G.legalPlays(v, T.seat()).map(c => c.id);
       const hand = cards(win);
 
-      /* THE ARITHMETIC, IN THE LABEL. A sighted player reads the count and their
-       * cards and knows in a second what each one makes. */
+      /* NO ARITHMETIC IN THE LABEL.
+       *
+       * This check used to REQUIRE the opposite: every playable card had to say
+       * "makes thirteen, and scores a pair for two". A player asked for it to
+       * stop — keeping the count is the game, and a card that hands you the sum
+       * plays the hand for you. What a card must say is which card it is and
+       * where it sits, and now that is all it says. */
       for (const elc of hand) {
         const lab = label(elc);
         const card = C.get(elc.dataset.id);
@@ -219,13 +224,21 @@ async function main() {
         if (legal.indexOf(elc.dataset.id) >= 0) {
           check(elc.getAttribute('aria-disabled') !== 'true',
             'a playable card is marked disabled: ' + lab);
-          check(lab.indexOf('makes ' + to) > 0,
-            'a playable card does not say what count it makes: ' + lab);
+          check(lab.indexOf('makes') < 0 && lab.indexOf('scores') < 0,
+            'a playable card is doing the count for the player: ' + lab);
+          const tag = elc.querySelector('.tag');
+          check(!tag || !tag.textContent.trim(),
+            'the arithmetic is off the label and still printed on the card: ' +
+            (tag ? tag.textContent : ''));
+          /* No digit check here, and that was a wrong turn worth recording: a
+           * label legitimately reads "card 1 of 4", so hunting for the running
+           * total as a number fails the moment the count happens to be four.
+           * The words are the reliable signal. */
           arithmeticSeen = true;
           const pts = G.pointsForPlay(v, card);
           if (pts.total) {
             scoringLabelSeen = true;
-            check(/and scores /.test(lab), 'a scoring card does not say what it scores: ' + lab);
+            check(!/scores/.test(lab), 'a scoring card announces its own score: ' + lab);
           }
         } else {
           check(elc.getAttribute('aria-disabled') === 'true',
@@ -369,8 +382,8 @@ async function main() {
 
   check(hands >= 12, 'only ' + hands + ' hands were played through the interface');
   check(seen.play > 0 && seen.count > 0, 'the run never reached the play or the count');
-  check(arithmeticSeen, 'no card was ever labelled with the count it would make');
-  check(scoringLabelSeen, 'no scoring card ever came up, so that labelling is untested');
+  check(arithmeticSeen, 'no playable card was ever looked at, so the no-arithmetic rule proved nothing');
+  check(scoringLabelSeen, 'no scoring card ever came up, so the check that it stays quiet proved nothing');
   check(illegalRefused, 'no unplayable card ever came up, so that path is untested');
   check(goTested, 'the go path was never exercised');
   check(cribHiddenSeen && cribShownSeen, 'the crib was never seen both hidden and revealed');

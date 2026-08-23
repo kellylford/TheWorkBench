@@ -942,14 +942,10 @@
       (sorted.length === 1 ? ' card: ' : ' cards: ');
 
     if (state.phase === 'play') {
-      /* During the play, every card is read with what it would do — the
-       * arithmetic a sighted player does at a glance off cards that are face up
-       * in front of everybody. */
+      /* The count, then the cards. Which of them is too big to play is a rule
+       * and stays; what each one would make is a sum and does not. */
       var parts = sorted.map(function (c) {
-        var to = state.count + C.value(c);
-        if (to > 31) return C.name(c) + ', too big, it would make ' + to;
-        var got = G.pointsForPlay(state, c);
-        return C.name(c) + ' makes ' + to + (got.total ? ', and scores ' + got.parts.join(' and ') : '');
+        return C.name(c) + (state.count + C.value(c) > 31 ? ', too big to play' : '');
       });
       return 'The count is ' + state.count + '. ' + lead + parts.join('. ') + '.';
     }
@@ -981,16 +977,11 @@
 
     if (state.phase === 'play' && state.turn === mySeat) {
       var legal = G.legalPlays(state, mySeat);
+      /* The rule stays; the shopping list of best moves does not. Asking what
+       * is on the table should not come back with which card to play, any more
+       * than the cards themselves should carry their own arithmetic. */
       if (!legal.length) {
         msg += ' Nothing in your hand fits under thirty-one, so you must say go.';
-      } else {
-        var scoring = legal.filter(function (c) { return G.pointsForPlay(state, c).total > 0; });
-        msg += scoring.length
-          ? ' Scoring plays: ' + scoring.map(function (c) {
-            var g = G.pointsForPlay(state, c);
-            return C.name(c) + ' for ' + G.numWord(g.total);
-          }).join(', ') + '.'
-          : ' Nothing you hold scores here.';
       }
     }
     return msg;
@@ -1496,14 +1487,17 @@
       var label = C.describe(c);
 
       if (handMode === 'play') {
-        var to = state.count + C.value(c);
         if (legalIds[c.id]) {
-          var got = G.pointsForPlay(state, c);
-          tag = 'makes ' + to + (got.total ? ' · ' + got.total : '');
-          /* The arithmetic, said out loud. A sighted player reads this off the
-           * table in a second; by ear it is a sum on every turn. */
-          label += ', makes ' + to;
-          if (got.total) label += ', and scores ' + got.parts.join(' and ');
+          /* NO ARITHMETIC HERE.
+           *
+           * This used to read "Three of Hearts, makes thirteen, and scores a
+           * pair for two", on the label and again on the face of the card. The
+           * reasoning was that a sighted player reads the sum off the table in
+           * a second. They do not — they hold the count, because holding the
+           * count is the game. Handing it over on every card plays the hand for
+           * the player and buries the one thing the card must say, which is
+           * which card it is. */
+          tag = '';
         } else {
           tag = 'over 31';
           b.setAttribute('aria-disabled', 'true');
@@ -2115,7 +2109,7 @@
 
   function bugSummary() {
     var L = [];
-    L.push('Game: Cribbage Multiplayer (' + GAME_URL + ')');
+    L.push('Game: Cribbage (' + GAME_URL + ')');
     L.push('When: ' + new Date().toString());
     L.push('Browser: ' + navigator.userAgent);
     if (state) {
