@@ -1031,35 +1031,32 @@
 
   /* What this seat has seen, and what could still come. Uses only cards that are
    * face up plus its own — the same information the computer works from. */
+  /* WHAT HAS BEEN PLAYED THIS HAND, in the order it went down.
+   *
+   * This used to be a counting aid, and it was a thorough one: how many of the
+   * fifty-two you had seen, how many unseen cards would make thirty-one from
+   * here, how many would make fifteen, how many tens and fives were still out.
+   * All of it derived from what this seat legitimately knew, so nothing leaked.
+   * Working it out is also the whole of cribbage. A key that does it hands the
+   * game over, and hands it over unevenly, because the player opposite is still
+   * counting in their head.
+   *
+   * What is left is the record: the cards that have gone down, which both
+   * players watched land and either may recall. Where the count reset is marked,
+   * because that is the one thing about the record that changes what can be
+   * played onto it — and the T key reads only the live run, so this is the only
+   * place the earlier cards can be heard at all. */
   function textSeen() {
-    var seen = {};
-    var me = state.players[mySeat];
-    me.hand.concat(me.kept, me.played).forEach(function (c) { if (c.id) seen[c.id] = 1; });
-    state.pile.forEach(function (e) { seen[e.card.id] = 1; });
-    if (state.starter) seen[state.starter.id] = 1;
-    (state.discarded[mySeat] || []).forEach(function (id) { seen[id] = 1; });
-    var unseen = C.newDeck().filter(function (c) { return !seen[c.id]; });
-
-    var parts = ['You have seen ' + G.numWord(C.DECK_SIZE - unseen.length) + ' of the fifty-two. ' +
-      G.numWord(unseen.length) + ' could still be anywhere.'];
-    if (state.phase === 'play') {
-      var need = 31 - state.count;
-      if (need > 0 && need <= 10) {
-        var makes31 = unseen.filter(function (c) { return C.value(c) === need; }).length;
-        parts.push(G.numWord(makes31) + ' unseen ' + (makes31 === 1 ? 'card makes' : 'cards make') +
-          ' thirty-one from here.');
-      }
-      var to15 = 15 - state.count;
-      if (to15 > 0 && to15 <= 10) {
-        var makes15 = unseen.filter(function (c) { return C.value(c) === to15; }).length;
-        parts.push(G.numWord(makes15) + ' would make fifteen.');
-      }
+    if (!state.pile.length) {
+      return state.phase === 'play'
+        ? 'Nothing has been played yet this hand.'
+        : 'The play has not started yet.';
     }
-    var tens = unseen.filter(function (c) { return C.value(c) === 10; }).length;
-    var fives = unseen.filter(function (c) { return c.r === '5'; }).length;
-    parts.push(G.numWord(tens) + ' of the unseen cards are worth ten, and ' +
-      G.numWord(fives) + (fives === 1 ? ' is a five.' : ' are fives.'));
-    return parts.join(' ');
+    var parts = state.pile.map(function (e, i) {
+      return (i === state.runStart && i > 0 ? 'the count reset, then ' : '') +
+        nameFor(e.player) + ' the ' + C.name(e.card);
+    });
+    return 'Played this hand: ' + parts.join(', ') + '. The count is ' + state.count + '.';
   }
 
   function textWho() {

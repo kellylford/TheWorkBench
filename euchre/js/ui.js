@@ -1348,46 +1348,29 @@
     return names.join(', ') + (said.length === 1 ? ' has passed.' : ' have passed.');
   }
 
-  /* Counting aid. Uses only what this seat could legitimately track: cards
-   * already played, its own hand, the upcard everybody saw, and its own
-   * discard. */
+  /* WHAT HAS BEEN PLAYED. Not what has not.
+   *
+   * This used to name the highest trump still out, count the cards of each
+   * suit nobody had seen, and total what was unaccounted for. All of it was
+   * derived from things this seat legitimately knew, so nothing was leaking —
+   * and that was never the problem. The problem is that working it out is the
+   * game. A key that does it removes the skill for whoever presses it, and
+   * removes it unevenly, because the player across the table is still counting
+   * in their head. */
   function textCount() {
     if (!state.trump) {
       return 'Trump has not been decided yet, so there is nothing to count. ' +
         'The upcard is the ' + C.name(state.upcard) + '.';
     }
-    var seen = {};
-    state.played.forEach(function (c) { seen[c.id] = 1; });
-    state.trick.forEach(function (t) { seen[t.card.id] = 1; });
-    state.players[mySeat].hand.forEach(function (c) { seen[c.id] = 1; });
-    if (state.upcard) seen[state.upcard.id] = 1;
-    if (state.discard) seen[state.discard.id] = 1;
-    var unseen = C.newDeck().filter(function (c) { return !seen[c.id]; });
-
     var trump = state.trump;
-    var trumpGone = state.played.concat(state.trick.map(function (t) { return t.card; }))
-      .filter(function (c) { return C.isTrump(c, trump); }).length;
+    var down = state.played.concat(state.trick.map(function (t) { return t.card; }));
+    var trumpGone = down.filter(function (c) { return C.isTrump(c, trump); }).length;
+
     var parts = ['Trump played: ' + trumpGone + ' of 7.'];
-
-    var mine = state.players[mySeat].hand.filter(function (c) { return C.isTrump(c, trump); });
-    parts.push(mine.length
-      ? 'You hold ' + countWord(mine.length, 'trump', 'trump') + ', highest the ' +
-        C.name(C.sortHand(mine, trump)[0]) + '.'
-      : 'You hold no trump.');
-
-    var outTrump = unseen.filter(function (c) { return C.isTrump(c, trump); });
-    parts.push(outTrump.length
-      ? 'Highest trump you have not seen: ' + C.name(C.sortHand(outTrump, trump)[0]) + '. ' +
-        countWord(outTrump.length, 'trump', 'trump') + ' unaccounted for.'
-      : 'Every trump is accounted for.');
-
     C.SUITS.forEach(function (s) {
       if (s === trump) return;
-      var out = unseen.filter(function (c) { return !C.isTrump(c, trump) && c.s === s; });
-      parts.push(suitWord(s) + ': ' + (out.length
-        ? countWord(out.length, 'card', 'cards') + ' unseen, highest the ' +
-          C.name(C.sortHand(out, trump)[0])
-        : 'none unseen'));
+      var n = down.filter(function (c) { return !C.isTrump(c, trump) && c.s === s; }).length;
+      parts.push(suitWord(s) + ': ' + countWord(n, 'card', 'cards') + ' played.');
     });
     parts.push('The upcard was the ' + C.name(state.upcard) + '.');
     return parts.join(' ');
