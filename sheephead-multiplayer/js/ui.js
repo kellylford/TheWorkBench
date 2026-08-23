@@ -1295,28 +1295,15 @@
   /* Card counting aid. Uses only what the player could legitimately track:
    * cards already played, their own hand, and their own buried cards. */
   function textCount() {
-    var seen = {};
-    state.played.forEach(function (c) { seen[c.id] = 1; });
-    state.players[mySeat].hand.forEach(function (c) { seen[c.id] = 1; });
-    if (state.picker === mySeat) state.buried.forEach(function (c) { seen[c.id] = 1; });
-    var unaccounted = C.newDeck().filter(function (c) { return !seen[c.id]; });
-
+    /* WHAT HAS BEEN PLAYED. Not what has not — see the note in euchre's
+     * textCount. Naming the highest trump still out, and counting what nobody
+     * has seen of each suit, is the skill the game is made of. */
     var trumpPlayed = state.played.filter(C.isTrump).length;
     var parts = ['Trump played: ' + trumpPlayed + ' of 14.'];
 
-    var outTrump = unaccounted.filter(C.isTrump).sort(function (a, b) { return C.power(b) - C.power(a); });
-    parts.push(outTrump.length
-      ? 'Highest trump you have not seen: ' + C.name(outTrump[0]) + '. ' + outTrump.length + ' unseen trump.'
-      : 'You have seen every trump.');
-
-    var mine = state.players[mySeat].hand.filter(C.isTrump).sort(function (a, b) { return C.power(b) - C.power(a); });
-    if (mine.length) parts.push('Your highest trump: ' + C.name(mine[0]) + '.');
-
     C.FAIL_SUITS.forEach(function (s) {
       var played = state.played.filter(function (c) { return !C.isTrump(c) && c.s === s; }).length;
-      var out = unaccounted.filter(function (c) { return !C.isTrump(c) && c.s === s; });
-      parts.push(C.SUIT_NAME[s] + ': ' + played + ' of 6 played, ' +
-        (out.length ? 'highest unseen ' + C.RANK_NAME[out[0].r] : 'none unseen') + '.');
+      parts.push(C.SUIT_NAME[s] + ': ' + played + ' of 6 played.');
     });
     return parts.join(' ');
   }

@@ -200,6 +200,93 @@ const SHARED = {
     }
   }
 
+  /* ---- 3b. THE REVIEW KEYS REPORT THE TABLE, NOT THE DECK ----
+   *
+   * Every one of these games had a key that counted the deck. Euchre named the
+   * highest trump still out and how many cards of each suit nobody had seen;
+   * both sheepheads did the same; cribbage said how many of the fifty-two you
+   * had seen, how many unseen cards would make thirty-one from here, and how
+   * many tens and fives were still out.
+   *
+   * None of it leaked. Every figure was derived from what that seat already
+   * knew, and the hidden-information suites were right to pass it. Leaking was
+   * never the problem. The problem is that working it out IS the game — and a
+   * key that does it takes the skill away from the person pressing it while the
+   * player opposite is still counting in their head, which makes it worse than
+   * useless: it is an uneven game dressed as help.
+   *
+   * So: a review key may report what has happened. It may not report what has
+   * not. The phrases below are the shapes that deduction takes when it comes
+   * back, and it does come back — it reads like generosity while you are
+   * writing it.
+   */
+  {
+    const DEDUCTION = [
+      /have not seen/i, /you have seen/i, /not yet seen/i, /\bunseen\b/i,
+      /unaccounted/i, /could still be anywhere/i, /still out there/i,
+      /would make (fifteen|thirty-one|15|31)/i
+    ];
+
+    /* WITH CARDS ON THE TABLE, AND LISTENING TO EVERYTHING SAID.
+     *
+     * Two wrong turns before this worked, both recorded because both look
+     * reasonable while you are writing them.
+     *
+     * The first pressed the keys wherever the section above had left the game,
+     * which was between hands — and a review key with nothing to review says
+     * "nothing has been played yet". It passed a deliberately re-planted
+     * counting aid, because the branch holding the deduction was never reached.
+     *
+     * The second read the live region a moment after each key press. That reads
+     * whatever the announcement queue happens to be delivering, and mid-hand it
+     * is delivering the bots' moves — so the answer to C was never in the
+     * region when it was sampled, and again the planted aid survived.
+     *
+     * This watches the live regions and keeps EVERYTHING that passes through
+     * them, so the answer is caught whenever it lands. It also widens the rule
+     * in the right direction: nothing this game says, at any moment, may count
+     * the deck for the player. */
+    await pump(page, drive.playMid || drive.playIn, { tries: 40 }).catch(() => {});
+    await new Promise(r => setTimeout(r, 400));
+    const onTable = await page.evaluate(() =>
+      document.querySelectorAll('#trick li, #pile li, #hand .card').length);
+    check(onTable > 0,
+      'the review keys were asked with nothing on the table, so what they say ' +
+      'mid-hand went unchecked');
+
+    await page.evaluate(() => {
+      window.__heard = [];
+      const keep = (n) => {
+        const t = (n.textContent || '').trim();
+        if (t && window.__heard[window.__heard.length - 1] !== t) window.__heard.push(t);
+      };
+      document.querySelectorAll('[aria-live], [role="status"], [role="alert"]')
+        .forEach(n => {
+          keep(n);
+          new MutationObserver(() => keep(n))
+            .observe(n, { childList: true, characterData: true, subtree: true });
+        });
+    });
+
+    for (const k of ['h', 't', 'l', 's', 'c', 'p', 'o', 'w']) {
+      await page.evaluate(() => document.body.focus());
+      await page.keyboard.press(k);
+      await new Promise(r => setTimeout(r, 700));
+    }
+
+    const heard = await page.evaluate(() => (window.__heard || []).join(' ~ '));
+    check(heard.length > 40,
+      'the review keys said almost nothing (' + heard.length + ' characters), so ' +
+      'nothing below this was actually read');
+
+    const found = DEDUCTION.filter(re => re.test(heard));
+    check(found.length === 0,
+      'this game counts the deck for the player. Heard: "' +
+      (found.length ? (heard.match(found[0]) || [''])[0] : '') + '" in: ' +
+      heard.slice(0, 200) + '. A review key may say what has happened; working ' +
+      'out what has not is the game');
+  }
+
   /* ---- 4. N REACHES THE PRIMARY ACTION IN EVERY PHASE ----
    *
    * The check above presses N between hands, which is one moment out of a whole
