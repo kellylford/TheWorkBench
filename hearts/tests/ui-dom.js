@@ -440,12 +440,112 @@ async function until(page, fn, what, seconds) {
     await page3.close();
     note('won-trick');
   }
+  /* ---- settings, and the help that goes somewhere ---- */
+  {
+    const page4 = await browser.newPage();
+    await page4.setViewport({ width: 1280, height: 900 });
+    await page4.goto(pathToFileURL(path.join(root, 'index.html')).href, { waitUntil: 'load' });
+    await page4.evaluate(() => {
+      document.getElementById('opt-pace').value = '0';
+      document.getElementById('setup-form')
+        .dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+    });
+    await new Promise(r => setTimeout(r, 400));
+
+    const start = await page4.evaluate(() => document.body.className);
+    check(start === 'skin-traditional', 'the game does not start on the traditional skin');
+
+    const controls = await page4.evaluate(() => ['tool-settings', 'tool-rules',
+      'tool-a11y', 'tool-newgame', 'settings-dialog']
+      .filter(i => !document.getElementById(i)));
+    check(controls.length === 0,
+      'these controls are missing from the page: ' + controls.join(', ') +
+      '. Every other game here has all of them, under Settings and help');
+    /* NOT `return` — that skips browser.close() at the bottom, so node never
+     * exits and a missing button looks exactly like a hung test. It cost an
+     * hour: a leftover id from an interrupted mutation run sat in the page and
+     * every run afterwards simply stopped, silently, with no failure printed
+     * because the failures are printed after the browser is closed. */
+    if (!controls.length) {
+
+    /* Open it the way a player does — focused, then activated — because that is
+     * also the only way to find out whether focus comes back afterwards. */
+    await page4.evaluate(() => {
+      const b = document.getElementById('tool-settings');
+      b.focus(); b.click();
+    });
+    await new Promise(r => setTimeout(r, 150));
+
+    const opened = await page4.evaluate(() => ({
+      open: document.getElementById('settings-dialog').open,
+      inside: document.getElementById('settings-dialog').contains(document.activeElement)
+    }));
+    check(opened.open, 'the Settings button did not open the settings dialog');
+    check(opened.inside, 'the settings dialog opened and left focus outside it');
+
+    /* A setting that takes effect straight away has to take effect straight
+     * away. Hearts had no way to change the card style once a game had begun —
+     * this is the check that the new one does more than look like a control. */
+    await page4.evaluate(() => {
+      const sel = document.getElementById('set-skin');
+      sel.value = 'plain';
+      sel.dispatchEvent(new Event('change', { bubbles: true }));
+    });
+    await new Promise(r => setTimeout(r, 150));
+    check(await page4.evaluate(() => document.body.className) === 'skin-plain',
+      'choosing the plain card style changed nothing on the page');
+
+    await page4.evaluate(() => document.getElementById('settings-close').click());
+    await new Promise(r => setTimeout(r, 150));
+    check(await page4.evaluate(() => !document.getElementById('settings-dialog').open),
+      'Done did not close the settings dialog');
+    check(await page4.evaluate(() => document.activeElement.id) === 'tool-settings',
+      'closing the dialog dropped focus rather than returning it to the button ' +
+      'that opened it, which leaves a keyboard player at the top of the document');
+
+    /* Remembered. Hearts forgot everything between games, alone among the five:
+     * choose the plain style, come back tomorrow, and it is faces again. */
+    await page4.reload({ waitUntil: 'load' });
+    await new Promise(r => setTimeout(r, 300));
+    check(await page4.evaluate(() => document.body.className) === 'skin-plain',
+      'the card style was not remembered across a reload');
+    check(await page4.evaluate(() => document.getElementById('opt-skin').value) === 'plain',
+      'the start screen does not show the style that is actually in force');
+
+    /* The two help buttons move to the sections this page already has, so the
+     * test is that focus lands on the heading — not that a dialog opened. */
+    for (const [id, want] of [['tool-a11y', 'keys-h'], ['tool-rules', 'rules-h']]) {
+      await page4.evaluate((i) => document.getElementById(i).click(), id);
+      await new Promise(r => setTimeout(r, 150));
+      const landed = await page4.evaluate(() => document.activeElement.id);
+      check(landed === want,
+        id + ' put focus on "' + landed + '" rather than the ' + want + ' heading, ' +
+        'so it announces nothing and the reader is left where they were');
+    }
+
+    await page4.evaluate(() => document.body.focus());
+    /* Pressed HERE, after the reload, so it is pressed with no game in
+     * progress — which is the state it used to fail in. onKey began with
+     * `if (!state) return`, so ? did nothing at all on the start screen, which
+     * is exactly where somebody wonders whether this can be played by keyboard.
+     * Pressing it mid-game would have passed and proved the wrong thing. */
+    await page4.keyboard.press('?');
+    await new Promise(r => setTimeout(r, 200));
+    check(await page4.evaluate(() => document.activeElement.id) === 'keys-h',
+      'the ? key did not reach the keyboard hints before a game had started');
+
+    }
+
+    await page4.close();
+    note('settings');
+  }
+
   await browser.close();
 
   check(pageErrors.length === 0, 'the page threw: ' + pageErrors.slice(0, 2).join(' | '));
 
   /* A section that did not run is not a section that passed. */
-  const EXPECTED = ['page', 'shortcuts', 'passing', 'disabled-reason', 'why-not', 'focus', 'focus-pace', 'won-trick'];
+  const EXPECTED = ['page', 'shortcuts', 'passing', 'disabled-reason', 'why-not', 'focus', 'focus-pace', 'won-trick', 'settings'];
   EXPECTED.forEach(k => check(seen[k],
     'the "' + k + '" checks never ran, so the suite covered less than it says'));
 
