@@ -87,6 +87,42 @@ const SHARED = {
     Math.random = () => { s = (s * 1103515245 + 12345) & 0x7fffffff; return s / 0x7fffffff; };
   });
   await page.goto(pathToFileURL(path.join(root, 'index.html')).href, { waitUntil: 'load' });
+
+  /* ---- 0. THE HELP KEY, BEFORE ANY GAME HAS STARTED ----
+   *
+   * Checked here, on a page that has not been driven, because that is the state
+   * it was broken in. Every game's key handler opened with a guard of the shape
+   * `if (!state || game-section.hidden) return`, and ? sat behind it — so on the
+   * start screen, which is precisely where somebody is deciding whether this
+   * thing can be played by keyboard at all, pressing it did nothing. Silently.
+   * A silent no is still a no.
+   *
+   * What counts as working is deliberately loose: a dialog opened, or focus
+   * moved to a heading. Hearts writes its hints into the page and the other four
+   * put them in a modal, and both are fine — the question is whether the reader
+   * ends up somewhere new. */
+  {
+    await page.evaluate(() => { document.body.focus(); window.__before = document.activeElement; });
+    await page.keyboard.press('?');
+    await new Promise(r => setTimeout(r, 250));
+    const got = await page.evaluate(() => {
+      const open = [...document.querySelectorAll('dialog')].filter(d => d.open);
+      const a = document.activeElement;
+      return {
+        dialog: open.length > 0,
+        moved: !!(a && a !== document.body && a !== window.__before),
+        where: a ? (a.id || a.tagName) : null
+      };
+    });
+    check(got.dialog || got.moved,
+      'the ? key does nothing before a game has started. That is the moment ' +
+      'somebody is working out whether this can be played by keyboard at all, ' +
+      'and the answer they got was silence (focus: ' + got.where + ')');
+    await page.evaluate(() => {
+      [...document.querySelectorAll('dialog')].forEach(d => { if (d.open) d.close(); });
+    });
+  }
+
   await page.evaluate(setupScript(drive, {}));
   await new Promise(r => setTimeout(r, 400));
 
