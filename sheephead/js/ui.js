@@ -137,7 +137,7 @@
   /* ---------------- settings ---------------- */
 
   var DEFAULTS = {
-    name: 'You', numPlayers: 5, allPass: 'leaster', difficulty: 'normal',
+    name: 'MyPlayerName', numPlayers: 5, allPass: 'leaster', difficulty: 'normal',
     pace: 4000, verbose: true, autofocus: true, skin: 'traditional', layout: 'one',
     blackQueenDoubler: false, redQueenDoubler: false, redealDoubler: false
   };
@@ -216,7 +216,7 @@
   }
 
   function readForm() {
-    var name = ($('opt-name').value || 'You').trim().slice(0, 16) || 'You';
+    var name = ($('opt-name').value || 'MyPlayerName').trim().slice(0, 16) || 'MyPlayerName';
     var n = parseInt($('opt-players').value, 10);
     var names = [name].concat(crewNames(n - 1, name));
     return {
@@ -498,31 +498,21 @@
       'and the picker may be holding it and playing alone.';
   }
 
-  /* Card counting aid. Uses only what the player could legitimately track:
-   * cards already played, their own hand, and their own buried cards. */
+  /* WHAT HAS BEEN PLAYED. Not what has not.
+   *
+   * This named the highest trump still out, counted the unseen trump, and gave
+   * the highest unseen card of every fail suit. None of it leaked — every
+   * figure came from what this player already knew, which is why it looked
+   * defensible for so long. Leaking was never the problem. Working it out is
+   * the game, and a key that does it takes the skill from whoever presses it
+   * while everybody else is still counting in their head. */
   function textCount() {
-    var seen = {};
-    state.played.forEach(function (c) { seen[c.id] = 1; });
-    state.players[0].hand.forEach(function (c) { seen[c.id] = 1; });
-    if (state.picker === 0) state.buried.forEach(function (c) { seen[c.id] = 1; });
-    var unaccounted = C.newDeck().filter(function (c) { return !seen[c.id]; });
-
     var trumpPlayed = state.played.filter(C.isTrump).length;
     var parts = ['Trump played: ' + trumpPlayed + ' of 14.'];
 
-    var outTrump = unaccounted.filter(C.isTrump).sort(function (a, b) { return C.power(b) - C.power(a); });
-    parts.push(outTrump.length
-      ? 'Highest trump you have not seen: ' + C.name(outTrump[0]) + '. ' + outTrump.length + ' unseen trump.'
-      : 'You have seen every trump.');
-
-    var mine = state.players[0].hand.filter(C.isTrump).sort(function (a, b) { return C.power(b) - C.power(a); });
-    if (mine.length) parts.push('Your highest trump: ' + C.name(mine[0]) + '.');
-
     C.FAIL_SUITS.forEach(function (s) {
       var played = state.played.filter(function (c) { return !C.isTrump(c) && c.s === s; }).length;
-      var out = unaccounted.filter(function (c) { return !C.isTrump(c) && c.s === s; });
-      parts.push(C.SUIT_NAME[s] + ': ' + played + ' of 6 played, ' +
-        (out.length ? 'highest unseen ' + C.RANK_NAME[out[0].r] : 'none unseen') + '.');
+      parts.push(C.SUIT_NAME[s] + ': ' + played + ' of 6 played.');
     });
     return parts.join(' ');
   }

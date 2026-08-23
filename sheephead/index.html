@@ -31,7 +31,9 @@
         <legend>Players</legend>
         <p class="field">
           <label for="opt-name">Your name</label>
-          <input type="text" id="opt-name" name="name" value="You" autocomplete="off" maxlength="16">
+          <span id="opt-name-hint" class="hint">This is the name the game calls you by.</span>
+          <input type="text" id="opt-name" name="name" value="MyPlayerName"
+                 aria-describedby="opt-name-hint" autocomplete="off" maxlength="16">
         </p>
         <p class="field">
           <label for="opt-players">Number of players (you plus computer opponents)</label>
