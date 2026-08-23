@@ -8,7 +8,7 @@
      logged a 404 nobody could fix from this repository. -->
 <link rel="icon" href="../shared/favicon.svg" type="image/svg+xml">
 <title>Cribbage Multiplayer</title>
-<meta name="description" content="Cribbage for two, playable with a keyboard alone or entirely by ear with a screen reader. Against the computer, or with another person at a shared table.">
+<meta name="description" content="Cribbage for two. Play against the computer or with another person at a shared table. Works with a keyboard alone and with a screen reader.">
 <!-- The shared sheet first, this game's second. Order is the override
      mechanism: anything said in styles.css wins, with no !important anywhere. -->
 <link rel="stylesheet" href="../shared/styles/core.css">
@@ -72,9 +72,15 @@
     <div id="lobby-table" hidden>
       <h3 id="lobby-code-h">Your table code</h3>
       <p id="lobby-code-display" class="table-code" tabindex="-1"></p>
-      <p class="hint" id="lobby-code-read"></p>
+      <!-- The invite link, and the code above it. Both, because they are
+           for different situations: the link for anywhere you can paste,
+           the code for reading down a phone. -->
+      <p class="hint" id="lobby-invite-hint">Send the link to whoever you want to play
+        with. It opens the game with this table already chosen; they still pick their own
+        name. If it is easier to read the code out, that works too.</p>
+      <p class="table-link"><a id="lobby-invite" href="#">Invite link</a></p>
       <p class="actions">
-        <button type="button" id="lobby-copy">Copy the code</button>
+        <button type="button" id="lobby-copy">Copy the invite link</button>
         <button type="button" id="lobby-leave" class="consequential">Leave this table</button>
       </p>
 
@@ -109,11 +115,14 @@
   <section id="setup-section" aria-labelledby="setup-h">
     <h2 id="setup-h">New game</h2>
     <form id="setup-form">
+      <!-- Shown only when somebody has arrived on an invite link. -->
+      <p id="invite-note" class="invite-note" hidden></p>
       <fieldset>
         <legend>You</legend>
         <p class="field">
           <label for="opt-name">Your name</label>
-          <input type="text" id="opt-name" name="name" value="You" autocomplete="off" maxlength="16">
+          <span id="opt-name-hint" class="hint">This is what everybody else at the table sees, so it is worth changing.</span>
+          <input type="text" id="opt-name" name="name" value="MyPlayerName" aria-describedby="opt-name-hint" autocomplete="off" maxlength="16">
         </p>
         <p class="hint">Cribbage is two players. Playing on your own, the other seat is the
           computer.</p>
@@ -361,73 +370,84 @@
   </div>
 </dialog>
 
-<dialog id="rules-dialog" aria-labelledby="rules-h">
-  <div class="dialog-body">
-    <h2 id="rules-h">How to play Cribbage</h2>
+<!-- THE RULES, ON THE PAGE.
 
-    <p>Two players, 121 points, and the first one there wins &mdash; the moment they get there, not
-      at the end of the hand.</p>
+     These used to live in a <dialog>, which cannot be linked to: the
+     text was written and complete and reachable only by pressing a
+     button inside the game. The landing page wants to point somebody at
+     the rules before they start, and a modal has no address.
 
-    <h3>Two numbers on every card</h3>
-    <p>A card's <strong>counting value</strong> is what it adds during the play and towards a
-      fifteen: ace is one, and the ten, jack, queen and king are all ten. A card's
-      <strong>order</strong> is where it sits in a run: ace is one and the king is thirteen, so a
-      ten really is lower than a jack. Confusing the two is the most common cribbage mistake there
-      is.</p>
+     Not copied into a separate guide page, for the obvious reason: two
+     copies of the rules is one copy that goes stale. This is the copy,
+     and the How to play button now moves focus here. -->
+<section id="rules-section" aria-labelledby="rules-h">
+  <h2 id="rules-h">How to play Cribbage</h2>
 
-    <h3>The deal</h3>
-    <p>Cut for deal &mdash; lower card deals first and takes the first crib. The dealer gives six
-      cards each. Both players then throw <strong>two cards face down to the crib</strong>, which
-      belongs to the dealer and is counted at the end as an extra hand. Neither player sees the crib
-      until then.</p>
-    <p>Then the top of the pack is turned: the <strong>starter</strong>. If it is a jack the dealer
-      scores <strong>two for his heels</strong> straight away.</p>
+  <p>Two players, 121 points, and the first one there wins &mdash; the moment they get there, not
+    at the end of the hand.</p>
 
-    <h3>The play</h3>
-    <p>Starting with the non-dealer, you take turns laying a card face up and calling the running
-      total. You may not take it past 31. Score as you go:</p>
-    <ul>
-      <li><strong>Fifteen</strong> &mdash; 2</li>
-      <li><strong>Thirty-one</strong> &mdash; 2</li>
-      <li><strong>A pair</strong> &mdash; 2. Three of a kind is 6, four is 12.</li>
-      <li><strong>A run</strong> of three or more &mdash; one per card. They need not arrive in
-        order: 5, 3, 4 is a run of three.</li>
-      <li><strong>One for the go</strong> &mdash; if your opponent cannot play, they say
-        &ldquo;go&rdquo; and you keep laying cards until you cannot either. Whoever laid last takes
-        1 &mdash; or 2 if they made exactly 31.</li>
-      <li><strong>One for the last card</strong> of the hand.</li>
-    </ul>
-    <p>When neither of you can play, the count goes back to nothing and whoever did <em>not</em> lay
-      the last card leads again. Pairs and runs only count within the current run of cards, never
-      back across a reset.</p>
+  <h3>Two numbers on every card</h3>
+  <p>A card's <strong>counting value</strong> is what it adds during the play and towards a
+    fifteen: ace is one, and the ten, jack, queen and king are all ten. A card's
+    <strong>order</strong> is where it sits in a run: ace is one and the king is thirteen, so a
+    ten really is lower than a jack. Confusing the two is the most common cribbage mistake there
+    is.</p>
 
-    <h3>The count</h3>
-    <p>Now the hands are counted, each with the starter as a fifth card. Non-dealer first, then the
-      dealer, then the dealer's crib &mdash; and that order is why being non-dealer matters when the
-      game is close.</p>
-    <ul>
-      <li><strong>Fifteens</strong> &mdash; 2 for every combination adding to 15</li>
-      <li><strong>Pairs</strong> &mdash; 2 each. Three of a kind is three pairs, so 6; four is 12.</li>
-      <li><strong>Runs</strong> &mdash; one per card, and scored once for <em>every</em> distinct
-        set that makes it. 4-5-6-6 is two runs of three, for 6.</li>
-      <li><strong>A flush</strong> &mdash; 4 for all four cards in your hand matching, 5 if the
-        starter matches too. <strong>In the crib it must be all five or it scores nothing.</strong></li>
-      <li><strong>One for his nob</strong> &mdash; the jack of the starter's suit, in your hand.</li>
-    </ul>
-    <p>The best possible hand is 29: three fives and the jack of the starter's suit, with the fourth
-      five turned.</p>
+  <h3>The deal</h3>
+  <p>Cut for deal &mdash; lower card deals first and takes the first crib. The dealer gives six
+    cards each. Both players then throw <strong>two cards face down to the crib</strong>, which
+    belongs to the dealer and is counted at the end as an extra hand. Neither player sees the crib
+    until then.</p>
+  <p>Then the top of the pack is turned: the <strong>starter</strong>. If it is a jack the dealer
+    scores <strong>two for his heels</strong> straight away.</p>
 
-    <h3>What this game does not do</h3>
-    <p>There is no muggins &mdash; nobody can claim points you failed to count, because the program
-      counts for you. Three and four handed cribbage are not implemented. A skunk is reported when it
-      happens but counts as one game, not two.</p>
+  <h3>The play</h3>
+  <p>Starting with the non-dealer, you take turns laying a card face up and calling the running
+    total. You may not take it past 31. Score as you go:</p>
+  <ul>
+    <li><strong>Fifteen</strong> &mdash; 2</li>
+    <li><strong>Thirty-one</strong> &mdash; 2</li>
+    <li><strong>A pair</strong> &mdash; 2. Three of a kind is 6, four is 12.</li>
+    <li><strong>A run</strong> of three or more &mdash; one per card. They need not arrive in
+      order: 5, 3, 4 is a run of three.</li>
+    <li><strong>One for the go</strong> &mdash; if your opponent cannot play, they say
+      &ldquo;go&rdquo; and you keep laying cards until you cannot either. Whoever laid last takes
+      1 &mdash; or 2 if they made exactly 31.</li>
+    <li><strong>One for the last card</strong> of the hand.</li>
+  </ul>
+  <p>When neither of you can play, the count goes back to nothing and whoever did <em>not</em> lay
+    the last card leads again. Pairs and runs only count within the current run of cards, never
+    back across a reset.</p>
 
-    <p class="actions">
-      <button type="button" id="rules-close" class="primary">Close</button>
-      <button type="button" id="rules-to-a11y">Accessibility hints</button>
-    </p>
-  </div>
-</dialog>
+  <h3>The count</h3>
+  <p>Now the hands are counted, each with the starter as a fifth card. Non-dealer first, then the
+    dealer, then the dealer's crib &mdash; and that order is why being non-dealer matters when the
+    game is close.</p>
+  <ul>
+    <li><strong>Fifteens</strong> &mdash; 2 for every combination adding to 15</li>
+    <li><strong>Pairs</strong> &mdash; 2 each. Three of a kind is three pairs, so 6; four is 12.</li>
+    <li><strong>Runs</strong> &mdash; one per card, and scored once for <em>every</em> distinct
+      set that makes it. 4-5-6-6 is two runs of three, for 6.</li>
+    <li><strong>A flush</strong> &mdash; 4 for all four cards in your hand matching, 5 if the
+      starter matches too. <strong>In the crib it must be all five or it scores nothing.</strong></li>
+    <li><strong>One for his nob</strong> &mdash; the jack of the starter's suit, in your hand.</li>
+  </ul>
+  <p>The best possible hand is 29: three fives and the jack of the starter's suit, with the fourth
+    five turned.</p>
+
+  <h3>What this game does not do</h3>
+  <p>There is no muggins &mdash; nobody can claim points you failed to count, because the program
+    counts for you. Three and four handed cribbage are not implemented. A skunk is reported when it
+    happens but counts as one game, not two.</p>
+
+
+  <!-- The Close button that used to sit here went with the dialog; this one
+       did not, and removing it by accident took the only route from the
+       rules to the keyboard guidance. -->
+  <p class="actions">
+    <button type="button" id="rules-to-a11y">Accessibility hints</button>
+  </p>
+</section>
 
 <dialog id="a11y-dialog" aria-labelledby="a11y-h">
   <div class="dialog-body">

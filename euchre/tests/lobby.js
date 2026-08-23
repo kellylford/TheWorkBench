@@ -125,10 +125,23 @@ async function main() {
   check($(win, 'lobby-table').hidden === false, 'the table screen never appeared');
   check($(win, 'lobby-code-display').textContent === CODE,
     'the table code is not on screen: ' + $(win, 'lobby-code-display').textContent);
-  /* Spelled out, because "P4K7M" spoken by a screen reader is a mumble and
-   * "P, 4, K, 7, M" is a code somebody can write down. */
-  check($(win, 'lobby-code-read').textContent.indexOf('P, 4, K, 7, M') >= 0,
-    'the code is not spelled out for reading aloud: ' + $(win, 'lobby-code-read').textContent);
+  /* THE INVITE LINK, which is what the host actually sends.
+   *
+   * This used to check that the code was spelled out as "P, 4, K, 7, M" in a
+   * line beside it, on the belief that a screen reader would run five upper
+   * case characters together into a mumble. They do not — they spell them —
+   * so the line was the same code said a second time. What is worth checking
+   * is that there is something to SEND: a link carrying this table's code,
+   * which the person receiving it can follow instead of finding a field and
+   * typing five characters into it. */
+  {
+    const a = $(win, 'lobby-invite');
+    check(!!a, 'there is no invite link on the table screen');
+    check(a.getAttribute('href').indexOf('table=' + CODE) > 0,
+      'the invite link does not carry this table: ' + a.getAttribute('href'));
+    check(a.textContent.indexOf(CODE) > 0,
+      'the invite link is not readable as text: ' + a.textContent);
+  }
   check(win.document.activeElement === $(win, 'lobby-code-display'),
     'focus did not land on the code, which is the one thing the host now needs');
 

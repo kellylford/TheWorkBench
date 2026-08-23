@@ -896,3 +896,20 @@ dialog::backdrop { background: rgba(0,0,0,.65); }
 }
 
 .table-code-line:focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; }
+
+/* The invite: a note on the start screen when somebody arrived on a link, and
+ * the link itself on the host's table screen. Both are ordinary text and an
+ * ordinary anchor — a link that is a link can be copied, opened in a new tab
+ * and read by everything, which a button pretending to be one cannot. */
+.invite-note {
+  margin: 0 0 1rem;
+  padding: .6rem .8rem;
+  border-left: .3rem solid var(--accent);
+  background: var(--panel-2);
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.table-link { margin: .3rem 0 .8rem; overflow-wrap: anywhere; }
+
+.table-link a { color: var(--accent); }

@@ -8,7 +8,7 @@
      logged a 404 nobody could fix from this repository. -->
 <link rel="icon" href="../shared/favicon.svg" type="image/svg+xml">
 <title>Euchre</title>
-<meta name="description" content="Euchre for four, playable with a keyboard alone or entirely by ear with a screen reader. Play against the computer, or with other people at a shared table.">
+<meta name="description" content="Euchre for four. Play against the computer or with other people at a shared table. Works with a keyboard alone and with a screen reader.">
 <!-- The shared sheet first, this game's second. Order is the override
      mechanism: anything said in styles.css wins, with no !important anywhere. -->
 <link rel="stylesheet" href="../shared/styles/core.css">
@@ -19,8 +19,7 @@
 
 <header class="app-header">
   <h1>Euchre</h1>
-  <p class="tagline">Four players, two partnerships, five tricks a hand &mdash; and every card
-    readable by ear.</p>
+  <p class="tagline">Four players, two partnerships, five tricks a hand.</p>
 </header>
 
 <main id="main" tabindex="-1">
@@ -76,9 +75,15 @@
     <div id="lobby-table" hidden>
       <h3 id="lobby-code-h">Your table code</h3>
       <p id="lobby-code-display" class="table-code" tabindex="-1"></p>
-      <p class="hint" id="lobby-code-read"></p>
+      <!-- The invite link, and the code above it. Both, because they are
+           for different situations: the link for anywhere you can paste,
+           the code for reading down a phone. -->
+      <p class="hint" id="lobby-invite-hint">Send the link to whoever you want to play
+        with. It opens the game with this table already chosen; they still pick their own
+        name. If it is easier to read the code out, that works too.</p>
+      <p class="table-link"><a id="lobby-invite" href="#">Invite link</a></p>
       <p class="actions">
-        <button type="button" id="lobby-copy">Copy the code</button>
+        <button type="button" id="lobby-copy">Copy the invite link</button>
         <button type="button" id="lobby-leave" class="consequential">Leave this table</button>
       </p>
 
@@ -117,11 +122,14 @@
   <section id="setup-section" aria-labelledby="setup-h">
     <h2 id="setup-h">New game</h2>
     <form id="setup-form">
+      <!-- Shown only when somebody has arrived on an invite link. -->
+      <p id="invite-note" class="invite-note" hidden></p>
       <fieldset>
         <legend>You</legend>
         <p class="field">
           <label for="opt-name">Your name</label>
-          <input type="text" id="opt-name" name="name" value="You" autocomplete="off" maxlength="16">
+          <span id="opt-name-hint" class="hint">This is what everybody else at the table sees, so it is worth changing.</span>
+          <input type="text" id="opt-name" name="name" value="MyPlayerName" aria-describedby="opt-name-hint" autocomplete="off" maxlength="16">
         </p>
         <p class="hint">Euchre is four players in two fixed partnerships. You sit in seat 1, and
           your partner is across the table in seat 3. Playing on your own, the other three seats are
@@ -408,89 +416,100 @@
   </div>
 </dialog>
 
-<dialog id="rules-dialog" aria-labelledby="rules-h">
-  <div class="dialog-body">
-    <h2 id="rules-h">How to play Euchre</h2>
+<!-- THE RULES, ON THE PAGE.
 
-    <p>Four players in two fixed partnerships, sitting alternately: seats 1 and 3 are one side,
-      seats 2 and 4 the other. You are in seat 1, so your partner is in seat 3, across the table.
-      First side to ten points wins.</p>
+     These used to live in a <dialog>, which cannot be linked to: the
+     text was written and complete and reachable only by pressing a
+     button inside the game. The landing page wants to point somebody at
+     the rules before they start, and a modal has no address.
 
-    <h3>The deck</h3>
-    <p>Twenty-four cards: nine, ten, jack, queen, king and ace in each suit. Everything lower is
-      taken out.</p>
+     Not copied into a separate guide page, for the obvious reason: two
+     copies of the rules is one copy that goes stale. This is the copy,
+     and the How to play button now moves focus here. -->
+<section id="rules-section" aria-labelledby="rules-h">
+  <h2 id="rules-h">How to play Euchre</h2>
 
-    <h3>The bowers &mdash; the one rule that surprises everybody</h3>
-    <p>Once a suit is trump, the two highest cards in the game are:</p>
-    <ul>
-      <li><strong>The right bower</strong> &mdash; the jack of the trump suit.</li>
-      <li><strong>The left bower</strong> &mdash; the jack of the <em>other suit of the same
-        colour</em>. And while it is the left bower, <strong>it is a trump card and not a card of
-        its printed suit at all</strong>. With spades trump, the jack of clubs is a spade: it
-        follows spades, and you may not play it on a club lead if you hold any spade.</li>
-    </ul>
-    <p>So with spades trump the order is: jack of spades, jack of clubs, ace, king, queen, ten,
-      nine of spades &mdash; then everything else. Clubs are down to six cards, because their jack
-      has left.</p>
-    <p>This game marks both bowers in your hand and names them whenever a card is read out, so you
-      never have to work it out under time pressure.</p>
+  <p>Four players in two fixed partnerships, sitting alternately: seats 1 and 3 are one side,
+    seats 2 and 4 the other. You are in seat 1, so your partner is in seat 3, across the table.
+    First side to ten points wins.</p>
 
-    <h3>The deal</h3>
-    <p>Five cards each. Four are left over; the top one is turned face up for everybody to see.
-      That is the <strong>upcard</strong>.</p>
+  <h3>The deck</h3>
+  <p>Twenty-four cards: nine, ten, jack, queen, king and ace in each suit. Everything lower is
+    taken out.</p>
 
-    <h3>The bidding</h3>
-    <p><strong>First round.</strong> Starting to the dealer's left, each player in turn may
-      <strong>order it up</strong> &mdash; making the upcard's suit trump &mdash; or pass. Whoever
-      orders it up, <em>the dealer</em> takes the upcard into their hand and puts one card back
-      face down. If the dealer orders it up themselves, that is called taking it up.</p>
-    <p><strong>Second round.</strong> If all four pass, the upcard is turned down and its suit is
-      out for the hand. Starting again to the dealer's left, each player may <strong>name</strong>
-      any other suit as trump, or pass. If everybody passes again the hand is thrown in and
-      redealt &mdash; unless <em>stick the dealer</em> is on, in which case the dealer has to name
-      something.</p>
-    <p>Whoever settles the trump suit is called the <strong>maker</strong>, and their side has to
-      take at least three of the five tricks.</p>
+  <h3>The bowers &mdash; the one rule that surprises everybody</h3>
+  <p>Once a suit is trump, the two highest cards in the game are:</p>
+  <ul>
+    <li><strong>The right bower</strong> &mdash; the jack of the trump suit.</li>
+    <li><strong>The left bower</strong> &mdash; the jack of the <em>other suit of the same
+      colour</em>. And while it is the left bower, <strong>it is a trump card and not a card of
+      its printed suit at all</strong>. With spades trump, the jack of clubs is a spade: it
+      follows spades, and you may not play it on a club lead if you hold any spade.</li>
+  </ul>
+  <p>So with spades trump the order is: jack of spades, jack of clubs, ace, king, queen, ten,
+    nine of spades &mdash; then everything else. Clubs are down to six cards, because their jack
+    has left.</p>
+  <p>This game marks both bowers in your hand and names them whenever a card is read out, so you
+    never have to work it out under time pressure.</p>
 
-    <h3>Going alone</h3>
-    <p>The maker may play the hand <strong>alone</strong>. Their partner puts their cards down and
-      sits the hand out, so it is one player against two. It pays four points instead of two if
-      they take all five tricks, and nothing extra otherwise &mdash; so it is a bid for a sweep,
-      not a safer way to make three.</p>
+  <h3>The deal</h3>
+  <p>Five cards each. Four are left over; the top one is turned face up for everybody to see.
+    That is the <strong>upcard</strong>.</p>
 
-    <h3>The play</h3>
-    <p>The player to the dealer's left leads to the first trick. You must follow the suit that was
-      led if you can &mdash; remembering that the left bower counts as trump. If you cannot follow,
-      you may play anything, including trump. Highest trump takes the trick; with no trump in it,
-      the highest card of the suit led. The winner leads to the next one.</p>
+  <h3>The bidding</h3>
+  <p><strong>First round.</strong> Starting to the dealer's left, each player in turn may
+    <strong>order it up</strong> &mdash; making the upcard's suit trump &mdash; or pass. Whoever
+    orders it up, <em>the dealer</em> takes the upcard into their hand and puts one card back
+    face down. If the dealer orders it up themselves, that is called taking it up.</p>
+  <p><strong>Second round.</strong> If all four pass, the upcard is turned down and its suit is
+    out for the hand. Starting again to the dealer's left, each player may <strong>name</strong>
+    any other suit as trump, or pass. If everybody passes again the hand is thrown in and
+    redealt &mdash; unless <em>stick the dealer</em> is on, in which case the dealer has to name
+    something.</p>
+  <p>Whoever settles the trump suit is called the <strong>maker</strong>, and their side has to
+    take at least three of the five tricks.</p>
 
-    <h3>Scoring</h3>
-    <table>
-      <caption>What a hand is worth</caption>
-      <thead>
-        <tr><th scope="col">The makers take</th><th scope="col">Score</th></tr>
-      </thead>
-      <tbody>
-        <tr><th scope="row">Three or four tricks</th><td>1 point to the makers</td></tr>
-        <tr><th scope="row">All five tricks</th><td>2 points to the makers</td></tr>
-        <tr><th scope="row">All five, playing alone</th><td>4 points to the makers</td></tr>
-        <tr><th scope="row">Three or four, playing alone</th><td>1 point to the makers</td></tr>
-        <tr><th scope="row">Fewer than three &mdash; euchred</th><td>2 points to the other side</td></tr>
-      </tbody>
-    </table>
-    <p>Being euchred is the thing to avoid: it hands the other side two points for a hand you asked
-      to play. That is why ordering up on a weak hand is worse than passing on a fair one.</p>
+  <h3>Going alone</h3>
+  <p>The maker may play the hand <strong>alone</strong>. Their partner puts their cards down and
+    sits the hand out, so it is one player against two. It pays four points instead of two if
+    they take all five tricks, and nothing extra otherwise &mdash; so it is a bid for a sweep,
+    not a safer way to make three.</p>
 
-    <h3>What this game does not do</h3>
-    <p>There is no defending alone, no farmer's hand, no no-trump and no six-handed variant. Those
-      are all real house rules somewhere; they are simply not implemented here.</p>
+  <h3>The play</h3>
+  <p>The player to the dealer's left leads to the first trick. You must follow the suit that was
+    led if you can &mdash; remembering that the left bower counts as trump. If you cannot follow,
+    you may play anything, including trump. Highest trump takes the trick; with no trump in it,
+    the highest card of the suit led. The winner leads to the next one.</p>
 
-    <p class="actions">
-      <button type="button" id="rules-close" class="primary">Close</button>
-      <button type="button" id="rules-to-a11y">Accessibility hints</button>
-    </p>
-  </div>
-</dialog>
+  <h3>Scoring</h3>
+  <table>
+    <caption>What a hand is worth</caption>
+    <thead>
+      <tr><th scope="col">The makers take</th><th scope="col">Score</th></tr>
+    </thead>
+    <tbody>
+      <tr><th scope="row">Three or four tricks</th><td>1 point to the makers</td></tr>
+      <tr><th scope="row">All five tricks</th><td>2 points to the makers</td></tr>
+      <tr><th scope="row">All five, playing alone</th><td>4 points to the makers</td></tr>
+      <tr><th scope="row">Three or four, playing alone</th><td>1 point to the makers</td></tr>
+      <tr><th scope="row">Fewer than three &mdash; euchred</th><td>2 points to the other side</td></tr>
+    </tbody>
+  </table>
+  <p>Being euchred is the thing to avoid: it hands the other side two points for a hand you asked
+    to play. That is why ordering up on a weak hand is worse than passing on a fair one.</p>
+
+  <h3>What this game does not do</h3>
+  <p>There is no defending alone, no farmer's hand, no no-trump and no six-handed variant. Those
+    are all real house rules somewhere; they are simply not implemented here.</p>
+
+
+  <!-- The Close button that used to sit here went with the dialog; this one
+       did not, and removing it by accident took the only route from the
+       rules to the keyboard guidance. -->
+  <p class="actions">
+    <button type="button" id="rules-to-a11y">Accessibility hints</button>
+  </p>
+</section>
 
 <dialog id="a11y-dialog" aria-labelledby="a11y-h">
   <div class="dialog-body">

@@ -52,7 +52,7 @@ async function boot() {
   });
   const { window } = dom;
   await new Promise(r => window.document.readyState === 'complete' ? r() : window.addEventListener('load', r));
-  ['rules-dialog', 'a11y-dialog', 'export-dialog', 'bug-dialog', 'settings-dialog'].forEach(id => {
+  ['a11y-dialog', 'export-dialog', 'bug-dialog', 'settings-dialog'].forEach(id => {
     const dlg = window.document.getElementById(id);
     if (typeof dlg.showModal !== 'function') { dlg.showModal = () => { dlg.open = true; }; dlg.close = () => { dlg.open = false; }; }
   });
@@ -165,11 +165,23 @@ function fakeWire(window, opts, shared) {
   check(!/[OIL01]/.test(code),
     'the code contains a character that cannot be read aloud safely: "' + code + '"');
 
-  /* It must be SPELLED somewhere a screen reader will reach. "P4K7M" is a mumble;
-   * "P, 4, K, 7, M" is something a person can write down. */
-  const spelled = code.split('').join(', ');
-  check($('lobby-code-read').textContent.includes(spelled),
-    'the code is never spelled out, so it cannot be read to anybody: ' + $('lobby-code-read').textContent);
+  /* THE INVITE LINK, which is what the host actually sends.
+   *
+   * This used to check that the code was spelled out as "P, 4, K, 7, M" in a
+   * line beside it, on the belief that a screen reader would run five upper
+   * case characters together into a mumble. They do not — they spell them —
+   * so the line was the same code said a second time. What is worth checking
+   * is that there is something to SEND: a link carrying this table's code,
+   * which the person receiving it can follow instead of finding a field and
+   * typing five characters into it. */
+  {
+    const a = $('lobby-invite');
+    check(!!a, 'there is no invite link on the table screen');
+    check(a.getAttribute('href').indexOf('table=' + code) > 0,
+      'the invite link does not carry this table: ' + a.getAttribute('href'));
+    check(a.textContent.indexOf(code) > 0,
+      'the invite link is not readable as text: ' + a.textContent);
+  }
   /* The ANNOUNCER, specifically — not the visible status line.
    *
    * Checking either-or let a version through that set the text and announced
@@ -455,6 +467,11 @@ function fakeWire(window, opts, shared) {
    * so a burst cannot wipe itself out, so a message queued at that instant lands
    * a moment later. Reading the recorder early tested the queue's timing rather
    * than whether the code was ever spoken at all. */
+  /* SPOKEN, still spelled. The visible "read it out as" line is gone — a screen
+   * reader spells a five character code perfectly well on its own, so the line
+   * was the same code twice. The SPOKEN form keeps the spelling, because that
+   * one is heard rather than read and costs nobody anything on screen. */
+  const spelled = code.split('').join(', ');
   check(said().includes(spelled),
     'the table code was never spoken. A code that is only on screen is a code the '
     + 'player cannot read to anybody. Heard: "' + said() + '"');
@@ -466,7 +483,7 @@ function fakeWire(window, opts, shared) {
     [...new Set(fails)].forEach(f => console.error('  - ' + f));
     process.exit(1);
   }
-  console.log('lobby opened, table made, code spelled out and read back');
+  console.log('lobby opened, table made, invite link built and the code read back');
   console.log('seats are a real table with row headers; the game started and played over the wire');
   console.log('no other seat\'s cards reached the page.');
   process.exit(0);
