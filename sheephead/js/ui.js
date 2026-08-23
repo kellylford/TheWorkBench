@@ -1390,6 +1390,14 @@
   }
 
   function onGlobalKeys(e) {
+    /* THE HELP KEY COMES BEFORE THE GUARD, and the ordering is the point.
+     *
+     * Everything below needs a game in progress. The accessibility hints do
+     * not — they are wanted most by somebody who has just arrived at the start
+     * screen and is deciding whether this can be played by keyboard at all.
+     * Behind the guard, ? did nothing there. Silently, which reads as "no". */
+    if (e.key === '?' && !anyDialogOpen()) { e.preventDefault(); openA11y(); return; }
+
     if (!state || el['game-section'].hidden) return;
     if (e.ctrlKey || e.altKey || e.metaKey) return;
     var t = e.target;
