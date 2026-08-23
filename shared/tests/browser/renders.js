@@ -160,6 +160,91 @@ const TRICK = () => {
     }
   }
 
+  /* ---- WHAT THE L KEY READS MUST ALSO BE ON THE SCREEN ----
+   *
+   * A game with a trick has a last trick, and every trick game here reads it
+   * out on L. Hearts read it out and drew nothing: the moment the next card
+   * landed the trick was gone from the screen, so the player who could ask for
+   * it by ear still had it and the one watching the screen did not. The two
+   * people at the table were not looking at the same game.
+   *
+   * Conditional on there being a #trick at all, so cribbage — which has no
+   * tricks and whose L reads the last count — is not asked for one. */
+  const last = await page.evaluate(() => {
+    const trick = document.getElementById('trick');
+    if (!trick) return { needed: false };
+    const box = document.getElementById('lasttrick');
+    if (!box) return { needed: true, present: false };
+    const entries = [...box.querySelectorAll('li')];
+    const real = entries.filter(li => !li.classList.contains('empty'));
+    return {
+      needed: true, present: true,
+      entries: real.length,
+      placeholder: entries.some(li => li.classList.contains('empty')),
+      faces: box.querySelectorAll('.card').length,
+      names: real.map(li => (li.textContent || '').trim()).join(' | ').slice(0, 90),
+      /* Somebody took it, and the box says who. A list of four cards with no
+       * winner on it is not the last trick, it is four cards. */
+      winner: !!box.querySelector('li .flag') &&
+        [...box.querySelectorAll('li .flag')].some(f => (f.textContent || '').trim())
+    };
+  });
+
+  if (last.needed) {
+    check(last.present,
+      'this game has a trick and no last-completed-trick region. The L key reads ' +
+      'one out, so a player listening can have it back and a player watching ' +
+      'cannot — the trick vanishes from the screen as the next card lands');
+    if (last.present) {
+      check(last.entries > 0 || last.placeholder,
+        'the last-trick box is completely empty — not even "no trick has been ' +
+        'completed yet"');
+      if (last.entries > 0) {
+        check(last.faces > 0,
+          'the last trick has entries and not one card face, which is what a ' +
+          'misplaced class looks like');
+        check(last.winner,
+          'the last trick does not say who took it, so it is a list of cards ' +
+          'rather than a trick');
+      }
+    }
+  }
+
+  /* ---- AN EMPTY BOX SAYS WHY IT IS EMPTY ----
+   *
+   * Your hand runs out every hand, and at that moment the box is a band of
+   * green with nothing in it — which is indistinguishable, on screen and in a
+   * screen reader, from a hand that failed to draw. Cribbage has always said
+   * "All four played"; hearts said nothing at all, and the heading rule above
+   * waved it through because the empty box still has a size.
+   *
+   * Checked at whatever point the drive script leaves the game in, so it only
+   * fires when the hand is genuinely empty. */
+  /* PLAY ON TO THE END OF THE HAND FIRST. Everything above is measured mid-hand,
+   * which is the interesting moment for cards being drawn and exactly the wrong
+   * one for this: mid-hand your hand is full, so the check would never fire.
+   * The first version of this rule sat here silently passing five games. */
+  await pump(page, drive.playIn, { tries: 120 }).catch(() => {});
+  await new Promise(r => setTimeout(r, 300));
+
+  const emptyBoxes = await page.evaluate(() => {
+    const out = [];
+    for (const id of ['hand', 'trick', 'lasttrick']) {
+      const box = document.getElementById(id);
+      if (!box || box.closest('[hidden]')) continue;
+      if (box.querySelector('.card')) continue;
+      out.push({ id: id, words: (box.innerText || '').trim().length,
+        sample: (box.innerText || '').trim().slice(0, 40) });
+    }
+    return out;
+  });
+  emptyBoxes.forEach(b => {
+    check(b.words > 0,
+      'the ' + b.id + ' box holds no cards and no words either. An empty box with ' +
+      'nothing in it looks exactly like a box that failed to draw — to somebody ' +
+      'looking at it and to somebody reading it');
+  });
+
   await browser.close();
 
   console.log(drive.name + ': ' + checks + ' checks');
@@ -169,6 +254,12 @@ const TRICK = () => {
   if (trick.present) {
     console.log('  trick: ' + trick.entries + ' played, ' + trick.drawn +
       ' drawn, ' + trick.faces + ' card faces');
+  }
+  emptyBoxes.forEach(b => console.log(
+    '  empty ' + b.id.padEnd(10) + (b.words ? '"' + b.sample + '"' : 'NOTHING AT ALL')));
+  if (last.needed && last.present) {
+    console.log('  last:  ' + last.entries + ' entries, ' + last.faces +
+      ' card faces' + (last.entries ? ' — ' + last.names : ''));
   }
 
   if (fails.length) {

@@ -328,6 +328,24 @@
   function renderHand() {
     el.hand.innerHTML = '';
     var hand = state.players[mySeat].hand;
+
+    /* AN EMPTY HAND SAYS SO.
+     *
+     * At the end of a hand this was a green band with nothing in it — no cards
+     * and no sentence, which looks identical to a hand that failed to draw.
+     * The other games all say why the box is empty, and the reason is never in
+     * doubt: you have played them all. */
+    if (!hand.length) {
+      var note = global.document.createElement('p');
+      note.className = 'hint';
+      note.textContent = state.phase === 'handOver' || state.phase === 'gameOver'
+        ? 'All thirteen played. The hand is over.'
+        : 'No cards left.';
+      el.hand.appendChild(note);
+      el['hand-hint'].textContent = '';
+      return;
+    }
+
     var legal = {};
     if (state.phase === 'play' && state.turn === mySeat) {
       G.legalPlays(state, mySeat).forEach(function (c) { legal[c.id] = true; });
@@ -411,25 +429,46 @@
     return node;
   }
 
+  /* Both tricks: the one on the table and the one that has just gone.
+   *
+   * The second used to exist only as speech. L read it out and nothing showed
+   * it, so the moment the next card landed the trick was gone from the screen
+   * and a sighted player had no way back to it — while the player beside them
+   * could ask for it any time. Every other trick game here draws both. */
   function renderTrick() {
-    el.trick.innerHTML = '';
+    paintTrick(el.trick, state.trick, null);
+    paintTrick(el.lasttrick, state.lastTrick ? state.lastTrick.cards : [], state.lastTrick);
+  }
 
-    if (!state.trick.length) {
+  /* `done` is the completed trick, or null for the one still being played. It
+   * decides two things and they are the whole difference: a finished trick has
+   * a winner rather than a leader, and it is worth a known number of points. */
+  function paintTrick(node, plays, done) {
+    if (!node) return;
+    node.innerHTML = '';
+
+    if (!plays.length) {
       var empty = global.document.createElement('li');
       empty.className = 'empty';
-      empty.textContent = 'Nothing played to this trick yet.';
-      el.trick.appendChild(empty);
+      empty.textContent = done === null
+        ? 'Nothing played to this trick yet.'
+        : 'No trick has been completed yet.';
+      node.appendChild(empty);
       return;
     }
 
     /* Who is winning, worked out here rather than trusted from anywhere: the
-     * highest card of the suit led, because there is no trump. */
+     * highest card of the suit led, because there is no trump. A finished
+     * trick already knows, and says so by seat rather than by position. */
     var best = 0;
-    for (var i = 1; i < state.trick.length; i++) {
-      if (C.beats(state.trick[i].card, state.trick[best].card)) best = i;
+    for (var i = 1; i < plays.length; i++) {
+      if (C.beats(plays[i].card, plays[best].card)) best = i;
+    }
+    if (done) {
+      for (var j = 0; j < plays.length; j++) if (plays[j].seat === done.winner) best = j;
     }
 
-    state.trick.forEach(function (t, i) {
+    plays.forEach(function (t, i) {
       var li = global.document.createElement('li');
       if (i === best) li.className = 'winning';
 
@@ -457,13 +496,17 @@
 
       var flag = global.document.createElement('span');
       flag.className = 'flag';
-      flag.textContent = i === best ? 'winning so far' : '';
+      flag.textContent = i !== best ? ''
+        : done ? 'took it' + (done.points
+          ? ', ' + done.points + (done.points === 1 ? ' point' : ' points')
+          : ', no points')
+          : 'winning so far';
 
       li.appendChild(who);
       li.appendChild(mini);
       li.appendChild(what);
       li.appendChild(flag);
-      el.trick.appendChild(li);
+      node.appendChild(li);
     });
   }
 
@@ -1156,7 +1199,7 @@
   var dealWhenReady = false;
 
   function boot() {
-    ['status', 'actions', 'hand', 'hand-hint', 'trick', 'players-table', 'history-table',
+    ['status', 'actions', 'hand', 'hand-hint', 'trick', 'lasttrick', 'players-table', 'history-table',
      'log', 'setup-section', 'game-section', 'setup-form', 'opt-name', 'opt-pace',
      'opt-points', 'opt-skin', 'say-polite', 'say-assertive',
      'seats', 'lobby-section', 'lobby-status', 'lobby-seats',
