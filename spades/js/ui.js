@@ -454,7 +454,15 @@
       wrap.appendChild(sel);
       el.actions.appendChild(wrap);
 
-      var go = button('Place this bid', function () {
+      /* THE BUTTON SAYS WHAT IT WILL DO.
+       *
+       * Not "Place this bid", which is a description of the mechanism and tells
+       * you nothing about the bid. Once a number is chosen the button becomes
+       * "Bid 3" or "Bid nil", so somebody who tabs onto it — having chosen a
+       * moment ago, or having been interrupted between choosing and committing —
+       * hears what they are about to commit to rather than having to go back to
+       * the list to find out. On a hundred-point bet that is worth the words. */
+      var go = button(bidButtonLabel(pendingBid), function () {
         if (pendingBid === null) return;
         var n = pendingBid;
         pendingBid = null;
@@ -462,7 +470,8 @@
       }, {
         primary: true,
         disabled: pendingBid === null,
-        reason: 'Choose a bid first, then place it.'
+        reason: 'Choose a bid first, then place it.',
+        label: bidButtonName(pendingBid)
       });
       add(go);
 
@@ -472,6 +481,8 @@
       sel.addEventListener('change', function () {
         pendingBid = sel.value === '' ? null : parseInt(sel.value, 10);
         var ready = pendingBid !== null;
+        go.textContent = bidButtonLabel(pendingBid);
+        go.setAttribute('aria-label', bidButtonName(pendingBid));
         if (ready) {
           go.removeAttribute('aria-disabled');
           go.removeAttribute('title');
@@ -581,6 +592,16 @@
     });
 
     el['hand-hint'].textContent = handHint();
+  }
+
+  function bidButtonLabel(n) {
+    return n === null ? 'Place this bid' : n === 0 ? 'Bid nil' : 'Bid ' + n;
+  }
+
+  function bidButtonName(n) {
+    if (n === null) return 'Place this bid, once you have chosen one';
+    if (n === 0) return 'Bid nil — take no tricks at all, worth a hundred either way';
+    return 'Bid ' + n + (n === 1 ? ' trick' : ' tricks');
   }
 
   function option(value, text) {

@@ -222,6 +222,8 @@ async function until(page, fn, what, seconds) {
         steps,
         phase: SH.UI._test.view().phase,
         goEnabledAfterChoosing: go ? go.getAttribute('aria-disabled') !== 'true' : false,
+        goLabel: go ? (go.textContent || '').trim() : '',
+        goName: go ? (go.getAttribute('aria-label') || '') : '',
         selectSurvived: document.getElementById('bid-select') === sel,
         stillFocused: document.activeElement === sel
       };
@@ -237,6 +239,16 @@ async function until(page, fn, what, seconds) {
      * because a re-render would destroy the select the player is standing in and
      * drop focus mid-choice. */
     check(m.goEnabledAfterChoosing, 'choosing a bid did not enable the place-bid button');
+
+    /* AND THE BUTTON NOW SAYS WHAT IT WILL DO. "Place this bid" describes the
+     * mechanism and names no bid; somebody who tabs onto it after choosing —
+     * or after being interrupted between choosing and committing — should hear
+     * what they are about to commit to. On a hundred-point bet that matters. */
+    check(/^Bid /.test(m.goLabel),
+      'after choosing, the button still reads "' + m.goLabel + '" and does not ' +
+      'name the bid it would place');
+    check(m.goName.length > m.goLabel.length,
+      'the button has no fuller accessible name: "' + m.goName + '"');
     check(m.selectSurvived,
       'the select was rebuilt when a bid was chosen, which drops focus mid-choice');
     check(m.stillFocused, 'focus left the bid select when a bid was chosen');

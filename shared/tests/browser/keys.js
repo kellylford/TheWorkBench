@@ -367,16 +367,15 @@ const SHARED = {
           if (real.length) {
             choice.value = real[real.length - 1].value;
             choice.dispatchEvent(new Event('change', { bubbles: true }));
-            /* Choose AND commit in the same step, if choosing was enough to make
-             * the action available. Spending a separate step on each halved how
-             * far the walk got in its 220, which is the difference between
-             * reaching the end of a game and stopping at the second screen —
-             * the walk then reports too few arrangements, which reads as a bug
-             * in the game and is really a bug in the budget. */
-            const now = box.querySelector('button.primary');
-            if (now && now.getAttribute('aria-disabled') !== 'true' && !now.disabled) {
-              now.click();
-            }
+            /* Choosing is its own step, and the action is taken on the NEXT one.
+             *
+             * Committing in the same step is a step cheaper and quietly defeats
+             * the count above: the loop samples the buttons before it moves, so
+             * a choose-and-commit never lets it SEE the state where something is
+             * chosen and the action is waiting. Left as two steps, a game with a
+             * choice in it offers two arrangements from that screen alone —
+             * which is how this walk reaches three without having to play a
+             * whole game out inside its budget. */
             return true;
           }
         }
