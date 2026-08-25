@@ -146,7 +146,10 @@ async function until(page, fn, what, seconds) {
         goReason: go ? (go.getAttribute('title') || '') : '',
         handCount: cards.length,
         handNamed: cards.every(c => (c.getAttribute('aria-label') || '').length > 3),
-        headingSaysBid: (document.getElementById('actions-h').textContent || '')
+        headingSaysBid: (document.getElementById('actions-h').textContent || ''),
+        /* What the hand actually reads as, card by card, while bidding. */
+        handLabels: cards.map(c => c.getAttribute('aria-label') || ''),
+        handMarkedUnavailable: cards.filter(c => c.getAttribute('aria-disabled') === 'true').length
       };
     });
 
@@ -193,6 +196,24 @@ async function until(page, fn, what, seconds) {
 
     check(m.handCount === 13, 'the hand shows ' + m.handCount + ' cards, not 13');
     check(m.handNamed, 'a card has no accessible name, so it cannot be read at all');
+
+    /* THE HAND READS AS A HAND AND NOTHING ELSE.
+     *
+     * Reading it IS the activity of this phase — it is how you decide what to
+     * bid — so every extra word is paid thirteen times while you are counting
+     * your spades. Each card used to carry ", not yet — the bidding comes
+     * first", which was reported as distracting and was.
+     *
+     * Marked-unavailable counts as the same noise in fewer words: a screen
+     * reader says "unavailable" on each one. Both are checked here because
+     * removing only the sentence would not have fixed what was reported. */
+    const extra = m.handLabels.filter(l => /,/.test(l.replace(/, trump$/, '')));
+    check(extra.length === 0,
+      extra.length + ' cards say more than their name while bidding, e.g. "' +
+      (extra[0] || '') + '" — reading the hand is the whole point of this phase');
+    check(m.handMarkedUnavailable === 0,
+      m.handMarkedUnavailable + ' cards are marked unavailable while bidding, so a ' +
+      'screen reader says so on every one of them while the player counts the hand');
     note('bidding');
   }
 
