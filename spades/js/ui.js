@@ -103,6 +103,15 @@
   var handFocus = 0;
   var logFocus = 0;         // which log entry holds the tab stop
 
+  /* The bid the player has CHOSEN but not yet placed.
+   *
+   * Kept out here rather than read off the select, because render() rebuilds the
+   * actions area whenever a frame arrives and a value living only in the DOM
+   * would be lost with it. Null means nothing chosen yet, which is a real state
+   * and distinct from a chosen nil — the same reason player.bid starts null in
+   * the engine rather than zero. */
+  var pendingBid = null;
+
   /* ---------------- the announcer ---------------- */
 
   var queues = { polite: [], assertive: [] };
@@ -379,9 +388,17 @@
       b.setAttribute('aria-disabled', 'true');
       if (opts.reason) b.setAttribute('title', opts.reason);
     }
+    /* Reads the attribute rather than the flag it was built with.
+     *
+     * `opts.disabled` is a snapshot of how things were when the button was
+     * created. The bid button outlives that: choosing a bid enables it in place,
+     * without a re-render, because re-rendering would destroy the select the
+     * player is standing in. A handler closing over the old boolean would go on
+     * refusing a bid that is now perfectly valid. */
     b.addEventListener('click', function () {
-      if (opts.disabled) {
-        say(opts.reason || 'Not available yet.', { assertive: true, request: true });
+      if (b.getAttribute('aria-disabled') === 'true') {
+        say(b.getAttribute('title') || opts.reason || 'Not available yet.',
+          { assertive: true, request: true });
         return;
       }
       onClick();
@@ -393,26 +410,86 @@
     el.actions.innerHTML = '';
     var add = function (b) { el.actions.appendChild(b); };
 
-    /* THE BID. Fourteen buttons, zero to thirteen, and they are buttons rather
-     * than a number input or a select for one reason: a bid is one keystroke
-     * this way and three the other, and it is the only thing you can do on this
-     * screen. A select would also need its own submit, which is a second
-     * control for a decision that is already made the moment you choose.
+    /* THE BID: ONE CHOICE, THEN ONE BUTTON.
      *
-     * Nil is labelled "Nil" and not "0" — nobody at a table says zero — with an
-     * aria-label that says what it costs, because a hundred either way is not
-     * something to discover afterwards. */
+     * This was fourteen buttons, one per bid. Every one of them was a tab stop,
+     * so choosing a bid meant tabbing past up to thirteen things you did not
+     * want — and then doing it again the next hand. It is now a single select
+     * and a single button: two tab stops, whatever you decide to bid.
+     *
+     * NOTHING IS COMMITTED BY THE SELECT. Arrow keys move a closed select's
+     * value and fire `change` on every step, so a `change` handler that placed
+     * the bid would bid four on the way from three to five — and a screen reader
+     * user arrowing down the list to hear the options would bid every number
+     * they passed. The handler below only REMEMBERS the choice; the bid is
+     * placed by the button and by nothing else. */
     if (state.phase === 'bidding' && state.turn === mySeat) {
+      var wrap = global.document.createElement('p');
+      wrap.className = 'field bid-field';
+
+      var lab = global.document.createElement('label');
+      lab.setAttribute('for', 'bid-select');
+      lab.textContent = 'How many tricks will you take?';
+
+      var sel = global.document.createElement('select');
+      sel.id = 'bid-select';
+      sel.name = 'bid';
+
+      /* A placeholder rather than a default of one, so that the button cannot
+       * commit a bid nobody chose. It is the same shape as the pass in hearts:
+       * the action is there, visibly, and says what it still needs. */
+      sel.appendChild(option('', 'Choose a bid…'));
       G.legalBids(state, mySeat).forEach(function (n) {
-        add(button(n === 0 ? 'Nil' : String(n), function () {
-          act({ type: 'bid', bid: n });
-        }, {
-          className: 'bid-button' + (n === 0 ? ' bid-nil' : ''),
-          label: n === 0
-            ? 'Bid nil — take no tricks at all, worth a hundred if you manage it ' +
-              'and minus a hundred if you do not'
-            : 'Bid ' + n + (n === 1 ? ' trick' : ' tricks')
-        }));
+        /* "Nil" and not "0" — nobody at a table says zero — and the option says
+         * what it costs, because a hundred either way is not something to find
+         * out afterwards. An option cannot carry an aria-label, so the price
+         * goes in the text where a screen reader will actually read it. */
+        sel.appendChild(option(String(n), n === 0
+          ? 'Nil — take no tricks at all, worth a hundred either way'
+          : n + (n === 1 ? ' trick' : ' tricks')));
+      });
+      sel.value = pendingBid === null ? '' : String(pendingBid);
+
+      wrap.appendChild(lab);
+      wrap.appendChild(sel);
+      el.actions.appendChild(wrap);
+
+      /* THE BUTTON SAYS WHAT IT WILL DO.
+       *
+       * Not "Place this bid", which is a description of the mechanism and tells
+       * you nothing about the bid. Once a number is chosen the button becomes
+       * "Bid 3" or "Bid nil", so somebody who tabs onto it — having chosen a
+       * moment ago, or having been interrupted between choosing and committing —
+       * hears what they are about to commit to rather than having to go back to
+       * the list to find out. On a hundred-point bet that is worth the words. */
+      var go = button(bidButtonLabel(pendingBid), function () {
+        if (pendingBid === null) return;
+        var n = pendingBid;
+        pendingBid = null;
+        act({ type: 'bid', bid: n });
+      }, {
+        primary: true,
+        disabled: pendingBid === null,
+        reason: 'Choose a bid first, then place it.',
+        label: bidButtonName(pendingBid)
+      });
+      add(go);
+
+      /* Remembers, and updates the button in place. Deliberately NOT a render():
+       * rebuilding the actions area would destroy the select the player is
+       * standing in and drop focus mid-choice. */
+      sel.addEventListener('change', function () {
+        pendingBid = sel.value === '' ? null : parseInt(sel.value, 10);
+        var ready = pendingBid !== null;
+        go.textContent = bidButtonLabel(pendingBid);
+        go.setAttribute('aria-label', bidButtonName(pendingBid));
+        if (ready) {
+          go.removeAttribute('aria-disabled');
+          go.removeAttribute('title');
+        } else {
+          go.setAttribute('aria-disabled', 'true');
+          go.setAttribute('title', 'Choose a bid first, then place it.');
+        }
       });
     }
 
@@ -515,6 +592,23 @@
     });
 
     el['hand-hint'].textContent = handHint();
+  }
+
+  function bidButtonLabel(n) {
+    return n === null ? 'Place this bid' : n === 0 ? 'Bid nil' : 'Bid ' + n;
+  }
+
+  function bidButtonName(n) {
+    if (n === null) return 'Place this bid, once you have chosen one';
+    if (n === 0) return 'Bid nil — take no tricks at all, worth a hundred either way';
+    return 'Bid ' + n + (n === 1 ? ' trick' : ' tricks');
+  }
+
+  function option(value, text) {
+    var o = global.document.createElement('option');
+    o.value = value;
+    o.textContent = text;
+    return o;
   }
 
   function span(cls, text) {
@@ -822,6 +916,11 @@
   function onTableChange() {
     state = SH.Table.view();
     if (!state) return;
+    /* A half-made choice does not survive the turn it was made in. Without this,
+     * a bid chosen and not placed would still be sitting in the select when the
+     * bidding came round on the NEXT hand, offering a number from a hand that
+     * has been shuffled away. */
+    if (!(state.phase === 'bidding' && state.turn === mySeat)) pendingBid = null;
     drain();
     render();
 
@@ -875,21 +974,12 @@
   function focusForTurn() {
     if (!state) return;
     if (state.phase === 'bidding' && state.turn === mySeat) {
-      /* NOT the first button, which is nil.
-       *
-       * Nil is the lowest bid and belongs at the left, but it is also a
-       * hundred-point bet in both directions, and landing on it every hand is
-       * wrong twice over. It puts the most consequential choice under a player's
-       * fingers by default, before they have decided anything. And it means the
-       * announcement that opens every single hand is "bid nil, take no tricks at
-       * all, worth a hundred if you manage it and minus a hundred if you do not"
-       * — forty words about the rarest choice, in the way of the ordinary one.
-       *
-       * So focus starts on the lowest ORDINARY bid. Nil is one arrow key to the
-       * left, where somebody who wants it will look. */
-      var bidBtns = el.actions.querySelectorAll('button');
-      var start = bidBtns[1] || bidBtns[0];
-      if (start) { start.focus(); return; }
+      /* The select, which is where the decision is made. It opens on the
+       * placeholder rather than on a number, so nothing is pre-chosen and the
+       * announcement that opens the hand is the question rather than an answer
+       * to it. */
+      var sel = global.document.getElementById('bid-select');
+      if (sel) { sel.focus(); return; }
     }
     var handPhase = state.phase === 'play' && state.turn === mySeat &&
       el.hand.querySelector('.card:not([aria-disabled="true"])');
@@ -921,7 +1011,31 @@
 
   function onKey(e) {
     var tag = (e.target.tagName || '').toLowerCase();
-    if (tag === 'input' || tag === 'select' || tag === 'textarea') return;
+
+    /* THE BID SELECT IS THE ONE FORM CONTROL THE REVIEW KEYS STILL WORK IN.
+     *
+     * The guard below exists so that typing into a field is typing and not a
+     * flurry of announcements, and for every other input on this page that is
+     * right. The bid select is the exception, because of where it sits: the
+     * player is standing in it deciding what to bid, and the single most useful
+     * thing at that moment is H for their hand. With the plain guard they would
+     * have to shift+tab out to the toolbar to hear the cards they are bidding
+     * on, which is the tab-stop problem this control was built to remove,
+     * reappearing one step to the left.
+     *
+     * So the select simply does not take the form-control exemption, and every
+     * shortcut below already preventDefault's itself, so the select's own
+     * type-ahead does not also run alongside. None of those letters begins an
+     * option, so nothing is taken away: N is held back further down — it is
+     * type-ahead for "Nil" AND it would place a bid — and the digits are left
+     * alone, which is how somebody who knows they want seven gets there fastest.
+     *
+     * An earlier version returned early for everything except the review
+     * letters, which quietly took G and E with it. Between hands focus sits in
+     * this select, so a player pressing G to catch up on the log got nothing,
+     * and the shared log audit failed all six of its checks at once. */
+    var inBidSelect = e.target.id === 'bid-select';
+    if (!inBidSelect && (tag === 'input' || tag === 'select' || tag === 'textarea')) return;
 
     /* ? BEFORE THE STATE GUARD. Everything below needs a game in progress; the
      * keyboard hints do not, and are most wanted by somebody who has just
@@ -954,7 +1068,12 @@
     if (k === 'e') { e.preventDefault(); openExport(); return; }
     if (k === 'g') { e.preventDefault(); focusLogEntry(0); return; }
 
-    if (k === 'n' && !el.log.contains(e.target)) {
+    /* N is the one key held back inside the bid select, for two reasons that
+     * point the same way. It would place the bid, and the bid is the button's
+     * job alone. And "n" is the select's own type-ahead for "Nil", which is
+     * how somebody who wants nil gets to it — taking that away to commit a bid
+     * they had not chosen would be the worst of both. */
+    if (k === 'n' && !inBidSelect && !el.log.contains(e.target)) {
       var adv = el.actions.querySelector('button[data-advance]');
       if (adv && adv.getAttribute('aria-disabled') !== 'true') {
         e.preventDefault();

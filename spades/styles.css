@@ -195,23 +195,26 @@ tr.sitting-out th[scope="row"] { font-style: italic; }
 
 /* ---------------- what only spades needs ---------------- */
 
-/* THE BID BUTTONS. Fourteen of them, and they have to stay legible at a large
- * font size without wrapping into a column a screen tall — so they lay out as a
- * grid that reflows rather than a row that overflows. The layout audit in
- * shared/tests/browser/layout.js is what would catch the row version. */
-.bid-button {
-  min-width: 3.2rem;
-  font-variant-numeric: tabular-nums;
+/* THE BID. A label, a select and a button — two tab stops rather than the
+ * fourteen the first version had, one per possible bid.
+ *
+ * The select is sized to its longest option rather than to a column width, so
+ * the nil option, which carries what it costs in its own text, is not truncated
+ * at a large font size. */
+.bid-field {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: .5rem .75rem;
+  margin: 0 0 .6rem;
 }
 
-/* Nil is set apart because it is not "zero", it is a hundred-point bet, and a
- * player scanning fourteen near-identical buttons should not have to read the
- * label to find the one that behaves differently. The border carries it; the
- * accessible name says what it costs. Never colour alone. */
-.bid-nil {
-  border-color: var(--trump);
-  border-width: 3px;
-  font-weight: 700;
+.bid-field label { font-weight: 600; }
+
+.bid-field select {
+  min-width: 12rem;
+  max-width: 100%;
+  font-variant-numeric: tabular-nums;
 }
 
 /* A number that is about to cost something: a bag count one short of the

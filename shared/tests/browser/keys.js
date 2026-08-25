@@ -348,6 +348,38 @@ const SHARED = {
        * it is: take the primary action if there is one, otherwise play a card. */
       const moved = await page2.evaluate(() => {
         const box = document.getElementById('actions');
+
+        /* A CHOICE THAT HAS TO BE MADE BEFORE THE ACTION IS AVAILABLE.
+         *
+         * Some games put a form control in the actions area — spades bids with a
+         * select and a button, because fourteen buttons was fourteen tab stops —
+         * and its primary action is deliberately aria-disabled until something is
+         * chosen. A walk that only knows how to click could not choose, so it
+         * could not bid, so it sat in the bidding for all 220 steps and honestly
+         * reported that it had only ever seen one arrangement of buttons.
+         *
+         * Picking the LAST option rather than the first is deliberate: the first
+         * real option is often the placeholder-adjacent extreme (nil, in spades),
+         * and the walk should exercise an ordinary choice. */
+        const choice = box && box.querySelector('select');
+        if (choice && !choice.value) {
+          const real = [...choice.options].filter(o => o.value !== '');
+          if (real.length) {
+            choice.value = real[real.length - 1].value;
+            choice.dispatchEvent(new Event('change', { bubbles: true }));
+            /* Choosing is its own step, and the action is taken on the NEXT one.
+             *
+             * Committing in the same step is a step cheaper and quietly defeats
+             * the count above: the loop samples the buttons before it moves, so
+             * a choose-and-commit never lets it SEE the state where something is
+             * chosen and the action is waiting. Left as two steps, a game with a
+             * choice in it offers two arrangements from that screen alone —
+             * which is how this walk reaches three without having to play a
+             * whole game out inside its budget. */
+            return true;
+          }
+        }
+
         const primary = box && box.querySelector('button.primary');
         if (primary && primary.getAttribute('aria-disabled') !== 'true' && !primary.disabled) {
           primary.click();

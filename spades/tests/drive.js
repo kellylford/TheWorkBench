@@ -38,11 +38,20 @@ module.exports = {
     const me = T.seat();
     const cards = () => [...document.querySelectorAll('#hand .card')];
     const btns = () => [...document.querySelectorAll('#actions button')];
+    const bid = () => {
+      const sel = document.getElementById('bid-select');
+      if (!sel) return false;
+      sel.value = '3';
+      sel.dispatchEvent(new Event('change', { bubbles: true }));
+      const go = btns().find(b => b.hasAttribute('data-advance'));
+      if (!go || go.getAttribute('aria-disabled') === 'true') return false;
+      go.click();
+      return true;
+    };
 
     if (v.phase === 'bidding') {
       if (v.turn !== me) return false;
-      const bid = btns().find(b => b.textContent.trim() === '3') || btns()[3] || btns()[0];
-      if (bid) { bid.click(); }
+      bid();
       return false;
     }
     if (v.phase === 'play') {
@@ -64,6 +73,16 @@ module.exports = {
     const T = SH.UI._test;
     const cards = () => [...document.querySelectorAll('#hand .card')];
     const btns = () => [...document.querySelectorAll('#actions button')];
+    const bid = () => {
+      const sel = document.getElementById('bid-select');
+      if (!sel) return false;
+      sel.value = '3';
+      sel.dispatchEvent(new Event('change', { bubbles: true }));
+      const go = btns().find(b => b.hasAttribute('data-advance'));
+      if (!go || go.getAttribute('aria-disabled') === 'true') return false;
+      go.click();
+      return true;
+    };
     for (let i = 0; i < 300; i++) {
       const v = T.view();
       if (!v) return true;
@@ -71,8 +90,7 @@ module.exports = {
       const me = T.seat();
       if (v.phase === 'bidding') {
         if (v.turn !== me) break;
-        const bid = btns().find(b => b.textContent.trim() === '3') || btns()[3] || btns()[0];
-        if (bid) { bid.click(); continue; }
+        if (bid()) continue;
         break;
       }
       if (v.phase === 'play') {
