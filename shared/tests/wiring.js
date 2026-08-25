@@ -19,7 +19,7 @@ const path = require('path');
 const vm = require('vm');
 
 const root = path.join(__dirname, '..', '..');
-const GAMES = ['euchre', 'cribbage-multiplayer', 'sheephead-multiplayer', 'hearts'];
+const GAMES = ['euchre', 'cribbage-multiplayer', 'sheephead-multiplayer', 'hearts', 'spades'];
 const SHARED = ['table.js', 'net.js', 'localserver.js'];
 
 /* room.js is shared too, but no browser page loads it — it is the Durable

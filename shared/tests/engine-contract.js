@@ -31,7 +31,8 @@ const GAMES = [
   { dir: 'euchre',                files: ['js/cards.js', 'js/game.js', 'js/ai.js'] },
   { dir: 'cribbage-multiplayer',  files: ['js/cards.js', 'js/game.js', 'js/ai.js'] },
   { dir: 'sheephead-multiplayer', files: ['js/cards.js', 'js/game.js', 'js/ai.js'] },
-  { dir: 'hearts',                files: ['js/cards.js', 'js/game.js', 'js/ai.js'] }
+  { dir: 'hearts',                files: ['js/cards.js', 'js/game.js', 'js/ai.js'] },
+  { dir: 'spades',                files: ['js/cards.js', 'js/game.js', 'js/ai.js'] }
 ];
 
 /* Every name shared/js/*.js and room.js reach for on the engine. Derived by

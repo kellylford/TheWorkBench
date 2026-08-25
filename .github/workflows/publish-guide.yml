@@ -33,6 +33,7 @@ on:
       - 'cribbage-multiplayer/**'
       - 'euchre/**'
       - 'hearts/**'
+      - 'spades/**'
       - 'shared/**'
       - 'thecardplace.html'
       - '.github/workflows/publish-guide.yml'
