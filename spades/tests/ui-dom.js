@@ -7,10 +7,11 @@
  *
  * ---- what this game has to get right that its neighbours do not ----
  *
- * THE BIDDING IS A SCREEN WITH NO CARDS TO CLICK. Fourteen buttons and a hand
- * you can read but not play. Focus has to land on the buttons rather than the
- * cards, the cards have to say why they do nothing, and "nil" has to be
- * distinguishable from "one" by something other than position.
+ * THE BIDDING IS A SCREEN WITH NO CARDS TO CLICK. A list of bids, a button, and
+ * a hand you can read but not play. Focus has to land on the list rather than
+ * the cards, the cards have to say why they do nothing, and — the part that
+ * earns a test of its own — moving through the list must never place a bid,
+ * because a closed select fires change on every arrow key.
  *
  * THE CONTRACT HAS TO BE ASKABLE. It is the number that decides every play and
  * it lives nowhere on a card. B reads it, and B is the one key that means
@@ -108,7 +109,7 @@ async function until(page, fn, what, seconds) {
     note('page');
   }
 
-  /* ---- 2. the game starts in the BIDDING, and focus goes to the bids ---- */
+  /* ---- 2. the bidding: ONE tab stop to choose, one button to commit ---- */
   {
     await page.evaluate(() => {
       document.getElementById('opt-pace').value = '0';
@@ -121,62 +122,159 @@ async function until(page, fn, what, seconds) {
     }, 'the bidding to reach this seat');
 
     const m = await page.evaluate(() => {
-      const btns = [...document.querySelectorAll('#actions button')];
+      const sel = document.getElementById('bid-select');
       const cards = [...document.querySelectorAll('#hand .card')];
+      /* Everything in the actions area that the Tab key will stop on. */
+      const stops = [...document.querySelectorAll(
+        '#actions button, #actions select, #actions input, #actions a')]
+        .filter(e => e.offsetParent !== null && e.getAttribute('tabindex') !== '-1');
+      const go = [...document.querySelectorAll('#actions button')]
+        .find(b => b.hasAttribute('data-advance'));
       return {
-        bidCount: btns.length,
-        labels: btns.map(b => (b.textContent || '').trim()),
-        names: btns.map(b => b.getAttribute('aria-label') || ''),
-        nilLabel: (btns[0] && btns[0].textContent || '').trim(),
-        nilName: (btns[0] && btns[0].getAttribute('aria-label')) || '',
-        focusIsBid: document.activeElement &&
-          document.activeElement.parentElement === document.getElementById('actions'),
+        hasSelect: !!sel,
+        tabStops: stops.length,
+        optionCount: sel ? sel.options.length : 0,
+        optionText: sel ? [...sel.options].map(o => o.textContent.trim()) : [],
+        placeholderSelected: sel ? sel.value === '' : false,
+        labelled: !!document.querySelector('label[for="bid-select"]'),
+        labelText: (document.querySelector('label[for="bid-select"]') || {}).textContent || '',
+        focusIsSelect: document.activeElement === sel,
         focusTag: document.activeElement ? document.activeElement.tagName : 'none',
-        focusLabel: document.activeElement ?
-          (document.activeElement.textContent || '').trim() : 'none',
+        goExists: !!go,
+        goDisabled: go ? go.getAttribute('aria-disabled') : 'no button',
+        goReallyDisabled: go ? go.disabled : null,
+        goReason: go ? (go.getAttribute('title') || '') : '',
         handCount: cards.length,
         handNamed: cards.every(c => (c.getAttribute('aria-label') || '').length > 3),
-        headingSaysBid: (document.getElementById('actions-h').textContent || ''),
-        /* Nil must be distinguishable by something other than colour or
-         * position. A class is not enough on its own — the accessible NAME has
-         * to carry it. */
-        nilHasOwnClass: btns[0] ? btns[0].className.includes('bid-nil') : false
+        headingSaysBid: (document.getElementById('actions-h').textContent || '')
       };
     });
 
-    check(m.bidCount === 14, 'the bidding offers ' + m.bidCount + ' choices, not 14 (nil to 13)');
-    check(m.nilLabel === 'Nil',
-      'the zero bid is labelled "' + m.nilLabel + '"; nobody at a table says zero');
-    check(/nil/i.test(m.nilName) && /hundred/i.test(m.nilName),
-      'the nil button does not say what it costs: "' + m.nilName + '"');
-    check(m.nilHasOwnClass, 'nil is not marked apart from the ordinary bids');
-    check(m.names.every(n => n.length > 3),
-      'a bid button has no accessible name beyond its digit');
+    /* THE WHOLE POINT OF THIS CONTROL. It was fourteen buttons, one per bid, so
+     * reaching the bid you wanted meant tabbing past up to thirteen you did not
+     * want — every hand, all game. */
+    check(m.hasSelect, 'there is no bid select during the bidding');
+    check(m.tabStops === 2,
+      'the bidding has ' + m.tabStops + ' tab stops; it should be two — choose, then place');
 
-    /* FOCUS GOES TO THE BIDS, not the hand. The hand is worth reading first,
-     * which is what H is for, but the thing you have to DO is choose a number —
-     * and focus landing on a card you cannot play is focus landing nowhere
-     * useful. */
-    check(m.focusIsBid,
-      'focus went to ' + m.focusTag + ' rather than the bid buttons when it became ' +
-      'this seat\'s turn to bid');
+    check(m.optionCount === 15,
+      'the bid list has ' + m.optionCount + ' options, not 15 (a placeholder, nil, and 1 to 13)');
+    check(m.placeholderSelected,
+      'the bid list opens on a real bid rather than a placeholder, so the button ' +
+      'could commit a number nobody chose');
+    check(m.labelled, 'the bid select has no label element');
+    check(/how many/i.test(m.labelText),
+      'the bid select is labelled "' + m.labelText + '", which does not ask a question');
 
-    /* AND NOT ON NIL, which is the first button.
-     *
-     * Found by playing it rather than by any assertion here: focus landed on
-     * "Nil" every hand, which puts a hundred-point bet under the player's
-     * fingers by default and opens every single hand with forty words about the
-     * rarest choice in the game. Nil belongs at the left because it is the
-     * lowest bid; it does not belong under the cursor. */
-    check(m.focusLabel !== 'Nil',
-      'focus lands on the nil button, so every hand opens by offering the ' +
-      'hundred-point bet before the player has decided anything');
+    /* Nil says what it costs IN ITS OPTION TEXT. An <option> cannot carry an
+     * aria-label, so anything not in the text is not read. */
+    const nil = m.optionText.find(t => /^nil/i.test(t)) || '';
+    check(nil.length > 0, 'there is no nil option: ' + m.optionText.join(' / '));
+    check(/hundred/i.test(nil),
+      'the nil option reads "' + nil + '" and does not say what it costs');
+
+    /* The button exists, is aria-disabled rather than disabled so it can still be
+     * found and read, and says what it is waiting for. */
+    check(m.goExists, 'there is no button to place the bid');
+    check(m.goDisabled === 'true',
+      'the place-bid button is available with nothing chosen, so it can commit a ' +
+      'bid the player never made');
+    check(m.goReallyDisabled === false,
+      'the place-bid button uses the disabled attribute, so a screen reader user ' +
+      'tabbing through never learns it is there or what it needs');
+    check(/choose a bid/i.test(m.goReason),
+      'the disabled place-bid button gives no reason: "' + m.goReason + '"');
+
+    check(m.focusIsSelect,
+      'focus went to ' + m.focusTag + ' rather than the bid select when the bidding ' +
+      'reached this seat');
     check(m.headingSaysBid.toLowerCase().includes('bid'),
       'the actions heading says "' + m.headingSaysBid + '" during the bidding');
 
     check(m.handCount === 13, 'the hand shows ' + m.handCount + ' cards, not 13');
     check(m.handNamed, 'a card has no accessible name, so it cannot be read at all');
     note('bidding');
+  }
+
+  /* ---- 2b. MOVING THROUGH THE LIST DOES NOT BID ---- */
+  {
+    /* The reason this control is a select and not fourteen buttons is the tab
+     * order; the reason it needs this test is that a closed select fires
+     * `change` on EVERY arrow key. A handler that placed the bid on change would
+     * bid four on the way from three to five, and a screen reader user arrowing
+     * down to hear the options would bid every number they passed. */
+    const m = await page.evaluate(async () => {
+      const sel = document.getElementById('bid-select');
+      sel.focus();
+      const seat = SH.UI._test.seat();
+      const before = SH.UI._test.view().players[seat].bid;
+      const steps = [];
+      for (let i = 0; i < 5; i++) {
+        sel.selectedIndex = Math.min(sel.selectedIndex + 1, sel.options.length - 1);
+        sel.dispatchEvent(new Event('change', { bubbles: true }));
+        await new Promise(r => setTimeout(r, 30));
+        steps.push(SH.UI._test.view().players[seat].bid);
+      }
+      const go = [...document.querySelectorAll('#actions button')]
+        .find(b => b.hasAttribute('data-advance'));
+      return {
+        before,
+        steps,
+        phase: SH.UI._test.view().phase,
+        goEnabledAfterChoosing: go ? go.getAttribute('aria-disabled') !== 'true' : false,
+        selectSurvived: document.getElementById('bid-select') === sel,
+        stillFocused: document.activeElement === sel
+      };
+    });
+
+    check(m.before === null, 'this seat had already bid before the arrow test');
+    check(m.steps.every(b => b === null),
+      'moving through the bid list PLACED a bid: ' + JSON.stringify(m.steps) +
+      ' — arrowing must choose, never commit');
+    check(m.phase === 'bidding', 'the phase left the bidding while only arrowing');
+
+    /* Choosing enables the button IN PLACE, without rebuilding the actions area,
+     * because a re-render would destroy the select the player is standing in and
+     * drop focus mid-choice. */
+    check(m.goEnabledAfterChoosing, 'choosing a bid did not enable the place-bid button');
+    check(m.selectSurvived,
+      'the select was rebuilt when a bid was chosen, which drops focus mid-choice');
+    check(m.stillFocused, 'focus left the bid select when a bid was chosen');
+    note('arrowing does not bid');
+  }
+
+  /* ---- 2c. the review keys still work inside the select ---- */
+  {
+    /* The bid select is the one form control on this page where H and B still
+     * fire. The player is standing in it deciding what to bid, and the most
+     * useful thing at that moment is to hear the hand they are bidding on.
+     * Having to shift+tab out to the toolbar for that would reintroduce the tab
+     * problem this control exists to remove, one step to the left. */
+    const heard = await page.evaluate(async () => {
+      const sel = document.getElementById('bid-select');
+      /* Guarded, and the guard earns its place. If an earlier section leaves the
+       * bidding — which is exactly what happens when the select is wired to
+       * place a bid on change — this element is gone, and reaching straight for
+       * .focus() throws. A throw here abandons the run with every assertion the
+       * suite had already collected still unprinted, so the report is a stack
+       * trace about a null instead of the four clear failures above it. */
+      if (!sel) return '(the bid select was gone by this point)';
+      sel.focus();
+      const out = [];
+      const region = document.getElementById('say-polite');
+      const obs = new MutationObserver(() => {
+        if (region.textContent) out.push(region.textContent);
+      });
+      obs.observe(region, { childList: true, characterData: true, subtree: true });
+      sel.dispatchEvent(new KeyboardEvent('keydown', { key: 'h', bubbles: true }));
+      await new Promise(r => setTimeout(r, 600));
+      obs.disconnect();
+      return out.join(' | ');
+    });
+    check(/clubs|diamonds|hearts|spades/i.test(heard),
+      'H inside the bid select said "' + heard + '", so the player cannot hear ' +
+      'the hand they are bidding on without leaving the control');
+    note('review keys in the select');
   }
 
   /* ---- 3. a card cannot be played during the bidding, and says so ---- */
@@ -196,9 +294,17 @@ async function until(page, fn, what, seconds) {
   /* ---- 4. bid, and reach the play ---- */
   {
     await page.evaluate(() => {
-      const b = [...document.querySelectorAll('#actions button')]
-        .find(x => x.textContent.trim() === '3');
-      if (b) b.click();
+      /* Choose, then place. Two steps, deliberately: the select alone must never
+       * commit. Guarded like the section above, so that a regression which ends
+       * the bidding early reports the assertions that caught it rather than a
+       * stack trace about a null. */
+      const sel = document.getElementById('bid-select');
+      if (!sel) return;
+      sel.value = '3';
+      sel.dispatchEvent(new Event('change', { bubbles: true }));
+      const go = [...document.querySelectorAll('#actions button')]
+        .find(b => b.hasAttribute('data-advance'));
+      if (go) go.click();
     });
     await until(page, () => {
       const v = SH.UI._test.view();
@@ -348,10 +454,14 @@ async function until(page, fn, what, seconds) {
         const me = T.seat();
         if (v.phase === 'bidding') {
           if (v.turn !== me) return false;
-          const b = [...document.querySelectorAll('#actions button')]
-            .find(x => x.textContent.trim() === '3') ||
-            document.querySelector('#actions button');
-          if (b) b.click();
+          const sel = document.getElementById('bid-select');
+          if (sel) {
+            sel.value = '3';
+            sel.dispatchEvent(new Event('change', { bubbles: true }));
+            const go = [...document.querySelectorAll('#actions button')]
+              .find(b => b.hasAttribute('data-advance'));
+            if (go && go.getAttribute('aria-disabled') !== 'true') go.click();
+          }
           return false;
         }
         if (v.phase === 'play' && v.turn === me) {
