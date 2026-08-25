@@ -36,9 +36,14 @@
  * a privilege that has to be earned.
  *
  * What DOES have to be earned is leading them. Spades cannot be led until they
- * are broken, which happens the first time one is played by somebody who could
- * not follow the suit led. The rule yields rather than trapping anybody: a
- * player holding nothing but spades may lead one.
+ * are broken, and they are broken as soon as ANY spade is played — usually
+ * somebody trumping in on a suit they could not follow.
+ *
+ * The rule yields rather than trapping anybody: a player holding nothing but
+ * spades may lead one, and that breaks them too. Requiring the breaking spade to
+ * have come from a seat that could not follow reads as more precise and is
+ * wrong, because it leaves the flag false through an entire trick of spades and
+ * the next leader is refused with "spades have not been broken".
  *
  * ---- the contract this file has to meet ----
  *
@@ -164,14 +169,16 @@
     return e;
   }
 
-  /* An event only one seat may hear. `audience` and `id` are stripped on
-   * delivery; the point is that a seat never receives a line written for
-   * somebody else, not that it receives it and is asked not to look. */
-  function evTo(state, seat, kind, text, extra) {
-    var e = ev(state, kind, text, extra);
-    e.audience = seat;
-    return e;
-  }
+  /* There is deliberately no evTo() here.
+   *
+   * Hearts has one — an event only one seat may hear — because it has something
+   * to say privately: what you were passed. Nothing in spades is private once it
+   * happens. The bids are spoken aloud, every card is played face up, and both
+   * scores are public. eventsFor still honours an `audience` field, so the
+   * machinery is there if a variant ever needs it; carrying an unused helper
+   * that suggests this game has private events would be a false signal in the
+   * file somebody reads to learn how events reach a seat.
+   */
 
   function vb(state, seat) {
     var p = state.players[seat];
@@ -355,15 +362,24 @@
     var p = state.players[seat];
     p.hand = p.hand.filter(function (c) { return c.id !== cardId; });
 
-    /* Broken by a spade played when this seat could NOT follow — which is to say
-     * a spade played on a trick led in something else. A spade led (once they
-     * are already broken) does not re-break anything, and a spade played to a
-     * trick that was led in spades is just following suit.
+    /* ANY spade reaching the table breaks them. Not only one played by a seat
+     * that could not follow.
      *
-     * Checked before the card joins the trick, because once it is on the pile
-     * `state.trick[0]` may be the card itself. */
-    if (C.isTrump(card) && !state.spadesBroken &&
-        state.trick.length > 0 && state.trick[0].card.s !== C.TRUMP) {
+     * This used to also require `state.trick.length > 0`, on the reasoning that
+     * breaking is what happens when somebody ruffs in. That misses the one way a
+     * spade can be LED before they are broken: a player holding nothing but
+     * spades, where the leading rule yields rather than trapping them with no
+     * legal move. The flag then stayed false through an entire trick of spades,
+     * and the next player to lead was refused with "spades have not been
+     * broken" — a sentence that is plainly false to anybody who watched the
+     * trick.
+     *
+     * The condition is now simply "a spade was played", which is also the rule
+     * as everybody states it: once spades have been seen, they are live.
+     *
+     * Checked before the card joins the trick, so that `state.trick` still
+     * describes what was already on the table rather than including this card. */
+    if (C.isTrump(card) && !state.spadesBroken) {
       state.spadesBroken = true;
       ev(state, 'info', 'Spades are broken.');
     }

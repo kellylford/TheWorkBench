@@ -91,12 +91,17 @@ function spadesEverBroken(state) {
 let brokenLog = { broken: false };
 
 function watchPlay(state, seat, card) {
-  /* A spade played to a trick that was LED in something else. A spade led once
-   * they are already broken does not re-break; a spade played to a spade lead is
-   * following suit. */
-  if (card.s === TRUMP && state.trick.length > 0 && state.trick[0].card.s !== TRUMP) {
-    brokenLog.broken = true;
-  }
+  /* ANY spade reaching the table. Derived by watching every play rather than by
+   * reading state.spadesBroken, which is the point — the engine's flag is what
+   * is on trial.
+   *
+   * This condition used to carry `state.trick.length > 0`, matching what the
+   * engine did, and so it agreed with the engine's bug instead of catching it:
+   * a spade LED by a player holding nothing else left both of them believing
+   * spades were unbroken through a whole trick of spades. Two implementations
+   * written the same afternoon share the same misunderstanding, which is the
+   * reason tests/scoring.js exists and the reason this comment does. */
+  if (card.s === TRUMP) brokenLog.broken = true;
 }
 
 /* Replay the cards of a trick and say who took them. Highest spade if any spade
@@ -488,9 +493,58 @@ function checkSeatToAct() {
   check(G.seatToAct(state) === -1, 'seatToAct answered at gameOver');
 }
 
+/* A hand that can only lead a spade.
+ *
+ * The leading rule yields rather than trapping a player with no legal move, so a
+ * seat holding nothing but spades may lead one before they are broken. That lead
+ * has to BREAK them — and the deal that produces it is rare enough that thousands
+ * of random hands will not contain one, which is why it is built by hand here
+ * rather than waited for. */
+function checkForcedSpadeLead() {
+  const state = G.createGame({ names: ['N', 'E', 'S', 'W'] });
+  G.applyAction(state, 0, { type: 'start' }, rng);
+  while (state.phase === 'bidding') {
+    G.applyAction(state, state.turn, { type: 'bid', bid: 2 }, rng);
+  }
+
+  const lead = state.turn;
+  const rest = [0, 1, 2, 3].filter(x => x !== lead);
+  state.players[lead].hand = [C.get('2S'), C.get('3S')];
+  state.players[rest[0]].hand = [C.get('AS'), C.get('4S'), C.get('KH')];
+  state.players[rest[1]].hand = [C.get('QS'), C.get('QH')];
+  state.players[rest[2]].hand = [C.get('JS'), C.get('JH')];
+
+  /* The rule yields: a hand of nothing but spades may lead one. */
+  const legal = G.legalPlays(state, lead).map(c => c.id).sort();
+  check(legal.join(',') === '2S,3S',
+    'a hand of nothing but spades was not allowed to lead one: ' + legal.join(','));
+
+  check(G.applyAction(state, lead, { type: 'play', card: '2S' }, rng).ok,
+    'the forced spade lead was refused');
+  check(state.spadesBroken,
+    'a spade was LED and spades are still not broken — the next player to lead ' +
+    'will be told "spades have not been broken" after watching one go past');
+
+  for (let k = 0; k < 3; k++) {
+    const seat = state.turn;
+    const sp = state.players[seat].hand.filter(c => c.s === 'S')[0];
+    check(G.applyAction(state, seat, { type: 'play', card: sp.id }, rng).ok,
+      'following the spade lead was refused');
+  }
+
+  /* And the winner, holding a spade and a heart, may now lead either. */
+  const winner = state.turn;
+  const now = G.legalPlays(state, winner).map(c => c.id).sort();
+  check(now.length === state.players[winner].hand.length,
+    'after a whole trick of spades the leader is still barred from leading one: ' +
+    'holds ' + state.players[winner].hand.map(c => c.id).join(' ') +
+    ', may lead ' + now.join(' '));
+}
+
 /* ---------------- run ---------------- */
 
 checkRefusals();
+checkForcedSpadeLead();
 checkCanDeal();
 checkSeatToAct();
 
