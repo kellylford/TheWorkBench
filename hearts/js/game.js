@@ -62,6 +62,8 @@
   var SEATS = 4;
   var HAND = 13;
   var PASS_COUNT = 3;
+  /* The default target, and only the default. The number a given table plays
+   * to is config.pointsToWin, set when the table is made. */
   var TARGET = 100;
   var MOON = 26;
 
@@ -401,6 +403,15 @@
     return { ok: true };
   }
 
+  /* The target this table agreed on, not the one this file happens to prefer.
+   * A setting that is offered on two screens, stored, and shipped to every seat
+   * and then never read is worse than no setting at all: the game plays to a
+   * different number than the one the player picked, and nothing says so. */
+  function targetOf(state) {
+    var n = state.config && state.config.pointsToWin;
+    return typeof n === 'number' && n > 0 ? n : TARGET;
+  }
+
   function finishHand(state) {
     var raw = state.players.map(function (p) { return pointsOf(p.taken); });
     var total = raw.reduce(function (a, b) { return a + b; }, 0);
@@ -437,7 +448,8 @@
         return p.name + ' ' + p.handPoints;
       }).join(', ') + '.');
 
-    var over = state.players.some(function (p) { return p.score >= TARGET; });
+    var target = targetOf(state);
+    var over = state.players.some(function (p) { return p.score >= target; });
     if (over) {
       var low = Math.min.apply(null, state.players.map(function (p) { return p.score; }));
       var winners = state.players.filter(function (p) { return p.score === low; });
@@ -535,6 +547,7 @@
     HAND: HAND,
     PASS_COUNT: PASS_COUNT,
     TARGET: TARGET,
+    targetOf: targetOf,
     MOON: MOON,
     PASS_DIRS: PASS_DIRS,
     PASS_OFFSET: PASS_OFFSET,

@@ -106,12 +106,19 @@ function oracleTrickWinner(plays) {
 
 const seen = {
   moon: 0, qsPlayed: 0, heartsLed: 0, firstTrickDiscard: 0,
-  passDirs: {}, allHeartsHand: 0, tricks: 0, hands: 0, games: 0
+  passDirs: {}, allHeartsHand: 0, tricks: 0, hands: 0, games: 0, targets: {}
 };
 
-function playGames(n) {
+function playGames(n, config) {
   for (let g = 0; g < n; g++) {
-    const state = G.createGame({ names: ['North', 'East', 'South', 'West'] });
+    const state = G.createGame(Object.assign(
+      { names: ['North', 'East', 'South', 'West'] }, config || {}));
+    /* The number this game is meant to end on, taken from the config the table
+     * was made with rather than from the engine's default. A suite that asks
+     * the engine for the target and then checks the engine against it agrees
+     * with any bug that reads the same wrong number twice. */
+    const target = (config && config.pointsToWin) || G.TARGET;
+    seen.targets[target] = (seen.targets[target] || 0) + 1;
     let res = G.applyAction(state, 0, { type: 'start' }, rng);
     check(res.ok, 'start refused: ' + res.reason);
 
@@ -180,8 +187,20 @@ function playGames(n) {
           'the winner is not the lowest score: winner ' + state.winner +
           ', scores ' + state.players.map(p => p.score).join(','));
       }
-      check(state.players.some(p => p.score >= G.TARGET),
-        'game ended before anybody reached ' + G.TARGET);
+      check(state.players.some(p => p.score >= target),
+        'game ended before anybody reached ' + target +
+        ': scores ' + state.players.map(p => p.score).join(','));
+
+      /* And it ended on the hand it should have. The scores after every hand
+       * but the last must all be under the line — a game that plays on past
+       * the target still finishes with somebody over it, so the check above
+       * passes on its own while the game runs to a different number entirely.
+       * This is the half that a hard-coded target hid for as long as it did. */
+      state.history.slice(0, -1).forEach(h => {
+        check(h.scores.every(sc => sc < target),
+          'hand ' + h.deal + ' left somebody on ' + Math.max(...h.scores) +
+          ', at or past the target of ' + target + ', and the game carried on');
+      });
     }
   }
 }
@@ -399,6 +418,10 @@ function checkRefusals() {
 checkRefusals();
 checkPassing();
 playGames(30);
+/* The short game. Offered in the setup form and in settings, carried through
+ * the room config to every seat — and for a while read by nobody, so choosing
+ * it got you a hundred-point game with a fifty on the screen. */
+playGames(12, { pointsToWin: 50 });
 
 console.log(checks.toLocaleString() + ' assertions across ' + seen.games + ' games, ' +
   seen.hands + ' hands, ' + seen.tricks + ' tricks');
@@ -408,6 +431,8 @@ console.log('  moons shot: ' + seen.moon +
   '   hands with only hearts to lead: ' + seen.allHeartsHand);
 console.log('  pass directions: ' +
   Object.entries(seen.passDirs).map(([k, v]) => k + ' ' + v).join(', '));
+console.log('  targets played to: ' +
+  Object.entries(seen.targets).map(([k, v]) => k + ' points x' + v).join(', '));
 
 /* A run that never met the interesting cases has not tested them, and saying so
  * is the difference between a green suite and a green suite worth believing. */
@@ -417,6 +442,7 @@ if (!seen.qsPlayed) gaps.push('the queen of spades was never taken by anybody');
 if (!seen.heartsLed) gaps.push('a heart was never led, so the broken-hearts rule went untested');
 if (!seen.firstTrickDiscard) gaps.push('nobody ever failed to follow on the first trick, so the no-points rule went untested');
 if (Object.keys(seen.passDirs).length < 4) gaps.push('not every passing direction came up');
+if (Object.keys(seen.targets).length < 2) gaps.push('every game ran to the same target, so the configured target went untested');
 gaps.forEach(g => fails.push(g));
 
 if (fails.length) {

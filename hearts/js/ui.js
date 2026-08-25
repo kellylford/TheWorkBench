@@ -999,6 +999,11 @@
     lines.push('Hearts — game log');
     if (state) {
       lines.push('Hand ' + state.dealNumber + ', phase ' + state.phase);
+      /* What this table is playing to, which is the table's number and not this
+       * browser's setting — the two can differ when you have joined somebody
+       * else's game, and a transcript that reported the local preference would
+       * be reporting the wrong one. */
+      lines.push('Playing to ' + G.targetOf(state) + '.');
       lines.push('Scores: ' + state.players.map(function (p) {
         return p.name + ' ' + p.score;
       }).join(', '));
