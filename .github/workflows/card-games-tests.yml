@@ -18,6 +18,7 @@ on:
       - 'Cribbage/**'
       - 'cribbage-multiplayer/**'
       - 'hearts/**'
+      - 'spades/**'
       - 'shared/**'
       - '.github/workflows/card-games-tests.yml'
   pull_request:
@@ -28,6 +29,7 @@ on:
       - 'Cribbage/**'
       - 'cribbage-multiplayer/**'
       - 'hearts/**'
+      - 'spades/**'
       - 'shared/**'
       - '.github/workflows/card-games-tests.yml'
   workflow_dispatch:
@@ -102,6 +104,84 @@ jobs:
 
       - name: Projection
         run: npm run test:projection
+
+      - name: Over the transport
+        run: npm run test:online
+
+      - name: Text contrast
+        run: npm run test:contrast
+
+      - name: Card faces do not collide
+        run: npm run test:overlap
+
+      - name: Rendered appearance
+        run: npm run test:appearance
+
+      - name: Shared keyboard
+        run: npm run test:keys
+
+      - name: The log reads the same way everywhere
+        run: npm run test:log
+
+      - name: Everything renders
+        run: npm run test:renders
+
+      - name: Interface
+        run: npm run test:uidom
+
+      - name: Layout across viewports
+        run: npm run test:layout
+
+      - name: Fail if anything skipped
+        run: |
+          set -euo pipefail
+          npm test 2>&1 | tee /tmp/out.txt
+          if grep -q '^SKIP' /tmp/out.txt; then
+            echo "::error::A test suite skipped instead of running. CI must not report success on a skip."
+            grep '^SKIP' /tmp/out.txt
+            exit 1
+          fi
+
+  # Spades. Four seats in two fixed partnerships, and the first game here whose
+  # scoring earns a suite of its own: a contract belongs to a pair, missing it
+  # costs the whole bid rather than the difference, and bags carry across hands.
+  spades:
+    name: Spades
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: spades
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install browser test dependencies
+        run: npm install --no-save puppeteer
+
+      - name: Rules oracle
+        run: npm run test:rules
+
+      - name: Authorization
+        run: npm run test:auth
+
+      - name: Projection
+        run: npm run test:projection
+
+      # Spades' own two, and neither exists in another game. The scoring is
+      # checked against worked examples rather than against play, because two
+      # implementations written on the same afternoon share the same
+      # misunderstandings. The balance suite measures whether the bidding is
+      # still a decision, which is the thing that degrades silently: a game
+      # where every contract is made is correct, passes everything else, and is
+      # not worth playing.
+      - name: Scoring, against worked examples
+        run: npm run test:scoring
+
+      - name: The bidding is still a game
+        run: npm run test:balance
 
       - name: Over the transport
         run: npm run test:online

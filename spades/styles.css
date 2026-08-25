@@ -1,0 +1,228 @@
+/* What is particular to spades.
+ *
+ * Everything shared with the other games is in ../shared/styles/core.css, which
+ * the page loads first. This file loads after it, so anything said here wins —
+ * that is the whole override mechanism, and it needs no !important.
+ */
+
+/* Aims: strong contrast, visible focus, no colour-only meaning, respects
+ * prefers-reduced-motion and prefers-contrast, and scales with the user's font
+ * size.
+ */
+:root {
+  --bg: #10161d;
+  --panel: #1a232e;
+  --panel-2: #223040;
+  --ink: #eef3f8;
+  --ink-dim: #ccd8e4;
+  --line: #3c4b5d;
+  --accent: #6fd0ff;
+  --accent-ink: #06212e;
+  --good: #7ee08a;
+  --bad: #ff9b9b;
+  --card-bg: #f7f9fb;
+  /* A card you cannot play. Light enough that a red suit still clears AA on it
+   * — #c2ccd6 looked better and put the pips at 4.25:1, which is a fail. */
+  --card-off: #ccd5de;
+  --card-ink: #16202a;
+  --card-red: #b3122a;
+  --trump: #f0c04a;
+  --bower: #7ad3a0;
+  --bower-ink: #0d5c38;
+  --felt: #1d5c43;
+  --felt-edge: #123a2b;
+  /* Ink for text sitting DIRECTLY on the felt, rather than on a panel.
+   *
+   * Deliberately not redefined for light mode, and that is the whole point:
+   * the felt is dark green in both colour schemes, but --ink-dim flips to a
+   * dark slate in light mode. Anything on the felt using --ink-dim was
+   * therefore 1.41:1 in light mode — dark grey on dark green, well under the
+   * 4.5:1 WCAG AA needs, and identically broken in all three games.
+   *
+   * It went unseen because the text it affects only appears when a hand runs
+   * empty, which no screenshot and no audit had ever caught it doing. */
+  --ink-on-felt: #e6eef6;
+  --back-a: #2a4f7c;
+  --back-b: #1b3557;
+  --focus: #ffd54a;
+  --radius: 8px;
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    --bg: #f2f5f8;
+    --panel: #ffffff;
+    --panel-2: #e8eef4;
+    --ink: #12181f;
+    --ink-dim: #3b4a5b;
+    --line: #b9c6d4;
+    --accent: #14556f;
+    --accent-ink: #ffffff;
+    --good: #10662a;
+    --bad: #a11226;
+    --card-bg: #ffffff;
+    --card-off: #ccd5de;
+    --card-ink: #12181f;
+    --card-red: #b3122a;
+    --trump: #8a5a00;
+    --bower: #1a7f4f;
+    --bower-ink: #0d5c38;
+    --felt: #1f6b4d;
+    --felt-edge: #14503a;
+    --back-a: #33608f;
+    --back-b: #224060;
+    --focus: #a35a00;
+  }
+}
+
+.dev-notice a { color: var(--accent); font-weight: 600; }
+
+/* The card the dealer took from the top of the kitty, sitting at the front of
+ * the hand until they have put one back. Lifted and outlined so it reads as
+ * "this is the new one" — a six card hand that all looks alike is exactly where
+ * a dealer discards the card they meant to keep. */
+.card.from-upcard {
+  border-color: var(--accent);
+  border-width: 3px;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 35%, transparent);
+  transform: translateY(-.35rem);
+}
+
+.card.from-upcard .tag { color: var(--accent); font-weight: 800; }
+
+/* A bower.
+ *
+ * The right and left bowers are the two highest cards in the game, and the left
+ * one does not look like a trump at all — with spades trump the jack of clubs is
+ * a spade, and a player scanning their hand for spades will not see it. So it is
+ * marked, and marked the same way in both skins, because "it is obvious once you
+ * know" is the whole problem: the moment you stop knowing is the moment you
+ * throw it away.
+ *
+ * Marked visually here and named in the card's own aria-label, so neither
+ * audience is depending on the other's channel. */
+.card.bower-card {
+  border-color: var(--bower);
+  border-width: 3px;
+  /* Colour and image set separately: a gradient alone leaves background-color
+   * transparent, which is both a weak fallback and unmeasurable for contrast. */
+  background-color: var(--card-bg);
+  background-image: linear-gradient(180deg, color-mix(in srgb, var(--bower) 18%, var(--card-bg)) 0%, var(--card-bg) 55%);
+}
+
+.card.bower-card .tag { color: var(--bower-ink); font-weight: 800; }
+
+.card.bower-card::before {
+  content: "★";
+  position: absolute; top: 1px; right: 4px;
+  font-size: .8rem; line-height: 1;
+  color: var(--bower-ink);
+}
+
+.card.from-upcard.bower-card { box-shadow: 0 0 0 3px color-mix(in srgb, var(--bower) 40%, transparent); }
+
+/* A seat sitting out because its partner is playing alone. Not "disabled" —
+ * they are still at the table and their row still carries a score. */
+tr.sitting-out th[scope="row"] { font-style: italic; }
+
+@media (forced-colors: active) {
+  .card.trump { border-style: double; }
+  .card.from-upcard { border-style: dashed; }
+  .card.bower-card { outline: 3px solid; outline-offset: 1px; }
+  .trick li.winning { border-style: dashed; }
+}
+
+/* ---------- optional two-column desktop layout ----------
+ * Off by default; Settings > Appearance > Desktop layout turns it on.
+ *
+ * CSS Grid auto-placement is row-major, so panels fill left-to-right in exact
+ * DOM order. Nothing is repositioned and no `order` is used, so reading order
+ * and visual order stay identical — which is the whole reason this is grid and
+ * not absolute positioning.
+ *
+ * 64rem in a media query is always 1024px regardless of the user's font size,
+ * so phones and tablets are untouched whatever this is set to.
+ */
+@media (min-width: 64rem) {
+  .layout-two-col #game-section {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    column-gap: 1.25rem;
+    align-items: start;
+  }
+  /* Anything that reads as a full-width band stays one. The rest pairs up:
+   * hand | seats, then current trick | last trick. */
+  .layout-two-col #game-section > h2,
+  .layout-two-col #game-section > #status,
+  .layout-two-col #game-section > #action-section,
+  .layout-two-col #game-section > .toolbar,
+  .layout-two-col #game-section > #deal-section,
+  .layout-two-col #game-section > #score-section,
+  .layout-two-col #game-section > section[aria-labelledby="players-h"],
+  .layout-two-col #game-section > section[aria-labelledby="log-h"] {
+    grid-column: 1 / -1;
+  }
+}
+
+/* THE CONNECTION, WHEN THERE IS SOMETHING WRONG WITH IT.
+ *
+ * Nothing is shown while it is healthy — a standing "connected" badge is noise
+ * on screen and worse in a screen reader's tab order. When it appears it is
+ * news, so it is styled as a warning and it stays put rather than passing by in
+ * a live region: somebody who missed the announcement has to be able to find it
+ * again, and somebody who heard it has to be able to check. */
+.net-line {
+  margin: .5rem 0;
+  padding: .55rem .8rem;
+  border: 1px solid var(--bad);
+  border-left: 5px solid var(--bad);
+  border-radius: var(--radius);
+  background: var(--panel);
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.net-line:focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; }
+
+/* The result headline. It carries the whole outcome in a sentence, and the chips
+ * above it are decoration that repeats the numbers for anybody reading by eye. */
+.result-headline { font-weight: 700; color: var(--ink); font-size: 1.05rem; }
+
+/* The score table. Your own side's row is marked, because "which of these two
+ * rows is me" is the question it exists to answer. */
+#score-table tr.you th[scope="row"] { color: var(--accent); }
+
+
+/* ---------------- what only spades needs ---------------- */
+
+/* THE BID BUTTONS. Fourteen of them, and they have to stay legible at a large
+ * font size without wrapping into a column a screen tall — so they lay out as a
+ * grid that reflows rather than a row that overflows. The layout audit in
+ * shared/tests/browser/layout.js is what would catch the row version. */
+.bid-button {
+  min-width: 3.2rem;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Nil is set apart because it is not "zero", it is a hundred-point bet, and a
+ * player scanning fourteen near-identical buttons should not have to read the
+ * label to find the one that behaves differently. The border carries it; the
+ * accessible name says what it costs. Never colour alone. */
+.bid-nil {
+  border-color: var(--trump);
+  border-width: 3px;
+  font-weight: 700;
+}
+
+/* A number that is about to cost something: a bag count one short of the
+ * penalty, or a hand that went backwards. Weight and a border as well as
+ * colour, because colour alone is not a signal. */
+.warn {
+  color: var(--bad);
+  font-weight: 700;
+}
+
+/* Your own side, on the drawn table. aria-hidden, so this is for the eyes only
+ * and the words are in the partnerships table — but "which two of these four
+ * are mine" is worth being able to see at a glance in a partnership game. */
+.seat-ours { border-color: var(--accent); }

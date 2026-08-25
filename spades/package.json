@@ -1,0 +1,23 @@
+{
+  "name": "spades",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Spades - accessible, playable by ear",
+  "scripts": {
+    "test": "node tests/rules-oracle.js && node tests/scoring.js && node tests/authorization.js && node tests/projection.js && node tests/balance.js && node tests/online.js",
+    "test:rules": "node tests/rules-oracle.js",
+    "test:scoring": "node tests/scoring.js",
+    "test:projection": "node tests/projection.js",
+    "test:auth": "node tests/authorization.js",
+    "test:balance": "node tests/balance.js",
+    "test:online": "node tests/online.js",
+    "test:contrast": "node ../shared/tests/browser/contrast.js spades",
+    "test:overlap": "node ../shared/tests/browser/card-overlap.js spades",
+    "test:appearance": "node ../shared/tests/browser/appearance.js spades",
+    "test:layout": "node ../shared/tests/browser/layout.js spades",
+    "test:keys": "node ../shared/tests/browser/keys.js spades",
+    "test:log": "node ../shared/tests/browser/log.js spades",
+    "test:uidom": "node tests/ui-dom.js",
+    "test:renders": "node ../shared/tests/browser/renders.js spades"
+  }
+}
