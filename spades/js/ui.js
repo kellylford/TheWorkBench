@@ -552,35 +552,37 @@
       b.dataset.id = c.id;
       b.setAttribute('tabindex', i === handFocus ? '0' : '-1');
 
-      /* DURING THE BIDDING EVERY CARD IS UNAVAILABLE, and has to say so.
+      /* DURING THE BIDDING THE HAND IS SIMPLY A HAND, and says nothing else.
        *
-       * They were ordinary-looking buttons that did nothing but scold you for
-       * pressing them. A screen reader user tabbing through the hand — which is
-       * exactly what you do while deciding a bid — heard thirteen live buttons
-       * and got a rebuke from each one.
+       * It used to be marked unavailable, with ", not yet — the bidding comes
+       * first" on every card. That was answering the wrong question. Reading the
+       * hand is the WHOLE ACTIVITY of this phase — it is how you decide what to
+       * bid — and the answer to "can I play this yet" is not wanted thirteen
+       * times while you are counting your spades. Reported as distracting, and
+       * it was: eight extra words on every card, thirteen times a hand, all
+       * game.
        *
-       * aria-disabled rather than the disabled attribute, so the hand can still
-       * be read and moved through. Reading it is the whole point of this phase;
-       * what you cannot do is play one yet.
+       * The state is not marked either, and that is the same decision rather
+       * than a separate one — aria-disabled makes a screen reader say
+       * "unavailable" on each card, which is the identical noise in fewer words.
+       * Nothing is lost by leaving it off: the status line says it is your bid,
+       * the hint under the hand says to choose one, and pressing a card still
+       * answers in a sentence, once, on demand.
        *
-       * The shared keyboard audit found this. It walks a game by clicking the
-       * primary action or, failing that, a card — and it spent all two hundred
-       * and twenty of its steps clicking inert cards, never bid, never reached a
-       * second screen, and reported that it had only ever seen one arrangement
-       * of buttons. */
-      var bidding = state.phase === 'bidding';
+       * This is the rule the hearts card model states and then has no case for —
+       * the test is whether the NAME ALONE would mislead. Here it does not. You
+       * are not being invited to play the nine of clubs; the entire screen is a
+       * bid. */
       var notMyTurn = state.phase === 'play' && state.turn !== mySeat;
       var illegal = state.phase === 'play' && state.turn === mySeat && !legal[c.id];
-      if (bidding || notMyTurn || illegal) b.setAttribute('aria-disabled', 'true');
+      if (notMyTurn || illegal) b.setAttribute('aria-disabled', 'true');
 
-      /* A card that cannot be played says so, and says which of the three
-       * reasons it is. The third — that the turn is somebody else's — is the one
-       * the other games in this repository leave out, and leaving it out means a
-       * player reading their hand while the computer thinks hears thirteen
-       * ordinary buttons, presses one, and is told off. */
+      /* A card that cannot be played during the PLAY says which rule stopped it.
+       * That is worth saying, because there the question is live: it is a trick,
+       * you are choosing a card, and "you must follow hearts" teaches the game
+       * where silence teaches nothing. */
       b.setAttribute('aria-label', C.describe(c) +
         (b.getAttribute('aria-disabled') !== 'true' ? ''
-          : bidding ? ', not yet — the bidding comes first'
           : notMyTurn ? ', not your turn yet'
           : ', ' + G.whyNot(state, mySeat, c.id)));
 
