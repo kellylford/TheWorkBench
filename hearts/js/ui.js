@@ -43,16 +43,64 @@
   var mySeat = 0;
   var pace = 450;
 
-  /* SETTINGS, REMEMBERED. Hearts was the only game here that forgot everything
-   * the moment you left: pick the plain card style, finish a game, come back,
-   * and it is traditional faces again.
+  /* SETTINGS, REMEMBERED — and there is ONE set of controls, in the dialog.
    *
    * Its own key, and that is not cosmetic. localStorage is scoped to the ORIGIN
    * and every game in this repository lives under the same one, so a key shared
-   * with another game means a setting changed here changes it there too. */
+   * with another game means a setting changed here changes it there too.
+   *
+   * The start screen used to carry its own copies of the pace, the target and
+   * the card style, with the dialog holding a second set that had to be written
+   * back and forth by hand. The old comment on that function said the quiet part
+   * out loud — "two forms that disagree about the current pace is worse than one
+   * form" — and the answer to that is one form, which is what the other four
+   * games on this site already had. The start screen shows a summary and a way
+   * in; everything is set in one place, from the setup screen or from the
+   * toolbar, and they are the same place. */
   var STORE_KEY = 'hearts.settings.v1';
-  var DEFAULTS = { pace: 450, points: 100, skin: 'traditional', autofocus: true };
-  var settings = { pace: 450, points: 100, skin: 'traditional', autofocus: true };
+  var DEFAULTS = { pace: 900, points: 100, skin: 'traditional', autofocus: true };
+  var settings = { pace: 900, points: 100, skin: 'traditional', autofocus: true };
+
+  /* THE PACE LADDER, and it is the same five rungs in every game on this site.
+   *
+   * It used to be two different ladders — this game offered Comfortable, Brisk,
+   * Immediate and Wait at 900ms, 450ms, 0 and manual, while euchre, cribbage and
+   * sheephead offered Instant, Four seconds, Ten seconds and Manual. So the
+   * DEFAULTS differed ninefold between games on the same site, and "brisk" and
+   * "four seconds" were words for the same control that told a player nothing
+   * about each other.
+   *
+   * -1 is not a duration and is never treated as one: it means the game waits
+   * for a button, however long that takes. */
+  var PACE_RUNGS = [0, 900, 2500, 4000];
+  var PACE_NAMES = {
+    '0': 'Immediate', '900': 'Brisk', '2500': 'Comfortable',
+    '4000': 'Relaxed', '-1': 'Wait for me to continue'
+  };
+
+  /* A stored pace from before the ladders were merged, snapped to the nearest
+   * rung. Somebody on the old 450ms brisk gets the new Brisk. Without this their
+   * saved value matches no option, the select falls back to whatever is first in
+   * the list, and their choice is silently replaced by one they never made. */
+  function normalisePace(n) {
+    n = Number(n);
+    if (!isFinite(n)) return DEFAULTS.pace;
+    if (n < 0) return -1;
+    var best = PACE_RUNGS[0];
+    for (var i = 1; i < PACE_RUNGS.length; i++) {
+      /* Ties go to the slower rung: more time is the safer place to be wrong. */
+      if (Math.abs(n - PACE_RUNGS[i]) <= Math.abs(n - best)) best = PACE_RUNGS[i];
+    }
+    return best;
+  }
+
+  /* The rung as it reads in the settings summary, where it sits in a list of
+   * short phrases. "Wait for me to continue pace" is not one of them. */
+  function paceSummary(n) {
+    var w = PACE_NAMES[String(n)];
+    if (!w) return 'Brisk pace';
+    return Number(n) < 0 ? 'Waits for me to continue' : w + ' pace';
+  }
 
   function loadSettings() {
     var stored = {};
@@ -61,8 +109,10 @@
     Object.keys(DEFAULTS).forEach(function (k) {
       settings[k] = stored[k] === undefined ? DEFAULTS[k] : stored[k];
     });
+    settings.pace = normalisePace(settings.pace);
     settingsToForm();
     applySkin();
+    renderSettingsSummary();
   }
 
   function saveSettings() {
@@ -74,28 +124,40 @@
     global.document.body.className = 'skin-' + settings.skin;
   }
 
-  /* The dialog and the start screen hold the same four settings between them,
-   * so both are written from `settings` and both write back to it. Two forms
-   * that disagree about the current pace is worse than one form. */
   function settingsToForm() {
-    if (el['set-pace']) el['set-pace'].value = String(settings.pace);
-    if (el['set-points']) el['set-points'].value = String(settings.points);
-    if (el['set-skin']) el['set-skin'].value = settings.skin;
-    if (el['set-autofocus']) el['set-autofocus'].checked = !!settings.autofocus;
     if (el['opt-pace']) el['opt-pace'].value = String(settings.pace);
     if (el['opt-points']) el['opt-points'].value = String(settings.points);
     if (el['opt-skin']) el['opt-skin'].value = settings.skin;
+    if (el['opt-autofocus']) el['opt-autofocus'].checked = !!settings.autofocus;
   }
 
   function readSettingsDialog() {
-    settings.pace = parseInt(el['set-pace'].value, 10);
-    settings.points = parseInt(el['set-points'].value, 10);
-    settings.skin = el['set-skin'].value;
-    settings.autofocus = !!el['set-autofocus'].checked;
+    if (el['opt-pace']) settings.pace = parseInt(el['opt-pace'].value, 10);
+    if (el['opt-points']) settings.points = parseInt(el['opt-points'].value, 10);
+    if (el['opt-skin']) settings.skin = el['opt-skin'].value;
+    if (el['opt-autofocus']) settings.autofocus = !!el['opt-autofocus'].checked;
     saveSettings();
     settingsToForm();
     applySkin();
+    renderSettingsSummary();
   }
+
+  /* What the start screen says instead of showing every control.
+   *
+   * The same shape as the other four games: a short list of phrases, so
+   * somebody can see what they are about to play without opening anything, and
+   * open the dialog only when one of them is wrong. */
+  function renderSettingsSummary() {
+    var node = el['settings-summary'];
+    if (!node) return;
+    node.textContent = [
+      'Playing to ' + settings.points,
+      paceSummary(settings.pace),
+      settings.skin === 'plain' ? 'Plain cards' : 'Traditional cards',
+      settings.autofocus ? 'Focus moves to my cards on my turn' : 'Focus stays where I put it'
+    ].join('. ') + '.';
+  }
+
   var handFocus = 0;
   var logFocus = 0;         // which log entry holds the tab stop
   var selected = {};        // card id -> true, while choosing a pass
@@ -976,6 +1038,13 @@
 
   var lastFocus = null;
 
+  /* One way in, from both places that offer it: the toolbar during a game and
+   * the setup screen before one. Same dialog, same controls, so there is nothing
+   * to keep in step. */
+  function openSettings() {
+    openDialog(el['settings-dialog']);
+  }
+
   function openDialog(d) {
     if (!d) return;
     lastFocus = global.document.activeElement;
@@ -1145,7 +1214,7 @@
     return {
       numPlayers: G.SEATS,
       names: ['Seat 1', 'Seat 2', 'Seat 3', 'Seat 4'],
-      pointsToWin: parseInt(el['opt-points'].value, 10) || G.TARGET,
+      pointsToWin: settings.points || G.TARGET,
       difficulty: 'hard'
     };
   }
@@ -1292,11 +1361,10 @@
    * server's botDelay, which is what it always meant. */
   function startGame() {
     var name = (el['opt-name'].value || 'MyPlayerName').slice(0, 16);
-    /* The start screen is one of the two places these live; read it back into
-     * `settings` so what was chosen here is what the dialog shows next time. */
-    settings.pace = parseInt(el['opt-pace'].value, 10);
-    settings.points = parseInt(el['opt-points'].value, 10);
-    settings.skin = el['opt-skin'].value;
+    /* The settings are already in `settings`: there is one set of controls now
+     * and every change to them writes through readSettingsDialog. This used to
+     * read a second copy off the start screen, which is what made the two able
+     * to disagree in the first place. */
     saveSettings();
     settingsToForm();
     applySkin();
@@ -1333,7 +1401,7 @@
      'log', 'setup-section', 'game-section', 'setup-form', 'opt-name', 'opt-pace',
      'opt-points', 'opt-skin', 'say-polite', 'say-assertive',
      'seats', 'lobby-section', 'lobby-status', 'lobby-seats',
-     'settings-dialog', 'set-pace', 'set-points', 'set-skin', 'set-autofocus',
+     'settings-dialog', 'opt-autofocus', 'settings-summary', 'setup-settings',
      'export-dialog', 'export-text', 'export-summary',
      'bug-dialog', 'bug-title', 'bug-what', 'bug-include-log', 'bug-preview'].forEach(function (id) {
       el[id] = global.document.getElementById(id);
@@ -1365,16 +1433,18 @@
      * you thought. */
     var bind = function (id, ev, fn) { var n = $(id); if (n) n.addEventListener(ev, fn); };
 
-    bind('tool-settings', 'click', function () { openDialog(el['settings-dialog']); });
+    bind('btn-settings', 'click', openSettings);
+    bind('setup-settings', 'click', openSettings);
     bind('settings-close', 'click', function () { closeDialog(el['settings-dialog']); });
     bind('settings-reset', 'click', function () {
       Object.keys(DEFAULTS).forEach(function (k) { settings[k] = DEFAULTS[k]; });
       saveSettings();
       settingsToForm();
       applySkin();
+      renderSettingsSummary();
       say('Settings reset to their defaults.', { request: true });
     });
-    ['set-pace', 'set-points', 'set-skin', 'set-autofocus'].forEach(function (id) {
+    ['opt-pace', 'opt-points', 'opt-skin', 'opt-autofocus'].forEach(function (id) {
       bind(id, 'change', readSettingsDialog);
     });
 

@@ -190,6 +190,58 @@
 
     <p id="status" class="status"></p>
 
+    <!-- THE REVIEW CONTROLS, AND THEY ARE UP HERE ON PURPOSE.
+         They used to sit below the score table, between the hand and the log. So
+         tabbing from your cards to "what has happened" went through all
+         seventeen of these buttons — nine review keys, Next, and seven under
+         Records and Settings — every time you wanted to check what you had
+         missed. A player asked for the log to be one tab past their hand, which
+         is what it is in hearts and spades, and the only thing standing between
+         them was this block.
+
+         Every one of these is also a keyboard shortcut, and every shortcut is
+         also one of these, so nothing is reachable only one way. Keeping them
+         above the game means nothing sits between the cards and the thing you
+         do with them, in either direction. -->
+    <div class="toolbar">
+      <div class="tool-group" role="group" aria-labelledby="tg-review">
+        <span class="tool-group-name" id="tg-review">Review</span>
+        <button type="button" data-say="hand" aria-keyshortcuts="H">Hand <kbd>H</kbd></button>
+        <button type="button" data-say="trick" aria-keyshortcuts="T">Trick <kbd>T</kbd></button>
+        <button type="button" data-say="last" aria-keyshortcuts="L">Last trick <kbd>L</kbd></button>
+        <button type="button" data-say="score" aria-keyshortcuts="S">Score <kbd>S</kbd></button>
+        <button type="button" data-say="bidding" aria-keyshortcuts="P">Trump and partners <kbd>P</kbd></button>
+        <button type="button" data-say="order" aria-keyshortcuts="O">Play order <kbd>O</kbd></button>
+        <button type="button" data-say="count" aria-keyshortcuts="C">Cards played <kbd>C</kbd></button>
+        <button type="button" data-say="who" aria-keyshortcuts="W">Who is here <kbd>W</kbd></button>
+        <button type="button" data-say="repeat" aria-keyshortcuts="R">Repeat <kbd>R</kbd></button>
+      </div>
+
+      <div class="tool-group" role="group" aria-labelledby="tg-play">
+        <span class="tool-group-name" id="tg-play">Play</span>
+        <!-- N has always worked here. It was never advertised, so nobody was
+             told: no button, no aria-keyshortcuts, nothing for a screen reader
+             to list. A shortcut nobody knows about is a shortcut nobody uses,
+             and it is the same key in every game in this repository. -->
+        <button type="button" id="tool-next" aria-keyshortcuts="N">Next <kbd>N</kbd></button>
+      </div>
+
+      <div class="tool-group" role="group" aria-labelledby="tg-records">
+        <span class="tool-group-name" id="tg-records">Records</span>
+        <button type="button" id="btn-log" aria-keyshortcuts="G">Game log <kbd>G</kbd></button>
+        <button type="button" id="btn-export" aria-keyshortcuts="E">Export log <kbd>E</kbd></button>
+        <button type="button" id="btn-bug" aria-keyshortcuts="B">Report a bug <kbd>B</kbd></button>
+      </div>
+
+      <div class="tool-group" role="group" aria-labelledby="tg-help">
+        <span class="tool-group-name" id="tg-help">Settings and help</span>
+        <button type="button" id="btn-settings">Settings</button>
+        <button type="button" id="btn-rules">How to play</button>
+        <button type="button" id="btn-a11y" aria-keyshortcuts="?">Accessibility hints <kbd>?</kbd></button>
+        <button type="button" id="btn-newgame" class="consequential">New game</button>
+      </div>
+    </div>
+
     <section aria-labelledby="action-h" id="action-section">
       <h3 id="action-h">Your turn</h3>
       <div id="actions" class="actions-area"></div>
@@ -266,52 +318,11 @@
       </div>
     </section>
 
-    <!-- Grouped by what the buttons are for. A dozen identical buttons in one row
-         means reading every label to find the one you want; the group names are
-         announced by a screen reader too, so this helps in both directions. -->
-    <div class="toolbar">
-      <div class="tool-group" role="group" aria-labelledby="tg-review">
-        <span class="tool-group-name" id="tg-review">Review</span>
-        <button type="button" data-say="hand" aria-keyshortcuts="H">Hand <kbd>H</kbd></button>
-        <button type="button" data-say="trick" aria-keyshortcuts="T">Trick <kbd>T</kbd></button>
-        <button type="button" data-say="last" aria-keyshortcuts="L">Last trick <kbd>L</kbd></button>
-        <button type="button" data-say="score" aria-keyshortcuts="S">Score <kbd>S</kbd></button>
-        <button type="button" data-say="bidding" aria-keyshortcuts="P">Trump and partners <kbd>P</kbd></button>
-        <button type="button" data-say="order" aria-keyshortcuts="O">Play order <kbd>O</kbd></button>
-        <button type="button" data-say="count" aria-keyshortcuts="C">Cards played <kbd>C</kbd></button>
-        <button type="button" data-say="who" aria-keyshortcuts="W">Who is here <kbd>W</kbd></button>
-        <button type="button" data-say="repeat" aria-keyshortcuts="R">Repeat <kbd>R</kbd></button>
-      </div>
-
-      <div class="tool-group" role="group" aria-labelledby="tg-play">
-        <span class="tool-group-name" id="tg-play">Play</span>
-        <!-- N has always worked here. It was never advertised, so nobody was
-             told: no button, no aria-keyshortcuts, nothing for a screen reader
-             to list. A shortcut nobody knows about is a shortcut nobody uses,
-             and it is the same key in every game in this repository. -->
-        <button type="button" id="tool-next" aria-keyshortcuts="N">Next <kbd>N</kbd></button>
-      </div>
-
-      <div class="tool-group" role="group" aria-labelledby="tg-records">
-        <span class="tool-group-name" id="tg-records">Records</span>
-        <button type="button" id="btn-log" aria-keyshortcuts="G">Game log <kbd>G</kbd></button>
-        <button type="button" id="btn-export" aria-keyshortcuts="E">Export log <kbd>E</kbd></button>
-        <button type="button" id="btn-bug" aria-keyshortcuts="B">Report a bug <kbd>B</kbd></button>
-      </div>
-
-      <div class="tool-group" role="group" aria-labelledby="tg-help">
-        <span class="tool-group-name" id="tg-help">Settings and help</span>
-        <button type="button" id="btn-settings">Settings</button>
-        <button type="button" id="btn-rules">How to play</button>
-        <button type="button" id="btn-a11y" aria-keyshortcuts="?">Accessibility hints <kbd>?</kbd></button>
-        <button type="button" id="btn-newgame" class="consequential">New game</button>
-      </div>
-    </div>
 
     <section aria-labelledby="log-h">
-      <h3 id="log-h">Game log</h3>
+      <h3 id="log-h">What has happened <kbd aria-hidden="true">G</kbd></h3>
       <p class="hint">Newest entry first. Press <kbd>G</kbd> to jump here, then <kbd>Up</kbd> and <kbd>Down</kbd> to move entry by entry, <kbd>Home</kbd> for the newest and <kbd>End</kbd> for the oldest. This region is never spoken automatically, so you can read back through it at your own pace.</p>
-      <ul id="log" class="log"></ul>
+      <ul id="log" class="log" aria-labelledby="log-h"></ul>
     </section>
   </section>
 </main>
@@ -372,10 +383,11 @@
       <p class="field">
         <label for="opt-pace">How fast the computer players move</label>
         <select id="opt-pace" name="pace">
-          <option value="0">Instant &mdash; a run of plays is announced as one message</option>
-          <option value="4000" selected>Four seconds between plays</option>
-          <option value="10000">Ten seconds between plays</option>
-          <option value="-1">Only when I press Continue</option>
+          <option value="0">Immediate</option>
+          <option value="900">Brisk</option>
+          <option value="2500">Comfortable</option>
+          <option value="4000" selected>Relaxed</option>
+          <option value="-1">Wait for me to continue</option>
         </select>
         <span class="hint">A timed pace is a ceiling, not a wait you are held to: Continue is on
           screen as well, and taking it drops the pending pause.</span>
