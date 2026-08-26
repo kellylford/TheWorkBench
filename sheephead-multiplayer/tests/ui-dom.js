@@ -777,10 +777,14 @@ async function timedPacing() {
   const logLen = () => d.querySelectorAll('#log li').length;
   const headingText = () => d.getElementById('action-h').textContent;
 
-  // The options offered must be exactly the four the settings screen documents.
+  /* The options offered must be exactly the ladder every game on this site now
+   * shares: Immediate, Brisk, Comfortable, Relaxed, and one that waits for a
+   * button. It used to be this game's own four — instant, four seconds, ten
+   * seconds, manual — while hearts and spades offered a different four with a
+   * default nine times faster, so a rung meant nothing across games. */
   const opts = [...d.getElementById('opt-pace').options].map(o => o.value);
-  check(opts.join(',') === '0,4000,10000,-1',
-    'the pace options are no longer instant / 4s / 10s / manual: ' + opts.join(','));
+  check(opts.join(',') === '0,900,2500,4000,-1',
+    'the pace options are not the shared ladder: ' + opts.join(','));
 
   // One log entry per card played, so this counts turns taken exactly. Log
   // length as a whole does not: a completed trick adds entries of its own.

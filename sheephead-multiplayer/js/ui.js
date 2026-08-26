@@ -282,6 +282,10 @@
     Object.keys(DEFAULTS).forEach(function (k) {
       s[k] = stored[k] === undefined ? DEFAULTS[k] : stored[k];
     });
+    /* A pace saved before the ladders were merged will not match any option on
+     * the form, so the select would silently fall back to its first entry and
+     * replace a choice the player did make with one they did not. */
+    s.pace = normalisePace(s.pace);
     applyToForm(s);
     applySkin();
     renderSettingsSummary();
@@ -292,16 +296,67 @@
     renderSettingsSummary();
   }
 
+  /* THE PACE LADDER, and it is the same five rungs in every game on this site.
+   *
+   * It used to be two different ladders. Hearts and spades offered Comfortable,
+   * Brisk, Immediate and Wait — 900ms, 450ms, 0 and manual. The other three
+   * offered Instant, Four seconds, Ten seconds and Manual. So the DEFAULTS
+   * differed ninefold between games on the same site, and "brisk" and "four
+   * seconds" were words for the same control that told a player nothing about
+   * each other.
+   *
+   * Named rather than numbered, because "Relaxed" is a thing a person wants and
+   * "4000" is an implementation detail. The numbers are the same everywhere now,
+   * so a rung means one thing across the whole site.
+   *
+   * -1 is not a duration and is never treated as one: it means the game waits
+   * for a button, however long that takes. */
+  var PACE_RUNGS = [0, 900, 2500, 4000];
   var PACE_NAMES = {
-    '0': 'Instant pace', '4000': 'Four seconds between plays',
-    '10000': 'Ten seconds between plays', '-1': 'Manual pace'
+    '0': 'Immediate', '900': 'Brisk', '2500': 'Comfortable',
+    '4000': 'Relaxed', '-1': 'Wait for me to continue'
   };
 
-  /* How long a pause is, said the way a person would say it. */
-  var PACE_WORDS = { '4000': 'four seconds', '10000': 'ten seconds' };
-  function paceWords() {
-    return PACE_WORDS[String(settings.pace)] || Math.round(settings.pace / 1000) + ' seconds';
+  /* A stored pace from before the ladders were merged, snapped to the nearest
+   * rung. Somebody who had chosen ten seconds gets Relaxed; somebody on the old
+   * 450ms brisk gets the new Brisk. Without this their saved value matches no
+   * option, the select falls back to whatever is first in the list, and their
+   * choice is silently replaced by one they never made. */
+  function normalisePace(n) {
+    n = Number(n);
+    if (!isFinite(n)) return 4000;
+    if (n < 0) return -1;
+    var best = PACE_RUNGS[0];
+    for (var i = 1; i < PACE_RUNGS.length; i++) {
+      /* Ties go to the slower rung: more time is the safer place to be wrong. */
+      if (Math.abs(n - PACE_RUNGS[i]) <= Math.abs(n - best)) best = PACE_RUNGS[i];
+    }
+    return best;
   }
+
+  /* HOW LONG THE WAIT IS, in words, for the sentence that says one is coming:
+   * "The next play comes on its own after four seconds." The rung NAME cannot be
+   * used here — "comes on its own after relaxed" is not a sentence — so the
+   * ladder needs both a name for choosing by and a duration for describing. */
+  var PACE_DELAY = {
+    '900': 'just under a second',
+    '2500': 'two and a half seconds',
+    '4000': 'four seconds'
+  };
+  function paceWords() {
+    return PACE_DELAY[String(settings.pace)] ||
+      (settings.pace >= 1000 ? Math.round(settings.pace / 1000) + ' seconds' : 'a moment');
+  }
+
+  /* The rung as it reads in the settings summary, where it sits in a list of
+   * short phrases. "Wait for me to continue pace" is not one of them. */
+  function paceSummary(n) {
+    var w = PACE_NAMES[String(n)];
+    if (!w) return 'Brisk pace';
+    return Number(n) < 0 ? 'Waits for me to continue' : w + ' pace';
+  }
+
+  /* How long a pause is, said the way a person would say it. */
 
   function renderSettingsSummary() {
     if (!el['settings-summary']) return;
@@ -309,7 +364,7 @@
     var bits = [
       f.allPass === 'leaster' ? 'Leaster when all pass' : 'Redeal when all pass',
       f.difficulty + ' opponents',
-      PACE_NAMES[String(f.pace)] || 'Instant pace',
+      paceSummary(f.pace),
       f.skin === 'plain' ? 'Plain cards' : 'Traditional cards',
       f.layout === 'two' ? 'Two column desktop' : 'One column'
     ];

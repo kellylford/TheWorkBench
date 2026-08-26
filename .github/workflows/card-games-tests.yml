@@ -66,6 +66,25 @@ jobs:
       - name: Engine contract
         run: node shared/tests/engine-contract.js
 
+      # Do the games agree with EACH OTHER? Every other audit asks whether one
+      # game is right; each of them passed while the set of them drifted apart,
+      # and it was a player moving between games who noticed. Needs a browser,
+      # because the thing it measures last — how far the log is from the hand —
+      # depends on what is focusable in between and cannot be read off the
+      # markup.
+      - name: The games have the same shape
+        run: |
+          set -euo pipefail
+          npm install --no-save puppeteer
+          node shared/tests/browser/shape.js 2>&1 | tee /tmp/shape.txt
+          # A skip here would exit 0 and read as a pass. This audit is the only
+          # thing checking the games against each other, so it silently not
+          # running is exactly the failure it exists to prevent.
+          if grep -q "^SKIP" /tmp/shape.txt; then
+            echo "::error::The cross-game shape audit skipped instead of running."
+            exit 1
+          fi
+
       # The Workers import shared/js/room.js from outside their own directory.
       # Nothing else here would notice a broken import: the game suites do not
       # bundle, and the deploy that would fail only runs after the merge — on

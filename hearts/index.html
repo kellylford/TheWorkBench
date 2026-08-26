@@ -126,39 +126,34 @@
       <!-- Shown only when somebody has arrived on an invite link. -->
       <p id="invite-note" class="invite-note" hidden></p>
 
-      <p class="field">
-        <label for="opt-name">Your name</label>
-        <span id="opt-name-hint" class="hint">This is what everybody else at the table sees, so it
-          is worth changing.</span>
-        <input type="text" id="opt-name" name="name" value="MyPlayerName"
-               aria-describedby="opt-name-hint" autocomplete="off" maxlength="16">
-      </p>
+      <fieldset>
+        <legend>You</legend>
+        <p class="field">
+          <label for="opt-name">Your name</label>
+          <span id="opt-name-hint" class="hint">This is what everybody else at the table sees, so it
+            is worth changing.</span>
+          <input type="text" id="opt-name" name="name" value="MyPlayerName"
+                 aria-describedby="opt-name-hint" autocomplete="off" maxlength="16">
+        </p>
+      </fieldset>
 
-      <p class="field">
-        <label for="opt-pace">How fast the computer players move</label>
-        <select id="opt-pace" name="pace">
-          <option value="900">Comfortable</option>
-          <option value="450" selected>Brisk</option>
-          <option value="0">Immediate</option>
-          <option value="-1">Wait for me to continue</option>
-        </select>
-      </p>
+      <!-- THE SETTINGS ARE BEHIND A BUTTON, and they are the SAME controls the
+           toolbar opens once a game is under way — one dialog, one set of
+           fields, one place they can disagree with each other, which is none.
 
-      <p class="field">
-        <label for="opt-points">Game ends when somebody reaches</label>
-        <select id="opt-points" name="points">
-          <option value="50">50 points (short)</option>
-          <option value="100" selected>100 points (standard)</option>
-        </select>
-      </p>
-
-      <p class="field">
-        <label for="opt-skin">Card style</label>
-        <select id="opt-skin" name="skin">
-          <option value="traditional" selected>Traditional faces</option>
-          <option value="plain">Plain text</option>
-        </select>
-      </p>
+           This screen used to carry its own copies of the pace, the target and
+           the card style, with the dialog holding a second set that had to be
+           kept in step by hand. Every other game on this site shows a summary
+           and a way in; these two were the odd ones out. -->
+      <fieldset>
+        <legend>Game settings</legend>
+        <p class="hint">These are remembered, so a new game uses them again unless you change
+          them.</p>
+        <p id="settings-summary" class="settings-summary"></p>
+        <p class="actions">
+          <button type="button" id="setup-settings">Change game settings</button>
+        </p>
+      </fieldset>
 
       <p class="actions">
         <button type="submit" class="primary">Deal</button>
@@ -221,7 +216,7 @@
 
       <div class="tool-group" role="group" aria-labelledby="tg-help">
         <span class="tool-group-name" id="tg-help">Settings and help</span>
-        <button type="button" id="tool-settings">Settings</button>
+        <button type="button" id="btn-settings">Settings</button>
         <!-- How to play and the keyboard hints move focus to the sections that
              are already written into this page, rather than opening a dialog
              holding a second copy of the same words. Two copies of the rules is
@@ -375,8 +370,8 @@
     <fieldset>
       <legend>Rules</legend>
       <p class="field">
-        <label for="set-points">Game ends when somebody reaches</label>
-        <select id="set-points" name="points">
+        <label for="opt-points">Game ends when somebody reaches</label>
+        <select id="opt-points" name="points">
           <option value="50">50 points &mdash; a short game</option>
           <option value="100" selected>100 points &mdash; the standard game</option>
         </select>
@@ -386,11 +381,12 @@
     <fieldset>
       <legend>Pace</legend>
       <p class="field">
-        <label for="set-pace">How fast the computer players move</label>
-        <select id="set-pace" name="pace">
-          <option value="900">Comfortable</option>
-          <option value="450" selected>Brisk</option>
+        <label for="opt-pace">How fast the computer players move</label>
+        <select id="opt-pace" name="pace">
           <option value="0">Immediate</option>
+          <option value="900" selected>Brisk</option>
+          <option value="2500">Comfortable</option>
+          <option value="4000">Relaxed</option>
           <option value="-1">Wait for me to continue</option>
         </select>
       </p>
@@ -399,15 +395,15 @@
     <fieldset>
       <legend>Appearance and focus</legend>
       <p class="field">
-        <label for="set-skin">Card style</label>
-        <select id="set-skin" name="skin">
+        <label for="opt-skin">Card style</label>
+        <select id="opt-skin" name="skin">
           <option value="traditional" selected>Traditional &mdash; printed card faces on a green table</option>
           <option value="plain">Plain &mdash; large rank and suit on flat panels</option>
         </select>
       </p>
       <p class="field checkbox">
-        <input type="checkbox" id="set-autofocus" name="autofocus" checked>
-        <label for="set-autofocus">Move focus to my cards when it becomes my turn</label>
+        <input type="checkbox" id="opt-autofocus" name="autofocus" checked>
+        <label for="opt-autofocus">Move focus to my cards when it becomes my turn</label>
       </p>
     </fieldset>
 

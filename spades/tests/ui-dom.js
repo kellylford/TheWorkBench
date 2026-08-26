@@ -112,7 +112,15 @@ async function until(page, fn, what, seconds) {
   /* ---- 2. the bidding: ONE tab stop to choose, one button to commit ---- */
   {
     await page.evaluate(() => {
-      document.getElementById('opt-pace').value = '0';
+      /* Dispatch change, not just set .value. The pace lives in the settings
+       * dialog now, with one set of controls for the whole game, and the value
+       * reaches `settings` through the change handler. Setting the field
+       * silently leaves the game on its stored pace, and a suite that then waits
+       * for a hand to finish times out for reasons that have nothing to do with
+       * what it is testing. */
+      var p = document.getElementById('opt-pace');
+      p.value = '0';
+      p.dispatchEvent(new Event('change', { bubbles: true }));
       document.getElementById('setup-form')
         .dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
     });

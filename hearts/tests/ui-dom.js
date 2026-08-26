@@ -93,7 +93,15 @@ async function until(page, fn, what, seconds) {
   /* ---- 2. every shortcut is also a button ---- */
   {
     await page.evaluate(() => {
-      document.getElementById('opt-pace').value = '0';
+      /* Dispatch change, not just set .value. The pace lives in the settings
+       * dialog now, with one set of controls for the whole game, and the value
+       * reaches `settings` through the change handler. Setting the field
+       * silently leaves the game on its stored pace, and a suite that then waits
+       * for a hand to finish times out for reasons that have nothing to do with
+       * what it is testing. */
+      var p = document.getElementById('opt-pace');
+      p.value = '0';
+      p.dispatchEvent(new Event('change', { bubbles: true }));
       document.getElementById('setup-form')
         .dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
     });
@@ -294,7 +302,15 @@ async function until(page, fn, what, seconds) {
     });
     await page2.goto(pathToFileURL(path.join(root, 'index.html')).href, { waitUntil: 'load' });
     await page2.evaluate(() => {
-      document.getElementById('opt-pace').value = '0';
+      /* Dispatch change, not just set .value. The pace lives in the settings
+       * dialog now, with one set of controls for the whole game, and the value
+       * reaches `settings` through the change handler. Setting the field
+       * silently leaves the game on its stored pace, and a suite that then waits
+       * for a hand to finish times out for reasons that have nothing to do with
+       * what it is testing. */
+      var p = document.getElementById('opt-pace');
+      p.value = '0';
+      p.dispatchEvent(new Event('change', { bubbles: true }));
       document.getElementById('setup-form')
         .dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
     });
@@ -375,7 +391,15 @@ async function until(page, fn, what, seconds) {
     });
     await page3.goto(pathToFileURL(path.join(root, 'index.html')).href, { waitUntil: 'load' });
     await page3.evaluate(() => {
-      document.getElementById('opt-pace').value = '0';
+      /* Dispatch change, not just set .value. The pace lives in the settings
+       * dialog now, with one set of controls for the whole game, and the value
+       * reaches `settings` through the change handler. Setting the field
+       * silently leaves the game on its stored pace, and a suite that then waits
+       * for a hand to finish times out for reasons that have nothing to do with
+       * what it is testing. */
+      var p = document.getElementById('opt-pace');
+      p.value = '0';
+      p.dispatchEvent(new Event('change', { bubbles: true }));
       document.getElementById('setup-form')
         .dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
     });
@@ -446,7 +470,15 @@ async function until(page, fn, what, seconds) {
     await page4.setViewport({ width: 1280, height: 900 });
     await page4.goto(pathToFileURL(path.join(root, 'index.html')).href, { waitUntil: 'load' });
     await page4.evaluate(() => {
-      document.getElementById('opt-pace').value = '0';
+      /* Dispatch change, not just set .value. The pace lives in the settings
+       * dialog now, with one set of controls for the whole game, and the value
+       * reaches `settings` through the change handler. Setting the field
+       * silently leaves the game on its stored pace, and a suite that then waits
+       * for a hand to finish times out for reasons that have nothing to do with
+       * what it is testing. */
+      var p = document.getElementById('opt-pace');
+      p.value = '0';
+      p.dispatchEvent(new Event('change', { bubbles: true }));
       document.getElementById('setup-form')
         .dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
     });
@@ -455,8 +487,14 @@ async function until(page, fn, what, seconds) {
     const start = await page4.evaluate(() => document.body.className);
     check(start === 'skin-traditional', 'the game does not start on the traditional skin');
 
-    const controls = await page4.evaluate(() => ['tool-settings', 'tool-rules',
-      'tool-a11y', 'tool-newgame', 'settings-dialog']
+    /* btn-settings, not tool-settings. The other four games on this site name
+     * this button btn-settings, and hearts and spades were the two that did not
+     * — the same split that had them showing their settings inline on the start
+     * screen while everybody else put them behind a dialog. Both are now the
+     * majority spelling. */
+    const controls = await page4.evaluate(() => ['btn-settings', 'tool-rules',
+      'tool-a11y', 'tool-newgame', 'settings-dialog', 'setup-settings',
+      'settings-summary']
       .filter(i => !document.getElementById(i)));
     check(controls.length === 0,
       'these controls are missing from the page: ' + controls.join(', ') +
@@ -471,7 +509,7 @@ async function until(page, fn, what, seconds) {
     /* Open it the way a player does — focused, then activated — because that is
      * also the only way to find out whether focus comes back afterwards. */
     await page4.evaluate(() => {
-      const b = document.getElementById('tool-settings');
+      const b = document.getElementById('btn-settings');
       b.focus(); b.click();
     });
     await new Promise(r => setTimeout(r, 150));
@@ -487,7 +525,7 @@ async function until(page, fn, what, seconds) {
      * away. Hearts had no way to change the card style once a game had begun —
      * this is the check that the new one does more than look like a control. */
     await page4.evaluate(() => {
-      const sel = document.getElementById('set-skin');
+      const sel = document.getElementById('opt-skin');
       sel.value = 'plain';
       sel.dispatchEvent(new Event('change', { bubbles: true }));
     });
@@ -499,7 +537,7 @@ async function until(page, fn, what, seconds) {
     await new Promise(r => setTimeout(r, 150));
     check(await page4.evaluate(() => !document.getElementById('settings-dialog').open),
       'Done did not close the settings dialog');
-    check(await page4.evaluate(() => document.activeElement.id) === 'tool-settings',
+    check(await page4.evaluate(() => document.activeElement.id) === 'btn-settings',
       'closing the dialog dropped focus rather than returning it to the button ' +
       'that opened it, which leaves a keyboard player at the top of the document');
 
