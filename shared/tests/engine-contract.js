@@ -149,6 +149,40 @@ for (const g of GAMES) {
   check(seats.some(s => s === -1),
     g.dir + ': seatToAct never returned -1, so the between-hands case was never reached');
 
+  /* ---- the opening hand is drawn, not assigned --------------------------
+   *
+   * A person playing alone is put in one seat and left there, so any seat the
+   * engine favours at the start of a game is a bias that same person carries
+   * into every game they ever play. In spades that was seat 0: the first dealer
+   * was hard-coded to it, the dealer bids last, and the lone player therefore
+   * had the last word on the opening contract of every single game.
+   *
+   * Each game randomises this somewhere different — spades and euchre and
+   * sheephead draw the first dealer, cribbage cuts for it, hearts has no dealer
+   * at all and lets the two of clubs decide — so the contract cannot name a
+   * mechanism. It names the OUTCOME the mechanisms exist to produce: who plays
+   * the first card of a fresh game must not be the same seat every time.
+   *
+   * Stops at the first pair of different answers, so a healthy game costs two
+   * walks rather than forty. Forty is the ceiling before it is called fixed;
+   * with four seats a fair draw survives that by a margin of about 10^-23. */
+  const openers = new Set();
+  for (let t = 0; t < 40 && openers.size < 2; t++) {
+    const fresh = G.createGame(seatOptions(g.dir));
+    let steps = 0;
+    while (steps++ < 400) {
+      if (fresh.phase === 'play') { openers.add(G.seatToAct(fresh)); break; }
+      if (!advance(SH, G, fresh)) break;
+    }
+  }
+  check(openers.size > 0 && !openers.has(-1),
+    g.dir + ': no fresh game reached its first trick, so who opens it was never ' +
+    'really tested');
+  check(openers.size >= 2,
+    g.dir + ': seat ' + [...openers][0] + ' played the first card of all 40 fresh ' +
+    'games. Nothing at this table draws for the start, so the seat a lone player ' +
+    'sits in is privileged — or penalised — in every game they play.');
+
   table.push('  ' + g.dir.padEnd(24) + [...phases].sort().join(' '));
 }
 

@@ -220,7 +220,28 @@
     });
 
     state.dealNumber++;
-    state.dealer = state.dealer < 0 ? 0 : (state.dealer + 1) % SEATS;
+    /* The very first dealer is drawn at random, then the deal rotates.
+     *
+     * Nothing at a spades table decides who starts — there is no cut, no upcard,
+     * no two of clubs. So whatever this line says IS the draw, and saying zero
+     * meant the seat a lone player is put in dealt the opening hand of every
+     * game they ever played. The dealer bids last, which is the only positional
+     * advantage in the game, so that is not a cosmetic bias.
+     *
+     * Drawn from the SAME rng the shuffle above used, not from Math.random: a
+     * seeded run has to stay reproducible, and a second, unseeded source of
+     * randomness inside a deal is exactly what makes a soak failure impossible
+     * to replay. Drawn AFTER the shuffle so the hands a given seed produces do
+     * not move.
+     *
+     * The `% SEATS` is not belt and braces. Math.random is specified to stay
+     * below one, but an injected rng is not: the seeded one in tests/balance.js
+     * is `seed / 0x7fffffff`, whose top value is exactly 1, and one draw in two
+     * billion would otherwise seat the dealer at index 4 of a four-seat table —
+     * a dealer nobody is, on a hand nobody can bid. */
+    state.dealer = state.dealer < 0
+      ? Math.floor((rng || Math.random)() * SEATS) % SEATS
+      : (state.dealer + 1) % SEATS;
     state.trick = [];
     state.tricksPlayed = 0;
     state.spadesBroken = false;

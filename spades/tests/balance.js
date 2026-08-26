@@ -57,12 +57,16 @@ function run(seedStart, games) {
   const s = {
     games: 0, hands: 0, tableBid: 0, set: 0, made: 0, bagPens: 0,
     nils: 0, nilsMade: 0, wins: [0, 0], maxBid: 0, minBid: 99,
-    bidCounts: {}, blowouts: 0, longest: 0
+    bidCounts: {}, blowouts: 0, longest: 0,
+    /* Who dealt the FIRST hand of each game, which is the only deal nothing
+     * else determines. Every later one is the previous dealer plus one. */
+    openers: [0, 0, 0, 0]
   };
 
   for (let g = 0; g < games; g++) {
     const st = G.createGame({ names: ['N', 'E', 'S', 'W'] });
     G.applyAction(st, 0, { type: 'start' }, rng);
+    s.openers[st.dealer]++;
     let guard = 0;
     while (st.phase !== 'gameOver' && guard++ < 40000) {
       if (st.phase === 'handOver') { G.applyAction(st, 0, { type: 'nextHand' }, rng); continue; }
@@ -161,6 +165,21 @@ SEEDS.forEach(seedStart => {
   band('seats 1+3 win rate (%)', 100 * s.wins[1] / s.games, 33, 67,
     'The two sides run identical code. A lean means something depends on seat ' +
     'order that should not — check that the deal rotates.');
+
+  /* THE OPENING DEAL IS DRAWN, NOT ASSIGNED.
+   *
+   * Every deal after the first is the one before it plus one, so this is the
+   * only draw in the game, and it decides where a lone player sits relative to
+   * the deal for that whole game. It was seat 0 flat: the human seat dealt the
+   * opening hand of every game, and the dealer bids last.
+   *
+   * Reported as the LEAST-used opening seat, because that is the number a fixed
+   * dealer drives to zero. Even is 25; the band's low end is the room 120 draws
+   * of a fair four-way choice genuinely need. */
+  band('rarest opening dealer (%)', 100 * Math.min.apply(null, s.openers) / s.games, 10, 25,
+    'Seats ' + s.openers.join('/') + ' dealt the opening hand. A seat that never ' +
+    'does means the first dealer is fixed rather than drawn, which hands whoever ' +
+    'sits there the last bid of every opening contract.');
 
   /* THE BIDS ARE NOT ALL THE SAME NUMBER. A bot that bids three every hand
    * would satisfy the table-bid band above and be no fun at all. */
