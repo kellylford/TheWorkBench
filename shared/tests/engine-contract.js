@@ -163,25 +163,53 @@ for (const g of GAMES) {
    * mechanism. It names the OUTCOME the mechanisms exist to produce: who plays
    * the first card of a fresh game must not be the same seat every time.
    *
+   * ONLY THE FIRST HAND COUNTS, and that is the whole subtlety here.
+   *
+   * A hand can be abandoned before a card is played — euchre throws one in when
+   * all four pass twice, sheephead redeals when everybody passes — and both of
+   * those advance the dealer on the way out. A walk that simply ran to the first
+   * `play` it saw would happily record the opener of hand two, which rotates by
+   * construction. That is a check that goes green on a first dealer nailed to
+   * seat 0 as soon as misdeals are common enough, which is to say a check that
+   * quietly stops testing the thing it was written for.
+   *
+   * So a walk that misdeals is discarded rather than counted. handsDealt below
+   * is read off each engine rather than assumed, because the two names for it in
+   * this repository are dealNumber and handNumber.
+   *
    * Stops at the first pair of different answers, so a healthy game costs two
    * walks rather than forty. Forty is the ceiling before it is called fixed;
    * with four seats a fair draw survives that by a margin of about 10^-23. */
+  const handsDealt = st => (st.dealNumber === undefined ? st.handNumber : st.dealNumber);
   const openers = new Set();
+  let firstHands = 0;
   for (let t = 0; t < 40 && openers.size < 2; t++) {
     const fresh = G.createGame(seatOptions(g.dir));
     let steps = 0;
     while (steps++ < 400) {
-      if (fresh.phase === 'play') { openers.add(G.seatToAct(fresh)); break; }
+      if (fresh.phase === 'play') {
+        /* Still on the opening hand, or this walk tells us nothing. */
+        if (handsDealt(fresh) === 1) { firstHands++; openers.add(G.seatToAct(fresh)); }
+        break;
+      }
       if (!advance(SH, G, fresh)) break;
     }
   }
-  check(openers.size > 0 && !openers.has(-1),
-    g.dir + ': no fresh game reached its first trick, so who opens it was never ' +
-    'really tested');
+  check(firstHands > 0,
+    g.dir + ': no fresh game reached the first card of its FIRST hand, so who ' +
+    'opens it was never really tested. ' +
+    (handsDealt(state) === undefined
+      ? 'This engine counts its hands under neither dealNumber nor handNumber, so ' +
+        'the check cannot tell hand one from hand two and discarded every walk.'
+      : 'Either the walks stalled before the first trick, or every one of them misdealt.'));
+  check(!openers.has(-1),
+    g.dir + ': seatToAct said nobody may act on the first card of a hand. A game ' +
+    'in phase play with no seat on move is a table that will sit there for ever.');
   check(openers.size >= 2,
-    g.dir + ': seat ' + [...openers][0] + ' played the first card of all 40 fresh ' +
-    'games. Nothing at this table draws for the start, so the seat a lone player ' +
-    'sits in is privileged — or penalised — in every game they play.');
+    g.dir + ': seat ' + [...openers][0] + ' played the first card of all ' +
+    firstHands + ' fresh games. Nothing at this table draws for the start, so the ' +
+    'seat a lone player sits in is privileged — or penalised — in every game they ' +
+    'play.');
 
   table.push('  ' + g.dir.padEnd(24) + [...phases].sort().join(' '));
 }
