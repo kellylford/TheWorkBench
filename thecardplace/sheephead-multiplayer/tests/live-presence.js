@@ -12,13 +12,16 @@
  * tests/room.js has to fake, and faking them is how the seat-attachment bug
  * shipped. So this sits at a real table, over a real socket, and waits.
  *
- * It is slow on purpose — the grace period is ninety seconds and cannot be
- * hurried from out here.
+ * It is slow on purpose — the wait is the Worker's own presence window plus its
+ * turn grace, and cannot be hurried from out here.
  *
  *   node tests/live-presence.js --base http://127.0.0.1:8787
  *   node tests/live-presence.js                       # the deployed Worker
  *   node tests/live-presence.js --skip-silent         # only the fast half
  */
+
+const fs = require('fs');
+const path = require('path');
 
 const args = process.argv.slice(2);
 const arg = (n, d) => {
@@ -31,9 +34,37 @@ const BASE = arg('base', 'https://sheephead-room.quickmail.workers.dev');
 const ORIGIN = arg('origin', 'https://kellylford.github.io');
 const wsBase = BASE.replace(/^http/, 'ws');
 
-/* Longer than the deployed grace period, with room to spare. If the Worker is
- * configured with a different one, say so here rather than guessing. */
-const GRACE_MS = Number(arg('grace', 90000));
+/* HOW LONG A TAKEOVER MAY HONESTLY TAKE, DERIVED RATHER THAN WRITTEN DOWN.
+ *
+ * This said ninety seconds, which is turnGrace and is not the answer. Presence
+ * is POLLED, once per grace period, so a check landing just inside the presence
+ * window re-arms for another whole one — the real worst case is
+ * `presenceWindow + turnGrace`, which is 270 seconds with the shipped numbers
+ * and not 90. The Worker's own comment says exactly this, a few lines above the
+ * constants; the test was written from the wrong one of the two.
+ *
+ * So it went red against a Worker that was behaving correctly, which is the
+ * worst way for a test to fail: the thing under test was fine, the deadline was
+ * wrong, and the only way to find that out was to read the server.
+ *
+ * Read out of the Worker rather than copied, so it moves when the numbers move.
+ * Refuses to guess if it cannot find them — a default here is how the ninety
+ * got in. */
+function workerMs(name) {
+  const src = fs.readFileSync(
+    path.join(__dirname, '..', 'worker', 'src', 'index.js'), 'utf8');
+  const m = new RegExp(name + String.raw`:\s*(\d+)`).exec(src);
+  if (!m) {
+    console.error('Could not read ' + name + ' out of worker/src/index.js. ' +
+      'It has been renamed or is no longer a plain number, and this test cannot ' +
+      'work out how long a takeover may take. Fix it here rather than passing ' +
+      '--grace, which is how a wrong deadline got in last time.');
+    process.exit(1);
+  }
+  return Number(m[1]);
+}
+
+const GRACE_MS = Number(arg('grace', workerMs('turnGrace') + workerMs('presenceWindow')));
 const WATCH_MS = GRACE_MS + 45000;
 const PING_EVERY = 20000;      // the browser uses 25s; under the 60s window
 

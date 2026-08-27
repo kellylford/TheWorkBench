@@ -505,7 +505,25 @@
         G.note(state, state.players[seat].name + ' is back.');
       }
       if (name) state.players[seat].name = String(name).slice(0, 16);
-      if (room.cursors[seat] === undefined) room.cursors[seat] = -1;
+
+      /* A CONNECTION THAT HAS JUST OPENED HAS NOTHING, so send it everything.
+       *
+       * The cursor is how much this SEAT has been told, and it survives the
+       * connection that was told it. That is exactly right while a client is
+       * still holding what it heard, and exactly wrong the moment one is not:
+       * reload the page and the board came back readable while the record of how
+       * it got that way came back empty. For a player reading the game by ear
+       * that log is the whole account of the hand — the cards are gone from the
+       * table, and the only thing that says what was played is this.
+       *
+       * join() is only ever reached by a socket that has just opened, so
+       * resetting here cannot tell a live client anything twice. The seat's
+       * cursor is re-established from the same events on the way out.
+       *
+       * `eventsFor` filters by audience, so this hands back only what this seat
+       * was ever entitled to hear. Restoring a log must not restore somebody
+       * else's cards with it. */
+      room.cursors[seat] = -1;
 
       var fresh = G.eventsFor(state, seat, room.cursors[seat]);
       room.cursors[seat] = highestEventIdFor(seat);

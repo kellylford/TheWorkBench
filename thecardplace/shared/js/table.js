@@ -237,7 +237,34 @@
        * sitting, without a later frame being able to move it. */
       if (msg.type === 'welcome' && typeof msg.seat === 'number') seat = msg.seat;
       else if (seat === null && msg.view && typeof msg.view.seat === 'number') seat = msg.view.seat;
-      if (msg.events && msg.events.length) pendingEvents = pendingEvents.concat(msg.events);
+      /* Events arriving on a WELCOME are a backlog, and are marked as one.
+       *
+       * A welcome is the first frame of a connection that has just opened, so
+       * whatever it carries is the history of a table this client has not been
+       * watching — either because it has only just arrived, or because it was
+       * this browser and it reloaded and lost everything.
+       *
+       * The distinction has to reach the interface, because the obvious thing to
+       * do with a recovered log is speak it, and that is minutes of recitation
+       * before the player can find out whose turn it is, with no way to skip. So
+       * the flag says how these arrived and the interface decides: they go in
+       * the log, and what gets SAID is that they are there.
+       *
+       * A copy rather than a flag written onto the server's object, because
+       * these are handed to the interface and an engine event is not the place
+       * to keep a fact about the wire. */
+      if (msg.events && msg.events.length) {
+        var arriving = msg.events;
+        if (msg.type === 'welcome') {
+          arriving = msg.events.map(function (e) {
+            var copy = {};
+            for (var k in e) copy[k] = e[k];
+            copy.replay = true;
+            return copy;
+          });
+        }
+        pendingEvents = pendingEvents.concat(arriving);
+      }
 
       /* A view answers the move it actually INCLUDES, and says so by echoing the
        * sequence number.
@@ -276,12 +303,22 @@
       var answersPending = pendingAction && pendingAction.seq === msg.seq;
       if (!answersPending) return;
 
+      /* Read the action off the pending move BEFORE clearing it.
+       *
+       * The other two ways a move can fail — the answer timing out, the socket
+       * going — both hand the action back, and this one did not. So the
+       * interface knew a card had been refused and had no idea WHICH, which is
+       * why the refusal could only ever be spoken: there was nothing to point
+       * at. A player who cannot see the board hears "you must follow suit" and a
+       * player who can gets no mark on the card they just tried. */
+      var refused = pendingAction.action;
+
       clearPending(msg.seq);
       if (msg.view && typeof msg.version === 'number' && msg.version > latestVersion) {
         latestView = msg.view;
         latestVersion = msg.version;
       }
-      notifyRejected({ seq: msg.seq, reason: msg.reason, fatal: !!msg.fatal });
+      notifyRejected({ seq: msg.seq, action: refused, reason: msg.reason, fatal: !!msg.fatal });
       notify();
       return;
     }

@@ -913,3 +913,36 @@ dialog::backdrop { background: rgba(0,0,0,.65); }
 .table-link { margin: .3rem 0 .8rem; overflow-wrap: anywhere; }
 
 .table-link a { color: var(--accent); }
+
+/* The card the table just refused.
+ *
+ * The refusal was spoken and nothing else. Right for a player reading by ear,
+ * nothing at all for a player watching: they press a card, it does not move,
+ * and no mark anywhere says which one the table objected to.
+ *
+ * DASHED, and that is the part that carries the meaning. Every hue on a card is
+ * already taken and already means something else — red is a red suit, gold is
+ * trump or the focus ring, green is a bower — so a refused card marked by
+ * colour alone is a refused card that reads as a trump to somebody who has seen
+ * one and as nothing at all to somebody who cannot separate the two. The stroke
+ * pattern is unused, unambiguous and survives every skin.
+ *
+ * `outline` and not `border`: an outline is drawn outside the box and does not
+ * take part in layout, so a refused card is exactly the size it was. A border
+ * here would move every card beside it, which the card-overlap audit would
+ * rightly fail, and which would look like the game had twitched.
+ *
+ * It is cleared by the next render, which is to say by the next thing that
+ * happens at the table. See markRefused in each game's js/ui.js. */
+.card.refused {
+  outline: 3px dashed var(--bad);
+  outline-offset: 2px;
+}
+
+/* The offer to go back to the table this tab was at before it reloaded. It sits
+ * inside the invite note, so it inherits that block's framing and only needs to
+ * stop looking like body text. */
+.resume-table {
+  margin-top: .5rem;
+  display: inline-block;
+}

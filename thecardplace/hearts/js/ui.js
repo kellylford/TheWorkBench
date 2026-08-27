@@ -470,7 +470,8 @@
     hand.forEach(function (c, i) {
       var b = global.document.createElement('button');
       b.type = 'button';
-      b.className = 'card' + (C.isRed(c) ? ' red' : '');
+      b.className = 'card' + (C.isRed(c) ? ' red' : '') +
+        (c.id === refusedCard ? ' refused' : '');
       b.dataset.id = c.id;
       b.setAttribute('tabindex', i === handFocus ? '0' : '-1');
 
@@ -836,12 +837,55 @@
   /* Everything the table has said since we last looked. Table.drainEvents keeps
    * the cursor, which matters more online than off: a reconnecting client must
    * not be read the whole hand again from the beginning. */
+  /* A recovered backlog goes in the LOG and not through the speech queue.
+   *
+   * The room hands a connection that has just opened everything that seat may
+   * hear, which after a reload is the whole hand. Speaking it is the obvious
+   * thing and the wrong one: minutes of recitation before the player can find
+   * out whose turn it is, with no way to skip. So the entries are written where
+   * they can be read at whatever pace suits, and what is SAID is that they are
+   * there and which key opens them. */
+  /* Which card the table refused, if any, and it is remembered rather than
+   * painted straight on.
+   *
+   * The first version added the class to the node after re-rendering, which
+   * looked right and lasted about a millisecond: table.js announces a refusal
+   * and then notifies its listeners, so the interface re-renders a second time
+   * immediately afterwards and rebuilds the hand from scratch. The mark was
+   * gone before anybody could see it, and the only thing that showed it had
+   * ever been there was that the refusal was still spoken.
+   *
+   * So the card is remembered and the render applies it. That also gets the
+   * lifetime right: it lasts until the player tries again, which is the moment
+   * it would start being a lie. */
+  var refusedCard = null;
+
+  function markRefused(info) {
+    refusedCard = (info && info.action && info.action.card) || null;
+    render();
+  }
+
+  function sayRecovered(n) {
+    if (!n) return;
+    say(n + (n === 1 ? ' earlier entry is' : ' earlier entries are') +
+      ' in the game log. Press G to read it.', { request: true });
+  }
+
   function drain() {
     var events = SH.Table.drainEvents();
+    var recovered = 0;
     events.forEach(function (e) {
       pushLog(e.kind, e.text);
+      if (e.replay) { recovered++; return; }
+      /* Something happened at the table, so a mark saying "this card was
+       * refused" has stopped being about the position in front of the player.
+       * The refusal itself produces no event, which is what lets the mark
+       * survive long enough to be seen. */
+      refusedCard = null;
+
       say(e.text, { assertive: e.kind === 'moon' || e.kind === 'game' });
     });
+    sayRecovered(recovered);
   }
 
   /* Where the view came from, and what to do about it.
@@ -1255,6 +1299,9 @@
     }
 
     lobby.code = clean;
+    /* Written down where a reload can find it. See shared/js/net.js for why
+     * this is sessionStorage and not localStorage. */
+    SH.Net.rememberTable(clean);
     lobby.seat = seat;
     lobbyStatus('Joining table ' + spellCode(clean) + '…');
 
@@ -1297,6 +1344,43 @@
   /* Somebody followed an invite link. They land on the START screen rather than
    * straight in the game, deliberately: the one thing a link cannot carry is who
    * they are, and an unnamed player at a table is worse than a slow one. */
+  /* The table this tab was at before it reloaded, offered rather than rejoined.
+   *
+   * Sitting back down is a decision. The computer may have been playing your
+   * seat while you were gone, the hand may have moved on without you, and it may
+   * not be a seat you want any more — so this says where you were and waits.
+   * Declining is the rest of this screen: fill the form in and start a new game,
+   * exactly as if the offer were not there.
+   *
+   * The code is spelled out as well as printed, because somebody who has just
+   * lost the page is the person most likely to want to write it down, and five
+   * characters read as a word are five characters misheard.
+   *
+   * The button takes focus. Somebody who has just reloaded mid-game is here to
+   * get back to their table, not to tab past an offer to reach it. type=button
+   * because this lives inside the setup form, and a bare button in a form
+   * submits it. */
+  function offerReturn(code) {
+    var note = $('invite-note');
+    if (!note) return;
+    note.hidden = false;
+    note.textContent = 'You were at table ' + spellCode(code) +
+      '. You can go back to it, or start a new game below. ';
+
+    var back = global.document.createElement('button');
+    back.type = 'button';
+    back.id = 'resume-table';
+    back.className = 'resume-table';
+    back.textContent = 'Back to table ' + code;
+    back.addEventListener('click', function () {
+      note.hidden = true;
+      showLobby();
+      joinTable(code, null);
+    });
+    note.appendChild(back);
+    back.focus();
+  }
+
   var pendingInvite = '';
 
   function offerInvite(code) {
@@ -1340,6 +1424,10 @@
 
   function leaveTable() {
     SH.Table.close();
+    /* Leaving on purpose is the one thing that must clear this. Without it,
+     * going back to the menu and reloading offers to rejoin the table you just
+     * walked away from. */
+    SH.Net.forgetTable();
     lobby.code = null;
     lobby.seat = null;
     showLobby();
@@ -1460,7 +1548,16 @@
 
     /* Last, so everything it may touch already exists. */
     var invited = codeFromUrl();
-    if (invited) offerInvite(invited);
+    if (invited) {
+      offerInvite(invited);
+    } else {
+      /* No invite in the address bar, so this is either a first visit or a
+       * reload. Only the second of those has a table to go back to. An invite
+       * wins when both are true: it is the more recent intention, and it is the
+       * one somebody just clicked. */
+      var wasAt = SH.Net.rememberedTable();
+      if (wasAt) offerReturn(wasAt);
+    }
 
     bind('lobby-create', 'click', createTable);
     bind('lobby-join-form', 'submit', function (e) { e.preventDefault(); joinTable($('lobby-code').value, null); });
@@ -1544,7 +1641,7 @@
        * indistinguishable from the game having frozen. */
       say(info && info.reason ? info.reason : 'That move was not accepted.',
         { assertive: true, request: true });
-      render();
+      markRefused(info);
     });
   }
 
