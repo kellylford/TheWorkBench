@@ -24,6 +24,26 @@
 # play in one of them, and nobody wants to find out that a guard was fixed in two
 # places out of three.
 #
+# ---- the one way past this, and why it exists ----
+#
+# A commit whose message carries the trailer
+#
+#     Fork-guard: both
+#
+# is allowed through. That is not a hole being left open; it is the one case the
+# rule as written cannot express. Moving every game into thecardplace/ changes a
+# stable game and its fork in the same breath and CANNOT be split, because a
+# half-moved tree has the shared transport in one place and a game pointing at
+# the other — main would be broken between the two pull requests, which is worse
+# than what this guard protects against.
+#
+# The trailer is deliberate in the only way that matters here: somebody has to
+# type it, it is in the history for ever, and the run says loudly that it was
+# used and prints both diffstats anyway. It is not a rubber stamp for "these two
+# changes felt related". The question to ask before typing it is whether the two
+# halves are genuinely one change that a broken main sits between; if splitting
+# them merely means two pull requests and some patience, split them.
+#
 #   bash .github/scripts/fork-guard.sh <stable-dir> <fork-dir> [base-branch]
 #
 set -euo pipefail
@@ -36,8 +56,27 @@ git fetch --quiet origin "$base"
 
 changed() { ! git diff --quiet FETCH_HEAD -- "$1"; }
 
+# Every commit this branch adds on top of the base, not just the tip: a squash
+# lands one message, but the branch under review may have many, and the person
+# who wrote the trailer should not have to guess which one is read.
+overridden() {
+  git log --format='%B' FETCH_HEAD..HEAD 2>/dev/null |
+    grep -qiE '^Fork-guard:[[:space:]]*both[[:space:]]*$'
+}
+
+if changed "$stable" && changed "$fork" && overridden; then
+  echo "::notice::This branch changes both ${stable} and ${fork}, and carries the 'Fork-guard: both' trailer, so it is allowed through. Both diffstats are below — read them."
+  echo ""
+  echo "Changed in ${stable}:"
+  git diff --stat FETCH_HEAD -- "$stable"
+  echo ""
+  echo "Changed in ${fork}:"
+  git diff --stat FETCH_HEAD -- "$fork"
+  exit 0
+fi
+
 if changed "$stable" && changed "$fork"; then
-  echo "::error::This branch changes both ${stable} and ${fork}. The fork exists so the stable game cannot regress while multiplayer is built — split this into two pull requests: one for ${fork}, and one deliberate one for ${stable} on its own."
+  echo "::error::This branch changes both ${stable} and ${fork}. The fork exists so the stable game cannot regress while multiplayer is built — split this into two pull requests: one for ${fork}, and one deliberate one for ${stable} on its own. If they genuinely cannot be split because main would be broken in between — a repository-wide move, for instance — add the trailer 'Fork-guard: both' to a commit message on this branch and say in the pull request why."
   echo ""
   echo "Changed in ${stable}:"
   git diff --stat FETCH_HEAD -- "$stable"

@@ -12,25 +12,25 @@ on:
   push:
     branches: [main]
     paths:
-      - 'sheephead/**'
-      - 'sheephead-multiplayer/**'
-      - 'euchre/**'
-      - 'Cribbage/**'
-      - 'cribbage-multiplayer/**'
-      - 'hearts/**'
-      - 'spades/**'
-      - 'shared/**'
+      - 'thecardplace/sheephead/**'
+      - 'thecardplace/sheephead-multiplayer/**'
+      - 'thecardplace/euchre/**'
+      - 'thecardplace/Cribbage/**'
+      - 'thecardplace/cribbage-multiplayer/**'
+      - 'thecardplace/hearts/**'
+      - 'thecardplace/spades/**'
+      - 'thecardplace/shared/**'
       - '.github/workflows/card-games-tests.yml'
   pull_request:
     paths:
-      - 'sheephead/**'
-      - 'sheephead-multiplayer/**'
-      - 'euchre/**'
-      - 'Cribbage/**'
-      - 'cribbage-multiplayer/**'
-      - 'hearts/**'
-      - 'spades/**'
-      - 'shared/**'
+      - 'thecardplace/sheephead/**'
+      - 'thecardplace/sheephead-multiplayer/**'
+      - 'thecardplace/euchre/**'
+      - 'thecardplace/Cribbage/**'
+      - 'thecardplace/cribbage-multiplayer/**'
+      - 'thecardplace/hearts/**'
+      - 'thecardplace/spades/**'
+      - 'thecardplace/shared/**'
       - '.github/workflows/card-games-tests.yml'
   workflow_dispatch:
 
@@ -56,6 +56,15 @@ jobs:
     name: Shared layer
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    # Every path below is relative to the games' own directory rather than the
+    # repository root, exactly as the per-game jobs are. That is what let the
+    # move under thecardplace/ leave the run: lines in this job untouched —
+    # `node shared/tests/wiring.js` still says what it means, and the loop that
+    # bundles the Workers still names them the way a person standing in that
+    # directory would.
+    defaults:
+      run:
+        working-directory: thecardplace
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -105,7 +114,7 @@ jobs:
     timeout-minutes: 15
     defaults:
       run:
-        working-directory: hearts
+        working-directory: thecardplace/hearts
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -170,7 +179,7 @@ jobs:
     timeout-minutes: 15
     defaults:
       run:
-        working-directory: spades
+        working-directory: thecardplace/spades
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -245,7 +254,7 @@ jobs:
     timeout-minutes: 25
     defaults:
       run:
-        working-directory: sheephead
+        working-directory: thecardplace/sheephead
     steps:
       - uses: actions/checkout@v4
 
@@ -321,7 +330,7 @@ jobs:
     timeout-minutes: 25
     defaults:
       run:
-        working-directory: sheephead-multiplayer
+        working-directory: thecardplace/sheephead-multiplayer
     steps:
       - uses: actions/checkout@v4
         with:
@@ -332,7 +341,7 @@ jobs:
       # is exactly when nobody is looking for it.
       - name: This branch must not change both the stable game and its fork
         working-directory: .
-        run: bash .github/scripts/fork-guard.sh sheephead/ sheephead-multiplayer/ ${{ github.event.repository.default_branch }}
+        run: bash .github/scripts/fork-guard.sh thecardplace/sheephead/ thecardplace/sheephead-multiplayer/ ${{ github.event.repository.default_branch }}
 
       - uses: actions/setup-node@v4
         with:
@@ -387,7 +396,7 @@ jobs:
     timeout-minutes: 25
     defaults:
       run:
-        working-directory: euchre
+        working-directory: thecardplace/euchre
     steps:
       - uses: actions/checkout@v4
 
@@ -465,7 +474,7 @@ jobs:
     timeout-minutes: 25
     defaults:
       run:
-        working-directory: cribbage-multiplayer
+        working-directory: thecardplace/cribbage-multiplayer
     steps:
       - uses: actions/checkout@v4
         with:
@@ -476,7 +485,7 @@ jobs:
       # exactly when nobody is looking for it.
       - name: This branch must not change both the stable game and its fork
         working-directory: .
-        run: bash .github/scripts/fork-guard.sh Cribbage/ cribbage-multiplayer/ ${{ github.event.repository.default_branch }}
+        run: bash .github/scripts/fork-guard.sh thecardplace/Cribbage/ thecardplace/cribbage-multiplayer/ ${{ github.event.repository.default_branch }}
 
       - uses: actions/setup-node@v4
         with:
@@ -531,7 +540,7 @@ jobs:
     timeout-minutes: 25
     defaults:
       run:
-        working-directory: Cribbage
+        working-directory: thecardplace/Cribbage
     steps:
       - uses: actions/checkout@v4
 

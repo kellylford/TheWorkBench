@@ -16,7 +16,7 @@ name: Deploy Spades room
 # template also hands out Edit on Pages, R2, KV and Workers Routes across the
 # whole account, which a deploy has no business with.
 
-# shared/js/** is in the paths because room.js — the Durable Object itself —
+# thecardplace/shared/js/** is in the paths because room.js — the Durable Object itself —
 # lives there now, shared by every game. Without it a fix to the server would
 # pass its tests, merge, and never reach the Worker: the deploy simply would
 # not run, and the live room would go on running the old code with nothing
@@ -26,9 +26,9 @@ on:
   push:
     branches: [main]
     paths:
-      - 'spades/worker/**'
-      - 'spades/js/**'
-      - 'shared/js/**'
+      - 'thecardplace/spades/worker/**'
+      - 'thecardplace/spades/js/**'
+      - 'thecardplace/shared/js/**'
       - '.github/workflows/deploy-spades-room.yml'
   workflow_dispatch:
 
@@ -48,7 +48,7 @@ jobs:
     timeout-minutes: 25
     defaults:
       run:
-        working-directory: spades
+        working-directory: thecardplace/spades
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -81,7 +81,7 @@ jobs:
     timeout-minutes: 10
     defaults:
       run:
-        working-directory: spades/worker
+        working-directory: thecardplace/spades/worker
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -151,7 +151,7 @@ jobs:
       # no longer existed — so it failed every deploy, AFTER the Worker had
       # already gone out. Two of these were red for exactly that reason.
       - name: The client must point at the Worker that was just deployed
-        working-directory: spades
+        working-directory: thecardplace/spades
         run: |
           set -euo pipefail
           SUB="${{ vars.CLOUDFLARE_SUBDOMAIN }}"

@@ -19,6 +19,17 @@ const path = require('path');
 const vm = require('vm');
 
 const root = path.join(__dirname, '..', '..');
+/* The workflows live at the top of the REPOSITORY, which is no longer the
+ * directory the games live in — they are all under thecardplace/ now.
+ *
+ * Both of these are derived from `root` rather than written down, and that is
+ * the point: this file asserts what the path filters say, so a hardcoded
+ * 'thecardplace/' here would have to be found and edited by hand the next time
+ * the games move. The whole reason they were gathered into one directory is
+ * that they are going somewhere else eventually. Derived, the check moves with
+ * them and keeps failing for the right reason. */
+const repoRoot = path.join(root, '..');
+const gamesDir = path.basename(root);
 const GAMES = ['euchre', 'cribbage-multiplayer', 'sheephead-multiplayer', 'hearts', 'spades'];
 const SHARED = ['table.js', 'net.js', 'localserver.js'];
 
@@ -167,7 +178,7 @@ for (const g of GAMES) {
 }
 
 {
-  const dir = path.join(root, '.github', 'workflows');
+  const dir = path.join(repoRoot, '.github', 'workflows');
   const deploys = fs.readdirSync(dir).filter(f => /^deploy-.*-room\.yml$/.test(f));
 
   /* EVERY GAME IN THIS LIST HAS A DEPLOY, not "the counts match".
@@ -186,27 +197,73 @@ for (const g of GAMES) {
   }
   check(deploys.length >= GAMES.length,
     "found " + deploys.length + " deploy workflows for " + GAMES.length + " games");
+  const sharedJsGlob = "- '" + gamesDir + "/shared/js/**'";
   for (const f of deploys) {
     const y = fs.readFileSync(path.join(dir, f), 'utf8');
-    check(/^\s+-\s+'shared\/js\/\*\*'\s*$/m.test(y),
-      f + " does not list 'shared/js/**' in its paths. room.js lives there now, " +
-      'so a fix to the Durable Object would merge green and never deploy.');
+    check(listed(y, sharedJsGlob),
+      f + ' does not list ' + JSON.stringify(sharedJsGlob.slice(3, -1)) + ' in its ' +
+      'paths. room.js lives there now, so a fix to the Durable Object would merge ' +
+      'green and never deploy.');
   }
 
-  /* The site publish has the same shape of hole, and had it: euchre/ and
-   * cribbage-multiplayer/ were missing, so those two games could be changed,
-   * merged and tested green without any of it reaching a single player. It went
-   * unnoticed only because they were always merged alongside a directory that
-   * was listed. */
+  /* The site publish had the same shape of hole: euchre/ and
+   * cribbage-multiplayer/ were both missing from a per-game list, so those two
+   * games could be changed, merged and tested green without any of it reaching a
+   * single player. It went unnoticed only because they were always merged
+   * alongside a directory that was listed.
+   *
+   * That list is gone. The games are one directory, so the filter is one line,
+   * and the hole it could hide in closed with it — a sixth game publishes
+   * without anybody remembering to come back here. What is checked now is the
+   * one line, which is why this is a single assertion rather than a loop: if it
+   * ever goes back to naming games individually, this fails and says so. */
   const pub = fs.readFileSync(path.join(dir, 'publish-guide.yml'), 'utf8');
-  for (const g of GAMES) {
-    check(listed(pub, "- '" + g + "/**'"),
-      "publish-guide.yml does not list '" + g + "/**', so changes to that game " +
-      'never reach the live site');
+  const gamesGlob = "- '" + gamesDir + "/**'";
+  check(listed(pub, gamesGlob),
+    'publish-guide.yml does not list ' + JSON.stringify(gamesDir + '/**') + ', so ' +
+    'nothing under it — no game, not the landing page, not the shared transport — ' +
+    'reaches the live site when it changes.');
+}
+
+/* ---------------- the landing page counts its own games -------------------
+ *
+ * "Four card games, free to play in a browser" is the first line anybody reads,
+ * and it said four while five were listed below it. Nothing was wrong with the
+ * page — every game was there and every link worked — it just opened by
+ * miscounting itself, which is the sort of thing a visitor notices and a
+ * maintainer never does.
+ *
+ * It went stale the ordinary way: spades was added, its card was written, and
+ * the sentence at the top was not part of adding a game. So the fix is not to
+ * write five. It is to make the number something that cannot disagree with the
+ * list under it without this failing.
+ *
+ * Spelled out rather than numeric because that is how the page reads it aloud,
+ * and the words are the check — a page that says "5 card games" fails here and
+ * should, because it no longer matches the sentence anybody wrote. */
+{
+  const WORDS = ['no', 'one', 'two', 'three', 'four', 'five',
+    'six', 'seven', 'eight', 'nine', 'ten'];
+  const page = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
+
+  /* One per game card. The same marker the stylesheet uses, so a card that
+   * renders as a game is a card that counts as one. */
+  const cards = (page.match(/<li class="game">/g) || []).length;
+  check(cards > 0, 'the landing page has no game cards at all — has the markup changed?');
+
+  const lede = /<p class="lede">\s*([A-Za-z]+) card games/.exec(page);
+  check(!!lede,
+    'the landing page no longer opens with "<something> card games", so the ' +
+    'number it claims cannot be checked against the games it lists');
+
+  if (lede && cards > 0) {
+    const claimed = WORDS.indexOf(lede[1].toLowerCase());
+    check(claimed === cards,
+      'the landing page says "' + lede[1] + ' card games" and lists ' + cards +
+      '. Whichever is right, they disagree, and the sentence at the top is the ' +
+      'one every visitor reads first. It should say "' +
+      (WORDS[cards] || cards) + '".');
   }
-  check(/^\s+-\s+'shared\/\*\*'\s*$/m.test(pub),
-    "publish-guide.yml does not list 'shared/**', so the transport every game " +
-    'loads could change without the site being rebuilt');
 }
 /* ---------------- report -------------------------------------------------- */
 
