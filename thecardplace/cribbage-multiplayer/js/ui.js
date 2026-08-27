@@ -2151,7 +2151,7 @@
   /* ---------------- bug reports ---------------- */
 
   var BUG_REPO = 'kellylford/TheWorkBench';
-  var GAME_URL = 'https://kellylford.github.io/TheWorkBench/cribbage-multiplayer/';
+  var GAME_URL = 'https://kellylford.github.io/TheWorkBench/thecardplace/cribbage-multiplayer/';
   var MAX_URL = 6000;
 
   function bugTitle() {

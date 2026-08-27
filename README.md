@@ -8,6 +8,10 @@ The Workbench has small projects I’m working on. These may or may not be final
 A landing page for the browser card games — pick a game and play. All of them are built to be
 fully playable with a keyboard or a screen reader.
 
+Every game, the landing page and the transport they share live under [`thecardplace/`][11]. They
+were spread across the top level of this repository until they were not; the sections below name
+them one at a time because they are separate games, but the directory is the unit that moves.
+
 [Open The Card Place][5]
 
 How the games are tested — what is covered, what is not, and what each suite exists because of —
@@ -33,7 +37,7 @@ The classic two-hander against the computer, scored to 121.
 ### cribbage-multiplayer
 A fork of the above, extended so two people in different places can play each other. It exists as a
 separate directory so the stable game cannot regress while it is built — a CI guard fails the build
-if a branch touching this directory also touches `Cribbage/`.
+if a branch touching this directory also touches `thecardplace/Cribbage/`.
 
 The interesting part is what did not survive the move to a server: the computer used to read your
 hand while deciding what to lay, the count reset lived in the browser rather than the engine, and
@@ -62,8 +66,8 @@ against computer opponents. Runs entirely in the browser with no build step and 
 ### sheephead-multiplayer
 A fork of the above, being extended so people in different places can play against each other. It
 exists as a separate directory so the stable game cannot regress while it is built — a CI guard
-fails the build if a branch touching this directory also touches `sheephead/`. Not finished; see
-[PLAN.md](./sheephead-multiplayer/PLAN.md).
+fails the build if a branch touching this directory also touches `thecardplace/sheephead/`. Not
+finished; see [PLAN.md](./thecardplace/sheephead-multiplayer/PLAN.md).
 
 [View Project][8]
 
@@ -82,10 +86,11 @@ Contributions to existing projects are welcome. If you have a script, app or oth
 [1]:	./parallels-manager
 [2]:	./win11arm-install
 [3]:	./LICENSE
-[4]:	./sheephead
-[5]:	https://kellylford.github.io/TheWorkBench/thecardplace.html
-[6]:	./Cribbage
-[7]:	./TESTING.md
-[8]:	./sheephead-multiplayer
-[9]:	./euchre
-[10]:	./cribbage-multiplayer
+[4]:	./thecardplace/sheephead
+[5]:	https://kellylford.github.io/TheWorkBench/thecardplace/
+[6]:	./thecardplace/Cribbage
+[7]:	./thecardplace/TESTING.md
+[8]:	./thecardplace/sheephead-multiplayer
+[9]:	./thecardplace/euchre
+[10]:	./thecardplace/cribbage-multiplayer
+[11]:	./thecardplace

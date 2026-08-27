@@ -1,273 +1,41 @@
 <!DOCTYPE html>
+<!--
+  The Card Place moved from this file to thecardplace/index.html, and this is
+  what is left at the old address.
+
+  Not tidiness — this URL is the one in the README, the one that has been sent
+  to people, and the one anybody who plays these games has bookmarked. A move
+  that silently 404s all of them is a worse outcome than one stub file at the
+  root, which is the whole scatter this reorganisation was meant to end and is
+  the one piece of it worth keeping.
+
+  Both a meta refresh and a real link: the refresh does the work, and the link
+  is what somebody sees if it is disabled or slow. The link is focusable and
+  the heading says where they are going, so this reads correctly out loud
+  rather than as an empty page that moves on its own.
+
+  It can go the day the games leave this repository for good, and it should.
+-->
 <html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<!-- Without this the browser asks for /favicon.ico at the SITE root, which
-     belongs to the user page rather than this project — so every page here
-     logged a 404 nobody could fix from this repository. -->
-<link rel="icon" href="shared/favicon.svg" type="image/svg+xml">
-<title>The Card Place</title>
-<meta name="description" content="Card games built to be fully playable with a keyboard and a screen reader.">
+<title>The Card Place has moved</title>
+<meta http-equiv="refresh" content="0; url=thecardplace/">
+<link rel="canonical" href="thecardplace/">
+<link rel="icon" href="thecardplace/shared/favicon.svg" type="image/svg+xml">
 <style>
-/* Self-contained on purpose: no shared stylesheet to keep in step with two
- * games that are otherwise independent. Sizing is in rem throughout so it
- * scales with the reader's font size. */
-:root {
-  --bg: #10161d;
-  --panel: #1a232e;
-  --panel-2: #223040;
-  --ink: #eef3f8;
-  --ink-dim: #ccd8e4;
-  --line: #3c4b5d;
-  --accent: #6fd0ff;
-  --accent-ink: #06212e;
-  --felt: #1d5c43;
-  --focus: #ffd54a;
-  --radius: 10px;
-}
-@media (prefers-color-scheme: light) {
-  :root {
-    --bg: #f2f5f8; --panel: #ffffff; --panel-2: #e8eef4;
-    --ink: #12181f; --ink-dim: #3b4a5b; --line: #b9c6d4;
-    --accent: #14556f; --accent-ink: #ffffff;
-    --felt: #1f6b4d; --focus: #a35a00;
+  body { font: 1rem/1.6 system-ui, sans-serif; margin: 3rem auto; max-width: 34rem; padding: 0 1rem; }
+  a { color: #0b5fff; }
+  @media (prefers-color-scheme: dark) {
+    body { background: #111; color: #eee; }
+    a { color: #79b0ff; }
   }
-}
-
-* { box-sizing: border-box; }
-[hidden] { display: none !important; }
-html { font-size: 100%; }
-body {
-  margin: 0;
-  background: var(--bg);
-  color: var(--ink);
-  font: 1rem/1.6 system-ui, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-}
-
-.skip-link {
-  position: absolute; left: -9999px; top: 0;
-  background: var(--accent); color: var(--accent-ink);
-  padding: .6rem 1rem; z-index: 10; font-weight: 700;
-}
-.skip-link:focus { left: 0; }
-
-:focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; }
-
-header { padding: 2rem clamp(1rem, 4vw, 2rem) .5rem; border-bottom: 1px solid var(--line); }
-h1 { margin: 0; font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: .01em; }
-.lede { margin: .5rem 0 0; max-width: 46rem; color: var(--ink-dim); font-size: 1.05rem; }
-
-main { padding: 1.5rem clamp(1rem, 4vw, 2rem) 4rem; max-width: 70rem; }
-main:focus { outline: none; }
-h2 { font-size: 1.25rem; margin: 2rem 0 .75rem; }
-
-/* auto-fit means one column on a phone and two on anything wider, with no
- * media query and no fixed breakpoint to get wrong. */
-.games {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(20rem, 100%), 1fr));
-  gap: 1rem;
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-.game {
-  display: flex;
-  flex-direction: column;
-  background: var(--panel);
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  overflow: hidden;
-}
-.game-top {
-  padding: 1rem 1.1rem;
-  background:
-    radial-gradient(ellipse at 30% 0%, rgba(255,255,255,.07), transparent 60%),
-    var(--felt);
-  border-bottom: 1px solid var(--line);
-}
-.game h3 { margin: 0; font-size: 1.3rem; color: #f4faf7; }
-.game-meta { margin: .2rem 0 0; font-size: .92rem; color: #cfe4da; }
-.game-body { padding: 1rem 1.1rem 1.2rem; display: flex; flex-direction: column; flex: 1; }
-.game p { margin: 0 0 .75rem; }
-.game ul { margin: 0 0 1rem; padding-left: 1.15rem; color: var(--ink-dim); font-size: .95rem; }
-.game li { margin: .2rem 0; }
-.play {
-  margin-top: auto;
-  align-self: flex-start;
-  display: inline-block;
-  background: var(--accent);
-  color: var(--accent-ink);
-  font-weight: 700;
-  font-size: 1.05rem;
-  text-decoration: none;
-  padding: .65rem 1.2rem;
-  border: 1px solid var(--accent);
-  border-radius: 8px;
-}
-.play:hover { background: color-mix(in srgb, var(--accent) 85%, white); }
-.play:focus-visible { outline-offset: 2px; }
-
-/* Learn and Play, in that order, because somebody who does not know the game
- * needs the first one and somebody who does will not be slowed by it. The
- * learn link is a plain link rather than a second solid button: two buttons of
- * equal weight side by side is a decision to make, and only one of them is the
- * thing most people came for. */
-.game-links {
-  margin-top: auto;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: .5rem 1rem;
-}
-.learn { color: var(--accent); font-weight: 600; }
-.game-links .play { margin-top: 0; }
-
-.note {
-  background: var(--panel);
-  border: 1px solid var(--line);
-  border-left: 5px solid var(--accent);
-  border-radius: var(--radius);
-  padding: 1rem 1.15rem;
-  max-width: 52rem;
-}
-.note h2 { margin-top: 0; }
-.note ul { padding-left: 1.15rem; }
-.note li { margin: .35rem 0; }
-
-footer {
-  padding: 1rem clamp(1rem, 4vw, 2rem) 3rem;
-  color: var(--ink-dim);
-  font-size: .95rem;
-}
-footer a { color: var(--accent); }
-
-@media (forced-colors: active) {
-  .game-top { background: Canvas; }
-  .play { border: 2px solid CanvasText; }
-}
 </style>
 </head>
 <body>
-<a class="skip-link" href="#main">Skip to main content</a>
-
-<header>
-  <h1>The Card Place</h1>
-  <p class="lede">Four card games, free to play in a browser. Mouse, keyboard or screen reader —
-    all three work properly. No sign up, no download, nothing to install.</p>
-</header>
-
-<main id="main" tabindex="-1">
-  <h2>Choose a game</h2>
-
-  <!-- ONE ENTRY PER GAME, all built the same way: what it is, how to
-       learn it, how to start it.
-
-       There used to be six entries for four games, because each game
-       that gained a multiplayer version gained a second card beside the
-       original — "Cribbage" and "Cribbage Multiplayer" sitting next to
-       each other, with nothing on the page to say which one a person
-       wanting to play cribbage should pick. The multiplayer builds play
-       the single-player game perfectly well when nobody else joins, so
-       they are simply the game now.
-
-       The single-player builds are still in the repository and still
-       work; they are not linked from here, because a choice between two
-       things that look the same is not a choice, it is a puzzle. -->
-  <ul class="games">
-    <li class="game">
-      <div class="game-top">
-        <h3>Euchre</h3>
-        <p class="game-meta">4 players &middot; on your own or with other people</p>
-      </div>
-      <div class="game-body">
-        <p>The Midwest and Ontario standard. Two partnerships, five tricks a hand, first to ten points &mdash; and the jack of the same colour as trump quietly becomes a trump too.</p>
-        <p class="game-links">
-          <a class="learn" href="euchre/#rules-h">Learn to play Euchre</a>
-          <a class="play" href="euchre/">Play Euchre</a>
-        </p>
-      </div>
-    </li>
-
-    <li class="game">
-      <div class="game-top">
-        <h3>Hearts</h3>
-        <p class="game-meta">4 players &middot; on your own or with other people</p>
-      </div>
-      <div class="game-body">
-        <p>Take no points if you can help it. Every heart is one and the queen of spades is thirteen, and the <strong>lowest</strong> score wins &mdash; which is the thing that catches people out.</p>
-        <p class="game-links">
-          <a class="learn" href="hearts/#rules-h">Learn to play Hearts</a>
-          <a class="play" href="hearts/">Play Hearts</a>
-        </p>
-      </div>
-    </li>
-
-    <li class="game">
-      <div class="game-top">
-        <h3>Spades</h3>
-        <p class="game-meta">4 players &middot; on your own or with other people</p>
-      </div>
-      <div class="game-body">
-        <p>Two partnerships, and a promise made before a card is played: say how many tricks you will take, then take them. Spades are always trump, missing the contract costs the whole bid, and taking too many quietly fills a bag bin that costs a hundred.</p>
-        <p class="game-links">
-          <a class="learn" href="spades/#rules-h">Learn to play Spades</a>
-          <a class="play" href="spades/">Play Spades</a>
-        </p>
-      </div>
-    </li>
-
-    <li class="game">
-      <div class="game-top">
-        <h3>Cribbage</h3>
-        <p class="game-meta">2 players &middot; on your own or with somebody else</p>
-      </div>
-      <div class="game-body">
-        <p>Pegging, fifteens, runs and the crib, scored to 121 on a board you can read as well as see. You count your own hand, the way you would at a table.</p>
-        <p class="game-links">
-          <a class="learn" href="cribbage-multiplayer/#rules-h">Learn to play Cribbage</a>
-          <a class="play" href="cribbage-multiplayer/">Play Cribbage</a>
-        </p>
-      </div>
-    </li>
-
-    <li class="game">
-      <div class="game-top">
-        <h3>Sheephead</h3>
-        <p class="game-meta">3 to 6 players &middot; on your own or with other people</p>
-      </div>
-      <div class="game-body">
-        <p>The Wisconsin classic, also called Schafkopf. Queens and jacks are trump, the picker takes the blind, and the jack of diamonds is a secret partner nobody admits to.</p>
-        <p class="game-links">
-          <a class="learn" href="sheephead-multiplayer/#rules-h">Learn to play Sheephead</a>
-          <a class="play" href="sheephead-multiplayer/">Play Sheephead</a>
-        </p>
-      </div>
-    </li>
-  </ul>
-
-  <div class="note">
-    <h2>Why these exist</h2>
-    <p>Most card games online cannot be played without sight. These are built the other way
-      round: the state of the game is text first, and the pictures sit on top of it.</p>
-    <ul>
-      <li>Nothing is shown by sight alone. Every card, score and turn is also text.</li>
-      <li>Nothing is marked as an application region, so browse, focus and forms modes work
-        as they normally do.</li>
-      <li>Turn your text size up and the layout follows, cards included.</li>
-      <li>Every game can be played with the keyboard alone.</li>
-    </ul>
-    <p>Every game runs in your browser and sends nothing anywhere until you open a table with
-      other people. From then on it sends your moves and the name you chose, and nothing else.
-      There are no accounts, and a table is a five-letter code that stops existing when everybody
-      leaves.</p>
-  </div>
-</main>
-
-<footer>
-  <p>Built by Kelly Ford. Source and issues on
-    <a href="https://github.com/kellylford/TheWorkBench">GitHub</a>.</p>
-</footer>
+<h1>The Card Place has moved</h1>
+<p>It now lives at <a href="thecardplace/">The Card Place</a>. You should be sent there
+automatically; if not, follow the link.</p>
 </body>
 </html>
