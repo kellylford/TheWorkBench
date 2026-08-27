@@ -82,6 +82,14 @@ jobs:
       - name: Reloading the page is not the end of the game
         run: node shared/tests/reload.js
 
+      # Bytes, not text. Four regexes in this repository were written as a word
+      # boundary and arrived as a literal backspace, so they matched nothing and
+      # the assertions around them could never fail. Nothing else can see that:
+      # the file parses, the suite goes green, and a diff renders 0x08 as
+      # nothing at all. Cheap, and it caught its own first draft.
+      - name: No invisible characters in source
+        run: node shared/tests/no-control-characters.js
+
       # Do the games agree with EACH OTHER? Every other audit asks whether one
       # game is right; each of them passed while the set of them drifted apart,
       # and it was a player moving between games who noticed. Needs a browser,

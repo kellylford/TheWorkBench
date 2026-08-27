@@ -83,7 +83,7 @@ function fresh(n, opts) {
  * refusal that quietly appends an event is exactly what this file exists to
  * catch, so they are counted and digested rather than ignored. */
 function fingerprint(st) {
-  const digest = st.events.map(e => e.kind + '|' + e.text + '|' + (e.audience === undefined ? '' : e.audience)).join('');
+  const digest = st.events.map(e => e.kind + '|' + e.text + '|' + (e.audience === undefined ? '' : e.audience)).join('\u0001');
   const copy = {};
   for (const k of Object.keys(st)) {
     if (k === 'config' || k === 'events') continue;
@@ -350,7 +350,18 @@ for (const n of [3, 4, 5, 6]) {
         for (const id of allCards) {
           check(r.reason.indexOf(id) < 0, `a refusal named the card ${id}: "${r.reason}"`);
         }
-        check(!/(alone|partner)/i.test(r.reason),
+        /* WORD BOUNDARIES, and they were literal backspace characters.
+         *
+         * A regex containing a real 0x08 matches nothing a refusal ever says,
+         * so `!test(...)` was true whatever the reason was and this assertion
+         * had never once been capable of failing. It read as a check on the
+         * hidden partnership and was a comment with brackets round it.
+         *
+         * They get in through a shell heredoc: an unquoted \b becomes the
+         * character rather than the escape, the file still parses, and nothing
+         * looks wrong in a diff. shared/tests/no-control-characters.js now
+         * refuses the whole class. */
+        check(!/\b(alone|partner)\b/i.test(r.reason),
           `a refusal mentioned the hidden partnership: "${r.reason}"`);
       }
     }
