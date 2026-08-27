@@ -75,6 +75,13 @@ jobs:
       - name: Engine contract
         run: node shared/tests/engine-contract.js
 
+      # What happens when somebody reloads the page. Shared, and here rather
+      # than in any one game, because room.js, net.js, localserver.js and
+      # table.js are one copy behind all five — so a reload that loses the log
+      # loses it everywhere, and no single game's suite can see that.
+      - name: Reloading the page is not the end of the game
+        run: node shared/tests/reload.js
+
       # Do the games agree with EACH OTHER? Every other audit asks whether one
       # game is right; each of them passed while the set of them drifted apart,
       # and it was a player moving between games who noticed. Needs a browser,

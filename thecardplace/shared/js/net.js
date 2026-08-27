@@ -258,10 +258,67 @@
     };
   }
 
+  /* ---------------- the table you are at, across a reload ----------------
+   *
+   * The code used to live in a variable and nowhere else, so a refresh — or a
+   * browser restoring its own tabs after a crash, which the player did not
+   * choose — put somebody back on the New game screen with no way to their
+   * table unless they had written the code down. Five characters, spoken once,
+   * possibly by somebody else.
+   *
+   * sessionStorage and not localStorage, and the difference is the whole point:
+   * it survives a reload and dies with the tab. localStorage would still be
+   * offering yesterday's table in a window where somebody is starting a
+   * different game, and the offer would be a lie — the room is long evicted.
+   *
+   * Keyed by game because localStorage and sessionStorage are scoped to the
+   * ORIGIN and every game here is published under the same one. A shared key
+   * would have hearts offering you a spades table by its code, which the spades
+   * room would refuse in a way nobody could interpret.
+   *
+   * Every one of these is wrapped: Safari in private mode throws on the mere
+   * ACT of reading sessionStorage, and a game that will not load at all is a
+   * much worse failure than one that forgets a table code.
+   */
+  function tableKey() {
+    var c = global.SH && global.SH.CONFIG;
+    return 'table.at.' + ((c && c.game) || 'game');
+  }
+
+  function store() {
+    try { return global.sessionStorage || null; } catch (e) { return null; }
+  }
+
+  function rememberTable(code) {
+    var s = store();
+    if (!s || !code) return;
+    try { s.setItem(tableKey(), String(code)); } catch (e) { /* nothing to do */ }
+  }
+
+  /* The code this tab was last at, or '' — never null, so a caller can use it
+   * as a string without checking twice. */
+  function rememberedTable() {
+    var s = store();
+    if (!s) return '';
+    try { return s.getItem(tableKey()) || ''; } catch (e) { return ''; }
+  }
+
+  /* Leaving a table on purpose is the one thing that must clear this. Without
+   * it, going back to the menu and reloading offers to rejoin the table you
+   * just walked away from. */
+  function forgetTable() {
+    var s = store();
+    if (!s) return;
+    try { s.removeItem(tableKey()); } catch (e) { /* nothing to do */ }
+  }
+
   SH.Net = {
     defaultBase: defaultBase,
     PROTOCOL: PROTOCOL,
     createTable: createTable,
-    connect: connect
+    connect: connect,
+    rememberTable: rememberTable,
+    rememberedTable: rememberedTable,
+    forgetTable: forgetTable
   };
 })(typeof window !== 'undefined' ? window : globalThis);

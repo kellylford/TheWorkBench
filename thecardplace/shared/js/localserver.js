@@ -245,21 +245,42 @@
         var token = nextToken++;
         var open = true;
         connections[seat] = { handler: onMessage, token: token };
-        if (room.cursors[seat] === undefined) room.cursors[seat] = -1;
+        /* Everything this seat may hear, every time a link opens. The Durable
+         * Object's join() does the same and for the same reason: a cursor
+         * records what the SEAT was told, and a client that has just reloaded is
+         * not the client that was told it. See the note in shared/js/room.js.
+         *
+         * The two must agree, or the offline harness stops being a rehearsal for
+         * the real room and starts being a different game that happens to pass. */
+        room.cursors[seat] = -1;
         // A new connection numbers its moves from one again; see room.js.
         room.lastSeq[seat] = undefined;
         room.lastAck[seat] = undefined;
         state.players[seat].occupant = 'human';
 
+        /* The welcome's contents are decided NOW, not when it is delivered.
+         *
+         * It used to read the cursor inside the timer, which put an entire fake
+         * network delay between resetting the cursor and using it — and the
+         * pump that starts playing an empty seat the moment it empties
+         * broadcasts in that gap, which advances the cursor to the newest event.
+         * The reset was undone before it was read, so a rejoining client was
+         * still handed nothing, and it looked exactly like the bug not being
+         * fixed rather than like a race.
+         *
+         * A welcome should carry what was true when the connection was made in
+         * any case. A wire that takes time to deliver is not a licence to change
+         * what was sent. */
+        var fresh = G.eventsFor(state, seat, room.cursors[seat]);
+        var lastId = -1;
+        for (var i0 = 0; i0 < state.events.length; i0++) {
+          var e0 = state.events[i0];
+          if (e0.audience === undefined || e0.audience === seat) lastId = e0.id;
+        }
+        room.cursors[seat] = lastId;
+
         later(function () {
           if (!open) return;
-          var fresh = G.eventsFor(state, seat, room.cursors[seat]);
-          var lastId = -1;
-          for (var i = 0; i < state.events.length; i++) {
-            var e = state.events[i];
-            if (e.audience === undefined || e.audience === seat) lastId = e.id;
-          }
-          room.cursors[seat] = lastId;
           onMessage({
             type: 'welcome',
             seat: seat,
