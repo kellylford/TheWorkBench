@@ -434,8 +434,20 @@ function fakeWire(window, opts, shared) {
         const bury = btns.find(b => /^Bury /i.test(b.textContent));
         if (bury) {
           if (bury.disabled) {
+            /* NOT A CLASS. A card selected to bury is marked with
+             * aria-pressed, which is what the interface actually sets and what
+             * a screen reader actually reads — there is no `selected` class on
+             * a card anywhere in this game.
+             *
+             * So this filter asked about something that does not exist, and it
+             * asked with literal backspace characters where word boundaries
+             * were meant, which cannot match either. Two independent reasons
+             * for the same wrong answer: every card looked unselected, so the
+             * loop clicked the first two whatever their state — which on a hand
+             * that already had one selected DESELECTED it, and the bury button
+             * it was waiting to enable could never enable. */
             [...win.d.querySelectorAll('#hand .card')]
-              .filter(c => !/selected/.test(c.className))
+              .filter(c => c.getAttribute('aria-pressed') !== 'true')
               .slice(0, 2).forEach(c => c.click());
             acted = true;
           } else {
