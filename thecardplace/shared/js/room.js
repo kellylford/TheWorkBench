@@ -73,6 +73,27 @@
     var state = null;
     var room = null;
     var conns = {};        // connId -> {seat}
+
+    /* The welcome a connection is owed, until something actually delivers it.
+     *
+     * On the real Worker, join()'s own deliver() goes nowhere: the socket's
+     * attachment is not written until join() has returned the seat, and a socket
+     * with no attachment cannot be found. That is what resend() exists for, and
+     * it is called one line later.
+     *
+     * Which means the frame the client RECEIVES is resend()'s, and resend() used
+     * to build a fresh one from the seat's cursor — a cursor join() had just
+     * advanced past everything. So the backlog was computed, thrown away with
+     * the undeliverable frame, and the client got a welcome with an empty event
+     * list. On the fake wire in tests it worked, because there the first deliver
+     * arrives; the two transports disagreed and only the real one was wrong.
+     *
+     * So the payload is built once and held here. Whichever delivery lands first
+     * carries it, and if both land the second is byte-identical with the same
+     * version, which the client's own staleness guard drops. Not persisted: this
+     * lives for the two adjacent lines between join() and resend(), and a room
+     * that hibernated in between has bigger problems than a missing log. */
+    var owedWelcome = {};  // connId -> the welcome payload built by join()
     var loaded = false;
 
     /* ---------------- persistence ---------------- */
@@ -530,14 +551,19 @@
       room.version++;
       persist();
 
-      deliver(connId, {
+      var welcome = {
         type: 'welcome',
         seat: seat,
         version: room.version,
         ackSeq: room.lastAck[seat],
         view: V.forSeat(state, seat),
         events: fresh
-      });
+      };
+      /* Held as well as sent. See owedWelcome above: on the real Worker this
+       * deliver cannot arrive, and resend() a line later is what the client
+       * actually hears. */
+      owedWelcome[connId] = welcome;
+      deliver(connId, welcome);
       /* Tell the rest of the table, not just the person who arrived.
        *
        * join() only ever answered the joiner, so "Ruth is back" was written into
@@ -566,6 +592,19 @@
       load();
       var c = conns[connId];
       if (!c) return;
+
+      /* The welcome join() built, if it is still owed. Sending THAT rather than
+       * a fresh slice is the whole point: a fresh slice is taken from a cursor
+       * join() has already advanced, so it is empty by construction, and this
+       * connection has never been told anything. */
+      var owed = owedWelcome[connId];
+      if (owed) {
+        delete owedWelcome[connId];
+        persist();
+        deliver(connId, owed);
+        return;
+      }
+
       room.version++;
       var payload = viewFor(connId, c.seat);
       /* A WELCOME, not a view.
@@ -587,6 +626,8 @@
       var c = conns[connId];
       if (!c) return;
       delete conns[connId];
+      // A welcome nobody is left to receive. Held only until it is delivered.
+      delete owedWelcome[connId];
       /* Away, not bot: the seat still belongs to whoever was in it, and that
        * distinction is what will let them reclaim it. The AI plays an away seat
        * so the table does not stall while they are gone. */

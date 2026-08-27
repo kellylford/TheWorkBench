@@ -70,7 +70,8 @@ function tab(dir, files) {
 }
 
 const ENGINE = ['js/config.js', 'js/cards.js', 'js/game.js', 'js/ai.js', 'js/view.js',
-  'shared/js/localserver.js', 'shared/js/table.js', 'shared/js/net.js'];
+  'shared/js/localserver.js', 'shared/js/table.js', 'shared/js/net.js',
+  'shared/js/room.js'];
 
 const wait = ms => new Promise(r => setTimeout(r, ms));
 
@@ -241,6 +242,84 @@ async function run() {
     T.close();
 
     srv.stop();
+
+    /* ---- 5. and the SAME thing over the real room, delivered the real way -
+     *
+     * This check exists because everything above passed while the deployed
+     * Worker still handed a reloading player nothing, and it was found by
+     * reloading a live table rather than by any test here.
+     *
+     * The difference is one line in the Worker: a socket's attachment is not
+     * written until join() has returned the seat, and a socket with no
+     * attachment cannot be found — so join()'s own welcome is DROPPED, and the
+     * frame the client actually receives comes from the resend() a line later.
+     * localserver.js has no such step, so on the fake wire the first delivery
+     * always arrived and the bug was invisible.
+     *
+     * So this models what the platform does rather than what is convenient:
+     * nothing sent before resend() can be received. Any future divergence
+     * between the two transports fails here instead of on somebody's reload. */
+    const Room = SH.Room;
+    if (!Room || typeof Room.create !== 'function') {
+      check(false, g.dir + ': no SH.Room, so the deployed transport is untested');
+    } else {
+      const store = {};
+      const inbox = {};
+      let attached = {};      // connId -> can this socket be found yet?
+      const room = Room.create({
+        config: cfg,
+        storage: {
+          get: k => (k in store ? JSON.parse(store[k]) : null),
+          put: (k, v) => { store[k] = JSON.stringify(v); }
+        },
+        now: () => 1000,
+        setAlarm: () => {},
+        /* The platform's rule, not a convenience: a frame for a socket whose
+         * attachment is unwritten goes nowhere. */
+        deliver: (connId, msg) => {
+          if (!attached[connId]) return;
+          (inbox[connId] = inbox[connId] || []).push(msg);
+        },
+        botDelay: 0
+      });
+
+      /* Exactly the order in each game's worker/src/index.js: join, write the
+       * attachment, resend. */
+      function connect(connId, seat) {
+        const r = room.join(connId, seat, 'Somebody');
+        if (!r.ok) return r;
+        attached[connId] = true;
+        room.resend(connId);
+        return r;
+      }
+
+      const first = connect('conn-1', null);
+      check(first.ok, g.dir + ' (room): could not take a seat — ' + first.reason);
+      if (first.ok) {
+        room.action('conn-1', { seq: 1, action: { type: 'start' } });
+        const mine = first.seat;
+
+        const owed = (inbox['conn-1'] || []).reduce((n, m) => n + ((m.events || []).length), 0);
+        check(owed > 0,
+          g.dir + ' (room): the first connection was never told anything, so ' +
+          'losing it could not have been noticed');
+
+        room.leave('conn-1');
+        const back = connect('conn-2', mine);
+        check(back.ok, g.dir + ' (room): could not reclaim the seat — ' + back.reason);
+
+        const welcomes = (inbox['conn-2'] || []).filter(m => m.type === 'welcome');
+        const got = welcomes.reduce((n, m) => n + ((m.events || []).length), 0);
+        check(welcomes.length > 0,
+          g.dir + ' (room): a rejoining socket never received a welcome at all, so ' +
+          'it does not know which seat it is in');
+        check(got > 0,
+          g.dir + ' (room): a rejoining socket was welcomed with ' + got + ' events. ' +
+          "join() built the backlog and the platform dropped that frame; resend() " +
+          'is what the client hears, and it read a cursor join() had already ' +
+          'advanced past. This is the shape the fake wire cannot show.');
+      }
+    }
   }
 
   console.log('reload: ' + checks + ' checks across ' + GAMES.length + ' games');
