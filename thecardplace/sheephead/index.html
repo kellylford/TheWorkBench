@@ -3,6 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- Kept for reference, not for playing. Without this a search for an
+     accessible card game can land somebody on the build nobody is developing,
+     which is a worse first visit than not being found at all. -->
+<meta name="robots" content="noindex">
 <!-- Without this the browser asks for /favicon.ico at the SITE root, which
      belongs to the user page rather than this project — so every page here
      logged a 404 nobody could fix from this repository. -->
@@ -19,6 +23,11 @@
 <header class="app-header">
   <h1>Sheephead</h1>
   <p class="tagline">A keyboard and screen&nbsp;reader accessible card game.</p>
+  <!-- Right after the heading, so it is the first thing said about the page. The
+       class is the shared one: it was written for exactly this and used by
+       nothing until now. -->
+  <p class="dev-notice"><strong>This is the original single-player Sheephead</strong>, kept
+    for reference. The Sheephead people play now is <a href="../sheephead-multiplayer/">at The Card Place</a> — it plays the same on your own, and other people can join.</p>
 </header>
 
 <main id="main" tabindex="-1">
@@ -179,7 +188,7 @@
      happen to be on. -->
 <footer class="site-footer">
   <nav aria-label="Elsewhere">
-    <a href="../thecardplace.html">Back to The Card Place</a>
+    <a href="../index.html">Back to The Card Place</a>
   </nav>
 </footer>
 

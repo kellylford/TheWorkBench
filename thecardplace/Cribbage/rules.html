@@ -3,6 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- Kept for reference, not for playing. Without this a search for an
+     accessible card game can land somebody on the build nobody is developing,
+     which is a worse first visit than not being found at all. -->
+<meta name="robots" content="noindex">
+<!-- Without this the browser asks for /favicon.ico at the SITE root, which
+     belongs to the user page rather than this project — so this page logged a
+     404 nobody could fix from this repository. Every other page here has it. -->
+<link rel="icon" href="../shared/favicon.svg" type="image/svg+xml">
     <title>Cribbage Rules</title>
     <link rel="stylesheet" href="styles.css">
     <style>
@@ -136,6 +144,11 @@
     <a class="skip-link" href="#rules-content">Skip to main content</a>
     <main id="rules-content" class="rules-container">
         <h1>Cribbage Rules &amp; Gameplay</h1>
+        <!-- Right after the heading, so it is the first thing said about the page. -->
+        <p class="dev-notice"><strong>These are the rules of the original single-player
+          Cribbage</strong>, kept for reference. The Cribbage people play now is
+          <a href="../cribbage-multiplayer/">at The Card Place</a> — the same game, and
+          somebody else can join.</p>
 
         <!-- The arrows are decoration. Left in the accessible name they are read
              as "left arrow Back to Game", or dropped silently, depending on the
@@ -332,7 +345,7 @@
         
         <nav class="rules-footer" aria-label="Elsewhere">
             <a href="index.html" class="play-button">Play Cribbage Now <span aria-hidden="true">→</span></a>
-            <a href="../thecardplace.html" class="hub-link">Back to The Card Place</a>
+            <a href="../index.html" class="hub-link">Back to The Card Place</a>
         </nav>
     </main>
 </body>
