@@ -34,6 +34,11 @@ on:
       - 'devdocs/CONTROLLING_IPHONE_FROM_MAC.md'
       - 'thecardplace/**'
       - 'thecardplace.html'
+      # The 404 page is what turns the pre-move game URLs — the ones written
+      # into every bug report a player has ever filed — back into working
+      # links. A change to it that never publishes is a change that does
+      # nothing at all, and nothing else would say so.
+      - '404.html'
       - '.github/workflows/publish-guide.yml'
   workflow_dispatch:
 

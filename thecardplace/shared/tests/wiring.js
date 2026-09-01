@@ -225,6 +225,158 @@ for (const g of GAMES) {
     'reaches the live site when it changes.');
 }
 
+/* ---------------- the old game addresses still arrive somewhere -----------
+ *
+ * Every game used to be published at the top of the site, so every game had an
+ * address of its own: .../TheWorkBench/euchre/, .../sheephead/ and so on. Those
+ * addresses are in the world — each game's "Report an Issue" button pasted its
+ * own URL into the report — and after the move all of them answered 404.
+ *
+ * 404.html rewrites them, and it has two destinations per game rather than one:
+ * a bare link goes to the build people play, a deeper link goes to the
+ * directory of that exact name. That matters for the two games that have both a
+ * single-player original and a multiplayer build. /sheephead/ should open the
+ * game; /Cribbage/rules.html should open the file, which exists nowhere else.
+ *
+ * What the page cannot notice on its own is a directory renamed underneath it:
+ * it would go on redirecting to a path that is not there, turning one 404 into
+ * two and looking like it worked. So both destinations of every entry have to
+ * still be a directory here, every game directory has to be an entry, and the
+ * script has to actually produce the right URL — checked by running it.
+ */
+{
+  const p = path.join(repoRoot, '404.html');
+  check(fs.existsSync(p),
+    'there is no 404.html at the repository root, so every pre-move game URL — ' +
+    'the ones already written into filed bug reports — answers with GitHub\'s ' +
+    'default 404 and nothing sends the player on to the game.');
+
+  if (fs.existsSync(p)) {
+    const html = fs.readFileSync(p, 'utf8');
+    const block = /MOVED\s*=\s*\{([\s\S]*?)\}\s*;/.exec(html);
+    check(!!block, '404.html no longer has a MOVED map this can check');
+
+    if (block) {
+      /* name -> [where a bare link goes, where a deep link goes] */
+      const moved = new Map();
+      const entry = /'([^']+)'\s*:\s*\[\s*'([^']+)'\s*,\s*'([^']+)'\s*\]/g;
+      for (const m of block[1].matchAll(entry)) moved.set(m[1], [m[2], m[3]]);
+
+      check(moved.size > 0, '404.html has an empty MOVED map — it redirects nothing');
+
+      for (const [from, [live, archive]] of moved) {
+        check(fs.existsSync(path.join(root, live)),
+          '404.html sends /' + from + '/ to ' + gamesDir + '/' + live +
+          '/, which is not there. An old link would land on a second 404, ' +
+          'which is worse than the first because it looks handled.');
+        check(fs.existsSync(path.join(root, archive)),
+          '404.html sends a deep link under /' + from + '/ to ' + gamesDir + '/' +
+          archive + '/, which is not there.');
+      }
+
+      /* Every directory here is an entry, which is deliberately stronger than
+       * "every directory that used to be published". Which ones had an old
+       * address is history and is not readable from the tree, so a list of
+       * them could quietly lose one — the same shape as the publish filter
+       * that was a line short and hid two games for weeks. A game added after
+       * the move never had a top-level address, so its entry simply never
+       * fires: an unused branch, in exchange for a map that cannot go short. */
+      for (const g of fs.readdirSync(root, { withFileTypes: true })) {
+        if (!g.isDirectory() || g.name === 'node_modules') continue;
+        check(moved.has(g.name),
+          gamesDir + '/' + g.name + ' is not in 404.html\'s MOVED map. If it was ' +
+          'ever published at the top of the site, that address is a 404 again ' +
+          'and nothing else here would mention it.');
+      }
+
+      /* A bare link has to reach a game somebody can play, not an archive.
+       * This is the whole reason the map has two columns, and it is checked
+       * against the landing page rather than against a list written twice:
+       * what The Card Place links IS what the game is. */
+      const landing = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
+      const played = new Set([...landing.matchAll(/<a class="play" href="([^"/]+)\//g)]
+        .map(m => m[1]));
+      check(played.size > 0, 'no "Play" links found on the landing page to check against');
+
+      for (const [from, [live]] of moved) {
+        if (from === 'shared') continue;
+        check(played.has(live),
+          '404.html sends /' + from + '/ to ' + live + '/, which is not what The ' +
+          'Card Place links. A bare old link should open the build people play, ' +
+          'and for Cribbage and Sheephead that is the multiplayer one.');
+      }
+
+      /* And it has to actually redirect. That the names line up proves the map
+       * is current, not that the script does anything with it — a guard that
+       * returns too early passes every assertion above and sends nobody
+       * anywhere. So the script is run, against a fake site root: what it does
+       * must not depend on where the site is mounted, and using a base that is
+       * not this repository's name is what demonstrates that. */
+      const script = /<script>([\s\S]*?)<\/script>/.exec(html);
+      check(!!script, '404.html has no script, so nothing rewrites the old addresses');
+
+      if (script) {
+        const run = (pathname) => {
+          let went = null;
+          new vm.Script(script[1]).runInNewContext({
+            location: { pathname, search: '', hash: '', replace: (u) => { went = u; } }
+          });
+          return went;
+        };
+        const want = (pathname, expected, why) =>
+          check(run(pathname) === expected,
+            '404.html sent ' + pathname + ' to ' + JSON.stringify(run(pathname)) +
+            ', expected ' + JSON.stringify(expected) + ' — ' + why);
+
+        for (const [from, [live, archive]] of moved) {
+          want('/site/' + from + '/', '/site/' + gamesDir + '/' + live + '/',
+            'a bare link opens the game');
+          want('/site/' + from + '/index.html',
+            '/site/' + gamesDir + '/' + live + '/index.html',
+            'index.html is the bare link written out');
+          want('/site/' + from + '/deep/file.js',
+            '/site/' + gamesDir + '/' + archive + '/deep/file.js',
+            'a deep link keeps the rest of the path and goes where the file is');
+
+          /* The loop guard. A missing file INSIDE the games directory is a real
+           * 404; rewriting it would send the browser to the same address for
+           * ever. */
+          want('/site/' + gamesDir + '/' + archive + '/gone.js', null,
+            'a genuinely missing file must not be redirected at all');
+        }
+
+        want('/site/mlb/nope/', null, 'nothing to do with the games');
+        want('/site/', null, 'the site root');
+
+        /* Every object inherits these, so a map read as `MOVED[segment]` says
+         * yes to all six. That is exactly what the first draft did: /constructor/
+         * matched, the destination came back undefined, and the page sent the
+         * visitor to thecardplace/undefined/ — a second 404, with the back entry
+         * already spent by location.replace. Nothing above could see it, because
+         * every case above is built from the map's own keys. */
+        for (const inherited of ['constructor', 'toString', 'valueOf',
+          'hasOwnProperty', 'isPrototypeOf', '__proto__']) {
+          want('/site/' + inherited + '/', null,
+            'a segment that only exists on Object.prototype is not a game');
+        }
+      }
+
+      /* The rules page is the one deep link a person is likely to be holding,
+       * because the old Cribbage page linked it by name. It only survives
+       * because deep links go to the archive, so it is worth saying out loud:
+       * point them at the live build instead and this file disappears. */
+      check(fs.existsSync(path.join(root, 'Cribbage', 'rules.html')),
+        'Cribbage/rules.html is gone, and 404.html still sends /Cribbage/rules.html to it');
+    }
+  }
+
+  const pub404 = fs.readFileSync(path.join(repoRoot, '.github', 'workflows',
+    'publish-guide.yml'), 'utf8');
+  check(listed(pub404, "- '404.html'"),
+    "publish-guide.yml does not list '404.html' in its paths, so a change to " +
+    'the page that revives the old game URLs would merge and never publish.');
+}
+
 /* ---------------- the landing page counts its own games -------------------
  *
  * "Four card games, free to play in a browser" is the first line anybody reads,
@@ -265,6 +417,91 @@ for (const g of GAMES) {
       (WORDS[cards] || cards) + '".');
   }
 }
+/* ---------------- every link on every page goes somewhere ------------------
+ *
+ * The move under thecardplace/ broke the "Back to The Card Place" link on all
+ * seven game pages and on Cribbage's rules page, and nothing said so for eight
+ * commits. The link read `../thecardplace.html`, which was right when a game
+ * sat at the top of the repository and became thecardplace/thecardplace.html
+ * the moment it did not. Every other relative path in those pages survived the
+ * move because it pointed at something that moved too; this one pointed OUT of
+ * the directory, which is exactly the kind of path a directory move breaks and
+ * exactly the kind nothing else here was looking at.
+ *
+ * It is not a subtle failure — it is a 404 on the one link that gets a player
+ * back to the other games — and every suite in this repository went green over
+ * it. The game tests check the page they are given; the shape audit compares
+ * the games with each other; neither one follows a link.
+ *
+ * So: resolve every relative href and src on every page under this directory,
+ * and check that the file is there and that a #fragment names an id that
+ * exists. That last part is not padding — the landing page reaches each game's
+ * rules with `euchre/#rules-h`, and a renamed heading id would silently land
+ * somebody at the top of the game instead of at the rules.
+ */
+{
+  const pages = [];
+  (function walk(dir) {
+    for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
+      /* Neither is checked in, and both are full of third-party HTML that
+       * would drown the real result. */
+      if (e.name === 'node_modules' || e.name.indexOf('preview-t') === 0) continue;
+      const p = path.join(dir, e.name);
+      if (e.isDirectory()) walk(p);
+      else if (e.name.slice(-5) === '.html') pages.push(p);
+    }
+  })(root);
+
+  check(pages.length > 0, 'no HTML pages found under ' + gamesDir + '/ at all');
+
+  const ids = new Map();
+  const idsOf = (file) => {
+    if (!ids.has(file)) {
+      const html = fs.readFileSync(file, 'utf8');
+      ids.set(file, new Set([...html.matchAll(/\sid="([^"]+)"/g)].map(m => m[1])));
+    }
+    return ids.get(file);
+  };
+
+  for (const page of pages) {
+    const rel = path.relative(root, page).split(path.sep).join('/');
+    const html = fs.readFileSync(page, 'utf8');
+    const refs = new Set([...html.matchAll(/(?:src|href)="([^"]+)"/g)].map(m => m[1]));
+
+    for (const ref of refs) {
+      /* Somewhere else entirely, or an anchor on this same page — the first is
+       * not ours to check and the second is checked below against itself. */
+      if (/^(?:[a-z][a-z0-9+.-]*:|\/\/)/i.test(ref)) continue;
+
+      const hash = ref.indexOf('#');
+      const filePart = hash === -1 ? ref : ref.slice(0, hash);
+      const frag = hash === -1 ? '' : ref.slice(hash + 1);
+
+      let target = page;
+      if (filePart) {
+        target = path.resolve(path.dirname(page), filePart);
+        /* A directory URL is served as its index.html, which is how every
+         * "Play Euchre" button on the landing page is written. */
+        if (filePart.slice(-1) === '/') target = path.join(target, 'index.html');
+        if (!fs.existsSync(target)) {
+          fails.push(rel + ' links to ' + JSON.stringify(ref) + ', which does not exist. ' +
+            'On the live site that is a 404.');
+          checks++;
+          continue;
+        }
+        checks++;
+      }
+
+      if (frag && target.slice(-5) === '.html') {
+        check(idsOf(target).has(frag),
+          rel + ' links to ' + JSON.stringify(ref) + ', but nothing in ' +
+          path.relative(root, target).split(path.sep).join('/') +
+          ' has that id — the link opens the page at the top instead.');
+      }
+    }
+  }
+}
+
 /* ---------------- report -------------------------------------------------- */
 
 console.log('shared wiring: ' + checks + ' checks across ' + GAMES.length + ' games');
