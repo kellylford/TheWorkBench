@@ -225,6 +225,51 @@ for (const g of GAMES) {
     'reaches the live site when it changes.');
 }
 
+/* ---------------- a bug report says where it came from --------------------
+ *
+ * Every game has a "Report an Issue" button, and what it writes is the only
+ * thing a maintainer gets. Two facts decide whether the report can be acted on
+ * at all — which build it came from, and which browser — and neither can be
+ * recovered afterwards without asking, which costs a round trip and usually the
+ * report.
+ *
+ * Hearts and Spades had neither. They were written after the other three and
+ * their reports said "Game: Hearts" and stopped, so a hearts bug arrived naming
+ * the game and nothing else. Nothing could see that from inside either game:
+ * both were internally consistent, both passed their own suites, and the
+ * comparison that matters is with the games next to them.
+ *
+ * The URL is checked against the directory rather than merely for existing,
+ * because the failure that actually happens is a constant copied from the game
+ * next door — which produces a report that confidently names the wrong game.
+ */
+{
+  const url = /GAME_URL\s*=\s*'([^']+)'/;
+
+  for (const g of GAMES) {
+    const src = fs.readFileSync(path.join(root, g, 'js', 'ui.js'), 'utf8');
+    const m = url.exec(src);
+
+    check(!!m, g + ': its bug report carries no GAME_URL, so a report from it ' +
+      'does not say which build it came from and nobody can tell without asking.');
+
+    if (m) {
+      check(m[1].endsWith('/' + gamesDir + '/' + g + '/'),
+        g + ': GAME_URL is ' + m[1] + ', which does not end in ' + gamesDir + '/' +
+        g + '/. Copied from another game? A report that names the wrong one is ' +
+        'worse than a report that names none.');
+      check(m[1].indexOf('https://') === 0,
+        g + ': GAME_URL ' + m[1] + ' is not an https URL');
+    }
+
+    check(/navigator\.userAgent/.test(src),
+      g + ": its bug report does not include the browser. Almost everything " +
+      'that goes wrong here goes wrong in one browser and not the others, and ' +
+      'the people most likely to file are running a screen reader, where the ' +
+      'pairing matters more rather than less.');
+  }
+}
+
 /* ---------------- the old game addresses still arrive somewhere -----------
  *
  * Every game used to be published at the top of the site, so every game had an
