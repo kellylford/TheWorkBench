@@ -60,15 +60,18 @@ body {
 
 .tagline { margin: .25rem 0 .75rem; color: var(--ink-dim); }
 
-/* Says this build is unfinished, and points at the one that is not. Deliberately
- * NOT part of .tagline: the narrow-viewport rules hide the tagline as decoration,
- * which is fine for a strapline and wrong for the only warning on the page and
- * the only way back to the stable game. display:none also drops it out of the
- * accessibility tree entirely, so a phone user would never learn either fact.
+/* Says this build is not the one to play, and points at the one that is. Written
+ * for a half-finished game and now carried by an archive: sheephead/ is the
+ * original single-player build, kept for reference while sheephead-multiplayer/
+ * is the Sheephead The Card Place links. A page that does not say so is
+ * indistinguishable from the live game — same title, same table, same rules —
+ * and somebody arriving on a pre-move link has no other way to tell.
  *
- * The link is given an explicit colour for the same reason .site-footer a is:
- * there is no global link rule here, so an unstyled link falls back to browser
- * default blue — 1.94:1 on this background. tests/contrast.js caught that. */
+ * Deliberately NOT part of .tagline: the narrow-viewport rules hide the tagline
+ * as decoration, which is fine for a strapline and wrong for the only notice on
+ * the page and the only way to the current game. display:none also drops it out
+ * of the accessibility tree entirely, so a phone user would never learn either
+ * fact. */
 .dev-notice {
   margin: .25rem 0 .75rem;
   color: var(--ink);
@@ -81,6 +84,21 @@ body {
    * which is exactly what happened. Wrapping is free; a horizontal scrollbar on a
    * phone is not. */
   overflow-wrap: break-word;
+}
+
+/* The comment above used to claim this rule existed. It did not: .dev-notice was
+ * defined, commented and used by no page in the repository, so nothing ever
+ * rendered a link inside one and nothing ever measured it. There is no global
+ * link rule here, so an unstyled link falls back to browser default blue —
+ * 1.94:1 on this background — and at the default text size a bare inline link is
+ * about 21px tall, under the 24px WCAG 2.2 minimum. Both are the faults
+ * .site-footer a already carries a rule for; the layout audit measured this one
+ * at 130 by 21px the first time a page used the class. */
+.dev-notice a {
+  color: var(--accent);
+  font-weight: 600;
+  display: inline-block;
+  padding: .2rem .15rem;
 }
 
 main { padding: 1rem clamp(1rem, 4vw, 2rem) 4rem; max-width: 88rem; }

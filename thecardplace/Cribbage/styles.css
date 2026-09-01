@@ -552,3 +552,39 @@ body {
     color: #0d3a6b;
     font-weight: bold;
 }
+
+/* Says this build is not the one to play, and points at the one that is.
+ * Cribbage/ is the original single-player game, kept for reference;
+ * cribbage-multiplayer/ is the Cribbage The Card Place links. Both pages that
+ * load this sheet carry the notice, which is why the rule is here rather than
+ * inline in either of them.
+ *
+ * The same class name as shared/styles/core.css uses, and deliberately NOT the
+ * same rule: this game predates the shared sheet and does not load it, so it has
+ * its own palette — light panel, dark text — and its own colours are the only
+ * ones that would pass a contrast audit here. One name for one idea; two
+ * implementations because there are two stylesheets.
+ *
+ * The link is inline-block with padding rather than a bare inline link: at this
+ * text size that renders about 21px tall, under the 24px WCAG 2.2 minimum. It
+ * looks fine and clicks fine; the people it fails are aiming with a thumb or a
+ * head pointer. */
+.dev-notice {
+    margin: 0 0 15px;
+    padding: 8px 12px;
+    border-left: 4px solid #2c3e50;
+    background: #ffffff;
+    color: #2c3e50;
+    line-height: 1.5;
+    /* A line that fits on the machine this was written on can push a 320px
+       screen sideways on another, where the font metrics differ. Wrapping is
+       free; a horizontal scrollbar on a phone is not. */
+    overflow-wrap: break-word;
+}
+
+.dev-notice a {
+    color: #1a5276;
+    font-weight: 700;
+    display: inline-block;
+    padding: 2px 3px;
+}

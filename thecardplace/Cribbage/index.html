@@ -3,6 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- Kept for reference, not for playing. Without this a search for an
+     accessible card game can land somebody on the build nobody is developing,
+     which is a worse first visit than not being found at all. -->
+<meta name="robots" content="noindex">
 <!-- Without this the browser asks for /favicon.ico at the SITE root, which
      belongs to the user page rather than this project — so every page here
      logged a 404 nobody could fix from this repository. -->
@@ -14,6 +18,11 @@
     <a class="skip-link" href="#main-content">Skip to main content</a>
     <div class="game-container">
         <h1 class="page-title">Cribbage</h1>
+        <!-- Right after the heading, so it is the first thing said about the page. The
+             class is the shared one: it was written for exactly this and used by
+             nothing until now. -->
+        <p class="dev-notice"><strong>This is the original single-player Cribbage</strong>, kept
+          for reference. The Cribbage people play now is <a href="../cribbage-multiplayer/">at The Card Place</a> — it plays the same on your own, and somebody else can join.</p>
         
         <main id="main-content">
         <!-- Cribbage Board -->
@@ -70,7 +79,7 @@
         <!-- Links. The way back to the other games goes first: it is the one a
              player is most likely to want and least likely to guess at. -->
         <nav class="footer-links" aria-label="Elsewhere">
-            <a href="../thecardplace.html" class="hub-link">Back to The Card Place</a>
+            <a href="../index.html" class="hub-link">Back to The Card Place</a>
             <a href="rules.html" target="_blank" rel="noopener noreferrer" class="rules-link">How to Play Cribbage</a>
             <a href="https://github.com/kellylford/TheWorkBench/issues/new" target="_blank" rel="noopener noreferrer" class="issue-link">Report an Issue</a>
         </nav>
