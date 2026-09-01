@@ -3,14 +3,32 @@
 What is covered, what is not, and — more usefully — what each test exists *because of*. Every
 suite here was written after something got through, and the note on each one says what.
 
-Three games, three rule sets, one shared conviction: **a test that cannot fail is not evidence.**
+Five games, five rule sets, one shared conviction: **a test that cannot fail is not evidence.**
 
-- **Sheephead** — `sheephead/` → https://kellylford.github.io/TheWorkBench/thecardplace/sheephead/
-- **Cribbage** — `Cribbage/` → https://kellylford.github.io/TheWorkBench/thecardplace/Cribbage/
-- **Sheephead Multiplayer** — `sheephead-multiplayer/` → https://kellylford.github.io/TheWorkBench/thecardplace/sheephead-multiplayer/
+Seven directories for five games. These are the addresses they are published at — the same ones a
+player's bug report pastes in, so one that is wrong here is wrong in the report too:
+
 - **Euchre** — `euchre/` → https://kellylford.github.io/TheWorkBench/thecardplace/euchre/
+- **Hearts** — `hearts/` → https://kellylford.github.io/TheWorkBench/thecardplace/hearts/
+- **Spades** — `spades/` → https://kellylford.github.io/TheWorkBench/thecardplace/spades/
+- **Cribbage** — `cribbage-multiplayer/` → https://kellylford.github.io/TheWorkBench/thecardplace/cribbage-multiplayer/
+- **Sheephead** — `sheephead-multiplayer/` → https://kellylford.github.io/TheWorkBench/thecardplace/sheephead-multiplayer/
 
-Sheephead Multiplayer is a fork of the first and currently runs the same suites against a
+Those five are the games. Two of them have an ancestor kept for reference — the original
+single-player builds, forked rather than rewritten so the working game could not regress while the
+networked one was written. They are still published and still tested, and they are not what
+anything links:
+
+- **Cribbage, the original** — `Cribbage/` → https://kellylford.github.io/TheWorkBench/thecardplace/Cribbage/
+- **Sheephead, the original** — `sheephead/` → https://kellylford.github.io/TheWorkBench/thecardplace/sheephead/
+
+Every one of these moved once, too: they were published at the top of the site, without the
+`thecardplace/` in the middle. Those addresses still answer, because the repository's `404.html`
+rewrites them, and it sends a bare old link to the game rather than to the archive —
+`/sheephead/` opens Sheephead, while `/sheephead/js/ui.js` still opens the file of that name.
+`shared/tests/wiring.js` checks both, against what the landing page links.
+
+Sheephead Multiplayer is a fork of Sheephead and currently runs the same suites against a
 near-identical copy, which is deliberate: while the two are meant to behave the same, a divergence
 is a signal. Its CI job carries one extra check the others do not — that the branch has not
 modified `sheephead/`.
@@ -24,16 +42,45 @@ that samples what the **live regions actually said** rather than trusting that a
 
 ## Running everything
 
-```bash
-cd sheephead && npm test
-```
-
-```bash
-cd Cribbage && npm test
-```
+Every game is its own npm project, so each one is its own command. `jsdom` and `puppeteer` are
+declared as dependencies nowhere — the games ship with none — so a suite that needs one skips
+cleanly on a bare checkout. That is friendly locally and exactly wrong in CI, which installs them
+and then refuses to accept a skip.
 
 ```bash
 cd euchre && npm install --no-save jsdom && npm test
+```
+
+```bash
+cd hearts && npm test
+```
+
+```bash
+cd spades && npm test
+```
+
+```bash
+cd Cribbage && npm install --no-save jsdom puppeteer && npm test
+```
+
+```bash
+cd cribbage-multiplayer && npm install --no-save jsdom && npm test
+```
+
+```bash
+cd sheephead && npm install --no-save jsdom puppeteer && npm test
+```
+
+```bash
+cd sheephead-multiplayer && npm install --no-save jsdom puppeteer && npm test
+```
+
+And the checks that belong to no single game, run from this directory: the wiring, the engine
+contract, what survives a reload, the invisible-character scan, and whether every link on every
+page goes anywhere at all.
+
+```bash
+node shared/tests/wiring.js
 ```
 
 Two Sheephead suites are deliberately outside `npm test`: `layout.js` needs a headless browser, and

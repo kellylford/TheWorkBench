@@ -113,13 +113,31 @@ jobs:
       # Nothing else here would notice a broken import: the game suites do not
       # bundle, and the deploy that would fail only runs after the merge — on
       # main, against the live room. Bundling is a few milliseconds.
+      #
+      # Found by glob rather than named, because the named list was already one
+      # short: spades shipped a Worker and a deploy workflow and was never in
+      # it, so a broken import there would have reached the live room with
+      # every check green. A list of games that has to be edited when a game is
+      # added is the same bug this workflow's path filters had. The glob cannot
+      # go short, and the guard below is there because a glob that matches
+      # nothing succeeds silently, which would be the same failure wearing a
+      # different hat.
       - name: Every Worker still bundles
         run: |
           set -euo pipefail
           npm install --no-save esbuild
-          for g in euchre cribbage-multiplayer sheephead-multiplayer hearts; do
-            npx esbuild --bundle "$g/worker/src/index.js" --format=esm --outfile=/dev/null
+          found=0
+          for w in */worker/src/index.js; do
+            [ -f "$w" ] || continue
+            echo "bundling $w"
+            npx esbuild --bundle "$w" --format=esm --outfile=/dev/null
+            found=$((found + 1))
           done
+          if [ "$found" -lt 5 ]; then
+            echo "::error::Only $found Workers were bundled. There are five multiplayer games; if one lost its worker/src/index.js, its deploy is the next thing to break."
+            exit 1
+          fi
+          echo "$found Workers bundle."
 
   # Hearts. No fork and no stable twin — it was built on the shared layer from
   # the first line, so there is no copy of it anywhere to guard against.

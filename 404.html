@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<!--
+  Every card game used to be published at the top of this site — /euchre/,
+  /sheephead/, /Cribbage/ and the rest. They are all under /thecardplace/ now,
+  and GitHub Pages has no server-side redirects, so without this page every one
+  of those addresses is a 404. They are not hypothetical: each game's "Report an
+  Issue" button pasted its own URL into the report, so the old form is written
+  into bug reports that are already filed.
+
+  One file rather than a stub directory per game, because directories named
+  after games at the top level are the scatter the move existed to end.
+
+  TWO DESTINATIONS PER GAME, which is the part worth reading.
+
+  Cribbage and Sheephead each have two builds: the original single-player one,
+  and the multiplayer build that is now simply the game — it plays perfectly
+  well alone when nobody else joins, and it is what The Card Place links. The
+  single-player builds are kept for reference, not for playing.
+
+  So a bare game address goes to the game people play, and anything deeper goes
+  to the directory of that exact name:
+
+    /sheephead/        -> /thecardplace/sheephead-multiplayer/   the live game
+    /sheephead/js/x.js -> /thecardplace/sheephead/js/x.js        where the file is
+    /Cribbage/         -> /thecardplace/cribbage-multiplayer/
+    /Cribbage/rules.html -> /thecardplace/Cribbage/rules.html
+
+  Sending the deep links to the live build instead would be tidier and wrong:
+  cribbage-multiplayer has no rules.html, so /Cribbage/rules.html would turn one
+  404 into another. The rule is "someone following a bare link wants to play;
+  someone following a deep link wants that file", and both are satisfied.
+
+  This page can go when the games leave this repository, along with
+  thecardplace.html. Until then it is what keeps the old links alive.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Page not found</title>
+<meta name="robots" content="noindex">
+<!-- The one repo-specific thing on this page, and deliberately so. The script
+     below derives nothing from where the site is mounted, because it runs on
+     every 404 at every depth. These links cannot: they have to work with
+     JavaScript off, which means they have to be in the HTML, which means they
+     have to be written down. A fork that renames the repository edits these
+     three and nothing else. -->
+<link rel="icon" href="/TheWorkBench/thecardplace/shared/favicon.svg" type="image/svg+xml">
+<style>
+  body { font: 1rem/1.6 system-ui, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; margin: 3rem auto; max-width: 34rem; padding: 0 1rem; }
+  a { color: #0b5fff; }
+  :focus-visible { outline: 3px solid #a35a00; outline-offset: 3px; }
+  @media (prefers-color-scheme: dark) {
+    body { background: #111; color: #eee; }
+    a { color: #79b0ff; }
+    :focus-visible { outline-color: #ffd54a; }
+  }
+</style>
+<script>
+(function () {
+  'use strict';
+
+  /* old directory name -> [where a bare link goes, where a deep link goes].
+     Spelled exactly as the directories are: Pages paths are case sensitive,
+     and Cribbage is the one with a capital. */
+  var MOVED = {
+    'euchre':                ['euchre',                'euchre'],
+    'hearts':                ['hearts',                'hearts'],
+    'spades':                ['spades',                'spades'],
+    'cribbage-multiplayer':  ['cribbage-multiplayer',  'cribbage-multiplayer'],
+    'sheephead-multiplayer': ['sheephead-multiplayer', 'sheephead-multiplayer'],
+    'Cribbage':              ['cribbage-multiplayer',  'Cribbage'],
+    'sheephead':             ['sheephead-multiplayer', 'sheephead'],
+    'shared':                ['shared',                'shared']
+  };
+
+  var parts = location.pathname.split('/');
+
+  /* Already inside the games directory: this is a real missing file, not an
+     old address, and rewriting it would point it at itself forever. */
+  if (parts.indexOf('thecardplace') !== -1) return;
+
+  for (var i = 0; i < parts.length; i++) {
+    /* hasOwnProperty rather than `if (MOVED[seg])`, which is what this said
+       first and was wrong: every object inherits constructor, toString,
+       valueOf, hasOwnProperty, isPrototypeOf and __proto__, so /constructor/
+       matched, `to[0]` was undefined, and the page sent the visitor to
+       /thecardplace/undefined/ — a second 404, with the back entry already
+       spent by location.replace. */
+    if (!Object.prototype.hasOwnProperty.call(MOVED, parts[i])) continue;
+    var to = MOVED[parts[i]];
+
+    var rest = parts.slice(i + 1).join('/');
+    var wantsTheGame = (rest === '' || rest === 'index.html');
+
+    parts[i] = 'thecardplace/' + (wantsTheGame ? to[0] : to[1]);
+    location.replace(parts.join('/') + location.search + location.hash);
+    return;
+  }
+})();
+</script>
+</head>
+<body>
+<h1>Page not found</h1>
+<p>There is nothing at this address. If you came here looking for a card game, they are
+all at <a href="/TheWorkBench/thecardplace/">The Card Place</a> &mdash; they moved, and an
+old link should have brought you straight there.</p>
+<p>Everything else in this repository is on
+<a href="https://github.com/kellylford/TheWorkBench">GitHub</a>.</p>
+</body>
+</html>

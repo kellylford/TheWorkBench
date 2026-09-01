@@ -29,25 +29,51 @@ are bidding it tells you what your hand would be worth with the suit on offer as
 
 [View Project][9]
 
+### Hearts
+Hearts for four. Every heart is a point and the queen of spades is thirteen, and the lowest score
+wins — which is the thing that catches new players out, so the game says it rather than assuming it.
+
+[View Project][12]
+
+### Spades
+Spades for four in two fixed partnerships, with a bid made before a card is played. Missing the
+contract costs the whole bid rather than the difference, and tricks taken over it fill a bag bin
+that eventually costs a hundred — so the running bag count is text the same as everything else.
+
+[View Project][13]
+
 ### Cribbage
-The classic two-hander against the computer, scored to 121.
-
-[View Project][6]
-
-### cribbage-multiplayer
-A fork of the above, extended so two people in different places can play each other. It exists as a
-separate directory so the stable game cannot regress while it is built — a CI guard fails the build
-if a branch touching this directory also touches `thecardplace/Cribbage/`.
-
-The interesting part is what did not survive the move to a server: the computer used to read your
-hand while deciding what to lay, the count reset lived in the browser rather than the engine, and
-the discard was a single function call that moved both players at once. All three are written up in
-its README.
+Cribbage for two: pegging, fifteens, runs and the crib, scored to 121 on a board that reads as well
+as it looks. Play the computer or open a table and play somebody else.
 
 [View Project][10]
 
-# 
-## parallels-manager
+### Sheephead
+The Wisconsin classic, also called Schafkopf, for three to six. Queens and jacks are trump, the
+picker takes the blind, and the jack of diamonds is a secret partner nobody admits to. Any seat
+nobody is sitting in is played by the computer, so a table works alone or with five other people.
+
+How it was built — four review passes, and every place a reviewer contradicted the plan — is in
+[PLAN.md](./thecardplace/sheephead-multiplayer/PLAN.md).
+
+[View Project][8]
+
+### The two originals: `Cribbage/` and `sheephead/`
+
+Cribbage and Sheephead each began as a single-player game against the computer, and each was then
+forked rather than rewritten, so that the working game could not regress while the networked one was
+built. A CI guard still enforces that: a branch touching a fork and its original together fails.
+
+The forks are the games now — they play the same alone, and other people can join — so The Card
+Place links those, and these two are kept for reference rather than for playing. Each says so at the
+top of its own page and asks search engines not to index it, because a page that does not say so is
+indistinguishable from the live game.
+
+[Cribbage, the original][6] · [Sheephead, the original][4]
+
+## Other projects
+
+### parallels-manager
 A macOS application for managing Parallels Desktop virtual machines.
 
 [View Project][1]
@@ -56,20 +82,6 @@ A macOS application for managing Parallels Desktop virtual machines.
 Windows 11 ARM installation scripts and resources.
 
 [View Project][2]
-
-### sheephead
-A fully keyboard and screen reader accessible Sheephead card game for 3 to 6 players, played
-against computer opponents. Runs entirely in the browser with no build step and no dependencies.
-
-[View Project][4]
-
-### sheephead-multiplayer
-A fork of the above, being extended so people in different places can play against each other. It
-exists as a separate directory so the stable game cannot regress while it is built — a CI guard
-fails the build if a branch touching this directory also touches `thecardplace/sheephead/`. Not
-finished; see [PLAN.md](./thecardplace/sheephead-multiplayer/PLAN.md).
-
-[View Project][8]
 
 ## Getting Started
 
@@ -94,3 +106,5 @@ Contributions to existing projects are welcome. If you have a script, app or oth
 [9]:	./thecardplace/euchre
 [10]:	./thecardplace/cribbage-multiplayer
 [11]:	./thecardplace
+[12]:	./thecardplace/hearts
+[13]:	./thecardplace/spades
