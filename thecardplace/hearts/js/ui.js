@@ -1157,13 +1157,29 @@
     say('Export the game log. ' + el['export-summary'].textContent, { request: true });
   }
 
+  /* The published address of THIS game, in the report, because a report that
+   * does not say where it came from is a report somebody has to ask about
+   * before they can start. Euchre, Cribbage and Sheephead have carried it since
+   * they had a report at all; these two were written later and did not, so a
+   * hearts bug and a spades bug arrived naming the game and nothing else.
+   *
+   * It is also the address that changed under everybody's feet when the games
+   * moved into thecardplace/, so a report holding the old one dates itself,
+   * which is worth something on its own. */
+  var GAME_URL = 'https://kellylford.github.io/TheWorkBench/thecardplace/hearts/';
+
   function bugReport() {
     var parts = [];
     parts.push('**What went wrong:** ' + (el['bug-title'].value || '(not said)'));
     parts.push('');
     parts.push(el['bug-what'].value || '(no detail given)');
     parts.push('');
-    parts.push('Game: Hearts');
+    parts.push('Game: Hearts (' + GAME_URL + ')');
+    /* Which browser, because almost everything that goes wrong in these games
+     * goes wrong in one of them and not the others — and the people most likely
+     * to file are running a screen reader, where the pairing matters more, not
+     * less. Asking afterwards costs a round trip and usually the report. */
+    parts.push('Browser: ' + ((global.navigator && global.navigator.userAgent) || 'unknown'));
     if (state) parts.push('Hand ' + state.dealNumber + ', phase ' + state.phase);
     parts.push('Table: ' + (lobby.code ? 'online, ' + lobby.code : 'against the computer'));
     if (el['bug-include-log'].checked) {
