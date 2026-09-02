@@ -155,11 +155,10 @@ final class Announcer {
         if let text, text != c.text { return }
         fallback?.cancel()
         current = nil
-        if !ok, !c.isRequest, queue.first != c {
-            // VoiceOver cut it off for a reason of its own (the player touched
-            // something). Say it again rather than lose it.
-            queue.insert(c, at: 0)
-        }
+        // If VoiceOver cut it off because the player moved, it is not said
+        // again: re-posting would interrupt whatever they moved to, and the
+        // text is on screen with Repeat beside it.
+        _ = ok
         pump()
     }
 }

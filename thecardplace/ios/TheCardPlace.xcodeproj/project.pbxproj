@@ -74,10 +74,10 @@
 		986C449B616F36A9A6F2C657 /* HeartsTableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeartsTableView.swift; sourceTree = "<group>"; };
 		AAF045FB25E4ADB2CA67D558 /* CribbageTableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CribbageTableView.swift; sourceTree = "<group>"; };
 		BA5231380811FB9C801986A6 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
-		BB6CB4BC18B0E968DDB2B545 /* CardGamesKit */ = {isa = PBXFileReference; lastKnownFileType = folder; name = CardGamesKit; path = CardGamesKit; sourceTree = SOURCE_ROOT; };
+		BB6CB4BC18B0E968DDB2B545 /* CardGamesKit */ = {isa = PBXFileReference; lastKnownFileType = folder; path = CardGamesKit; sourceTree = SOURCE_ROOT; };
 		CDA075E69F49B49AAB03E8E2 /* SheepheadUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SheepheadUITests.swift; sourceTree = "<group>"; };
 		CF69E8B3A17179C62D40B511 /* TheCardPlaceUITests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = TheCardPlaceUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		D05446CD11AC095AA63DC3D5 /* TheCardPlace.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = TheCardPlace.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		D05446CD11AC095AA63DC3D5 /* TheCardPlace.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; name = TheCardPlace.app; path = "The Card Place.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		D1F2D50DBA2115DF077A2CBF /* SpadesUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpadesUITests.swift; sourceTree = "<group>"; };
 		D40675BACF55461868978BF6 /* CribbageUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CribbageUITests.swift; sourceTree = "<group>"; };
 		DA0FB2E6A85DBECE8E50C61F /* HubView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HubView.swift; sourceTree = "<group>"; };

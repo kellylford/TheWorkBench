@@ -39,15 +39,8 @@ struct GameSetupView: View {
             }
 
             Section {
-                Button {
-                    playing = true
-                } label: {
-                    Text("Deal")
-                        .font(.headline)
-                        .frame(maxWidth: .infinity, minHeight: 44)
-                }
-                .buttonStyle(.borderedProminent)
-                .listRowInsets(EdgeInsets())
+                PrimaryButton(title: "Deal") { playing = true }
+                    .listRowInsets(EdgeInsets())
             }
 
             Section {
@@ -71,7 +64,7 @@ struct GameSetupView: View {
     private var summary: String {
         var parts = [
             "Pace: \(settings.pace(for: game).label).",
-            "Computer players: \(settings.difficulty.label).",
+            game.hasDifficulty ? "Computer players: \(settings.difficulty.label)." : "",
             settings.autofocus ? "VoiceOver moves to your cards on your turn." : "VoiceOver stays where it is on your turn."
         ]
         if let rules = GameRules.summary(for: game, settings: settings) { parts.insert(rules, at: 0) }

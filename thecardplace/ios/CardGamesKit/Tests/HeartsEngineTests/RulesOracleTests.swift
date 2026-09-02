@@ -281,10 +281,14 @@ final class RulesOracleTests: XCTestCase {
         return Set(allowed)
     }
 
+    /// Two low, ace high, written out rather than asked of the engine.
+    static let literalRankOrder: [Rank] = [.two, .three, .four, .five, .six, .seven, .eight, .nine, .ten, .jack, .queen, .king, .ace]
+
     static func oracleWinner(_ plays: [HeartsTrickPlay]) -> Int {
         let led = plays[0].card.suit
         var best = plays[0]
-        for p in plays.dropFirst() where p.card.suit == led && HeartsCards.power(p.card) > HeartsCards.power(best.card) { best = p }
+        for p in plays.dropFirst() where p.card.suit == led
+            && literalRankOrder.firstIndex(of: p.card.rank)! > literalRankOrder.firstIndex(of: best.card.rank)! { best = p }
         return best.seat
     }
 

@@ -142,8 +142,6 @@ struct AccessibleTable: View {
                         Text(c).font(.caption.weight(.semibold)).foregroundStyle(.secondary)
                     }
                 }
-                .accessibilityElement(children: .ignore)
-                .accessibilityLabel("Columns: " + columns.joined(separator: ", "))
                 Divider()
                 ForEach(Array(rows.enumerated()), id: \.offset) { _, row in
                     GridRow {
@@ -151,8 +149,16 @@ struct AccessibleTable: View {
                             Text(cell).font(i == 0 ? .body.weight(.semibold) : .body)
                         }
                     }
-                    .accessibilityElement(children: .ignore)
-                    .accessibilityLabel(rowLabel(row))
+                }
+            }
+            // A modifier on a GridRow lands on each of its cells, so the rows
+            // are described separately: one element per row, read as a sentence.
+            .accessibilityRepresentation {
+                VStack(alignment: .leading) {
+                    Text("Columns: " + columns.joined(separator: ", "))
+                    ForEach(Array(rows.enumerated()), id: \.offset) { _, row in
+                        Text(rowLabel(row))
+                    }
                 }
             }
             if let footnote {
@@ -191,13 +197,16 @@ struct LogSection: View {
             if entries.isEmpty {
                 Text("Nothing yet.").foregroundStyle(.secondary)
             }
-            ForEach(showAll ? entries : Array(entries.prefix(visible))) { entry in
-                Text(entry.text)
-                    .font(.callout)
-                    .frame(maxWidth: .infinity, alignment: .leading)
+            LazyVStack(alignment: .leading, spacing: 6) {
+                ForEach(showAll ? entries : Array(entries.prefix(visible))) { entry in
+                    Text(entry.text)
+                        .font(.callout)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                }
             }
             if !showAll, entries.count > visible {
                 Button("Show all \(entries.count) entries") { showAll = true }
+                    .frame(minHeight: 44)
             }
         }
         .accessibilityElement(children: .contain)
@@ -252,14 +261,7 @@ struct ContinueBar: View {
     var body: some View {
         if gate.waiting {
             VStack(alignment: .leading, spacing: 6) {
-                Button {
-                    gate.continueNow()
-                } label: {
-                    Text(label)
-                        .frame(maxWidth: .infinity, minHeight: 44)
-                }
-                .buttonStyle(.borderedProminent)
-                .keyboardShortcut("n", modifiers: [])
+                PrimaryButton(title: label, key: "n") { gate.continueNow() }
                 Text(pace == .waitForMe
                      ? "The game waits until you press Continue."
                      : "The next play comes on its own \(pace.words). Continue does not wait.")
@@ -294,7 +296,9 @@ struct PrimaryButton: View {
                 .frame(maxWidth: .infinity, minHeight: 44)
         }
         .buttonStyle(.borderedProminent)
-        .tint(enabled ? Color.accentColor : Color.gray)
+        // Dimmed is a grey that still carries the label at 6.7:1 (light) and
+        // 7.8:1 (dark); the accent carries it at 9.8:1 and 10:1.
+        .tint(enabled ? Color.accentColor : Color(white: scheme == .dark ? 0.62 : 0.36))
         .accessibilityHint(enabled ? "" : notReadyHint)
         .keyboardShortcut(key.map { KeyboardShortcut(KeyEquivalent($0), modifiers: []) })
     }
@@ -324,6 +328,7 @@ struct GameChrome: ViewModifier {
                         Button("Game settings") { showingSettings = true }
                         Button("How to play \(game.title)") { showingRules = true }
                         Button("Accessibility hints") { showingHints = true }
+                            .keyboardShortcut("?", modifiers: [])
                         Divider()
                         Button("Start a new game", role: .destructive) { confirmingNewGame = true }
                     } label: {
@@ -366,5 +371,12 @@ extension String {
     var sentenceCased: String {
         guard let f = first else { return self }
         return f.uppercased() + dropFirst()
+    }
+
+    /// A refusal as a spoken sentence: first letter up, one full stop, whether
+    /// the engine wrote "not your turn" or "It is not your turn."
+    var asSentence: String {
+        let t = sentenceCased
+        return t.hasSuffix(".") || t.hasSuffix("!") || t.hasSuffix("?") ? t : t + "."
     }
 }

@@ -552,7 +552,7 @@ public enum HeartsGame {
             if winners.count == 1 {
                 state.log.add(.game, "\(winners[0].name) wins with \(low). Lowest score wins.", seat: winners[0].index)
             } else {
-                state.log.add(.game, "Tied on \(low): " + winners.map(\.name).joined(separator: " and ") + ".")
+                state.log.add(.game, "Tied on \(low): " + Prose.list(winners.map(\.name)) + ".")
             }
         } else {
             state.phase = .handOver

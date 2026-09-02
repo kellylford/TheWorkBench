@@ -45,17 +45,21 @@ struct SharedSettingsSections: View {
             }
         }
 
-        Section {
-            Picker("Computer players", selection: $settings.difficulty) {
-                ForEach(Difficulty.allCases) { d in
-                    Text(d.label).tag(d)
+        if game?.hasDifficulty ?? true {
+            Section {
+                Picker("Computer players", selection: $settings.difficulty) {
+                    ForEach(Difficulty.allCases) { d in
+                        Text(d.label).tag(d)
+                    }
                 }
+                .pickerStyle(.segmented)
+            } header: {
+                Text("Computer players")
+            } footer: {
+                Text(game == nil
+                     ? "Takes effect from the next hand. Euchre, cribbage and sheephead play differently by difficulty; hearts and spades always play their best."
+                     : "Takes effect from the next hand.")
             }
-            .pickerStyle(.segmented)
-        } header: {
-            Text("Computer players")
-        } footer: {
-            Text("Takes effect from the next hand.")
         }
 
         Section {

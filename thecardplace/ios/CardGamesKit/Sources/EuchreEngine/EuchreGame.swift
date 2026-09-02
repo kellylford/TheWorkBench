@@ -441,7 +441,7 @@ public enum EuchreGame {
         let mine = hand.filter { EuchreCards.effectiveSuit($0, trump: state.trump) == led }
         guard !mine.isEmpty else { return nil }
         let ledWord = led == state.trump ? "trump" : led.lowerName
-        return "you must follow \(ledWord) — you hold " + mine.map(\.name).joined(separator: " and ")
+        return "you must follow \(ledWord) — you hold " + mine.spokenList
     }
 
     /// Why a card in this seat's hand cannot be played now, or nil if it can.

@@ -132,8 +132,10 @@ and wrap onto more rows rather than shrinking; every control is at least 44
 points tall.
 
 **A hardware keyboard works.** The review letters from the browser games —
-H, T, L, S, C, O, R, N and each game's own — are keyboard shortcuts, and every
-one is also a button in the Review menu.
+H, T, L, S, C, O, W, R, N, ? and each game's own — are keyboard shortcuts, and
+every one is also a button in the Review menu. G (jump to the log) and E
+(export) have no shortcut here: the log is a heading VoiceOver can jump to,
+and there is no export yet.
 
 ### WCAG 2.2, briefly
 

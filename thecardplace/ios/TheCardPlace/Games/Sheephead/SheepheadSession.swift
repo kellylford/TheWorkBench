@@ -42,16 +42,7 @@ final class SheepheadSession {
 
     init(settings: AppSettings) {
         self.settings = settings
-        let rules = settings.rules(for: .sheephead, default: SheepheadRulesOptions())
-        let players = min(6, max(3, rules.players))
-        let config = SheepheadConfig(names: settings.names(seats: players),
-                                     players: players,
-                                     difficulty: settings.difficulty,
-                                     allPass: rules.allPass,
-                                     blackQueenDoubler: rules.blackQueenDoubler,
-                                     redQueenDoubler: rules.redQueenDoubler,
-                                     redealDoubler: rules.redealDoubler)
-        state = SheepheadGame.createGame(config)
+        state = SheepheadGame.createGame(Self.config(from: settings))
         apply(.start)
         runBots()
     }
@@ -295,8 +286,23 @@ final class SheepheadSession {
 
     func nextHand() {
         guard SheepheadGame.canDeal(state) else { return }
+        // The computer's skill takes effect from the next hand.
+        state.config.difficulty = settings.difficulty
         apply(.nextHand)
         runBots()
+    }
+
+    /// The table as the settings describe it right now.
+    private static func config(from settings: AppSettings) -> SheepheadConfig {
+        let rules = settings.rules(for: .sheephead, default: SheepheadRulesOptions())
+        let players = min(6, max(3, rules.players))
+        return SheepheadConfig(names: settings.names(seats: players),
+                               players: players,
+                               difficulty: settings.difficulty,
+                               allPass: rules.allPass,
+                               blackQueenDoubler: rules.blackQueenDoubler,
+                               redQueenDoubler: rules.redQueenDoubler,
+                               redealDoubler: rules.redealDoubler)
     }
 
     func newGame() {
@@ -305,7 +311,7 @@ final class SheepheadSession {
         selected = []
         // The engine only takes newGame between hands; starting over mid-hand
         // is the person's call, so rebuild the table the same way it did.
-        state = SheepheadGame.createGame(state.config)
+        state = SheepheadGame.createGame(Self.config(from: settings))
         lastEventId = 0
         revealedHand = 0
         apply(.start)
@@ -324,7 +330,7 @@ final class SheepheadSession {
     private func apply(_ action: SheepheadAction, seat: Int = SheepheadSession.me, speak: Bool = true) -> Bool {
         let r = SheepheadGame.applyAction(&state, seat: seat, action: action, rng: &rng)
         if !r.ok {
-            announcer.error(r.reason.map { $0.prefix(1).uppercased() + $0.dropFirst() + ($0.hasSuffix(".") ? "" : ".") } ?? "That was refused.")
+            announcer.error(r.reason?.asSentence ?? "That was refused.")
             return false
         }
         if speak { drain(batch: false) }
@@ -356,7 +362,11 @@ final class SheepheadSession {
 
     private func driveBots() async {
         var held: [String] = []
-        let batching = pace == .immediate || !settings.speakEveryPlay
+        // A run of plays is gathered into one message when there is no time
+        // between them to say each, or when the player asked for that — but
+        // never at Wait-for-me, where every press of Continue must say what
+        // it did.
+        let batching = pace == .immediate || (!settings.speakEveryPlay && pace != .waitForMe)
         while !Task.isCancelled,
               let seat = SheepheadGame.seatToAct(state),
               state.players[seat].occupant == .bot {

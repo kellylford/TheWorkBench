@@ -37,7 +37,7 @@ final class CribbageUITests: XCTestCase {
         XCTAssert(app.handCards.matching(NSPredicate(format: "label CONTAINS %@", "card 1 of 6")).firstMatch.exists)
         app.handCards.element(boundBy: 0).tap()
         app.handCards.element(boundBy: 1).tap()
-        XCTAssertEqual(app.handCards.matching(NSPredicate(format: "label CONTAINS %@", ", selected")).count, 2, "two cards say selected")
+        XCTAssertEqual(app.handCards.allElementsBoundByIndex.filter(\.isSelected).count, 2, "two cards say selected")
         let throwButton = app.buttons["Throw 2 of 2 to the crib"]
         XCTAssert(throwButton.waitForExistence(timeout: 3))
         throwButton.tap()
@@ -46,7 +46,6 @@ final class CribbageUITests: XCTestCase {
         // The play and the count: play a card that fits, say Go when nothing
         // does, press Next through the count, until the hand or the game is over.
         var sawWorthAndMakes = false
-        var sawWhyNot = false
         var done = false
         for _ in 0..<60 {
             if app.buttons["Deal the next hand"].exists || app.buttons["Start a new game"].exists {
@@ -55,7 +54,6 @@ final class CribbageUITests: XCTestCase {
             }
             let labels = app.handCards.allElementsBoundByIndex.map(\.label)
             if labels.contains(where: { $0.contains("worth") && $0.contains("makes") }) { sawWorthAndMakes = true }
-            if labels.contains(where: { $0.contains("cannot be played, it would take the count") }) { sawWhyNot = true }
             if let card = app.handCards.allElementsBoundByIndex.first(where: { $0.label.contains("makes") && !$0.label.contains("cannot be played") }) {
                 card.tap()
             } else if app.buttons["Go"].exists {
@@ -68,7 +66,6 @@ final class CribbageUITests: XCTestCase {
         }
         XCTAssert(done, "the hand ends with a deal or new-game button")
         XCTAssert(sawWorthAndMakes, "during the play a card said what it is worth and what count it makes")
-        _ = sawWhyNot // a card over thirty-one is not guaranteed in one hand
         app.attachScreenshot("cribbage-hand-over", to: self)
 
         if app.buttons["Deal the next hand"].exists {

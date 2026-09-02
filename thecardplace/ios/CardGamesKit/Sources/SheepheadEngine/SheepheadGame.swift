@@ -630,7 +630,7 @@ public enum SheepheadGame {
             if let p = dbl.player { return name(state, p) + " held " + dbl.text }
             return dbl.text
         }
-        return " Doubled by " + bits.joined(separator: " and ") + ", so the hand is worth \(doublerFactor(state)) times."
+        return " Doubled by " + Prose.list(bits) + ", so the hand is worth \(doublerFactor(state)) times."
     }
 
     // MARK: Playing

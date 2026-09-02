@@ -24,7 +24,7 @@ final class HeartsUITests: XCTestCase {
 
         // Pass: choose three, then Pass.
         for i in 0..<3 { app.handCards.element(boundBy: i).tap() }
-        XCTAssertEqual(app.handCards.matching(NSPredicate(format: "label CONTAINS %@", ", selected")).count, 3, "three cards say selected")
+        XCTAssertEqual(app.handCards.allElementsBoundByIndex.filter(\.isSelected).count, 3, "three cards say selected")
         let pass = app.buttons["Pass 3 of 3"]
         XCTAssert(pass.waitForExistence(timeout: 3))
         pass.tap()
@@ -70,7 +70,7 @@ final class HeartsUITests: XCTestCase {
         XCTAssertEqual(app.handCards.count, 13)
         app.attachScreenshot("hearts-largest-text", to: self)
         for i in 0..<3 { app.handCards.element(boundBy: i).tap() }
-        XCTAssertEqual(app.handCards.matching(NSPredicate(format: "label CONTAINS %@", ", selected")).count, 3)
+        XCTAssertEqual(app.handCards.allElementsBoundByIndex.filter(\.isSelected).count, 3)
         app.attachScreenshot("hearts-largest-text-selected", to: self)
     }
 }

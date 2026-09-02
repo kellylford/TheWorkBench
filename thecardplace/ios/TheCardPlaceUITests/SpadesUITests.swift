@@ -64,12 +64,7 @@ final class SpadesUITests: XCTestCase {
         }
 
         XCTAssert(dealButton.waitForExistence(timeout: 10), "the hand ends with a deal button")
-        if !sawARefusalReason {
-            // Not every hand forces a follow or a held-back spade; the label
-            // format is the thing that must always be there.
-            XCTAssert(app.handCards.count == 0 || app.handCards.firstMatch.label.contains(" of "),
-                      "cards say where they sit")
-        }
+        XCTAssert(sawARefusalReason, "at some point a card said why it could not be played")
         XCTAssert(app.staticTexts["Hands played"].exists)
         XCTAssert(app.staticTexts["Last completed trick"].exists)
         app.attachScreenshot("spades-hand-over", to: self)

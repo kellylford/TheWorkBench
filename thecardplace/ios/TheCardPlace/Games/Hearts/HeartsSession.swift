@@ -35,12 +35,17 @@ final class HeartsSession {
 
     init(settings: AppSettings) {
         self.settings = settings
-        let rules = settings.rules(for: .hearts, default: HeartsRulesOptions())
-        let config = HeartsConfig(names: settings.names(seats: HeartsGame.seats),
-                                  difficulty: settings.difficulty,
-                                  pointsToWin: rules.pointsToWin)
-        state = HeartsGame.createGame(config)
+        state = HeartsGame.createGame(Self.config(from: settings))
         apply(.start)
+        runBots()
+    }
+
+    /// The table as the settings describe it right now.
+    private static func config(from settings: AppSettings) -> HeartsConfig {
+        let rules = settings.rules(for: .hearts, default: HeartsRulesOptions())
+        return HeartsConfig(names: settings.names(seats: HeartsGame.seats),
+                            difficulty: settings.difficulty,
+                            pointsToWin: rules.pointsToWin)
     }
 
     // MARK: - what the screen shows
@@ -196,7 +201,10 @@ final class HeartsSession {
         botTask?.cancel()
         gate.cancel()
         selected = []
-        // The engine rebuilds its state, and its log starts again at one.
+        // The engine rebuilds its state from its config, so the config is
+        // brought up to date first: rules changed in the settings sheet take
+        // effect here, as the sheet promises. Its log starts again at one.
+        state.config = Self.config(from: settings)
         lastEventId = 0
         apply(.newGame)
         apply(.start)
@@ -215,7 +223,7 @@ final class HeartsSession {
     private func apply(_ action: HeartsAction, seat: Int = HeartsSession.me, speak: Bool = true) -> Bool {
         let r = HeartsGame.applyAction(&state, seat: seat, action: action, rng: &rng)
         if !r.ok {
-            announcer.error(r.reason.map { $0.prefix(1).uppercased() + $0.dropFirst() + "." } ?? "That was refused.")
+            announcer.error(r.reason?.asSentence ?? "That was refused.")
             return false
         }
         if speak { drain(batch: false) }
@@ -246,7 +254,11 @@ final class HeartsSession {
 
     private func driveBots() async {
         var held: [String] = []
-        let batching = pace == .immediate || !settings.speakEveryPlay
+        // A run of plays is gathered into one message when there is no time
+        // between them to say each, or when the player asked for that — but
+        // never at Wait-for-me, where every press of Continue must say what
+        // it did.
+        let batching = pace == .immediate || (!settings.speakEveryPlay && pace != .waitForMe)
         while !Task.isCancelled,
               let seat = HeartsGame.seatToAct(state),
               state.players[seat].occupant == .bot {

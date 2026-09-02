@@ -27,6 +27,17 @@ final class SpadesSession {
     /// Newest first.
     private(set) var log: [LogEntry] = []
     private var lastEventId = 0
+    /// Log ids are the session's own count: a new game restarts the engine's
+    /// log at one, and the list would otherwise hold two entries with one id.
+    private var logSerial = 0
+
+    /// The table as the settings describe it right now.
+    private static func config(from settings: AppSettings) -> SpadesConfig {
+        let rules = settings.rules(for: .spades, default: SpadesRulesOptions())
+        return SpadesConfig(names: settings.names(seats: SpadesGame.seats),
+                            difficulty: settings.difficulty,
+                            pointsToWin: rules.pointsToWin)
+    }
 
     /// The number on the bid stepper. Nil is a separate button, so this is
     /// never zero.
@@ -41,11 +52,7 @@ final class SpadesSession {
 
     init(settings: AppSettings) {
         self.settings = settings
-        let rules = settings.rules(for: .spades, default: SpadesRulesOptions())
-        let config = SpadesConfig(names: settings.names(seats: SpadesGame.seats),
-                                  difficulty: settings.difficulty,
-                                  pointsToWin: rules.pointsToWin)
-        state = SpadesGame.createGame(config)
+        state = SpadesGame.createGame(Self.config(from: settings))
         apply(.start)
         // Bidding starts to the dealer's left, and the dealer is drawn; the
         // first to bid is as likely as not a computer.
@@ -228,6 +235,10 @@ final class SpadesSession {
     func newGame() {
         botTask?.cancel()
         gate.cancel()
+        // The engine rebuilds from its config, and its log starts again at
+        // one; both are brought up to date here.
+        state.config = Self.config(from: settings)
+        lastEventId = 0
         apply(.newGame)
         apply(.start)
         runBots()
@@ -245,7 +256,7 @@ final class SpadesSession {
     private func apply(_ action: SpadesAction, seat: Int = SpadesSession.me, speak: Bool = true) -> Bool {
         let r = SpadesGame.applyAction(&state, seat: seat, action: action, rng: &rng)
         if !r.ok {
-            announcer.error(r.reason.map { $0.prefix(1).uppercased() + $0.dropFirst() + "." } ?? "That was refused.")
+            announcer.error(r.reason?.asSentence ?? "That was refused.")
             return false
         }
         if speak { drain(batch: false) }
@@ -258,7 +269,10 @@ final class SpadesSession {
         let fresh = state.log.events(for: Self.me, since: lastEventId)
         guard !fresh.isEmpty else { return [] }
         lastEventId = fresh.last!.id
-        log.insert(contentsOf: fresh.reversed().map { LogEntry(id: $0.id, text: $0.text) }, at: 0)
+        for e in fresh {
+            logSerial += 1
+            log.insert(LogEntry(id: logSerial, text: e.text), at: 0)
+        }
         let texts = fresh.map(\.text)
         if !batch { announcer.say(batch: texts) }
         return texts
@@ -273,7 +287,11 @@ final class SpadesSession {
 
     private func driveBots() async {
         var held: [String] = []
-        let batching = pace == .immediate || !settings.speakEveryPlay
+        // A run of plays is gathered into one message when there is no time
+        // between them to say each, or when the player asked for that — but
+        // never at Wait-for-me, where every press of Continue must say what
+        // it did.
+        let batching = pace == .immediate || (!settings.speakEveryPlay && pace != .waitForMe)
         while !Task.isCancelled,
               let seat = SpadesGame.seatToAct(state),
               state.players[seat].occupant == .bot {

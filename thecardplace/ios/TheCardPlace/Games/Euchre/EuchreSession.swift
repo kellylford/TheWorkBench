@@ -302,11 +302,20 @@ final class EuchreSession {
         botTask?.cancel()
         gate.cancel()
         goAlone = false
-        var fresh = EuchreGame.createGame(Self.config(from: settings))
-        fresh.gamesWon = state.gamesWon
-        fresh.gameNumber = state.phase == .gameOver ? state.gameNumber + 1 : state.gameNumber
-        state = fresh
-        lastEventId = 0
+        if state.phase == .gameOver {
+            // The engine keeps the match: games won, and the dealer rotating on.
+            state.config = Self.config(from: settings)
+            lastEventId = 0
+            apply(.newGame)
+        } else {
+            // Starting over mid-hand is the person's call; the engine only
+            // takes newGame once a game is over, so the table is rebuilt.
+            var fresh = EuchreGame.createGame(Self.config(from: settings))
+            fresh.gamesWon = state.gamesWon
+            fresh.gameNumber = state.gameNumber
+            state = fresh
+            lastEventId = 0
+        }
         revealedHand = 0
         apply(.start)
         runBots()
@@ -324,7 +333,7 @@ final class EuchreSession {
     private func apply(_ action: EuchreAction, seat: Int = EuchreSession.me, speak: Bool = true) -> Bool {
         let r = EuchreGame.applyAction(&state, seat: seat, action: action, rng: &rng)
         if !r.ok {
-            announcer.error(r.reason.map { $0.prefix(1).uppercased() + $0.dropFirst() + "." } ?? "That was refused.")
+            announcer.error(r.reason?.asSentence ?? "That was refused.")
             return false
         }
         if speak { drain(batch: false) }
@@ -360,7 +369,11 @@ final class EuchreSession {
     /// a bid is a sentence, and the announcer already spaces sentences out.
     private func driveBots() async {
         var held: [String] = []
-        let batching = pace == .immediate || !settings.speakEveryPlay
+        // A run of plays is gathered into one message when there is no time
+        // between them to say each, or when the player asked for that — but
+        // never at Wait-for-me, where every press of Continue must say what
+        // it did.
+        let batching = pace == .immediate || (!settings.speakEveryPlay && pace != .waitForMe)
         while !Task.isCancelled,
               let seat = EuchreGame.seatToAct(state),
               state.players[seat].occupant == .bot {

@@ -112,7 +112,7 @@ final class EuchreRefusalTests: XCTestCase {
         XCTAssertTrue(EuchreGame.applyAction(&s, seat: 2, action: .play(Support.card("JS")), rng: &rng).ok)
         // Seat 3 has four spades; the reason names all of them.
         assertRefused(&s, seat: 3, .play(Support.card("TH")),
-                      "you must follow trump — you hold Nine of Spades and Ten of Spades and Queen of Spades and King of Spades")
+                      "you must follow trump — you hold Nine of Spades, Ten of Spades, Queen of Spades and King of Spades")
         XCTAssertTrue(EuchreGame.applyAction(&s, seat: 3, action: .play(Support.card("9S")), rng: &rng).ok)
         XCTAssertEqual(s.lastTrick?.winner, 2)
         XCTAssertEqual(s.turn, 2)
@@ -140,7 +140,8 @@ final class EuchreRefusalTests: XCTestCase {
     func testBetweenHands() {
         var s = EuchreGame.createGame(Support.config())
         Support.playHand(&s, rng: &rng)
-        guard s.phase == .handOver else { return }   // a game to ten cannot end on hand one
+        XCTAssertEqual(s.phase, .handOver, "a game to ten cannot end on hand one")
+        guard s.phase == .handOver else { return }
         XCTAssertNil(EuchreGame.seatToAct(s))
         assertRefused(&s, seat: 0, .start, "the game has already started")
         assertRefused(&s, seat: 0, .newGame, "the game is not over")

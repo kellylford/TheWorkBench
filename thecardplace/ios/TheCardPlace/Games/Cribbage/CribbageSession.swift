@@ -39,12 +39,16 @@ final class CribbageSession {
 
     init(settings: AppSettings) {
         self.settings = settings
-        let rules = settings.rules(for: .cribbage, default: CribbageRulesOptions())
-        let config = CribbageConfig(names: settings.names(seats: CribbageGame.seats),
-                                    difficulty: settings.difficulty,
-                                    targetScore: rules.targetScore)
-        state = CribbageGame.createGame(config)
+        state = CribbageGame.createGame(Self.config(from: settings))
         apply(.start)
+    }
+
+    /// The table as the settings describe it right now.
+    private static func config(from settings: AppSettings) -> CribbageConfig {
+        let rules = settings.rules(for: .cribbage, default: CribbageRulesOptions())
+        return CribbageConfig(names: settings.names(seats: CribbageGame.seats),
+                              difficulty: settings.difficulty,
+                              targetScore: rules.targetScore)
     }
 
     // MARK: - what the screen shows
@@ -88,10 +92,9 @@ final class CribbageSession {
                              playable: isMyTurn && legal.contains(c))
             }
         default:
-            return hand.map { c in
-                HandCardItem(card: c, description: CribbageCards.describe(c),
-                             playable: false, reason: CribbageReview.idleReason(state, seat: Self.me))
-            }
+            // Reading the hand is the activity of these phases, so no card is
+            // marked unavailable; a tap says what the phase is instead.
+            return hand.map { HandCardItem(card: $0, description: CribbageCards.describe($0)) }
         }
     }
 
@@ -224,6 +227,9 @@ final class CribbageSession {
             ReviewItem("Dealer and crib", key: "p") { [unowned self] in CribbageReview.dealerAndCrib(state, seat: Self.me) },
             ReviewItem("Counting aid", key: "c") { [unowned self] in CribbageReview.countingAid(state, seat: Self.me) },
             ReviewItem("Play order", key: "o") { [unowned self] in CribbageReview.playOrder(state, seat: Self.me) },
+            ReviewItem("Who is here", key: "w") { [unowned self] in
+                state.players.map { "\($0.name), \($0.index == Self.me ? "you" : "computer")." }.joined(separator: " ")
+            },
             ReviewItem("Status") { [unowned self] in status }
         ]
     }
@@ -318,6 +324,8 @@ final class CribbageSession {
     func nextHand() {
         guard CribbageGame.canDeal(state) else { return }
         selected = []
+        // The computer's skill takes effect from the next hand.
+        state.config.difficulty = settings.difficulty
         apply(.nextHand)
         runBots()
     }
@@ -330,9 +338,10 @@ final class CribbageSession {
         gate.cancel()
         selected = []
         if state.phase == .gameOver {
+            state.config = Self.config(from: settings)
             apply(.newGame)
         } else {
-            var fresh = CribbageGame.createGame(state.config)
+            var fresh = CribbageGame.createGame(Self.config(from: settings))
             fresh.gamesWon = state.gamesWon
             fresh.gameNumber = state.gameNumber
             logOffset = log.first?.id ?? 0
@@ -355,7 +364,7 @@ final class CribbageSession {
     private func apply(_ action: CribbageAction, seat: Int = CribbageSession.me, speak: Bool = true) -> Bool {
         let r = CribbageGame.applyAction(&state, seat: seat, action: action, rng: &rng)
         if !r.ok {
-            announcer.error(r.reason.map { $0.prefix(1).uppercased() + $0.dropFirst() + "." } ?? "That was refused.")
+            announcer.error(r.reason?.asSentence ?? "That was refused.")
             return false
         }
         if speak { drain(batch: false) }
@@ -383,7 +392,11 @@ final class CribbageSession {
 
     private func driveBots() async {
         var held: [String] = []
-        let batching = pace == .immediate || !settings.speakEveryPlay
+        // A run of plays is gathered into one message when there is no time
+        // between them to say each, or when the player asked for that — but
+        // never at Wait-for-me, where every press of Continue must say what
+        // it did.
+        let batching = pace == .immediate || (!settings.speakEveryPlay && pace != .waitForMe)
         while !Task.isCancelled,
               let seat = CribbageGame.seatToAct(state),
               state.players[seat].occupant == .bot {

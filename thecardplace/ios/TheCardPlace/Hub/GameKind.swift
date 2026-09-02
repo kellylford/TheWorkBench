@@ -52,6 +52,16 @@ enum GameKind: String, CaseIterable, Identifiable, Codable, Hashable {
         }
     }
 
+    /// Whether the computer players play differently by difficulty. Hearts and
+    /// spades carry the setting but their browser originals never read it, so
+    /// offering it there would be a lie.
+    var hasDifficulty: Bool {
+        switch self {
+        case .hearts, .spades: return false
+        case .euchre, .cribbage, .sheephead: return true
+        }
+    }
+
     /// Hearts and spades open on Brisk; the other three say more per play and
     /// need more room, so they open on Relaxed.
     var defaultPace: Pace {

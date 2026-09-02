@@ -133,7 +133,6 @@ struct HandCardButton: View {
         var s = item.description
         if let marked = item.marked { s += ", \(marked)" }
         s += ", card \(position) of \(total)"
-        if item.selected { s += ", selected" }
         if !item.playable, let reason = item.reason { s += ", cannot be played, \(reason)" }
         return s
     }

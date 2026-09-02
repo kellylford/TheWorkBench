@@ -145,7 +145,9 @@ private struct CribbageTable: View {
         case .gameOver:
             Text(CribbageReview.handSummary(state, seat: CribbageSession.me).sentenceCased)
             if let games = session.gamesWonText { Text(games) }
-            PrimaryButton(title: "Start a new game") { session.newGame() }
+            PrimaryButton(title: "Deal another game", key: "n") { session.nextHand() }
+            Button("Start over from the cut") { session.newGame() }
+                .frame(minHeight: 44)
         }
     }
 }

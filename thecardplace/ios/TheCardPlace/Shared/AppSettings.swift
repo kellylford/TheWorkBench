@@ -17,7 +17,17 @@ final class AppSettings {
         autofocus = defaults.object(forKey: Keys.autofocus) as? Bool ?? true
         speakEveryPlay = defaults.object(forKey: Keys.speakEveryPlay) as? Bool ?? true
         difficulty = Difficulty(rawValue: defaults.string(forKey: Keys.difficulty) ?? "") ?? .normal
+        for g in GameKind.allCases {
+            if let n = defaults.object(forKey: Keys.pace(g)) as? Int, let p = Pace(rawValue: n) { paces[g] = p }
+            if let d = defaults.data(forKey: Keys.rules(g)) { rulesData[g] = d }
+        }
     }
+
+    /// Read once at launch and kept here, so a view that reads a pace or a
+    /// rule observes a property and refreshes when it changes; the defaults
+    /// are the copy that survives relaunch.
+    private var paces: [GameKind: Pace] = [:]
+    private var rulesData: [GameKind: Data] = [:]
 
     /// What everybody at the table calls the player. Kept short in the log.
     var playerName: String {
@@ -44,31 +54,26 @@ final class AppSettings {
     /// The pace for one game. Defaults differ per game — hearts and spades say
     /// less per play than euchre or sheephead — but what a rung means does not.
     func pace(for game: GameKind) -> Pace {
-        let stored = defaults.object(forKey: Keys.pace(game)) as? Int
-        return stored.flatMap(Pace.init(rawValue:)) ?? game.defaultPace
+        paces[game] ?? game.defaultPace
     }
 
     func setPace(_ pace: Pace, for game: GameKind) {
+        paces[game] = pace
         defaults.set(pace.rawValue, forKey: Keys.pace(game))
-        version += 1
     }
 
     /// A game's own rule options, as whatever Codable struct it keeps.
     func rules<T: Codable>(for game: GameKind, default value: T) -> T {
-        guard let data = defaults.data(forKey: Keys.rules(game)),
+        guard let data = rulesData[game],
               let decoded = try? JSONDecoder().decode(T.self, from: data) else { return value }
         return decoded
     }
 
     func setRules<T: Codable>(_ rules: T, for game: GameKind) {
-        if let data = try? JSONEncoder().encode(rules) {
-            defaults.set(data, forKey: Keys.rules(game))
-        }
-        version += 1
+        guard let data = try? JSONEncoder().encode(rules) else { return }
+        rulesData[game] = data
+        defaults.set(data, forKey: Keys.rules(game))
     }
-
-    /// Bumped on every per-game write so views observing the store refresh.
-    private(set) var version = 0
 
     /// The names the computer players sit down with, none of them the
     /// player's own. The same list the browser games use.
