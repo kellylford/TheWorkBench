@@ -17,6 +17,16 @@ them one at a time because they are separate games, but the directory is the uni
 How the games are tested — what is covered, what is not, and what each suite exists because of —
 is written up in [TESTING.md][7].
 
+#### The Card Place for iOS
+
+The same five games as a native SwiftUI app, played against the computer and entirely offline —
+not a wrapper around the web pages. The rules and computer players are ported into a Swift
+package with the same rules-oracle, invariant and hidden-information suites the browser games
+have, and the screens are built for VoiceOver first: every card is a button that says what it is
+and where it sits, every message goes through one announcement queue, and every part of a table is
+a heading. It lives in [`thecardplace/ios/`](./thecardplace/ios/), and its README says how it is
+built and how it meets WCAG.
+
 ### Euchre
 Euchre for four, in two fixed partnerships, first to ten points. Play against three computer
 opponents or open a table and play with other people; any empty seat is played by the computer, so

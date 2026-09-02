@@ -1,0 +1,675 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		044EB7E107C60C0C207EB597 /* CribbageEngine in Frameworks */ = {isa = PBXBuildFile; productRef = F94700B9513EA796740F09B3 /* CribbageEngine */; };
+		0D1B0DD6377E1CD0052394A7 /* Announcer.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6568E1912006FA72B3DAA2C /* Announcer.swift */; };
+		0FDB6B6AEB144C7A27E905E0 /* CribbageTableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAF045FB25E4ADB2CA67D558 /* CribbageTableView.swift */; };
+		10550EDFCD18BD2828468544 /* SheepheadTableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8602CF05508133DEC369F2C7 /* SheepheadTableView.swift */; };
+		12698D2B240B09ABE54A8315 /* HelpViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4EB3787343047BF5830E8D3 /* HelpViews.swift */; };
+		12AE53E834116F4C4A990C59 /* SpadesSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD5AD5793B1079389C52FE43 /* SpadesSession.swift */; };
+		1D04AC9CB703A11EF23F03DC /* GameKind.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FE0B1F95772E2B4F7FAF40A /* GameKind.swift */; };
+		21DA9E877DECAC80E270FA31 /* TheCardPlaceApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEC4F04C6B855D0E3A80F318 /* TheCardPlaceApp.swift */; };
+		2262BAA9CA17B085FCFFF839 /* CardCore in Frameworks */ = {isa = PBXBuildFile; productRef = 804B934C94CDFE96A42467BF /* CardCore */; };
+		30DB4DC415FC689D02F002B1 /* CribbageSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = F892E0A3B6953A3B37E00A59 /* CribbageSession.swift */; };
+		4594862BDB9DA6803DBF36D8 /* SheepheadSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C1A121D0F39113DF5761205 /* SheepheadSession.swift */; };
+		53641618134321494D720AA1 /* EuchreTableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0ACA079333595E3D760851C7 /* EuchreTableView.swift */; };
+		5C9E10A35902374CB686FEFB /* EuchreUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12686483D5D0F698A83F0DDE /* EuchreUITests.swift */; };
+		6710621CF6DA3E7983B4BA6C /* SpadesUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1F2D50DBA2115DF077A2CBF /* SpadesUITests.swift */; };
+		684B07A81624AD6E30F4A099 /* HeartsUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E7B915DFA27181FB20DE3E72 /* HeartsUITests.swift */; };
+		6FE6B97889EA9F7152F0E6FD /* Support.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FB405CFABFA389A83F32338 /* Support.swift */; };
+		701020222A6F2793F23BD557 /* HeartsEngine in Frameworks */ = {isa = PBXBuildFile; productRef = 2F1430C82F0ADEA94DDEFC2D /* HeartsEngine */; };
+		7A5C6001BEA5A97745310177 /* HeartsSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D4B17D881934D07D0ACB538 /* HeartsSession.swift */; };
+		7EA39DEBBBE9B63351F7D039 /* SpadesEngine in Frameworks */ = {isa = PBXBuildFile; productRef = 80D2E8566A843AA12886F46A /* SpadesEngine */; };
+		88439E0C853714EA8B2AC48C /* SheepheadUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CDA075E69F49B49AAB03E8E2 /* SheepheadUITests.swift */; };
+		8D697814F1C95A91070F8903 /* EuchreEngine in Frameworks */ = {isa = PBXBuildFile; productRef = FF8822AA485B98E33343FB9C /* EuchreEngine */; };
+		8F1B0422694549C75B8B3C2B /* EuchreSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22AD0206ACBAF4A849EA37DF /* EuchreSession.swift */; };
+		A0ABCA2FFFFB255D302AD5C4 /* CardViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56D7A10C049E156243B201A4 /* CardViews.swift */; };
+		ADE22543387CF20B20B0D221 /* SpadesTableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57A800EA1D2BAA0F0C050516 /* SpadesTableView.swift */; };
+		AF4AA9CD59F9CB5AEBD9D860 /* AppSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4AC3B197FBCAF26199F2B6EA /* AppSettings.swift */; };
+		B93E79FD2C9DF036FE4E993B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 6DD4E6714CC3174B232DEBED /* Assets.xcassets */; };
+		BD4A97F630CB9047000E9BD4 /* HeartsTableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 986C449B616F36A9A6F2C657 /* HeartsTableView.swift */; };
+		CA392FA9D7129DC260032F8C /* TableViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1BBA61E2564E73F4B2F1EB5 /* TableViews.swift */; };
+		CD962E116E43E939B0DADFBD /* SettingsViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 782EAA8D707D7B1CDA398041 /* SettingsViews.swift */; };
+		D2148FC7FB6B894695BAA5E7 /* HubView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA0FB2E6A85DBECE8E50C61F /* HubView.swift */; };
+		DD213D0A75167E561B491CEF /* GameDispatch.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DD2B004D362E811BB4314AB /* GameDispatch.swift */; };
+		E8408F656A481472872DE22F /* CribbageUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D40675BACF55461868978BF6 /* CribbageUITests.swift */; };
+		F679BE676E4E95BAA1356F3A /* GameSetupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1728213A45508EF3E039CED4 /* GameSetupView.swift */; };
+		FB5C6E6A9E5B2C00099F9E31 /* SheepheadEngine in Frameworks */ = {isa = PBXBuildFile; productRef = 03DB652110FE0CE3001F924F /* SheepheadEngine */; };
+		FC9DA9CE49EF9AB1B44A9D19 /* PaceGate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C3065E85DB731AFD4F3A4B9 /* PaceGate.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		BC623FC31E3D47D93774EAF8 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 02DB2ED246DF502C4EA5451C /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 5DACBF26D61F9571AFD65586;
+			remoteInfo = TheCardPlace;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		0ACA079333595E3D760851C7 /* EuchreTableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EuchreTableView.swift; sourceTree = "<group>"; };
+		12686483D5D0F698A83F0DDE /* EuchreUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EuchreUITests.swift; sourceTree = "<group>"; };
+		1728213A45508EF3E039CED4 /* GameSetupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameSetupView.swift; sourceTree = "<group>"; };
+		22AD0206ACBAF4A849EA37DF /* EuchreSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EuchreSession.swift; sourceTree = "<group>"; };
+		2D4B17D881934D07D0ACB538 /* HeartsSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeartsSession.swift; sourceTree = "<group>"; };
+		2DD2B004D362E811BB4314AB /* GameDispatch.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameDispatch.swift; sourceTree = "<group>"; };
+		3FE0B1F95772E2B4F7FAF40A /* GameKind.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameKind.swift; sourceTree = "<group>"; };
+		4AC3B197FBCAF26199F2B6EA /* AppSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSettings.swift; sourceTree = "<group>"; };
+		4FB405CFABFA389A83F32338 /* Support.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Support.swift; sourceTree = "<group>"; };
+		56D7A10C049E156243B201A4 /* CardViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardViews.swift; sourceTree = "<group>"; };
+		57A800EA1D2BAA0F0C050516 /* SpadesTableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpadesTableView.swift; sourceTree = "<group>"; };
+		5C1A121D0F39113DF5761205 /* SheepheadSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SheepheadSession.swift; sourceTree = "<group>"; };
+		6DD4E6714CC3174B232DEBED /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		782EAA8D707D7B1CDA398041 /* SettingsViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsViews.swift; sourceTree = "<group>"; };
+		7C3065E85DB731AFD4F3A4B9 /* PaceGate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaceGate.swift; sourceTree = "<group>"; };
+		8602CF05508133DEC369F2C7 /* SheepheadTableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SheepheadTableView.swift; sourceTree = "<group>"; };
+		986C449B616F36A9A6F2C657 /* HeartsTableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeartsTableView.swift; sourceTree = "<group>"; };
+		AAF045FB25E4ADB2CA67D558 /* CribbageTableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CribbageTableView.swift; sourceTree = "<group>"; };
+		BA5231380811FB9C801986A6 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		BB6CB4BC18B0E968DDB2B545 /* CardGamesKit */ = {isa = PBXFileReference; lastKnownFileType = folder; path = CardGamesKit; sourceTree = SOURCE_ROOT; };
+		CDA075E69F49B49AAB03E8E2 /* SheepheadUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SheepheadUITests.swift; sourceTree = "<group>"; };
+		CF69E8B3A17179C62D40B511 /* TheCardPlaceUITests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = TheCardPlaceUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		D05446CD11AC095AA63DC3D5 /* TheCardPlace.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; name = TheCardPlace.app; path = "The Card Place.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		D1F2D50DBA2115DF077A2CBF /* SpadesUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpadesUITests.swift; sourceTree = "<group>"; };
+		D40675BACF55461868978BF6 /* CribbageUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CribbageUITests.swift; sourceTree = "<group>"; };
+		DA0FB2E6A85DBECE8E50C61F /* HubView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HubView.swift; sourceTree = "<group>"; };
+		DD5AD5793B1079389C52FE43 /* SpadesSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpadesSession.swift; sourceTree = "<group>"; };
+		DEC4F04C6B855D0E3A80F318 /* TheCardPlaceApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TheCardPlaceApp.swift; sourceTree = "<group>"; };
+		E4EB3787343047BF5830E8D3 /* HelpViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HelpViews.swift; sourceTree = "<group>"; };
+		E7B915DFA27181FB20DE3E72 /* HeartsUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeartsUITests.swift; sourceTree = "<group>"; };
+		F1BBA61E2564E73F4B2F1EB5 /* TableViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TableViews.swift; sourceTree = "<group>"; };
+		F6568E1912006FA72B3DAA2C /* Announcer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Announcer.swift; sourceTree = "<group>"; };
+		F892E0A3B6953A3B37E00A59 /* CribbageSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CribbageSession.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		174105543317E83FA95B149B /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2262BAA9CA17B085FCFFF839 /* CardCore in Frameworks */,
+				701020222A6F2793F23BD557 /* HeartsEngine in Frameworks */,
+				8D697814F1C95A91070F8903 /* EuchreEngine in Frameworks */,
+				7EA39DEBBBE9B63351F7D039 /* SpadesEngine in Frameworks */,
+				044EB7E107C60C0C207EB597 /* CribbageEngine in Frameworks */,
+				FB5C6E6A9E5B2C00099F9E31 /* SheepheadEngine in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		1007CC40B8453EF9D5317139 /* TheCardPlace */ = {
+			isa = PBXGroup;
+			children = (
+				6DD4E6714CC3174B232DEBED /* Assets.xcassets */,
+				BA5231380811FB9C801986A6 /* Info.plist */,
+				DEC4F04C6B855D0E3A80F318 /* TheCardPlaceApp.swift */,
+				1A613F1CEB72A94C322F8404 /* Games */,
+				50DF580E37675B6BEE01C71C /* Hub */,
+				BD0F40AD8AAF9B16DAF96ABB /* Shared */,
+			);
+			path = TheCardPlace;
+			sourceTree = "<group>";
+		};
+		1A2D664BE54698F67734A053 /* Cribbage */ = {
+			isa = PBXGroup;
+			children = (
+				F892E0A3B6953A3B37E00A59 /* CribbageSession.swift */,
+				AAF045FB25E4ADB2CA67D558 /* CribbageTableView.swift */,
+			);
+			path = Cribbage;
+			sourceTree = "<group>";
+		};
+		1A613F1CEB72A94C322F8404 /* Games */ = {
+			isa = PBXGroup;
+			children = (
+				1A2D664BE54698F67734A053 /* Cribbage */,
+				4409BC28404BB9B8478EB39F /* Euchre */,
+				AB822BD85B99FA094F88AD19 /* Hearts */,
+				C20CDFD49CFF8B254344F3FE /* Sheephead */,
+				6C1D31BF744EFAEB48A645D7 /* Spades */,
+			);
+			path = Games;
+			sourceTree = "<group>";
+		};
+		1F48E39081D3B2A21C148FE8 /* Packages */ = {
+			isa = PBXGroup;
+			children = (
+				BB6CB4BC18B0E968DDB2B545 /* CardGamesKit */,
+			);
+			name = Packages;
+			sourceTree = "<group>";
+		};
+		4409BC28404BB9B8478EB39F /* Euchre */ = {
+			isa = PBXGroup;
+			children = (
+				22AD0206ACBAF4A849EA37DF /* EuchreSession.swift */,
+				0ACA079333595E3D760851C7 /* EuchreTableView.swift */,
+			);
+			path = Euchre;
+			sourceTree = "<group>";
+		};
+		50DF580E37675B6BEE01C71C /* Hub */ = {
+			isa = PBXGroup;
+			children = (
+				3FE0B1F95772E2B4F7FAF40A /* GameKind.swift */,
+				1728213A45508EF3E039CED4 /* GameSetupView.swift */,
+				DA0FB2E6A85DBECE8E50C61F /* HubView.swift */,
+			);
+			path = Hub;
+			sourceTree = "<group>";
+		};
+		6C1D31BF744EFAEB48A645D7 /* Spades */ = {
+			isa = PBXGroup;
+			children = (
+				DD5AD5793B1079389C52FE43 /* SpadesSession.swift */,
+				57A800EA1D2BAA0F0C050516 /* SpadesTableView.swift */,
+			);
+			path = Spades;
+			sourceTree = "<group>";
+		};
+		A28298A975DFF33808FD61CB /* TheCardPlaceUITests */ = {
+			isa = PBXGroup;
+			children = (
+				D40675BACF55461868978BF6 /* CribbageUITests.swift */,
+				12686483D5D0F698A83F0DDE /* EuchreUITests.swift */,
+				E7B915DFA27181FB20DE3E72 /* HeartsUITests.swift */,
+				CDA075E69F49B49AAB03E8E2 /* SheepheadUITests.swift */,
+				D1F2D50DBA2115DF077A2CBF /* SpadesUITests.swift */,
+				4FB405CFABFA389A83F32338 /* Support.swift */,
+			);
+			path = TheCardPlaceUITests;
+			sourceTree = "<group>";
+		};
+		AB822BD85B99FA094F88AD19 /* Hearts */ = {
+			isa = PBXGroup;
+			children = (
+				2D4B17D881934D07D0ACB538 /* HeartsSession.swift */,
+				986C449B616F36A9A6F2C657 /* HeartsTableView.swift */,
+			);
+			path = Hearts;
+			sourceTree = "<group>";
+		};
+		BD0F40AD8AAF9B16DAF96ABB /* Shared */ = {
+			isa = PBXGroup;
+			children = (
+				F6568E1912006FA72B3DAA2C /* Announcer.swift */,
+				4AC3B197FBCAF26199F2B6EA /* AppSettings.swift */,
+				56D7A10C049E156243B201A4 /* CardViews.swift */,
+				2DD2B004D362E811BB4314AB /* GameDispatch.swift */,
+				E4EB3787343047BF5830E8D3 /* HelpViews.swift */,
+				7C3065E85DB731AFD4F3A4B9 /* PaceGate.swift */,
+				782EAA8D707D7B1CDA398041 /* SettingsViews.swift */,
+				F1BBA61E2564E73F4B2F1EB5 /* TableViews.swift */,
+			);
+			path = Shared;
+			sourceTree = "<group>";
+		};
+		BDD004F013E54BDCCE65643D = {
+			isa = PBXGroup;
+			children = (
+				1F48E39081D3B2A21C148FE8 /* Packages */,
+				1007CC40B8453EF9D5317139 /* TheCardPlace */,
+				A28298A975DFF33808FD61CB /* TheCardPlaceUITests */,
+				F4A94FE26FDCFAAFF09070CB /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		C20CDFD49CFF8B254344F3FE /* Sheephead */ = {
+			isa = PBXGroup;
+			children = (
+				5C1A121D0F39113DF5761205 /* SheepheadSession.swift */,
+				8602CF05508133DEC369F2C7 /* SheepheadTableView.swift */,
+			);
+			path = Sheephead;
+			sourceTree = "<group>";
+		};
+		F4A94FE26FDCFAAFF09070CB /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				D05446CD11AC095AA63DC3D5 /* TheCardPlace.app */,
+				CF69E8B3A17179C62D40B511 /* TheCardPlaceUITests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		0B7F5D38C31343E8F45A11E5 /* TheCardPlaceUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 279EBFA16C102E5D1CFB9847 /* Build configuration list for PBXNativeTarget "TheCardPlaceUITests" */;
+			buildPhases = (
+				CE4041B1D21927E4951CD5CD /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				D92735F2D49E4FB5EFFA0CBF /* PBXTargetDependency */,
+			);
+			name = TheCardPlaceUITests;
+			packageProductDependencies = (
+			);
+			productName = TheCardPlaceUITests;
+			productReference = CF69E8B3A17179C62D40B511 /* TheCardPlaceUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+		5DACBF26D61F9571AFD65586 /* TheCardPlace */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 603AE00329550BA1DBBC7D29 /* Build configuration list for PBXNativeTarget "TheCardPlace" */;
+			buildPhases = (
+				CA5430C9F0CB55BA9E9CBCA7 /* Sources */,
+				E42661319B0E7EAFEF9B898D /* Resources */,
+				174105543317E83FA95B149B /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = TheCardPlace;
+			packageProductDependencies = (
+				804B934C94CDFE96A42467BF /* CardCore */,
+				2F1430C82F0ADEA94DDEFC2D /* HeartsEngine */,
+				FF8822AA485B98E33343FB9C /* EuchreEngine */,
+				80D2E8566A843AA12886F46A /* SpadesEngine */,
+				F94700B9513EA796740F09B3 /* CribbageEngine */,
+				03DB652110FE0CE3001F924F /* SheepheadEngine */,
+			);
+			productName = TheCardPlace;
+			productReference = D05446CD11AC095AA63DC3D5 /* TheCardPlace.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		02DB2ED246DF502C4EA5451C /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1430;
+				TargetAttributes = {
+					0B7F5D38C31343E8F45A11E5 = {
+						DevelopmentTeam = P887QF74N8;
+						ProvisioningStyle = Automatic;
+						TestTargetID = 5DACBF26D61F9571AFD65586;
+					};
+					5DACBF26D61F9571AFD65586 = {
+						DevelopmentTeam = P887QF74N8;
+						ProvisioningStyle = Automatic;
+					};
+				};
+			};
+			buildConfigurationList = B44FFA415F587FBAAC53097B /* Build configuration list for PBXProject "TheCardPlace" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = BDD004F013E54BDCCE65643D;
+			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				7FE6B039F33047066CA186F1 /* XCLocalSwiftPackageReference "CardGamesKit" */,
+			);
+			preferredProjectObjectVersion = 77;
+			productRefGroup = F4A94FE26FDCFAAFF09070CB /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				5DACBF26D61F9571AFD65586 /* TheCardPlace */,
+				0B7F5D38C31343E8F45A11E5 /* TheCardPlaceUITests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		E42661319B0E7EAFEF9B898D /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B93E79FD2C9DF036FE4E993B /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		CA5430C9F0CB55BA9E9CBCA7 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				0D1B0DD6377E1CD0052394A7 /* Announcer.swift in Sources */,
+				AF4AA9CD59F9CB5AEBD9D860 /* AppSettings.swift in Sources */,
+				A0ABCA2FFFFB255D302AD5C4 /* CardViews.swift in Sources */,
+				30DB4DC415FC689D02F002B1 /* CribbageSession.swift in Sources */,
+				0FDB6B6AEB144C7A27E905E0 /* CribbageTableView.swift in Sources */,
+				8F1B0422694549C75B8B3C2B /* EuchreSession.swift in Sources */,
+				53641618134321494D720AA1 /* EuchreTableView.swift in Sources */,
+				DD213D0A75167E561B491CEF /* GameDispatch.swift in Sources */,
+				1D04AC9CB703A11EF23F03DC /* GameKind.swift in Sources */,
+				F679BE676E4E95BAA1356F3A /* GameSetupView.swift in Sources */,
+				7A5C6001BEA5A97745310177 /* HeartsSession.swift in Sources */,
+				BD4A97F630CB9047000E9BD4 /* HeartsTableView.swift in Sources */,
+				12698D2B240B09ABE54A8315 /* HelpViews.swift in Sources */,
+				D2148FC7FB6B894695BAA5E7 /* HubView.swift in Sources */,
+				FC9DA9CE49EF9AB1B44A9D19 /* PaceGate.swift in Sources */,
+				CD962E116E43E939B0DADFBD /* SettingsViews.swift in Sources */,
+				4594862BDB9DA6803DBF36D8 /* SheepheadSession.swift in Sources */,
+				10550EDFCD18BD2828468544 /* SheepheadTableView.swift in Sources */,
+				12AE53E834116F4C4A990C59 /* SpadesSession.swift in Sources */,
+				ADE22543387CF20B20B0D221 /* SpadesTableView.swift in Sources */,
+				CA392FA9D7129DC260032F8C /* TableViews.swift in Sources */,
+				21DA9E877DECAC80E270FA31 /* TheCardPlaceApp.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CE4041B1D21927E4951CD5CD /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E8408F656A481472872DE22F /* CribbageUITests.swift in Sources */,
+				5C9E10A35902374CB686FEFB /* EuchreUITests.swift in Sources */,
+				684B07A81624AD6E30F4A099 /* HeartsUITests.swift in Sources */,
+				88439E0C853714EA8B2AC48C /* SheepheadUITests.swift in Sources */,
+				6710621CF6DA3E7983B4BA6C /* SpadesUITests.swift in Sources */,
+				6FE6B97889EA9F7152F0E6FD /* Support.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		D92735F2D49E4FB5EFFA0CBF /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 5DACBF26D61F9571AFD65586 /* TheCardPlace */;
+			targetProxy = BC623FC31E3D47D93774EAF8 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		29CC03775524ED75C4D68DED /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = P887QF74N8;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_STRICT_CONCURRENCY = minimal;
+				SWIFT_VERSION = 5.1;
+			};
+			name = Release;
+		};
+		32C445B61CA5602DF87E04BB /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = net.theideaplace.TheCardPlaceUITests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = TheCardPlace;
+			};
+			name = Release;
+		};
+		8C261C809DBC60EE30E3825F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = net.theideaplace.TheCardPlaceUITests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = TheCardPlace;
+			};
+			name = Debug;
+		};
+		BA6B78212720F3691E789C93 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				INFOPLIST_FILE = TheCardPlace/Info.plist;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = net.theideaplace.TheCardPlace;
+				PRODUCT_NAME = "The Card Place";
+				SDKROOT = iphoneos;
+				SUPPORTS_MACCATALYST = NO;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		CCD2B7FA93DDACD4447259FE /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = P887QF74N8;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_STRICT_CONCURRENCY = minimal;
+				SWIFT_VERSION = 5.1;
+			};
+			name = Debug;
+		};
+		E552577047D7A498797D9169 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				INFOPLIST_FILE = TheCardPlace/Info.plist;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = net.theideaplace.TheCardPlace;
+				PRODUCT_NAME = "The Card Place";
+				SDKROOT = iphoneos;
+				SUPPORTS_MACCATALYST = NO;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		279EBFA16C102E5D1CFB9847 /* Build configuration list for PBXNativeTarget "TheCardPlaceUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				8C261C809DBC60EE30E3825F /* Debug */,
+				32C445B61CA5602DF87E04BB /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		603AE00329550BA1DBBC7D29 /* Build configuration list for PBXNativeTarget "TheCardPlace" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				BA6B78212720F3691E789C93 /* Debug */,
+				E552577047D7A498797D9169 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		B44FFA415F587FBAAC53097B /* Build configuration list for PBXProject "TheCardPlace" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				CCD2B7FA93DDACD4447259FE /* Debug */,
+				29CC03775524ED75C4D68DED /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		7FE6B039F33047066CA186F1 /* XCLocalSwiftPackageReference "CardGamesKit" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = CardGamesKit;
+		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		03DB652110FE0CE3001F924F /* SheepheadEngine */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = SheepheadEngine;
+		};
+		2F1430C82F0ADEA94DDEFC2D /* HeartsEngine */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = HeartsEngine;
+		};
+		804B934C94CDFE96A42467BF /* CardCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = CardCore;
+		};
+		80D2E8566A843AA12886F46A /* SpadesEngine */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = SpadesEngine;
+		};
+		F94700B9513EA796740F09B3 /* CribbageEngine */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = CribbageEngine;
+		};
+		FF8822AA485B98E33343FB9C /* EuchreEngine */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = EuchreEngine;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = 02DB2ED246DF502C4EA5451C /* Project object */;
+}
