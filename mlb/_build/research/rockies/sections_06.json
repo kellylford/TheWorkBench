@@ -1,0 +1,222 @@
+[
+  {
+    "section": "312",
+    "zone": "Reserve Level Down the Line",
+    "location": "\"Sitting on the Reserve Level between the corner bases and the foul poles will leave you with some of the furthest views for a Rockies game at Coors Field.\" (RYS Expert Review headed \"Reserve Level Down the Line\", carried verbatim on the Section 312 page.) The page gives NO location sentence specific to Section 312 itself - only the zone review. Breadcrumb/level: \"Coors Field > Seating > Sections > 312\".",
+    "rows": "1-25",
+    "entrance_row": "Row 6",
+    "seat_direction": "When looking towards the field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights (verbatim): \"Rows 19 & Above - Covered\" / \"Rows 1-25\". Row Numbers (verbatim): \"Rows in Section 312 are labeled 1-25\", \"An entrance to this section is located at Row 6\". Seating Notes (verbatim): \"Rows 19 and above are under cover\". No Fan Feedback and no fan reviews are published on this page. Sun, from the same zone review (verbatim): \"Seats on the first base side will see a heavy dose of sun during day games, so fans looking for shade are advised to consider the third base side (sun will be at your back earlier). Scoreboard watchers get a better angle to the left field videoboard from the first base side, and will also be closer to Blue Moon Brewery (near Section 314).\" This matches the discovery.json orientation finding that at Coors Field the FIRST BASE side is the sunny side and the THIRD BASE side is the shade side. DISCOVERY CONTEXT (not stated on this page): discovery.json places 310-314 in the upper deck in right field behind The Rooftop, and records RYS's Rooftop page saying \"for some games fans may also be able to access Sections 310-314 for seating\" - the Section 312 page itself says nothing about the Rooftop. No netting or obstruction note appears on this page; the official Rockies netting run is \"Sections 112-147\" (lower level only) per discovery.json.",
+    "source": "https://www.rateyourseats.com/coors-field/seating/sections/312"
+  },
+  {
+    "section": "313",
+    "zone": "Reserve Level Down the Line",
+    "location": "\"Sitting on the Reserve Level between the corner bases and the foul poles will leave you with some of the furthest views for a Rockies game at Coors Field.\" (RYS Expert Review headed \"Reserve Level Down the Line\", carried verbatim on the Section 313 page.) The page gives NO location sentence specific to Section 313 itself.",
+    "rows": "1-25",
+    "entrance_row": "Row 6",
+    "seat_direction": "When looking towards the field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights (verbatim): \"Top Pick for Partying and Socializing\" / \"Rows 19 & Above - Covered\" / \"Rows 1-25\". Row Numbers (verbatim): \"Rows in Section 313 are labeled 1-25\", \"An entrance to this section is located at Row 6\". Seating Notes (verbatim): \"For baseball games, we recommend these seats for partying and socializing\" / \"Rows 19 and above are under cover\". No Fan Feedback and no fan reviews are published on this page. Sun, from the same zone review (verbatim): \"Seats on the first base side will see a heavy dose of sun during day games, so fans looking for shade are advised to consider the third base side (sun will be at your back earlier).\" DISCOVERY CONTEXT (not stated on this page): discovery.json places 310-314 in the upper deck in right field behind The Rooftop; the section page itself says nothing about the Rooftop. No netting or obstruction note appears on this page.",
+    "source": "https://www.rateyourseats.com/coors-field/seating/sections/313"
+  },
+  {
+    "section": "314",
+    "zone": "Reserve Level Down the Line",
+    "location": "\"Sitting on the Reserve Level between the corner bases and the foul poles will leave you with some of the furthest views for a Rockies game at Coors Field. ... Scoreboard watchers get a better angle to the left field videoboard from the first base side, and will also be closer to Blue Moon Brewery (near Section 314).\" (RYS Expert Review headed \"Reserve Level Down the Line\", carried verbatim on the Section 314 page.) This is the only sentence on the page naming Section 314 by position, and it puts 314 on the FIRST BASE side near the Blue Moon Brewery.",
+    "rows": "12-25",
+    "entrance_row": "Row 12",
+    "seat_direction": "When looking towards the field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights (verbatim): \"Top Pick for Partying and Socializing\" / \"Rows 19 & Above - Covered\" / \"Rows 12-25\". Row Numbers (verbatim): \"Rows in Section 314 are labeled 12-25\", \"An entrance to this section is located at Row 12\". NOTE the row block differs from its neighbours: 312/313 are labelled 1-25 and 315 is labelled 1-5, C-W, 10-25, but 314 begins at Row 12 with no rows 1-11 published; the page offers no explanation. Seating Notes (verbatim): \"For baseball games, we recommend these seats for partying and socializing\" / \"Rows 19 and above are under cover\". No Fan Feedback and no fan reviews are published on this page. DISCOVERY CONTEXT (not stated on this page): discovery.json places 310-314 in the upper deck in right field behind The Rooftop and notes 314 is 'near the Blue Moon Brewery on the first-base line', which the zone review above independently supports. No netting or obstruction note appears on this page.",
+    "source": "https://www.rateyourseats.com/coors-field/seating/sections/314"
+  },
+  {
+    "section": "315",
+    "zone": "Reserve Level Down the Line",
+    "location": "\"Sitting on the Reserve Level between the corner bases and the foul poles will leave you with some of the furthest views for a Rockies game at Coors Field.\" (RYS Expert Review headed \"Reserve Level Down the Line\", carried verbatim on the Section 315 page.) The page gives NO location sentence specific to Section 315 itself.",
+    "rows": "1-5, C-W, 10-25",
+    "entrance_row": "Row 5",
+    "seat_direction": "When looking towards the field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights (verbatim): \"Top Pick for Partying and Socializing\" / \"Rows 19 & Above - Covered\" / \"Rows 1-5, C-W, 10-25\". Row Numbers (verbatim): \"Rows in Section 315 are labeled 1-5, C-W, 10-25\", \"An entrance to this section is located at Row 5\". Seating Notes (verbatim): \"For baseball games, we recommend these seats for partying and socializing\" / \"Rows 19 and above are under cover\". Fan Review (verbatim, filed as \"Sec 315 / Row 5 - Baseball\"): \"Awful. Sun beats down on you and poor field view.\" - \"I didn't bring my glasses and can't even see the ball. Never sat so high. Got these seats as part of a group deal. Hot as hell up here, too.\" (The star rating renders ambiguously in the fetched page and is therefore NOT recorded.) NOTE the internal tension on this one page: the RYS Seating Notes recommend 315 \"for partying and socializing\" and say \"Rows 19 and above are under cover\", while the only fan review - from Row 5, which is below that covered band - reports heavy sun. Both readings recorded, not reconciled. No netting or obstruction note appears on this page.",
+    "source": "https://www.rateyourseats.com/coors-field/seating/sections/315"
+  },
+  {
+    "section": "316",
+    "zone": "Reserve Level Down the Line",
+    "location": "\"Sitting on the Reserve Level between the corner bases and the foul poles will leave you with some of the furthest views for a Rockies game at Coors Field.\" (RYS Expert Review headed \"Reserve Level Down the Line\", carried verbatim on the Section 316 page.) The page gives NO location sentence specific to Section 316 itself.",
+    "rows": "1-5, C-W, 10-25",
+    "entrance_row": "Row 5",
+    "seat_direction": "When looking towards the field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights (verbatim): \"Top Pick for Partying and Socializing\" / \"Rows 19 & Above - Covered\" / \"Rows 1-5, C-W, 10-25\". Row Numbers (verbatim): \"Rows in Section 316 are labeled 1-5, C-W, 10-25\", \"An entrance to this section is located at Row 5\". Seating Notes (verbatim): \"For baseball games, we recommend these seats for partying and socializing\" / \"Rows 19 and above are under cover\". No Fan Feedback and no fan reviews are published on this page. Sun, from the same zone review (verbatim): \"Seats on the first base side will see a heavy dose of sun during day games, so fans looking for shade are advised to consider the third base side (sun will be at your back earlier).\" No netting or obstruction note appears on this page.",
+    "source": "https://www.rateyourseats.com/coors-field/seating/sections/316"
+  },
+  {
+    "section": "317",
+    "zone": "Reserve Level Down the Line",
+    "location": "\"Sitting on the Reserve Level between the corner bases and the foul poles will leave you with some of the furthest views for a Rockies game at Coors Field.\" (RYS Expert Review headed \"Reserve Level Down the Line\", carried verbatim on the Section 317 page.) The page gives NO location sentence specific to Section 317 itself.",
+    "rows": "1-25",
+    "entrance_row": "Row 6",
+    "seat_direction": "When looking towards the field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights (verbatim): \"Top Pick for Partying and Socializing\" / \"Rows 19 & Above - Covered\" / \"Rows 1-25\". Row Numbers (verbatim): \"Rows in Section 317 are labeled 1-25\", \"An entrance to this section is located at Row 6\". Seating Notes (verbatim): \"For baseball games, we recommend these seats for partying and socializing\" / \"Rows 19 and above are under cover\". No Fan Feedback and no fan reviews are published on this page. No netting or obstruction note appears on this page.",
+    "source": "https://www.rateyourseats.com/coors-field/seating/sections/317"
+  },
+  {
+    "section": "318",
+    "zone": "Reserve Level Down the Line",
+    "location": "\"Sitting on the Reserve Level between the corner bases and the foul poles will leave you with some of the furthest views for a Rockies game at Coors Field.\" (RYS Expert Review headed \"Reserve Level Down the Line\", carried verbatim on the Section 318 page.) The page gives NO location sentence specific to Section 318 itself.",
+    "rows": "1-5, C-W, 10-25",
+    "entrance_row": "Row 5",
+    "seat_direction": "When looking towards the field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights (verbatim): \"Rows 19 & Above - Covered\" / \"Rows 1-5, C-W, 10-25\". Row Numbers (verbatim): \"Rows in Section 318 are labeled 1-5, C-W, 10-25\", \"An entrance to this section is located at Row 5\". Seating Notes (verbatim): \"Rows 19 and above are under cover\". No \"Top Pick\" insight, no Fan Feedback and no fan reviews are published on this page. No netting or obstruction note appears on this page.",
+    "source": "https://www.rateyourseats.com/coors-field/seating/sections/318"
+  },
+  {
+    "section": "319",
+    "zone": "Reserve Level Down the Line",
+    "location": "\"Sitting on the Reserve Level between the corner bases and the foul poles will leave you with some of the furthest views for a Rockies game at Coors Field.\" (RYS Expert Review headed \"Reserve Level Down the Line\", carried verbatim on the Section 319 page.) The page gives NO location sentence specific to Section 319 itself. NOTE: 319 is the LAST section on the 300 level to carry the \"Down the Line\" review; the next indexed section, 321, carries the \"Reserve Level Infield\" review instead, so the RYS boundary between the two upper-deck zones falls between 319 and 321.",
+    "rows": "1-25",
+    "entrance_row": "Row 6",
+    "seat_direction": "When looking towards the field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights (verbatim): \"Rows 19 & Above - Covered\" / \"Rows 1-25\". Row Numbers (verbatim): \"Rows in Section 319 are labeled 1-25\", \"An entrance to this section is located at Row 6\". Seating Notes (verbatim): \"Rows 19 and above are under cover\". No Fan Feedback and no fan reviews are published on this page. No netting or obstruction note appears on this page.",
+    "source": "https://www.rateyourseats.com/coors-field/seating/sections/319"
+  },
+  {
+    "section": "321",
+    "zone": "Reserve Level Infield",
+    "location": "\"The Reserve Level is located on the highest tier of the inner seating bowl at Coors field. These Infield oriented sections will have more aerial views from behind home plate and the dugouts.\" (RYS Expert Review headed \"Reserve Level Infield\", carried verbatim on the Section 321 page.) The page gives NO location sentence specific to Section 321 itself, and does NOT say which side of the infield it sits on.",
+    "rows": "1-5, C-W, 10-25",
+    "entrance_row": "Row 5",
+    "seat_direction": "When looking towards the field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights (verbatim): \"Rows 19 & Above - Covered\" / \"Rows 1-5, C-W, 10-25\". Row Numbers (verbatim): \"Rows in Section 321 are labeled 1-5, C-W, 10-25\", \"An entrance to this section is located at Row 5\". Seating Notes (verbatim): \"Rows 19 and above are under cover\". Zone review continues (verbatim): \"Rows closest to the front of these sections are referred to as Lower Reserved (with up to 10 rows of seating), while the back rows are known as the Upper Reserved (up to 15 rows of seating). Sit in rows 19 and above to take advantage of the overhead coverage and be near the purple seats (the mile high mark), or in Rows closer to the front to be near the concourse entry tunnel.\" No Fan Feedback and no fan reviews are published on this page. No \"Home Plate View\" insight on this section. No netting or obstruction note appears on this page. Note the RYS index gap: there is no page for 320 or 322, so 321 and 323 are indexed as consecutive.",
+    "source": "https://www.rateyourseats.com/coors-field/seating/sections/321"
+  },
+  {
+    "section": "323",
+    "zone": "Reserve Level Infield",
+    "location": "\"The Reserve Level is located on the highest tier of the inner seating bowl at Coors field. These Infield oriented sections will have more aerial views from behind home plate and the dugouts.\" (RYS Expert Review headed \"Reserve Level Infield\", carried verbatim on the Section 323 page.) The page gives NO location sentence specific to Section 323 itself, and does NOT say which side of the infield it sits on.",
+    "rows": "1-5, C, 10-25",
+    "entrance_row": "Row 5",
+    "seat_direction": "When looking towards the field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights (verbatim): \"Rows 19 & Above - Covered\" / \"Rows 1-5, C, 10-25\". Row Numbers (verbatim): \"Rows in Section 323 are labeled 1-5, C, 10-25\", \"There is wheelchair seating betweeen Rows C and 10\" [sic - RYS's own spelling of 'between'], \"An entrance to this section is located at Row 5\". ACCESSIBLE SEATING: the wheelchair platform sits between lettered Row C and Upper-Reserved Row 10, matching the convention recorded in discovery.json for 328/330. Seating Notes (verbatim): \"Rows 19 and above are under cover\". No Fan Feedback and no fan reviews are published on this page. No netting or obstruction note appears on this page. Note the RYS index gap: there is no page for 322 or 324.",
+    "source": "https://www.rateyourseats.com/coors-field/seating/sections/323"
+  },
+  {
+    "section": "325",
+    "zone": "Reserve Level Infield",
+    "location": "\"The Reserve Level is located on the highest tier of the inner seating bowl at Coors field. These Infield oriented sections will have more aerial views from behind home plate and the dugouts.\" (RYS Expert Review headed \"Reserve Level Infield\", carried verbatim on the Section 325 page.) A Fan Feedback entry on the same page adds a specific but non-directional placement: \"You are on the third deck but I believe you have the best view of the field ... From section 325 you will have the ultimate view of God's great work.\" No source on the page states which side of the infield 325 sits on.",
+    "rows": "1-25",
+    "entrance_row": "Row 6",
+    "seat_direction": "When looking towards the field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights (verbatim): \"Rows 19 & Above - Covered\" / \"Rows 1-25\". Row Numbers (verbatim): \"Rows in Section 325 are labeled 1-25\", \"An entrance to this section is located at Row 6\". Seating Notes (verbatim): \"Rows 19 and above are under cover\". Fan Review (verbatim, \"Sec 325 / Row 1 - Baseball\", San Francisco Giants at Colorado Rockies - Jul 15, 2019): \"Great seats!\" Fan Feedback (verbatim, \"Sec 325 - Baseball\"): \"If you can get the first row in Section 325 there is not a better seat in the house.\" - \"You are on the third deck but I believe you have the best view of the field and if you are in the first row, no one is in front of you and there is plenty of leg room. There is one thing that makes this section extra special [character rendered as an encoding error in the source page] the view of the mountains. There is nothing prettier than a night game when the sun is setting at Coors Field. From section 325 you will have the ultimate view of God's great work.\" Mountain/sunset view is therefore a stated feature of this section. No netting or obstruction note appears on this page. Note the RYS index gap: there is no page for 324.",
+    "source": "https://www.rateyourseats.com/coors-field/seating/sections/325"
+  },
+  {
+    "section": "326",
+    "zone": "Reserve Level Infield",
+    "location": "\"The Reserve Level is located on the highest tier of the inner seating bowl at Coors field. These Infield oriented sections will have more aerial views from behind home plate and the dugouts.\" (RYS Expert Review headed \"Reserve Level Infield\", carried verbatim on the Section 326 page.) The page gives NO location sentence specific to Section 326 itself, and does NOT say which side of the infield it sits on.",
+    "rows": "1-5, C, 10-25",
+    "entrance_row": "Row 5",
+    "seat_direction": "When looking towards the field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights (verbatim): \"Rows 19 & Above - Covered\" / \"Rows 1-5, C, 10-25\". Row Numbers (verbatim): \"Rows in Section 326 are labeled 1-5, C, 10-25\", \"There is wheelchair seating betweeen Rows C and 10\" [sic], \"An entrance to this section is located at Row 5\". Seating Notes (verbatim): \"Rows 19 and above are under cover\". No Fan Feedback and no fan reviews are published on this page. No \"Home Plate View\" insight on this section. No netting or obstruction note appears on this page.",
+    "source": "https://www.rateyourseats.com/coors-field/seating/sections/326"
+  },
+  {
+    "section": "327",
+    "zone": "Reserve Level Infield",
+    "location": "\"The Reserve Level is located on the highest tier of the inner seating bowl at Coors field. These Infield oriented sections will have more aerial views from behind home plate and the dugouts.\" (RYS Expert Review headed \"Reserve Level Infield\", carried verbatim on the Section 327 page.) The page gives NO location sentence specific to Section 327 itself, and does NOT say which side of the infield it sits on.",
+    "rows": "1-5, C-W, 10-25",
+    "entrance_row": "Row 5",
+    "seat_direction": "When looking towards the field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights (verbatim): \"Top Pick for Outstanding Convenience Rows 1-5\" / \"Rows 19 & Above - Covered\" / \"Rows 1-5, C-W, 10-25\". Row Numbers (verbatim): \"Rows in Section 327 are labeled 1-5, C-W, 10-25\", \"An entrance to this section is located at Row 5\". Seating Notes (verbatim): \"For baseball games, we recommend rows 1-5 for outstanding convenience\" / \"Rows 19 and above are under cover\". No Fan Feedback and no fan reviews are published on this page. This section does NOT carry the \"Home Plate View\" insight, matching the discovery.json observation that 327 and 328 lack it. No netting or obstruction note appears on this page.",
+    "source": "https://www.rateyourseats.com/coors-field/seating/sections/327"
+  },
+  {
+    "section": "328",
+    "zone": "Reserve Level Infield",
+    "location": "\"The Reserve Level is located on the highest tier of the inner seating bowl at Coors field. These Infield oriented sections will have more aerial views from behind home plate and the dugouts.\" (RYS Expert Review headed \"Reserve Level Infield\", carried verbatim on the Section 328 page.) The page gives NO location sentence specific to Section 328 itself, and does NOT say which side of the infield it sits on.",
+    "rows": "1-5, C, 10-25",
+    "entrance_row": "Row 5",
+    "seat_direction": "When looking towards the field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights (verbatim): \"Rows 19 & Above - Covered\" / \"Rows 1-5, C, 10-25\". Row Numbers (verbatim): \"Rows in Section 328 are labeled 1-5, C, 10-25\", \"There is wheelchair seating betweeen Rows C and 10\" [sic], \"An entrance to this section is located at Row 5\". Seating Notes (verbatim): \"Rows 19 and above are under cover\". No Fan Feedback and no fan reviews are published on this page. This section does NOT carry the \"Home Plate View\" insight, matching discovery.json. No netting or obstruction note appears on this page.",
+    "source": "https://www.rateyourseats.com/coors-field/seating/sections/328"
+  },
+  {
+    "section": "329",
+    "zone": "Reserve Level Infield",
+    "location": "\"The Reserve Level is located on the highest tier of the inner seating bowl at Coors field. These Infield oriented sections will have more aerial views from behind home plate and the dugouts.\" (RYS Expert Review headed \"Reserve Level Infield\", carried verbatim on the Section 329 page.) The page additionally flags this section as behind home plate: Section Insights list \"Home Plate View\" and Seating Notes read \"For baseball games, desirable view from behind home plate\".",
+    "rows": "1-25",
+    "entrance_row": "Row 6",
+    "seat_direction": "When looking towards the field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights (verbatim): \"Home Plate View\" / \"Rows 19 & Above - Covered\" / \"Rows 1-25\". Row Numbers (verbatim): \"Rows in Section 329 are labeled 1-25\", \"An entrance to this section is located at Row 6\". Seating Notes (verbatim): \"For baseball games, desirable view from behind home plate\" / \"Rows 19 and above are under cover\". No Fan Feedback and no fan reviews are published on this page. CONTRADICTS DISCOVERY - BOTH READINGS RECORDED, NOT RECONCILED: discovery.json states that on the upper level \"Both 330 and 331 carry the RateYourSeats 'Home Plate View' insight\" and names 330/331 as the upper-level home-plate anchor pair, while \"The two neighbours 327 and 328 carry the 'Reserve Level Infield' review but NOT the behind-home-plate note.\" The live Section 329 page fetched for this batch DOES carry \"Home Plate View\" and \"For baseball games, desirable view from behind home plate\". Section 332 carries them too (see that record). So the RYS home-plate block on the 300 level, as read today, is 329-332, not 330-331. Discovery's own 'uncertain' entry already flagged that ShadedSeats describes the upper-level home-plate shade block as \"sections 330-335\". No netting or obstruction note appears on this page.",
+    "source": "https://www.rateyourseats.com/coors-field/seating/sections/329"
+  },
+  {
+    "section": "330",
+    "zone": "Reserve Level Infield",
+    "location": "\"The Reserve Level is located on the highest tier of the inner seating bowl at Coors field. These Infield oriented sections will have more aerial views from behind home plate and the dugouts.\" (RYS Expert Review headed \"Reserve Level Infield\", carried verbatim on the Section 330 page.) The page flags this section as behind home plate: Section Insights list \"Home Plate View\" and Seating Notes read \"For baseball games, desirable view from behind home plate\".",
+    "rows": "1-5, C, 10-25",
+    "entrance_row": "Row 5",
+    "seat_direction": "When looking towards the field/stage, lower number seats are on the right",
+    "seats_per_row": "In the lower portion of Section 330 (Rows 1-5), there will be 14 to 15 seats in each row (with fewer seats in the rows near the front). In the upper portion of the Section (Rows 10 and higher), the seats will range between 17 to 24 in each row with more seats in the rows near the back of the section.",
+    "notes": "Section Insights (verbatim): \"Home Plate View\" / \"Rows 19 & Above - Covered\" / \"Rows 1-5, C, 10-25\". Row Numbers (verbatim): \"Rows in Section 330 are labeled 1-5, C, 10-25\", \"There is wheelchair seating betweeen Rows C and 10\" [sic], \"An entrance to this section is located at Row 5\". Seating Notes (verbatim): \"For baseball games, desirable view from behind home plate\" / \"Rows 19 and above are under cover\". The seats_per_row figure comes from the page's \"Seating and Ticket Q&A\" block, headed \"How many seats in a row in Section 330 at Coors Field?\" and stamped \"Verified Feb 2026\". Fan Review (verbatim, \"Sec 330 / Row 11 - Baseball\", Cincinnati Reds at Colorado Rockies - Jul 14, 2019): \"U330, Row 11, 6-8...great seats. Thought I'd be in the shade for the afternoon game, but wasn't quite high enough in the upper section. Didn't matter, because it was overcast.\" - note this fan's ticket is prefixed \"U330\" (Upper 330), and the shade experience at Row 11 is below the covered band the page recommends (Rows 19+). Second Fan Review (verbatim, \"Sec 330 / Row 11 - Baseball\", San Francisco Giants at Colorado Rockies - May 9, 2024): \"We had an incredible night at the Field. And the Rockies won 9-1 against the San Francisco Giants! So great game, great seats!\" DISCOVERY CONTEXT: discovery.json records the official Rockies Access Guide placing a First Aid Station \"behind sections 133 and 330\" and an ATM \"Behind section 330 - Clocktower area\", both consistent with 330 being a home-plate section. No netting or obstruction note appears on this page.",
+    "source": "https://www.rateyourseats.com/coors-field/seating/sections/330"
+  },
+  {
+    "section": "331",
+    "zone": "Reserve Level Infield",
+    "location": "\"The Reserve Level is located on the highest tier of the inner seating bowl at Coors field. These Infield oriented sections will have more aerial views from behind home plate and the dugouts.\" (RYS Expert Review headed \"Reserve Level Infield\", carried verbatim on the Section 331 page.) The page flags this section as behind home plate: Section Insights list \"Home Plate View\", Seating Notes read \"For baseball games, desirable view from behind home plate\", and a fan review states \"We had seats in the upper deck, right behind home plate.\"",
+    "rows": "1-5, C-W, 10-25",
+    "entrance_row": "Row 5",
+    "seat_direction": "When looking towards the field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights (verbatim): \"Home Plate View\" / \"Rows 19 & Above - Covered\" / \"Rows 1-5, C-W, 10-25\". Row Numbers (verbatim): \"Rows in Section 331 are labeled 1-5, C-W, 10-25\", \"An entrance to this section is located at Row 5\". Seating Notes (verbatim): \"For baseball games, desirable view from behind home plate\" / \"Rows 19 and above are under cover\". Fan Review (verbatim, \"Sec 331 / Row 10 - Baseball\", Los Angeles Dodgers at Colorado Rockies - Jul 31, 2019): \"We had seats in the upper deck, right behind home plate. We were in row 10, which is the first row after the walkway in the upper deck. As the seats were raised up above the walkway, we had a totally unobstructed view of the game the entire time. Great seats for only $15 a ticket.\" WALKWAY: this confirms the split-row structure - Row 10 is the first Upper Reserved row, immediately behind the cross-aisle walkway - and the fan reports it as an ADVANTAGE (\"totally unobstructed view\"), not an obstruction. No netting or obstruction note appears on this page.",
+    "source": "https://www.rateyourseats.com/coors-field/seating/sections/331"
+  },
+  {
+    "section": "332",
+    "zone": "Reserve Level Infield",
+    "location": "\"The Reserve Level is located on the highest tier of the inner seating bowl at Coors field. These Infield oriented sections will have more aerial views from behind home plate and the dugouts.\" (RYS Expert Review headed \"Reserve Level Infield\", carried verbatim on the Section 332 page.) The page additionally flags this section as behind home plate: Section Insights list \"Home Plate View\", Seating Notes read \"For baseball games, desirable view from behind home plate\", and a fan review is titled \"Great view behind home plate\".",
+    "rows": "1-25",
+    "entrance_row": "Row 6",
+    "seat_direction": "When looking towards the field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights (verbatim): \"Top Pick for Outstanding Convenience Rows 1-5\" / \"Home Plate View\" / \"Rows 19 & Above - Covered\" / \"Rows 1-25\". Row Numbers (verbatim): \"Rows in Section 332 are labeled 1-25\", \"An entrance to this section is located at Row 6\". Seating Notes (verbatim): \"For baseball games, we recommend rows 1-5 for outstanding convenience\" / \"For baseball games, desirable view from behind home plate\" / \"Rows 19 and above are under cover\". Fan Review (verbatim, \"Sec 332 / Row 12 - Baseball\"): \"Great view behind home plate\" - \"Shade already, at a 2:10 game was awesome! (Very hot in the sun). Chicken nachos were very good.\" CONTRADICTS DISCOVERY - BOTH READINGS RECORDED, NOT RECONCILED: discovery.json's numbering_direction summary assigns \"332-336 third-base infield\" and names 330/331 as the sole upper-level home-plate anchor pair. The live Section 332 page carries the \"Home Plate View\" insight, the \"desirable view from behind home plate\" note, AND a fan review titled \"Great view behind home plate\". Section 329 carries the same flags (see that record). Read literally, RYS today puts the upper-deck home-plate block at 329-332. No netting or obstruction note appears on this page.",
+    "source": "https://www.rateyourseats.com/coors-field/seating/sections/332"
+  },
+  {
+    "section": "333",
+    "zone": "Reserve Level Infield",
+    "location": "\"The Reserve Level is located on the highest tier of the inner seating bowl at Coors field. These Infield oriented sections will have more aerial views from behind home plate and the dugouts.\" (RYS Expert Review headed \"Reserve Level Infield\", carried verbatim on the Section 333 page.) The page gives NO location sentence specific to Section 333 itself, and does NOT say which side of the infield it sits on.",
+    "rows": "1-5, C, 10-25",
+    "entrance_row": "Row 5",
+    "seat_direction": "When looking towards the field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights (verbatim): \"Rows 19 & Above - Covered\" / \"Rows 1-5, C, 10-25\". Row Numbers (verbatim): \"Rows in Section 333 are labeled 1-5, C, 10-25\", \"There is wheelchair seating betweeen Rows C and 10\" [sic], \"An entrance to this section is located at Row 5\". Seating Notes (verbatim): \"Rows 19 and above are under cover\". No Fan Feedback and no fan reviews are published on this page. This section does NOT carry the \"Home Plate View\" insight, even though its lower-numbered neighbour 332 does - so the RYS home-plate flag stops at 332 going up. DISCOVERY CONTEXT (not stated on this page): discovery.json notes ShadedSeats recommends \"the upper rows in sections 330-335\" for shade. No netting or obstruction note appears on this page.",
+    "source": "https://www.rateyourseats.com/coors-field/seating/sections/333"
+  },
+  {
+    "section": "334",
+    "zone": "Reserve Level Infield",
+    "location": "\"The Reserve Level is located on the highest tier of the inner seating bowl at Coors field. These Infield oriented sections will have more aerial views from behind home plate and the dugouts.\" (RYS Expert Review headed \"Reserve Level Infield\", carried verbatim on the Section 334 page.) The page gives NO location sentence specific to Section 334 itself, and does NOT say which side of the infield it sits on.",
+    "rows": "1-5, C, 10-25",
+    "entrance_row": "Row 5",
+    "seat_direction": "When looking towards the field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights (verbatim): \"Rows 19 & Above - Covered\" / \"Rows 1-5, C, 10-25\". Row Numbers (verbatim): \"Rows in Section 334 are labeled 1-5, C, 10-25\", \"There is wheelchair seating betweeen Rows C and 10\" [sic], \"An entrance to this section is located at Row 5\". Seating Notes (verbatim): \"Rows 19 and above are under cover\". No Fan Feedback and no fan reviews are published on this page. No \"Home Plate View\" insight on this section. DISCOVERY CONTEXT (not stated on this page): discovery.json notes ShadedSeats recommends \"the upper rows in sections 330-335\" for shade, and places 332-336 on the third-base infield. No netting or obstruction note appears on this page.",
+    "source": "https://www.rateyourseats.com/coors-field/seating/sections/334"
+  }
+]

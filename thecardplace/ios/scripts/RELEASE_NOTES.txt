@@ -1,0 +1,12 @@
+The first build. Five card games against the computer - hearts, euchre, spades, cribbage and sheephead - played entirely on the device, with no network of any kind.
+
+These are native ports, not the web games in a wrapper. The rules, the computer players and the words each game says come from the browser versions at The Card Place, rebuilt in Swift with the same kinds of test suites behind them.
+
+What to test
+- VoiceOver, above everything else. Every card is a button that says what it is, anything worth knowing about it right now, and where it sits in your hand. A card you may not play stays in the list and says why.
+- The announcements. They are meant to be spoken one at a time, never cutting each other off. Anything you ask for from the Review menu should jump ahead of the game's own messages, and the message it interrupted should be said again afterwards.
+- Moving by headings: What you can do, Your hand, This trick, Last completed trick, the scores, and What has happened.
+- The pace setting, and whether Continue always gets you moving again.
+- Larger text sizes, and dark mode.
+
+Known: a crash was seen once in cribbage, just after the cut while reading a hand, and has not repeated since. If you hit anything like it, the time and what you had just done would help a great deal.

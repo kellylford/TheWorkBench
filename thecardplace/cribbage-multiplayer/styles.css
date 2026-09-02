@@ -1,0 +1,317 @@
+/* What is particular to cribbage-multiplayer.
+ *
+ * Everything shared with the other games is in ../shared/styles/core.css, which
+ * the page loads first. This file loads after it, so anything said here wins —
+ * that is the whole override mechanism, and it needs no !important.
+ */
+
+/* Cribbage - presentation.
+ * Aims: strong contrast, visible focus, no colour-only meaning, respects
+ * prefers-reduced-motion and prefers-contrast, and scales with the user's font size.
+ */
+:root {
+  --bg: #10161d;
+  --panel: #1a232e;
+  --panel-2: #223040;
+  --ink: #eef3f8;
+  --ink-dim: #ccd8e4;
+  --line: #3c4b5d;
+  --accent: #6fd0ff;
+  --accent-ink: #06212e;
+  --good: #7ee08a;
+  --bad: #ff9b9b;
+  --card-bg: #f7f9fb;
+  /* A card you cannot play. Light enough that a red suit still clears AA on it
+   * — #c2ccd6 looked better and put the pips at 4.25:1, which is a fail. */
+  --card-off: #ccd5de;
+  --card-ink: #16202a;
+  --card-red: #b3122a;
+  --trump: #f0c04a;
+  --bower: #7ad3a0;
+  --bower-ink: #0d5c38;
+  --felt: #1d5c43;
+  --felt-edge: #123a2b;
+  /* Ink for text sitting DIRECTLY on the felt, rather than on a panel.
+   *
+   * Deliberately not redefined for light mode, and that is the whole point:
+   * the felt is dark green in both colour schemes, but --ink-dim flips to a
+   * dark slate in light mode. Anything on the felt using --ink-dim was
+   * therefore 1.41:1 in light mode — dark grey on dark green, well under the
+   * 4.5:1 WCAG AA needs, and identically broken in all three games.
+   *
+   * It went unseen because the text it affects only appears when a hand runs
+   * empty, which no screenshot and no audit had ever caught it doing. */
+  --ink-on-felt: #e6eef6;
+  --back-a: #2a4f7c;
+  --back-b: #1b3557;
+  --focus: #ffd54a;
+  --radius: 8px;
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    --bg: #f2f5f8;
+    --panel: #ffffff;
+    --panel-2: #e8eef4;
+    --ink: #12181f;
+    --ink-dim: #3b4a5b;
+    --line: #b9c6d4;
+    --accent: #14556f;
+    --accent-ink: #ffffff;
+    --good: #10662a;
+    --bad: #a11226;
+    --card-bg: #ffffff;
+    --card-off: #ccd5de;
+    --card-ink: #12181f;
+    --card-red: #b3122a;
+    --trump: #8a5a00;
+    --bower: #1a7f4f;
+    --bower-ink: #0d5c38;
+    --felt: #1f6b4d;
+    --felt-edge: #14503a;
+    --back-a: #33608f;
+    --back-b: #224060;
+    --focus: #a35a00;
+  }
+}
+
+/* Inline links in the notice are targets like any other, and at the default text
+ * size a bare inline link is about 21px tall — under the 24px WCAG 2.2 minimum.
+ * It only shows up when something measures it, because it looks perfectly fine
+ * and is perfectly clickable with a mouse; the people it fails are the ones
+ * aiming with a thumb or a head pointer. tests/layout.js measures it. */
+.dev-notice a {
+  color: var(--accent);
+  font-weight: 600;
+  display: inline-block;
+  padding: .3rem 0;
+  min-height: 24px;
+}
+
+/* The card the dealer took from the top of the kitty, sitting at the front of
+ * the hand until they have put one back. Lifted and outlined so it reads as
+ * "this is the new one" — a six card hand that all looks alike is exactly where
+ * a dealer discards the card they meant to keep. */
+.card.from-upcard {
+  border-color: var(--accent);
+  border-width: 3px;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 35%, transparent);
+  transform: translateY(-.35rem);
+}
+
+.card.from-upcard .tag { color: var(--accent); font-weight: 800; }
+
+/* A bower.
+ *
+ * The right and left bowers are the two highest cards in the game, and the left
+ * one does not look like a trump at all — with spades trump the jack of clubs is
+ * a spade, and a player scanning their hand for spades will not see it. So it is
+ * marked, and marked the same way in both skins, because "it is obvious once you
+ * know" is the whole problem: the moment you stop knowing is the moment you
+ * throw it away.
+ *
+ * Marked visually here and named in the card's own aria-label, so neither
+ * audience is depending on the other's channel. */
+.card.bower-card {
+  border-color: var(--bower);
+  border-width: 3px;
+  /* Colour and image set separately: a gradient alone leaves background-color
+   * transparent, which is both a weak fallback and unmeasurable for contrast. */
+  background-color: var(--card-bg);
+  background-image: linear-gradient(180deg, color-mix(in srgb, var(--bower) 18%, var(--card-bg)) 0%, var(--card-bg) 55%);
+}
+
+.card.bower-card .tag { color: var(--bower-ink); font-weight: 800; }
+
+.card.bower-card::before {
+  content: "★";
+  position: absolute; top: 1px; right: 4px;
+  font-size: .8rem; line-height: 1;
+  color: var(--bower-ink);
+}
+
+.card.from-upcard.bower-card { box-shadow: 0 0 0 3px color-mix(in srgb, var(--bower) 40%, transparent); }
+
+/* A seat sitting out because its partner is playing alone. Not "disabled" —
+ * they are still at the table and their row still carries a score. */
+tr.sitting-out th[scope="row"] { font-style: italic; }
+
+@media (forced-colors: active) {
+  .card.trump { border-style: double; }
+  .card.from-upcard { border-style: dashed; }
+  .card.bower-card { outline: 3px solid; outline-offset: 1px; }
+  .trick li.winning { border-style: dashed; }
+}
+
+/* ---------- optional two-column desktop layout ----------
+ * Off by default; Settings > Appearance > Desktop layout turns it on.
+ *
+ * CSS Grid auto-placement is row-major, so panels fill left-to-right in exact
+ * DOM order. Nothing is repositioned and no `order` is used, so reading order
+ * and visual order stay identical — which is the whole reason this is grid and
+ * not absolute positioning.
+ *
+ * 64rem in a media query is always 1024px regardless of the user's font size,
+ * so phones and tablets are untouched whatever this is set to.
+ */
+@media (min-width: 64rem) {
+  .layout-two-col #game-section {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    column-gap: 1.25rem;
+    align-items: start;
+  }
+  /* Anything that reads as a full-width band stays one. The rest pairs up:
+   * hand | seats, then current trick | last trick. */
+  .layout-two-col #game-section > h2,
+  .layout-two-col #game-section > #status,
+  .layout-two-col #game-section > #action-section,
+  .layout-two-col #game-section > .toolbar,
+  .layout-two-col #game-section > #starter-section,
+  .layout-two-col #game-section > #crib-section,
+  .layout-two-col #game-section > #score-section,
+  .layout-two-col #game-section > section[aria-labelledby="players-h"],
+  .layout-two-col #game-section > section[aria-labelledby="log-h"] {
+    grid-column: 1 / -1;
+  }
+}
+
+/* THE CONNECTION, WHEN THERE IS SOMETHING WRONG WITH IT.
+ *
+ * Nothing is shown while it is healthy — a standing "connected" badge is noise
+ * on screen and worse in a screen reader's tab order. When it appears it is
+ * news, so it is styled as a warning and it stays put rather than passing by in
+ * a live region: somebody who missed the announcement has to be able to find it
+ * again, and somebody who heard it has to be able to check. */
+.net-line {
+  margin: .5rem 0;
+  padding: .55rem .8rem;
+  border: 1px solid var(--bad);
+  border-left: 5px solid var(--bad);
+  border-radius: var(--radius);
+  background: var(--panel);
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.net-line:focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; }
+
+/* The result headline. It carries the whole outcome in a sentence, and the chips
+ * above it are decoration that repeats the numbers for anybody reading by eye. */
+.result-headline { font-weight: 700; color: var(--ink); font-size: 1.05rem; }
+
+/* The score table. Your own side's row is marked, because "which of these two
+ * rows is me" is the question it exists to answer. */
+#score-table tr.you th[scope="row"] { color: var(--accent); }
+
+/* ---------- the cribbage board ----------
+ *
+ * Decoration, and hidden from assistive technology entirely — the Score table
+ * carries both numbers and the distance still to go, which is the same
+ * information without a hundred and twenty-one holes to walk through. It is here
+ * because a board is what cribbage looks like, and a player with some sight uses
+ * the relative position of two pegs to see a game slipping away far faster than
+ * they read two numbers.
+ *
+ * Sized in rem so it grows with the reader's text like everything else. The peg
+ * track is a gradient rather than 121 elements: a hole per point would be 242
+ * nodes for two players, all of them noise in the DOM and none of them readable.
+ */
+.board {
+  margin: .75rem 0 1rem;
+  padding: .7rem .8rem;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  display: grid;
+  gap: .5rem;
+}
+
+.board-row { display: grid; grid-template-columns: minmax(6rem, auto) 1fr; gap: .6rem; align-items: center; }
+
+.board-name { font-weight: 700; font-size: .95rem; }
+
+.board-track {
+  position: relative;
+  height: 1.1rem;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  /* The holes, drawn once. */
+  background-image: repeating-linear-gradient(
+    to right,
+    color-mix(in srgb, var(--ink-dim) 32%, transparent) 0 2px,
+    transparent 2px 6px);
+  background-color: var(--panel-2);
+  overflow: hidden;
+}
+
+.board-fill {
+  position: absolute; inset: 0 auto 0 0;
+  background: color-mix(in srgb, var(--accent) 45%, transparent);
+}
+
+.board-peg {
+  position: absolute; top: 50%; width: .55rem; height: .55rem;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: var(--accent);
+  border: 1px solid var(--accent-ink);
+}
+
+.board-row.mine .board-peg { background: var(--good); }
+
+.board-row.mine .board-fill { background: color-mix(in srgb, var(--good) 45%, transparent); }
+
+@media (forced-colors: active) {
+  .board-track { border: 1px solid CanvasText; background: Canvas; }
+  .board-peg { background: CanvasText; forced-color-adjust: none; }
+}
+
+/* The running count, which is the single number a cribbage player holds in their
+ * head all the way through the play. Big, because it changes constantly and is
+ * the thing being glanced at. */
+.count-line {
+  margin: .3rem 0 .6rem;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+/* The scoring shout, on the table where the count is.
+ *
+ * The rule this follows: anything the announcer says that changes the game has
+ * to be visible too. "Fifteen for two" was spoken and then gone, and the only
+ * visible trace was a number in the score column moving by two, which tells you
+ * that something scored but never what. Sitting directly under the count, in
+ * the words a player would use, it is the same information both people get.
+ *
+ * Plain --ink on the section background, exactly like .count-line above it, so
+ * it inherits a contrast that is already measured; the colour is in the rule at
+ * the side and carries nothing on its own. */
+.score-call {
+  margin: 0 0 .6rem;
+  padding: .3rem 0 .3rem .6rem;
+  border-left: .3rem solid var(--good);
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+/* Both hands laid out for the count. The rows are the shared .reveal-row, so
+ * this is only the gap between one player's four cards and the next player's. */
+#count-hands .reveal-row { margin-bottom: .35rem; }
+
+#count-hands .card { cursor: default; }
+
+/* The starter, and cards chosen to go to the crib. `aria-pressed` already gets
+ * the lift and the outline from the shared rules above; this adds the label
+ * colour so the two states do not depend on position alone. */
+.card.starter-card { border-color: var(--trump); border-width: 3px; }
+
+.card.starter-card .tag { color: #8a5a00; font-weight: 800; }
+
+.card[aria-pressed="true"] .tag { color: var(--accent); font-weight: 800; }
+
+/* A hand that has been laid down and counted is no longer interactive, but it is
+ * still worth reading. */
+#crib .card, #starter .card { cursor: default; }

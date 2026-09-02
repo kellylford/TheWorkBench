@@ -1,0 +1,395 @@
+{
+  "venue": "Oriole Park at Camden Yards, Baltimore, MD. CONFIRMED as the Baltimore Orioles' current and only home ballpark for the 2026 season. The name is CURRENT and UNCHANGED: Ballparks of Baseball's Facts & Figures list '-Former Name(s): None' and '-Naming Rights: None' (https://www.ballparksofbaseball.com/ballparks/camden-yards/); MLB.com's own club pages are still titled 'Oriole Park at Camden Yards' in 2026-dated content (https://www.mlb.com/orioles/ballpark, https://www.mlb.com/orioles/ballpark/ground-rules); RateYourSeats titles every page 'Oriole Park at Camden Yards' under the slug 'oriole-park'. NO stadium naming-rights deal and NO field naming-rights deal was found for 2026 - this park is not a Daikin/Rate Field-style rename case, and unlike Dodger Stadium there is no separate field sponsor. Sponsor names DO attach to features inside the park (T. Rowe Price sign above the videoboard, Coors Light Center Field Roof Deck, Pepsi Picnic Perch, All-Star Cafe) - none of these renames the venue or the field. The park DID change physically for 2026: a $400M+ project begun after the 2025 season added a new centre-field videoboard ~2.5x larger, a right-field wall display, 1,125 feet of new ribbon board, and a NEW premium club behind home plate for ~380 patrons with 'a private entrance, and elevated food and beverage offerings' (https://ballparkdigest.com/2025/06/18/oriole-park-renovations-unveiled-for-2026/). MLB.com adds: 'In January 2025, the Maryland Board of Public Works approved $135 million in bond financing for Camden Yards that went toward a new sound system, a large center-field video board and other visual upgrades. Those features were installed ahead of the '26 season.' (https://www.mlb.com/news/featured/camden-yards-guide-capacity-seating-chart-parking-and-more). STALE-SOURCE WARNING: any Camden Yards seating chart, capacity figure or club-level section list predating the 2025-26 renovation is STALE - in particular the Club Level sections 232-240 directly behind home plate that older charts show are NOT present in the 2026 RateYourSeats section index, and the new 'Premium Club' (sections C31-C43) occupies the behind-the-plate position instead. Ballparks of Baseball's 45,971 capacity is the 2011-renovation figure and is stale.",
+  "team": "Baltimore Orioles",
+  "rateyourseats_slug": "oriole-park",
+  "sections": [
+    "1",
+    "3",
+    "4",
+    "5",
+    "6",
+    "7",
+    "8",
+    "9",
+    "10",
+    "11",
+    "12",
+    "13",
+    "14",
+    "15",
+    "16",
+    "17",
+    "18",
+    "19",
+    "20",
+    "22",
+    "23",
+    "24",
+    "26",
+    "27",
+    "28",
+    "29",
+    "30",
+    "31",
+    "32",
+    "33",
+    "34",
+    "35",
+    "36",
+    "37",
+    "38",
+    "39",
+    "40",
+    "42",
+    "43",
+    "44",
+    "45",
+    "46",
+    "47",
+    "48",
+    "49",
+    "50",
+    "52",
+    "53",
+    "54",
+    "55",
+    "56",
+    "58",
+    "59",
+    "60",
+    "61",
+    "62",
+    "64",
+    "65",
+    "66",
+    "67",
+    "68",
+    "69",
+    "70",
+    "71",
+    "72",
+    "73",
+    "74",
+    "75",
+    "76",
+    "77",
+    "78",
+    "79",
+    "80",
+    "81",
+    "82",
+    "83",
+    "84",
+    "85",
+    "86",
+    "87",
+    "90",
+    "92",
+    "94",
+    "96",
+    "98",
+    "204",
+    "206",
+    "208",
+    "210",
+    "212",
+    "214",
+    "216",
+    "218",
+    "220",
+    "222",
+    "226",
+    "228",
+    "230",
+    "242",
+    "244",
+    "246",
+    "248",
+    "250",
+    "252",
+    "254",
+    "256",
+    "258",
+    "260",
+    "262",
+    "264",
+    "268",
+    "270",
+    "272",
+    "274",
+    "276",
+    "278",
+    "280",
+    "282",
+    "284",
+    "286",
+    "288",
+    "306",
+    "308",
+    "310",
+    "312",
+    "316",
+    "318",
+    "320",
+    "322",
+    "324",
+    "326",
+    "328",
+    "330",
+    "332",
+    "334",
+    "336",
+    "338",
+    "340",
+    "342",
+    "344",
+    "346",
+    "348",
+    "350",
+    "352",
+    "354",
+    "356",
+    "358",
+    "360",
+    "362",
+    "364",
+    "366",
+    "368",
+    "370",
+    "372",
+    "374",
+    "376",
+    "378",
+    "380",
+    "381",
+    "382",
+    "384",
+    "386",
+    "388"
+  ],
+  "concert_only_sections": [
+    "'Premium Club' - a ZONE LINK on the RateYourSeats section index (https://www.rateyourseats.com/oriole-park/seating/sections) with NO per-section pages. It is a BASEBALL premium seating area, not a concert-floor area, but its constituent section IDs are not enumerated as individual links in the section index, so they are recorded here rather than in `sections`. Zone page https://www.rateyourseats.com/oriole-park/seating/premium-club states verbatim: 'A brand new premium seating area debuting Opening Day 2026', 'Located directly behind home plate in Sections C31-C43', positioned 'slightly below the Club Level', 'Premium Club seats are extremely limited at Camden Yards, with only a small number of seats available', with 'Inclusive food and beverage package', 'Private stadium entrance', 'Access to a new indoor club with floor-to-ceiling glass', 'Dining tables and multiple bars', 'Private restrooms'. SO: the letter-prefixed IDs C31, C33, C35, C37, C39, C41, C43 (or C31 through C43 inclusive - the page gives only the range, not the members) exist as 2026 ticketed baseball sections but are NOT individually indexed. DO NOT invent the members of this range.",
+    "'Standing Room Only' - a ZONE LINK on the RateYourSeats section index (https://www.rateyourseats.com/oriole-park/seating/sections) with NO per-section pages and NO section identifiers. The linked page https://www.rateyourseats.com/oriole-park/seating/standing-room-only returned no statement of where SRO areas are located at Oriole Park. Location: UNKNOWN.",
+    "NO concert-floor sections were found for Oriole Park at Camden Yards on the RateYourSeats section index. The index contains no 'Field Sections' / floor-seating group."
+  ],
+  "capacity": "CONFLICTING FIGURES - three sources, three numbers, and the discrepancy is material because the 2025-26 renovation changed the seat count. (1) Wikipedia infobox capacity history: '48,876' (1992-2010) reduced by the 2011 renovation - 'The renovation reduced Oriole Park's capacity from 48,876 to 45,971'; then 44,487 for 2022-2025; and '2026-present' listed as 42,455 (https://en.wikipedia.org/wiki/Oriole_Park_at_Camden_Yards). (2) MLB.com Camden Yards guide: capacity '44,970' (https://www.mlb.com/news/featured/camden-yards-guide-capacity-seating-chart-parking-and-more). (3) Ballparks of Baseball Facts & Figures: '-Capacity: 45,971' (https://www.ballparksofbaseball.com/ballparks/camden-yards/) - this is the 2011-renovation figure and is STALE. RECOMMENDED for 2026: 42,455 (the only figure explicitly scoped to '2026-present'), with 44,970 recorded as the club-published alternative. DO NOT use 45,971.",
+  "orientation": {
+    "batter_faces": "Home plate faces south-southwest; the batter looks out toward centre field to the north-northeast.",
+    "verbatim": "'Camden Yards has a north-northeast-facing orientation (roughly 30 degrees), meaning home plate faces south-southwest and center field points to the north-northeast.' Same page: 'The sun in Baltimore travels through the southern sky, reaching its highest point due south at midday and then tracking toward the southwest through the afternoon.'",
+    "consistency_check": "Consistent with the RateYourSeats shade page, which says the THIRD BASE side shades first and warns 'Completely avoid sections 1-8 in the Right Field corner if you want to stay out of the sun' because they get 'direct sun exposure ... during late afternoon and evening games' - i.e. the first-base/right-field side is the sun side and the third-base side is the shade side, which is what a NNE-facing bowl produces.",
+    "confidence": "medium-high (one explicit compass statement, cross-checked against two independent shade descriptions)",
+    "source": "https://theshadium.com/blog/shaded-seats-camden-yards ; https://www.rateyourseats.com/oriole-park/seating/shaded-covered-seats"
+  },
+  "numbering_direction": {
+    "summary": "SECTION NUMBERS INCREASE FROM THE RIGHT-FIELD / FIRST-BASE SIDE TOWARD THE THIRD-BASE / LEFT-FIELD SIDE - i.e. they INCREASE TOWARD THIRD BASE. LOW numbers = right-field corner and the first-base side. MIDDLE numbers = behind home plate. HIGH numbers = third base, then left field, then (continuing around past the bullpens) the bleachers in centre / right-centre field. The bowl SWEEPS CONTINUOUSLY ONE WAY: right-field corner (1 / 4) -> first base (20-26) -> home plate (33-39) -> third base (48-52) -> left field (56-82) -> left-centre bullpens (84-86) -> bleachers (90-98). EVERY series at the park runs this same direction: lower bowl 1-98, Club Level 204-288, Upper Level 306-388.",
+    "parity_signature_check": "NO - Oriole Park does NOT use the NL West outward-from-home-plate-by-parity scheme. Parity at Camden Yards encodes DEPTH, NOT DIRECTION. In the lower bowl the EVEN sections are the front (field-level) sections and the ODD sections are the rear (terrace-level) sections directly behind them, both running the SAME low-to-high direction and roughly aligned with each other (e.g. even 34 and odd 33-39 are all behind home plate; even 24 and odd 23 are both near the Orioles dugout). The Stadium Insiders states this plainly: 'even sections are down the steps, and the odd sections are up the steps' (https://thestadiuminsiders.com/stadium_guides/baltimore-orioles/ticketing-seating-premium/), and RateYourSeats' Field Level page says Field Level 'include[s] even-numbered sections below 100 (e.g., 20, 40, etc.)' while Section 1 is described as 'an odd-numbered lower level section on the Terrace Level'. NO statement of the form 'sections 111-115 on the first base side and 112-116 on the third base side' was found anywhere for this park. The Club Level and Upper Level are ALL-EVEN series (the single odd entry, 381, is an anomaly - see `uncertain`), which is a numbering-stride quirk, not a parity split.",
+    "anchor_right_field": "(a) RateYourSeats Section 1: 'Section 1 is an odd-numbered lower level section on the Terrace Level, positioned in right field' (https://www.rateyourseats.com/oriole-park/seating/sections/1). (b) RateYourSeats Terrace Level zone page: 'Sections 1-9 (right field)' (https://www.rateyourseats.com/oriole-park/seating/terrace-level). (c) RateYourSeats shade page: 'Completely avoid sections 1-8 in the Right Field corner if you want to stay out of the sun' (https://www.rateyourseats.com/oriole-park/seating/shaded-covered-seats). (d) The Stadium Insiders lists 'Front field outfield (even sections 4-18, 56-82)' - the 4-18 half being the right-field half.",
+    "anchor_home_plate": "(a) RateYourSeats Section 34: 'Desirable view from behind home plate' (https://www.rateyourseats.com/oriole-park/seating/sections/34). (b) RateYourSeats Terrace Level zone page: sections '33-39' are 'behind home plate' (https://www.rateyourseats.com/oriole-park/seating/terrace-level). (c) RateYourSeats Upper Level zone page: 'Sections 330-342 offer strong views of the entire field from behind home plate' (https://www.rateyourseats.com/oriole-park/seating/upper-level). (d) HARD FACT, official Orioles accessibility guide: 'Elevators are available behind home plate (near Section 36) and in left field (behind Section 78).' (https://www.mlb.com/orioles/ballpark/disability-access-guide)",
+    "anchor_left_field": "(a) HARD FACT, official Orioles accessibility guide: 'Elevators are available behind home plate (near Section 36) and in left field (behind Section 78).' (https://www.mlb.com/orioles/ballpark/disability-access-guide) - Section 78 is IN LEFT FIELD. (b) The Stadium Insiders: 'Front field outfield (even sections 4-18, 56-82)' - the 56-82 half being the left-field half; and 'Bird Bath (sections 84-86)' adjacent to the left-centre bullpens. (c) RateYourSeats Field Level page: 'Fans interested in watching pitchers warm up should look toward Section 86, where the team bullpens are located' - and MLB.com ground rules refer to 'the left-center bullpens', placing Section 86 in left-centre field.",
+    "anchor_dugout_cross_check": "RateYourSeats Field Level zone page: 'Orioles Dugout: Located behind Sections 22, 24, and 26' and 'Visitor Dugout: Located behind Sections 48, 50, and 52' (https://www.rateyourseats.com/oriole-park/seating/field-level). Ballparks of Baseball independently states '-Home Dugout: First Base'. Therefore 22-26 (LOW) = first base and 48-52 (HIGH) = third base, which fixes the direction independently of the outfield anchors. RateYourSeats Section 50 confirms: 'These seats are located behind the visitor dugout' and 'Rows 1-10 are recommended for visiting team fans'.",
+    "club_level_direction": "RateYourSeats Club Level zone page: 'Sections 204-240 along the first base side' and 'Sections 242-280 along the third base side' (https://www.rateyourseats.com/oriole-park/seating/club-level) - same low-to-high, first-base-to-third-base direction. Corroborated by the shade page: 'Sections 242-264 will be entirely shaded by the middle innings' (the third-base/shade side).",
+    "confidence": "HIGH. Five independent anchor types agree (right-field section page, terrace zone page, shade page, official Orioles elevator statement, dugout statements + Ballparks of Baseball home-dugout side). No source contradicts the direction.",
+    "source": "https://www.rateyourseats.com/oriole-park/seating/sections"
+  },
+  "home_plate_sections": {
+    "Field Level (lower bowl, front / even sections)": {
+      "sections": [
+        "34",
+        "36"
+      ],
+      "verbatim": "RateYourSeats Section 34: 'Desirable view from behind home plate'. Official Orioles accessibility guide: 'Elevators are available behind home plate (near Section 36)'. Note the even series runs 30, 32, 34, 36, 38 across the plate; only 34 and 36 are explicitly sourced as behind the plate.",
+      "source": "https://www.rateyourseats.com/oriole-park/seating/sections/34 ; https://www.mlb.com/orioles/ballpark/disability-access-guide"
+    },
+    "Terrace Level (lower bowl, rear / odd sections)": {
+      "sections": [
+        "33",
+        "35",
+        "37",
+        "39"
+      ],
+      "verbatim": "RateYourSeats Terrace Level zone page: 'Sections 33-39 (behind home plate)' and these sections 'have less overhead coverage compared to other Terrace areas'. The odd series between 33 and 39 is 33, 35, 37, 39.",
+      "source": "https://www.rateyourseats.com/oriole-park/seating/terrace-level"
+    },
+    "Club Level (200s)": {
+      "sections": [
+        "230",
+        "242"
+      ],
+      "verbatim": "The Club Level's TRUE behind-the-plate sections are NOT ticketed as indexed 200-level sections for 2026. RateYourSeats Club Level page splits the tier as 'Sections 204-240 along the first base side' and 'Sections 242-280 along the third base side', but the 2026 section index contains NO 232, 234, 236, 238 or 240. The highest indexed first-base-side club section is 230, described on its own page as 'closest to home plate and offer[s] some of the most desirable vantage points ... along the first base side'; the lowest indexed third-base-side club section is 242. The behind-the-plate position on this tier is occupied by the NEW 2026 'Premium Club' at 'Sections C31-C43', 'Located directly behind home plate' and 'slightly below the Club Level'. TREAT 230 and 242 as the flanking anchors, NOT as behind-the-plate sections.",
+      "source": "https://www.rateyourseats.com/oriole-park/seating/club-level ; https://www.rateyourseats.com/oriole-park/seating/sections/230 ; https://www.rateyourseats.com/oriole-park/seating/premium-club"
+    },
+    "Upper Level (300s)": {
+      "sections": [
+        "330",
+        "332",
+        "334",
+        "336",
+        "338",
+        "340",
+        "342"
+      ],
+      "verbatim": "RateYourSeats Upper Level zone page: 'Sections 330-342 offer strong views of the entire field from behind home plate.' RateYourSeats Section 336: 'Home Plate View' from the upper deck.",
+      "source": "https://www.rateyourseats.com/oriole-park/seating/upper-level ; https://www.rateyourseats.com/oriole-park/seating/sections/336"
+    },
+    "Premium Club (new for 2026)": {
+      "sections": [
+        "UNKNOWN - zone gives only the range 'Sections C31-C43'; individual members are not enumerated by any source"
+      ],
+      "verbatim": "'Located directly behind home plate in Sections C31-C43'; 'A brand new premium seating area debuting Opening Day 2026'; 'slightly below the Club Level'.",
+      "source": "https://www.rateyourseats.com/oriole-park/seating/premium-club"
+    },
+    "Bleachers (90-98)": {
+      "sections": [
+        "TIER NEVER WRAPS BEHIND HOME PLATE - it is an outfield-only tier. Omit the home-plate anchor for this tier; distances should come out blank rather than wrong."
+      ],
+      "verbatim": "RateYourSeats Bleachers zone page: 'Located in Sections 90-98 below the main scoreboard in right-center field' and 'Sections 90 and 92 offer rare center-field-style views toward home plate'.",
+      "source": "https://www.rateyourseats.com/oriole-park/seating/bleachers"
+    }
+  },
+  "levels": [
+    {
+      "name": "Field Level (lower bowl, FRONT sections - even numbers below 100)",
+      "sections": "Even sections 4-86: 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 34, 36, 38, 40, 42, 44, 46, 48, 50, 52, 54, 56, 58, 60, 62, 64, 66, 68, 70, 72, 74, 76, 78, 80, 82, 84, 86. (There is NO section 2, and no section 88.)",
+      "notes": "RateYourSeats: 'Field Level sections include even-numbered sections below 100 (e.g., 20, 40, etc.) and place fans closest to the action.' 'Field Boxes (Sections 16-58)' are 'located around the infield and are commonly referred to as Field Box seating.' 'Orioles Dugout: Located behind Sections 22, 24, and 26'; 'Visitor Dugout: Located behind Sections 48, 50, and 52'; 'Fans interested in watching pitchers warm up should look toward Section 86, where the team bullpens are located.' The Stadium Insiders subdivides the even series as 'Front field infield (even sections 20-54)', 'Front field outfield (even sections 4-18, 56-82)' and 'Bird Bath (sections 84-86)', and explains that 'even sections are down the steps' from the main concourse.",
+      "source": "https://www.rateyourseats.com/oriole-park/seating/field-level ; https://thestadiuminsiders.com/stadium_guides/baltimore-orioles/ticketing-seating-premium/"
+    },
+    {
+      "name": "Terrace Level (lower bowl, REAR sections - odd numbers below 100)",
+      "sections": "Odd sections 1-87: 1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 23, 27, 29, 31, 33, 35, 37, 39, 43, 45, 47, 49, 53, 55, 59, 61, 65, 67, 69, 71, 73, 75, 77, 79, 81, 83, 85, 87. (The section index has NO 21, 25, 41, 51, 57 or 63.)",
+      "notes": "RateYourSeats Section 1: 'Section 1 is an odd-numbered lower level section on the Terrace Level, positioned in right field.' Terrace zone page: 'Sections 1-9 (right field)'; 'Sections 33-39 (behind home plate)'; 'Sections 43-65' noted for shade during afternoon games; the third-base side 'Offers better views of the main scoreboard' and 'Typically moves into shade earlier during afternoon and evening games'. Coverage: 'Except for sections 1-7, all Terrace Level seats are shaded for afternoon games at Oriole Park'; covered = 'Terrace sections except 1-7 and 33-39'. The Stadium Insiders calls this band 'Rear field level (odd sections 1-87)' and notes 'the odd sections are up the steps'.",
+      "source": "https://www.rateyourseats.com/oriole-park/seating/terrace-level ; https://www.rateyourseats.com/oriole-park/seating/sections/1 ; https://www.rateyourseats.com/oriole-park/seating/shaded-covered-seats"
+    },
+    {
+      "name": "Bleachers (outfield, 90-98)",
+      "sections": "90, 92, 94, 96, 98",
+      "notes": "RateYourSeats Bleachers zone page: 'Located in Sections 90-98 below the main scoreboard in right-center field'; the seating sits 'below the main video board and next to the out-of-town scoreboard'; 'Sections 90 and 92 offer rare center-field-style views toward home plate' and are 'closer to a center-field viewing angle'. CONFLICT: Wikipedia describes 'Bleacher sections (90-98)' as lining 'Eutaw Street, a pedestrian thoroughfare between the stadium and the Baltimore & Ohio Warehouse ... beyond right field'; The Stadium Insiders calls them 'Center field bleachers (sections 90-98)'. See `uncertain`.",
+      "source": "https://www.rateyourseats.com/oriole-park/seating/bleachers ; https://en.wikipedia.org/wiki/Oriole_Park_at_Camden_Yards ; https://thestadiuminsiders.com/stadium_guides/baltimore-orioles/ticketing-seating-premium/"
+    },
+    {
+      "name": "Club Level (200s)",
+      "sections": "204, 206, 208, 210, 212, 214, 216, 218, 220, 222, 226, 228, 230, 242, 244, 246, 248, 250, 252, 254, 256, 258, 260, 262, 264, 268, 270, 272, 274, 276, 278, 280, 282, 284, 286, 288. ALL EVEN. The index has NO 200, 202, 224, 232, 234, 236, 238, 240 or 266.",
+      "notes": "RateYourSeats: 'The Club Level wraps around more than half of the stadium on the second tier between the lower bowl and the upper deck'; 'Sections 204-240 along the first base side'; 'Sections 242-280 along the third base side'. Amenities: 'climate-controlled indoor concourse' with lounges, bars and 'the All-Star Cafe'; 'in-seat wait service' at select games; 'Rows 8 and above are under cover'. Shade page: covered = 'Any 200-level club section (these grant access to an indoor area)' and 'Sections 242-264 will be entirely shaded by the middle innings and the last five rows of these sections are shaded for the entirety of a 1 p.m. game.' MLB.com A-to-Z guide: the Club Level is 'Accessible via the Home Plate elevators and the escalators on the first and third base concourses.' The Stadium Insiders puts 'the 200 club level at sections 204-280' and the 'Pepsi Picnic Perch' at 'sections 272-288'.",
+      "source": "https://www.rateyourseats.com/oriole-park/seating/club-level ; https://www.rateyourseats.com/oriole-park/seating/sections/246 ; https://www.rateyourseats.com/oriole-park/seating/sections/230 ; https://www.mlb.com/orioles/ballpark/information/guide"
+    },
+    {
+      "name": "Upper Level (300s)",
+      "sections": "306, 308, 310, 312, 316, 318, 320, 322, 324, 326, 328, 330, 332, 334, 336, 338, 340, 342, 344, 346, 348, 350, 352, 354, 356, 358, 360, 362, 364, 366, 368, 370, 372, 374, 376, 378, 380, 381, 382, 384, 386, 388. All even EXCEPT 381. The index has NO 300, 302, 304 or 314.",
+      "notes": "RateYourSeats: 'Upper Level seating at Oriole Park at Camden Yards includes all sections labeled in the 300s.' 'Sections 330-342 offer strong views of the entire field from behind home plate.' Coverage: 'Rows 15 and above in the upper deck' are covered. Budget picks per the shade page: 'Upper half of sections 344-380' and 'Rows 20 and above in sections 382-388'.",
+      "source": "https://www.rateyourseats.com/oriole-park/seating/upper-level ; https://www.rateyourseats.com/oriole-park/seating/sections/336 ; https://www.rateyourseats.com/oriole-park/seating/shaded-covered-seats"
+    },
+    {
+      "name": "Premium Club (NEW for 2026) - zone only, no indexed sections",
+      "sections": "Sections C31-C43 (range only; members not enumerated by any source). NOT present in the RateYourSeats section index as individual links - recorded in `concert_only_sections`.",
+      "notes": "'A brand new premium seating area debuting Opening Day 2026'; 'Located directly behind home plate in Sections C31-C43'; 'slightly below the Club Level'; 'Inclusive food and beverage package', 'Private stadium entrance', 'Access to a new indoor club with floor-to-ceiling glass', 'Dining tables and multiple bars', 'Private restrooms'. Ballpark Digest describes the same build as 'a new club space behind home plate with capacity for 380 patrons' with 'a private entrance, and elevated food and beverage offerings', built into the current press-box area.",
+      "source": "https://www.rateyourseats.com/oriole-park/seating/premium-club ; https://ballparkdigest.com/2025/06/18/oriole-park-renovations-unveiled-for-2026/"
+    },
+    {
+      "name": "Standing Room Only - zone only",
+      "sections": "UNKNOWN - no section identifiers listed.",
+      "notes": "Appears as a zone link on the RateYourSeats section index. The linked page states nothing about where SRO areas are located at Oriole Park.",
+      "source": "https://www.rateyourseats.com/oriole-park/seating/standing-room-only"
+    }
+  ],
+  "dugouts": {
+    "home": "FIRST BASE SIDE. Ballparks of Baseball Facts & Figures: '-Home Dugout: First Base' (https://www.ballparksofbaseball.com/ballparks/camden-yards/). RateYourSeats Field Level zone page: 'Orioles Dugout: Located behind Sections 22, 24, and 26' (https://www.rateyourseats.com/oriole-park/seating/field-level). RateYourSeats Section 24 headline location: 'Near Orioles Dugout', with fan feedback confirming 'Row 1 is positioned directly behind the Orioles dugout'.",
+    "visiting": "THIRD BASE SIDE. RateYourSeats Field Level zone page: 'Visitor Dugout: Located behind Sections 48, 50, and 52'. RateYourSeats Section 50: 'These seats are located behind the visitor dugout' and 'Rows 1-10 are recommended for visiting team fans'.",
+    "cross_check": "Geometry is self-consistent: the low-numbered dugout (22-26) is on the same side as the low-numbered right-field corner (1-8), and the high-numbered dugout (48-52) is on the same side as left field (Section 78, per the official Orioles elevator statement). No source inverts this.",
+    "source": "https://www.ballparksofbaseball.com/ballparks/camden-yards/ ; https://www.rateyourseats.com/oriole-park/seating/field-level ; https://www.rateyourseats.com/oriole-park/seating/sections/24 ; https://www.rateyourseats.com/oriole-park/seating/sections/50"
+  },
+  "bullpens": "BOTH bullpens are beyond the outfield wall in LEFT-CENTRE FIELD, in a stacked two-tier arrangement. Wikipedia: the bullpens occupy left-center field behind the playing area, and their 'unique two-tiered design was a first in major league parks', with a picnic area featuring orange umbrellas positioned above them (https://en.wikipedia.org/wiki/Oriole_Park_at_Camden_Yards). MLB.com ground rules refer to lowering the wall 'to 6 feet, 11 inches closer to the left-center bullpens' (https://www.mlb.com/orioles/ballpark/ground-rules). The adjacent seating is Section 86: RateYourSeats Field Level page - 'Fans interested in watching pitchers warm up should look toward Section 86, where the team bullpens are located'; the Section 86 page adds that the Orioles bullpen occupies the first ten rows of the view and visiting pitchers warm up in rows 12 and above, and a fan review says 'Best thing about these seats is being able to watch the bullpen' (https://www.rateyourseats.com/oriole-park/seating/sections/86). The Stadium Insiders names sections 84-86 the 'Bird Bath'. NOTE: RateYourSeats' phrasing about which bullpen is 'first ten rows' vs 'rows 12 and above' is ambiguous as to home/visitor assignment within the two tiers - no source states which tier is the Orioles' - so that detail is UNKNOWN.",
+  "special_areas": [
+    {
+      "name": "Premium Club",
+      "where": "'Located directly behind home plate in Sections C31-C43', 'slightly below the Club Level'. Ballpark Digest: 'a new club space behind home plate with capacity for 380 patrons', with 'a private entrance, and elevated food and beverage offerings', built in the current press-box area.",
+      "level": "Between lower bowl and Club Level",
+      "new_for_2026": true,
+      "source": "https://www.rateyourseats.com/oriole-park/seating/premium-club ; https://ballparkdigest.com/2025/06/18/oriole-park-renovations-unveiled-for-2026/"
+    },
+    {
+      "name": "Home Plate Club",
+      "where": "'Section 228', with dining and buffet service; introduced in 2024 per The Stadium Insiders.",
+      "level": "Club Level",
+      "source": "https://thestadiuminsiders.com/stadium_guides/baltimore-orioles/ticketing-seating-premium/"
+    },
+    {
+      "name": "Pepsi Picnic Perch",
+      "where": "'sections 272-288' on the 200 level.",
+      "level": "Club Level (200s)",
+      "source": "https://thestadiuminsiders.com/stadium_guides/baltimore-orioles/ticketing-seating-premium/"
+    },
+    {
+      "name": "Coors Light Center Field Roof Deck",
+      "where": "'two rows of rail seats'. Exact section identifiers UNKNOWN.",
+      "level": "UNKNOWN",
+      "source": "https://thestadiuminsiders.com/stadium_guides/baltimore-orioles/ticketing-seating-premium/"
+    },
+    {
+      "name": "Bird Bath",
+      "where": "'sections 84-86' - the left-centre field area adjacent to the bullpens.",
+      "level": "Field Level",
+      "source": "https://thestadiuminsiders.com/stadium_guides/baltimore-orioles/ticketing-seating-premium/"
+    },
+    {
+      "name": "Field Boxes",
+      "where": "'Field Boxes (Sections 16-58)' are 'located around the infield and are commonly referred to as Field Box seating.'",
+      "level": "Field Level",
+      "source": "https://www.rateyourseats.com/oriole-park/seating/field-level"
+    },
+    {
+      "name": "Bleachers",
+      "where": "'Sections 90-98 below the main scoreboard'; see `levels` and `uncertain` for the right-centre vs centre-field conflict.",
+      "level": "Bleachers",
+      "source": "https://www.rateyourseats.com/oriole-park/seating/bleachers"
+    },
+    {
+      "name": "All-Star Cafe / Club Level indoor concourse",
+      "where": "'climate-controlled indoor concourse' with lounges, bars and 'the All-Star Cafe'; 'in-seat wait service' at select Orioles games.",
+      "level": "Club Level",
+      "source": "https://www.rateyourseats.com/oriole-park/seating/sections/246"
+    },
+    {
+      "name": "Eutaw Street / B&O Warehouse / Flag Court",
+      "where": "Wikipedia: 'Eutaw Street, a pedestrian thoroughfare between the stadium and the Baltimore & Ohio Warehouse at Camden Yards' beyond right field. The 2008 'HD video display and scoreboard' was installed 'below the right field flag court'; a 2024 'LED T. Rowe Price Sign' sits 'above the videoboard'.",
+      "level": "Concourse / outfield",
+      "source": "https://en.wikipedia.org/wiki/Oriole_Park_at_Camden_Yards"
+    },
+    {
+      "name": "Guest Experience Kiosks",
+      "where": "'located around the main concourse and on Eutaw Street, identified by light blue umbrellas, operate from the time the gates open until 15 minutes after the game ends.'",
+      "level": "Main concourse",
+      "source": "https://www.mlb.com/orioles/ballpark/information/guide"
+    }
+  ],
+  "accessibility": {
+    "summary": "Official Orioles guide: 'Accessible seats are located throughout Oriole Park in virtually all ticket categories.' NO per-section list of accessible seating locations is published by the club - this is a gap; do NOT invent one.",
+    "elevators": "VERBATIM: 'Elevators are available behind home plate (near Section 36) and in left field (behind Section 78).' MLB.com A-to-Z guide adds that the Club Level is 'Accessible via the Home Plate elevators and the escalators on the first and third base concourses.'",
+    "escalators": "VERBATIM: 'Escalators are available to reach the upper levels of the park near first base and in the left field area.'",
+    "gates": "Orioles accessibility guide: drop-off access via 'Gate A' (Breezeway) and 'Gate D' for mobility-needs patrons; 'Gate G' provides access to the Family Wellness Rooms. MLB.com A-to-Z guide lists standard entry gates 'A, D, & H', Accessibility/Medical & Family gates 'C, D, & H', and the Birdland Member Gate as 'C'. CONFLICT: the accessibility guide names Gate G for Family Wellness Rooms while the A-to-Z guide lists Family gates as C, D and H - recorded in `uncertain`.",
+    "wheelchair_service": "VERBATIM (accessibility guide): 'Guest Services provides complimentary wheelchair escort assistance, courtesy of Bay View Homecare, from gates to drop-off areas in the seating bowl.' Wheelchairs cannot be used outside gates or for entire games due to limited inventory. VERBATIM (A-to-Z guide): 'A limited number of wheelchairs are available on a first-come, first-served basis at the Guest Services Kiosk behind home plate and at the Club Level Concierge Desk.'",
+    "first_aid": "VERBATIM: 'First Aid rooms are located behind home plate on both the Upper and Lower Level Concourses. Registered nurses, a doctor, and paramedic units are on duty during each game.'",
+    "purchasing": "Accessible seating is purchased in advance by calling '888-848-BIRD' or via orioles.com/tickets.",
+    "companion_seats": "UNKNOWN - the Orioles accessibility guide states no companion-seat purchase limit.",
+    "accessible_row_evidence": "RateYourSeats Section 336 (Upper Level): 'Rows in Section 336 are labeled 1-5, 9-25' with wheelchair seating between rows 5 and 9 - i.e. the gap where rows 6-8 would be is the wheelchair platform. This row-gap pattern is the observable accessible-row convention at Oriole Park; the club publishes no row-label convention of its own.",
+    "source": "https://www.mlb.com/orioles/ballpark/disability-access-guide ; https://www.mlb.com/orioles/ballpark/information/guide ; https://www.rateyourseats.com/oriole-park/seating/sections/336"
+  },
+  "row_seat_conventions": "ROWS ARE NUMBERS at every tier, per RateYourSeats. There is one non-numeric row label in wide use: 'EAL', which marks the section's entrance row. LOWER BOWL - FIELD LEVEL (even): 'Rows in Section 20 are labeled 1-27, EAL'; 'Rows in Section 24 are labeled 1-24, EAL'; 'Rows in Section 30 are labeled 1-29, EAL'; 'Rows in Section 34 are labeled 1-29, EAL'; 'Rows in Section 50 are labeled 1-24, EAL'; 'Rows in Section 86 are labeled 1-13' with 'An entrance to this section is located at Row EAL.' LOWER BOWL - TERRACE LEVEL (odd): 'Rows in Section 1 are labeled 1-17' (no EAL shown on this page). BLEACHERS: 'Rows in Section 96 are labeled 1-22, EAL'; 'Rows in Section 98 are labeled 1-15, EAL'. CLUB LEVEL: short sections - 'Rows in Section 246 are labeled 1-9'; 'Rows in Section 230 are labeled 1-9', with an entrance located at Row 9. 'Rows 8 and above are under cover.' UPPER LEVEL: 'Rows in Section 336 are labeled 1-5, 9-25' (rows 6-8 absent; wheelchair seating sits between rows 5 and 9); 'Rows in Section 381 are labeled 8-25' (starts at 8, not 1). 'Rows 15 and above in the upper deck' are covered. ACCESSIBLE-ROW CONVENTION: no lettered accessible-row label was found; instead accessible positions appear as a NUMBERED GAP in the row sequence (Section 336: 1-5, 9-25). CONFLICTING SOURCE: Ballpark E-Guides describes LETTERED rows at Camden Yards - row designations beginning with 'AA' as the front row, then 'A-CCC', and says 'Row AA' is 'not quite near the field' - and puts upper-level rows at 'approximately Row 25'. This directly contradicts RateYourSeats' all-numeric row labels for every section checked. Recorded in `uncertain`; NOT reconciled. Sources: https://www.rateyourseats.com/oriole-park/seating/sections/1 , /20, /24, /30, /34, /50, /86, /96, /98, /230, /246, /336, /381 ; https://ballparkeguides.com/camden-yards-seating-tips/",
+  "seat1_side_verbatim": "RATEYOURSEATS, VERBATIM, identical on every Oriole Park section page checked: \"When looking towards the field, lower number seats are on the right\". NOTE THIS IS THE OPPOSITE OF THE MORE COMMON RATEYOURSEATS BOILERPLATE ('lower number seats are on the left') used at other parks in this project - do not carry that phrasing over. VERIFIED VERBATIM on these Oriole Park section pages, deliberately spread across the whole bowl: 1 (right field, Terrace), 20 (Field Level, right-field/first-base half), 24 (behind the Orioles dugout, FIRST BASE side), 30 (Field Level, infield), 34 (BEHIND HOME PLATE), 50 (behind the visitor dugout, THIRD BASE side), 86 (LEFT-CENTRE field, at the bullpens), 96 and 98 (bleachers), 230 and 246 (Club Level), 336 and 381 (Upper Level). So RateYourSeats gives the SAME 'on the right' answer on the first-base side, behind the plate, on the third-base side, in left-centre and in the outfield bleachers - it treats seat numbering as running uniformly right-to-left as the fan faces the field, everywhere in the park. PER-SECTION CORROBORATION (beats boilerplate): the Section 86 page adds an independent, section-specific sentence - 'Higher number seats are closer to the left side of Section 86' - which AGREES with the park-wide sentence. INDEPENDENT SECOND SOURCE, AGREES: Ballpark E-Guides states \"Facing the field, Seat 1 is always on your right.\" (https://ballparkeguides.com/camden-yards-seating-tips/). NO DISAGREEMENT FOUND between the two sources at Oriole Park. CAVEAT: 'lower number seats are on the right' as the fan faces the field means seat 1 is toward THIRD BASE on the first-base side and toward the RIGHT-FIELD CORNER on the third-base side - i.e. under this rule seat 1 is NOT uniformly the home-plate-nearest seat. No official Orioles source states a seat-numbering rule at all, so this rule rests entirely on RateYourSeats plus Ballpark E-Guides. Sources: https://www.rateyourseats.com/oriole-park/seating/sections/1 , /20, /24, /30, /34, /50, /86, /96, /98, /230, /246, /336, /381 ; https://ballparkeguides.com/camden-yards-seating-tips/",
+  "known_obstructions": "NETTING: No per-section netting/screening note is published by RateYourSeats for Oriole Park - sections 20, 30 and 34 were checked explicitly and NONE carries the 'Front of sections ... are behind the netting or fencing' note that the site prints at other parks. Per-section netting extent is therefore UNKNOWN from the ticketing source. The only netting statement found is MLB.com's 2019 announcement (dated 29 August 2019), which says the netting extends \"down the foul lines and nearly to the foul poles at each corner of Oriole Park at Camden Yards\", installed before the 5 September 2019 game (https://www.mlb.com/news/orioles-extending-ballpark-s-protective-netting). Treat this as pole-to-pole-adjacent coverage of the lower bowl foul territory; no section numbers are given, and no 2026 re-confirmation was found. SUN EXPOSURE (functional obstruction): 'Completely avoid sections 1-8 in the Right Field corner if you want to stay out of the sun'; 'Except for sections 1-7, all Terrace Level seats are shaded for afternoon games'; covered areas are 'Terrace sections except 1-7 and 33-39', 'Rows 15 and above in the upper deck', and 'Any 200-level club section' (https://www.rateyourseats.com/oriole-park/seating/shaded-covered-seats). RateYourSeats Section 1 notes it 'may be more exposed to the elements' with less overhead coverage than other Terrace sections. VIDEOBOARD SIGHTLINES: Ballpark E-Guides reports (paraphrased on the page, not a clean quote) that bleacher seating cannot see the Jumbotron 'unless you sit in Section 98 and crane your neck'. VIEW QUALITY: RateYourSeats Section 86 fan review - the reviewer praised the bullpen view but 'cautioned that overall viewing angles of gameplay are suboptimal'. OUTFIELD WALL (2025 change, affects sightlines and ground rules): MLB.com ground rules - 'Moving the wall in as much as 26 feet near the bullpen and 13 feet closer to the left field corner' and 'Lowering the previous 13-foot wall to 8 feet near the left field foul pole and to 6 feet, 11 inches closer to the left-center bullpens.' No source lists pole, railing or glass-partition obstructions at Oriole Park. Anything beyond the above is UNKNOWN.",
+  "uncertain": [
+    "BLEACHERS (90-98) LOCATION - THREE-WAY CONFLICT, and it matters because it is the far end of the numbering sweep. (a) RateYourSeats Bleachers zone page and the Section 96 and 98 pages all say 'Located in Sections 90-98 below the main scoreboard in RIGHT-CENTER field' (https://www.rateyourseats.com/oriole-park/seating/bleachers). (b) Wikipedia: 'Bleacher sections (90-98) line Eutaw Street, a pedestrian thoroughfare between the stadium and the Baltimore & Ohio Warehouse at Camden Yards' - i.e. BEYOND RIGHT FIELD (https://en.wikipedia.org/wiki/Oriole_Park_at_Camden_Yards). (c) The Stadium Insiders: 'Center field bleachers (sections 90-98)' - CENTRE FIELD. All three place them somewhere in the centre-to-right-centre arc, but they do not agree more precisely. NOTE this does NOT threaten the numbering direction, which is fixed independently by five other anchors: the sweep runs right field (1) -> first base -> home plate -> third base -> left field (78) -> left-centre bullpens (86) -> and then CONTINUES past centre to the bleachers (90-98). Under that reading, 98 ends up back near right-centre, adjacent-but-not-contiguous to 1 across the Eutaw Street / flag court gap - which reconciles (a), (b) and (c). Recorded rather than resolved.",
+    "CAPACITY - THREE FIGURES: Wikipedia 42,455 ('2026-present'), MLB.com 44,970, Ballparks of Baseball 45,971 (stale 2011-renovation figure). See `capacity`.",
+    "MISSING CLUB-LEVEL SECTIONS 232, 234, 236, 238, 240 (and 224, 266). RateYourSeats' Club Level zone page still describes the tier as 'Sections 204-240 along the first base side', but the 2026 section index contains no link for any of 232-240, and https://www.rateyourseats.com/oriole-park/seating/sections/232 does not resolve to a section page. The obvious inference is that the new 2026 Premium Club ('Sections C31-C43', 'directly behind home plate', 'slightly below the Club Level') took over that behind-the-plate stretch - BUT NO SOURCE STATES THIS. Do not assert it. 224 and 266 are also absent with no explanation.",
+    "PREMIUM CLUB SECTION IDs C31-C43 are given only as a RANGE. Whether the members are C31, C33, C35, C37, C39, C41, C43 (odd stride, matching the letter-block convention) or every integer C31..C43 is NOT stated. Do not enumerate them.",
+    "SECTION 381 is the ONLY odd-numbered section in an otherwise all-even 300 series, and its rows start at 8 ('Rows in Section 381 are labeled 8-25') rather than 1. No source explains what it is. It IS present in the index (confirmed on a second, independent read of the index page).",
+    "SECTION-INDEX COUNT. Two independent reads of https://www.rateyourseats.com/oriole-park/seating/sections returned an IDENTICAL membership list (163 numbered sections plus the 'Premium Club' and 'Standing Room Only' zone links), and a third targeted read confirmed the absence of 2, 21, 25, 41, 51, 57, 63, 88, 224, 232, 240, 266, 302 and 314 and the presence of 381. However that third read reported a total of '155 total section links' and named Section 87 as the highest in the 1-99 series, which is inconsistent with sections 90-98 having live pages (96 and 98 were fetched successfully). Treat the 163-member list in `sections` as the best available, and re-verify the index directly before generating output.",
+    "ROW LABELS - LETTERS vs NUMBERS. RateYourSeats reports all-NUMERIC rows (plus the 'EAL' entrance row) on every section page checked. Ballpark E-Guides describes LETTERED rows beginning 'AA' then 'A-CCC' and says 'Row AA' is 'not quite near the field'. These cannot both be current. RateYourSeats is the ticketing-side source and is preferred, but the disagreement is unresolved.",
+    "SEAT-1 RULE rests on RateYourSeats' park-wide sentence plus one Ballpark E-Guides sentence; NO official Orioles source states a seat-numbering rule. The two agree, and one per-section sentence (Section 86: 'Higher number seats are closer to the left side of Section 86') corroborates. Still, given that this same boilerplate has been correct on one half of the ballpark and wrong on the other at two parks in this project, spot-check at least one third-base-side and one left-field section against seat-view photos before publishing seat-1 statements.",
+    "NETTING EXTENT for 2026 is not confirmed by any current source; the only statement is the 2019 MLB.com announcement of netting 'nearly to the foul poles'. No per-section netting note exists on RateYourSeats for this park.",
+    "GATE LETTERS CONFLICT: the Orioles accessibility guide names 'Gate G' for the Family Wellness Rooms and 'Gate A' / 'Gate D' for drop-off and mobility needs; the MLB.com A-to-Z guide lists standard gates as 'A, D, & H' and Accessibility/Medical & Family gates as 'C, D, & H'. Gate G does not appear in the A-to-Z list.",
+    "ACCESSIBLE SEATING SECTIONS: the club publishes no section list ('Accessible seats are located throughout Oriole Park in virtually all ticket categories'). Per-section accessible locations are UNKNOWN except the Section 336 row-gap evidence.",
+    "STANDING ROOM ONLY locations are UNKNOWN - the zone page states nothing.",
+    "BULLPEN TIER ASSIGNMENT (which of the two stacked left-centre bullpens is the Orioles') is UNKNOWN; RateYourSeats' 'first ten rows' / 'rows 12 and above' phrasing on the Section 86 page is ambiguous.",
+    "COORS LIGHT CENTER FIELD ROOF DECK: no section identifiers stated.",
+    "ORIENTATION rests on a single explicit compass statement (theshadium.com, 'roughly 30 degrees'). It is consistent with two independent shade descriptions but has no official corroboration."
+  ]
+}

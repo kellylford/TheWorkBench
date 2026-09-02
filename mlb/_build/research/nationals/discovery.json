@@ -1,0 +1,203 @@
+{
+  "venue": "Nationals Park (Washington, DC). Name confirmed current as of 2026 — RateYourSeats venue page, MLB.com and Ballparks of Baseball all still call it Nationals Park, and RateYourSeats lists 2026 Washington Nationals home games at Nationals Park (e.g. Colorado Rockies at Washington Nationals, Aug 24 2026). Ballparks of Baseball states 'Naming Rights: None – Named after Nationals'. No rename or relocation found.",
+  "team": "Washington Nationals",
+  "rateyourseats_slug": "nationals-park",
+  "sections": [
+    "100", "101", "102", "103", "104", "105", "106", "107", "108", "109",
+    "110", "111", "112", "113", "114", "115", "116", "117", "118", "119",
+    "120", "121", "122", "123", "124", "125", "126", "127", "128", "129",
+    "130", "131", "132", "133", "134", "135", "136", "137", "138", "139",
+    "140", "141", "142", "143",
+    "201", "202", "203", "204", "205", "206", "207", "208", "209", "210",
+    "211", "212", "213", "214", "215", "216", "217", "218", "219", "220",
+    "221", "222", "223", "224", "225", "226", "227", "228", "229", "230",
+    "231", "232", "233", "234", "235", "236", "237", "238", "239", "240",
+    "241", "242", "243",
+    "301", "302", "303", "304", "305", "306", "307", "308", "309", "310",
+    "311", "312", "313", "314", "315", "316", "317", "318", "319", "320",
+    "321",
+    "401", "402", "403", "404", "405", "406", "407", "408", "409",
+    "416", "417", "418", "419", "420",
+    "A", "B", "C", "D", "E",
+    "Diamond Club Tables", "SRO"
+  ],
+  "concert_only_sections": [
+    "Field 1", "Field 2", "Field 3", "Field 4", "Field 5", "Field 6",
+    "Field 7", "Field 8", "Field 9", "Field 10", "Field 11", "Field 12",
+    "Field 13"
+  ],
+  "capacity": "Conflicting figures. Wikipedia (citing the 2023 Nationals media guide) gives 41,373 and traces the history: 41,888 in 2008, 41,313 as of 2016, 41,339 in 2017, 41,373 by 2023. Ballparks of Baseball states 41,565. MLB.com's Nationals Park guide is reported as 41,373. RECOMMENDED: 41,373 (most recent official team media-guide figure, corroborated by MLB.com). Sources: https://en.wikipedia.org/wiki/Nationals_Park ; https://www.ballparksofbaseball.com/ballparks/nationals-park/ ; https://www.mlb.com/news/featured/nationals-park-guide-capacity-seating-chart-parking-and-more",
+  "orientation": {
+    "batter_faces": "East-northeast (home plate in the west-southwest of the site; center field to the east-northeast). Sun rises behind right field and sets behind the left-field/third-base side, which is why the third-base side reaches shade earliest.",
+    "confidence": "medium",
+    "source": "Web search summary of ballpark-orientation references (baseball-almanac.com/stadium/ballpark_NSEW_NL.shtml, ballparks.com/baseball/general/facts/diamonds/, tht.fangraphs.com/lost-in-the-sun-the-physics-of-ballpark-orientation/). Cross-checked against RateYourSeats sun/shade statements: 'Fans looking to minimize sun exposure during day games may want to consider the third base side, which typically reaches shade earlier than the first base side' (https://www.rateyourseats.com/nationals-park/seating/sections/129) and 'Seats in left and center field will see the sun throughout most of the day' (https://www.rateyourseats.com/nationals-park/seating/sections/101). Exact compass degrees not stated by any source read."
+  },
+  "numbering_direction": {
+    "summary": "Section numbers INCREASE from the LEFT-FIELD / THIRD-BASE side toward the FIRST-BASE / RIGHT-FIELD side on every level. LOW numbers are on the third-base (left-field) side; HIGH numbers are on the first-base (right-field) side. Lower bowl: 100 is in center field, 101-102 in left field, 114-118 at third base/visitor dugout, 119-126 behind home plate, 127-131 at first base/Nationals dugout, 138-143 in right field. The same direction holds on the 200 level (201-205 third base, 212-215 behind the plate, 223-235 first base, 237-243 right/right-center outfield), the 300 level (310-316 behind the plate) and the 400 level (401 third base side, 420 first-base line). The lettered field-level Terra Club runs the same way: A/B toward the visiting (third base) side, D/E toward the Nationals (first base) on-deck circle.",
+    "anchors": [
+      {
+        "section": "101 and 102",
+        "where": "LEFT FIELD — 'Sections 101 and 102 out in left field are located directly behind the visitors bullpen'",
+        "source": "https://www.rateyourseats.com/nationals-park/seating/sections/101"
+      },
+      {
+        "section": "121-125 (plus rows A-H of 119, 120, 126)",
+        "where": "BEHIND HOME PLATE — 'PNC Diamond Club seating is located directly behind home plate at the front of the lower bowl'; 'The club includes Sections 121–125, along with Rows A–H of Sections 119, 120, and 126.'",
+        "source": "https://www.rateyourseats.com/nationals-park/seating/diamond-club"
+      },
+      {
+        "section": "138, 139 and 138-142",
+        "where": "RIGHT FIELD — 'sections 138 and 139 are directly next to the Nationals bullpen in right field'; 'the higher rows of right field sections 138-142'",
+        "source": "https://www.rateyourseats.com/nationals-park/seating/sections/143"
+      },
+      {
+        "section": "109-118, 119-126, 127-135 (netting range)",
+        "where": "BEHIND HOME PLATE (geometric cross-check) — official Nationals netting list is symmetric about section 122: 'Terra Club (sections A-E) / PNC Diamond Club (sections 119-126) / Sections 109-118 and 127-135'",
+        "source": "https://www.mlb.com/nationals/ballpark/netting"
+      },
+      {
+        "section": "113, 120, 134 (elevator cross-check)",
+        "where": "BEHIND HOME PLATE — 'Elevators are located behind Sections 113 and 134 for access to all levels, and behind Section 120 for Terra Club, FIS Champions Club and Press Box access.' The two all-level elevators are symmetric about ~123.5 and the club/press-box elevator sits at 120.",
+        "source": "https://www.mlb.com/nationals/ballpark/accessibility"
+      },
+      {
+        "section": "114-118 vs 127-131",
+        "where": "THIRD BASE vs FIRST BASE — 'Sections on the third base side (114–118) sit near the visiting team dugout, while sections on the first base side (127–131) sit near the Nationals dugout.'",
+        "source": "https://www.rateyourseats.com/nationals-park/seating/sections/129"
+      },
+      {
+        "section": "201-205 vs 223-235 (200 level)",
+        "where": "THIRD BASE vs FIRST BASE — 'This area includes Sections 201–205 on the third base side and Sections 223–235 on the first base side.'",
+        "source": "https://www.rateyourseats.com/nationals-park/seating/mezzanine-level"
+      },
+      {
+        "section": "212-215 (200 level)",
+        "where": "BEHIND HOME PLATE — 'Sections 212–215 are designated as Champions Club MVP, located directly behind home plate.'",
+        "source": "https://www.rateyourseats.com/nationals-park/seating/sections/210"
+      },
+      {
+        "section": "237-238 vs 240-243 (200 level outfield)",
+        "where": "RIGHT FIELD / RIGHT-CENTER — 'Sections 237 and 238 sit closer to right field, while sections 240–243 extend farther toward right-center field.' Bullpen sits below the front rows of 237-238.",
+        "source": "https://www.rateyourseats.com/nationals-park/seating/scoreboard-pavilion"
+      },
+      {
+        "section": "310-316 (300 level)",
+        "where": "BEHIND HOME PLATE — 'Sections located directly behind home plate (310–316) are the most desirable on this level.'",
+        "source": "https://www.rateyourseats.com/nationals-park/seating/gallery-seating"
+      },
+      {
+        "section": "401 vs 420 (400 level)",
+        "where": "THIRD BASE side vs FIRST BASE line — web-search summary of the RateYourSeats section pages: Section 401 'on the third base side of the stadium'; Section 420 'is along the 1st base line'.",
+        "source": "https://www.rateyourseats.com/nationals-park/seating/sections/401 and https://www.rateyourseats.com/nationals-park/seating/sections/420 (read via WebSearch summary, not fetched directly — verify in Phase 2)"
+      },
+      {
+        "section": "A-E (Terra Club, field level)",
+        "where": "BEHIND HOME PLATE, and direction of lettering — 'Sections D and E are closest to the Nationals’ on-deck circle, while Sections A and B sit closer to the visiting team’s side.' (Nationals = first base, visitors = third base, so A→E runs third base → first base.)",
+        "source": "https://www.rateyourseats.com/nationals-park/seating/terra-club"
+      }
+    ],
+    "confidence": "high — five independent kinds of evidence agree (RateYourSeats zone pages, the official MLB.com netting list, the official MLB.com elevator locations, Ballparks of Baseball's home-dugout statement, and TicketIQ's dugout section numbers)."
+  },
+  "home_plate_sections": {
+    "Field Level / Terra Club (lettered)": ["A", "B", "C", "D", "E"],
+    "Lower / 100 Level": ["119", "120", "121", "122", "123", "124", "125", "126"],
+    "Mezzanine / 200 Level (Champions Club MVP)": ["212", "213", "214", "215"],
+    "Gallery / 300 Level": ["310", "311", "312", "313", "314", "315", "316"],
+    "Upper Gallery / 400 Level": "NONE — this tier does NOT wrap behind home plate. The 400 level is split in two by the Shirley Povich Media Center (press box); section numbers 410-415 do not exist as public seating. Public 400-level sections are 401-409 (third base side) and 416-420 (first base side). Wikipedia: 'Nationals Park contains a split in the upper deck, a homage to Griffith Stadium.' Omit a home-plate anchor for this tier."
+  },
+  "levels": [
+    {
+      "name": "Field Level — Terra Club (formerly the Nationals Club)",
+      "sections": "A, B, C, D, E (plus 'Diamond Club Tables' listed separately by RateYourSeats)",
+      "notes": "Closest seats in the park, directly behind home plate between the dugouts, in front of the PNC Diamond Club. All-inclusive for Nationals games. Netting in front of all of A-E.",
+      "source": "https://www.rateyourseats.com/nationals-park/seating/terra-club ; https://www.mlb.com/nationals/ballpark/netting"
+    },
+    {
+      "name": "Lower / Main Level (100 Level)",
+      "sections": "100-143",
+      "notes": "Continuous lower bowl from the left-field foul pole around home plate to the right-field foul pole (Ballparks of Baseball: ~22,000 seats, 'extends from the left field foul pole around home plate to the right field foul pole'). Section 100 is in center field and holds the Center Field Lounge / Center Field Reserved areas near the Red Porch / Budweiser Brewhouse. Sub-areas: PNC Diamond Club 121-125 plus rows A-H of 119, 120, 126; Dugout Box 114-118 (visitor side) and 127-131 (Nationals side), with Dugout Box Premier 116-118 and 128-129 and Row D the first row behind the dugouts; Outfield Reserve 100-102 and 138-143. TicketIQ groups these as center 114-131, end 109-113 and 132-137, corner 100-108 and 138-143.",
+      "source": "https://www.rateyourseats.com/nationals-park/seating/sections ; https://www.rateyourseats.com/nationals-park/seating/sections/129 ; https://www.rateyourseats.com/nationals-park/seating/diamond-club ; https://www.ballparksofbaseball.com/ballparks/nationals-park/ ; https://blog.ticketiq.com/blog/nationals-park-seating-chart-rows-seats-and-club-seats"
+    },
+    {
+      "name": "Mezzanine / Second Tier (200 Level)",
+      "sections": "201-243",
+      "notes": "Three named zones: Champions Club 206-221 (club-lounge access; 212-215 = Champions Club MVP directly behind home plate); Mezzanine Level 201-205 (third base side) and 223-235 (first base side), which do NOT include Champions Club amenities; Scoreboard Pavilion 237-243 behind the outfield walls in right / right-center, with the bullpen below the front rows of 237-238 and the main videoboard behind the sections. Sections 222 and 236 are not assigned to any zone by the RateYourSeats zone pages.",
+      "source": "https://www.rateyourseats.com/nationals-park/seating/mezzanine-level ; https://www.rateyourseats.com/nationals-park/seating/sections/210 ; https://www.rateyourseats.com/nationals-park/seating/scoreboard-pavilion"
+    },
+    {
+      "name": "Gallery (300 Level) — lower portion of the upper deck",
+      "sections": "301-321",
+      "notes": "Lower part of the upper deck. RateYourSeats: rows A-J, no overhead structure above, so exposed to sun/wind/rain. 310-316 directly behind home plate. TicketIQ (2020) groups center 310-317, end 307-309 and 318-320, corner 301-306 and 321.",
+      "source": "https://www.rateyourseats.com/nationals-park/seating/gallery-seating ; https://blog.ticketiq.com/blog/nationals-park-seating-chart-rows-seats-and-club-seats"
+    },
+    {
+      "name": "Upper Gallery (400 Level)",
+      "sections": "401-409 and 416-420 (410-415 do not exist)",
+      "notes": "Highest tier. Rows A-N, larger sections, farther from the field; rows C and above are under cover. Split in two by the Shirley Povich Media Center / press box behind home plate, so this tier never reaches home plate. Entrances are at Row A (i.e. rows number upward away from the field).",
+      "source": "https://www.rateyourseats.com/nationals-park/seating/gallery-seating ; https://www.rateyourseats.com/nationals-park/seating/sections/409 ; https://www.rateyourseats.com/nationals-park/seating/sections/416 ; https://en.wikipedia.org/wiki/Nationals_Park"
+    }
+  ],
+  "dugouts": {
+    "home": "FIRST BASE side. Ballparks of Baseball 'Facts & Figures' states '-Home Dugout: First Base'. RateYourSeats: 'sections on the first base side (127–131) sit near the Nationals dugout' and 'Sections 128–129 directly behind the Nationals dugout (first base side)'. TicketIQ: 'Nationals Dugout - The Nationals players sit in front of 128 and 129'.",
+    "visiting": "THIRD BASE side. RateYourSeats: 'Sections on the third base side (114–118) sit near the visiting team dugout' and 'Sections 116–118 directly behind the visiting team dugout (third base side)'. TicketIQ: 'Visitor Dugout - The visiting team sits in front of 116 and 117'.",
+    "source": "https://www.ballparksofbaseball.com/ballparks/nationals-park/ ; https://www.rateyourseats.com/nationals-park/seating/sections/129 ; https://blog.ticketiq.com/blog/nationals-park-seating-chart-rows-seats-and-club-seats"
+  },
+  "bullpens": "RateYourSeats states the VISITORS bullpen is in LEFT field directly in front of / behind lower sections 101 and 102 ('The Visitor Bullpen is in Front of Sections 101 and 102 — Sit in Row L to be behind the visitor bullpen'), and the NATIONALS bullpen is in RIGHT field, with 'sections 138 and 139 ... directly next to the Nationals bullpen in right field'. RateYourSeats also states a bullpen sits below the front rows of second-tier Sections 237 and 238 (right field). Nationals Park has used a bullpen cart since September 2018 (Wikipedia). NOTE: these bullpen sides are sourced only from RateYourSeats; no official Nationals page read here states which bullpen is on which side. Sources: https://www.rateyourseats.com/nationals-park/seating/sections/101 ; https://www.rateyourseats.com/nationals-park/seating/sections/143 ; https://www.rateyourseats.com/nationals-park/seating/scoreboard-pavilion ; https://en.wikipedia.org/wiki/Nationals_Park",
+  "special_areas": [
+    {"name": "Terra Club (formerly Nationals Club)", "where": "Directly behind home plate, closest seats in the park, between the dugouts", "level": "Field Level, Sections A-E"},
+    {"name": "PNC Diamond Club + PNC Diamond Club Lounge", "where": "Directly behind home plate, immediately above/behind the Terra Club, ~12 rows off the field", "level": "100 Level, Sections 121-125 plus Rows A-H of 119, 120, 126"},
+    {"name": "Diamond Club Tables", "where": "Behind the Diamond Club seats; four-guest table-style seating", "level": "100 Level, behind home plate"},
+    {"name": "Champions Club (called 'FIS Champions Club' on the Nationals' accessibility page; listed as 'Delta Sky360 Club' by TicketIQ in 2020)", "where": "Wraps the infield on the mezzanine; MVP designation 212-215 directly behind home plate; indoor climate-controlled lounge behind the sections", "level": "200 Level, Sections 206-221"},
+    {"name": "Dugout Box / Dugout Box Premier", "where": "Lowest tier behind both dugouts; Row D is the first row behind the dugouts", "level": "100 Level, Sections 114-118 (visitor) and 127-131 (Nationals)"},
+    {"name": "Scoreboard Pavilion", "where": "Second tier behind the outfield walls in right / right-center; main videoboard directly behind the sections; bullpen visible below front rows of 237-238", "level": "200 Level, Sections 237-243"},
+    {"name": "Budweiser Brewhouse (formerly the Red Porch) and Brewhouse Porch", "where": "Center field / left field area; indoor space with reception area and bar plus an outdoor patio with tables overlooking the field. Ballparks of Baseball places the Red Porch in center field; a RateYourSeats photo caption describes the Budweiser Brewhouse as 'an indoor eating area in left field'.", "level": "Outfield concourse, near Section 100"},
+    {"name": "Center Field Lounge / Center Field Reserved", "where": "Center field, in Section 100, near the Red Porch / Brewhouse", "level": "100 Level"},
+    {"name": "Bud Light Loft", "where": "'Located near sections 243 and 244' per RateYourSeats photo caption (note: no Section 244 appears in the RateYourSeats section index)", "level": "200 Level, right-center field"},
+    {"name": "Budweiser Deck", "where": "Upper level on the right field side; open to all fans", "level": "Upper level"},
+    {"name": "Strike Zone kids play area", "where": "Near the centerfield gate", "level": "Main concourse"},
+    {"name": "Covered picnic area", "where": "Main concourse behind Sections 141-143 (TicketIQ, 2020)", "level": "Main concourse"},
+    {"name": "Coca-Cola social lounge", "where": "Section 143 (TicketIQ, 2020 — may be stale)", "level": "100 Level, right field"},
+    {"name": "Stella Artois Lookout Bar", "where": "Club Level near Section 205 (TicketIQ, 2020 — may be stale)", "level": "200 Level, third base side"},
+    {"name": "Nursing lounge", "where": "Section 223 (TicketIQ, 2020)", "level": "200 Level"},
+    {"name": "Quiet Zone Sensory Room (with KultureCity)", "where": "Main Concourse across from Section 140", "level": "Main concourse, right field"},
+    {"name": "Shirley Povich Media Center / press box", "where": "Behind home plate on the upper level; splits the 400 level into 401-409 and 416-420", "level": "Between 300 and 400 levels"},
+    {"name": "Homestead Grays Bar / Stars and Stripes Club", "where": "Inside the Stars and Stripes Club; honors Washington's Negro League team", "level": "UNKNOWN"},
+    {"name": "Founder's Club (500 seats), 1,112 suite seats, ~2,500 club seats, ~1,800 padded luxury seats behind home plate", "where": "Per Ballparks of Baseball premium-amenity summary", "level": "UNKNOWN"}
+  ],
+  "accessibility": {
+    "summary": "Accessible seating is available on ALL seating levels of Nationals Park, with companion seats purchasable next to the accessible seat, and accommodation for large groups; all all-inclusive areas, suites and restaurants also accommodate guests with disabilities. Purchase online at nationals.com/tickets or at the box office windows on game days; in-park exchanges to ADA seating are handled at Advanced Ticket Sales behind Section 104. All suites are accessible with private restrooms, and balcony seating can be removed on 24-hours notice for wheelchair accommodation. All restrooms are fully accessible. Service animals (dogs, and in some cases miniature horses) are welcome. Sensory kits (noise-reducing headphones, fidget tools, lanyard) are available against a government-issued ID. Metro's Navy Yard station is fully ADA accessible (both the West entrance at M and Half Streets SE and the East entrance at M Street and New Jersey Ave SE); the Centerfield Gate is a half block south of the station on Half Street. ADA drop-off is along First Street SE near the grand staircase at Potomac Avenue. Accessible parking is available in all lots (call 202.675.NATS option 1, then 1); limited single-game accessible spaces are reservable online in the GEICO Garage and Garage C.",
+    "landmarks": [
+      "ADA-accessible entrance gates: Centerfield Gate; 1st base ADA gate (corner of 1st St. SE and Potomac Ave.); Home Plate Gate; Media & Suites; Left Field Gate",
+      "Elevators behind Sections 113 and 134 — access to ALL levels",
+      "Elevator behind Section 120 — Terra Club, FIS Champions Club and Press Box access only",
+      "Three sets of elevators and three sets of escalators in total",
+      "First Aid Rooms behind Sections 131, 107 and 312 (all with accessible restrooms)",
+      "Family restrooms on the concourses behind Sections 104, 117, 139 and 235",
+      "Accessible ticket window (Window #8) at the Main Box Office outside the Center Field gates",
+      "Advanced Ticket Sales behind Section 104 — in-park exchange to ADA seating",
+      "Quiet Zone Sensory Room on the Main Concourse across from Section 140",
+      "ADA drop-off on First Street SE near the grand staircase at Potomac Avenue SE",
+      "Navy Yard Metro station (fully ADA accessible), a half block north of the Centerfield Gate on Half Street"
+    ],
+    "source": "https://www.mlb.com/nationals/ballpark/accessibility"
+  },
+  "row_seat_conventions": "ROWS ARE LETTERED at every level; no numeric rows found. 100 Level: long alphabetic runs that continue into doubled letters — e.g. Section 129 rows D-Z, AA-WW; Section 101 rows L-Z, AA-DD; Section 143 rows A-X. TicketIQ (2020) generalises: lower-level center sections D-Z, AA-YY; end sections A-Z, AA-WW; corner sections X-Z, AA-WW. 200 Level: RateYourSeats section 210 gives rows A-J; TicketIQ says 200-level rows run A to P (CONFLICT). 300 Level: RateYourSeats gives rows A-J; TicketIQ says A to P (CONFLICT). 400 Level: rows A-N (both sources agree). ENTRANCE ROW VARIES BY LEVEL and tells you which way rows run: on the 100 and 200 levels the entrance is at the HIGHEST row (Section 129 'An entrance to this section is located at Row WW'; Section 101 at Row DD; Section 143 at Row X; Section 210 at Row J), i.e. rows advance toward the field as letters go backward; on the 400 level the entrance is at Row A (Sections 409 and 416), i.e. rows climb away from the field. ACCESSIBLE-ROW LABEL CONVENTION: UNKNOWN — no source read stated a WC / WCH / VWC / AC-suffix convention for Nationals Park.",
+  "seat1_side_verbatim": "\"When looking towards the field/stage, lower number seats are on the right\" — this exact sentence appears in the 'Row Numbers' block of every RateYourSeats section page checked: Section 101 (https://www.rateyourseats.com/nationals-park/seating/sections/101), Section 129 (https://www.rateyourseats.com/nationals-park/seating/sections/129), Section 143 (https://www.rateyourseats.com/nationals-park/seating/sections/143), Section 210 (https://www.rateyourseats.com/nationals-park/seating/sections/210), Section 409 (https://www.rateyourseats.com/nationals-park/seating/sections/409), Section 416 (https://www.rateyourseats.com/nationals-park/seating/sections/416). Corroborated verbatim by the Section 129 Q&A (Verified Feb 2026): \"Seating rows in Section 129 have a total of 18 seats, with Seat 1 being on the aisle at the right side at you face the field, and Seat 18 being on the aisle at the left side.\" No contradicting statement was found on any page read. NOTE: 'lower number seats are on the right as you face the field' means Seat 1 is on the FIRST-BASE-ward side in third-base-side sections and continues that way around the bowl — verify per-section in Phase 2 rather than assuming.",
+  "known_obstructions": "NETTING (official, Washington Nationals): 'There is some amount of netting or screening in front of the following seating sections: Terra Club (sections A-E); PNC Diamond Club (sections 119-126); Sections 109-118 and 127-135. The height and coverage of netting or screening varies by section.' (https://www.mlb.com/nationals/ballpark/netting). The Nationals reserve the right to expand netting. A RateYourSeats fan-feedback note gives a narrower range — 'Front of sections 116-129 are behind the netting' — which CONFLICTS with the official 109-135 + A-E + 119-126 list; prefer the official list. OTHER: the main videoboard sits directly BEHIND Scoreboard Pavilion sections 237-243, so fans there must turn around to see replays (https://www.rateyourseats.com/nationals-park/seating/scoreboard-pavilion). The visitors bullpen sits in front of lower sections 101-102, so low rows there look over the bullpen ('Sit in Row L to be behind the visitor bullpen'). RateYourSeats notes Section 101 has a lack of aisles and a scarcity of staircases limiting mobility. Ground rules mention a backstop screen and rotating signage behind home plate and along the first- and third-base stands. No source read listed pole/structural view obstructions.",
+  "uncertain": [
+    "Venue name/tenancy: no rename or relocation found; Nationals Park has no naming-rights sponsor per Ballparks of Baseball. Treated as confirmed, but nothing read was dated later than 2026 season listings.",
+    "CAPACITY CONFLICT: 41,373 (Wikipedia via 2023 Nationals media guide; also reported by MLB.com) vs 41,565 (Ballparks of Baseball) vs 41,339 (2017 media guide) vs 41,313 (2016 Forbes) vs 41,888 (2008 opening). Recommended 41,373.",
+    "SECTIONS 222 and 236 are listed in the RateYourSeats section index but are not assigned to any zone by the RateYourSeats zone pages (Champions Club is 206-221, Mezzanine is 201-205 and 223-235, Scoreboard Pavilion is 237-243). Their zone is unknown.",
+    "CONFLICT on 200-level right-field naming: the RateYourSeats seating guide photo caption says 'The sunniest seats at Nats Park are even-numbered sections 222-236 (Right Field Terrace seats). Despite being labeled in the 200s, these are upper deck seats far away from the infield.' This conflicts with the Mezzanine Level page, which calls 223-235 the first-base-side mezzanine. Do not rely on either without a Phase 2 check.",
+    "ROW-RANGE CONFLICT on the 200 and 300 levels: RateYourSeats section/zone pages give A-J; TicketIQ (2020) gives A-P for both levels.",
+    "BULLPEN SIDES are sourced only from RateYourSeats (visitors in left field behind 101-102, Nationals in right field next to 138-139, with a bullpen below second-tier 237-238). No official Nationals page read states which bullpen is on which side. Confirm before publishing.",
+    "ORIENTATION is from secondary ballpark-orientation references plus sun/shade inference, not from an official source or a stated compass bearing.",
+    "400-LEVEL SIDE ASSIGNMENT (401-409 = third base, 416-420 = first base) rests on a WebSearch summary of the RateYourSeats Section 401 and Section 420 pages; those two pages were not fetched directly.",
+    "CLUB NAMING is inconsistent across sources: RateYourSeats says 'Champions Club'; the official Nationals accessibility page says 'FIS Champions Club'; TicketIQ (2020) calls 206-221 the 'Delta Sky360 Club' and mentions a 'Norfolk Southern club lounge'. TicketIQ is dated 2020 and several of its sponsor names are likely stale.",
+    "'Bud Light Loft ... located near sections 243 and 244' — a Section 244 does not appear in the RateYourSeats section index.",
+    "ACCESSIBLE-ROW LABEL CONVENTION (WC / WCH / VWC / AC suffix, etc.) is UNKNOWN; the Nationals' accessibility page confirms accessible seating exists on all levels but names no row labels or section numbers.",
+    "Whether 'Diamond Club Tables' and 'SRO' should be treated as sections by the generator — they are listed in the RateYourSeats section index as ticketed baseball inventory but are not conventional numbered sections.",
+    "Section 100's precise location: RateYourSeats places the Center Field Lounge / Center Field Reserved 'in section 100' near the Red Porch (center field); a RateYourSeats caption separately describes the Budweiser Brewhouse (formerly Red Porch) as being 'in left field'. Center field vs left-center for Section 100 is not pinned down.",
+    "Suite names (Washington/Lincoln/Jefferson, Club 24, K Street Boxes, Silver Slugger Suite, Club 3 & Gold Glove Club) come only from TicketIQ (2020) and may be stale."
+  ]
+}

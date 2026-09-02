@@ -1,0 +1,222 @@
+[
+  {
+    "section": "135",
+    "zone": "Field Level (RateYourSeats category heading \"Field Level\"; page copy: \"Sections 108-141 in foul territory closest to the field\")",
+    "location": "No per-section location sentence appears on the page. The only placement text is the Field Level zone copy carried on the page: \"Sections 108-141 in foul territory closest to the field\".",
+    "rows": "\"Rows in Section 135 are labeled 1-36, A\"",
+    "entrance_row": "\"An entrance to this section is located at Row A\"",
+    "seat_direction": "PARK-WIDE BOILERPLATE (identical on every Rogers Centre section page): \"When looking towards the field/ring/stage, lower number seats are on the right\". PER-SECTION STATEMENT: none. No Q&A, expert answer or fan comment on this page names a side for seat 1 in this section.",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights bullet: \"Rows 1-36, A\". No Seating Notes, netting, obstructed-view, shade or overhang line on the page. No Seating and Ticket Q&A block. One fan review header only, no body text: \"Baltimore Orioles at Toronto Blue Jays - Jun 3, 2024 Sec 135 / Row 2 - Baseball\" (5 stars). The Field Level zone copy carried on the page names 135 among concert picks: \"Sections 114-116 and 132-135 are among the best choices\". Nothing on the page contradicts discovery.json (135 on the third-base line).",
+    "source": "https://www.rateyourseats.com/rogers-centre/seating/sections/135"
+  },
+  {
+    "section": "136",
+    "zone": "Field Level (RateYourSeats category heading \"Field Level\"; page copy: \"Sections 108-141 in foul territory closest to the field\")",
+    "location": "No per-section location sentence appears on the page. The only placement text is the Field Level zone copy carried on the page: \"Sections 108-141 in foul territory closest to the field\".",
+    "rows": "\"Rows in Section 136 are labeled 1-39, A\"",
+    "entrance_row": "\"An entrance to this section is located at Row A\"",
+    "seat_direction": "PARK-WIDE BOILERPLATE (identical on every Rogers Centre section page): \"When looking towards the field/ring/stage, lower number seats are on the right\". PER-SECTION STATEMENT: no sentence names which side seat 1 is on. The closest per-section text is the Q&A answer (found on the /142 page): \"Not all rows have a seat 11 and 12, but in the ones that do, seats 11 and 12 are directly in the middle of the section. There will be 10 seats to your left and roughly 10 to your right.\" This locates the MIDDLE of a row but does not name a side for seat 1, so it neither confirms nor contradicts the boilerplate.",
+    "seats_per_row": "From the RateYourSeats \"Seating and Ticket Q&A\" block (served on the /142 page, not on /136), verbatim: \"How many seats in Section 136?\" - \"Nearly every row in Section 136 has a different number of seats. The largest of the rows is the first row, which features 26 seats. Row 11 is the smallest with 14 seats. Not all rows have a seat 11 and 12, but in the ones that do, seats 11 and 12 are directly in the middle of the section. There will be 10 seats to your left and roughly 10 to your right.\"",
+    "notes": "Section Insights: \"Top Pick for Outstanding Convenience Rows 36-40\". Seating Notes: \"For baseball games, we recommend rows 36-40 for outstanding convenience\" - NOTE this recommends rows 36-40 although the stated row labels only run to 39 plus A; the page does not reconcile this. Accessible seating copy on the page: \"Accessible seats are typically labeled with a 'W' prefix\" and Section 136 is listed among \"Sections 134-139\" that include accessible seating options, \"No steps required for entry\" and \"Wheelchair spaces with adjacent companion seating.\" No netting or shade line. A concert fan review reports obstruction, not a structural one: \"We could only see one side of the stage\" and \"Our view was obstructed because of the crowd\" with \"people queued up trying to get through field level security\". IMPORTANT: the Section 136 seat-count Q&A quoted in seats_per_row does NOT appear on the /136 page itself - it was served in the \"Seating and Ticket Q&A\" block on the /142 page. Both URLs are listed in source. Nothing contradicts discovery.json.",
+    "source": "https://www.rateyourseats.com/rogers-centre/seating/sections/136 ; https://www.rateyourseats.com/rogers-centre/seating/sections/142 (Seating and Ticket Q&A block naming Section 136)"
+  },
+  {
+    "section": "137",
+    "zone": "Field Level (RateYourSeats category heading \"Field Level\"; page copy: \"Sections 108-141 in foul territory closest to the field\")",
+    "location": "No per-section location sentence appears on the page. The only placement text is the Field Level zone copy carried on the page: \"Sections 108-141 in foul territory closest to the field\".",
+    "rows": "\"Rows in Section 137 are labeled 1-39, A\"",
+    "entrance_row": "\"An entrance to this section is located at Row A\"",
+    "seat_direction": "PARK-WIDE BOILERPLATE (identical on every Rogers Centre section page): \"When looking towards the field/ring/stage, lower number seats are on the right\". PER-SECTION STATEMENT: none. No Q&A, expert answer or fan comment on this page names a side for seat 1 in this section.",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights bullet: \"Rows 1-39, A\". No Seating Notes, no netting, obstructed-view, shade or overhang line, no fan review text and no Seating and Ticket Q&A block on the page. Nothing contradicts discovery.json.",
+    "source": "https://www.rateyourseats.com/rogers-centre/seating/sections/137"
+  },
+  {
+    "section": "138",
+    "zone": "Field Level (RateYourSeats category heading \"Field Level\"; page copy: \"Sections 108-141 in foul territory closest to the field\")",
+    "location": "No per-section location sentence appears on the page. The only placement text is the Field Level zone copy carried on the page: \"Sections 108-141 in foul territory closest to the field\".",
+    "rows": "\"Rows in Section 138 are labeled 2-39, A\"",
+    "entrance_row": "\"An entrance to this section is located at Row A\"",
+    "seat_direction": "PARK-WIDE BOILERPLATE (identical on every Rogers Centre section page): \"When looking towards the field/ring/stage, lower number seats are on the right\". PER-SECTION STATEMENT: none. No Q&A, expert answer or fan comment on this page names a side for seat 1 in this section.",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights bullet: \"Rows 2-39, A\". NOTE the row range starts at 2, not 1 - the page does not explain the missing Row 1. No netting, obstructed-view, shade or overhang line. No Seating and Ticket Q&A block. Fan review header only, no body text: \"Atlanta Braves at Toronto Blue Jays - May 13, 2023 ... Sec 138 / Row 4 - Baseball\" (5 stars). Nothing contradicts discovery.json.",
+    "source": "https://www.rateyourseats.com/rogers-centre/seating/sections/138"
+  },
+  {
+    "section": "139",
+    "zone": "Field Level (RateYourSeats category heading \"Field Level\"; page copy: \"Sections 108-141 in foul territory closest to the field\")",
+    "location": "No per-section location sentence appears on the page. The only placement text is the Field Level zone copy carried on the page: \"Sections 108-141 in foul territory closest to the field\".",
+    "rows": "\"Rows in Section 139 are labeled 12-39, A\"",
+    "entrance_row": "\"An entrance to this section is located at Row A\"",
+    "seat_direction": "PARK-WIDE BOILERPLATE (identical on every Rogers Centre section page): \"When looking towards the field/ring/stage, lower number seats are on the right\". PER-SECTION STATEMENT: none. No Q&A, expert answer or fan comment on this page names a side for seat 1 in this section.",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights bullet: \"Rows 12-39, A\". NOTE the row range starts at 12 - the page does not explain the absent rows 1-11. Accessible seating copy on the page: \"Accessible seats are typically labeled with a 'W' prefix\" and Section 139 is listed among \"Sections 134-139\" that include accessible seating options on the 100 level. No netting, shade or overhang line. No Seating and Ticket Q&A block. Fan reviews, headers only: \"New York Yankees at Toronto Blue Jays - Sep 28, 2023 - Great seats Sec 139 / Row 1 - Baseball\" (5 stars) and \"Ed Sheeran - Jun 17, 2023 Sec 139 / Row 17 - Concert\" (5 stars). NOTE the Row 1 review conflicts with the stated row labels 12-39, A; the page does not reconcile this. A separate fan comment carried on the page reads \"Favorite Seats: 130b, row 34, seat 3\" - a \"130b\" identifier that does not appear in the current RateYourSeats section index. Nothing contradicts discovery.json.",
+    "source": "https://www.rateyourseats.com/rogers-centre/seating/sections/139"
+  },
+  {
+    "section": "140",
+    "zone": "Field Level (RateYourSeats category heading \"Field Level\"; page copy: \"Sections 108-141 in foul territory closest to the field\")",
+    "location": "No per-section location sentence appears on the page. The only placement text is the Field Level zone copy carried on the page: \"Sections 108-141 in foul territory closest to the field\".",
+    "rows": "\"Rows in Section 140 are labeled 22-39\"",
+    "entrance_row": "\"An entrance to this section is located at Row 39\"",
+    "seat_direction": "PARK-WIDE BOILERPLATE (identical on every Rogers Centre section page): \"When looking towards the field/ring/stage, lower number seats are on the right\". PER-SECTION STATEMENT: none. No Q&A, expert answer or fan comment on this page names a side for seat 1 in this section.",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights bullet: \"Rows 22-39\". NOTE the row range starts at 22 and has no lettered back row, unlike neighbouring 135-139 and 141; the page does not explain this. Fan review, verbatim: \"Great View! - Since the renovation, the seats in section 140 are now angled more towards home plate. Love the view from this section! Sec 140 / Row 22 - Baseball\" - this corroborates discovery.json on the 2022-24 renovation re-orienting seats toward home plate. Field Level zone copy on the page: \"Field Level seating includes sections 108-141 in foul territory, wrapping around the infield at Rogers Centre.\" SEATING AND TICKET Q&A BLOCK ON THIS PAGE IS ABOUT A DIFFERENT SECTION, verbatim: \"Section 130 CR at Rogers Centre - can you see the video board? The right side of Section 130 (130CR) at Rogers Centre is angled towards the field and away from the videboard. However, the videoboard is visible from most of the seats by turning your head. Rows 25 and higher may be slightly obstructed by the overhang.\" FLAG: \"130CR\" / \"Section 130 CR\" is an identifier that does not exist in the current RateYourSeats section index - discovery.json already flags the club netting page using a similar stale \"130C\" form. This Q&A also gives the only overhang-obstruction statement seen in this batch, and it applies to 130, not 140. No netting or shade line for 140 itself.",
+    "source": "https://www.rateyourseats.com/rogers-centre/seating/sections/140"
+  },
+  {
+    "section": "141",
+    "zone": "Field Level (RateYourSeats category heading \"Field Level\"; page copy: \"Sections 108-141 in foul territory closest to the field\")",
+    "location": "No per-section location sentence appears on the page. The only placement text is the Field Level zone copy carried on the page: \"Sections 108-141 in foul territory closest to the field\".",
+    "rows": "\"Rows in Section 141 are labeled 32-36, A\"",
+    "entrance_row": "\"An entrance to this section is located at Row A\"",
+    "seat_direction": "PARK-WIDE BOILERPLATE (identical on every Rogers Centre section page): \"When looking towards the field/ring/stage, lower number seats are on the right\". PER-SECTION STATEMENT: none. No Q&A, expert answer or fan comment on this page names a side for seat 1 in this section.",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights bullet: \"Rows 32-36, A\". NOTE the row range is 32-36 plus A - only five numbered rows, and starting at 32; the page does not explain this. 141 is the last section in the Field Level range (\"Sections 108-141 in foul territory closest to the field\"). Accessible seating copy carried on the page states accessible seating at Rogers Centre is \"primarily located on the 100 level, typically at the back of sections\" and lists \"Sections 134-139\" as containing accessible options - that list does NOT include 141. No netting, shade or overhang line. No Seating and Ticket Q&A block. No fan review text specific to 141; the page carries generic Accessible Seating and Field Level zone reviews. Nothing contradicts discovery.json.",
+    "source": "https://www.rateyourseats.com/rogers-centre/seating/sections/141"
+  },
+  {
+    "section": "142",
+    "zone": "100 Level Outfield",
+    "location": "\"100 Level Outfield seating includes Sections 101-103 (right field) and 142-148 (left field)\". \"Blue Jays bullpen: In front of Sections 142-144B\". Fan review: \"Seats are located directly above the bullpen\".",
+    "rows": "\"Rows in Section 142 are labeled 1-12\"",
+    "entrance_row": "\"An entrance to this section is located at Row 12\"",
+    "seat_direction": "PARK-WIDE BOILERPLATE (identical on every Rogers Centre section page): \"When looking towards the field/ring/stage, lower number seats are on the right\". PER-SECTION STATEMENT: none. No Q&A, expert answer or fan comment on this page names a side for seat 1 in this section.",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights: \"Top Pick for Outstanding Convenience Rows 8-12\". Seating Notes: \"For baseball games, we recommend rows 8-12 for outstanding convenience\". Fan reviews, verbatim fragments: \"Bullpen Views!\" / \"Seats are located directly above the bullpen\" / \"my son enjoyed watching the pitchers warm up\" / \"Best place to catch the home run balls!\" - these corroborate discovery.json placing the Blue Jays (home) bullpen in left field in front of 142-144B. THIS PAGE CARRIES A \"Seating and Ticket Q&A\" BLOCK ABOUT A DIFFERENT SECTION, verbatim: \"How many seats in Section 136?\" - \"Nearly every row in Section 136 has a different number of seats. The largest of the rows is the first row, which features 26 seats. Row 11 is the smallest with 14 seats. Not all rows have a seat 11 and 12, but in the ones that do, seats 11 and 12 are directly in the middle of the section. There will be 10 seats to your left and roughly 10 to your right.\" That answer is recorded against Section 136 in this file; it says nothing about Section 142. No netting or shade line. No \"Behind/Side Stage\" concert flag was reported for 142, unlike 143-148B. Nothing contradicts discovery.json.",
+    "source": "https://www.rateyourseats.com/rogers-centre/seating/sections/142"
+  },
+  {
+    "section": "143",
+    "zone": "100 Level Outfield",
+    "location": "\"100 Level Outfield seating includes Sections 101-103 (right field) and 142-148 (left field)\". \"Blue Jays bullpen: In front of Sections 142-144B\".",
+    "rows": "\"Rows in Section 143 are labeled 1-12\"",
+    "entrance_row": "\"An entrance to this section is located at Row 12\"",
+    "seat_direction": "PARK-WIDE BOILERPLATE (identical on every Rogers Centre section page): \"When looking towards the field/ring/stage, lower number seats are on the right\". PER-SECTION STATEMENT: none. No Q&A, expert answer or fan comment on this page names a side for seat 1 in this section.",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights: \"Top Pick for Outstanding Convenience Rows 8-12\", \"Rows 1-12\", \"Behind/Side Stage (most shows)\". Seating Notes: \"For baseball games, we recommend rows 8-12 for outstanding convenience\". Concert-only limited-view flag, verbatim: \"143 is behind the stage or to the side of the stage for most concerts. This may restrict or limit your view\" - concerts only, not baseball. No netting, shade or overhang line. No Seating and Ticket Q&A block. No accessible-seating detail for 143 itself, only a generic Accessible Seating link. Nothing contradicts discovery.json.",
+    "source": "https://www.rateyourseats.com/rogers-centre/seating/sections/143"
+  },
+  {
+    "section": "144A",
+    "zone": "100 Level Outfield",
+    "location": "\"100 Level Outfield seating includes Sections 101-103 (right field) and 142-148 (left field)\". \"Blue Jays bullpen: In front of Sections 142-144B\". Zone copy: \"A Sections: Closest to the field with the best chance at catching home run balls\".",
+    "rows": "\"Rows in Section 144A are labeled 1-6\"",
+    "entrance_row": "UNKNOWN - no entrance-row sentence appears on the page.",
+    "seat_direction": "PARK-WIDE BOILERPLATE (identical on every Rogers Centre section page): \"When looking towards the field/ring/stage, lower number seats are on the right\". PER-SECTION STATEMENT: none. No Q&A, expert answer or fan comment on this page names a side for seat 1 in this section.",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights: \"Rows 1-6\", \"Behind/Side Stage (most shows)\". Concert-only limited-view flag: \"144A is behind the stage or to the side of the stage for most concerts\" / \"This may restrict or limit your view of the performance.\" No entrance row is stated - recorded as UNKNOWN, not inferred. Zone copy distinguishing the A/B tiers, verbatim: \"A Sections: Closest to the field with the best chance at catching home run balls\". No netting or shade line. No Seating and Ticket Q&A block. No fan review specific to 144A. Nothing contradicts discovery.json.",
+    "source": "https://www.rateyourseats.com/rogers-centre/seating/sections/144A"
+  },
+  {
+    "section": "144B",
+    "zone": "100 Level Outfield",
+    "location": "\"100 Level Outfield seating includes Sections 101-103 (right field) and 142-148 (left field)\". \"Blue Jays bullpen: In front of Sections 142-144B\". Zone copy: \"B Sections: Located directly behind A, typically larger and holding more fans\".",
+    "rows": "\"Rows in Section 144B are labeled 1-9\"",
+    "entrance_row": "\"An entrance to this section is located at Row 9\"",
+    "seat_direction": "PARK-WIDE BOILERPLATE (identical on every Rogers Centre section page): \"When looking towards the field/ring/stage, lower number seats are on the right\". PER-SECTION STATEMENT: none. No Q&A, expert answer or fan comment on this page names a side for seat 1 in this section.",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights: \"Rows 8-12: Top Pick for Outstanding Convenience\", \"Rows 1-9\", \"Behind/Side Stage (most shows)\". Seating Notes: \"For baseball games, we recommend rows 8-12 for outstanding convenience\" - FLAG: this recommends rows 8-12 in a section whose stated rows only run 1-9; the page does not reconcile it. Concert-only limited-view flag: \"144B is behind the stage or to the side of the stage for most concerts. This may restrict or limit your view of the performance.\" Zone copy: \"B Sections: Located directly behind A, typically larger and holding more fans\" and \"These are great for fans who want to be close to home run action, near the bullpens, and part of a lively outfield atmosphere.\" 144B is the last section named in the bullpen line \"In front of Sections 142-144B\". No netting or shade line. No Seating and Ticket Q&A block. Nothing contradicts discovery.json.",
+    "source": "https://www.rateyourseats.com/rogers-centre/seating/sections/144B"
+  },
+  {
+    "section": "145A",
+    "zone": "100 Level Outfield",
+    "location": "\"100 Level Outfield seating includes Sections 101-103 (right field) and 142-148 (left field)\". No per-section location sentence; the page places it only via the zone range 142-148 (left field).",
+    "rows": "\"Rows in Section 145A are labeled 1-6\"",
+    "entrance_row": "UNKNOWN - no entrance-row sentence appears on the page.",
+    "seat_direction": "PARK-WIDE BOILERPLATE (identical on every Rogers Centre section page): \"When looking towards the field/ring/stage, lower number seats are on the right\". PER-SECTION STATEMENT: none. No Q&A, expert answer or fan comment on this page names a side for seat 1 in this section.",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights: \"Rows 1-6\", \"Behind/Side Stage (most shows)\". Concert-only limited-view flag: \"145A is behind the stage or to the side of the stage for most concerts. This may restrict or limit your view of the performance.\" No entrance row stated - UNKNOWN, not inferred. No netting, shade or overhang line. No Seating and Ticket Q&A block. No fan review specific to 145A; the expert review on the page is the generic 100 Level Outfield category review. 145A is OUTSIDE the bullpen range \"In front of Sections 142-144B\". Nothing contradicts discovery.json.",
+    "source": "https://www.rateyourseats.com/rogers-centre/seating/sections/145A"
+  },
+  {
+    "section": "145B",
+    "zone": "100 Level Outfield",
+    "location": "\"100 Level Outfield seating includes Sections 101-103 (right field) and 142-148 (left field)\". Zone copy: \"B Sections: Located directly behind A, typically larger and holding more fans\".",
+    "rows": "\"Rows in Section 145B are labeled 1-9\"",
+    "entrance_row": "\"An entrance to this section is located at Row 9\"",
+    "seat_direction": "PARK-WIDE BOILERPLATE (identical on every Rogers Centre section page): \"When looking towards the field/ring/stage, lower number seats are on the right\". PER-SECTION STATEMENT: none. No Q&A, expert answer or fan comment on this page names a side for seat 1 in this section.",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights: \"Rows 1-9\", \"Behind/Side Stage (most shows)\". Concert-only limited-view flag: \"145B is behind the stage or to the side of the stage for most concerts. This may restrict or limit your view of the performance.\" Zone copy: \"B Sections: Located directly behind A, typically larger and holding more fans\". Fan review header, no body text: \"145B / Row 1 - Baseball\" dated \"Aug 2, 2023\", rated \"Great\" (5 stars). No netting, shade or overhang line. No Seating and Ticket Q&A block. Nothing contradicts discovery.json.",
+    "source": "https://www.rateyourseats.com/rogers-centre/seating/sections/145B"
+  },
+  {
+    "section": "146A",
+    "zone": "100 Level Outfield",
+    "location": "The only placement text on the page is the concert line \"146A is behind the stage or to the side of the stage for most concerts.\" No baseball-orientation location sentence. The zone range copy \"100 Level Outfield seating includes Sections 101-103 (right field) and 142-148 (left field)\" places 142-148 in left field.",
+    "rows": "\"Rows in Section 146A are labeled 1-4\"",
+    "entrance_row": "UNKNOWN - no entrance-row sentence appears on the page.",
+    "seat_direction": "PARK-WIDE BOILERPLATE (identical on every Rogers Centre section page): \"When looking towards the field/ring/stage, lower number seats are on the right\". PER-SECTION STATEMENT: none. No Q&A, expert answer or fan comment on this page names a side for seat 1 in this section.",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights: \"Rows 1-4\", \"Behind/Side Stage (most shows)\". Concert-only limited-view flag, verbatim heading and body: \"For Concerts, Section 146A May Have a Limited View - 146A is behind the stage or to the side of the stage for most concerts. This may restrict or limit your view of the performance.\" No entrance row stated - UNKNOWN, not inferred. No netting, shade or overhang line. No Seating and Ticket Q&A block. No fan review specific to 146A. Nothing contradicts discovery.json.",
+    "source": "https://www.rateyourseats.com/rogers-centre/seating/sections/146A"
+  },
+  {
+    "section": "146B",
+    "zone": "100 Level Outfield",
+    "location": "\"100 Level Outfield seating includes Sections 101-103 (right field) and 142-148 (left field)\". \"Blue Jays bullpen: In front of Sections 142-144B\" (146B is outside that bullpen range). Zone copy: \"B Sections: Located directly behind A, typically larger and holding more fans\".",
+    "rows": "\"Rows in Section 146B are labeled 1-9\"",
+    "entrance_row": "\"An entrance to this section is located at Row 9\"",
+    "seat_direction": "PARK-WIDE BOILERPLATE (identical on every Rogers Centre section page): \"When looking towards the field/ring/stage, lower number seats are on the right\". PER-SECTION STATEMENT: none. No Q&A, expert answer or fan comment on this page names a side for seat 1 in this section.",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights: \"Rows 1-9\", \"Behind/Side Stage (most shows)\". Concert-only limited-view flag: \"146B is behind the stage or to the side of the stage for most concerts. This may restrict or limit your view.\" Zone copy: \"B Sections: Located directly behind A, typically larger and holding more fans\". Fan review: \"Good - Great view | 146B / Row 6 - Baseball\" (5 stars). No netting, shade or overhang line. No Seating and Ticket Q&A block. Nothing contradicts discovery.json.",
+    "source": "https://www.rateyourseats.com/rogers-centre/seating/sections/146B"
+  },
+  {
+    "section": "147A",
+    "zone": "100 Level Outfield",
+    "location": "No per-section location sentence on the page. Placement comes only from the zone range copy: \"100 Level Outfield seating includes Sections 101-103 (right field) and 142-148 (left field)\".",
+    "rows": "\"Rows in Section 147A are labeled 1-3\"",
+    "entrance_row": "UNKNOWN - no entrance-row sentence appears on the page.",
+    "seat_direction": "PARK-WIDE BOILERPLATE (identical on every Rogers Centre section page): \"When looking towards the field/ring/stage, lower number seats are on the right\". PER-SECTION STATEMENT: none. No Q&A, expert answer or fan comment on this page names a side for seat 1 in this section.",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights: \"Rows 1-3\", \"Behind/Side Stage (most shows)\". No entrance row stated - UNKNOWN, not inferred. No netting, obstructed-view, shade or overhang line. No Seating and Ticket Q&A block. Fan review, verbatim in full: \"Bring small binoculars or opera glasses! Perfect for facilities and food snacks! Pitcher and batter perception limited but for most fans view of play better than you might initially think! Good for seniors to feel the vibe of live sports!\" - this is a distance/sightline comment, the only one of its kind in this batch. The page carries the generic 100 Level Outfield category review rather than section-specific expert copy. Nothing contradicts discovery.json.",
+    "source": "https://www.rateyourseats.com/rogers-centre/seating/sections/147A"
+  },
+  {
+    "section": "147B",
+    "zone": "100 Level Outfield",
+    "location": "No per-section location sentence on the page. Placement comes only from the zone range copy: \"100 Level Outfield seating includes Sections 101-103 (right field) and 142-148 (left field)\".",
+    "rows": "\"Rows in Section 147B are labeled 1-7, A\"",
+    "entrance_row": "\"An entrance to this section is located at Row WCA\"",
+    "seat_direction": "PARK-WIDE BOILERPLATE (identical on every Rogers Centre section page): \"When looking towards the field/ring/stage, lower number seats are on the right\". PER-SECTION STATEMENT: none. No Q&A, expert answer or fan comment on this page names a side for seat 1 in this section.",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights: \"Rows 1-7, A\", \"Behind/Side Stage (most shows)\". FLAG - ENTRANCE ROW LABEL: the entrance sentence names \"Row WCA\", a label that does not match the stated row labels \"1-7, A\". Recorded verbatim, not reconciled. Accessible seating statement, verbatim: \"Wheelchair seating is available behind Row 7\" - this is the only explicit per-section wheelchair statement in this batch and is consistent with the \"WCA\" entrance label and with discovery.json's note that accessible seating sits at the back of 100-level sections. Concert-only limited-view flag: \"147B is behind the stage or to the side of the stage for most concerts. This may restrict or limit your view\". No netting or shade line. No Seating and Ticket Q&A block. Nothing contradicts discovery.json.",
+    "source": "https://www.rateyourseats.com/rogers-centre/seating/sections/147B"
+  },
+  {
+    "section": "148A",
+    "zone": "100 Level Outfield",
+    "location": "No standalone per-section location sentence. Placement comes only from the zone range copy: \"Sections 142-148 (left field)\" within \"100 Level Outfield seating includes Sections 101-103 (right field) and 142-148 (left field)\".",
+    "rows": "\"Rows in Section 148A are labeled 1-2\"",
+    "entrance_row": "UNKNOWN - no entrance-row sentence appears on the page.",
+    "seat_direction": "PARK-WIDE BOILERPLATE (identical on every Rogers Centre section page): \"When looking towards the field/ring/stage, lower number seats are on the right\". PER-SECTION STATEMENT: none. No Q&A, expert answer or fan comment on this page names a side for seat 1 in this section.",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights: \"Rows 1-2\", \"Behind/Side Stage (most shows)\". Only two rows stated. No entrance row stated - UNKNOWN, not inferred. Concert-only limited-view flag: \"148A is behind the stage or to the side of the stage for most concerts\". No netting, shade or overhang line. No Seating and Ticket Q&A block. No fan review specific to 148A. FLAG: the page shows seat-view images labelled \"Row 2\" and \"Row 3\" although the stated row labels are 1-2; the page does not reconcile this. The page carries the generic 100 Level Outfield expert review rather than section-specific expert copy. Nothing contradicts discovery.json.",
+    "source": "https://www.rateyourseats.com/rogers-centre/seating/sections/148A"
+  },
+  {
+    "section": "148B",
+    "zone": "100 Level Outfield",
+    "location": "No per-section location sentence. Placement comes only from the zone copy that sections 142-148 are the left-field 100 Level Outfield seats: \"100 Level Outfield seating includes Sections 101-103 (right field) and 142-148 (left field)\".",
+    "rows": "\"Rows in Section 148B are labeled 1-9\"",
+    "entrance_row": "\"An entrance to this section is located at Row 9\"",
+    "seat_direction": "PARK-WIDE BOILERPLATE (identical on every Rogers Centre section page): \"When looking towards the field/ring/stage, lower number seats are on the right\". PER-SECTION STATEMENT: none. No Q&A, expert answer or fan comment on this page names a side for seat 1 in this section.",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights / Seating Note: \"148B is behind the stage or to the side of the stage for most concerts\" - concerts only, not baseball. No netting, shade or overhang line. No Seating and Ticket Q&A block. No accessible-seating statement on this page. NO fan review is posted for 148B itself - the reviews displayed are from other sections (102B and 142), including the Section 142 review \"Seats are located directly above the bullpen\". NOTE: discovery.json attributes that \"Seats are located directly above the bullpen\" line to the Section 148B page; on this fetch it is shown on the 148B page but is credited to Section 142, so it should not be read as a statement about 148B. The rest of the page is the generic 100 Level Outfield zone guide (value pricing, two-tier A/B layout, home run territory, bullpen access, social spaces). Nothing else contradicts discovery.json.",
+    "source": "https://www.rateyourseats.com/rogers-centre/seating/sections/148B"
+  },
+  {
+    "section": "204",
+    "zone": "200 Level",
+    "location": "No per-section location sentence. The only placement text is the 200 Level zone copy carried on the page: \"The 200 Level at Rogers Centre sits on the second deck of seating, wrapping from the infield to the outfield.\" The page does not say which end of the park 204 is at.",
+    "rows": "\"Rows in Section 204 are labeled 1-7\"",
+    "entrance_row": "\"An entrance to this section is located at Row 7\"",
+    "seat_direction": "PARK-WIDE BOILERPLATE (identical on every Rogers Centre section page): \"When looking towards the field/ring/stage, lower number seats are on the right\". PER-SECTION STATEMENT: none. No Q&A, expert answer or fan comment on this page names a side for seat 1 in this section.",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights: \"Rows 1-7\", \"Behind/Side Stage (most shows)\". Concert-only limited-view flag: \"204 is behind the stage or to the side of the stage for most concerts. This may restrict or limit your view of the performance.\" No netting, overhang, shade or obstructed-view line specific to 204 - note discovery.json records a general 200-level overhang/shade statement from shadedseats.com, but the RateYourSeats 204 page carries no such line. No Seating and Ticket Q&A block. No fan review specific to 204. Content is largely the generic 200 Level zone guide with 204-specific row/entrance data. Nothing contradicts discovery.json.",
+    "source": "https://www.rateyourseats.com/rogers-centre/seating/sections/204"
+  }
+]

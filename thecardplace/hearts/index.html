@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- Without this the browser asks for /favicon.ico at the SITE root, which
+     belongs to the user page rather than this project — so every page here
+     logged a 404 nobody could fix from this repository. -->
+<link rel="icon" href="../shared/favicon.svg" type="image/svg+xml">
+<title>Hearts</title>
+<meta name="description" content="Hearts for four. Take no hearts, avoid the queen of spades, pass three cards a hand. Works with a keyboard alone and with a screen reader.">
+<!-- The shared sheet first, this game's second. Order is the override
+     mechanism: anything said in styles.css wins, with no !important anywhere. -->
+<link rel="stylesheet" href="../shared/styles/core.css">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to main content</a>
+
+<header class="app-header">
+  <h1>Hearts</h1>
+  <p class="tagline">Four players, thirteen tricks, no trump &mdash; and the lowest score wins.</p>
+</header>
+
+<main id="main" tabindex="-1">
+
+  <!-- ============ LOBBY ============
+       The first screen a person meets when they want to play with somebody else,
+       and therefore the one that decides whether the rest of the game ever
+       happens for them.
+
+       Everything here is an ordinary heading, form field, button and table. The
+       code entry is a plain text input rather than five separate boxes: split
+       inputs look tidy and are miserable with a screen reader, because every
+       keystroke moves focus and the field you are in is never the field you
+       thought. -->
+  <section id="lobby-section" aria-labelledby="lobby-h" hidden>
+    <h2 id="lobby-h">Play with other people</h2>
+
+    <!-- Visible, and deliberately NOT a live region. It carries the same words
+         the announcer speaks, and a second independent live region would say all
+         of them twice — and reintroduce exactly the race the announcement queue
+         exists to prevent, on the messages that tell a player whether they are
+         connected. Same reason the game log is not one. -->
+    <p id="lobby-status" class="status"></p>
+
+    <div id="lobby-choose">
+      <p class="hint">Anyone can join a table with its code. There are no accounts and nothing to
+        install. A hearts table is always four seats, and any seat nobody is sitting in is played
+        by the computer &mdash; so a table works with two people, or three, or four.</p>
+
+      <p class="actions">
+        <button type="button" id="lobby-create" class="primary">Start a new table</button>
+      </p>
+
+      <form id="lobby-join-form">
+        <p class="field">
+          <label for="lobby-code">Join a table with its code</label>
+          <input type="text" id="lobby-code" name="code" autocomplete="off" spellcheck="false"
+                 maxlength="12" aria-describedby="lobby-code-hint">
+          <span id="lobby-code-hint" class="hint">Five letters and numbers. Upper or lower case both
+            work, and spaces and dashes are ignored. The letters O, I and L and the digits zero and
+            one are never used, so there is nothing to mistake for anything else.</span>
+        </p>
+        <p class="actions">
+          <button type="submit">Join this table</button>
+        </p>
+      </form>
+
+      <p class="actions">
+        <button type="button" id="lobby-back">Play against the computer instead</button>
+      </p>
+    </div>
+
+    <div id="lobby-table" hidden>
+      <h3 id="lobby-code-h">Your table code</h3>
+      <p id="lobby-code-display" class="table-code" tabindex="-1"></p>
+      <!-- The invite link, and the code above it. Both, because they are for
+           different situations: the link for anywhere you can paste, the code
+           for reading down a phone. -->
+      <p class="hint" id="lobby-invite-hint">Send the link to whoever you want to play with. It
+        opens the game with this table already chosen; they still pick their own name. If it is
+        easier to read the code out, that works too.</p>
+      <p class="table-link"><a id="lobby-invite" href="#">Invite link</a></p>
+      <p class="actions">
+        <button type="button" id="lobby-copy">Copy the invite link</button>
+        <button type="button" id="lobby-leave" class="consequential">Leave this table</button>
+      </p>
+
+      <!-- Nothing is dealt until somebody presses this. A table that starts the
+           moment it is made leaves the host no time to send anybody the code —
+           by the time they have read it out, the computer has played their seat
+           through half a hand. -->
+      <p class="actions">
+        <button type="button" id="lobby-start" class="primary">Start the game</button>
+      </p>
+      <p class="hint" id="lobby-start-hint">Send the code to the people you want to play with, wait
+        for them to appear in the seats below, then start. Any seat still empty is played by the
+        computer, so you can start whenever you like.</p>
+
+      <h3 id="lobby-seats-h">Seats</h3>
+      <div class="table-wrap">
+        <!-- No partnership column. Hearts is four people playing against each
+             other, and a Side heading copied from the euchre table would be a
+             confident answer to a question this game does not ask. -->
+        <table id="lobby-seats">
+          <caption class="sr-only">Every seat at this table and who is in it. Empty seats are played
+            by the computer.</caption>
+          <thead>
+            <tr>
+              <th scope="col">Seat</th>
+              <th scope="col">Who</th>
+              <th scope="col">Status</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+  <!-- ============ SETUP ============ -->
+  <section id="setup-section" aria-labelledby="setup-h">
+    <h2 id="setup-h">Start a game</h2>
+
+    <form id="setup-form">
+      <!-- Shown only when somebody has arrived on an invite link. -->
+      <p id="invite-note" class="invite-note" hidden></p>
+
+      <fieldset>
+        <legend>You</legend>
+        <p class="field">
+          <label for="opt-name">Your name</label>
+          <span id="opt-name-hint" class="hint">This is what everybody else at the table sees, so it
+            is worth changing.</span>
+          <input type="text" id="opt-name" name="name" value="MyPlayerName"
+                 aria-describedby="opt-name-hint" autocomplete="off" maxlength="16">
+        </p>
+      </fieldset>
+
+      <!-- THE SETTINGS ARE BEHIND A BUTTON, and they are the SAME controls the
+           toolbar opens once a game is under way — one dialog, one set of
+           fields, one place they can disagree with each other, which is none.
+
+           This screen used to carry its own copies of the pace, the target and
+           the card style, with the dialog holding a second set that had to be
+           kept in step by hand. Every other game on this site shows a summary
+           and a way in; these two were the odd ones out. -->
+      <fieldset>
+        <legend>Game settings</legend>
+        <p class="hint">These are remembered, so a new game uses them again unless you change
+          them.</p>
+        <p id="settings-summary" class="settings-summary"></p>
+        <p class="actions">
+          <button type="button" id="setup-settings">Change game settings</button>
+        </p>
+      </fieldset>
+
+      <p class="actions">
+        <button type="submit" class="primary">Deal</button>
+        <button type="button" id="play-online">Play with other people</button>
+      </p>
+    </form>
+  </section>
+
+  <!-- ============ GAME ============ -->
+  <section id="game-section" aria-labelledby="game-h" hidden>
+    <h2 id="game-h" class="sr-only">The game</h2>
+
+    <!-- Visible, and deliberately NOT a live region.
+         It carries the same words the announcer speaks, and a second independent
+         live region would say all of them twice — and reintroduce exactly the
+         race the announcement queue exists to prevent. Same reason the log below
+         is not one either. -->
+    <p id="status" class="status"></p>
+
+    <!-- The review controls, and they are UP HERE rather than beside the hand
+         on purpose. Every one of them is also a keyboard shortcut, and every
+         shortcut is also one of these, so nothing is reachable only one way.
+
+         They started out in the actions area, which put five buttons between
+         the cards and the only thing you can do with them — six shift+tabs from
+         a card to reach "Pass these three cards". A toolbar keeps the primary
+         action next to the hand where it belongs. -->
+    <div class="toolbar">
+      <div class="tool-group" role="group" aria-labelledby="tg-review">
+        <span class="tool-group-name" id="tg-review">Review</span>
+        <button type="button" data-say="hand" aria-keyshortcuts="H">Hand <kbd>H</kbd></button>
+        <button type="button" data-say="trick" aria-keyshortcuts="T">Trick <kbd>T</kbd></button>
+        <button type="button" data-say="last" aria-keyshortcuts="L">Last trick <kbd>L</kbd></button>
+        <button type="button" data-say="score" aria-keyshortcuts="S">Scores <kbd>S</kbd></button>
+        <button type="button" data-say="points" aria-keyshortcuts="P">Points so far <kbd>P</kbd></button>
+        <button type="button" data-say="count" aria-keyshortcuts="C">Cards played <kbd>C</kbd></button>
+        <button type="button" data-say="order" aria-keyshortcuts="O">Play order <kbd>O</kbd></button>
+        <button type="button" data-say="who" aria-keyshortcuts="W">Who is here <kbd>W</kbd></button>
+        <button type="button" data-say="repeat" aria-keyshortcuts="R">Repeat <kbd>R</kbd></button>
+      </div>
+
+      <div class="tool-group" role="group" aria-labelledby="tg-play">
+        <span class="tool-group-name" id="tg-play">Play</span>
+        <!-- N is the same key in every game here: move the game forward. It is
+             advertised rather than hidden, because a shortcut nobody is told
+             about is a shortcut nobody uses. -->
+        <button type="button" id="tool-next" aria-keyshortcuts="N">Next <kbd>N</kbd></button>
+      </div>
+
+      <!-- Records and Settings were folded into Play here, alone among the five
+           games. The groups are how somebody finds a control they have not used
+           before: "it will be under Settings and help" only works if that group
+           exists and holds the same things in every game. -->
+      <div class="tool-group" role="group" aria-labelledby="tg-records">
+        <span class="tool-group-name" id="tg-records">Records</span>
+        <button type="button" id="tool-log" aria-keyshortcuts="G">Game log <kbd>G</kbd></button>
+        <button type="button" id="tool-export" aria-keyshortcuts="E">Export log <kbd>E</kbd></button>
+        <button type="button" id="tool-bug" aria-keyshortcuts="B">Report a bug <kbd>B</kbd></button>
+      </div>
+
+      <div class="tool-group" role="group" aria-labelledby="tg-help">
+        <span class="tool-group-name" id="tg-help">Settings and help</span>
+        <button type="button" id="btn-settings">Settings</button>
+        <!-- How to play and the keyboard hints move focus to the sections that
+             are already written into this page, rather than opening a dialog
+             holding a second copy of the same words. Two copies of the rules is
+             one copy that goes stale. -->
+        <button type="button" id="tool-rules">How to play</button>
+        <button type="button" id="tool-a11y" aria-keyshortcuts="?">Accessibility hints <kbd>?</kbd></button>
+        <button type="button" id="tool-newgame">New game</button>
+      </div>
+    </div>
+    <div class="layout-two-col">
+      <div class="col-main">
+
+        <h3 id="actions-h">What you can do</h3>
+        <div id="actions" class="actions-area"></div>
+
+        <h3 id="hand-h">Your hand</h3>
+        <div id="hand" class="hand" role="group" aria-labelledby="hand-h"></div>
+        <p id="hand-hint" class="hint"></p>
+
+        <!-- The table, drawn. aria-hidden because it says nothing the players
+             table below does not already say in words, and a screen reader
+             reading four rows of card backs is noise. It is here so a sighted
+             player can see at a glance who is holding what. -->
+        <div id="seats" class="seats" aria-hidden="true"></div>
+
+        <h3 id="trick-h">This trick</h3>
+        <ol id="trick" class="trick" aria-labelledby="trick-h"></ol>
+
+        <!-- The trick that has just gone. The L key has always read this out;
+             until now there was nowhere to SEE it, so a sighted player watching
+             the same screen lost the trick the moment the next card landed.
+             Every other trick game here has had this section all along. -->
+        <h3 id="lasttrick-h">Last completed trick</h3>
+        <ol id="lasttrick" class="trick" aria-labelledby="lasttrick-h"></ol>
+
+      </div>
+
+      <div class="col-side">
+
+        <h3 id="players-h">Players</h3>
+        <div class="table-wrap">
+          <table id="players-table">
+            <caption class="sr-only">Every seat, what it has taken this hand, and its score</caption>
+            <thead>
+              <tr>
+                <th scope="col">Player</th>
+                <th scope="col">Cards</th>
+                <th scope="col">This hand</th>
+                <th scope="col">Score</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+
+        <h3 id="scores-h">Hands played</h3>
+        <div class="table-wrap">
+          <table id="history-table">
+            <caption class="sr-only">What each player scored in each hand</caption>
+            <thead>
+              <!-- Written by ui.js from the real player names. They were
+                   four compass points here, and the seats are not compass
+                   points: seat 0 is whatever the player typed. -->
+              <tr></tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+
+        <h3 id="log-h">What has happened <kbd aria-hidden="true">G</kbd></h3>
+        <p class="hint">Newest entry first. Press <kbd>G</kbd> to jump here, then <kbd>Up</kbd> and <kbd>Down</kbd> to move entry by entry, <kbd>Home</kbd> for the newest and <kbd>End</kbd> for the oldest. This region is never spoken automatically, so you can read back through it at your own pace.</p>
+        <ul id="log" class="log" aria-labelledby="log-h"></ul>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ HOW TO PLAY ============ -->
+  <section aria-labelledby="rules-h">
+    <h2 id="rules-h">How hearts works</h2>
+
+    <h3>The object</h3>
+    <p>Take as few points as possible. Every heart is one point and the queen of spades is
+      thirteen &mdash; twenty-six in every hand. When somebody reaches the target the game ends,
+      and the player with the <strong>lowest</strong> score wins.</p>
+
+    <h3>Passing</h3>
+    <p>Before each hand you give three cards away and are given three in return. Everybody
+      chooses at the same time, so you commit before you see what is coming. The direction
+      rotates: left, right, across, and then a hand where nobody passes at all.</p>
+
+    <h3>The play</h3>
+    <ul>
+      <li>Whoever holds the two of clubs leads it. That is not a choice.</li>
+      <li>Follow the suit led if you can. There is no trump, so the highest card of the suit
+        led takes the trick.</li>
+      <li>No hearts and no queen of spades on the first trick, unless that is all you hold.</li>
+      <li>Hearts cannot be <em>led</em> until somebody has discarded one on another suit.
+        That is what &ldquo;hearts are broken&rdquo; means.</li>
+    </ul>
+
+    <h3>Shooting the moon</h3>
+    <p>Take <em>all</em> twenty-six points and the hand turns inside out: you score nothing and
+      everybody else scores twenty-six. It is worth watching for &mdash; if somebody has taken
+      every heart so far, letting them have one is cheaper than letting them have the rest.</p>
+
+    <h3 id="keys-h">Playing by keyboard</h3>
+    <p>Every shortcut below is also a button on screen, so nothing is only reachable one way.</p>
+    <ul>
+      <li><kbd>Left</kbd> and <kbd>Right</kbd> move along your hand; <kbd>Enter</kbd> plays or
+        selects the card you are on.</li>
+      <li><kbd>H</kbd> reads your hand.</li>
+      <li><kbd>T</kbd> reads the trick so far.</li>
+      <li><kbd>S</kbd> reads the scores.</li>
+      <li><kbd>P</kbd> reads what points have been taken this hand.</li>
+      <li><kbd>W</kbd> says who is at the table.</li>
+      <li><kbd>Enter</kbd> on a button does what the button says.</li>
+    </ul>
+  </section>
+
+  <footer class="site-footer">
+    <p><a href="../index.html">Back to The Card Place</a></p>
+  </footer>
+</main>
+
+<!-- The announcer. Everything spoken goes through one queue in ui.js, which is
+     why there is exactly one polite region and one assertive one: two regions
+     racing each other is how a screen reader ends up reading the second half of
+     one sentence and the first half of another. -->
+<div id="say-polite" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+<div id="say-assertive" class="sr-only" aria-live="assertive" aria-atomic="true"></div>
+
+<!-- ORDER MATTERS. localserver.js takes a reference to SH.View when it loads,
+     not when it runs, so view.js has to be in place before the shared
+     transport is. With view.js after it the page threw "Cannot read properties
+     of undefined (reading forSeat)" on the first frame and nothing rendered at
+     all — which is at least loud. config.js is first because net.js asks it
+     where the Worker is. -->
+<!-- Two ordinary <dialog> elements. Not custom modals: a real dialog gets focus
+     trapping, Escape and the accessible role from the browser, and every
+     hand-rolled version of that in the wild gets at least one of the three
+     wrong. -->
+<dialog id="settings-dialog" aria-labelledby="settings-h">
+  <div class="dialog-body">
+    <h2 id="settings-h">Game settings</h2>
+    <p class="hint">Everything here is remembered between games. Card style and focus take effect
+      straight away; pace and the target score take effect from the next game, because the pace
+      belongs to the table rather than to this browser and a game already under way is not
+      rescored halfway through.</p>
+
+    <fieldset>
+      <legend>Rules</legend>
+      <p class="field">
+        <label for="opt-points">Game ends when somebody reaches</label>
+        <select id="opt-points" name="points">
+          <option value="50">50 points &mdash; a short game</option>
+          <option value="100" selected>100 points &mdash; the standard game</option>
+        </select>
+      </p>
+    </fieldset>
+
+    <fieldset>
+      <legend>Pace</legend>
+      <p class="field">
+        <label for="opt-pace">How fast the computer players move</label>
+        <select id="opt-pace" name="pace">
+          <option value="0">Immediate</option>
+          <option value="900" selected>Brisk</option>
+          <option value="2500">Comfortable</option>
+          <option value="4000">Relaxed</option>
+          <option value="-1">Wait for me to continue</option>
+        </select>
+      </p>
+    </fieldset>
+
+    <fieldset>
+      <legend>Appearance and focus</legend>
+      <p class="field">
+        <label for="opt-skin">Card style</label>
+        <select id="opt-skin" name="skin">
+          <option value="traditional" selected>Traditional &mdash; printed card faces on a green table</option>
+          <option value="plain">Plain &mdash; large rank and suit on flat panels</option>
+        </select>
+      </p>
+      <p class="field checkbox">
+        <input type="checkbox" id="opt-autofocus" name="autofocus" checked>
+        <label for="opt-autofocus">Move focus to my cards when it becomes my turn</label>
+      </p>
+    </fieldset>
+
+    <p class="actions">
+      <button type="button" id="settings-close" class="primary">Done</button>
+      <button type="button" id="settings-reset">Reset to defaults</button>
+    </p>
+  </div>
+</dialog>
+
+<dialog id="export-dialog" aria-labelledby="export-h">
+  <div class="dialog-body">
+    <h2 id="export-h">Export the game log</h2>
+    <p id="export-summary" class="hint"></p>
+    <label for="export-text">The complete log</label>
+    <textarea id="export-text" rows="16" readonly spellcheck="false"></textarea>
+    <p class="actions">
+      <button type="button" id="export-download" class="primary">Download as a text file</button>
+      <button type="button" id="export-copy">Copy to the clipboard</button>
+      <button type="button" id="export-close">Close</button>
+    </p>
+  </div>
+</dialog>
+
+<dialog id="bug-dialog" aria-labelledby="bug-h">
+  <div class="dialog-body">
+    <h2 id="bug-h">Report a bug</h2>
+    <p class="hint">Nothing is sent anywhere on its own. The box at the bottom shows exactly what
+      will be copied, and posting an issue is your own action and needs a GitHub account.</p>
+    <label for="bug-title">One line: what went wrong</label>
+    <input type="text" id="bug-title" maxlength="120" autocomplete="off">
+    <label for="bug-what">What happened, and what you expected</label>
+    <textarea id="bug-what" rows="5" spellcheck="true"></textarea>
+    <p class="field checkbox">
+      <input type="checkbox" id="bug-include-log" checked>
+      <label for="bug-include-log">Include the full game log &mdash; much easier to diagnose with it</label>
+    </p>
+    <label for="bug-preview">Exactly what will be copied</label>
+    <textarea id="bug-preview" rows="10" readonly spellcheck="false"></textarea>
+    <p class="actions">
+      <button type="button" id="bug-open" class="primary">Copy report and open GitHub</button>
+      <button type="button" id="bug-copy">Copy the report only</button>
+      <button type="button" id="bug-close">Close</button>
+    </p>
+  </div>
+</dialog>
+<script src="js/config.js"></script>
+<script src="js/cards.js"></script>
+<script src="js/game.js"></script>
+<script src="js/ai.js"></script>
+<script src="js/view.js"></script>
+<script src="../shared/js/table.js"></script>
+<script src="../shared/js/net.js"></script>
+<script src="../shared/js/localserver.js"></script>
+<script src="js/ui.js"></script>
+</body>
+</html>

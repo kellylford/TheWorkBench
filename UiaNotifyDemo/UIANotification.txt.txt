@@ -1,0 +1,61 @@
+This is a Claude-written answer on UIA Notifications in response to a question asking how to get apps to speak strings.
+
+I've had to solve this problem in my QuickMail app I mentioned recently. Here's a solution Claude came up with at my direction.
+
+The short answer is that both approaches you tried — live regions and the UIA method — are real, but they target different hosts. WPF's AutomationProperties.LiveSetting fires LiveRegionChanged, which screen readers only handle inside a web browser (it maps to HTML aria-live). For a native desktop app it does nothing useful. The correct API for desktop is RaiseNotificationEvent, which is UIA 1.1 and has been on Windows since the 1703 Creator's Update in 2017. No JAWS or NVDA SDK, no SAPI, no COM interop — it's pure managed code in System.Windows.Automation.
+
+Here's the complete helper class — drop it in your project as-is:
+
+using System.Windows;
+using System.Windows.Automation;
+using System.Windows.Automation.Peers;
+
+internal static class AccessibilityHelper
+{
+    // A stable string that identifies this app's announcements.
+    // Screen readers may use it to suppress duplicate consecutive messages.
+    private const string ActivityId = "MyAppAnnouncement";
+
+    /// <param name="element">Any realized UIElement — passing the Window itself is fine.</param>
+    /// <param name="text">The string for the screen reader to speak.</param>
+    /// <param name="interrupt">
+    ///   true  = ImportantMostRecent: interrupts current speech immediately.
+    ///   false = MostRecent: queues politely behind current speech.
+    /// </param>
+    public static void Announce(UIElement element, string text, bool interrupt = false)
+    {
+        if (string.IsNullOrEmpty(text)) return;
+
+        var peer = UIElementAutomationPeer.FromElement(element)
+                   ?? UIElementAutomationPeer.CreatePeerForElement(element);
+        if (peer == null) return;
+
+        var processing = interrupt
+            ? AutomationNotificationProcessing.ImportantMostRecent
+            : AutomationNotificationProcessing.MostRecent;
+
+        peer.RaiseNotificationEvent(
+            AutomationNotificationKind.Other,
+            processing,
+            text,
+            ActivityId);
+    }
+}
+
+Then call it from anywhere that has a reference to a window or control:
+
+    // From a Window's code-behind — polite, queues after current speech:
+    AccessibilityHelper.Announce(this, "3 new messages downloaded");
+
+    // Interrupt whatever the screen reader is currently saying:
+    AccessibilityHelper.Announce(this, "Error: connection failed", interrupt: true);
+
+The element can be the window itself — no hidden control or off-screen live region needed. The ActivityId string (last parameter) is stable per logical announcement type; screen readers may use it to suppress duplicate consecutive messages.
+
+I've put a small standalone demo app in my TheWorkBench repo that you can clone and run:
+
+    https://github.com/kellylford/TheWorkBench/tree/main/UiaNotifyDemo
+
+It's a single window: a text box and two buttons, one for each processing mode. The AccessibilityHelper.cs in there is the same class QuickMail uses in production. I've tested it with NVDA and JAWS; both respond correctly. Narrator works too.
+
+One gotcha worth noting: the peer lookup (FromElement / CreatePeerForElement) will return null if called before the window is fully rendered, so don't call this during a constructor or before the window is shown. In practice, button-click or async-completion handlers are always fine.

@@ -1,0 +1,222 @@
+[
+ {
+  "section": "347",
+  "zone": "Page heading: \"Section 347 at Tropicana Field\". Seating zone/category name shown on the page: \"MaintenX SkyDeck\".",
+  "location": "\"The MaintenX SkyDeck is located in sections 341-355 in left field on the upper level of Tropicana Field.\" / \"Sections 347-355: Positioned beyond the outfield fence\"",
+  "rows": "\"Rows in Section 347 are labeled A-J\"",
+  "entrance_row": "\"An entrance to this section is located at Row J\"",
+  "seat_direction": "PARK-WIDE BOILERPLATE (Row Numbers block), verbatim: \"When looking towards the field/field, lower number seats are on the left\". PER-SECTION STATEMENT: NONE. No question-and-answer, expert answer or fan review on this page names a side for seat 1, or for any seat number, in this section. There is no per-section side statement of any kind here.",
+  "seats_per_row": "UNKNOWN",
+  "notes": "Section Insights, verbatim: \"Top Pick for Outstanding Convenience\". Seating Notes, verbatim: \"For baseball games, we recommend these seats for outstanding convenience\". Expert review of the zone, verbatim: \"MaintenX SkyDeck seats are ideal for Rays fans who prioritize an all-inclusive experience and social atmosphere over having a close view of the field.\" That is zone-level (MaintenX SkyDeck) content, not 347-specific. DOME - no shade/sun statement is printed and none applies: Tropicana Field is a fixed-roof dome (discovery.json orientation.sun_and_shade), so no shade guidance should be generated. NETTING: no netting line is printed for this section, and it is not in the club's netted list, which the club gives as \"Protective netting extends from home plate to the foul poles located in Sections 137 and 138\" covering 101-138 only. NOTHING ON THIS PAGE CONTRADICTS discovery.json: the SkyDeck is an all-odd deck over LEFT field, consistent with the park's odd = third-base/left-field parity rule.",
+  "source": "https://www.rateyourseats.com/tropicana-field/seating/sections/347"
+ },
+ {
+  "section": "349",
+  "zone": "Page heading: \"Section 349 at Tropicana Field\". Seating zone/category name shown on the page: \"MaintenX SkyDeck\".",
+  "location": "\"The MaintenX SkyDeck is located in sections 341-355 in left field on the upper level of Tropicana Field.\" / \"Sections 347-355: Positioned beyond the outfield fence\"",
+  "rows": "\"Rows in Section 349 are labeled A-H, WCH\"",
+  "entrance_row": "\"An entrance to this section is located at Row H\"",
+  "seat_direction": "PARK-WIDE BOILERPLATE (Row Numbers block), verbatim: \"When looking towards the field/field, lower number seats are on the left\". PER-SECTION STATEMENT: NONE. No question-and-answer, expert answer or fan review on this page names a side for seat 1, or for any seat number, in this section. There is no per-section side statement of any kind here.",
+  "seats_per_row": "UNKNOWN",
+  "notes": "Accessible seating, verbatim: \"Wheelchair seating is available behind Row H\". This confirms the discovery.json convention that WCH is a REAR row appended after the last lettered row, not a front row. NOTE the entrance is given at Row H, i.e. at the last LETTERED row, not at the WCH row. The page carries \"RYS Expert Reviews\" but no attributed fan reviews. DOME - no shade/sun statement is printed and none applies: Tropicana Field is a fixed-roof dome (discovery.json orientation.sun_and_shade), so no shade guidance should be generated. NETTING: no netting line is printed for this section, and it is not in the club's netted list, which the club gives as \"Protective netting extends from home plate to the foul poles located in Sections 137 and 138\" covering 101-138 only. NOTHING ON THIS PAGE CONTRADICTS discovery.json: the SkyDeck is an all-odd deck over LEFT field, consistent with the park's odd = third-base/left-field parity rule.",
+  "source": "https://www.rateyourseats.com/tropicana-field/seating/sections/349"
+ },
+ {
+  "section": "351",
+  "zone": "Page heading: \"Section 351 at Tropicana Field\". Seating zone/category name shown on the page: \"MaintenX SkyDeck\".",
+  "location": "\"The MaintenX SkyDeck is located in sections 341-355 in left field on the upper level of Tropicana Field.\" / \"Sections 347-355: Positioned beyond the outfield fence\"",
+  "rows": "\"Rows in Section 351 are labeled A-J\"",
+  "entrance_row": "\"An entrance to this section is located at Row J\"",
+  "seat_direction": "PARK-WIDE BOILERPLATE (Row Numbers block), verbatim: \"When looking towards the field/field, lower number seats are on the left\". PER-SECTION STATEMENT: NONE. No question-and-answer, expert answer or fan review on this page names a side for seat 1, or for any seat number, in this section. There is no per-section side statement of any kind here.",
+  "seats_per_row": "UNKNOWN",
+  "notes": "Seating Notes / expert content, verbatim: \"Very Distant Sightlines: One of the farthest seating areas from home plate with limited detail on-field action\". This is a VIEW-QUALITY warning, not an obstruction: no netting, overhang or obstructed-view line is printed. No fan reviews - expert reviews only. DOME - no shade/sun statement is printed and none applies: Tropicana Field is a fixed-roof dome (discovery.json orientation.sun_and_shade), so no shade guidance should be generated. NETTING: no netting line is printed for this section, and it is not in the club's netted list, which the club gives as \"Protective netting extends from home plate to the foul poles located in Sections 137 and 138\" covering 101-138 only. NOTHING ON THIS PAGE CONTRADICTS discovery.json: the SkyDeck is an all-odd deck over LEFT field, consistent with the park's odd = third-base/left-field parity rule.",
+  "source": "https://www.rateyourseats.com/tropicana-field/seating/sections/351"
+ },
+ {
+  "section": "353",
+  "zone": "Page heading: \"Section 353 at Tropicana Field\". Seating zone/category name shown on the page: \"MaintenX SkyDeck\".",
+  "location": "\"The MaintenX SkyDeck is located in sections 341-355 in left field on the upper level of Tropicana Field.\" / \"Sections 347-355: Positioned beyond the outfield fence\"",
+  "rows": "\"Rows in Section 353 are labeled A-G, WCH\"",
+  "entrance_row": "\"An entrance to this section is located at Row WCH\"",
+  "seat_direction": "PARK-WIDE BOILERPLATE (Row Numbers block), verbatim: \"When looking towards the field/field, lower number seats are on the left\". PER-SECTION STATEMENT: NONE. No question-and-answer, expert answer or fan review on this page names a side for seat 1, or for any seat number, in this section. There is no per-section side statement of any kind here.",
+  "seats_per_row": "UNKNOWN",
+  "notes": "Section Insights, verbatim: \"Rows A-G, WCH\". Accessible seating, verbatim: \"Wheelchair seating is available behind Row G\". Expert content, verbatim: \"Very Distant Sightlines: One of the farthest seating areas from home plate with limited detail\". CONTRADICTION WITHIN THE PAGE, RECORDED NOT RECONCILED: the entrance line names Row WCH while section 349 on the same deck names its entrance at the last LETTERED row (H). Both are recorded verbatim; which convention the deck actually uses is not resolved by these pages. DOME - no shade/sun statement is printed and none applies: Tropicana Field is a fixed-roof dome (discovery.json orientation.sun_and_shade), so no shade guidance should be generated. NETTING: no netting line is printed for this section, and it is not in the club's netted list, which the club gives as \"Protective netting extends from home plate to the foul poles located in Sections 137 and 138\" covering 101-138 only. NOTHING ON THIS PAGE CONTRADICTS discovery.json: the SkyDeck is an all-odd deck over LEFT field, consistent with the park's odd = third-base/left-field parity rule.",
+  "source": "https://www.rateyourseats.com/tropicana-field/seating/sections/353"
+ },
+ {
+  "section": "355",
+  "zone": "Page heading: \"Section 355 at Tropicana Field\". Seating zone/category name shown on the page: \"MaintenX SkyDeck\".",
+  "location": "\"The MaintenX SkyDeck is located in sections 341-355 in left field on the upper level of Tropicana Field.\" / \"Sections 347-355: Positioned beyond the outfield fence\"",
+  "rows": "\"Rows in Section 355 are labeled A-G\"",
+  "entrance_row": "\"An entrance to this section is located at Row G\"",
+  "seat_direction": "PARK-WIDE BOILERPLATE (Row Numbers block), verbatim: \"When looking towards the field/field, lower number seats are on the left\". PER-SECTION STATEMENT: NONE. No question-and-answer, expert answer or fan review on this page names a side for seat 1, or for any seat number, in this section. There is no per-section side statement of any kind here.",
+  "seats_per_row": "UNKNOWN",
+  "notes": "Expert content, verbatim: \"Very Distant Sightlines: One of the farthest seating areas from home plate\". No netting, overhang or obstructed-view line printed. 355 is the highest-numbered section in the SkyDeck run and in the park's section inventory. No fan reviews - expert reviews only. DOME - no shade/sun statement is printed and none applies: Tropicana Field is a fixed-roof dome (discovery.json orientation.sun_and_shade), so no shade guidance should be generated. NETTING: no netting line is printed for this section, and it is not in the club's netted list, which the club gives as \"Protective netting extends from home plate to the foul poles located in Sections 137 and 138\" covering 101-138 only. NOTHING ON THIS PAGE CONTRADICTS discovery.json: the SkyDeck is an all-odd deck over LEFT field, consistent with the park's odd = third-base/left-field parity rule.",
+  "source": "https://www.rateyourseats.com/tropicana-field/seating/sections/355"
+ },
+ {
+  "section": "HPC103",
+  "zone": "Page heading: \"Home Plate Club 103 at Tropicana Field\". NO separate seating zone/category name was printed on the page beyond the heading.",
+  "location": "\"Home Plate Club seating is located in four exclusive sections directly behind home plate, positioned at field level just steps from the batter's box.\"",
+  "rows": "\"Rows in Home Plate Club 103 are labeled D-J\"",
+  "entrance_row": "UNKNOWN",
+  "seat_direction": "PARK-WIDE BOILERPLATE (Row Numbers block), verbatim: \"When looking towards the field/field, lower number seats are on the left\". PER-SECTION STATEMENT: NONE. No question-and-answer, expert answer or fan review on this page names a side for seat 1, or for any seat number, in this section. There is no per-section side statement of any kind here.",
+  "seats_per_row": "UNKNOWN",
+  "notes": "Seating Notes, verbatim: \"For baseball games, desirable view from behind home plate\" and \"Premium seating area as part of the Home Plate Club for Rays games\". NO ENTRANCE LINE IS PRINTED for any of the four Home Plate Club pages - entrance_row is genuinely absent from the source, not omitted here. DOME - no shade/sun statement printed and none applies. NETTING - CONSEQUENTIAL GAP: this section sits \"directly behind home plate, positioned at field level just steps from the batter's box\", i.e. inside the netted arc, and the club states \"Protective netting extends from home plate to the foul poles located in Sections 137 and 138\" with netted sections listed as plain numbers \"101, 102, 103, 104, ...\". The RateYourSeats page prints NO netting line for HPC103 and the club's list does not use the HPC identifier form, so no source read states netting for this identifier. Recorded as unstated, not inferred. IDENTIFIER MISMATCH (as flagged in discovery.json): URL slug \"HPC103\" vs page heading \"Home Plate Club 103\". The page makes no statement about what a printed ticket shows. Note the Home Plate Club set skips 105 and 106, consistent with discovery.json. Nothing on this page contradicts discovery.json.",
+  "source": "https://www.rateyourseats.com/tropicana-field/seating/sections/HPC103"
+ },
+ {
+  "section": "HPC104",
+  "zone": "Page heading: \"Home Plate Club 104 at Tropicana Field\". NO separate seating zone/category name was printed on the page beyond the heading.",
+  "location": "\"Home Plate Club seating is located in four exclusive sections directly behind home plate, positioned at field level just steps from the batter's box.\"",
+  "rows": "\"Rows in Home Plate Club 104 are labeled D-J\"",
+  "entrance_row": "UNKNOWN",
+  "seat_direction": "PARK-WIDE BOILERPLATE (Row Numbers block), verbatim: \"When looking towards the field/field, lower number seats are on the left\". PER-SECTION STATEMENT: NONE. No question-and-answer, expert answer or fan review on this page names a side for seat 1, or for any seat number, in this section. There is no per-section side statement of any kind here.",
+  "seats_per_row": "UNKNOWN",
+  "notes": "Seating Notes, verbatim: \"For baseball games, desirable view from behind home plate\" and \"Premium seating area as part of the Home Plate Club for Rays games\". No entrance line printed. Only an expert review is present; no fan reviews. DOME - no shade/sun statement printed and none applies. NETTING: no netting line printed; see the HPC103 record for the full netting-identifier gap, which applies identically here. IDENTIFIER MISMATCH: URL slug \"HPC104\" vs page heading \"Home Plate Club 104\"; no printed-ticket statement on the page. The location text is IDENTICAL word for word to HPC103, HPC107 and HPC108 - it is a zone-level sentence covering all four sections, NOT a 104-specific location line, and it does not say which side of home plate 104 sits on. Under the park's parity rule 104 is even = first-base side, but THE PAGE DOES NOT SAY SO.",
+  "source": "https://www.rateyourseats.com/tropicana-field/seating/sections/HPC104"
+ },
+ {
+  "section": "HPC107",
+  "zone": "Page heading: \"Home Plate Club 107 at Tropicana Field\". NO separate seating zone/category name was printed on the page beyond the heading.",
+  "location": "\"Home Plate Club seating is located in four exclusive sections directly behind home plate, positioned at field level just steps from the batter's box.\"",
+  "rows": "\"Rows in Home Plate Club 107 are labeled D-J\"",
+  "entrance_row": "UNKNOWN",
+  "seat_direction": "PARK-WIDE BOILERPLATE (Row Numbers block), verbatim: \"When looking towards the field/field, lower number seats are on the left\". PER-SECTION STATEMENT: NONE. No question-and-answer, expert answer or fan review on this page names a side for seat 1, or for any seat number, in this section. There is no per-section side statement of any kind here.",
+  "seats_per_row": "UNKNOWN",
+  "notes": "Seating Notes, verbatim: \"Premium seating area as part of the Home Plate Club for Rays games\". No \"desirable view from behind home plate\" line was printed on this page, unlike HPC103 and HPC104. No entrance line printed. FAN REVIEWS: multiple 5-star reviews are listed for \"Toronto Blue Jays at Tampa Bay Rays - May 24, 2023\" from \"Home Plate Club 107 / Row G\", but no review body text is shown - the star ratings and the row tag are all that is rendered. Row G falls inside the stated D-J range, which corroborates the row list. DOME - no shade/sun statement printed and none applies. NETTING: no netting line printed; same identifier gap as HPC103. IDENTIFIER MISMATCH: URL slug \"HPC107\" vs page heading \"Home Plate Club 107\"; no printed-ticket statement. The location sentence is the shared four-section zone line and does not say which side of home plate 107 sits on.",
+  "source": "https://www.rateyourseats.com/tropicana-field/seating/sections/HPC107"
+ },
+ {
+  "section": "HPC108",
+  "zone": "Page heading: \"Home Plate Club 108 at Tropicana Field\". NO separate seating zone/category name was printed on the page beyond the heading.",
+  "location": "\"Home Plate Club seating is located in four exclusive sections directly behind home plate, positioned at field level just steps from the batter's box.\"",
+  "rows": "\"Rows in Home Plate Club 108 are labeled D-J\"",
+  "entrance_row": "UNKNOWN",
+  "seat_direction": "PARK-WIDE BOILERPLATE (Row Numbers block), verbatim: \"When looking towards the field/field, lower number seats are on the left\". PER-SECTION STATEMENT: NONE. No question-and-answer, expert answer or fan review on this page names a side for seat 1, or for any seat number, in this section. There is no per-section side statement of any kind here.",
+  "seats_per_row": "UNKNOWN",
+  "notes": "Seating Notes, verbatim: \"Premium seating area as part of the Home Plate Club for Rays games\". No \"desirable view from behind home plate\" line printed. No entrance line printed. No fan reviews at all. DOME - no shade/sun statement printed and none applies. NETTING: no netting line printed; same identifier gap as HPC103. IDENTIFIER MISMATCH: URL slug \"HPC108\" vs page heading \"Home Plate Club 108\"; no printed-ticket statement. All four Home Plate Club pages (103, 104, 107, 108) carry the SAME location sentence, the SAME row range D-J, no entrance row and no seats-per-row figure. The four pages are near-identical; only the Seating Notes and the presence of reviews differ. Recorded as observed.",
+  "source": "https://www.rateyourseats.com/tropicana-field/seating/sections/HPC108"
+ },
+ {
+  "section": "106C",
+  "zone": "Page heading: \"Rays Club 106 at Tropicana Field\". Seating zone/category name shown on the page: \"Baldwin Club - Rays Games\".",
+  "location": "\"Baldwin Group Club seating is located in sections 106-126 along the first base line, just above the 100 Level seating.\" / \"1st Base Club Seating: Sections 106-126 along the first base line\"",
+  "rows": "\"Rows in Rays Club 106 are labeled PP-UU\"",
+  "entrance_row": "\"An entrance to this section is located at Row UU\"",
+  "seat_direction": "PARK-WIDE BOILERPLATE (Row Numbers block), verbatim: \"When looking towards the field/field, lower number seats are on the left\". PER-SECTION STATEMENT: NONE. No question-and-answer, expert answer or fan review on this page names a side for seat 1, or for any seat number, in this section. There is no per-section side statement of any kind here.",
+  "seats_per_row": "UNKNOWN",
+  "notes": "Section Insights, verbatim: \"Top Pick for Impressing a Guest\". Seating Notes, verbatim: \"Premium seating area as part of the Baldwin Club for Rays games\". CONTRADICTS / REFINES discovery.json - FLAGGED: discovery.json records an unresolved \"BALDWIN GROUP CLUB LOCATION CONFLICT\" between RateYourSeats' field-level \"Sections 106-126 along the first base line\" and the club's own Feb 27 2026 statement placing The Baldwin Group Club \"on the fourth floor\". The per-section pages fetched in this batch add a THIRD wording, verbatim: \"just above the 100 Level seating\". That is neither field level nor a fourth floor. Recorded verbatim and NOT reconciled. DOME - no shade/sun statement printed and none applies. NETTING: no netting line printed; the club's netted list names plain-numbered sections 101-138 and does not address the \"C\"-suffixed Club identifiers, so netting for this tier is NOT STATED by any source read. IDENTIFIER MISMATCH (as flagged in discovery.json): URL slug \"106C\" vs page heading \"Rays Club 106\". The page makes no statement about what a printed ticket shows. Only expert reviews are present; no fan reviews. Row range PP-UU matches the discovery.json record for this tier.",
+  "source": "https://www.rateyourseats.com/tropicana-field/seating/sections/106C"
+ },
+ {
+  "section": "108C",
+  "zone": "Page heading: \"Rays Club 108 at Tropicana Field\". Seating zone/category name shown on the page: \"Baldwin Club - Rays Games\".",
+  "location": "\"Baldwin Group Club seating is located in sections 106-126 along the first base line, just above the 100 Level seating.\" / \"1st Base Club Seating: Sections 106-126 along the first base line\"",
+  "rows": "\"Rows in Rays Club 108 are labeled PP-UU\"",
+  "entrance_row": "\"An entrance to this section is located at Row UU\"",
+  "seat_direction": "PARK-WIDE BOILERPLATE (Row Numbers block), verbatim: \"When looking towards the field/field, lower number seats are on the left\". PER-SECTION STATEMENT: NONE. No question-and-answer, expert answer or fan review on this page names a side for seat 1, or for any seat number, in this section. There is no per-section side statement of any kind here.",
+  "seats_per_row": "UNKNOWN",
+  "notes": "Section Insights / Seating Notes, verbatim: \"For baseball games, we recommend these seats for impressing a guest\" and \"Premium seating area as part of the Baldwin Club for Rays games\". FAN REVIEWS, verbatim: \"Just like I remember them to be.\" and \"Nothing better in the stadium\". Neither names a seat number, a side or a seat count. DOME - no shade/sun statement printed and none applies (fixed-roof dome). NETTING: no netting line printed for this section; the club's netted-section list names plain-numbered sections 101-138 and does not address the letter-suffixed Club identifiers, so whether netting is in front of this Club tier is NOT STATED by any source read. IDENTIFIER MISMATCH (as flagged in discovery.json): the URL slug is the \"C\"-suffixed form while the page HEADING renders it as \"Rays Club NNN\". The page itself makes no statement about what a printed ticket shows. The \"just above the 100 Level seating\" placement wording is the same third wording flagged in full on the 106C record - see that record.",
+  "source": "https://www.rateyourseats.com/tropicana-field/seating/sections/108C"
+ },
+ {
+  "section": "110C",
+  "zone": "Page heading: \"Rays Club 110 at Tropicana Field\". Seating zone/category name shown on the page: \"Baldwin Club - Rays Games\".",
+  "location": "\"Baldwin Group Club seating is located in sections 106-126 along the first base line, just above the 100 Level seating.\" / \"1st Base Club Seating: Sections 106-126 along the first base line\"",
+  "rows": "\"Rows in Rays Club 110 are labeled PP-UU\"",
+  "entrance_row": "\"An entrance to this section is located at Row UU\"",
+  "seat_direction": "PARK-WIDE BOILERPLATE (Row Numbers block), verbatim: \"When looking towards the field/field, lower number seats are on the left\". PER-SECTION STATEMENT: NONE. No question-and-answer, expert answer or fan review on this page names a side for seat 1, or for any seat number, in this section. There is no per-section side statement of any kind here.",
+  "seats_per_row": "UNKNOWN",
+  "notes": "Section Insights, verbatim: \"Top Pick for Impressing a Guest\". Seating Notes, verbatim: \"Premium seating area as part of the Baldwin Club for Rays games\". FAN REVIEW, verbatim: \"Location of the seats gave a good view of the field. Loved the food in the club.\" Names no seat number, side or seat count. DOME - no shade/sun statement printed and none applies (fixed-roof dome). NETTING: no netting line printed for this section; the club's netted-section list names plain-numbered sections 101-138 and does not address the letter-suffixed Club identifiers, so whether netting is in front of this Club tier is NOT STATED by any source read. IDENTIFIER MISMATCH (as flagged in discovery.json): the URL slug is the \"C\"-suffixed form while the page HEADING renders it as \"Rays Club NNN\". The page itself makes no statement about what a printed ticket shows. See the 106C record for the flagged Baldwin Group Club location conflict, which applies to this section too.",
+  "source": "https://www.rateyourseats.com/tropicana-field/seating/sections/110C"
+ },
+ {
+  "section": "112C",
+  "zone": "Page heading: \"Rays Club 112 at Tropicana Field\". Seating zone/category name shown on the page: \"Baldwin Club - Rays Games\".",
+  "location": "\"Baldwin Group Club seating is located in sections 106-126 along the first base line, just above the 100 Level seating.\" / \"1st Base Club Seating: Sections 106-126 along the first base line\"",
+  "rows": "\"Rows in Rays Club 112 are labeled PP-UU\"",
+  "entrance_row": "\"An entrance to this section is located at Row UU\"",
+  "seat_direction": "PARK-WIDE BOILERPLATE (Row Numbers block), verbatim: \"When looking towards the field/field, lower number seats are on the left\". PER-SECTION STATEMENT: NONE. No question-and-answer, expert answer or fan review on this page names a side for seat 1, or for any seat number, in this section. There is no per-section side statement of any kind here.",
+  "seats_per_row": "UNKNOWN",
+  "notes": "Section Insights, verbatim: \"Top Pick for Impressing a Guest\". Seating Notes, verbatim: \"Premium seating area as part of the Baldwin Club for Rays games\". No fan reviews - expert reviews only. DOME - no shade/sun statement printed and none applies (fixed-roof dome). NETTING: no netting line printed for this section; the club's netted-section list names plain-numbered sections 101-138 and does not address the letter-suffixed Club identifiers, so whether netting is in front of this Club tier is NOT STATED by any source read. IDENTIFIER MISMATCH (as flagged in discovery.json): the URL slug is the \"C\"-suffixed form while the page HEADING renders it as \"Rays Club NNN\". The page itself makes no statement about what a printed ticket shows. See the 106C record for the flagged Baldwin Group Club location conflict.",
+  "source": "https://www.rateyourseats.com/tropicana-field/seating/sections/112C"
+ },
+ {
+  "section": "114C",
+  "zone": "Page heading: \"Rays Club 114 at Tropicana Field\". Seating zone/category name shown on the page: \"Baldwin Club - Rays Games\".",
+  "location": "\"Baldwin Group Club seating is located in sections 106-126 along the first base line, just above the 100 Level seating.\" / \"1st Base Club Seating: Sections 106-126 along the first base line\"",
+  "rows": "\"Rows in Rays Club 114 are labeled PP-UU\"",
+  "entrance_row": "\"An entrance to this section is located at Row UU\"",
+  "seat_direction": "PARK-WIDE BOILERPLATE (Row Numbers block), verbatim: \"When looking towards the field/field, lower number seats are on the left\". PER-SECTION STATEMENT: NONE. No question-and-answer, expert answer or fan review on this page names a side for seat 1, or for any seat number, in this section. There is no per-section side statement of any kind here.",
+  "seats_per_row": "UNKNOWN",
+  "notes": "Section Insights, verbatim: \"Top Pick for Impressing a Guest\". Seating Notes, verbatim: \"Premium seating area as part of the Baldwin Club for Rays games\". No fan reviews. DOME - no shade/sun statement printed and none applies (fixed-roof dome). NETTING: no netting line printed for this section; the club's netted-section list names plain-numbered sections 101-138 and does not address the letter-suffixed Club identifiers, so whether netting is in front of this Club tier is NOT STATED by any source read. IDENTIFIER MISMATCH (as flagged in discovery.json): the URL slug is the \"C\"-suffixed form while the page HEADING renders it as \"Rays Club NNN\". The page itself makes no statement about what a printed ticket shows. See the 106C record for the flagged Baldwin Group Club location conflict.",
+  "source": "https://www.rateyourseats.com/tropicana-field/seating/sections/114C"
+ },
+ {
+  "section": "116C",
+  "zone": "Page heading: \"Rays Club 116 at Tropicana Field\". Seating zone/category name shown on the page: \"Baldwin Club - Rays Games\".",
+  "location": "\"1st Base Club Seating: Sections 106-126 along the first base line\" (zone-level line rendered in the expert-review block). NOTE: on a targeted re-fetch of this page asking specifically for a location sentence, the answer was \"NOT PRESENT ON PAGE\", with the note that the first-base-line text \"appears in the expert review section rather than in a dedicated location statement\". So this section has NO dedicated location line of its own; the quoted text is zone-level.",
+  "rows": "\"Rows in Rays Club 116 are labeled PP-UU\"",
+  "entrance_row": "\"An entrance to this section is located at Row UU\"",
+  "seat_direction": "PARK-WIDE BOILERPLATE (Row Numbers block), verbatim: \"When looking towards the field/field, lower number seats are on the left\". PER-SECTION STATEMENT: NONE. No question-and-answer, expert answer or fan review on this page names a side for seat 1, or for any seat number, in this section. There is no per-section side statement of any kind here.",
+  "seats_per_row": "UNKNOWN",
+  "notes": "Section Insights, verbatim: \"Top Pick for Impressing a Guest\". Seating Notes, verbatim: \"Premium seating area as part of the Baldwin Club for Rays games\". No fan reviews. FETCH CAVEAT: the first read of this page returned the row line truncated as \"Rows PP-UU\" without the leading clause. A targeted re-fetch returned the full sentence \"Rows in Rays Club 116 are labeled PP-UU\", which is the form used on every other page in this tier. The full form is recorded; the truncation was a fetch artefact, consistent with the source-access caveat in discovery.json that RateYourSeats can only be read through a summarising fetch tool. DOME - no shade/sun statement printed and none applies (fixed-roof dome). NETTING: no netting line printed for this section; the club's netted-section list names plain-numbered sections 101-138 and does not address the letter-suffixed Club identifiers, so whether netting is in front of this Club tier is NOT STATED by any source read. IDENTIFIER MISMATCH (as flagged in discovery.json): the URL slug is the \"C\"-suffixed form while the page HEADING renders it as \"Rays Club NNN\". The page itself makes no statement about what a printed ticket shows. See the 106C record for the flagged Baldwin Group Club location conflict.",
+  "source": "https://www.rateyourseats.com/tropicana-field/seating/sections/116C"
+ },
+ {
+  "section": "118C",
+  "zone": "Page heading: \"Rays Club 118 at Tropicana Field\". Seating zone/category name shown on the page: \"Baldwin Club - Rays Games\".",
+  "location": "\"1st Base Club Seating: Sections 106-126 along the first base line\". No section-specific location sentence was printed for 118C; this is the zone-level line.",
+  "rows": "\"Rows in Rays Club 118 are labeled PP-UU\"",
+  "entrance_row": "\"An entrance to this section is located at Row UU\"",
+  "seat_direction": "PARK-WIDE BOILERPLATE (Row Numbers block), verbatim: \"When looking towards the field/field, lower number seats are on the left\". PER-SECTION STATEMENT: NONE. No question-and-answer, expert answer or fan review on this page names a side for seat 1, or for any seat number, in this section. There is no per-section side statement of any kind here.",
+  "seats_per_row": "UNKNOWN",
+  "notes": "Section Insights, verbatim: \"Top Pick for Impressing a Guest\". Seating Notes, verbatim: \"For baseball games, we recommend these seats for impressing a guest\" and \"Premium seating area as part of the Baldwin Club for Rays games\". No fan reviews. CROSS-CHECK: the plain-numbered section 118 is recorded in discovery.json as sitting \"above the Rays dugout\" (first-base side, even = Rays side). The 118C page prints no dugout sentence at all, so it neither confirms nor contradicts that. DOME - no shade/sun statement printed and none applies (fixed-roof dome). NETTING: no netting line printed for this section; the club's netted-section list names plain-numbered sections 101-138 and does not address the letter-suffixed Club identifiers, so whether netting is in front of this Club tier is NOT STATED by any source read. IDENTIFIER MISMATCH (as flagged in discovery.json): the URL slug is the \"C\"-suffixed form while the page HEADING renders it as \"Rays Club NNN\". The page itself makes no statement about what a printed ticket shows. See the 106C record for the flagged Baldwin Group Club location conflict.",
+  "source": "https://www.rateyourseats.com/tropicana-field/seating/sections/118C"
+ },
+ {
+  "section": "120C",
+  "zone": "Page heading: \"Rays Club 120 at Tropicana Field\". Seating zone/category name shown on the page: \"Baldwin Club - Rays Games\".",
+  "location": "\"1st Base Club Seating: Sections 106-126 along the first base line\". No section-specific location sentence was printed for 120C; this is the zone-level line.",
+  "rows": "\"Rows in Rays Club 120 are labeled PP-UU\"",
+  "entrance_row": "\"An entrance to this section is located at Row UU\"",
+  "seat_direction": "PARK-WIDE BOILERPLATE (Row Numbers block), verbatim: \"When looking towards the field/field, lower number seats are on the left\". PER-SECTION STATEMENT: NONE. No question-and-answer, expert answer or fan review on this page names a side for seat 1, or for any seat number, in this section. There is no per-section side statement of any kind here.",
+  "seats_per_row": "UNKNOWN",
+  "notes": "Section Insights, verbatim: \"Top Pick for Impressing a Guest\". Seating Notes, verbatim: \"Premium seating area as part of the Baldwin Club for Rays games\". No fan reviews. NOTE: unlike the plain-numbered section 120, whose row list is recorded in discovery.json as \"B-Z, AA-JJ, WCH\", the Club page 120C prints NO WCH row - its range is PP-UU with no accessible row appended. DOME - no shade/sun statement printed and none applies (fixed-roof dome). NETTING: no netting line printed for this section; the club's netted-section list names plain-numbered sections 101-138 and does not address the letter-suffixed Club identifiers, so whether netting is in front of this Club tier is NOT STATED by any source read. IDENTIFIER MISMATCH (as flagged in discovery.json): the URL slug is the \"C\"-suffixed form while the page HEADING renders it as \"Rays Club NNN\". The page itself makes no statement about what a printed ticket shows. See the 106C record for the flagged Baldwin Group Club location conflict.",
+  "source": "https://www.rateyourseats.com/tropicana-field/seating/sections/120C"
+ },
+ {
+  "section": "122C",
+  "zone": "Page heading: \"Rays Club 122 at Tropicana Field\". Seating zone/category name shown on the page: \"Baldwin Club - Rays Games\".",
+  "location": "\"1st Base Club Seating: Sections 106-126 along the first base line\". No section-specific location sentence was printed for 122C; this is the zone-level line.",
+  "rows": "\"Rows in Rays Club 122 are labeled PP-UU\"",
+  "entrance_row": "\"An entrance to this section is located at Row UU\"",
+  "seat_direction": "PARK-WIDE BOILERPLATE (Row Numbers block), verbatim: \"When looking towards the field/field, lower number seats are on the left\". PER-SECTION STATEMENT: NONE. No question-and-answer, expert answer or fan review on this page names a side for seat 1, or for any seat number, in this section. There is no per-section side statement of any kind here.",
+  "seats_per_row": "UNKNOWN",
+  "notes": "Section Insights, verbatim: \"Top Pick for Impressing a Guest\". Seating Notes, verbatim: \"Premium seating area as part of the Baldwin Club\". No fan reviews. NOTE: the \"Chalk Box\" recorded in discovery.json at \"the very front of Sections 122, 124, and 126\" in rows A-D belongs to the PLAIN-numbered lower-bowl sections, not to this Club tier - the 122C page prints no Chalk Box line and its rows are PP-UU. Do not conflate the two products. DOME - no shade/sun statement printed and none applies (fixed-roof dome). NETTING: no netting line printed for this section; the club's netted-section list names plain-numbered sections 101-138 and does not address the letter-suffixed Club identifiers, so whether netting is in front of this Club tier is NOT STATED by any source read. IDENTIFIER MISMATCH (as flagged in discovery.json): the URL slug is the \"C\"-suffixed form while the page HEADING renders it as \"Rays Club NNN\". The page itself makes no statement about what a printed ticket shows. See the 106C record for the flagged Baldwin Group Club location conflict.",
+  "source": "https://www.rateyourseats.com/tropicana-field/seating/sections/122C"
+ },
+ {
+  "section": "124C",
+  "zone": "Page heading: \"Rays Club 124 at Tropicana Field\". Seating zone/category name shown on the page: \"Baldwin Club - Rays Games\".",
+  "location": "\"Baldwin Group Club seating is located in sections 106-126 along the first base line, just above the 100 Level seating.\" / \"1st Base Club Seating: Sections 106-126 along the first base line\"",
+  "rows": "\"Rows in Rays Club 124 are labeled PP-UU\"",
+  "entrance_row": "\"An entrance to this section is located at Row UU\"",
+  "seat_direction": "PARK-WIDE BOILERPLATE (Row Numbers block), verbatim: \"When looking towards the field/field, lower number seats are on the left\". PER-SECTION STATEMENT: NONE. No question-and-answer, expert answer or fan review on this page names a side for seat 1, or for any seat number, in this section. There is no per-section side statement of any kind here.",
+  "seats_per_row": "UNKNOWN",
+  "notes": "Section Insights, verbatim: \"Top Pick for Impressing a Guest\". Seating Notes, verbatim: \"For baseball games, we recommend these seats for impressing a guest\" and \"Premium seating area as part of the Baldwin Club for Rays games\". FAN REVIEWS: star-rating entries only, rendered verbatim as \"Toronto Blue Jays at Tampa Bay Rays - Mar 31, 2024 Rays Club 124 / Row QQ - Baseball\" with no body text shown. Row QQ falls inside the stated PP-UU range, corroborating the row list. DOME - no shade/sun statement printed and none applies (fixed-roof dome). NETTING: no netting line printed for this section; the club's netted-section list names plain-numbered sections 101-138 and does not address the letter-suffixed Club identifiers, so whether netting is in front of this Club tier is NOT STATED by any source read. IDENTIFIER MISMATCH (as flagged in discovery.json): the URL slug is the \"C\"-suffixed form while the page HEADING renders it as \"Rays Club NNN\". The page itself makes no statement about what a printed ticket shows. See the 106C record for the flagged Baldwin Group Club location conflict.",
+  "source": "https://www.rateyourseats.com/tropicana-field/seating/sections/124C"
+ },
+ {
+  "section": "126C",
+  "zone": "Page heading: \"Rays Club 126 at Tropicana Field\". Seating zone/category name shown on the page: \"Baldwin Club - Rays Games\".",
+  "location": "\"Baldwin Group Club seating is located in sections 106-126 along the first base line, just above the 100 Level seating.\" / \"1st Base Club Seating: Sections 106-126 along the first base line\"",
+  "rows": "\"Rows in Rays Club 126 are labeled PP-UU\"",
+  "entrance_row": "\"An entrance to this section is located at Row UU\"",
+  "seat_direction": "PARK-WIDE BOILERPLATE (Row Numbers block), verbatim: \"When looking towards the field/field, lower number seats are on the left\". PER-SECTION STATEMENT: NONE. No question-and-answer, expert answer or fan review on this page names a side for seat 1, or for any seat number, in this section. There is no per-section side statement of any kind here.",
+  "seats_per_row": "UNKNOWN",
+  "notes": "Section Insights, verbatim: \"Top Pick for Impressing a Guest\". Seating Notes, verbatim: \"Premium seating area as part of the Baldwin Club for Rays games\". No fan reviews. NOTE: the plain-numbered section 126 is described in discovery.json as one of the smallest in the lower level with \"just 10 seats in each row\". The 126C Club page states NO seats-per-row figure, and that 10-seat figure belongs to the plain-numbered section, not to this Club section. Do not carry it across. 126C is the highest-numbered section in the Baldwin/Rays Club run. DOME - no shade/sun statement printed and none applies (fixed-roof dome). NETTING: no netting line printed for this section; the club's netted-section list names plain-numbered sections 101-138 and does not address the letter-suffixed Club identifiers, so whether netting is in front of this Club tier is NOT STATED by any source read. IDENTIFIER MISMATCH (as flagged in discovery.json): the URL slug is the \"C\"-suffixed form while the page HEADING renders it as \"Rays Club NNN\". The page itself makes no statement about what a printed ticket shows. See the 106C record for the flagged Baldwin Group Club location conflict.",
+  "source": "https://www.rateyourseats.com/tropicana-field/seating/sections/126C"
+ }
+]

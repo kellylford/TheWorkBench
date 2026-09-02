@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OpenClaw Chat - Accessible</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+            background: #1a1a2e;
+            color: #eee;
+        }
+        
+        h1 {
+            color: #fff;
+            border-bottom: 2px solid #e94560;
+            padding-bottom: 10px;
+        }
+        
+        #connection-status {
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+        
+        #connection-status.connecting {
+            background: #f39c12;
+            color: #000;
+        }
+        
+        #connection-status.connected {
+            background: #27ae60;
+            color: #fff;
+        }
+        
+        #connection-status.error {
+            background: #e74c3c;
+            color: #fff;
+        }
+        
+        #messages {
+            border: 1px solid #444;
+            border-radius: 8px;
+            padding: 15px;
+            min-height: 300px;
+            max-height: 500px;
+            overflow-y: auto;
+            background: #16213e;
+            margin-bottom: 20px;
+        }
+        
+        .message {
+            margin-bottom: 15px;
+            padding: 12px;
+            border-radius: 8px;
+        }
+        
+        .message.user {
+            background: #0f3460;
+            margin-left: 40px;
+        }
+        
+        .message.assistant {
+            background: #e94560;
+            color: #fff;
+            margin-right: 40px;
+        }
+        
+        .message-header {
+            font-weight: bold;
+            margin-bottom: 5px;
+            font-size: 0.9em;
+            opacity: 0.8;
+        }
+        
+        .message-content {
+            white-space: pre-wrap;
+        }
+        
+        #input-area {
+            display: flex;
+            gap: 10px;
+        }
+        
+        #message-input {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #444;
+            border-radius: 8px;
+            font-size: 16px;
+            background: #16213e;
+            color: #fff;
+        }
+        
+        #message-input:focus {
+            outline: 3px solid #e94560;
+            border-color: #e94560;
+        }
+        
+        button {
+            padding: 12px 24px;
+            background: #e94560;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        
+        button:hover {
+            background: #c73e54;
+        }
+        
+        button:focus {
+            outline: 3px solid #fff;
+            outline-offset: 2px;
+        }
+        
+        button:disabled {
+            background: #666;
+            cursor: not-allowed;
+        }
+        
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+        
+        #settings {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #16213e;
+            border-radius: 8px;
+        }
+        
+        #settings label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        
+        #settings input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 2px solid #444;
+            border-radius: 4px;
+            background: #1a1a2e;
+            color: #fff;
+        }
+        
+        #settings input:focus {
+            outline: 3px solid #e94560;
+            border-color: #e94560;
+        }
+        
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <h1>OpenClaw Chat <span aria-label="Accessible version">🧭</span></h1>
+    
+    <div id="connection-status" class="connecting" role="status" aria-live="polite">
+        Connecting to OpenClaw gateway...
+    </div>
+    
+    <div id="settings">
+        <label for="gateway-url">Gateway WebSocket URL:</label>
+        <input type="text" id="gateway-url" value="ws://127.0.0.1:18789" aria-describedby="url-help">
+        <div id="url-help" class="sr-only">Enter the WebSocket URL for your OpenClaw gateway</div>
+        
+        <label for="gateway-token">Gateway Token:</label>
+        <input type="password" id="gateway-token" value="ollama" aria-describedby="token-help">
+        <div id="token-help" class="sr-only">Enter your OpenClaw gateway authentication token</div>
+        
+        <button id="connect-btn" onclick="connect()">Connect</button>
+    </div>
+    
+    <div id="chat-container" class="hidden">
+        <h2>Messages</h2>
+        
+        <!-- Main message area with aria-live for screen reader announcements -->
+        <div id="messages" role="log" aria-live="polite" aria-atomic="false" aria-relevant="additions" aria-label="Chat messages">
+            <!-- Messages will appear here -->
+        </div>
+        
+        <!-- Hidden live region specifically for announcing new assistant messages -->
+        <div id="announcements" class="sr-only" aria-live="polite" aria-atomic="true" aria-relevant="additions"></div>
+        
+        <form id="chat-form" onsubmit="sendMessage(event)">
+            <label for="message-input" class="sr-only">Type your message</label>
+            <div id="input-area">
+                <input 
+                    type="text" 
+                    id="message-input" 
+                    placeholder="Type your message..." 
+                    autocomplete="off"
+                    aria-describedby="input-help"
+                >
+                <button type="submit" id="send-btn">Send</button>
+            </div>
+            <div id="input-help" class="sr-only">Press Enter to send your message</div>
+        </form>
+    </div>
+    
+    <script>
+        let ws = null;
+        let sessionId = null;
+        let messageHistory = [];
+        
+        // Generate a unique session ID
+        function generateSessionId() {
+            return 'web-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+        }
+        
+        function updateStatus(message, type) {
+            const status = document.getElementById('connection-status');
+            status.textContent = message;
+            status.className = type;
+            // Also announce to screen readers
+            announceToScreenReader(message);
+        }
+        
+        function announceToScreenReader(message) {
+            const announcements = document.getElementById('announcements');
+            announcements.textContent = message;
+            // Clear after a short delay to allow re-announcement of same message
+            setTimeout(() => {
+                announcements.textContent = '';
+            }, 100);
+        }
+        
+        function connect() {
+            const url = document.getElementById('gateway-url').value;
+            const token = document.getElementById('gateway-token').value;
+            
+            updateStatus('Connecting...', 'connecting');
+            
+            // Build WebSocket URL with token
+            const wsUrl = url + '?token=' + encodeURIComponent(token);
+            
+            ws = new WebSocket(wsUrl);
+            
+            ws.onopen = function() {
+                updateStatus('Connected! Initializing session...', 'connected');
+                
+                // Create a new session
+                sessionId = generateSessionId();
+                
+                const initMessage = {
+                    type: 'session.init',
+                    sessionId: sessionId,
+                    agentId: 'main',
+                    payload: {
+                        kind: 'systemEvent',
+                        text: 'Session started via accessible chat interface'
+                    }
+                };
+                
+                ws.send(JSON.stringify(initMessage));
+                
+                // Show chat container
+                document.getElementById('chat-container').classList.remove('hidden');
+                document.getElementById('settings').classList.add('hidden');
+                
+                // Focus the input
+                document.getElementById('message-input').focus();
+                
+                announceToScreenReader('Connected to OpenClaw. Chat ready.');
+            };
+            
+            ws.onmessage = function(event) {
+                try {
+                    const data = JSON.parse(event.data);
+                    handleMessage(data);
+                } catch (e) {
+                    console.error('Failed to parse message:', e);
+                }
+            };
+            
+            ws.onerror = function(error) {
+                updateStatus('Connection error. Check your gateway URL and token.', 'error');
+                console.error('WebSocket error:', error);
+            };
+            
+            ws.onclose = function() {
+                updateStatus('Disconnected. Refresh to reconnect.', 'error');
+                document.getElementById('send-btn').disabled = true;
+            };
+        }
+        
+        function handleMessage(data) {
+            if (data.type === 'session.ready') {
+                updateStatus('Connected and ready!', 'connected');
+                addMessage('system', 'Connected to OpenClaw. How can I help you?');
+            } else if (data.type === 'chat.message') {
+                const role = data.payload?.role || 'assistant';
+                const content = data.payload?.content || '';
+                
+                if (role === 'assistant') {
+                    addMessage('assistant', content);
+                    // Explicitly announce assistant messages
+                    announceToScreenReader('Scout says: ' + content.substring(0, 200));
+                } else if (role === 'user') {
+                    addMessage('user', content);
+                }
+            } else if (data.type === 'chat.chunk') {
+                // Handle streaming chunks if needed
+                appendToLastMessage(data.payload?.content || '');
+            }
+        }
+        
+        function addMessage(role, content) {
+            const messagesDiv = document.getElementById('messages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message ' + role;
+            
+            const header = document.createElement('div');
+            header.className = 'message-header';
+            header.textContent = role === 'user' ? 'You' : 'Scout';
+            
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'message-content';
+            contentDiv.textContent = content;
+            
+            messageDiv.appendChild(header);
+            messageDiv.appendChild(contentDiv);
+            messagesDiv.appendChild(messageDiv);
+            
+            // Scroll to bottom
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            
+            // Store in history
+            messageHistory.push({ role, content });
+        }
+        
+        function appendToLastMessage(content) {
+            const messagesDiv = document.getElementById('messages');
+            const lastMessage = messagesDiv.lastElementChild;
+            if (lastMessage && lastMessage.classList.contains('assistant')) {
+                const contentDiv = lastMessage.querySelector('.message-content');
+                contentDiv.textContent += content;
+                messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            }
+        }
+        
+        function sendMessage(event) {
+            event.preventDefault();
+            
+            const input = document.getElementById('message-input');
+            const message = input.value.trim();
+            
+            if (!message || !ws || ws.readyState !== WebSocket.OPEN) {
+                return;
+            }
+            
+            // Add user message to display
+            addMessage('user', message);
+            
+            // Send to OpenClaw
+            const chatMessage = {
+                type: 'chat.message',
+                sessionId: sessionId,
+                payload: {
+                    role: 'user',
+                    content: message
+                }
+            };
+            
+            ws.send(JSON.stringify(chatMessage));
+            
+            // Clear input
+            input.value = '';
+            
+            // Announce that message was sent
+            announceToScreenReader('Message sent. Waiting for response...');
+        }
+        
+        // Auto-connect if URL has token
+        window.onload = function() {
+            const hash = window.location.hash;
+            if (hash.includes('token=')) {
+                const token = hash.split('token=')[1];
+                document.getElementById('gateway-token').value = token;
+                connect();
+            }
+        };
+        
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            // Ctrl+L to focus input
+            if (e.ctrlKey && e.key === 'l') {
+                e.preventDefault();
+                document.getElementById('message-input').focus();
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,54 @@
+=== interpreter: py -3
+Python 3.13.13
+
+=== build_all.py
+Wrigley Field                sections=164  zones=50  conf={'HIGH': 161, 'LOW': 3} html=271KB
+Busch Stadium                sections=152  zones=22  conf={'HIGH': 152} html=237KB
+Great American Ball Park     sections=133  zones=24  conf={'HIGH': 123, 'MEDIUM': 10} html=230KB
+PNC Park                     sections=132  zones=17  conf={'HIGH': 129, 'MEDIUM': 3} html=210KB
+Daikin Park                  sections=136  zones=16  conf={'HIGH': 130, 'MEDIUM': 6} html=213KB
+Angel Stadium                sections=199  zones=34  conf={'HIGH': 190, 'MEDIUM': 9} html=291KB
+Sutter Health Park           sections=32   zones=3   conf={'MEDIUM': 25, 'LOW': 6, 'HIGH': 1} html=63KB
+T-Mobile Park                sections=134  zones=13  conf={'HIGH': 128, 'MEDIUM': 6} html=202KB
+Globe Life Field             sections=145  zones=35  conf={'HIGH': 139, 'MEDIUM': 4, 'LOW': 2} html=228KB
+Rate Field                   sections=125  zones=8   conf={'HIGH': 119, 'MEDIUM': 6} html=192KB
+Progressive Field            sections=165  zones=17  conf={'HIGH': 147, 'MEDIUM': 18} html=236KB
+Comerica Park                sections=86   zones=18  conf={'HIGH': 83, 'MEDIUM': 3} html=137KB
+Kauffman Stadium             sections=154  zones=26  conf={'HIGH': 147, 'MEDIUM': 6, 'LOW': 1} html=225KB
+Target Field                 sections=128  zones=25  conf={'HIGH': 123, 'MEDIUM': 5} html=186KB
+Truist Park                  sections=181  zones=18  conf={'HIGH': 172, 'LOW': 8, 'MEDIUM': 1} html=298KB
+loanDepot park               sections=93   zones=7   conf={'HIGH': 93} html=156KB
+Citi Field                   sections=166  zones=30  conf={'HIGH': 147, 'MEDIUM': 19} html=279KB
+Citizens Bank Park           sections=145  zones=11  conf={'HIGH': 145} html=228KB
+Nationals Park               sections=122  zones=14  conf={'HIGH': 122} html=190KB
+
+=== mkindex.py
+index written: 33160 bytes | 2743 sections across 20 parks
+  American Family Field         151 sections  seat1=left  -> higher side
+  Wrigley Field                 164 sections  seat1=left  -> lower side
+  Busch Stadium                 152 sections  seat1=right -> lower side
+  Great American Ball Park      133 sections  seat1=right -> higher side
+  PNC Park                      132 sections  seat1=right -> lower side
+  Daikin Park                   136 sections  seat1=left  -> lower side
+  Angel Stadium                 199 sections  seat1=left  -> lower side
+  Sutter Health Park             32 sections  seat1=not published -> undocumented side
+  T-Mobile Park                 134 sections  seat1=right -> lower side
+  Globe Life Field              145 sections  seat1=left  -> lower side
+  Rate Field                    125 sections  seat1=right -> lower side
+  Progressive Field             165 sections  seat1=right -> lower side
+  Comerica Park                  86 sections  seat1=right -> lower side
+  Kauffman Stadium              154 sections  seat1=left  -> lower side
+  Target Field                  128 sections  seat1=right -> lower side
+  Truist Park                   181 sections  seat1=right -> lower side
+  loanDepot park                 93 sections  seat1=right -> lower side
+  Citi Field                    166 sections  seat1=left  -> higher side
+  Citizens Bank Park            145 sections  seat1=right -> lower side
+  Nationals Park                122 sections  seat1=right -> higher side
+
+=== amfamfield
+sections written: 151
+layout rows: 13
+sections written: 151
+bytes: 145383
+
+=== DONE

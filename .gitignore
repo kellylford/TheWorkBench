@@ -1,0 +1,33 @@
+.DS_Store
+*.xcuserstate
+**/xcuserdata/
+Finance/iOS/Portfolio/Services/Config.swift
+
+# .NET / C# build output
+[Bb]in/
+[Oo]bj/
+*.user
+*.suo
+.vs/
+*.userosscache
+*.sln.docstates
+
+# NuGet
+*.nupkg
+*.snupkg
+packages/
+project.lock.json
+project.assets.json
+
+# Rider / ReSharper
+.idea/
+_ReSharper*/
+*.DotSettings.user
+
+# Build publish output
+publish/
+
+# Claude Code session data (worktrees, local overrides)
+.claude/
+
+# Generated HTML (auto-published to gh-pages by GitHub Actions)
