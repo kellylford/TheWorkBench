@@ -12,11 +12,10 @@ final class SpadesUITests: XCTestCase {
         app.openGame("Spades")
 
         XCTAssert(app.staticTexts["Your hand"].waitForExistence(timeout: 5), "the hand has a heading")
-        XCTAssert(app.staticTexts["What you can do"].exists)
         XCTAssert(app.staticTexts["This trick"].exists)
         XCTAssert(app.staticTexts["Sides"].exists)
         XCTAssert(app.staticTexts["Players"].exists)
-        XCTAssert(app.staticTexts["What has happened"].exists)
+        app.assertControlBar()
 
         // Thirteen cards, each saying where it sits, and readable while bidding.
         XCTAssertEqual(app.handCards.count, 13)

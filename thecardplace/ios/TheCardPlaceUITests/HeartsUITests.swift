@@ -12,9 +12,8 @@ final class HeartsUITests: XCTestCase {
         app.openGame("Hearts")
 
         XCTAssert(app.staticTexts["Your hand"].waitForExistence(timeout: 5), "the hand has a heading")
-        XCTAssert(app.staticTexts["What you can do"].exists)
         XCTAssert(app.staticTexts["This trick"].exists)
-        XCTAssert(app.staticTexts["What has happened"].exists)
+        app.assertControlBar()
 
         // Thirteen cards, each saying where it sits.
         XCTAssertEqual(app.handCards.count, 13)
@@ -48,6 +47,9 @@ final class HeartsUITests: XCTestCase {
         XCTAssert(sawARefusalReason, "at some point a card said why it could not be played")
         XCTAssert(app.staticTexts["Hands played"].exists)
         app.attachScreenshot("hearts-hand-over", to: self)
+
+        // The log is behind its button: a sheet, newest first.
+        app.openAndCloseLog()
 
         // The review menu reads the scores.
         app.buttons["Review"].tap()

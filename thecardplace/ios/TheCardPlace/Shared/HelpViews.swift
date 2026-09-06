@@ -49,20 +49,28 @@ struct AccessibilityHintsView: View {
             intro: "Nothing in these games is conveyed by sight alone. Everything the game knows is said in words: as the label on a card, as a status line, as an announcement, or in the log. These are the parts worth knowing before the first hand.",
             sections: [
                 HelpSection(
+                    heading: "The same screen in every game",
+                    body: "Every game is laid out the same way. The bottom of the screen is fixed: your hand, and under it a section headed Controls. The button that moves the game on — Cut, Throw, Pass, Bid, Next, Deal, or Continue during a pause — is always the lower left corner of the screen. Log and Repeat are always the lower right. When a phase offers other choices, such as ordering up or bidding nil, they sit just above that row. Your hand is always directly above the controls, and keeps the space of a full hand as cards are played, so the cards you still hold do not move about. Above the hand, the table scrolls: the status line, the last announcement, then the trick or the play, the scores, and the hands played. Every section is on screen from the first deal, so the headings are always in the same order."
+                ),
+                HelpSection(
                     heading: "Cards are buttons",
                     body: "Every card in your hand is a button. Its label says what the card is, anything worth knowing about it right now — that it is trump, or the left bower, or worth three points — and where it sits: \"card 2 of 5\". Double-tap to play it. A card you may not play right now stays in the list and says why: \"cannot be played, you must follow hearts\". It is not disabled, so you can still review your whole hand on your turn."
                 ),
                 HelpSection(
                     heading: "Move by headings",
-                    body: "Each part of the table is under a heading: What you can do, Your hand, This trick, Last completed trick, the scores, and What has happened, which is the log. Set the rotor to Headings and flick down to jump between them without passing every card in between. Your hand is a group, so you can also skip past it in one move."
+                    body: "Each part of the table is under a heading: Your hand, This trick, Last completed trick, the scores, and Controls. Set the rotor to Headings and flick down to jump between them without passing every card in between. Your hand is a group, so you can also skip past it in one move."
+                ),
+                HelpSection(
+                    heading: "The lower left button",
+                    body: "When the game needs a button pressed, it is the one in the lower left corner, and it says what it does. When the move is in your hand instead, the same button is dimmed and says so — \"Play a card\" — and tapping it reads the status line. While a card is being chosen for a pass, a throw or a bury, the button counts what is chosen: \"Pass 2 of 3\"."
                 ),
                 HelpSection(
                     heading: "Announcements",
-                    body: "The game says what happens as it happens: who played what, who took the trick, what was scored. They are spoken one at a time, and nothing is started until the last one has finished. Anything you ask to hear from the Review menu jumps ahead of the game's own messages, and the message it interrupted is said again afterwards rather than lost. The most recent announcement is also shown as text under the status line, with a Repeat button beside it."
+                    body: "The game says what happens as it happens: who played what, who took the trick, what was scored. They are spoken one at a time, and nothing is started until the last one has finished. Anything you ask to hear from the Review menu jumps ahead of the game's own messages, and the message it interrupted is said again afterwards rather than lost. The most recent announcement is also shown as text under the status line, and Repeat, at the lower right, says it again."
                 ),
                 HelpSection(
                     heading: "The Review menu",
-                    body: "The Review button at the top of every game reads the things a player asks for most: your hand grouped by suit, the trick so far, the last completed trick, the scores, what has been played, the order of play, and each game's own — the contract in spades, who picked in sheephead, what the count is in cribbage. Every one is a button; none of it depends on a shortcut."
+                    body: "The Review button at the top of every game reads the things a player asks for most: your hand grouped by suit, the trick so far, the last completed trick, the scores, what has been played, the order of play, and each game's own — the contract in spades, who picked in sheephead, a counting aid in cribbage. Every one is a button; none of it depends on a shortcut."
                 ),
                 HelpSection(
                     heading: "Your turn",
@@ -70,7 +78,7 @@ struct AccessibilityHintsView: View {
                 ),
                 HelpSection(
                     heading: "Pace",
-                    body: "How fast the computer players move is a setting, in real seconds: Immediate, Brisk, Comfortable, Relaxed, or Wait for me to continue. The timed settings are a ceiling, not a wait you are held to — a Continue button is on screen during every pause, and pressing it moves on at once. With Wait for me, nothing moves until you press it. Every setting except Immediate announces each play on its own; Immediate gathers a run of plays into one message so they cannot cut each other off."
+                    body: "How fast the computer players move is a setting, in real seconds: Immediate, Brisk, Comfortable, Relaxed, or Wait for me to continue. The timed settings are a ceiling, not a wait you are held to — during every pause the lower left button becomes Continue, and pressing it moves on at once. With Wait for me, nothing moves until you press it. Every setting except Immediate announces each play on its own; Immediate gathers a run of plays into one message so they cannot cut each other off."
                 ),
                 HelpSection(
                     heading: "When something is refused",
@@ -78,11 +86,11 @@ struct AccessibilityHintsView: View {
                 ),
                 HelpSection(
                     heading: "The log",
-                    body: "What has happened is a plain list at the bottom of every game, newest first, with every message the game has said. It is not read out on its own, so nothing is ever spoken twice; move to it when you want to read back."
+                    body: "Everything the game has said is kept in the log, behind the Log button at the lower right. Double-tap it for the whole log, newest first. To hear only the last few things that happened, swipe up or down on the button: each of the last five entries is an action, and the last action opens the full log. Pressing and holding the button shows the same few entries. Nothing in the log is read out on its own, so nothing is ever spoken twice."
                 ),
                 HelpSection(
                     heading: "A hardware keyboard",
-                    body: "With a keyboard attached, the review shortcuts from the browser games work here too: H for your hand, T for the trick, L for the last trick, S for the scores, C for the cards played, O for the play order, R to repeat, and N to continue. Each game's own review has a letter as well, shown in the Review menu. Tab moves between controls and Space activates one."
+                    body: "With a keyboard attached, the review shortcuts from the browser games work here too: H for your hand, T for the trick, L for the last trick, S for the scores, C for the cards played, O for the play order, R to repeat, and N for the lower left button when it is Continue, Next or Deal. Each game's own review has a letter as well, shown in the Review menu. Tab moves between controls and Space activates one."
                 ),
                 HelpSection(
                     heading: "Seeing the cards",

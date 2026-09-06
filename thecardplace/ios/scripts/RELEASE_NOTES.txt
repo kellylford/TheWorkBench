@@ -1,12 +1,14 @@
-The first build. Five card games against the computer - hearts, euchre, spades, cribbage and sheephead - played entirely on the device, with no network of any kind.
+Build 3: your hand stays put, just above the controls.
 
-These are native ports, not the web games in a wrapper. The rules, the computer players and the words each game says come from the browser versions at The Card Place, rebuilt in Swift with the same kinds of test suites behind them.
+The bottom of the screen is now fixed in every game: your hand, and under it the Controls section. The button that moves the game on - Cut, Throw, Pass, Bid, Next, Deal, or Continue during a pause - is always the lower left corner. Log and Repeat are always the lower right. Your hand is always directly above them and keeps the space of a full hand as cards are played, so the cards you still hold do not move about. The table scrolls above: the status line, the last announcement, the trick or the play, the scores, and the hands played, with every section on screen from the first deal so the headings are always in the same order.
+
+Deal on the setup screen is in the same lower left spot.
 
 What to test
-- VoiceOver, above everything else. Every card is a button that says what it is, anything worth knowing about it right now, and where it sits in your hand. A card you may not play stays in the list and says why.
-- The announcements. They are meant to be spoken one at a time, never cutting each other off. Anything you ask for from the Review menu should jump ahead of the game's own messages, and the message it interrupted should be said again afterwards.
-- Moving by headings: What you can do, Your hand, This trick, Last completed trick, the scores, and What has happened.
-- The pace setting, and whether Continue always gets you moving again.
-- Larger text sizes, and dark mode.
+- Find your hand and the lower left button by touch in every game, at the deal, mid-hand and between hands. Neither should move.
+- Cribbage in particular: through the cut, the throw, the play and the count, the hand and the buttons should stay where they are while the table above changes.
+- The Log button at the lower right: double-tap for the full log; with VoiceOver, swipe up or down for the last five entries, and press and hold for the same.
+- Moving by headings, which are now always in the same order: the table sections, then Your hand, then Controls.
+- Larger text sizes: a full hand scrolls within its own space rather than pushing the controls off the screen.
 
-Known: a crash was seen once in cribbage, just after the cut while reading a hand, and has not repeated since. If you hit anything like it, the time and what you had just done would help a great deal.
+Known: a crash was seen once in cribbage on the first build, just after the cut while reading a hand, and has not repeated since. If you hit anything like it, the time and what you had just done would help a great deal.

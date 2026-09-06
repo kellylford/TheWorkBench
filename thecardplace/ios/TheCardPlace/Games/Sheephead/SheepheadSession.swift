@@ -11,7 +11,7 @@ import SheepheadEngine
 /// ever says what seat 0 is entitled to know.
 @MainActor
 @Observable
-final class SheepheadSession {
+final class SheepheadSession: GameSession {
     static let me = 0
 
     private(set) var state: SheepheadState
@@ -92,6 +92,9 @@ final class SheepheadSession {
             return hand.map { HandCardItem(card: $0, description: SheepheadReview.describe($0, in: state, seat: Self.me), badge: badge($0)) }
         }
     }
+
+    /// The deal plus the blind, which the picker holds until the bury.
+    var handCapacity: Int { state.spec.hand + state.spec.blind }
 
     var handHint: String {
         switch state.phase {
@@ -181,6 +184,32 @@ final class SheepheadSession {
         msg += " \(Prose.count(d.hand, "card")) each and \(Prose.count(d.blind, "card")) in the blind."
         msg += d.partner ? " The Jack of Diamonds names the picker's partner." : " The picker always plays alone."
         return msg
+    }
+
+    /// The button in the lower left corner, phase by phase. While picking it
+    /// is Pass, the decision made most often; Pick up the blind sits beside it.
+    var primary: GameControl {
+        switch state.phase {
+        case .idle:
+            return idle("Dealing")
+        case .pick:
+            guard isMyTurn else { return waiting(for: name(state.turn)) }
+            return GameControl("Pass") { [unowned self] in pass() }
+        case .bury:
+            guard isPicker else { return waiting(for: name(state.picker ?? state.turn)) }
+            return GameControl("Bury \(selected.count) of \(buryCount)", id: "bury",
+                               enabled: selected.count == buryCount,
+                               hint: "Choose \(Prose.number(buryCount)) cards first") { [unowned self] in burySelected() }
+        case .play:
+            return isMyTurn ? playACard : waiting(for: name(state.turn))
+        case .handOver:
+            return GameControl("Deal the next hand", key: "n") { [unowned self] in nextHand() }
+        }
+    }
+
+    var secondary: [GameControl] {
+        guard state.phase == .pick, isMyTurn else { return [] }
+        return [GameControl("Pick up the blind") { [unowned self] in pick() }]
     }
 
     var reviews: [ReviewItem] {

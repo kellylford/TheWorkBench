@@ -37,11 +37,10 @@ final class EuchreUITests: XCTestCase {
         app.openGame("Euchre")
 
         XCTAssert(app.staticTexts["Your hand"].waitForExistence(timeout: 5), "the hand has a heading")
-        XCTAssert(app.staticTexts["What you can do"].exists)
         XCTAssert(app.staticTexts["This trick"].exists)
         XCTAssert(app.staticTexts["Scores"].exists)
         XCTAssert(app.staticTexts["Players"].exists)
-        XCTAssert(app.staticTexts["What has happened"].exists)
+        app.assertControlBar()
 
         // Five cards, each saying where it sits, and the bidding under way.
         XCTAssertEqual(app.handCards.count, 5)
@@ -117,15 +116,5 @@ final class EuchreUITests: XCTestCase {
 
     private func labelsMentionTrump(_ app: XCUIApplication) -> Bool {
         app.handCards.allElementsBoundByIndex.map(\.label).contains { $0.contains("bower") || $0.contains("trump") }
-    }
-}
-
-private extension XCUIApplication {
-    /// The status line's words, without the "Status. " prefix, or "" if the
-    /// line is not on screen.
-    var currentStatus: String {
-        let line = staticTexts.matching(NSPredicate(format: "label BEGINSWITH %@", "Status. ")).firstMatch
-        guard line.exists else { return "" }
-        return String(line.label.dropFirst("Status. ".count))
     }
 }

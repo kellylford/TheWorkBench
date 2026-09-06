@@ -15,10 +15,9 @@ final class SheepheadUITests: XCTestCase {
         app.openGame("Sheephead")
 
         XCTAssert(app.staticTexts["Your hand"].waitForExistence(timeout: 5), "the hand has a heading")
-        XCTAssert(app.staticTexts["What you can do"].exists)
         XCTAssert(app.staticTexts["This trick"].exists)
         XCTAssert(app.staticTexts["Players"].exists)
-        XCTAssert(app.staticTexts["What has happened"].exists)
+        app.assertControlBar()
 
         // Five players: six cards each, every one saying where it sits.
         XCTAssert(app.handCards.matching(NSPredicate(format: "label CONTAINS %@", "of 6")).firstMatch.waitForExistence(timeout: 5),

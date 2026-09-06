@@ -2,137 +2,50 @@ import SwiftUI
 import CardCore
 import SheepheadEngine
 
-/// The sheephead table. Reading order, top to bottom: the status, the last
-/// announcement, what you can do, your hand, this trick, the last trick, the
-/// blind and the bury once the hand is over, the players, the hands played,
-/// and the log. Every part is under a heading.
+/// The sheephead table, on the shared screen: after the hand come this trick,
+/// the last trick, the blind and the bury once the hand is over, the players,
+/// and the hands played. Pass is the primary control at the lower left while
+/// picking, with Pick up the blind beside it; Bury and Deal take its place in
+/// their phases.
 struct SheepheadTableView: View {
-    @Environment(AppSettings.self) private var settings
-    @State private var session: SheepheadSession?
-    @AccessibilityFocusState private var focusedCard: String?
-
     var body: some View {
-        Group {
-            if let session {
-                SheepheadTable(session: session, focusedCard: $focusedCard)
-            } else {
-                ProgressView("Dealing…")
-            }
-        }
-        .task {
-            if session == nil { session = SheepheadSession(settings: settings) }
-        }
-        .onDisappear { session?.stop() }
-    }
-}
-
-private struct SheepheadTable: View {
-    let session: SheepheadSession
-    var focusedCard: AccessibilityFocusState<String?>.Binding
-
-    var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 12) {
-                StatusLine(text: session.status)
-                AnnouncementLine(announcer: session.announcer)
-
-                SectionHeader("What you can do")
-                actions
-
-                SectionHeader("Your hand")
-                HandView(items: session.handItems, hint: session.handHint, focus: focusedCard) { item in
-                    session.tap(item)
-                }
-
+        GameHost(make: { SheepheadSession(settings: $0) }) { session, focus in
+            GameScreen(game: .sheephead, session: session, focusedCard: focus) {
                 TrickList(title: "This trick", plays: session.trickPlays)
                 TrickList(title: "Last completed trick", plays: session.lastTrickPlays, empty: "No trick has been completed yet.")
 
-                if session.state.phase == .handOver {
-                    blindAndBury
-                }
+                BlindAndBury(session: session)
 
                 AccessibleTable(title: "Players",
                                 columns: ["Player", "Role", "Tricks", "Points this hand", "Score"],
-                                rows: session.playerRows,
-                                footnote: "The picker's side needs 61 of the 120 points. Partner and alone are shown only once the Jack of Diamonds has been played, or for your own seat.")
+                                rows: session.playerRows)
 
-                if !session.state.history.isEmpty {
-                    AccessibleTable(title: "Hands played", columns: session.historyColumns, rows: session.historyRows)
-                }
-
-                LogSection(entries: session.log)
+                AccessibleTable(title: "Hands played", columns: session.historyColumns, rows: session.historyRows,
+                                empty: "No hand has been played yet.")
             }
-            .padding()
-            .frame(maxWidth: 720, alignment: .leading)
-            .frame(maxWidth: .infinity)
-        }
-        .gameChrome(game: .sheephead, reviews: session.reviews, announcer: session.announcer) {
-            session.newGame()
-        }
-        .onChange(of: session.focusTick) {
-            focusedCard.wrappedValue = session.focusCard
         }
     }
+}
 
-    @ViewBuilder
-    private var actions: some View {
-        let state = session.state
-        switch state.phase {
-        case .pick:
-            if session.isMyTurn {
-                Text("The blind has \(Prose.count(state.spec.blind, "card")). Pick it up and become the picker, or pass.")
-                PrimaryButton(title: "Pick up the blind") { session.pick() }
-                Button {
-                    session.pass()
-                } label: {
-                    Text("Pass")
-                        .font(.headline)
-                        .frame(maxWidth: .infinity, minHeight: 44)
-                }
-                .buttonStyle(.bordered)
-            } else {
-                Text("Waiting for \(session.name(state.turn)) to pick or pass.")
-            }
-        case .bury:
-            if session.isPicker {
-                Text("Choose \(Prose.number(session.buryCount)) cards to bury, then Bury.")
-                PrimaryButton(title: "Bury \(session.selected.count) of \(session.buryCount)",
-                              enabled: session.selected.count == session.buryCount) {
-                    session.burySelected()
-                }
-            } else {
-                Text("Waiting for \(session.name(state.picker ?? state.turn)) to bury.")
-            }
-        case .play:
-            if session.isMyTurn {
-                Text("Choose a card to play.")
-            } else {
-                Text("Waiting for \(session.name(state.turn)).")
-                ContinueBar(gate: session.gate, pace: session.pace)
-            }
-        case .handOver:
-            if !session.resultHeadline.isEmpty {
-                Text(session.resultHeadline)
-                    .font(.body.weight(.medium))
-            }
-            PrimaryButton(title: "Deal the next hand", key: "n") { session.nextHand() }
-        case .idle:
-            Text("Dealing…")
-        }
-    }
+/// Once the hand is scored, the blind as it was dealt and what the picker
+/// buried, card by card. During play it is nobody's business, and the
+/// session gives nothing back until then — but the section stays on screen,
+/// so it is always in the same place.
+private struct BlindAndBury: View {
+    let session: SheepheadSession
 
-    /// Once the hand is scored, the blind as it was dealt and what the picker
-    /// buried, card by card. During play it is nobody's business, and the
-    /// session gives nothing back until then.
-    @ViewBuilder
-    private var blindAndBury: some View {
+    var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             SectionHeader("The blind and the bury")
-            Text(session.blindReveal)
-                .font(.callout)
-            CardRow(title: "Blind", cards: session.revealedBlind, empty: "Nothing.")
-            if !session.revealedBury.isEmpty {
-                CardRow(title: "Buried", cards: session.revealedBury, empty: "Nothing was buried.")
+            if session.state.phase == .handOver {
+                Text(session.blindReveal)
+                    .font(.callout)
+                CardRow(title: "Blind", cards: session.revealedBlind, empty: "Nothing.")
+                if !session.revealedBury.isEmpty {
+                    CardRow(title: "Buried", cards: session.revealedBury, empty: "Nothing was buried.")
+                }
+            } else {
+                Text("Shown once the hand is over.").foregroundStyle(.secondary)
             }
         }
     }
