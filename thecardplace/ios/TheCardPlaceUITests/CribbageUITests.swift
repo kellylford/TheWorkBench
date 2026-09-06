@@ -12,13 +12,12 @@ final class CribbageUITests: XCTestCase {
         app.launch()
         app.openGame("Cribbage")
 
-        XCTAssert(app.staticTexts["What you can do"].waitForExistence(timeout: 5), "the actions have a heading")
-        XCTAssert(app.staticTexts["Your hand"].exists, "the hand has a heading")
+        XCTAssert(app.staticTexts["Your hand"].waitForExistence(timeout: 5), "the hand has a heading")
         XCTAssert(app.staticTexts["The play"].exists)
         XCTAssert(app.staticTexts["The starter"].exists)
         XCTAssert(app.staticTexts["The crib"].exists)
         XCTAssert(app.staticTexts["Scores"].exists)
-        XCTAssert(app.staticTexts["What has happened"].exists)
+        app.assertControlBar()
         XCTAssert(app.status(startsWith: "Cut for deal"))
         app.attachScreenshot("cribbage-cut", to: self)
 
@@ -32,9 +31,11 @@ final class CribbageUITests: XCTestCase {
         }
         XCTAssert(app.status(startsWith: "Throw two cards"), "the cut decided a dealer and dealt")
 
-        // Six cards, each saying where it sits. Choose two, then Throw.
+        // Six cards, each saying where it sits. Throw is dimmed until two are
+        // chosen, and says so. Choose two, then Throw.
         XCTAssertEqual(app.handCards.count, 6)
         XCTAssert(app.handCards.matching(NSPredicate(format: "label CONTAINS %@", "card 1 of 6")).firstMatch.exists)
+        XCTAssert(app.buttons["Throw 0 of 2 to the crib"].exists, "the primary button counts the chosen cards")
         app.handCards.element(boundBy: 0).tap()
         app.handCards.element(boundBy: 1).tap()
         XCTAssertEqual(app.handCards.allElementsBoundByIndex.filter(\.isSelected).count, 2, "two cards say selected")
@@ -43,18 +44,21 @@ final class CribbageUITests: XCTestCase {
         throwButton.tap()
         app.attachScreenshot("cribbage-play", to: self)
 
-        // The play and the count: play a card that fits, say Go when nothing
-        // does, press Next through the count, until the hand or the game is over.
-        var sawWorthAndMakes = false
+        // The play and the count: on our turn play a card that can be played,
+        // say Go when none can, press Next through the count, until the hand
+        // or the game is over. A card says only what it is, and on our turn
+        // whether it can be played — never what the count would become.
+        var sawNoArithmetic = true
         var done = false
-        for _ in 0..<60 {
-            if app.buttons["Deal the next hand"].exists || app.buttons["Start a new game"].exists {
+        for _ in 0..<80 {
+            if app.buttons["Deal the next hand"].exists || app.buttons["Deal another game"].exists {
                 done = true
                 break
             }
+            let status = app.currentStatus
             let labels = app.handCards.allElementsBoundByIndex.map(\.label)
-            if labels.contains(where: { $0.contains("worth") && $0.contains("makes") }) { sawWorthAndMakes = true }
-            if let card = app.handCards.allElementsBoundByIndex.first(where: { $0.label.contains("makes") && !$0.label.contains("cannot be played") }) {
+            if labels.contains(where: { $0.contains("makes") || $0.contains("worth") }) { sawNoArithmetic = false }
+            if status.hasPrefix("The count is"), status.contains("your turn"), let card = app.firstPlayableCard() {
                 card.tap()
             } else if app.buttons["Go"].exists {
                 app.buttons["Go"].tap()
@@ -64,8 +68,8 @@ final class CribbageUITests: XCTestCase {
                 _ = app.buttons["Next"].waitForExistence(timeout: 0.4)
             }
         }
-        XCTAssert(done, "the hand ends with a deal or new-game button")
-        XCTAssert(sawWorthAndMakes, "during the play a card said what it is worth and what count it makes")
+        XCTAssert(done, "the hand ends with a deal button")
+        XCTAssert(sawNoArithmetic, "no card in the hand did the count for the player")
         app.attachScreenshot("cribbage-hand-over", to: self)
 
         if app.buttons["Deal the next hand"].exists {

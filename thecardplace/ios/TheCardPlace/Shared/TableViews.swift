@@ -2,9 +2,9 @@ import SwiftUI
 import CardCore
 
 /// A heading VoiceOver can jump to with the rotor. Every part of a game
-/// screen — what you can do, your hand, the trick, the scores, the log — sits
-/// under one, so a player can move between them without swiping through
-/// everything in between.
+/// screen — your hand, the trick, the scores, the controls — sits under one,
+/// so a player can move between them without swiping through everything in
+/// between.
 struct SectionHeader: View {
     let text: String
 
@@ -33,33 +33,22 @@ struct StatusLine: View {
     }
 }
 
-/// The most recent announcement, as text, with a button to hear it again.
-/// For a sighted player it is the running commentary; for a VoiceOver user
-/// it is where to look for the message that was interrupted.
+/// The most recent announcement, as text. For a sighted player it is the
+/// running commentary; for a VoiceOver user it is where to look for the
+/// message that was interrupted. Repeat is in the control bar.
 struct AnnouncementLine: View {
     let announcer: Announcer
 
     var body: some View {
-        HStack(alignment: .top, spacing: 8) {
-            VStack(alignment: .leading, spacing: 2) {
-                Text("Last announcement")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                Text(announcer.lastText.isEmpty ? "Nothing yet." : announcer.lastText)
-                    .font(.callout)
-            }
-            .accessibilityElement(children: .combine)
-            Spacer(minLength: 0)
-            Button {
-                announcer.repeatLast()
-            } label: {
-                Label("Repeat", systemImage: "arrow.counterclockwise")
-                    .labelStyle(.iconOnly)
-                    .frame(minWidth: 44, minHeight: 44)
-            }
-            .accessibilityLabel("Repeat the last announcement")
-            .keyboardShortcut("r", modifiers: [])
+        VStack(alignment: .leading, spacing: 2) {
+            Text("Last announcement")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+            Text(announcer.lastText.isEmpty ? "Nothing yet." : announcer.lastText)
+                .font(.callout)
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .accessibilityElement(children: .combine)
     }
 }
 
@@ -183,37 +172,6 @@ struct LogEntry: Identifiable, Equatable {
     let text: String
 }
 
-/// "What has happened", newest first. Deliberately not a live region: it
-/// carries the same words the announcer speaks, and making it live would say
-/// everything twice.
-struct LogSection: View {
-    let entries: [LogEntry]
-    @State private var showAll = false
-    private let visible = 40
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            SectionHeader("What has happened")
-            if entries.isEmpty {
-                Text("Nothing yet.").foregroundStyle(.secondary)
-            }
-            LazyVStack(alignment: .leading, spacing: 6) {
-                ForEach(showAll ? entries : Array(entries.prefix(visible))) { entry in
-                    Text(entry.text)
-                        .font(.callout)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                }
-            }
-            if !showAll, entries.count > visible {
-                Button("Show all \(entries.count) entries") { showAll = true }
-                    .frame(minHeight: 44)
-            }
-        }
-        .accessibilityElement(children: .contain)
-        .accessibilityLabel("What has happened, newest first")
-    }
-}
-
 /// One of the things a player can ask to hear. The key is for a hardware
 /// keyboard; the button in the Review menu is for everybody else.
 struct ReviewItem: Identifiable {
@@ -249,58 +207,6 @@ struct ReviewMenu: View {
             Label("Review", systemImage: "text.bubble")
         }
         .accessibilityHint("Read out the hand, the trick, the scores and more")
-    }
-}
-
-/// Shown while the game is paused between computer turns.
-struct ContinueBar: View {
-    let gate: PaceGate
-    let pace: Pace
-    var label: String = "Continue"
-
-    var body: some View {
-        if gate.waiting {
-            VStack(alignment: .leading, spacing: 6) {
-                PrimaryButton(title: label, key: "n") { gate.continueNow() }
-                Text(pace == .waitForMe
-                     ? "The game waits until you press Continue."
-                     : "The next play comes on its own \(pace.words). Continue does not wait.")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-            }
-        }
-    }
-}
-
-/// A big obvious action: Pass, Deal, Bid.
-///
-/// `enabled: false` dims it but does not disable it. A disabled control is one
-/// VoiceOver may skip and can never explain itself; this one stays a button,
-/// says it is not ready in its hint, and leaves the tap to the action, which
-/// announces why — "Choose exactly three cards to pass."
-struct PrimaryButton: View {
-    let title: String
-    var key: Character? = nil
-    var enabled = true
-    var notReadyHint = "Not ready yet"
-    let action: () -> Void
-    @Environment(\.colorScheme) private var scheme
-
-    var body: some View {
-        Button(action: action) {
-            Text(title)
-                .font(.headline)
-                // The accent is dark in light mode and light in dark mode, so
-                // the label flips with it: 9.8:1 and 10:1 respectively.
-                .foregroundStyle(scheme == .dark ? Color.black : Color.white)
-                .frame(maxWidth: .infinity, minHeight: 44)
-        }
-        .buttonStyle(.borderedProminent)
-        // Dimmed is a grey that still carries the label at 6.7:1 (light) and
-        // 7.8:1 (dark); the accent carries it at 9.8:1 and 10:1.
-        .tint(enabled ? Color.accentColor : Color(white: scheme == .dark ? 0.62 : 0.36))
-        .accessibilityHint(enabled ? "" : notReadyHint)
-        .keyboardShortcut(key.map { KeyboardShortcut(KeyEquivalent($0), modifiers: []) })
     }
 }
 

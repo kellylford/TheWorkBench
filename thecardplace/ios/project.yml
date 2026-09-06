@@ -30,6 +30,10 @@ targets:
       path: TheCardPlace/Info.plist
       properties:
         CFBundleDisplayName: The Card Place
+        # Without these xcodegen writes a literal build 1 into the plist, and
+        # App Store Connect refuses every upload after the first.
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
         UILaunchScreen: {}
         UISupportedInterfaceOrientations:
           - UIInterfaceOrientationPortrait
@@ -61,7 +65,7 @@ targets:
         PRODUCT_NAME: The Card Place
         CODE_SIGN_STYLE: Automatic
         MARKETING_VERSION: "1.0"
-        CURRENT_PROJECT_VERSION: 1
+        CURRENT_PROJECT_VERSION: 2
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
         TARGETED_DEVICE_FAMILY: "1,2"

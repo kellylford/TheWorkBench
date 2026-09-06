@@ -1,12 +1,14 @@
-The first build. Five card games against the computer - hearts, euchre, spades, cribbage and sheephead - played entirely on the device, with no network of any kind.
+Build 2: the same screen in every game, with the controls where your fingers expect them.
 
-These are native ports, not the web games in a wrapper. The rules, the computer players and the words each game says come from the browser versions at The Card Place, rebuilt in Swift with the same kinds of test suites behind them.
+Every game is now laid out the same way. From the top: the status line, the last announcement, your hand, then the table, and at the bottom edge of the screen a section headed Controls. The button that moves the game on - Cut, Throw, Pass, Bid, Next, Deal, or Continue during a pause - is always the lower left corner of the screen. Log and Repeat are always the lower right. When a phase has other choices, such as ordering up or bidding nil, they sit in a row just above.
+
+The instructions that used to be scattered through the table are gone. The button says what it does and the status line says where the game is. Cribbage cards no longer do the count for you; the Counting aid is still in the Review menu if you want it.
 
 What to test
-- VoiceOver, above everything else. Every card is a button that says what it is, anything worth knowing about it right now, and where it sits in your hand. A card you may not play stays in the list and says why.
-- The announcements. They are meant to be spoken one at a time, never cutting each other off. Anything you ask for from the Review menu should jump ahead of the game's own messages, and the message it interrupted should be said again afterwards.
-- Moving by headings: What you can do, Your hand, This trick, Last completed trick, the scores, and What has happened.
-- The pace setting, and whether Continue always gets you moving again.
-- Larger text sizes, and dark mode.
+- Find the lower left button by touch in every game and in every phase. It should always be there: when the move is a card in your hand it is dimmed, says "Play a card", and reads the status when tapped.
+- The Log button at the lower right. Double-tap opens the full log, newest first. With VoiceOver, swipe up or down on the button: the last five entries are actions, and the last action opens the full log. Press and hold shows the same entries.
+- Reading order through the Controls heading: the primary button, then the choices, then Log, then Repeat.
+- Moving by headings: Your hand, This trick, Last completed trick, the scores, and Controls.
+- Larger text sizes: at the accessibility sizes the primary button spans the width and Log and Repeat sit under it.
 
-Known: a crash was seen once in cribbage, just after the cut while reading a hand, and has not repeated since. If you hit anything like it, the time and what you had just done would help a great deal.
+Known: a crash was seen once in cribbage on the first build, just after the cut while reading a hand, and has not repeated since. If you hit anything like it, the time and what you had just done would help a great deal.

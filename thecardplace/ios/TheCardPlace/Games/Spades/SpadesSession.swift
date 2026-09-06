@@ -11,7 +11,7 @@ import SpadesEngine
 /// hand is scored by partnership.
 @MainActor
 @Observable
-final class SpadesSession {
+final class SpadesSession: GameSession {
     static let me = 0
 
     /// The accessibility focus id for the bid stepper — not a card, but the
@@ -157,6 +157,30 @@ final class SpadesSession {
     var handResult: String {
         guard let h = state.history.last else { return "" }
         return "\(SpadesGame.teamName(state, 0)) \(signed(h.delta[0])), \(SpadesGame.teamName(state, 1)) \(signed(h.delta[1]))."
+    }
+
+    /// The button in the lower left corner, phase by phase.
+    var primary: GameControl {
+        switch state.phase {
+        case .idle:
+            return idle("Dealing")
+        case .bidding:
+            guard isMyTurn else { return waiting(for: name(state.turn)) }
+            return GameControl("Bid \(bidValue)", id: "bid") { [unowned self] in bid() }
+        case .play:
+            return isMyTurn ? playACard : waiting(for: name(state.turn))
+        case .handOver:
+            return GameControl("Deal the next hand", key: "n") { [unowned self] in nextHand() }
+        case .gameOver:
+            return GameControl("Start a new game", key: "n") { [unowned self] in newGame() }
+        }
+    }
+
+    /// Nil is its own button, beside the bid, so it can never be reached by
+    /// stepping.
+    var secondary: [GameControl] {
+        guard state.phase == .bidding, isMyTurn else { return [] }
+        return [GameControl("Bid nil", hint: "") { [unowned self] in bidNil() }]
     }
 
     var reviews: [ReviewItem] {

@@ -53,8 +53,9 @@ CardGamesKit/               a Swift package: the games, with no UI in it
   Tests/<Game>EngineTests   rules oracles, invariants, refusals, hidden information
 TheCardPlace/               the app
   Hub/                      the opening screen and the per-game setup screen
-  Shared/                   the announcement queue, the pace gate, settings,
-                            cards, hand, trick, tables, log, help
+  Shared/                   the screen every game is drawn on (GameFramework),
+                            the announcement queue, the pace gate, settings,
+                            cards, hand, trick, tables, help
   Games/<Game>/             one session (drives the engine) and one table screen
 TheCardPlaceUITests/        plays each game from the accessibility labels alone
 ```
@@ -103,13 +104,34 @@ announcement on top of one it is half way through, so every message goes
 through `Shared/Announcer.swift`, which posts the next only when VoiceOver
 reports the last one finished. Something the player asks to hear jumps the
 queue, and the game event it interrupted is put back rather than lost. Errors
-interrupt. The most recent message is also shown as text with a Repeat button;
-that text is not itself a live region, so nothing is spoken twice.
+interrupt. The most recent message is also shown as text, with Repeat in the
+control bar; that text is not itself a live region, so nothing is spoken twice.
 
-**Headings, not scrolling.** Every part of a table — What you can do, Your
-hand, This trick, Last completed trick, the scores, What has happened — is a
-heading the rotor can jump to. The hand is a group, so it can be skipped in
-one move. (`Shared/TableViews.swift`)
+**One screen, five games.** Every game is drawn by the same `GameScreen`
+(`Shared/GameFramework.swift`): status, last announcement, Your hand, the
+game's own sections, and a control bar pinned to the bottom edge. A game
+supplies its sections and, from its session, a `primary` control and any
+`secondary` ones for the phase; the framework decides where they go. Nothing
+on the table tells the player what to do — the button says what it does, and
+the status line says where the game is.
+
+**The lower left corner moves the game on.** Cut, Throw, Pass, Bid, Go, Next,
+Deal, and Continue during a pause, are always the same button in the same
+place, so it can be found by touch. When the move is in the hand the button is
+dimmed and says so — "Play a card" — and reads the status when tapped. Log and
+Repeat are always the lower right. A phase's other choices (Order it up, Bid
+nil, Call hearts, the bid stepper, Go alone) sit in a row just above.
+
+**The log is a button.** Tap for the whole log, newest first, as a sheet.
+Press and hold for the last five entries, with Show full log at the end. With
+VoiceOver, the same five entries are custom actions on the button, so a player
+can flick through what just happened without leaving it, and the last action
+opens the full log.
+
+**Headings, not scrolling.** Every part of a table — Your hand, This trick,
+Last completed trick, the scores, Controls — is a heading the rotor can jump
+to. The hand is a group, so it can be skipped in one move.
+(`Shared/TableViews.swift`)
 
 **Focus follows the turn, unless told not to.** When it becomes the player's
 turn VoiceOver moves to the first card they can play. Settings turns that off;
@@ -133,9 +155,10 @@ points tall.
 
 **A hardware keyboard works.** The review letters from the browser games —
 H, T, L, S, C, O, W, R, N, ? and each game's own — are keyboard shortcuts, and
-every one is also a button in the Review menu. G (jump to the log) and E
-(export) have no shortcut here: the log is a heading VoiceOver can jump to,
-and there is no export yet.
+every one is also a button in the Review menu. N is the lower left button when
+it is Continue, Next, Deal or Cut. G (jump to the log) and E (export) have no
+shortcut here: the log is a button in the control bar, and there is no export
+yet.
 
 ### WCAG 2.2, briefly
 
@@ -151,7 +174,7 @@ and there is no export yet.
 | 2.1.1 Keyboard | Every action is a button; shortcuts exist for review and Continue. |
 | 2.2.1 Timing adjustable | Pace is a setting, and Wait for me removes the timer entirely. |
 | 2.3.3 Animation from interactions | No animation is used for meaning; Reduce Motion is respected. |
-| 2.4.3 Focus order | Reading order matches the screen: status, actions, hand, table, scores, log. |
+| 2.4.3 Focus order | Reading order matches the screen: status, hand, table, scores, then the controls — primary, choices, Log, Repeat. |
 | 2.4.6 Headings and labels | Every section is headed; every control is named. |
 | 2.5.5 / 2.5.8 Target size | Every control is at least 44×44 points. |
 | 3.2.2 On input | Choosing a card never submits anything on its own where a confirmation step exists (passing, burying, throwing to the crib). |

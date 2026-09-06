@@ -2,47 +2,14 @@ import SwiftUI
 import CardCore
 import CribbageEngine
 
-/// The cribbage table. Reading order, top to bottom: the status, the last
-/// announcement, what you can do, your hand, the play, the starter, the crib,
-/// the scores, the hands played, and the log. Every part is under a heading.
+/// The cribbage table, on the shared screen: after the hand come the play,
+/// the starter, the crib, the count while hands are being counted, the
+/// scores, and the hands played. Cut, Throw, Go, Next and Deal take turns as
+/// the primary control at the lower left.
 struct CribbageTableView: View {
-    @Environment(AppSettings.self) private var settings
-    @State private var session: CribbageSession?
-    @AccessibilityFocusState private var focusedCard: String?
-
     var body: some View {
-        Group {
-            if let session {
-                CribbageTable(session: session, focusedCard: $focusedCard)
-            } else {
-                ProgressView("Dealing…")
-            }
-        }
-        .task {
-            if session == nil { session = CribbageSession(settings: settings) }
-        }
-        .onDisappear { session?.stop() }
-    }
-}
-
-private struct CribbageTable: View {
-    let session: CribbageSession
-    var focusedCard: AccessibilityFocusState<String?>.Binding
-
-    var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 12) {
-                StatusLine(text: session.status)
-                AnnouncementLine(announcer: session.announcer)
-
-                SectionHeader("What you can do")
-                actions
-
-                SectionHeader("Your hand")
-                HandView(items: session.handItems, hint: session.handHint, focus: focusedCard) { item in
-                    session.tap(item)
-                }
-
+        GameHost(make: { CribbageSession(settings: $0) }) { session, focus in
+            GameScreen(game: .cribbage, session: session, focusedCard: focus) {
                 PlayPile(title: "The play", count: session.countText, plays: session.runPlays, empty: session.playEmptyText)
 
                 SectionHeader("The starter")
@@ -55,10 +22,13 @@ private struct CribbageTable: View {
                     Text(session.cribText)
                 }
 
+                if session.state.phase == .count {
+                    CountSection(session: session)
+                }
+
                 AccessibleTable(title: "Scores",
                                 columns: ["Player", "Score", "To go"],
-                                rows: session.scoreRows,
-                                footnote: "First to \(session.target) wins; the game ends the moment somebody reaches it.")
+                                rows: session.scoreRows)
                 if let games = session.gamesWonText {
                     Text(games).font(.callout)
                 }
@@ -69,85 +39,28 @@ private struct CribbageTable: View {
                 }
 
                 if !session.historyRows.isEmpty {
-                    AccessibleTable(title: "Hands played", columns: session.historyColumns, rows: session.historyRows,
-                                    footnote: "The scores at the end of each hand.")
+                    AccessibleTable(title: "Hands played", columns: session.historyColumns, rows: session.historyRows)
                 }
-
-                LogSection(entries: session.log)
             }
-            .padding()
-            .frame(maxWidth: 720, alignment: .leading)
-            .frame(maxWidth: .infinity)
-        }
-        .gameChrome(game: .cribbage, reviews: session.reviews, announcer: session.announcer) {
-            session.newGame()
-        }
-        .onChange(of: session.focusTick) {
-            focusedCard.wrappedValue = session.focusCard
         }
     }
+}
 
-    @ViewBuilder
-    private var actions: some View {
-        let state = session.state
-        switch state.phase {
-        case .idle:
-            Text("Starting…")
-        case .cutForDeal:
-            Text(state.cutForDeal?.tie == true
-                 ? "That was a tie. Cut again; the lower card deals."
-                 : "Cut for deal. The lower card deals and takes the first crib.")
-            PrimaryButton(title: "Cut for deal") { session.cut() }
-        case .discard:
-            if !session.hasThrown {
-                Text("Choose two cards to throw to \(session.cribOwner), then Throw.")
-                PrimaryButton(title: "Throw \(session.selected.count) of 2 to the crib", enabled: session.selected.count == 2) {
-                    session.throwSelected()
-                }
-            } else {
-                Text("Your two are in the crib. Waiting for \(session.opponent.name).")
+/// While the hands are counted: whose cards are up next, the cards when they
+/// are face up, and each count so far as it was read out.
+private struct CountSection: View {
+    let session: CribbageSession
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            SectionHeader("The count")
+            Text(session.countStageText)
+            if !session.countStageCards.isEmpty {
+                CardRow(cards: session.countStageCards, text: nil)
             }
-        case .play:
-            if session.isMyTurn {
-                if session.mustSayGo {
-                    Text("You cannot play under thirty-one. Say Go.")
-                    PrimaryButton(title: "Go") { session.sayGo() }
-                } else {
-                    Text("Choose a card to play.")
-                }
-            } else {
-                Text("Waiting for \(session.name(state.turn)).")
-                ContinueBar(gate: session.gate, pace: session.pace)
+            ForEach(Array(session.countBreakdowns.enumerated()), id: \.offset) { _, line in
+                Text(line).font(.callout)
             }
-        case .count:
-            if session.isMyTurn {
-                Text(session.countStageText)
-                if !session.countStageCards.isEmpty {
-                    CardRow(cards: session.countStageCards, text: nil)
-                }
-                ForEach(Array(session.countBreakdowns.enumerated()), id: \.offset) { _, line in
-                    Text(line).font(.callout)
-                }
-                PrimaryButton(title: "Next", key: "n") { session.next() }
-                Text(state.countStage == 2 ? "Next turns the crib over and counts it." : "Next counts this hand and reads the score out in its parts.")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-            } else {
-                Text("Waiting for \(session.name(state.turn)) to count.")
-                ForEach(Array(session.countBreakdowns.enumerated()), id: \.offset) { _, line in
-                    Text(line).font(.callout)
-                }
-                ContinueBar(gate: session.gate, pace: session.pace)
-            }
-        case .roundOver:
-            Text(CribbageReview.handSummary(state, seat: CribbageSession.me).sentenceCased)
-            PrimaryButton(title: "Deal the next hand", key: "n") { session.nextHand() }
-        case .gameOver:
-            Text(CribbageReview.handSummary(state, seat: CribbageSession.me).sentenceCased)
-            if let games = session.gamesWonText { Text(games) }
-            PrimaryButton(title: "Deal another game", key: "n") { session.nextHand() }
-            Button("Start over from the cut") { session.newGame() }
-                .frame(minHeight: 44)
         }
     }
 }

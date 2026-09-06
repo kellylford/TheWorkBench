@@ -6,12 +6,12 @@ import CribbageEngine
 /// the computer player at the chosen pace, and turns every event into an
 /// announcement and a log line.
 ///
-/// Cribbage is arithmetic performed out loud, so during the play every card
-/// in the hand carries the engine's label — what it is worth, what count it
-/// makes, and what it scores — rather than just its name.
+/// During the play a card says what it is and, on your turn, whether it can
+/// be played; what the count would become is left to the player. The
+/// Counting aid in the Review menu is there for anyone who asks.
 @MainActor
 @Observable
-final class CribbageSession {
+final class CribbageSession: GameSession {
     static let me = 0
 
     private(set) var state: CribbageState
@@ -83,13 +83,13 @@ final class CribbageSession {
                 HandCardItem(card: c, description: CribbageCards.describe(c),
                              playable: true, selected: selected.contains(c))
             }
-        case .play:
-            // The engine's label says everything: worth, makes, scores, or why
-            // it cannot be played. Verbatim, with nothing added but the position.
+        case .play where isMyTurn:
             let legal = legalPlays
             return hand.map { c in
-                HandCardItem(card: c, description: CribbageReview.cardLabel(state, seat: Self.me, card: c),
-                             playable: isMyTurn && legal.contains(c))
+                let ok = legal.contains(c)
+                return HandCardItem(card: c, description: CribbageCards.describe(c),
+                                    playable: ok,
+                                    reason: ok ? nil : CribbageGame.whyNot(state, seat: Self.me, card: c))
             }
         default:
             // Reading the hand is the activity of these phases, so no card is
@@ -205,7 +205,7 @@ final class CribbageSession {
         case 0, 1:
             return "\(countStageTitle): " + CribbageCards.listNames(countStageCards) + starter + "."
         case 2:
-            return "\(countStageTitle), four cards face down\(starter). Next turns it over."
+            return "\(countStageTitle), four cards face down\(starter)."
         default:
             return "Every hand has been counted."
         }
@@ -216,6 +216,38 @@ final class CribbageSession {
         state.countResults.map { c in
             "\(cap(poss(c.who))) \(c.kind.rawValue): \(cap(c.result.spoken))."
         }
+    }
+
+    /// The button in the lower left corner, phase by phase: whatever moves
+    /// the game on.
+    var primary: GameControl {
+        switch state.phase {
+        case .idle:
+            return idle("Starting")
+        case .cutForDeal:
+            return GameControl("Cut for deal", key: "n") { [unowned self] in cut() }
+        case .discard:
+            guard !hasThrown else { return waiting(for: opponent.name) }
+            return GameControl("Throw \(selected.count) of 2 to the crib", id: "throw",
+                               enabled: selected.count == 2,
+                               hint: "Choose two cards first") { [unowned self] in throwSelected() }
+        case .play:
+            guard isMyTurn else { return waiting(for: name(state.turn)) }
+            if mustSayGo { return GameControl("Go", key: "n") { [unowned self] in sayGo() } }
+            return playACard
+        case .count:
+            guard isMyTurn else { return waiting(for: name(state.turn)) }
+            return GameControl("Next", key: "n") { [unowned self] in next() }
+        case .roundOver:
+            return GameControl("Deal the next hand", key: "n") { [unowned self] in nextHand() }
+        case .gameOver:
+            return GameControl("Deal another game", key: "n") { [unowned self] in nextHand() }
+        }
+    }
+
+    var secondary: [GameControl] {
+        guard state.phase == .gameOver else { return [] }
+        return [GameControl("Start over from the cut") { [unowned self] in newGame() }]
     }
 
     var reviews: [ReviewItem] {

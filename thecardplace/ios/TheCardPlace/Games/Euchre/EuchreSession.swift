@@ -14,7 +14,7 @@ import EuchreEngine
 /// whole hand is played by the others and the session only watches.
 @MainActor
 @Observable
-final class EuchreSession {
+final class EuchreSession: GameSession {
     static let me = 0
 
     private(set) var state: EuchreState
@@ -80,7 +80,6 @@ final class EuchreSession {
     var partnerName: String { name(EuchreGame.partnerOf(Self.me)) }
     var makerName: String { state.maker.map(name) ?? "the maker" }
 
-    var playHint: String { EuchreReview.playHint(state, seat: Self.me) }
     var handResult: String { EuchreReview.handResult(state, seat: Self.me) }
 
     /// The hand, trump first once there is a trump, otherwise by suit — the
@@ -213,6 +212,56 @@ final class EuchreSession {
 
     func sideTricks(_ team: Int) -> Int {
         state.players.filter { EuchreGame.teamOf($0.index) == team }.reduce(0) { $0 + $1.tricksWon }
+    }
+
+    /// The button in the lower left corner, phase by phase. While bidding it
+    /// is Pass, the decision made most often; ordering up and calling a suit
+    /// are the choices beside it.
+    var primary: GameControl {
+        switch state.phase {
+        case .idle:
+            return idle("Dealing")
+        case .bid1:
+            guard isMyTurn else { return waiting(for: waitingFor ?? "the table") }
+            return GameControl("Pass") { [unowned self] in pass() }
+        case .bid2:
+            guard isMyTurn else { return waiting(for: waitingFor ?? "the table") }
+            // Under stick the dealer, Pass is dimmed and the engine refuses it
+            // in the rule's own words.
+            return GameControl("Pass", enabled: !mustCall,
+                               hint: "Stick the dealer: you must name a suit") { [unowned self] in pass() }
+        case .discard:
+            return isDealer ? idle("Put a card back", hint: "Choose the card from your hand")
+                            : waiting(for: waitingFor ?? "the dealer")
+        case .play:
+            if isSittingOut { return waiting(for: waitingFor ?? "the others") }
+            return isMyTurn ? playACard : waiting(for: name(state.turn))
+        case .handOver:
+            return GameControl("Deal the next hand", key: "n") { [unowned self] in nextHand() }
+        case .gameOver:
+            return GameControl("Start a new game", key: "n") { [unowned self] in newGame() }
+        }
+    }
+
+    /// The bids that are not Pass: order it up (alone or not) in round one,
+    /// call a suit in round two.
+    var secondary: [GameControl] {
+        guard isMyTurn else { return [] }
+        switch state.phase {
+        case .bid1:
+            let verb = isDealer ? "Pick it up" : "Order it up"
+            var out = [GameControl(verb) { [unowned self] in orderUp(alone: false) }]
+            if allowAlone {
+                out.append(GameControl("\(verb) and go alone") { [unowned self] in orderUp(alone: true) })
+            }
+            return out
+        case .bid2:
+            return callableSuits.map { suit in
+                GameControl("Call \(suit.lowerName)") { [unowned self] in callSuit(suit) }
+            }
+        default:
+            return []
+        }
     }
 
     var reviews: [ReviewItem] {
@@ -411,8 +460,7 @@ final class EuchreSession {
             if settings.autofocus { focus(handItems.first?.id) }
         case .play:
             guard isMyTurn else { return }
-            let hint = playHint
-            announcer.say(EuchreReview.turnPrompt(state, seat: Self.me) + (hint.isEmpty ? "" : " " + hint))
+            announcer.say(EuchreReview.turnPrompt(state, seat: Self.me))
             if settings.autofocus {
                 let first = handItems.first { $0.playable } ?? handItems.first
                 focus(first?.id)

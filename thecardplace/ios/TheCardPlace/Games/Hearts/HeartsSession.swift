@@ -7,7 +7,7 @@ import HeartsEngine
 /// announcement and a log line.
 @MainActor
 @Observable
-final class HeartsSession {
+final class HeartsSession: GameSession {
     static let me = 0
 
     private(set) var state: HeartsState
@@ -121,6 +121,25 @@ final class HeartsSession {
             ["\(h.deal)", h.passDirection.rawValue] + h.points.enumerated().map { i, pts in
                 h.shooter == i ? "\(pts), shot the moon" : "\(pts)"
             }
+        }
+    }
+
+    /// The button in the lower left corner, phase by phase.
+    var primary: GameControl {
+        switch state.phase {
+        case .idle:
+            return idle("Dealing")
+        case .passing:
+            if state.passing[Self.me] != nil { return idle("Waiting for the others") }
+            return GameControl("Pass \(selected.count) of \(HeartsGame.passCount)", id: "pass",
+                               enabled: selected.count == HeartsGame.passCount,
+                               hint: "Choose three cards first") { [unowned self] in passSelected() }
+        case .play:
+            return isMyTurn ? playACard : waiting(for: name(state.turn))
+        case .handOver:
+            return GameControl("Deal the next hand", key: "n") { [unowned self] in nextHand() }
+        case .gameOver:
+            return GameControl("Start a new game", key: "n") { [unowned self] in newGame() }
         }
     }
 
