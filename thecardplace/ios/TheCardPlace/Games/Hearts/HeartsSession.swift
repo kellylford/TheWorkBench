@@ -79,6 +79,8 @@ final class HeartsSession: GameSession {
         }
     }
 
+    var handCapacity: Int { HeartsGame.handSize }
+
     var handHint: String {
         switch state.phase {
         case .passing: return "Selects this card to pass"

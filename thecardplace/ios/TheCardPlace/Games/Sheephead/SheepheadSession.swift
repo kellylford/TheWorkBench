@@ -93,6 +93,9 @@ final class SheepheadSession: GameSession {
         }
     }
 
+    /// The deal plus the blind, which the picker holds until the bury.
+    var handCapacity: Int { state.spec.hand + state.spec.blind }
+
     var handHint: String {
         switch state.phase {
         case .bury: return isPicker ? "Selects this card to bury" : ""

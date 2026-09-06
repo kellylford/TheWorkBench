@@ -108,12 +108,21 @@ interrupt. The most recent message is also shown as text, with Repeat in the
 control bar; that text is not itself a live region, so nothing is spoken twice.
 
 **One screen, five games.** Every game is drawn by the same `GameScreen`
-(`Shared/GameFramework.swift`): status, last announcement, Your hand, the
-game's own sections, and a control bar pinned to the bottom edge. A game
-supplies its sections and, from its session, a `primary` control and any
+(`Shared/GameFramework.swift`). The bottom edge is pinned and never scrolls:
+Your hand, then the Controls bar. Above it the table scrolls: status, last
+announcement, the game's own sections, the scores, the hands played — every
+section on screen from the first deal so the headings never change order. A
+game supplies its sections and, from its session, a `primary` control and any
 `secondary` ones for the phase; the framework decides where they go. Nothing
 on the table tells the player what to do — the button says what it does, and
 the status line says where the game is.
+
+**The hand does not drift.** It keeps the space of a full hand — thirteen in
+hearts and spades, six in euchre and cribbage, the deal plus the blind in
+sheephead — from the deal to the last trick, with invisible slots standing in
+for cards already played, so the cards still held stay where they were. Only
+at the accessibility text sizes, where a full hand can be taller than the
+screen, does the hand scroll within its space.
 
 **The lower left corner moves the game on.** Cut, Throw, Pass, Bid, Go, Next,
 Deal, and Continue during a pause, are always the same button in the same
@@ -174,7 +183,7 @@ yet.
 | 2.1.1 Keyboard | Every action is a button; shortcuts exist for review and Continue. |
 | 2.2.1 Timing adjustable | Pace is a setting, and Wait for me removes the timer entirely. |
 | 2.3.3 Animation from interactions | No animation is used for meaning; Reduce Motion is respected. |
-| 2.4.3 Focus order | Reading order matches the screen: status, hand, table, scores, then the controls — primary, choices, Log, Repeat. |
+| 2.4.3 Focus order | Reading order matches the screen: status, table, scores, then the pinned hand, then the controls — primary, choices, Log, Repeat. |
 | 2.4.6 Headings and labels | Every section is headed; every control is named. |
 | 2.5.5 / 2.5.8 Target size | Every control is at least 44×44 points. |
 | 3.2.2 On input | Choosing a card never submits anything on its own where a confirmation step exists (passing, burying, throwing to the crib). |

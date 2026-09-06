@@ -22,9 +22,7 @@ struct CribbageTableView: View {
                     Text(session.cribText)
                 }
 
-                if session.state.phase == .count {
-                    CountSection(session: session)
-                }
+                CountSection(session: session)
 
                 AccessibleTable(title: "Scores",
                                 columns: ["Player", "Score", "To go"],
@@ -38,28 +36,37 @@ struct CribbageTableView: View {
                         .accessibilityLabel("Last count. \(last)")
                 }
 
-                if !session.historyRows.isEmpty {
-                    AccessibleTable(title: "Hands played", columns: session.historyColumns, rows: session.historyRows)
-                }
+                AccessibleTable(title: "Hands played", columns: session.historyColumns, rows: session.historyRows,
+                                empty: "No hand has been played yet.")
             }
         }
     }
 }
 
 /// While the hands are counted: whose cards are up next, the cards when they
-/// are face up, and each count so far as it was read out.
+/// are face up, and each count so far as it was read out. Between counts the
+/// section stays, with the last hand's counts until the next deal, so it is
+/// always in the same place.
 private struct CountSection: View {
     let session: CribbageSession
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
             SectionHeader("The count")
-            Text(session.countStageText)
-            if !session.countStageCards.isEmpty {
-                CardRow(cards: session.countStageCards, text: nil)
+            if session.state.phase == .count {
+                Text(session.countStageText)
+                if !session.countStageCards.isEmpty {
+                    CardRow(cards: session.countStageCards, text: nil)
+                }
             }
-            ForEach(Array(session.countBreakdowns.enumerated()), id: \.offset) { _, line in
-                Text(line).font(.callout)
+            if session.countBreakdowns.isEmpty {
+                if session.state.phase != .count {
+                    Text("Nothing counted yet.").foregroundStyle(.secondary)
+                }
+            } else {
+                ForEach(Array(session.countBreakdowns.enumerated()), id: \.offset) { _, line in
+                    Text(line).font(.callout)
+                }
             }
         }
     }

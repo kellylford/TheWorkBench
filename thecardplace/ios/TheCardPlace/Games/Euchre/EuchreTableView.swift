@@ -11,9 +11,7 @@ struct EuchreTableView: View {
     var body: some View {
         GameHost(make: { EuchreSession(settings: $0) }) { session, focus in
             GameScreen(game: .euchre, session: session, focusedCard: focus) {
-                if let reveal = session.revealText {
-                    RevealSection(text: reveal, cards: session.revealCards)
-                }
+                RevealSection(text: session.revealText, cards: session.revealCards)
 
                 TrickList(title: "This trick", plays: session.trickPlays)
                 TrickList(title: "Last completed trick", plays: session.lastTrickPlays, empty: "No trick has been completed yet.")
@@ -26,9 +24,8 @@ struct EuchreTableView: View {
                                 columns: EuchreSession.playerColumns,
                                 rows: session.playerRows)
 
-                if !session.state.history.isEmpty {
-                    AccessibleTable(title: "Hands played", columns: EuchreSession.historyColumns, rows: session.historyRows)
-                }
+                AccessibleTable(title: "Hands played", columns: EuchreSession.historyColumns, rows: session.historyRows,
+                                empty: "No hand has been played yet.")
             } extras: {
                 if session.state.phase == .bid2, session.isMyTurn, session.allowAlone {
                     GoAloneToggle(session: session)
@@ -52,15 +49,20 @@ private struct GoAloneToggle: View {
 
 /// What was face down, once the hand is over: the upcard, the card the dealer
 /// put back, and the kitty. One row per card, each a single sentence to
-/// VoiceOver: "Put back: Nine of Clubs".
+/// VoiceOver: "Put back: Nine of Clubs". The section is on screen from the
+/// deal, so it is always in the same place; it just has nothing to say yet.
 private struct RevealSection: View {
-    let text: String
+    let text: String?
     let cards: [PlayedCard]
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
             SectionHeader("The dealer's discard")
-            Text(text).font(.callout)
+            if let text {
+                Text(text).font(.callout)
+            } else {
+                Text("Shown once the hand is over.").foregroundStyle(.secondary)
+            }
             ForEach(cards) { row in
                 HStack(spacing: 10) {
                     if let card = row.card {

@@ -1,14 +1,14 @@
-Build 2: the same screen in every game, with the controls where your fingers expect them.
+Build 3: your hand stays put, just above the controls.
 
-Every game is now laid out the same way. From the top: the status line, the last announcement, your hand, then the table, and at the bottom edge of the screen a section headed Controls. The button that moves the game on - Cut, Throw, Pass, Bid, Next, Deal, or Continue during a pause - is always the lower left corner of the screen. Log and Repeat are always the lower right. When a phase has other choices, such as ordering up or bidding nil, they sit in a row just above.
+The bottom of the screen is now fixed in every game: your hand, and under it the Controls section. The button that moves the game on - Cut, Throw, Pass, Bid, Next, Deal, or Continue during a pause - is always the lower left corner. Log and Repeat are always the lower right. Your hand is always directly above them and keeps the space of a full hand as cards are played, so the cards you still hold do not move about. The table scrolls above: the status line, the last announcement, the trick or the play, the scores, and the hands played, with every section on screen from the first deal so the headings are always in the same order.
 
-The instructions that used to be scattered through the table are gone. The button says what it does and the status line says where the game is. Cribbage cards no longer do the count for you; the Counting aid is still in the Review menu if you want it.
+Deal on the setup screen is in the same lower left spot.
 
 What to test
-- Find the lower left button by touch in every game and in every phase. It should always be there: when the move is a card in your hand it is dimmed, says "Play a card", and reads the status when tapped.
-- The Log button at the lower right. Double-tap opens the full log, newest first. With VoiceOver, swipe up or down on the button: the last five entries are actions, and the last action opens the full log. Press and hold shows the same entries.
-- Reading order through the Controls heading: the primary button, then the choices, then Log, then Repeat.
-- Moving by headings: Your hand, This trick, Last completed trick, the scores, and Controls.
-- Larger text sizes: at the accessibility sizes the primary button spans the width and Log and Repeat sit under it.
+- Find your hand and the lower left button by touch in every game, at the deal, mid-hand and between hands. Neither should move.
+- Cribbage in particular: through the cut, the throw, the play and the count, the hand and the buttons should stay where they are while the table above changes.
+- The Log button at the lower right: double-tap for the full log; with VoiceOver, swipe up or down for the last five entries, and press and hold for the same.
+- Moving by headings, which are now always in the same order: the table sections, then Your hand, then Controls.
+- Larger text sizes: a full hand scrolls within its own space rather than pushing the controls off the screen.
 
 Known: a crash was seen once in cribbage on the first build, just after the cut while reading a hand, and has not repeated since. If you hit anything like it, the time and what you had just done would help a great deal.

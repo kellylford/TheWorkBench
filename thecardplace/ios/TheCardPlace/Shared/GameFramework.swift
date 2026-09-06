@@ -7,17 +7,21 @@ import CardCore
 //
 // The layout, top to bottom, is the same in all five games:
 //
-//   status line, last announcement
-//   Your hand
+//   status line, last announcement                          (scrolls)
 //   the game's own sections: the trick, the play, the scores…
 //   ---------------------------- pinned to the bottom edge ----------------
+//   Your hand (heading)
+//     the cards, in a space that stays the same size all hand long
 //   Controls (heading)
 //     the phase's choices, when it has any: Pass, Bid nil, Call hearts…
 //     [primary action]                                    [Log] [Repeat]
 //
-// The primary action — Cut, Throw, Next, Deal, Continue — is always the
-// button in the lower left corner of the screen, so it can be found by touch
-// without exploring. The controls used in every game sit at the lower right.
+// The hand and the controls are pinned, so they are where a finger expects
+// them no matter what the table above is showing. The primary action — Cut,
+// Throw, Next, Deal, Continue — is always the button in the lower left
+// corner of the screen; the controls used in every game sit at the lower
+// right; the hand is always directly above them, and keeps the height of a
+// full hand as cards are played so the cards that remain do not drift.
 // Nothing on the table tells the player what to do; the button says what it
 // does, and the status line says where the game is.
 
@@ -58,6 +62,9 @@ protocol GameSession: AnyObject, Observable {
     var log: [LogEntry] { get }
     var reviews: [ReviewItem] { get }
     var handItems: [HandCardItem] { get }
+    /// The most cards the hand ever holds in this game. The hand keeps the
+    /// space for that many all hand long, so it never changes height.
+    var handCapacity: Int { get }
     var handHint: String { get }
     var focusCard: String? { get }
     var focusTick: Int { get }
@@ -144,29 +151,40 @@ struct GameScreen<Session: GameSession, Table: View, Extras: View>: View {
     }
 
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 12) {
-                StatusLine(text: session.status)
-                AnnouncementLine(announcer: session.announcer)
-
-                SectionHeader("Your hand")
-                HandView(items: session.handItems, hint: session.handHint, focus: focusedCard) { item in
-                    session.tap(item)
+        GeometryReader { geo in
+            ScrollView {
+                VStack(alignment: .leading, spacing: 12) {
+                    StatusLine(text: session.status)
+                    AnnouncementLine(announcer: session.announcer)
+                    table()
                 }
-
-                table()
+                .padding()
+                .frame(maxWidth: 720, alignment: .leading)
+                .frame(maxWidth: .infinity)
             }
-            .padding()
-            .frame(maxWidth: 720, alignment: .leading)
-            .frame(maxWidth: .infinity)
-        }
-        .safeAreaInset(edge: .bottom, spacing: 0) {
-            ControlBar(primary: session.primary,
-                       secondary: session.secondary,
-                       gate: session.gate,
-                       announcer: session.announcer,
-                       log: session.log,
-                       extras: extras)
+            .safeAreaInset(edge: .bottom, spacing: 0) {
+                BottomBar {
+                    SectionHeader("Your hand")
+                        .padding(.top, 0)
+                    // At the accessibility text sizes a full hand can be
+                    // taller than the screen; past this the hand scrolls
+                    // within its space rather than pushing the table away.
+                    HandView(items: session.handItems,
+                             capacity: session.handCapacity,
+                             maxHeight: geo.size.height * 0.45,
+                             hint: session.handHint,
+                             focus: focusedCard) { item in
+                        session.tap(item)
+                    }
+                    Divider()
+                    ControlBar(primary: session.primary,
+                               secondary: session.secondary,
+                               gate: session.gate,
+                               announcer: session.announcer,
+                               log: session.log,
+                               extras: extras)
+                }
+            }
         }
         .gameChrome(game: game, reviews: session.reviews, announcer: session.announcer) {
             session.newGame()
@@ -177,9 +195,28 @@ struct GameScreen<Session: GameSession, Table: View, Extras: View>: View {
     }
 }
 
-/// The bottom edge of every game: a Controls heading, the phase's choices,
-/// then the primary action at the left and the Log and Repeat buttons at the
-/// right. Pinned, so it never scrolls away.
+/// The pinned bottom edge of a screen: a bar with a rule along its top, on
+/// the system bar material so it reads as a fixed thing. The game screen
+/// puts the hand and the controls in it; the setup screen puts Deal.
+struct BottomBar<Content: View>: View {
+    @ViewBuilder let content: () -> Content
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            content()
+        }
+        .padding(.horizontal)
+        .padding(.top, 8)
+        .padding(.bottom, 12)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(.bar)
+        .overlay(alignment: .top) { Divider() }
+    }
+}
+
+/// The controls, under the hand at the bottom edge of every game: a Controls
+/// heading, the phase's choices, then the primary action at the left and the
+/// Log and Repeat buttons at the right. Pinned, so it never scrolls away.
 ///
 /// VoiceOver reads it heading first, then the primary action, then the
 /// choices, then Log and Repeat — the order a player wants them in — while
@@ -234,12 +271,7 @@ struct ControlBar<Extras: View>: View {
                 }
             }
         }
-        .padding(.horizontal)
-        .padding(.top, 8)
-        .padding(.bottom, 12)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(.bar)
-        .overlay(alignment: .top) { Divider() }
         .accessibilityElement(children: .contain)
     }
 

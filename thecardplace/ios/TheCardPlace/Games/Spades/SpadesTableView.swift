@@ -21,9 +21,8 @@ struct SpadesTableView: View {
                                 columns: ["Player", "Bid", "Tricks"],
                                 rows: session.playerRows)
 
-                if !session.state.history.isEmpty {
-                    AccessibleTable(title: "Hands played", columns: session.historyColumns, rows: session.historyRows)
-                }
+                AccessibleTable(title: "Hands played", columns: session.historyColumns, rows: session.historyRows,
+                                empty: "No hand has been played yet.")
             } extras: {
                 if session.state.phase == .bidding, session.isMyTurn {
                     BidStepper(session: session, focus: focus)

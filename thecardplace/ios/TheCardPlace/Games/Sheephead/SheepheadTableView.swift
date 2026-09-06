@@ -14,17 +14,14 @@ struct SheepheadTableView: View {
                 TrickList(title: "This trick", plays: session.trickPlays)
                 TrickList(title: "Last completed trick", plays: session.lastTrickPlays, empty: "No trick has been completed yet.")
 
-                if session.state.phase == .handOver {
-                    BlindAndBury(session: session)
-                }
+                BlindAndBury(session: session)
 
                 AccessibleTable(title: "Players",
                                 columns: ["Player", "Role", "Tricks", "Points this hand", "Score"],
                                 rows: session.playerRows)
 
-                if !session.state.history.isEmpty {
-                    AccessibleTable(title: "Hands played", columns: session.historyColumns, rows: session.historyRows)
-                }
+                AccessibleTable(title: "Hands played", columns: session.historyColumns, rows: session.historyRows,
+                                empty: "No hand has been played yet.")
             }
         }
     }
@@ -32,18 +29,23 @@ struct SheepheadTableView: View {
 
 /// Once the hand is scored, the blind as it was dealt and what the picker
 /// buried, card by card. During play it is nobody's business, and the
-/// session gives nothing back until then.
+/// session gives nothing back until then — but the section stays on screen,
+/// so it is always in the same place.
 private struct BlindAndBury: View {
     let session: SheepheadSession
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             SectionHeader("The blind and the bury")
-            Text(session.blindReveal)
-                .font(.callout)
-            CardRow(title: "Blind", cards: session.revealedBlind, empty: "Nothing.")
-            if !session.revealedBury.isEmpty {
-                CardRow(title: "Buried", cards: session.revealedBury, empty: "Nothing was buried.")
+            if session.state.phase == .handOver {
+                Text(session.blindReveal)
+                    .font(.callout)
+                CardRow(title: "Blind", cards: session.revealedBlind, empty: "Nothing.")
+                if !session.revealedBury.isEmpty {
+                    CardRow(title: "Buried", cards: session.revealedBury, empty: "Nothing was buried.")
+                }
+            } else {
+                Text("Shown once the hand is over.").foregroundStyle(.secondary)
             }
         }
     }

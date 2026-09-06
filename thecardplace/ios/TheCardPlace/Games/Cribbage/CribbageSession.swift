@@ -98,6 +98,9 @@ final class CribbageSession: GameSession {
         }
     }
 
+    /// Six dealt; four kept after the throw.
+    var handCapacity: Int { 6 }
+
     var handHint: String {
         switch state.phase {
         case .discard: return hasThrown ? "" : "Chooses this card to throw to the crib"

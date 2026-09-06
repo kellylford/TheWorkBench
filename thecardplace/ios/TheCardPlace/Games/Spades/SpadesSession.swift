@@ -99,6 +99,8 @@ final class SpadesSession: GameSession {
         return r.isEmpty ? nil : r
     }
 
+    var handCapacity: Int { SpadesGame.handSize }
+
     var handHint: String {
         switch state.phase {
         case .play: return isMyTurn ? "Plays this card" : ""

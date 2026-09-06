@@ -141,29 +141,70 @@ struct HandCardButton: View {
 /// The player's hand, wrapped onto as many rows as it needs so every card is
 /// on screen at once. VoiceOver reads it as a group called "Your hand" and
 /// then card by card.
+///
+/// The hand keeps the space for `capacity` cards however many it holds:
+/// empty slots stand in for cards already played, so the hand is the same
+/// height from the deal to the last trick and the cards that remain stay
+/// where they were. Past `maxHeight` — only at the accessibility text sizes —
+/// the hand scrolls within its space instead of growing.
 struct HandView: View {
     let items: [HandCardItem]
+    var capacity: Int = 0
+    var maxHeight: CGFloat? = nil
     var hint: String = "Plays this card"
     var focus: AccessibilityFocusState<String?>.Binding
     let onTap: (HandCardItem) -> Void
 
+    @State private var contentHeight: CGFloat = 0
+
+    /// Drawn invisibly to hold a slot open. Never labelled, never a button.
+    private static let placeholder = Card(.ace, .spades)
+
     var body: some View {
-        if items.isEmpty {
-            Text("No cards in hand.")
-                .foregroundStyle(.secondary)
-        } else {
-            FlowLayout(spacing: 8) {
-                ForEach(Array(items.enumerated()), id: \.element.id) { index, item in
-                    HandCardButton(item: item, position: index + 1, total: items.count, hint: hint) {
-                        onTap(item)
-                    }
-                    .accessibilityFocused(focus, equals: item.id)
-                }
+        let cap = maxHeight ?? .infinity
+        Group {
+            if contentHeight > cap {
+                ScrollView(.vertical) { cards }
+                    .frame(height: cap)
+            } else {
+                cards
             }
-            .accessibilityElement(children: .contain)
-            .accessibilityLabel("Your hand")
         }
+        .accessibilityElement(children: .contain)
+        .accessibilityLabel("Your hand")
     }
+
+    private var cards: some View {
+        FlowLayout(spacing: 8) {
+            ForEach(Array(items.enumerated()), id: \.element.id) { index, item in
+                HandCardButton(item: item, position: index + 1, total: items.count, hint: hint) {
+                    onTap(item)
+                }
+                .accessibilityFocused(focus, equals: item.id)
+            }
+            ForEach(0..<max(0, capacity - items.count), id: \.self) { _ in
+                CardFace(card: Self.placeholder)
+                    .hidden()
+                    .accessibilityHidden(true)
+            }
+        }
+        .frame(minHeight: items.isEmpty ? 44 : 0, alignment: .topLeading)
+        .overlay(alignment: .topLeading) {
+            if items.isEmpty {
+                Text("No cards in hand.")
+                    .foregroundStyle(.secondary)
+            }
+        }
+        .background(GeometryReader { g in
+            Color.clear.preference(key: HandHeightKey.self, value: g.size.height)
+        })
+        .onPreferenceChange(HandHeightKey.self) { contentHeight = $0 }
+    }
+}
+
+private struct HandHeightKey: PreferenceKey {
+    static var defaultValue: CGFloat = 0
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) { value = nextValue() }
 }
 
 /// Left to right, wrapping. Rows are as tall as their tallest item.

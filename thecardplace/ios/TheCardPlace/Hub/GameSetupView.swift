@@ -2,8 +2,9 @@ import SwiftUI
 import CardCore
 
 /// The start screen for one game: your name, a summary of the settings, and
-/// Deal. Every rule of the table lives in the settings sheet rather than
-/// here, so a rules decision never looks like a preference.
+/// Deal pinned to the bottom edge where the game's primary button will be.
+/// Every rule of the table lives in the settings sheet rather than here, so a
+/// rules decision never looks like a preference.
 struct GameSetupView: View {
     let game: GameKind
     @Environment(AppSettings.self) private var settings
@@ -39,17 +40,18 @@ struct GameSetupView: View {
             }
 
             Section {
-                PrimaryButton(title: "Deal") { playing = true }
-                    .listRowInsets(EdgeInsets())
-            }
-
-            Section {
                 NavigationLink("How to play \(game.title)") {
                     GameRulesView(game: game)
                 }
                 NavigationLink("Accessibility hints") {
                     AccessibilityHintsView()
                 }
+            }
+        }
+        // Deal is where the game's primary button will be: the lower left.
+        .safeAreaInset(edge: .bottom, spacing: 0) {
+            BottomBar {
+                PrimaryButton(title: "Deal", key: "n") { playing = true }
             }
         }
         .navigationTitle(game.title)

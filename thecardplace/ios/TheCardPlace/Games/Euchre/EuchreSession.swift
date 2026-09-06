@@ -107,6 +107,9 @@ final class EuchreSession: GameSession {
         }
     }
 
+    /// Five, and six for the dealer while choosing what to put back.
+    var handCapacity: Int { EuchreGame.handSize + 1 }
+
     var handHint: String {
         switch state.phase {
         case .discard where isDealer: return "Puts this card back"

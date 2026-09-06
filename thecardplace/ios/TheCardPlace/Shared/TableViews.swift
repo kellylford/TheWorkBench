@@ -121,10 +121,25 @@ struct AccessibleTable: View {
     let columns: [String]
     let rows: [[String]]
     var footnote: String? = nil
+    /// Shown in place of the grid while there are no rows, so the section
+    /// is on screen — and its heading in the same place — from the start.
+    var empty: String? = nil
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
             SectionHeader(title)
+            if rows.isEmpty, let empty {
+                Text(empty).foregroundStyle(.secondary)
+            } else {
+                grid
+            }
+            if let footnote {
+                Text(footnote).font(.caption).foregroundStyle(.secondary)
+            }
+        }
+    }
+
+    private var grid: some View {
             Grid(alignment: .leading, horizontalSpacing: 16, verticalSpacing: 6) {
                 GridRow {
                     ForEach(columns, id: \.self) { c in
@@ -150,10 +165,6 @@ struct AccessibleTable: View {
                     }
                 }
             }
-            if let footnote {
-                Text(footnote).font(.caption).foregroundStyle(.secondary)
-            }
-        }
     }
 
     private func rowLabel(_ row: [String]) -> String {

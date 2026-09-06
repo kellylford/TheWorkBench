@@ -50,7 +50,7 @@ struct AccessibilityHintsView: View {
             sections: [
                 HelpSection(
                     heading: "The same screen in every game",
-                    body: "Every game is laid out the same way. From the top: the status line, the last announcement, your hand, then the table — the trick or the play, the scores — and at the bottom edge of the screen a section headed Controls. The button that moves the game on — Cut, Throw, Pass, Bid, Next, Deal, or Continue during a pause — is always the lower left corner of the screen. Log and Repeat are always the lower right. When a phase offers other choices, such as ordering up or bidding nil, they sit just above that row."
+                    body: "Every game is laid out the same way. The bottom of the screen is fixed: your hand, and under it a section headed Controls. The button that moves the game on — Cut, Throw, Pass, Bid, Next, Deal, or Continue during a pause — is always the lower left corner of the screen. Log and Repeat are always the lower right. When a phase offers other choices, such as ordering up or bidding nil, they sit just above that row. Your hand is always directly above the controls, and keeps the space of a full hand as cards are played, so the cards you still hold do not move about. Above the hand, the table scrolls: the status line, the last announcement, then the trick or the play, the scores, and the hands played. Every section is on screen from the first deal, so the headings are always in the same order."
                 ),
                 HelpSection(
                     heading: "Cards are buttons",

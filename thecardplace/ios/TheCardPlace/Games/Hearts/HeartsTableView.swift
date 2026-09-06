@@ -16,9 +16,8 @@ struct HeartsTableView: View {
                                 columns: ["Player", "Score", "This hand", "Tricks"],
                                 rows: session.playerRows)
 
-                if !session.state.history.isEmpty {
-                    AccessibleTable(title: "Hands played", columns: session.historyColumns, rows: session.historyRows)
-                }
+                AccessibleTable(title: "Hands played", columns: session.historyColumns, rows: session.historyRows,
+                                empty: "No hand has been played yet.")
             }
         }
     }
