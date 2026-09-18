@@ -1683,27 +1683,199 @@
   }
 
   /* The board. Decoration — hidden from assistive technology in the markup —
-   * because the Score table carries both numbers and the distance still to go. */
+   * because the Score table carries both numbers and the distance still to go.
+   *
+   * Drawn once per game and then only the pegs move, so a peg can glide from
+   * hole to hole rather than the whole board being thrown away and redrawn on
+   * every update. Lane 0 is you and lane 1 the other player, whichever seat you
+   * are in.
+   *
+   * THE LANES SWAP SIDES ON EVERY STREET. That is how a continuous board is
+   * made: at each turn one track goes round the outside and the other round the
+   * inside, so the two never cross. Your lane is the top one on the first street
+   * and the bottom one on the second, and the tint of each groove is what lets
+   * the eye follow it round. */
+  var SVGNS = 'http://www.w3.org/2000/svg';
+  var BOARD = {
+    perStreet: 30,  // holes along one street, in six groups of five
+    gap: 10,        // between neighbouring holes
+    group: 6,       // extra space after every fifth hole
+    lane: 11,       // between the two lanes of one street
+    pitch: 30,      // from one street to the next
+    x0: 38,         // the first hole of the first street
+    y0: 20
+  };
+  var board = null;
+
+  function svgEl(name, attrs, parent) {
+    var e = document.createElementNS(SVGNS, name);
+    for (var k in attrs) {
+      if (Object.prototype.hasOwnProperty.call(attrs, k)) e.setAttribute(k, attrs[k]);
+    }
+    if (parent) parent.appendChild(e);
+    return e;
+  }
+
+  function holeX(i) { return BOARD.x0 + i * BOARD.gap + Math.floor(i / 5) * BOARD.group; }
+
+  function streetY(k) { return BOARD.y0 + k * BOARD.pitch; }
+
+  function laneY(k, lane) {
+    var top = (k % 2 === 0) === (lane === 0);
+    return streetY(k) + (top ? -1 : 1) * BOARD.lane / 2;
+  }
+
+  /* Where a peg standing on `pos` sits. -1 and 0 are the two start holes, and
+   * anything at or past the target is the game hole. */
+  function pegPoint(pos, lane, target, streets) {
+    if (pos <= 0) return { x: BOARD.x0 + (pos === 0 ? -16 : -25), y: laneY(0, lane) };
+    if (pos >= target) return gameHole(streets);
+    var k = Math.floor((pos - 1) / BOARD.perStreet);
+    var i = (pos - 1) % BOARD.perStreet;
+    if (k % 2 === 1) i = BOARD.perStreet - 1 - i;
+    return { x: holeX(i), y: laneY(k, lane) };
+  }
+
+  function gameHole(streets) {
+    var last = streets - 1;
+    var atLeft = last % 2 === 1;
+    return { x: atLeft ? BOARD.x0 - 20 : holeX(BOARD.perStreet - 1) + 20, y: streetY(last) };
+  }
+
+  /* One lane's groove: along each street and round a half circle at each end.
+   * Going down the right-hand side is clockwise on screen and down the left is
+   * anticlockwise, which is the arc's sweep flag. */
+  function groovePath(lane, streets) {
+    var left = holeX(0) - 5, right = holeX(BOARD.perStreet - 1) + 5;
+    var d = 'M' + (BOARD.x0 - 30) + ' ' + laneY(0, lane);
+    for (var k = 0; k < streets; k++) {
+      var y = laneY(k, lane);
+      var end = k % 2 === 0 ? right : left;
+      if (k === streets - 1) end = gameHole(streets).x + (k % 2 === 0 ? -8 : 8);
+      d += ' L' + end + ' ' + y;
+      if (k < streets - 1) {
+        var y2 = laneY(k + 1, lane);
+        var r = (y2 - y) / 2;
+        d += ' A' + r + ' ' + r + ' 0 0 ' + (k % 2 === 0 ? 1 : 0) + ' ' + end + ' ' + y2;
+      }
+    }
+    return d;
+  }
+
+  /* Every hole in a lane as one path of tiny circles. */
+  function holesPath(lane, target, streets) {
+    var r = 1.9, d = '';
+    for (var pos = -1; pos < target; pos++) {
+      var p = pegPoint(pos, lane, target, streets);
+      d += 'M' + (p.x - r) + ' ' + p.y + 'a' + r + ' ' + r + ' 0 1 0 ' + (2 * r) +
+        ' 0a' + r + ' ' + r + ' 0 1 0 ' + (-2 * r) + ' 0';
+    }
+    return d;
+  }
+
+  function buildBoard(target) {
+    var streets = Math.max(1, Math.ceil((target - 1) / BOARD.perStreet));
+    var w = holeX(BOARD.perStreet - 1) + 30 + BOARD.x0 - 4;
+    var h = streetY(streets - 1) + BOARD.y0;
+    var svg = svgEl('svg', {
+      'class': 'board-svg', viewBox: '0 0 ' + w + ' ' + h,
+      focusable: 'false', 'aria-hidden': 'true'
+    });
+
+    var defs = svgEl('defs', {}, svg);
+    var grad = svgEl('linearGradient', { id: 'board-wood-grad', x1: '0', y1: '0', x2: '0.35', y2: '1' }, defs);
+    svgEl('stop', { 'class': 'board-wood-a', offset: '0' }, grad);
+    svgEl('stop', { 'class': 'board-wood-b', offset: '1' }, grad);
+
+    svgEl('rect', {
+      'class': 'board-wood', x: 1.5, y: 1.5, width: w - 3, height: h - 3,
+      rx: 9, fill: 'url(#board-wood-grad)'
+    }, svg);
+
+    /* A little grain. Fixed rather than random so the board is the same board
+     * every time it is drawn. */
+    for (var g = 0; g < 7; g++) {
+      var gy = 6 + g * (h - 12) / 6, sway = (g % 2 ? 1 : -1) * (1.5 + g % 3);
+      svgEl('path', {
+        'class': 'board-grain' + (g % 3 === 0 ? ' light' : ''),
+        d: 'M6 ' + gy + ' Q' + w * 0.3 + ' ' + (gy + sway) + ' ' + w * 0.55 + ' ' + gy +
+          ' T' + (w - 6) + ' ' + (gy - sway / 2)
+      }, svg);
+    }
+
+    [0, 1].forEach(function (lane) {
+      var who = lane === 0 ? 'mine' : 'theirs';
+      svgEl('path', { 'class': 'board-groove ' + who, d: groovePath(lane, streets) }, svg);
+      svgEl('path', { 'class': 'board-holes', d: holesPath(lane, target, streets) }, svg);
+    });
+
+    var gh = gameHole(streets);
+    svgEl('circle', { 'class': 'board-game-hole', cx: gh.x, cy: gh.y, r: 3.2 }, svg);
+    var label = svgEl('text', {
+      'class': 'board-label', x: gh.x, y: gh.y + (streets > 1 ? 13 : -7), 'text-anchor': 'middle'
+    }, svg);
+    label.textContent = String(target);
+
+    var lanes = [0, 1].map(function (lane) {
+      var who = lane === 0 ? 'mine' : 'theirs';
+      var pegs = [0, 1].map(function () {
+        var peg = svgEl('g', { 'class': 'board-peg ' + who }, svg);
+        svgEl('circle', { 'class': 'board-peg-shadow', cx: 0.9, cy: 1.2, r: 3.6 }, peg);
+        svgEl('circle', { 'class': 'board-peg-body', cx: 0, cy: 0, r: 3.6 }, peg);
+        svgEl('circle', { 'class': 'board-peg-shine', cx: -1.1, cy: -1.2, r: 1.1 }, peg);
+        return peg;
+      });
+      return { pegs: pegs, at: [-1, 0], front: 1 };
+    });
+
+    return { svg: svg, lanes: lanes, target: target, streets: streets };
+  }
+
+  /* Leapfrog: the back peg jumps to the new score and becomes the front one. A
+   * score that goes backwards is a new game, so both pegs go home first. */
+  function movePegs(b, lane, score) {
+    var L = b.lanes[lane];
+    var front = L.at[L.front];
+    if (score < front) { L.at = [-1, 0]; L.front = 1; front = 0; }
+    if (score > front) {
+      L.front = 1 - L.front;
+      L.at[L.front] = score;
+    }
+    L.pegs.forEach(function (peg, n) {
+      var p = pegPoint(L.at[n], lane, b.target, b.streets);
+      peg.style.transform = 'translate(' + p.x + 'px, ' + p.y + 'px)';
+      peg.setAttribute('class', 'board-peg ' + (lane === 0 ? 'mine' : 'theirs') +
+        (n === L.front ? '' : ' back'));
+    });
+    /* The front peg is drawn last, so it sits on top where the two touch. */
+    b.svg.appendChild(L.pegs[L.front]);
+  }
+
   function renderBoard() {
     var box = el.board;
     if (!box) return;
     var target = state.config.targetScore || 121;
-    box.innerHTML = '';
-    [mySeat, G.other(mySeat)].forEach(function (i) {
-      var row = document.createElement('div');
-      row.className = 'board-row' + (i === mySeat ? ' mine' : '');
-      row.appendChild(span('board-name', state.players[i].name + ' ' + state.players[i].score));
-      var track = document.createElement('div');
-      track.className = 'board-track';
-      var pct = Math.max(0, Math.min(100, (state.players[i].score / target) * 100));
-      var fill = span('board-fill');
-      fill.style.width = pct + '%';
-      track.appendChild(fill);
-      var peg = span('board-peg');
-      peg.style.left = pct + '%';
-      track.appendChild(peg);
-      row.appendChild(track);
-      box.appendChild(row);
+    var key = target + ':' + mySeat + ':' + state.gameNumber;
+    if (!board || board.key !== key || !box.contains(board.svg)) {
+      box.innerHTML = '';
+      var legend = document.createElement('ul');
+      legend.className = 'board-legend';
+      box.appendChild(legend);
+      board = buildBoard(target);
+      board.key = key;
+      board.legend = legend;
+      box.appendChild(board.svg);
+    }
+    board.legend.innerHTML = '';
+    [mySeat, G.other(mySeat)].forEach(function (seat, lane) {
+      var p = state.players[seat];
+      var li = document.createElement('li');
+      li.className = 'board-key' + (lane === 0 ? ' mine' : '');
+      li.appendChild(span('board-swatch'));
+      li.appendChild(span('board-key-name', p.name + ' ' + p.score));
+      li.appendChild(span('board-key-togo', Math.max(0, target - p.score) + ' to go'));
+      board.legend.appendChild(li);
+      movePegs(board, lane, Math.max(0, p.score));
     });
   }
 

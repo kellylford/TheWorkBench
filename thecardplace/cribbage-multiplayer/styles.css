@@ -213,13 +213,29 @@ tr.sitting-out th[scope="row"] { font-style: italic; }
  * the relative position of two pegs to see a game slipping away far faster than
  * they read two numbers.
  *
- * Sized in rem so it grows with the reader's text like everything else. The peg
- * track is a gradient rather than 121 elements: a hole per point would be 242
- * nodes for two players, all of them noise in the DOM and none of them readable.
+ * A wooden board drawn in SVG by renderBoard(): streets of thirty holes in
+ * fives, running out and back with a curved turn at each end, start holes at the
+ * top left and the game hole at the bottom left, the way a continuous board is
+ * laid out. Each player has two pegs and they leapfrog — the back peg jumps past
+ * the front one — so the gap between them is the last score, as at a table.
+ *
+ * The holes are one path per lane rather than a node per hole: 242 elements for
+ * two players would be noise in the DOM, none of it readable. The board is wood
+ * in both colour schemes, so its colours are its own rather than the theme's,
+ * and the peg colours are gold and blue because they stay apart for every kind
+ * of colour vision as well as in brightness.
  */
 .board {
+  --wood-1: #93602f;
+  --wood-2: #6c431e;
+  --wood-edge: #3a220c;
+  --wood-hole: #1f1107;
+  --wood-ink: #fbeed8;
+  --peg-mine: #ffc53d;
+  --peg-theirs: #5cc3ff;
+  --peg-edge: #1a0f05;
   margin: .75rem 0 1rem;
-  padding: .7rem .8rem;
+  padding: .7rem .8rem .8rem;
   background: var(--panel);
   border: 1px solid var(--line);
   border-radius: var(--radius);
@@ -227,44 +243,83 @@ tr.sitting-out th[scope="row"] { font-style: italic; }
   gap: .5rem;
 }
 
-.board-row { display: grid; grid-template-columns: minmax(6rem, auto) 1fr; gap: .6rem; align-items: center; }
-
-.board-name { font-weight: 700; font-size: .95rem; }
-
-.board-track {
-  position: relative;
-  height: 1.1rem;
-  border-radius: 999px;
-  border: 1px solid var(--line);
-  /* The holes, drawn once. */
-  background-image: repeating-linear-gradient(
-    to right,
-    color-mix(in srgb, var(--ink-dim) 32%, transparent) 0 2px,
-    transparent 2px 6px);
-  background-color: var(--panel-2);
-  overflow: hidden;
+.board-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .25rem 1.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
 }
 
-.board-fill {
-  position: absolute; inset: 0 auto 0 0;
-  background: color-mix(in srgb, var(--accent) 45%, transparent);
-}
+.board-key { display: flex; align-items: baseline; gap: .45rem; font-size: .95rem; }
 
-.board-peg {
-  position: absolute; top: 50%; width: .55rem; height: .55rem;
-  transform: translate(-50%, -50%);
+.board-key-name { font-weight: 700; }
+
+.board-key-togo { color: var(--ink-dim); font-size: .88rem; }
+
+.board-swatch {
+  flex: none;
+  align-self: center;
+  width: .8rem;
+  height: .8rem;
   border-radius: 50%;
-  background: var(--accent);
-  border: 1px solid var(--accent-ink);
+  border: 1px solid var(--peg-edge);
+  background: var(--peg-theirs);
 }
 
-.board-row.mine .board-peg { background: var(--good); }
+.board-key.mine .board-swatch { background: var(--peg-mine); }
 
-.board-row.mine .board-fill { background: color-mix(in srgb, var(--good) 45%, transparent); }
+.board-svg {
+  display: block;
+  width: 100%;
+  max-width: 50rem;
+  height: auto;
+  margin: 0 auto;
+  filter: drop-shadow(0 .15rem .25rem rgba(0, 0, 0, .35));
+}
+
+.board-wood { stroke: var(--wood-edge); stroke-width: 1.5; }
+.board-wood-a { stop-color: var(--wood-1); }
+.board-wood-b { stop-color: var(--wood-2); }
+.board-grain { fill: none; stroke-width: .6; stroke: rgba(0, 0, 0, .13); }
+.board-grain.light { stroke: rgba(255, 236, 200, .08); }
+
+/* The inlaid track each player's pegs run along, tinted with that player's peg
+ * colour so a lane can be followed round a turn by eye. */
+.board-groove { fill: none; stroke-width: 8; stroke-linecap: round; stroke-linejoin: round; opacity: .3; }
+.board-groove.mine { stroke: var(--peg-mine); }
+.board-groove.theirs { stroke: var(--peg-theirs); }
+
+.board-holes { fill: var(--wood-hole); }
+.board-game-hole { fill: var(--wood-hole); stroke: var(--wood-ink); stroke-width: .7; }
+.board-label { fill: var(--wood-ink); font: 700 6.5px system-ui, "Segoe UI", Roboto, sans-serif; }
+
+.board-peg-body { stroke: var(--peg-edge); stroke-width: .8; fill: var(--peg-theirs); }
+.board-peg.mine .board-peg-body { fill: var(--peg-mine); }
+.board-peg-shine { fill: #fff; opacity: .6; }
+.board-peg-shadow { fill: #000; opacity: .35; }
+/* The back peg is where the last score started from. Dimmed a little so the
+ * eye goes to the front peg first; it is still plainly a peg. */
+.board-peg.back { opacity: .7; }
+
+@media (prefers-reduced-motion: no-preference) {
+  .board-peg { transition: transform .5s cubic-bezier(.3, .7, .3, 1); }
+}
 
 @media (forced-colors: active) {
-  .board-track { border: 1px solid CanvasText; background: Canvas; }
-  .board-peg { background: CanvasText; forced-color-adjust: none; }
+  .board-svg { filter: none; }
+  .board-wood { fill: Canvas; stroke: CanvasText; }
+  .board-grain, .board-peg-shine, .board-peg-shadow { display: none; }
+  .board-groove { opacity: 1; stroke: Canvas; }
+  .board-holes, .board-label { fill: CanvasText; }
+  .board-game-hole { fill: Canvas; stroke: CanvasText; }
+  .board-peg-body, .board-peg.mine .board-peg-body { stroke: CanvasText; stroke-width: 1.2; }
+  .board-peg.mine .board-peg-body { fill: Highlight; }
+  .board-peg.theirs .board-peg-body { fill: LinkText; }
+  .board-peg.back { opacity: 1; }
+  .board-swatch { forced-color-adjust: none; border-color: CanvasText; background: LinkText; }
+  .board-key.mine .board-swatch { background: Highlight; }
 }
 
 /* The running count, which is the single number a cribbage player holds in their

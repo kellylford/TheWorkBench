@@ -328,6 +328,10 @@ for (const g of GAMES) {
        * fires: an unused branch, in exchange for a map that cannot go short. */
       for (const g of fs.readdirSync(root, { withFileTypes: true })) {
         if (!g.isDirectory() || g.name === 'node_modules') continue;
+        /* The native app's source, not a web page. It arrived long after the
+         * move, so it never had an address at the top of the site, and a map
+         * entry would send /ios/ to a directory with nothing in it to open. */
+        if (g.name === 'ios') continue;
         check(moved.has(g.name),
           gamesDir + '/' + g.name + ' is not in 404.html\'s MOVED map. If it was ' +
           'ever published at the top of the site, that address is a 404 again ' +
