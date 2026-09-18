@@ -1,0 +1,214 @@
+{
+  "venue": "Truist Park (Smyrna / Cumberland, Cobb County, GA). CONFIRMED current as of August 2026: RateYourSeats event listings for August 2026 show Braves home games at 'Truist Park - Atlanta, GA'; MLB.com and Ballparks of Baseball both list Truist Park as the Atlanta Braves home ballpark. Opened 2017 as SunTrust Park; renamed Truist Park in January 2020 after the SunTrust/BB&T merger. No further rename or relocation found for 2026. NOTE: many RateYourSeats photo filenames and the RYS internal master_id still say 'suntrust-park-smyrna-ga' — that is legacy naming, not a current venue name.",
+  "team": "Atlanta Braves",
+  "rateyourseats_slug": "truist-park",
+  "sections": [
+    "1", "2", "3", "4", "5", "6", "7", "8", "9",
+    "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21",
+    "22", "23", "24", "25", "26", "27", "28", "29", "30",
+    "31", "32", "33", "34", "35", "36", "37", "38", "39", "40", "41", "42",
+    "107", "108", "109", "110", "111", "112", "113", "114", "116", "118", "120",
+    "122", "123", "124", "125", "126", "127", "128", "130", "131", "133", "135",
+    "137", "138", "140", "141", "142", "143", "144", "145", "146", "147", "148",
+    "149", "150", "151", "152", "153", "154", "155", "156", "157", "158", "159", "160",
+    "210", "211", "212", "213", "214", "215", "216", "217", "218", "220", "222",
+    "223", "224", "225", "226", "227", "228", "229", "230", "231", "233", "235",
+    "237", "238", "239", "240", "241", "242", "243", "244", "245", "246", "250",
+    "257", "259",
+    "312", "313", "314", "315", "316", "317", "318", "320", "322", "323", "324",
+    "325", "326", "327", "328", "329", "330", "331", "333", "335", "337", "339",
+    "340", "341", "342", "343", "344", "345", "346", "347",
+    "410", "411", "412", "413", "414", "415", "416", "417", "418", "420", "422",
+    "423", "424", "425", "426", "427", "428", "429", "430", "431", "433", "435",
+    "437", "438", "439", "440", "442", "443", "444"
+  ],
+  "concert_only_sections": [
+    "Field Sections (concert floor) — https://www.rateyourseats.com/truist-park/seating/field-seatss states verbatim: 'Field seats for a concert at Truist Park...' and 'Floor sections are typically labeled alphabetically, with sections beginning with A located closest to the stage and sections beginning with B behind them. For certain events, there may be a General Admission (GA) Pit directly in front of the stage.' The specific floor section labels (e.g. A1, B2) are NOT enumerated by the source — UNKNOWN. This entry is a concert-only floor and is deliberately excluded from 'sections'.",
+    "NOTE: 'General Admission' and 'Standing Room Only' also appear in the RYS section index but are zone links, not numbered ticketed baseball sections; they are excluded from 'sections'. Whether SRO is baseball-only, concert-only or both was not established — UNKNOWN."
+  ],
+  "capacity": "CONFLICTING FIGURES. (a) 41,084 — stated by theshadium.com/blog/shaded-seats-truist-park ('The stadium's capacity is 41,084') and reported as the current Wikipedia figure in web search. (b) 41,500 — stated by ballparksofbaseball.com/ballparks/truist-park ('The ballpark has a seating capacity of 41,500'). (c) 41,147 — reported by web search as an alternate figure from some sources; no primary URL captured. RECOMMENDED: 41,084 (most commonly cited current figure and matches Wikipedia). Ballparks of Baseball's 41,500 appears to be the original 2017 announced capacity.",
+  "orientation": {
+    "batter_faces": "Southeast. Center field points toward the southeast; the batter at home plate faces southeast. Consequently the first-base-side stands face roughly northeast (and get afternoon shade first), while the third-base-side stands face roughly southwest into the afternoon sun.",
+    "confidence": "medium — two independent sources agree on southeast, and the shade behaviour cross-checks against RateYourSeats, but one earlier web-search summary asserted the opposite (northeast). See 'uncertain'.",
+    "source": "https://theshadium.com/blog/shaded-seats-truist-park — verbatim: 'Truist Park's orientation is approximately 135° (SE), positioning center field toward the southeast with home plate facing northwest. This orientation places the first base side roughly northeast-facing, away from the afternoon sun that dominates from the south and southwest.' CROSS-CHECK (independent, agrees): web search of intheballparks.com / shadedseats.com states Truist Park 'is oriented to the southeast' and that it was built off the MLB-ideal east-northeast alignment because of terrain and pre-existing gas lines. CROSS-CHECK (geometry, agrees): https://www.rateyourseats.com/truist-park/seating/terrace-infield — 'For afternoon games, the first base side (Sections 216–218) typically receives shade earlier than the sections along the third base side.'"
+  },
+  "numbering_direction": {
+    "summary": "Section numbers INCREASE FROM THE FIRST-BASE SIDE TOWARD THE THIRD-BASE SIDE, then continue around the outfield from left field through center field to right field. On a standard seating chart drawn with home plate at the bottom and the outfield at the top, the numbers run CLOCKWISE. Within every infield tier: LOW numbers = first base / right field side; HIGH numbers = third base / left field side; the middle of each hundred-series sits behind home plate. Concretely: field level 10-21 = first base line, 22-30 = behind home plate, 31-42 = third base line; lower level 110-121 = first base line, 122-130 = behind home plate, 131-142 = third base line (an exact +100 mirror of the field level, which is a strong internal consistency check); 200 level 216-218 = first base line, 220-231 = behind home plate, 233-238 = third base line; 300 level home plate at 325-327; 400 level home plate at 425-427. Past the third-base end the lower level keeps climbing around the outfield: 144 sits at the LEFT field foul pole, 144-155 sweep left field -> center -> right-center, and 156-160 (Chop House) finish in RIGHT field, closing the ring next to 107-109 which sit at the right field foul pole. Truist Club sections 1-9 are a separate innermost field-level arc directly behind home plate with section 5 dead centre.",
+    "anchors": [
+      {
+        "section": "160",
+        "where": "RIGHT FIELD — Chop House Club, beyond the right field wall. Verbatim: 'The Chop House seating area is located in right field at Truist Park, near: Sections 156–160, Section 257, Section 259' and 'Social Seating in Right Field: Located near Sections 156–160, 257 and 259.'",
+        "source": "https://www.rateyourseats.com/truist-park/seating/sections/160 (also https://www.rateyourseats.com/truist-park/seating/chophouse-club)"
+      },
+      {
+        "section": "144",
+        "where": "LEFT FIELD — start of the Home Run Porch at the left field foul pole. Verbatim: 'The Home Run Porch seats at Truist Park include Sections 144–155 and Section 250 and sit just beyond the outfield wall. These sections stretch from the left field foul pole toward right-center field, ending near the beginning of the Chop House seating area.' Corroborating: 'the visiting team bullpen sits below Sections 144 and 145' and 'Sections 144 and 145 offer the only real overhead coverage in this area.'",
+        "source": "https://www.rateyourseats.com/truist-park/seating/home-run-porch"
+      },
+      {
+        "section": "226",
+        "where": "BEHIND HOME PLATE — 200 (Terrace) level, Xfinity Club. Verbatim: 'Great Elevated Views: Section 226 sits directly behind home plate for the most centered perspective.'",
+        "source": "https://www.rateyourseats.com/truist-park/seating/xfinity-club"
+      },
+      {
+        "section": "5",
+        "where": "BEHIND HOME PLATE — field level, innermost Truist Club arc. Verbatim: 'Section 5 sits directly behind home plate' and 'Sections 4 and 6 offer excellent views just to either side of the plate.'",
+        "source": "https://www.rateyourseats.com/truist-park/seating/truist-club"
+      },
+      {
+        "section": "25 / 26",
+        "where": "BEHIND HOME PLATE — field level, Delta Sky360 Club Chairman Seats. Verbatim: 'Fans seeking the closest possible Delta Sky360 experience should target Sections 25 or 26 in the Chairman Seats, which sit almost directly behind home plate.'",
+        "source": "https://www.rateyourseats.com/truist-park/seating/delta-sky360-club"
+      },
+      {
+        "section": "325-327",
+        "where": "BEHIND HOME PLATE — 300 (Vista) level. Verbatim: 'For the most balanced perspective, Sections 325–327 sit closest to directly behind home plate and provide some of the best views available on the Vista Level.'",
+        "source": "https://www.rateyourseats.com/truist-park/seating/vista-infield"
+      },
+      {
+        "section": "425-427",
+        "where": "BEHIND HOME PLATE — 400 (Grandstand / upper) level. Verbatim: 'Best Home Plate Views: Sections 425–427 provide the most centered look at the field.'",
+        "source": "https://www.rateyourseats.com/truist-park/seating/grandstand-infield"
+      },
+      {
+        "section": "10-21",
+        "where": "FIRST BASE side, field level (low numbers). Verbatim: 'Sections 10–21 down the first base line' and 'Sections 17–21 — Behind the Braves dugout.'",
+        "source": "https://www.rateyourseats.com/truist-park/seating/dugout-club"
+      },
+      {
+        "section": "31-42",
+        "where": "THIRD BASE side, field level (high numbers). Verbatim: 'Sections 31–42 down the third base line' and 'Sections 31–35 — Behind the visiting team dugout.'",
+        "source": "https://www.rateyourseats.com/truist-park/seating/dugout-club"
+      },
+      {
+        "section": "216-218 vs 233-238",
+        "where": "200 level: FIRST BASE side is the LOW numbers, THIRD BASE side is the HIGH numbers. Verbatim: '200 Level Infield Seating: Located in Sections 216–218 (first base side) and 233–238 (third base side)' and 'Seats on the first base side (Sections 216–218) sit above the Braves dugout.'",
+        "source": "https://www.rateyourseats.com/truist-park/seating/terrace-infield"
+      },
+      {
+        "section": "110 and 142",
+        "where": "Lower level down-the-line pair, one near each foul pole, symmetric about ~126. Given 144 is at the left field foul pole, 142 is the THIRD BASE / left field line and 110 is the FIRST BASE / right field line. Verbatim: 'Therefore if a comfortable spot is what you're after, some of the seats closer to the foul poles (sections 110 and 142 for example) will be the better option.'",
+        "source": "https://www.rateyourseats.com/truist-park/seating/sections/107 (and identically on /sections/114 and /sections/142)"
+      },
+      {
+        "section": "118-133",
+        "where": "Netting range centred on home plate (~125/126), corroborating the lower-level home-plate anchor. Verbatim fan feedback: 'Front of sections 118-133 are behind the netting — There is some amount of netting or screening in front of sections 118-133.'",
+        "source": "https://www.rateyourseats.com/truist-park/seating/sections/133"
+      }
+    ],
+    "confidence": "high — five independent RateYourSeats zone pages plus two section-page anchors all agree, the field level and 100 level are an exact +100 mirror of each other, the outfield wrap (144 at LF pole -> 155 at RCF -> 156-160 in RF) closes the ring cleanly against 107-109 at the RF pole, and the dugout sides and afternoon-shade behaviour independently corroborate that low numbers are the first base side."
+  },
+  "home_plate_sections": {
+    "Field Level - Truist Club (innermost arc)": ["5"],
+    "Field Level - Delta Sky360 Club Chairman Seats": ["22", "23", "24", "25", "26", "27", "28", "29", "30"],
+    "Lower Level (100) - Delta Sky360 Club Executive Seats": ["122", "123", "124", "125", "126", "127", "128", "130"],
+    "Terrace Level (200) - Xfinity Club": ["226"],
+    "Vista Level (300)": ["325", "326", "327"],
+    "Grandstand / Upper Level (400)": ["425", "426", "427"],
+    "_notes": "Every tier at Truist Park DOES wrap behind home plate — no tier needs its anchor omitted. Field level: source names sections 5 (Truist Club) and 25/26 (Chairman Seats) as directly/almost directly behind the plate. Lower level: the source states the Delta Sky360 Executive block 122-130 is 'behind home plate' but does NOT name a single centre section; 125/126 is the arithmetic centre and the +100 mirror of Chairman 25/26, but that is an inference, not a quoted statement. 200/300/400 centre sections are directly quoted. Section 129 is absent from the RYS section index even though the club is described as 122-130 (see 'uncertain')."
+  },
+  "levels": [
+    {
+      "name": "Field Level - Truist Club (innermost, behind home plate only)",
+      "sections": "1-9",
+      "notes": "Verbatim: 'Home Plate Location: Located in Sections 1–9 directly behind home plate.' 'Extremely Limited: Only about 80 seats available each game.' 'Closest Seats in the Ballpark: Fans sit about 58 feet from home plate.' 'Each section contains only four rows of seating... Section 9 is the only section with five rows.' All-inclusive; seats are 23-inch plush leather, widest in the stadium. Section 5 is dead centre behind the plate. Which end (1 or 9) is the first-base side is NOT stated — see 'uncertain'.",
+      "source": "https://www.rateyourseats.com/truist-park/seating/truist-club"
+    },
+    {
+      "name": "Field Level - Dugout Club",
+      "sections": "10-21 (first base line) and 31-42 (third base line)",
+      "notes": "Verbatim: 'Sections 10–21 down the first base line'; 'Sections 31–42 down the third base line'; 'All seats are located within roughly the first 15 rows from the field.' 'Sections 17–21 — Behind the Braves dugout'; 'Sections 31–35 — Behind the visiting team dugout.' Mesh seats with armrests and cupholders; Dugout Corner Lounge access. 'Protective netting is installed in front of these sections.' Chipper's Corner lounge sits between Sections 40 and 41; Jim Beam Lounge between Sections 11 and 12.",
+      "source": "https://www.rateyourseats.com/truist-park/seating/dugout-club"
+    },
+    {
+      "name": "Field Level - Delta Sky360 Club, Chairman Seats",
+      "sections": "22-30",
+      "notes": "Verbatim: 'Premium Seating Behind Home Plate: Includes Sections 22–30 (Chairman Seats) and Sections 122–130 (Executive Seats).' 'Chairman Seats sit closer to the field and feature smaller sections.' 'Sections 22 sits near the Braves dugout while section 30 places fan near the visitor dugout' — i.e. 22 is the first base end, 30 the third base end. All-inclusive food/beer/wine/cocktails, in-seat service, 18,650 sq ft club lounge.",
+      "source": "https://www.rateyourseats.com/truist-park/seating/delta-sky360-club"
+    },
+    {
+      "name": "Lower Level (100 Level)",
+      "sections": "107-160 (RYS index lists 107-114, 116, 118, 120, 122-128, 130, 131, 133, 135, 137, 138, 140-160)",
+      "notes": "Runs 107-109 at the right field foul pole, 110-121 down the first base line, 122-130 behind home plate (Delta Sky360 Executive Seats), 131-142 down the third base line, 143 at the left field corner, 144-155 Home Run Porch beyond the outfield wall from the LF foul pole to right-center, 156-160 Chop House Terrace in right field. RYS zone labels: 'Lower Level Infield' (e.g. 133), 'Lower Level Down the Line' (e.g. 107, 114, 142). 'The back rows of the 100 level section get noticeably more protection from the weather'; rows 8 and above are under cover in several down-the-line sections (114, 133, 142).",
+      "source": "https://www.rateyourseats.com/truist-park/seating/sections ; /sections/107 ; /sections/114 ; /sections/133 ; /sections/142 ; /seating/delta-sky360-club ; /seating/home-run-porch ; /seating/chophouse-club"
+    },
+    {
+      "name": "Terrace Level (200 Level)",
+      "sections": "210-259 (RYS index lists 210-218, 220, 222-231, 233, 235, 237-246, 250, 257, 259)",
+      "notes": "Verbatim: Terrace Infield is 'Sections 216–218 (first base side) and 233–238 (third base side)'; 'Most sections contain about 19 numbered rows, with entry tunnels located at the very top of the section.' Xfinity Club is 'Sections 220–231 on the 200 Level' with 226 directly behind home plate, padded seats, climate-controlled lounge. Section 250 is part of the Home Run Porch; Sections 257 and 259 are part of the Chop House Club, with 259 the 'Chop House Deck' — 'Located on top of the Chop House restaurant, this area features a single row of approximately 20 seats with elevated views over right field.'",
+      "source": "https://www.rateyourseats.com/truist-park/seating/terrace-infield ; /seating/xfinity-club ; /seating/home-run-porch ; /seating/chophouse-club"
+    },
+    {
+      "name": "Vista Level (300 Level)",
+      "sections": "312-347 (RYS index lists 312-318, 320, 322-331, 333, 335, 337, 339-347)",
+      "notes": "Verbatim: '300 Level Infield Seating: Includes Sections 318–333 at Truist Park.' 'Each section contains at least 7 rows and no more than 13 rows.' 'These sections run along the infield portion of the level and sit below the upper deck.' Sections 325-327 are closest to directly behind home plate.",
+      "source": "https://www.rateyourseats.com/truist-park/seating/vista-infield"
+    },
+    {
+      "name": "Grandstand / Upper Level (400 Level)",
+      "sections": "410-444 (RYS index lists 410-418, 420, 422-431, 433, 435, 437-440, 442-444)",
+      "notes": "Verbatim: 'Highest Seating Tier: Located in Sections 418–433 on the upper level'; 'Sections 425–427 provide the most centered look at the field.' 'Because of the generous overhang, many seats in these sections receive shade, especially as you move higher in the rows.' Ballparks of Baseball adds: 'The top deck is split allowing fans to view the field when on the concourse. Atop the upper deck is a 90-feet wide canopy.' Row ranges per 400-level section were NOT established — UNKNOWN.",
+      "source": "https://www.rateyourseats.com/truist-park/seating/grandstand-infield ; https://www.ballparksofbaseball.com/ballparks/truist-park/"
+    }
+  ],
+  "dugouts": {
+    "home": "FIRST BASE side. The Braves (home) dugout is on the first base side, in front of field-level Sections 17-21 (and beneath 200-level Sections 216-218).",
+    "visiting": "THIRD BASE side, in front of field-level Sections 31-35 (one secondary source says 31-34).",
+    "source": "https://www.rateyourseats.com/truist-park/seating/dugout-club — verbatim: 'Player Proximity: Sections 17–21 behind the Braves dugout and 31–35 behind the visitor dugout.' CORROBORATION 1: https://www.rateyourseats.com/truist-park/seating/delta-sky360-club — 'Sections 22 sits near the Braves dugout while section 30 places fan near the visitor dugout.' CORROBORATION 2: https://www.rateyourseats.com/truist-park/seating/terrace-infield — 'Seats on the first base side (Sections 216–218) sit above the Braves dugout.' CORROBORATION 3 (independent of RYS): web search of atlanta.com / tickpick — 'The Atlanta Braves dugout at Truist Park is on the first base side in front of sections 17-21. The visitor's dugout is on the third-base side in front of sections 31-34.'"
+  },
+  "bullpens": "Both bullpens are beyond the outfield wall, below the Home Run Porch. CONFLICT on the exact Braves sections. RateYourSeats verbatim: 'The Braves bullpen is located beneath Sections 153 and 154, while the visiting team bullpen sits below Sections 144 and 145.' (https://www.rateyourseats.com/truist-park/seating/home-run-porch). A web-search summary of atlanta.com/tickpick instead says 'the Atlanta Braves bullpen is in front of sections 152-153, and the visitors' bullpen is in front of sections 144-145.' Both sources agree the VISITING bullpen is at 144-145 (left field end, third base side) and the BRAVES bullpen is at ~152-154 (right-center end). Recommended: Braves bullpen beneath 153-154 per the directly-fetched RYS page; flag the 152-153 variant.",
+  "special_areas": [
+    {"name": "Truist Club", "where": "Directly behind home plate at field level, ~58 feet from home plate; only ~80 seats per game; 23-inch plush leather seats; all-inclusive dining and in-seat service; access to Truist Club, Delta Sky360 and Xfinity lounges", "level": "Field Level, Sections 1-9"},
+    {"name": "Delta Sky360 Club - Chairman Seats", "where": "Behind home plate between the dugouts, closer to the field, smaller sections; all-inclusive; 18,650 sq ft lounge", "level": "Field Level, Sections 22-30"},
+    {"name": "Delta Sky360 Club - Executive Seats", "where": "Behind home plate, just behind the Chairman sections; same club access and all-inclusive amenities", "level": "Lower Level, Sections 122-130"},
+    {"name": "Dugout Club", "where": "Both baselines behind the dugouts, within roughly the first 15 rows; Dugout Corner Lounge access", "level": "Field Level, Sections 10-21 (1B) and 31-42 (3B)"},
+    {"name": "Chipper's Corner lounge", "where": "Between Sections 40 and 41 (third base side); climate-controlled, Chipper Jones memorabilia", "level": "Field Level"},
+    {"name": "Jim Beam Lounge", "where": "Between Sections 11 and 12 (first base side); distillery-inspired bar with complimentary ballpark fare", "level": "Field Level"},
+    {"name": "Xfinity Club", "where": "Infield on the Terrace Level, padded seats, climate-controlled lounge with bars, memorabilia and complimentary grab-and-go snacks", "level": "200 Level, Sections 220-231"},
+    {"name": "Terrace Infield", "where": "200 level down the baselines; ~19 rows; entry tunnels at the top of the section", "level": "200 Level, Sections 216-218 and 233-238"},
+    {"name": "Vista Infield", "where": "300 level infield, below the upper deck; 7-13 rows per section", "level": "300 Level, Sections 318-333"},
+    {"name": "Grandstand Infield", "where": "Highest tier, upper deck infield, generous roof overhang", "level": "400 Level, Sections 418-433"},
+    {"name": "Home Run Porch", "where": "Just beyond the outfield wall, from the left field foul pole to right-center, ending at the Chop House; both bullpens sit beneath it; mostly full sun except rows around Row 12 of 144-145", "level": "Lower Level Sections 144-155 plus Section 250"},
+    {"name": "Chop House Club - Chop House Terrace", "where": "Right field; five rows of high-top bar-style chairback seating per section, each with a table ledge and built-in cupholders", "level": "Lower Level, Sections 156-160"},
+    {"name": "Chop House Club - Chop House Deck", "where": "On top of the Chop House restaurant in right field; a single row of approximately 20 seats", "level": "200 Level, Section 259"},
+    {"name": "Chop House Club - Below the Chop", "where": "Beneath the Terrace sections, typically used for group outings; fans watch through openings in the outfield fence", "level": "Field level, right field (section labels UNKNOWN)"},
+    {"name": "Xfinity Rooftop", "where": "Rooftop club in right field with lounge-style and bar-style seating overlooking the field; open-air and sun-exposed", "level": "Upper right field (section labels UNKNOWN)"},
+    {"name": "Hope & Will's Sandlot / Kids Zone", "where": "Behind the grandstand in left field / behind center field; zipline, arcade and baseball-themed activities", "level": "Concourse"},
+    {"name": "The Home Depot Clubhouse", "where": "Left-center field premium suite built to look like a tree house, bleacher-style seating in front with garage-style doors behind", "level": "Outfield suite"},
+    {"name": "Suites / Champions Suites", "where": "Champions Suites are behind home plate (RYS photo caption: 'View from the Champions Suites behind home plate'); general suite section labels UNKNOWN", "level": "UNKNOWN"},
+    {"name": "The Battery Atlanta", "where": "Mixed-use entertainment district immediately outside and behind the outfield; most fans enter through the outfield entrances from the Battery", "level": "Outside the ballpark"}
+  ],
+  "accessibility": {
+    "summary": "Truist Park was designed to be universally accessible. Accessible seating with wheelchair spaces and companion seats is available on multiple levels, located near elevators or ramps and close to accessible restrooms and concessions. The ballpark provides accessible parking, elevators and escalators, courtesy rides, accessible restrooms and lowered concession counters. Complimentary wheelchair escort service is offered from the gates to seats and back. Priority for elevator use is given to guests with disabilities and elderly guests. Accessible parking in Lot N29 is served by a shuttle that picks up and drops off on Battery Avenue just outside the Third Base Gate. The Accessible Seating Department can be reached at (404) 577-9100 (Option 5) or accessibleservices@braves.com. RateYourSeats records wheelchair positions behind the last numbered row in at least some lower-level sections, e.g. Section 133: 'Wheelchair seating is available behind Row 18.' CAVEAT: the Braves' own accessibility pages (mlb.com/braves/ballpark/information/accessibility and mlb.com/braves/ballpark/disability-access-guide) could not be read directly in this session — the first returned an empty body and the second exceeded the fetch size limit — so the above is assembled from web-search extracts of those Braves pages plus MobiliQuest. Verify against the Braves pages before publishing.",
+    "landmarks": [
+      "Third Base Gate — named entrance; accessible shuttle from Lot N29 drops off on Battery Avenue just outside it",
+      "Lot N29 — accessible parking lot with shuttle service",
+      "Elevators and escalators on all levels, with priority for guests with disabilities and elderly guests",
+      "Complimentary wheelchair escort service available at the gates",
+      "Accessible restrooms and lowered concession counters throughout",
+      "Accessible Seating Department: (404) 577-9100 Option 5 / accessibleservices@braves.com",
+      "Full gate list (names of the other ballpark gates) — UNKNOWN, not confirmed by a fetched source"
+    ],
+    "source": "Web search of https://www.mlb.com/braves/ballpark/disability-access-guide , https://www.mlb.com/braves/ballpark/information/guide and https://mobiliquest.com/accessibility-truist-park-atlanta-braves-baseball-and-the-battery/ ; plus https://www.rateyourseats.com/truist-park/seating/sections/133"
+  },
+  "row_seat_conventions": "ROWS ARE NUMBERED, not lettered, in every section inspected — no lettered rows were observed anywhere at Truist Park. Confirmed row ranges from RateYourSeats section pages: Section 107 'Rows in Section 107 are labeled 1-8'; Section 114 'labeled 1-20'; Section 133 'labeled 1-18, 19-20' (a split range); Section 142 'labeled 1-20'; Section 160 (Chop House Terrace) 'labeled 1-5'. Per-level row counts from zone pages: Truist Club (1-9) has four rows per section, except Section 9 which has five; Dugout Club seats are all 'within roughly the first 15 rows from the field'; Terrace Infield sections 'contain about 19 numbered rows, with entry tunnels located at the very top of the section'; Vista Infield sections have 'at least 7 rows and no more than 13 rows'; Chop House Terrace sections have five rows. 400-level Grandstand row ranges — UNKNOWN. Section entrances are commonly at the TOP of the section: 'An entrance to this section is located at Row 20' (Sections 114, 142) and 'An entrance to this section is located at Row 20' with wheelchair seating behind Row 18 (Section 133). ACCESSIBLE-ROW LABEL CONVENTION (WC / WCH / VWC / AC suffix etc.) — UNKNOWN. No source consulted used any such label; RateYourSeats describes accessible positions positionally instead ('Wheelchair seating is available behind Row 18'). SEAT NUMBERING: see seat1_side_verbatim — seat 1 is on the right when facing the field, i.e. seat numbers increase in the same rotational direction as section numbers (from the first base side toward the third base side).",
+  "seat1_side_verbatim": "\"When looking towards the stage/field, lower number seats are on the right\" — quoted verbatim from the 'Row Numbers' block of RateYourSeats section pages. Observed identically, with no variation, on all five section pages fetched: https://www.rateyourseats.com/truist-park/seating/sections/107 , /sections/114 , /sections/133 , /sections/142 and /sections/160. These span the lower level down the first base line (107, 114), the lower level infield on the third base side (133), the lower level down the third base line (142) and the Chop House in right field (160), so the rule appears to be park-wide. No contradicting statement was found in any source. NOT independently verified for the field level (1-42), the 200, 300 or 400 levels — those section pages were not individually fetched.",
+  "known_obstructions": "PROTECTIVE NETTING: RateYourSeats fan feedback on Section 133 states verbatim: 'Front of sections 118-133 are behind the netting — There is some amount of netting or screening in front of sections 118-133. The height and coverage of netting or screening will vary by section.' Separately, the Dugout Club page states: 'Protective netting is installed in front of these sections, which helps protect fans but can reduce the chances of catching a foul ball' — referring to field-level Sections 10-21 and 31-42. Taken together the netting covers at least field-level 10-42 and lower-level 118-133. Whether the net now extends all the way to the foul poles (as at many parks) is NOT stated by any source consulted — UNKNOWN; no official Braves netting statement was successfully fetched. OTHER OBSTRUCTED/PARTIAL VIEWS: 'Below the Chop' group area in right field — 'Fans in this section watch the game through openings in the outfield fence, creating a very unique field-level viewing perspective.' Chop House views 'focus primarily on the right field and outfield portions of the game' and are 'not as direct as seats near the dugouts.' Lower-level sections nearer the corner bases 'will have you facing more towards center field and leave you with a fairly significant head turn to see the pitchers mound and home plate.' No pole/railing obstruction reports were found. SUN/COVER (not an obstruction but relevant): rows 8 and above are under cover in lower-level down-the-line sections (114, 133, 142); the Home Run Porch is mostly full sun except around Row 12 of Sections 144-145; the 400 level has a 90-foot-wide canopy over the upper deck.",
+  "uncertain": [
+    "VENUE NAME: no rename found — Truist Park is current for 2026. However RateYourSeats' internal master_id is still 'suntrust-park-smyrna-ga' and most of its photo filenames say 'SunTrust-Park-...'. Do not let that legacy string leak into generated copy.",
+    "CITY: sources disagree on the city. RateYourSeats meta-description says 'Truist Park in Smyrna, GA' and Ballparks of Baseball lists '-Location: Smyrna, GA', but RateYourSeats' own event listings say 'Truist Park - Atlanta, GA'. The ballpark is physically in unincorporated Cobb County near Smyrna, marketed as Atlanta. Pick one deliberately.",
+    "CAPACITY: three figures in circulation — 41,084 (Wikipedia / theshadium), 41,500 (Ballparks of Baseball, likely the 2017 announced figure) and 41,147 (reported by search, no primary URL captured). Recommended 41,084.",
+    "ORIENTATION: theshadium.com states 135 degrees / centre field to the SOUTHEAST, and intheballparks/shadedseats independently say Truist Park 'is oriented to the southeast'. But an earlier web-search summary asserted 'approximately 45 degrees (NE) ... third base side roughly northwest-facing', which is the exact opposite. Southeast is preferred because it is the one that cross-checks against the observed shade behaviour (RateYourSeats: first base side 216-218 gets shade earlier than the third base side). Also note RateYourSeats' Lower Level Down the Line review says 'opt for seats towards the right field corner which will leaving you facing the east' — under a southeast orientation right-field-corner seats would face roughly north-northwest, not east, so that RYS sentence does not reconcile with either compass claim. Treat compass detail as low confidence.",
+    "SECTION INDEX GAPS: the RateYourSeats section index omits numbers that its own zone pages imply exist — 129 (Delta Sky360 Executive is described as 'Sections 122–130'), 221 (Xfinity Club is 'Sections 220–231'), 319/321/332 (Vista Infield is 'Sections 318–333') and 419/421/432 (Grandstand Infield is 'Sections 418–433'). Also missing from the index: 115, 117, 119, 121, 132, 134, 136, 139, 219, 232, 234, 236, 334, 336, 338, 434, 436, 441. Some of these are probably real sections RateYourSeats simply has no page for; others may genuinely not exist. The 'sections' array above lists ONLY what the index actually contains. Reconcile against the official Braves seating chart before publishing.",
+    "TRUIST CLUB 1-9 DIRECTION: no source states which end of the 1-9 arc is the first base side. Section 5 is confirmed dead centre behind the plate and 4 and 6 are 'just to either side'. By consistency with the rest of the park section 1 would be the first base end and 9 the third base end, but that is an INFERENCE — do not publish it as fact without a source.",
+    "LOWER-LEVEL HOME-PLATE CENTRE: no source names a single 100-level section as 'directly behind home plate'. 122-130 is quoted as the behind-the-plate block and 118-133 is the quoted netting range; 125/126 is the arithmetic centre and the +100 mirror of the confirmed field-level 25/26, but is an inference.",
+    "BULLPENS: RateYourSeats says the Braves bullpen is beneath Sections 153-154; a secondary source says 152-153. Both agree the visiting bullpen is at 144-145.",
+    "VISITING DUGOUT EXTENT: RateYourSeats says Sections 31-35 are behind the visitor dugout; a secondary source says 31-34.",
+    "NETTING EXTENT: only 118-133 (lower level) and 10-42 (field level) are sourced. Whether netting now runs to the foul poles is UNKNOWN — no official Braves statement was retrievable.",
+    "ACCESSIBLE ROW LABELS: no source uses WC / WCH / VWC or an AC suffix at Truist Park. Accessible positions are described positionally ('Wheelchair seating is available behind Row 18'). The actual ticketed row label for accessible seats is UNKNOWN.",
+    "400-LEVEL ROW RANGES: not established.",
+    "OFFICIAL BRAVES PAGES NOT DIRECTLY READ: https://www.mlb.com/braves/ballpark/information/accessibility returned an empty body and https://www.mlb.com/braves/ballpark/disability-access-guide and https://www.mlb.com/braves/ballpark/information/guide both exceeded the fetch size limit. Accessibility and policy content above is therefore second-hand via web-search extracts. The Wikipedia article on Truist Park also exceeded the fetch limit and was not read directly.",
+    "CONCERT FLOOR LABELS: RateYourSeats describes the concert floor as alphabetically labelled (A-sections nearest the stage, B-sections behind, possible GA Pit) but does not enumerate the labels, so concert_only_sections could not be listed as discrete section IDs.",
+    "GENERAL ADMISSION / STANDING ROOM ONLY: these appear as zones in the RYS section index with no numbered sections attached. Whether either applies to Braves baseball games and which physical areas they map to was not established."
+  ]
+}

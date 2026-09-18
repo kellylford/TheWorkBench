@@ -1,0 +1,6 @@
+# Auto detect text files and perform LF normalization
+* text=auto
+
+# Shell scripts keep LF even when checked out on Windows. A CRLF shebang line makes the
+# script unrunnable, and ClaudeSpeak ships .sh files that a Windows user may well clone.
+*.sh text eol=lf

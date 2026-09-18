@@ -1,0 +1,40 @@
+name = "euchre-room"
+main = "src/index.js"
+compatibility_date = "2026-01-01"
+
+# Where the client is served from. WebSockets bypass CORS entirely, so without an
+# Origin check any page anywhere could open a socket to somebody's table — the
+# cheapest abuse defence there is, and the one most often left out.
+[vars]
+ALLOWED_ORIGINS = "https://kellylford.github.io"
+
+# One object per table. idFromName(code) means the join code IS the address: no
+# lookup table, no registry to keep in step, and two people typing the same code
+# reach the same room by construction.
+[[durable_objects.bindings]]
+name = "ROOM"
+class_name = "EuchreRoom"
+
+# SQLite-backed, which is what puts Durable Objects on the free plan at all —
+# 100,000 requests and 13,000 GB-s a day, against roughly 30 messages per hand.
+# new_sqlite_classes rather than new_classes: the deploy fails without a
+# migration, and the wrong one silently puts this on the paid backend.
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["EuchreRoom"]
+
+# Per-IP cap on table creation, matching the shape used on the sheephead room.
+# Five a minute is far above anyone starting a game with friends and far below
+# what makes walking the code space worthwhile. namespace_id is an arbitrary
+# label rather than a resource to create; period accepts only 10 or 60.
+#
+# The namespace must not collide with another Worker's on the same account —
+# 2001 belongs to the sheephead room, so this one is 2002.
+[[unsafe.bindings]]
+name = "NEW_TABLE_LIMIT"
+type = "ratelimit"
+namespace_id = "2002"
+simple = { limit = 5, period = 60 }
+
+[observability]
+enabled = true

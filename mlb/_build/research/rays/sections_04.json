@@ -1,0 +1,222 @@
+[
+ {
+  "section": "213",
+  "zone": "Zone headings on page: \"Middle Level Endzone (Football)\" and \"Press Level\". Zone text, verbatim: \"Middle level endzone seating is located on the 200 level running along the 3rd baseline.\" Note the football zone name is applied to a baseball section; RateYourSeats serves both event types on the same page.",
+  "location": "Verbatim: \"Middle level endzone seating is located on the 200 level running along the 3rd baseline.\" Zone text, verbatim: \"Odd-numbered sections: Third base side\". (213 is ODD; the page itself supplies the odd/even rule, and it AGREES with discovery.json - odd = third base side.)",
+  "rows": "\"Rows in Section 213 are labeled A-H\"",
+  "entrance_row": "\"An entrance to this section is located at Row H\"",
+  "seat_direction": "BOILERPLATE (park-wide, identical on every Tropicana Field section page): \"When looking towards the field/field, lower number seats are on the left\". PER-SECTION: No per-section statement. No question-and-answer, expert answer or fan comment on this page names a side for seat 1 in this section.",
+  "seats_per_row": "UNKNOWN",
+  "notes": "Section Insights, verbatim: \"Top Pick for Great Views of the FieldRows B-H\" [sic, run together]; \"Rows A-H\". Seating Notes, verbatim: \"For baseball games, we recommend rows B-H for great views of the field\". No netting, obstruction, overhang or shade line on this page - consistent with discovery.json, which puts netting in front of the 100-level bowl only. No fan reviews. No \"Verified\" stamp. No dugout or bullpen sentence. Football zone name \"Middle Level Endzone (Football)\" appears alongside the baseball content.",
+  "source": "https://www.rateyourseats.com/tropicana-field/seating/sections/213"
+ },
+ {
+  "section": "214",
+  "zone": "Zone heading on page: \"Press Level\". Zone text, verbatim: \"The Press Level is another name for 200 level seating at Tropicana Field. These sections contain fewer than ten rows and are a great alternative to the last five rows of the 100 level.\"",
+  "location": "Verbatim: \"Middle level seating is located in the 200 level of Tropicana field along the 1st base line.\" Zone text, verbatim: \"Press Level seating at Tropicana Field is located in sections 203-224 on the 200 level, wrapping around the infield.\" Zone text, verbatim: \"Even-numbered sections: First base side (Rays side)\". (214 is EVEN; page AGREES with discovery.json - even = first base / Rays side.) Football text, verbatim: \"For football games, desirable view from near midfield\".",
+  "rows": "\"Rows in Section 214 are labeled A-H\"",
+  "entrance_row": "\"An entrance to this section is located at Row H\"",
+  "seat_direction": "BOILERPLATE (park-wide, identical on every Tropicana Field section page): \"When looking towards the field/field, lower number seats are on the left\". PER-SECTION: No per-section statement. No question-and-answer, expert answer or fan comment on this page names a side for seat 1 in this section.",
+  "seats_per_row": "UNKNOWN",
+  "notes": "Section Insights, verbatim: \"Midfield View\"; \"Rows A-H\". Seating Notes, verbatim: \"For football games, desirable view from near midfield\". Zone text, verbatim: \"These sections contain fewer than ten rows and are a great alternative to the last five rows of the 100 level.\" - consistent with the A-H row list (8 rows). No netting, obstruction, overhang or shade line. No fan reviews. No \"Verified\" stamp. No dugout or bullpen sentence. The page labels the even side \"First base side (Rays side)\", agreeing with discovery.json.",
+  "source": "https://www.rateyourseats.com/tropicana-field/seating/sections/214"
+ },
+ {
+  "section": "215",
+  "zone": "Zone headings on page: \"Middle Level Endzone (Football)\" and \"Press Level\". Zone text, verbatim: \"Middle level endzone seating is located on the 200 level running along the 3rd baseline.\" Note the football zone name is applied to a baseball section; RateYourSeats serves both event types on the same page. Full zone text, verbatim: \"Middle level endzone seating is located on the 200 level running along the 3rd baseline. Seats in this location will benefit from good views of scoring in the near endzone, and are on the second tier up from the playing field. This location contains 7 odd numbered sections from 211-223. 200 level sections have the smallest number of seating rows per section in the ballpark, making them a good option if you prefer convenient access between the seats and the concourse.\"",
+  "location": "Verbatim: \"Middle level endzone seating is located on the 200 level running along the 3rd baseline.\" Zone text, verbatim: \"This location contains 7 odd numbered sections from 211-223.\" (215 is ODD and falls inside that 211-223 odd run, i.e. the third-base side - AGREES with discovery.json.)",
+  "rows": "\"Rows in Section 215 are labeled A-H\"",
+  "entrance_row": "\"An entrance to this section is located at Row H\"",
+  "seat_direction": "BOILERPLATE (park-wide, identical on every Tropicana Field section page): \"When looking towards the field/field, lower number seats are on the left\". PER-SECTION: No per-section statement. No question-and-answer, expert answer or fan comment on this page names a side for seat 1 in this section.",
+  "seats_per_row": "UNKNOWN",
+  "notes": "Section Insights, verbatim: \"Top Pick for Outstanding ConvenienceRows D-H\" [sic, run together]; \"Rows A-H\". Seating Notes, verbatim: \"For baseball games, we recommend rows D-H for outstanding convenience\". Zone text, verbatim: \"200 level sections have the smallest number of seating rows per section in the ballpark, making them a good option if you prefer convenient access between the seats and the concourse.\" USEFUL ZONE FACT, verbatim: \"This location contains 7 odd numbered sections from 211-223.\" - an explicit all-odd run on the third-base side, corroborating the parity rule in discovery.json. No netting, obstruction, overhang or shade line. No fan reviews. No \"Verified\" stamp. No dugout or bullpen sentence.",
+  "source": "https://www.rateyourseats.com/tropicana-field/seating/sections/215"
+ },
+ {
+  "section": "216",
+  "zone": "Zone heading on page: \"Press Level\". No full zone description text was served on this page.",
+  "location": "Verbatim: \"Middle level seating is located in the 200 level of Tropicana field along the 1st base line.\" (216 is EVEN; the page states the 1st base line placement for this middle-level location but prints no odd/even rule of its own. Consistent with discovery.json - even = first base side.) Football text, verbatim: \"For football games, desirable view from near midfield\".",
+  "rows": "\"Rows in Section 216 are labeled A-H\"",
+  "entrance_row": "\"An entrance to this section is located at Row H\"",
+  "seat_direction": "BOILERPLATE (park-wide, identical on every Tropicana Field section page): \"When looking towards the field/field, lower number seats are on the left\". PER-SECTION: No per-section statement. No question-and-answer, expert answer or fan comment on this page names a side for seat 1 in this section.",
+  "seats_per_row": "UNKNOWN",
+  "notes": "Section Insights, verbatim: \"Top Pick for Outstanding ConvenienceRows D-H\" [sic, run together]; \"Midfield View\"; \"Rows A-H\". Seating Notes, verbatim: \"For baseball games, we recommend rows D-H for outstanding convenience\"; \"For football games, desirable view from near midfield\". Date stamp seen: \"(2026 Review)\" attached to the Press Level review only - not a \"Verified <month> <year>\" stamp. No netting, obstruction, overhang or shade line. No fan reviews. No dugout or bullpen sentence.",
+  "source": "https://www.rateyourseats.com/tropicana-field/seating/sections/216"
+ },
+ {
+  "section": "217",
+  "zone": "Zone headings on page: \"Middle Level Endzone (Football)\" and \"Press Level\". Zone text, verbatim: \"Middle level endzone seating is located on the 200 level running along the 3rd baseline.\" Note the football zone name is applied to a baseball section; RateYourSeats serves both event types on the same page. Press Level zone text, verbatim: \"Elevated 200 Level Views: Sections 203-224 provide a higher vantage point for seeing the full field\"",
+  "location": "Verbatim: \"Middle level endzone seating is located on the 200 level running along the 3rd baseline.\" Zone text, verbatim: \"Odd-numbered sections: Third base side\". (217 is ODD; page AGREES with discovery.json - odd = third base side.)",
+  "rows": "\"Rows in Section 217 are labeled A-H\"",
+  "entrance_row": "\"An entrance to this section is located at Row H\"",
+  "seat_direction": "BOILERPLATE (park-wide, identical on every Tropicana Field section page): \"When looking towards the field/field, lower number seats are on the left\". PER-SECTION: No per-section statement. No question-and-answer, expert answer or fan comment on this page names a side for seat 1 in this section. Two fan comments exist on this page but neither names a seat side: \"Good view. No chance of getting foul balls.\" and \"COLD\".",
+  "seats_per_row": "UNKNOWN",
+  "notes": "Section Insights, verbatim: \"Rows A-H\". Zone text, verbatim: \"Elevated 200 Level Views: Sections 203-224 provide a higher vantage point for seeing the full field\". Fan feedback, verbatim: \"Good view. No chance of getting foul balls.\" and \"COLD\". The \"No chance of getting foul balls\" remark is consistent with a 200-level section set back from the field; note discovery.json places protective netting in front of the 100-level sections 101-138 only, and no netting line appears on this page. No obstruction, overhang or shade line. No \"Verified\" stamp. No dugout or bullpen sentence.",
+  "source": "https://www.rateyourseats.com/tropicana-field/seating/sections/217"
+ },
+ {
+  "section": "218",
+  "zone": "Zone heading on page: \"Press Level\". Zone text, verbatim: \"Press Level seating at Tropicana Field is located in sections 203-224 on the 200 level, wrapping around the infield.\"",
+  "location": "Verbatim: \"Middle level seating is located in the 200 level of Tropicana field along the 1st base line.\" Zone text, verbatim: \"Press Level seating at Tropicana Field is located in sections 203-224 on the 200 level, wrapping around the infield.\" (218 is EVEN; the page states the 1st base line placement but prints no odd/even rule of its own. Consistent with discovery.json - even = first base side.)",
+  "rows": "\"Rows in Section 218 are labeled A-H\"",
+  "entrance_row": "\"An entrance to this section is located at Row H\"",
+  "seat_direction": "BOILERPLATE (park-wide, identical on every Tropicana Field section page): \"When looking towards the field/field, lower number seats are on the left\". PER-SECTION: No per-section statement. No question-and-answer, expert answer or fan comment on this page names a side for seat 1 in this section.",
+  "seats_per_row": "UNKNOWN",
+  "notes": "Section Insights, verbatim: \"Top Pick for Outstanding ConvenienceRows D-H\" [sic, run together]; \"Rows A-H\". Seating Notes, verbatim: \"For baseball games, we recommend rows D-H for outstanding convenience\". No netting, obstruction, overhang or shade line. No fan reviews. No \"Verified\" stamp. No dugout or bullpen sentence. NOTE: discovery.json records that section 118, directly BELOW this one on the 100 level, is \"above the Rays dugout\"; this 200-level page makes no dugout claim of its own, so nothing here confirms or contradicts it.",
+  "source": "https://www.rateyourseats.com/tropicana-field/seating/sections/218"
+ },
+ {
+  "section": "219",
+  "zone": "Zone headings on page: \"Middle Level Endzone (Football)\" and \"Press Level\". Zone text, verbatim: \"Middle level endzone seating is located on the 200 level running along the 3rd baseline.\" Note the football zone name is applied to a baseball section; RateYourSeats serves both event types on the same page. Full zone text, verbatim: \"Middle level endzone seating is located on the 200 level running along the 3rd baseline. Seats in this location will benefit from good views of scoring in the near endzone, and are on the second tier up from the playing field.\" Press Level zone text, verbatim: \"Elevated 200 Level Views: Sections 203-224 provide a higher vantage point for seeing the full field\"",
+  "location": "Verbatim: \"Middle level endzone seating is located on the 200 level running along the 3rd baseline.\" Zone text, verbatim: \"Odd-numbered sections: Third base side\". Zone text, verbatim: \"Press Level seating at Tropicana Field is located in sections 203-224 on the 200 level\". (219 is ODD; page AGREES with discovery.json - odd = third base side.)",
+  "rows": "\"Rows in Section 219 are labeled A-H\"",
+  "entrance_row": "\"An entrance to this section is located at Row H\"",
+  "seat_direction": "BOILERPLATE (park-wide, identical on every Tropicana Field section page): \"When looking towards the field/field, lower number seats are on the left\". PER-SECTION: No per-section statement. No question-and-answer, expert answer or fan comment on this page names a side for seat 1 in this section.",
+  "seats_per_row": "UNKNOWN",
+  "notes": "Section Insights, verbatim: \"Rows A-H\". Date stamp seen: \"(2026 Review)\" - not a \"Verified <month> <year>\" stamp. No netting, obstruction, overhang or shade line. No fan reviews. No dugout or bullpen sentence.",
+  "source": "https://www.rateyourseats.com/tropicana-field/seating/sections/219"
+ },
+ {
+  "section": "220",
+  "zone": "Zone heading on page: \"Press Level\" (given as the expert-review category). No full zone description text was served on this page.",
+  "location": "Verbatim: \"Middle level seating is located in the 200 level of Tropicana field along the 1st base line.\" (220 is EVEN; the page states the 1st base line placement but prints no odd/even rule of its own. Consistent with discovery.json - even = first base side.)",
+  "rows": "\"Rows in Section 220 are labeled A-H\"",
+  "entrance_row": "\"An entrance to this section is located at Row H\"",
+  "seat_direction": "BOILERPLATE (park-wide, identical on every Tropicana Field section page): \"When looking towards the field/field, lower number seats are on the left\". PER-SECTION: No per-section statement. No question-and-answer, expert answer or fan comment on this page names a side for seat 1 in this section.",
+  "seats_per_row": "UNKNOWN",
+  "notes": "Section Insights, verbatim: \"Rows A-H\" - the only insight bullet on the page. No Seating Notes. No netting, obstruction, overhang or shade line. No fan reviews. No \"Verified\" stamp. No dugout or bullpen sentence. This is one of the thinnest pages in the batch.",
+  "source": "https://www.rateyourseats.com/tropicana-field/seating/sections/220"
+ },
+ {
+  "section": "221",
+  "zone": "Zone headings on page: \"Middle Level Endzone (Football)\" and \"Press Level\". Zone text, verbatim: \"Middle level endzone seating is located on the 200 level running along the 3rd baseline.\" Note the football zone name is applied to a baseball section; RateYourSeats serves both event types on the same page. Full zone text, verbatim: \"Middle level endzone seating is located on the 200 level running along the 3rd baseline. Seats in this location will benefit from good views of scoring in the near endzone, and are on the second tier up from the playing field.\"",
+  "location": "Verbatim: \"Middle level endzone seating is located on the 200 level running along the 3rd baseline.\" Zone text, verbatim: \"Odd-numbered sections: Third base side\". Zone text, verbatim: \"Press Level seating at Tropicana Field is located in sections 203-224 on the 200 level, wrapping around the infield.\" (221 is ODD; page AGREES with discovery.json - odd = third base side.)",
+  "rows": "\"Rows in Section 221 are labeled A-H\"",
+  "entrance_row": "\"An entrance to this section is located at Row H\"",
+  "seat_direction": "BOILERPLATE (park-wide, identical on every Tropicana Field section page): \"When looking towards the field/field, lower number seats are on the left\". PER-SECTION: No per-section statement. No question-and-answer, expert answer or fan comment on this page names a side for seat 1 in this section.",
+  "seats_per_row": "UNKNOWN",
+  "notes": "Section Insights, verbatim: \"Rows A-H\". No Seating Notes. No netting, obstruction, overhang or shade line. No fan reviews. No \"Verified\" stamp. No dugout or bullpen sentence.",
+  "source": "https://www.rateyourseats.com/tropicana-field/seating/sections/221"
+ },
+ {
+  "section": "222",
+  "zone": "Zone heading on page: \"Press Level\". Full zone text, verbatim: \"Elevated 200 Level Views: Sections 203-224 provide a higher vantage point for seeing the full field. Baseline Orientation: Even sections on the first base (Rays) side, odd sections on the third base side. Compact Sections: Typically just 7 rows per section with Row A at the front. No Club Perks: Unlike many ballparks, 200 level seats do not include club access or premium amenities. Best Value Views: Strong sightlines for the price, but avoid sections far down the lines for better angles.\"",
+  "location": "Verbatim: \"Middle level seating is located in the 200 level of Tropicana field along the 1st base line.\" Zone text, verbatim: \"Press Level seating at Tropicana Field is located in sections 203-224 on the 200 level, wrapping around the infield.\" Zone text, verbatim: \"Even-numbered sections: First base side (Rays side)\" and \"Baseline Orientation: Even sections on the first base (Rays) side, odd sections on the third base side.\" (222 is EVEN; page AGREES with discovery.json - even = first base / Rays side.)",
+  "rows": "\"Rows in Section 222 are labeled A-H\"",
+  "entrance_row": "\"An entrance to this section is located at Row H\"",
+  "seat_direction": "BOILERPLATE (park-wide, identical on every Tropicana Field section page): \"When looking towards the field/field, lower number seats are on the left\". PER-SECTION: No per-section statement. No question-and-answer, expert answer or fan comment on this page names a side for seat 1 in this section.",
+  "seats_per_row": "UNKNOWN",
+  "notes": "Section Insights, verbatim: \"Rows A-H\". CONTRADICTION INTERNAL TO THIS PAGE, not reconciled: the zone text says \"Compact Sections: Typically just 7 rows per section with Row A at the front\" while the row-label line for this section gives \"A-H\", which is 8 rows. Note the zone text hedges with \"Typically\". Zone text also, verbatim: \"No Club Perks: Unlike many ballparks, 200 level seats do not include club access or premium amenities.\" and \"Best Value Views: Strong sightlines for the price, but avoid sections far down the lines for better angles.\" The parity sentence \"Even sections on the first base (Rays) side, odd sections on the third base side\" is the clearest restatement of the parity rule found in this batch and AGREES with discovery.json. Date stamp seen: \"(2026 Review)\" - not a \"Verified <month> <year>\" stamp. No netting, obstruction, overhang or shade line. No fan reviews. No dugout or bullpen sentence.",
+  "source": "https://www.rateyourseats.com/tropicana-field/seating/sections/222"
+ },
+ {
+  "section": "223",
+  "zone": "Zone headings on page: \"Middle Level Endzone (Football)\" and \"Press Level\". Zone text, verbatim: \"Middle level endzone seating is located on the 200 level running along the 3rd baseline.\" Note the football zone name is applied to a baseball section; RateYourSeats serves both event types on the same page. Press Level zone text, verbatim: \"Elevated 200 Level Views: Sections 203-224 provide a higher vantage point for seeing the full field\"",
+  "location": "Verbatim: \"Middle level endzone seating is located on the 200 level running along the 3rd baseline.\" Zone text, verbatim: \"Odd-numbered sections: Third base side\". Zone text, verbatim: \"Press Level seating at Tropicana Field is located in sections 203-224 on the 200 level, wrapping around the infield.\" (223 is ODD; page AGREES with discovery.json - odd = third base side.)",
+  "rows": "\"Rows in Section 223 are labeled A-H\"",
+  "entrance_row": "\"An entrance to this section is located at Row H\"",
+  "seat_direction": "BOILERPLATE (park-wide, identical on every Tropicana Field section page): \"When looking towards the field/field, lower number seats are on the left\". PER-SECTION: No per-section statement. No question-and-answer, expert answer or fan comment on this page names a side for seat 1 in this section.",
+  "seats_per_row": "UNKNOWN",
+  "notes": "Section Insights, verbatim: \"Rows A-H\". Date stamp seen: \"(2026 Review)\" - not a \"Verified <month> <year>\" stamp. No netting, obstruction, overhang or shade line. No fan reviews. No dugout or bullpen sentence. Section 215 zone text names the odd Press Level run as \"7 odd numbered sections from 211-223\", making 223 the last odd section of the tier.",
+  "source": "https://www.rateyourseats.com/tropicana-field/seating/sections/223"
+ },
+ {
+  "section": "224",
+  "zone": "Zone heading on page: \"Press Level\". Zone text, verbatim: \"Press Level seating at Tropicana Field is located in sections 203-224 on the 200 level, wrapping around the infield.\"",
+  "location": "Verbatim: \"Middle level seating is located in the 200 level of Tropicana field along the 1st base line.\" Zone text, verbatim: \"Press Level seating at Tropicana Field is located in sections 203-224 on the 200 level, wrapping around the infield.\" Zone text, verbatim: \"Even-numbered sections: First base side (Rays side)\". (224 is EVEN; page AGREES with discovery.json - even = first base / Rays side. 224 is the highest-numbered section of the Press Level tier.)",
+  "rows": "\"Rows in Section 224 are labeled A-H\"",
+  "entrance_row": "\"An entrance to this section is located at Row H\"",
+  "seat_direction": "BOILERPLATE (park-wide, identical on every Tropicana Field section page): \"When looking towards the field/field, lower number seats are on the left\". PER-SECTION: No per-section statement. No question-and-answer, expert answer or fan comment on this page names a side for seat 1 in this section.",
+  "seats_per_row": "UNKNOWN",
+  "notes": "Section Insights, verbatim: \"Rows A-H\". Date stamp seen: \"(2026 Review)\" - not a \"Verified <month> <year>\" stamp. No netting, obstruction, overhang or shade line. No fan reviews. No dugout or bullpen sentence. TIER NAME CONFLICT carried over from discovery.json: RateYourSeats calls this tier the \"Press Level\" while the club's own guide lists only a \"200 Level\" and never uses \"Press Level\" as a ticketed tier name. Recorded, not reconciled.",
+  "source": "https://www.rateyourseats.com/tropicana-field/seating/sections/224"
+ },
+ {
+  "section": "300",
+  "zone": "NO ZONE NAME PRINTED. The page heading is \"Section 300 at Tropicana Field\" and no seating-category name or zone description text was served. This matches discovery.json, which records that no 300-level section page checked printed an explicit zone name and that two reads of the section index labelled the 300-series group differently (\"Club Level\" vs \"Upper Deck\").",
+  "location": "UNKNOWN - the page prints no sentence placing Section 300 anywhere in the ballpark. The only positional hint is in the Section Insights / Seating Notes, recorded under notes.",
+  "rows": "\"For most events, rows in Section 300 are labeled A-Z, AA-DD\"",
+  "entrance_row": "\"An entrance to this section is located at Row E\"",
+  "seat_direction": "BOILERPLATE (park-wide, identical on every Tropicana Field section page): \"When looking towards the field/field, lower number seats are on the left\". PER-SECTION: No per-section statement. No question-and-answer, expert answer or fan comment on this page names a side for seat 1 in this section.",
+  "seats_per_row": "UNKNOWN",
+  "notes": "Section Insights, verbatim: \"Top Pick for Great Views of the FieldRows E-J\" [sic, run together]; \"Home Plate View\"; \"Rows A-Z, AA-DD\". Seating Notes, verbatim: \"For baseball games, we recommend rows E-J for great views of the field\"; \"For baseball games, desirable view from behind home plate\". The \"Home Plate View\" insight and the \"desirable view from behind home plate\" note are the ONLY positional evidence on the page - there is no location sentence. No fan reviews. No netting, obstruction, overhang or shade line. No \"Verified\" stamp. No dugout or bullpen sentence. NOTE the row-label line is hedged: it begins \"For most events, rows in Section 300 are labeled\", unlike the unhedged \"Rows in Section X are labeled\" form used on the 100 and 200 levels. NOTE ALSO, from discovery.json and NOT stated on this page: the 300 level has been tarped and unsold since 2019 and its 2026 availability is unresolved; RateYourSeats nevertheless serves a live page for it. And: no 300-level page states the odd/even parity rule, so this section's side rests on the park-wide club rule, not on anything printed here.",
+  "source": "https://www.rateyourseats.com/tropicana-field/seating/sections/300"
+ },
+ {
+  "section": "301",
+  "zone": "NO ZONE NAME PRINTED. The page heading is \"Section 301 at Tropicana Field\" and no seating-category name or zone description text was served. This matches discovery.json, which records that no 300-level section page checked printed an explicit zone name and that two reads of the section index labelled the 300-series group differently (\"Club Level\" vs \"Upper Deck\").",
+  "location": "UNKNOWN - the page prints no sentence placing Section 301 anywhere in the ballpark. The only positional hint is in the Section Insights / Seating Notes, recorded under notes.",
+  "rows": "\"For most events, rows in Section 301 are labeled A-Z, AA-DD\"",
+  "entrance_row": "\"An entrance to this section is located at Row E\"",
+  "seat_direction": "BOILERPLATE (park-wide, identical on every Tropicana Field section page): \"When looking towards the field/field, lower number seats are on the left\". PER-SECTION: No per-section statement. No question-and-answer, expert answer or fan comment on this page names a side for seat 1 in this section.",
+  "seats_per_row": "UNKNOWN",
+  "notes": "Section Insights, verbatim: \"Top Pick for Great Views of the FieldRows E-J\" [sic, run together]; \"Home Plate View\"; \"Rows A-Z, AA-DD\". Seating Notes, verbatim: \"For baseball games, we recommend rows E-J for great views of the field\"; \"For baseball games, desirable view from behind home plate\". The \"Home Plate View\" insight and the \"desirable view from behind home plate\" note are the ONLY positional evidence on the page - there is no location sentence. No fan reviews. No netting, obstruction, overhang or shade line. No \"Verified\" stamp. No dugout or bullpen sentence. NOTE the row-label line is hedged: it begins \"For most events, rows in Section 301 are labeled\", unlike the unhedged \"Rows in Section X are labeled\" form used on the 100 and 200 levels. NOTE ALSO, from discovery.json and NOT stated on this page: the 300 level has been tarped and unsold since 2019 and its 2026 availability is unresolved; RateYourSeats nevertheless serves a live page for it. And: no 300-level page states the odd/even parity rule, so this section's side rests on the park-wide club rule, not on anything printed here.",
+  "source": "https://www.rateyourseats.com/tropicana-field/seating/sections/301"
+ },
+ {
+  "section": "302",
+  "zone": "NO ZONE NAME PRINTED. The page heading is \"Section 302 at Tropicana Field\" and no seating-category name or zone description text was served. This matches discovery.json, which records that no 300-level section page checked printed an explicit zone name and that two reads of the section index labelled the 300-series group differently (\"Club Level\" vs \"Upper Deck\").",
+  "location": "UNKNOWN - the page prints no sentence placing Section 302 anywhere in the ballpark. The only positional hint is in the Section Insights / Seating Notes, recorded under notes.",
+  "rows": "\"For most events, rows in Section 302 are labeled A-Z, AA-EE\"",
+  "entrance_row": "\"An entrance to this section is located at Row E\"",
+  "seat_direction": "BOILERPLATE (park-wide, identical on every Tropicana Field section page): \"When looking towards the field/field, lower number seats are on the left\". PER-SECTION: No per-section statement. No question-and-answer, expert answer or fan comment on this page names a side for seat 1 in this section.",
+  "seats_per_row": "UNKNOWN",
+  "notes": "Section Insights, verbatim: \"Top Pick for Great Views of the FieldRows E-J\" [sic, run together]; \"Home Plate View\"; \"Rows A-Z, AA-EE\". Seating Notes, verbatim: \"For baseball games, we recommend rows E-J for great views of the field\"; \"For baseball games, desirable view from behind home plate\". The \"Home Plate View\" insight and the \"desirable view from behind home plate\" note are the ONLY positional evidence on the page - there is no location sentence. Fan feedback, verbatim: \"Great seats. 7th row of section. No obstructed view. Great view of entire field.\" and \"Best viewpoint from upper deck behind home plate.\" The second comment is the only text on any 300-level page in this batch that names the tier, and it calls it the \"upper deck\" - relevant to the unresolved zone-name conflict in discovery.json (\"Club Level\" vs \"Upper Deck\"). It also independently supports the behind-home-plate placement. No netting, obstruction, overhang or shade line. No \"Verified\" stamp. No dugout or bullpen sentence. NOTE the row-label line is hedged: it begins \"For most events, rows in Section 302 are labeled\", unlike the unhedged \"Rows in Section X are labeled\" form used on the 100 and 200 levels. NOTE ALSO, from discovery.json and NOT stated on this page: the 300 level has been tarped and unsold since 2019 and its 2026 availability is unresolved; RateYourSeats nevertheless serves a live page for it. And: no 300-level page states the odd/even parity rule, so this section's side rests on the park-wide club rule, not on anything printed here.",
+  "source": "https://www.rateyourseats.com/tropicana-field/seating/sections/302"
+ },
+ {
+  "section": "303",
+  "zone": "NO ZONE NAME PRINTED. The page heading is \"Section 303 at Tropicana Field\" and no seating-category name or zone description text was served. This matches discovery.json, which records that no 300-level section page checked printed an explicit zone name and that two reads of the section index labelled the 300-series group differently (\"Club Level\" vs \"Upper Deck\").",
+  "location": "UNKNOWN - the page prints no sentence placing Section 303 anywhere in the ballpark. The only positional hint is in the Section Insights / Seating Notes, recorded under notes.",
+  "rows": "\"For most events, rows in Section 303 are labeled A-Z, AA-EE\"",
+  "entrance_row": "\"An entrance to this section is located at Row E\"",
+  "seat_direction": "BOILERPLATE (park-wide, identical on every Tropicana Field section page): \"When looking towards the field/field, lower number seats are on the left\". PER-SECTION: No per-section statement. No question-and-answer, expert answer or fan comment on this page names a side for seat 1 in this section.",
+  "seats_per_row": "UNKNOWN",
+  "notes": "Section Insights, verbatim: \"Top Pick for Great Views of the FieldRows E-J\" [sic, run together]; \"Home Plate View\"; \"Rows A-Z, AA-EE\". Seating Notes, verbatim: \"For baseball games, we recommend rows E-J for great views\"; \"For baseball games, desirable view from behind home plate\". NOTE the recommendation wording differs slightly from sections 300-302 (\"for great views\" rather than \"for great views of the field\"). The \"Home Plate View\" insight is the only positional evidence on the page. No fan reviews. No netting, obstruction, overhang or shade line. No \"Verified\" stamp. No dugout or bullpen sentence. NOTE the row-label line is hedged: it begins \"For most events, rows in Section 303 are labeled\", unlike the unhedged \"Rows in Section X are labeled\" form used on the 100 and 200 levels. NOTE ALSO, from discovery.json and NOT stated on this page: the 300 level has been tarped and unsold since 2019 and its 2026 availability is unresolved; RateYourSeats nevertheless serves a live page for it. And: no 300-level page states the odd/even parity rule, so this section's side rests on the park-wide club rule, not on anything printed here.",
+  "source": "https://www.rateyourseats.com/tropicana-field/seating/sections/303"
+ },
+ {
+  "section": "304",
+  "zone": "NO ZONE NAME PRINTED. The page heading is \"Section 304 at Tropicana Field\" and no seating-category name or zone description text was served. This matches discovery.json, which records that no 300-level section page checked printed an explicit zone name and that two reads of the section index labelled the 300-series group differently (\"Club Level\" vs \"Upper Deck\").",
+  "location": "UNKNOWN - the page prints no sentence placing Section 304 anywhere in the ballpark. The only positional hint is in the Section Insights / Seating Notes, recorded under notes.",
+  "rows": "\"For most events, rows in Section 304 are labeled A-Z, AA-EE\"",
+  "entrance_row": "\"An entrance to this section is located at Row E\"",
+  "seat_direction": "BOILERPLATE (park-wide, identical on every Tropicana Field section page): \"When looking towards the field/field, lower number seats are on the left\". PER-SECTION: No per-section statement. No question-and-answer, expert answer or fan comment on this page names a side for seat 1 in this section.",
+  "seats_per_row": "UNKNOWN",
+  "notes": "Section Insights, verbatim: \"Top Pick for Great Views of the FieldRows E-J\" [sic, run together]; \"Home Plate View\"; \"Rows A-Z, AA-EE\". Seating Notes, verbatim: \"For baseball games, we recommend rows E-J for great views\"; \"For baseball games, desirable view from behind home plate\". The \"Home Plate View\" insight is the only positional evidence on the page. No fan reviews. No netting, obstruction, overhang or shade line. No \"Verified\" stamp. No dugout or bullpen sentence. NOTE the row-label line is hedged: it begins \"For most events, rows in Section 304 are labeled\", unlike the unhedged \"Rows in Section X are labeled\" form used on the 100 and 200 levels. NOTE ALSO, from discovery.json and NOT stated on this page: the 300 level has been tarped and unsold since 2019 and its 2026 availability is unresolved; RateYourSeats nevertheless serves a live page for it. And: no 300-level page states the odd/even parity rule, so this section's side rests on the park-wide club rule, not on anything printed here.",
+  "source": "https://www.rateyourseats.com/tropicana-field/seating/sections/304"
+ },
+ {
+  "section": "305",
+  "zone": "NO ZONE NAME PRINTED. The page heading is \"Section 305 at Tropicana Field\" and no seating-category name or zone description text was served. This matches discovery.json, which records that no 300-level section page checked printed an explicit zone name and that two reads of the section index labelled the 300-series group differently (\"Club Level\" vs \"Upper Deck\").",
+  "location": "UNKNOWN - the page prints no sentence placing Section 305 anywhere in the ballpark. The only positional hint is in the Section Insights / Seating Notes, recorded under notes.",
+  "rows": "\"For most events, rows in Section 305 are labeled A-Z, AA-EE\"",
+  "entrance_row": "\"An entrance to this section is located at Row E\"",
+  "seat_direction": "BOILERPLATE (park-wide, identical on every Tropicana Field section page): \"When looking towards the field/field, lower number seats are on the left\". PER-SECTION: No per-section statement. No question-and-answer, expert answer or fan comment on this page names a side for seat 1 in this section.",
+  "seats_per_row": "UNKNOWN",
+  "notes": "Section Insights, verbatim: \"Top Pick for Great Views of the Field - Rows E-J\"; \"Rows A-Z, AA-EE\". Seating Notes, verbatim: \"For baseball games, we recommend rows E-J for great views of the field\". NOTE: unlike sections 300-304 this page carries NO \"Home Plate View\" insight and NO \"desirable view from behind home plate\" note, so there is no positional evidence of any kind for 305. No fan reviews. No netting, obstruction, overhang or shade line. No \"Verified\" stamp. No dugout or bullpen sentence. NOTE the row-label line is hedged: it begins \"For most events, rows in Section 305 are labeled\", unlike the unhedged \"Rows in Section X are labeled\" form used on the 100 and 200 levels. NOTE ALSO, from discovery.json and NOT stated on this page: the 300 level has been tarped and unsold since 2019 and its 2026 availability is unresolved; RateYourSeats nevertheless serves a live page for it. And: no 300-level page states the odd/even parity rule, so this section's side rests on the park-wide club rule, not on anything printed here.",
+  "source": "https://www.rateyourseats.com/tropicana-field/seating/sections/305"
+ },
+ {
+  "section": "306",
+  "zone": "NO ZONE NAME PRINTED. The page heading is \"Section 306 at Tropicana Field\" and no seating-category name or zone description text was served. This matches discovery.json, which records that no 300-level section page checked printed an explicit zone name and that two reads of the section index labelled the 300-series group differently (\"Club Level\" vs \"Upper Deck\").",
+  "location": "UNKNOWN - the page prints no sentence placing Section 306 anywhere in the ballpark. The only positional hint is in the Section Insights / Seating Notes, recorded under notes.",
+  "rows": "\"For most events, rows in Section 306 are labeled A-Z, AA-EE\"",
+  "entrance_row": "\"An entrance to this section is located at Row E\"",
+  "seat_direction": "BOILERPLATE (park-wide, identical on every Tropicana Field section page): \"When looking towards the field/field, lower number seats are on the left\". PER-SECTION: No per-section statement. No question-and-answer, expert answer or fan comment on this page names a side for seat 1 in this section.",
+  "seats_per_row": "UNKNOWN",
+  "notes": "Section Insights, verbatim: \"Top Pick for Great Views of the FieldRows E-J\" [sic, run together]; \"Rows A-Z, AA-EE\". Seating Notes, verbatim: \"For baseball games, we recommend rows E-J for great views of the field\". NOTE: like 305 and unlike 300-304, no \"Home Plate View\" insight and no behind-home-plate note, so there is no positional evidence of any kind for 306. No fan reviews. No netting, obstruction, overhang or shade line. No \"Verified\" stamp. No dugout or bullpen sentence. NOTE the row-label line is hedged: it begins \"For most events, rows in Section 306 are labeled\", unlike the unhedged \"Rows in Section X are labeled\" form used on the 100 and 200 levels. NOTE ALSO, from discovery.json and NOT stated on this page: the 300 level has been tarped and unsold since 2019 and its 2026 availability is unresolved; RateYourSeats nevertheless serves a live page for it. And: no 300-level page states the odd/even parity rule, so this section's side rests on the park-wide club rule, not on anything printed here.",
+  "source": "https://www.rateyourseats.com/tropicana-field/seating/sections/306"
+ },
+ {
+  "section": "307",
+  "zone": "NO ZONE NAME PRINTED. The page heading is \"Section 307 at Tropicana Field\" and no seating-category name or zone description text was served. This matches discovery.json, which records that no 300-level section page checked printed an explicit zone name and that two reads of the section index labelled the 300-series group differently (\"Club Level\" vs \"Upper Deck\").",
+  "location": "UNKNOWN - the page prints no sentence placing Section 307 anywhere in the ballpark. The only positional hint is in the Section Insights / Seating Notes, recorded under notes.",
+  "rows": "\"For most events, rows in Section 307 are labeled A-Z, AA-EE\"",
+  "entrance_row": "\"An entrance to this section is located at Row E\"",
+  "seat_direction": "BOILERPLATE (park-wide, identical on every Tropicana Field section page): \"When looking towards the field/field, lower number seats are on the left\". PER-SECTION: No per-section statement. No question-and-answer, expert answer or fan comment on this page names a side for seat 1 in this section. PER-SECTION FAN COMMENT EXISTS BUT NAMES NO SEAT SIDE, verbatim: \"Upper Reserved seats are good through Row M, of course Row A is GREAT & this particular section has a great view into the Rays dugout!\" It names a row and a dugout, not a seat number or a side.",
+  "seats_per_row": "UNKNOWN",
+  "notes": "Section Insights, verbatim: \"Top Pick for Outstanding ConvenienceRows A-I\" [sic, run together]. Seating Notes, verbatim: \"For baseball games, we recommend rows A-I for outstanding convenience\". NOTE this page breaks the 300-304 pattern entirely: no \"Home Plate View\" insight, no great-views recommendation, and the recommendation is for convenience over rows A-I. *** DUGOUT SIGHTLINE CLAIM - FLAGGED. *** Fan feedback, verbatim: \"Upper Reserved seats are good through Row M, of course Row A is GREAT & this particular section has a great view into the Rays dugout!\" Section 307 is ODD, and discovery.json places the Rays dugout on the FIRST BASE side in front of EVEN sections 112-118. A fan claiming a great view INTO the Rays dugout from an odd section is recorded here verbatim and NOT reconciled. It is not necessarily a contradiction - from the third-base side one looks ACROSS into the first-base dugout, and an elevated upper-deck seat is exactly where that sightline would be good - but it is the only sentence in this batch that touches dugout geometry, so it is flagged rather than resolved. The comment also gives a row bound, \"good through Row M\", which is fan opinion, not a stated row count. No netting, obstruction, overhang or shade line. No \"Verified\" stamp. No editorial dugout or bullpen sentence - the only dugout reference on the page is the fan comment quoted above. NOTE the row-label line is hedged: it begins \"For most events, rows in Section 307 are labeled\", unlike the unhedged \"Rows in Section X are labeled\" form used on the 100 and 200 levels. NOTE ALSO, from discovery.json and NOT stated on this page: the 300 level has been tarped and unsold since 2019 and its 2026 availability is unresolved; RateYourSeats nevertheless serves a live page for it. And: no 300-level page states the odd/even parity rule, so this section's side rests on the park-wide club rule, not on anything printed here.",
+  "source": "https://www.rateyourseats.com/tropicana-field/seating/sections/307"
+ }
+]

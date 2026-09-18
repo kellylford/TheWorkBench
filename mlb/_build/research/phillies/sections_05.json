@@ -1,0 +1,222 @@
+[
+  {
+    "section": "233",
+    "zone": "Club Level Down the Line",
+    "location": "UNKNOWN (no side stated on page; RYS review notes this is 'also known as the Pavilion on the right field side, and the Arcade on the left field side' but does not state which name applies to 233 specifically)",
+    "rows": "Rows 1-10",
+    "entrance_row": "Row 10",
+    "seat_direction": "When looking towards the field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights: 'Top Pick for Great Views of the Field'; 'Rows 7 & Above - Covered'. Seating Notes: 'For baseball games, we recommend these seats for great views of the field'; 'Rows 7 and above are under cover'.",
+    "source": "https://www.rateyourseats.com/citizens-bank-park/seating/sections/233"
+  },
+  {
+    "section": "234",
+    "zone": "Club Level Down the Line",
+    "location": "UNKNOWN (no side stated on page)",
+    "rows": "Rows 1-10",
+    "entrance_row": "Row 10",
+    "seat_direction": "When looking towards the field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights: 'Top Pick for Outstanding Convenience Rows 6-10'; 'Top Pick for Great Views of the Field'; 'Rows 7 & Above - Covered'. Seating Notes: 'For baseball games, we recommend rows 6-10 for outstanding convenience'; 'For baseball games, we recommend these seats for great views of the field'; 'Rows 7 and above are under cover'.",
+    "source": "https://www.rateyourseats.com/citizens-bank-park/seating/sections/234"
+  },
+  {
+    "section": "235",
+    "zone": "Club Level Down the Line",
+    "location": "UNKNOWN (no side stated on page)",
+    "rows": "Rows 1-10",
+    "entrance_row": "Row 10",
+    "seat_direction": "When looking towards the field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights: 'Top Pick for Great Views of the Field'; 'Rows 7 & Above - Covered'. Seating Notes: 'For baseball games, we recommend these seats for great views of the field'; 'Rows 7 and above are under cover'.",
+    "source": "https://www.rateyourseats.com/citizens-bank-park/seating/sections/235"
+  },
+  {
+    "section": "236",
+    "zone": "Club Level Down the Line",
+    "location": "UNKNOWN (no side stated on page; fan review says 'section 236 in the corner of the 200 level, 236-234ish, before you get to club boxes')",
+    "rows": "Rows 1-10",
+    "entrance_row": "Row 10",
+    "seat_direction": "When looking towards the field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights: 'Rows 7 & Above - Covered'. Seating Notes: 'Rows 7 and above are under cover'. Fan review (5 stars): 'Row 9 is last row before an elevated club box area. Row 3-9 in this section, and the other sections in the corner of the 200 level, 236-234ish, before you get to club boxes. Under roof, have very loud speakers... Big screen is not visible, so you can't see line up.'",
+    "source": "https://www.rateyourseats.com/citizens-bank-park/seating/sections/236"
+  },
+  {
+    "section": "237",
+    "zone": "Club Level Down the Line",
+    "location": "UNKNOWN (no side stated on page)",
+    "rows": "Rows 1-12",
+    "entrance_row": "Row 11",
+    "seat_direction": "When looking towards the field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights: 'Rows 7 & Above - Covered'. Seating Notes: 'Rows 7 and above are under cover'.",
+    "source": "https://www.rateyourseats.com/citizens-bank-park/seating/sections/237"
+  },
+  {
+    "section": "241",
+    "zone": "Club Level Outfield",
+    "location": "Outfield, second tier (Club Level); expert review states 'Fans in Section 243 will have the closest seats to Harry the K's Broadcast Bar and Grille [left field], while those near center field will be just a short walk from Ashburn Alley' -- exact position of 241 relative to that range not separately stated",
+    "rows": "Rows 1-11",
+    "entrance_row": "Row 11",
+    "seat_direction": "When looking towards the field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Expert review (Club Level Outfield): 'Home run balls are a slight possibility...little to no protection from the sun...fans that don't want to turn around 180 degrees to see the video board should avoid the left field portion (known as the Scoreboard Porch sections).' Concert note: '241 is behind the stage or to the side of the stage for most concerts.'",
+    "source": "https://www.rateyourseats.com/citizens-bank-park/seating/sections/241"
+  },
+  {
+    "section": "242",
+    "zone": "Club Level Outfield",
+    "location": "Outfield, second tier (Club Level)",
+    "rows": "Rows 1-11",
+    "entrance_row": "Row 11",
+    "seat_direction": "When looking towards the field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Expert review (Club Level Outfield, identical text to 241): 'Home run balls are a slight possibility...little to no protection from the sun...avoid the left field portion (known as the Scoreboard Porch sections).' Concert note: '242 is behind the stage or to the side of the stage for most concerts.'",
+    "source": "https://www.rateyourseats.com/citizens-bank-park/seating/sections/242"
+  },
+  {
+    "section": "243",
+    "zone": "Club Level Outfield",
+    "location": "Outfield, second tier (Club Level); expert review: 'Fans in Section 243 will have the closest seats to Harry the K's Broadcast Bar and Grille' (Harry the K's is a left-field restaurant per discovery.json)",
+    "rows": "Rows 1-8",
+    "entrance_row": "Row 8",
+    "seat_direction": "When looking towards the field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights: 'Top Pick for Outstanding Convenience Rows 7-11' (note: insight cites rows 7-11 though section rows are labeled 1-8 -- recorded verbatim, not reconciled). Seating Notes: 'For baseball games, we recommend rows 7-11 for outstanding convenience'. Concert note: '243 is behind the stage or to the side of the stage for most concerts.' Fan feedback: 'Favorite Seats: Section 243 row 8 seat 21 and 22'.",
+    "source": "https://www.rateyourseats.com/citizens-bank-park/seating/sections/243"
+  },
+  {
+    "section": "244",
+    "zone": "Club Level Outfield",
+    "location": "Outfield, second tier (Club Level)",
+    "rows": "Rows 1-11",
+    "entrance_row": "Row 11",
+    "seat_direction": "When looking towards the field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights: 'Top Pick for Outstanding Convenience Rows 7-11'. Seating Notes: 'For baseball games, we recommend rows 7-11 for outstanding convenience'. Expert review (Club Level Outfield, same text as 241/242): 'Home run balls are a slight possibility...avoid the left field portion (known as the Scoreboard Porch sections).' Concert note: '244 is behind the stage or to the side of the stage for most concerts.'",
+    "source": "https://www.rateyourseats.com/citizens-bank-park/seating/sections/244"
+  },
+  {
+    "section": "245",
+    "zone": "Club Level Outfield",
+    "location": "Outfield, second tier (Club Level)",
+    "rows": "Rows 1-11",
+    "entrance_row": "Row 11",
+    "seat_direction": "When looking towards the field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Expert review (Club Level Outfield, same text as 241/242/244): 'Home run balls are a slight possibility...avoid the left field portion (known as the Scoreboard Porch sections).' Concert note: '245 is behind the stage or to the side of the stage for most concerts.'",
+    "source": "https://www.rateyourseats.com/citizens-bank-park/seating/sections/245"
+  },
+  {
+    "section": "301",
+    "zone": "Terrace Level Outfield",
+    "location": "Outfield, Terrace Level ('the highest and furthest of all the outfield seating areas at Citizens Bank Park' per expert review)",
+    "rows": "Rows 1-14",
+    "entrance_row": "Row 7",
+    "seat_direction": "When looking towards the field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights: 'Top Pick for Kids and Family'; 'Rows 14 & Above - Covered'. Seating Notes: 'For baseball games, we recommend these seats for kids and family'; 'Rows 14 and above are under cover'. Expert review (Terrace Level Outfield): 'the highest and furthest of all the outfield seating areas...Don't expect many home run balls to make it all the way up here...bring your sunscreen during day games...limited amenities nearby.' Concert note: '301 is behind the stage or to the side of the stage for most concerts.'",
+    "source": "https://www.rateyourseats.com/citizens-bank-park/seating/sections/301"
+  },
+  {
+    "section": "302",
+    "zone": "Terrace Level Outfield",
+    "location": "Outfield, Terrace Level",
+    "rows": "Rows 1-21",
+    "entrance_row": "Row 7",
+    "seat_direction": "When looking towards the field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights: 'Top Pick for Kids and Family'; 'Rows 14 & Above - Covered'. Seating Notes: 'For baseball games, we recommend these seats for kids and family'; 'Rows 14 and above are under cover'. Expert review (Terrace Level Outfield, same text as 301). Concert note: '302 is behind the stage or to the side of the stage for most concerts.'",
+    "source": "https://www.rateyourseats.com/citizens-bank-park/seating/sections/302"
+  },
+  {
+    "section": "303",
+    "zone": "Terrace Level Outfield",
+    "location": "Outfield, Terrace Level",
+    "rows": "Rows 1-21",
+    "entrance_row": "Row 7",
+    "seat_direction": "When looking towards the field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights: 'Top Pick for Kids and Family'; 'Rows 14 & Above - Covered'. Seating Notes: 'For baseball games, we recommend these seats for kids and family'; 'Rows 14 and above are under cover'. Expert review (Terrace Level Outfield, same text as 301/302). Concert note: '303 is behind the stage or to the side of the stage for most concerts.' Fan feedback: 'Favorite Seats: SEC 303 ROW 5 SEAT 23'.",
+    "source": "https://www.rateyourseats.com/citizens-bank-park/seating/sections/303"
+  },
+  {
+    "section": "304",
+    "zone": "Terrace Level Outfield",
+    "location": "Outfield, Terrace Level",
+    "rows": "Rows 1-21",
+    "entrance_row": "Row 7",
+    "seat_direction": "When looking towards the field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights: 'Top Pick for Kids and Family'; 'Rows 14 & Above - Covered'. Seating Notes: 'For baseball games, we recommend these seats for kids and family'; 'Rows 14 and above are under cover'. Expert review (Terrace Level Outfield, same text as 301-303). Concert note: '304 is behind the stage or to the side of the stage for most concerts.'",
+    "source": "https://www.rateyourseats.com/citizens-bank-park/seating/sections/304"
+  },
+  {
+    "section": "305",
+    "zone": "Terrace Level Outfield",
+    "location": "Outfield, Terrace Level",
+    "rows": "Rows 1-21",
+    "entrance_row": "Row 7",
+    "seat_direction": "When looking towards the field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights: 'Top Pick for Outstanding Convenience Rows 1-5'; 'Rows 14 & Above - Covered'. Seating Notes: 'For baseball games, we recommend rows 1-5 for outstanding convenience'; 'Rows 14 and above are under cover'. Expert review (Terrace Level Outfield, same text as 301-304). Concert note: '305 is behind the stage or to the side of the stage for most concerts.'",
+    "source": "https://www.rateyourseats.com/citizens-bank-park/seating/sections/305"
+  },
+  {
+    "section": "306",
+    "zone": "Lower Terrace Down the Line",
+    "location": "Front of the upper deck, between the corner bases and the foul poles; expert review: 'On the first base side, fans will be the most exposed sections to the sun during day games' (page does not explicitly state which side 306 itself is on)",
+    "rows": "Rows 1-21",
+    "entrance_row": "Row 7",
+    "seat_direction": "When looking towards the field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights: 'Top Pick for Outstanding Convenience Rows 1-5'; 'Rows 14 & Above - Covered'. Seating Notes: 'For baseball games, we recommend rows 1-5 for outstanding convenience'; 'Rows 14 and above are under cover'. Expert review (Lower Terrace Down the Line): 'similar to the Lower Terrace Infield seating...run between the corner bases and the foul poles. On the first base side, fans will be the most exposed sections to the sun...Further positioning away from home plate gives more distant views, and with fewer concessions and amenities, there are better options to consider on this level in the infield portion.' No concert-view note present on this page (zone changed from outfield to down-the-line vs 305).",
+    "source": "https://www.rateyourseats.com/citizens-bank-park/seating/sections/306"
+  },
+  {
+    "section": "307",
+    "zone": "Lower Terrace Down the Line",
+    "location": "Front of the upper deck, between the corner bases and the foul poles",
+    "rows": "Rows 1-21",
+    "entrance_row": "Row 7",
+    "seat_direction": "When looking towards the field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights: 'Rows 14 & Above - Covered'. Seating Notes: 'Rows 14 and above are under cover'. Expert review (Lower Terrace Down the Line, same text as 306).",
+    "source": "https://www.rateyourseats.com/citizens-bank-park/seating/sections/307"
+  },
+  {
+    "section": "308",
+    "zone": "Lower Terrace Down the Line",
+    "location": "Front of the upper deck, between the corner bases and the foul poles",
+    "rows": "Rows 1-21",
+    "entrance_row": "Row 7",
+    "seat_direction": "When looking towards the field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights: 'Rows 14 & Above - Covered'. Seating Notes: 'Rows 14 and above are under cover'. Expert review (Lower Terrace Down the Line, same text as 306/307).",
+    "source": "https://www.rateyourseats.com/citizens-bank-park/seating/sections/308"
+  },
+  {
+    "section": "309",
+    "zone": "Lower Terrace Down the Line",
+    "location": "Front of the upper deck, between the corner bases and the foul poles",
+    "rows": "Rows 1-21",
+    "entrance_row": "Row 7",
+    "seat_direction": "When looking towards the field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights: 'Rows 14 & Above - Covered'. Seating Notes: 'Rows 14 and above are under cover'. Expert review (Lower Terrace Down the Line, same text as 306-308).",
+    "source": "https://www.rateyourseats.com/citizens-bank-park/seating/sections/309"
+  },
+  {
+    "section": "310",
+    "zone": "Lower Terrace Down the Line",
+    "location": "Front of the upper deck, between the corner bases and the foul poles",
+    "rows": "Rows 1-21",
+    "entrance_row": "Row 7",
+    "seat_direction": "When looking towards the field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights: 'Rows 14 & Above - Covered'. Seating Notes: 'Rows 14 and above are under cover'. Expert review (Lower Terrace Down the Line, same text as 306-309). Fan review (5 stars): 'Too far, no shade -- Thought it wouldn't seem that far based on the photos but could barely see who was playing and if it's hot or raining no cover. Hate they call it a pavilion.'",
+    "source": "https://www.rateyourseats.com/citizens-bank-park/seating/sections/310"
+  }
+]

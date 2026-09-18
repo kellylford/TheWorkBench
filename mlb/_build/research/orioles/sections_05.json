@@ -1,0 +1,222 @@
+[
+  {
+    "section": "90",
+    "zone": "Bleachers",
+    "location": "\"Right-Center Field Seating: Located in Sections 90-98 below the main scoreboard in right-center field.\" \"The Bleachers at Oriole Park at Camden Yards are located in Sections 90 through 98 in right-center field, positioned below the main video board and next to the out-of-town scoreboard.\" (These two sentences are the zone-level location text served on this section page; the page carries no sentence placing Section 90 individually within the bleacher run, though a zone insight line names it: \"Sections 90 and 92 offer rare center-field-style views toward home plate.\")",
+    "rows": "\"Rows in Section 90 are labeled 1-19\"",
+    "entrance_row": "\"An entrance to this section is located at Row 19\"",
+    "seat_direction": "PARK-WIDE BOILERPLATE (Row Numbers block, identical on every Oriole Park section page): \"When looking towards the field, lower number seats are on the right\". PER-SECTION: No per-section statement naming a side for seat numbering in Section 90 was found anywhere on the page (no Q&A, expert answer, fan review or insight line names a side or a seat count for this section).",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights / Seating Notes, verbatim: \"Bleacher Seating with Back Support: Seats feature bleacher-style benches with back support, rather than traditional chairback seats.\"; \"Sunny Sections: These seats receive significant sun exposure during day games.\" Also verbatim: \"Home Run Territory: Front rows provide good chances to catch home run balls.\"; \"Sections 90 and 92 offer rare center-field-style views toward home plate.\"; \"Fans attending afternoon games should consider bringing sunglasses, hats, or sunscreen.\" No covered-rows line is printed for Section 90 (unlike 92 and 94, which carry \"Rows 19 and above are under cover\"). Row labels here are plain numeric with NO \"EAL\" entrance row - the entrance is given as Row 19, the last labelled row. No netting, screening or obstructed-view note appears on this page. NOTE vs discovery.json: RateYourSeats places the bleachers in RIGHT-CENTER field; discovery.json records an unresolved three-way conflict (RateYourSeats right-center vs Wikipedia beyond right field / Eutaw Street vs The Stadium Insiders center field). This page supports the RateYourSeats reading only. It does NOT contradict the park numbering direction.",
+    "source": "https://www.rateyourseats.com/oriole-park/seating/sections/90"
+  },
+  {
+    "section": "92",
+    "zone": "Bleachers",
+    "location": "\"Right-Center Field Seating: Located in Sections 90-98 below the main scoreboard in right-center field.\" \"The Bleachers at Oriole Park at Camden Yards are located in Sections 90 through 98 in right-center field, positioned below the main video board and next to the out-of-town scoreboard.\" (These two sentences are the zone-level location text served on this section page; the page carries no sentence placing Section 92 individually within the bleacher run)",
+    "rows": "\"Rows in Section 92 are labeled 1-23\"",
+    "entrance_row": "\"An entrance to this section is located at Row 23\"",
+    "seat_direction": "PARK-WIDE BOILERPLATE (Row Numbers block, identical on every Oriole Park section page): \"When looking towards the field, lower number seats are on the right\". PER-SECTION: No per-section statement naming a side for seat numbering in Section 92 was found anywhere on the page (no Q&A, expert answer, fan review or insight line names a side or a seat count for this section).",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights / Seating Notes, verbatim: \"Bleacher Seating with Back Support: Seats feature bleacher-style benches with back support, rather than traditional chairback seats.\"; \"Sunny Sections: These seats receive significant sun exposure during day games.\" Covered rows, verbatim: \"Rows 19 & Above - Covered\" and \"Rows 19 and above are under cover\". Also verbatim: \"Bleacher seats are fully exposed to the sun, and like many outfield seating areas, they can receive extended sunlight during day games.\" FAN FEEDBACK, verbatim: \"Literally under the scoreboard and couldn't see the highlights of the game that was crucial!\" - a videoboard-sightline complaint consistent with discovery.json's note that bleacher seats cannot see the main board. Row labels are plain numeric with NO \"EAL\" entrance row. No netting, screening or obstructed-view note appears on this page. ",
+    "source": "https://www.rateyourseats.com/oriole-park/seating/sections/92"
+  },
+  {
+    "section": "94",
+    "zone": "Bleachers",
+    "location": "\"Right-Center Field Seating: Located in Sections 90-98 below the main scoreboard in right-center field.\" \"The Bleachers at Oriole Park at Camden Yards are located in Sections 90 through 98 in right-center field, positioned below the main video board and next to the out-of-town scoreboard.\" (These two sentences are the zone-level location text served on this section page; the page carries no sentence placing Section 94 individually within the bleacher run)",
+    "rows": "\"Rows in Section 94 are labeled 1-23\"",
+    "entrance_row": "\"An entrance to this section is located at Row 23\"",
+    "seat_direction": "PARK-WIDE BOILERPLATE (Row Numbers block, identical on every Oriole Park section page): \"When looking towards the field, lower number seats are on the right\". PER-SECTION: No per-section statement naming a side for seat numbering in Section 94 was found anywhere on the page (no Q&A, expert answer, fan review or insight line names a side or a seat count for this section).",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights / Seating Notes, verbatim: \"Bleacher Seating with Back Support: Seats feature bleacher-style benches with back support, rather than traditional chairback seats.\"; \"Sunny Sections: These seats receive significant sun exposure during day games.\" Covered rows, verbatim: \"Rows 19 & Above - Covered\" and \"Rows 19 and above are under cover\". Also verbatim: \"Home Run Territory: Front rows provide good chances to catch home run balls.\" Row labels are plain numeric with NO \"EAL\" entrance row. No fan-review text was returned for this section. No netting, screening or obstructed-view note appears on this page. ",
+    "source": "https://www.rateyourseats.com/oriole-park/seating/sections/94"
+  },
+  {
+    "section": "96",
+    "zone": "Bleachers",
+    "location": "\"Right-Center Field Seating: Located in Sections 90-98 below the main scoreboard in right-center field.\" \"The Bleachers at Oriole Park at Camden Yards are located in Sections 90 through 98 in right-center field, positioned below the main video board and next to the out-of-town scoreboard.\" (These two sentences are the zone-level location text served on this section page; the page carries no sentence placing Section 96 individually within the bleacher run)",
+    "rows": "\"Rows in Section 96 are labeled 1-22, EAL\"",
+    "entrance_row": "\"An entrance to this section is located at Row EAL\"",
+    "seat_direction": "PARK-WIDE BOILERPLATE (Row Numbers block, identical on every Oriole Park section page): \"When looking towards the field, lower number seats are on the right\". PER-SECTION: No per-section statement naming a side for seat numbering in Section 96 was found anywhere on the page (no Q&A, expert answer, fan review or insight line names a side or a seat count for this section).",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights / Seating Notes, verbatim: \"Bleacher Seating with Back Support: Seats feature bleacher-style benches with back support, rather than traditional chairback seats.\"; \"Sunny Sections: These seats receive significant sun exposure during day games.\" Also verbatim: \"Home Run Territory: Front rows provide good chances to catch home run balls.\"; \"Fans looking to stay close to concessions may want to consider seats closer to Section 98, which sits nearer to beer stands and food vendors.\"; \"Bleacher seats are fully exposed to the sun, and like many outfield seating areas, they can receive extended sunlight during day games.\" This section DOES carry the \"EAL\" entrance row (unlike 90, 92 and 94), matching the convention recorded in discovery.json. No covered-rows line is printed for Section 96. No netting, screening or obstructed-view note appears on this page. ",
+    "source": "https://www.rateyourseats.com/oriole-park/seating/sections/96"
+  },
+  {
+    "section": "98",
+    "zone": "Bleachers",
+    "location": "\"Right-Center Field Seating: Located in Sections 90-98 below the main scoreboard in right-center field.\" \"The Bleachers at Oriole Park at Camden Yards are located in Sections 90 through 98 in right-center field, positioned below the main video board and next to the out-of-town scoreboard.\" (These two sentences are the zone-level location text served on this section page; the page carries no sentence placing Section 98 individually within the bleacher run)",
+    "rows": "\"Rows in Section 98 are labeled 1-15, EAL\"",
+    "entrance_row": "\"An entrance to this section is located at Row EAL\"",
+    "seat_direction": "PARK-WIDE BOILERPLATE (Row Numbers block, identical on every Oriole Park section page): \"When looking towards the field, lower number seats are on the right\". PER-SECTION: No per-section statement naming a side for seat numbering in Section 98 was found anywhere on the page (no Q&A, expert answer, fan review or insight line names a side or a seat count for this section).",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights / Seating Notes, verbatim: \"Bleacher Seating with Back Support: Seats feature bleacher-style benches with back support, rather than traditional chairback seats.\"; \"Sunny Sections: These seats receive significant sun exposure during day games.\" Also verbatim: \"Home Run Territory: Front rows provide good chances to catch home run balls.\"; \"Fans looking to stay close to concessions may want to consider seats closer to Section 98, which sits nearer to beer stands and food vendors.\" OBSTRUCTED/LIMITED VIEW, verbatim: \"Because these seats are located below the main scoreboard, fans who frequently watch the video board or out-of-town scoreboard may find those views somewhat limited.\" This section carries the \"EAL\" entrance row. No covered-rows line is printed for Section 98. No netting, screening or obstructed-view note appears on this page. ",
+    "source": "https://www.rateyourseats.com/oriole-park/seating/sections/98"
+  },
+  {
+    "section": "204",
+    "zone": "Club Level",
+    "location": "\"The Club Level wraps around more than half of the stadium on the second tier between the lower bowl and the upper deck.\" \"Sections on this level include: 204-240 along the first base side\" and \"242-280 along the third base side\". (Zone-level location text served on this section page; the page carries no sentence placing Section 204 individually. Section 204 falls in the stated 204-240 FIRST BASE range.)",
+    "rows": "\"Rows in Section 204 are labeled 1-5\"",
+    "entrance_row": "\"An entrance to this section is located at Row 5\"",
+    "seat_direction": "PARK-WIDE BOILERPLATE (Row Numbers block, identical on every Oriole Park section page): \"When looking towards the field, lower number seats are on the right\". PER-SECTION: No per-section statement naming a side for seat numbering in Section 204 was found anywhere on the page (no Q&A, expert answer, fan review or insight line names a side or a seat count for this section).",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights / Seating Notes, verbatim: \"Premium seating area as part of the Club Level\"; \"Climate-Controlled Concourse: Fans have access to indoor lounges, bars, and specialty concessions\"; \"In-Seat Wait Service (Orioles Games - Select Areas): Some sections offer in-seat food and beverage service during Baltimore Orioles games.\"; \"Compact Sections: Most sections feature 5-9 rows, creating a smaller and less crowded seating experience.\"; \"The Club Level offers limited overhead protection, meaning many seats will be exposed to the sun during day games.\" Rows are labelled 1-5 only - these are among the SHORT five-row Club Level sections, and NO \"Rows 8 and above are under cover\" line is printed for this section (that line appears on the nine-row sections 212 and up). No netting, screening or obstructed-view note appears on this page. Also verbatim: \"Club Level wraps around much of the middle tier of Oriole Park, offering a comfortable viewing height\". No fan-review text was returned for this section.",
+    "source": "https://www.rateyourseats.com/oriole-park/seating/sections/204"
+  },
+  {
+    "section": "206",
+    "zone": "Club Level",
+    "location": "\"The Club Level wraps around more than half of the stadium on the second tier between the lower bowl and the upper deck.\" \"Sections on this level include: 204-240 along the first base side\" and \"242-280 along the third base side\". (Zone-level location text served on this section page; the page carries no sentence placing Section 206 individually. Section 206 falls in the stated 204-240 FIRST BASE range.)",
+    "rows": "\"Rows in Section 206 are labeled 1-5\"",
+    "entrance_row": "\"An entrance to this section is located at Row 5\"",
+    "seat_direction": "PARK-WIDE BOILERPLATE (Row Numbers block, identical on every Oriole Park section page): \"When looking towards the field, lower number seats are on the right\". PER-SECTION: No per-section statement naming a side for seat numbering in Section 206 was found anywhere on the page (no Q&A, expert answer, fan review or insight line names a side or a seat count for this section).",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights / Seating Notes, verbatim: \"Premium seating area as part of the Club Level\"; \"Climate-Controlled Concourse: Fans have access to indoor lounges, bars, and specialty concessions\"; \"In-Seat Wait Service (Orioles Games - Select Areas): Some sections offer in-seat food and beverage service during Baltimore Orioles games.\"; \"Compact Sections: Most sections feature 5-9 rows, creating a smaller and less crowded seating experience.\"; \"The Club Level offers limited overhead protection, meaning many seats will be exposed to the sun during day games.\" Rows are labelled 1-5 only - these are among the SHORT five-row Club Level sections, and NO \"Rows 8 and above are under cover\" line is printed for this section (that line appears on the nine-row sections 212 and up). No netting, screening or obstructed-view note appears on this page. The concessions line on this page names a venue verbatim: \"specialty concessions including the All-Star Cafe\". No fan-review text was returned for this section.",
+    "source": "https://www.rateyourseats.com/oriole-park/seating/sections/206"
+  },
+  {
+    "section": "208",
+    "zone": "Club Level",
+    "location": "\"The Club Level wraps around more than half of the stadium on the second tier between the lower bowl and the upper deck.\" \"Sections on this level include: 204-240 along the first base side\" and \"242-280 along the third base side\". (Zone-level location text served on this section page; the page carries no sentence placing Section 208 individually. Section 208 falls in the stated 204-240 FIRST BASE range.)",
+    "rows": "\"Rows in Section 208 are labeled 1-5\"",
+    "entrance_row": "\"An entrance to this section is located at Row 5\"",
+    "seat_direction": "PARK-WIDE BOILERPLATE (Row Numbers block, identical on every Oriole Park section page): \"When looking towards the field, lower number seats are on the right\". PER-SECTION: No per-section statement naming a side for seat numbering in Section 208 was found anywhere on the page (no Q&A, expert answer, fan review or insight line names a side or a seat count for this section).",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights / Seating Notes, verbatim: \"Premium seating area as part of the Club Level\"; \"Climate-Controlled Concourse: Fans have access to indoor lounges, bars, and specialty concessions\"; \"In-Seat Wait Service (Orioles Games - Select Areas): Some sections offer in-seat food and beverage service during Baltimore Orioles games.\"; \"Compact Sections: Most sections feature 5-9 rows, creating a smaller and less crowded seating experience.\"; \"The Club Level offers limited overhead protection, meaning many seats will be exposed to the sun during day games.\" Rows are labelled 1-5 only - these are among the SHORT five-row Club Level sections, and NO \"Rows 8 and above are under cover\" line is printed for this section (that line appears on the nine-row sections 212 and up). No netting, screening or obstructed-view note appears on this page. No fan-review text was returned for this section.",
+    "source": "https://www.rateyourseats.com/oriole-park/seating/sections/208"
+  },
+  {
+    "section": "210",
+    "zone": "Club Level",
+    "location": "\"The Club Level wraps around more than half of the stadium on the second tier between the lower bowl and the upper deck.\" \"Sections on this level include: 204-240 along the first base side\" and \"242-280 along the third base side\". (Zone-level location text served on this section page; the page carries no sentence placing Section 210 individually. Section 210 falls in the stated 204-240 FIRST BASE range.)",
+    "rows": "\"Rows in Section 210 are labeled 1-5\"",
+    "entrance_row": "\"An entrance to this section is located at Row 5\"",
+    "seat_direction": "PARK-WIDE BOILERPLATE (Row Numbers block, identical on every Oriole Park section page): \"When looking towards the field, lower number seats are on the right\". PER-SECTION: No per-section statement naming a side for seat numbering in Section 210 was found anywhere on the page (no Q&A, expert answer, fan review or insight line names a side or a seat count for this section).",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights / Seating Notes, verbatim: \"Premium seating area as part of the Club Level\"; \"Climate-Controlled Concourse: Fans have access to indoor lounges, bars, and specialty concessions\"; \"In-Seat Wait Service (Orioles Games - Select Areas): Some sections offer in-seat food and beverage service during Baltimore Orioles games.\"; \"Compact Sections: Most sections feature 5-9 rows, creating a smaller and less crowded seating experience.\"; \"The Club Level offers limited overhead protection, meaning many seats will be exposed to the sun during day games.\" Rows are labelled 1-5 only - these are among the SHORT five-row Club Level sections, and NO \"Rows 8 and above are under cover\" line is printed for this section (that line appears on the nine-row sections 212 and up). No netting, screening or obstructed-view note appears on this page. FAN FEEDBACK, verbatim: \"Club level, with great sight lines.\" (review dated Oct 2, 2024).",
+    "source": "https://www.rateyourseats.com/oriole-park/seating/sections/210"
+  },
+  {
+    "section": "212",
+    "zone": "Club Level",
+    "location": "\"The Club Level wraps around more than half of the stadium on the second tier between the lower bowl and the upper deck.\" \"Sections on this level include: 204-240 along the first base side\" and \"242-280 along the third base side\". (Zone-level location text served on this section page; the page carries no sentence placing Section 212 individually. Section 212 falls in the stated 204-240 FIRST BASE range.)",
+    "rows": "\"Rows in Section 212 are labeled 1-9\"",
+    "entrance_row": "\"An entrance to this section is located at Row 9\"",
+    "seat_direction": "PARK-WIDE BOILERPLATE (Row Numbers block, identical on every Oriole Park section page): \"When looking towards the field, lower number seats are on the right\". PER-SECTION: No per-section statement naming a side for seat numbering in Section 212 was found anywhere on the page (no Q&A, expert answer, fan review or insight line names a side or a seat count for this section).",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights / Seating Notes, verbatim: \"Premium seating area as part of the Club Level\"; \"Climate-Controlled Concourse: Fans have access to indoor lounges, bars, and specialty concessions\"; \"In-Seat Wait Service (Orioles Games - Select Areas): Some sections offer in-seat food and beverage service during Baltimore Orioles games.\"; \"Compact Sections: Most sections feature 5-9 rows, creating a smaller and less crowded seating experience.\"; \"The Club Level offers limited overhead protection, meaning many seats will be exposed to the sun during day games.\" Covered rows, verbatim: \"Rows 8 & Above - Covered\" and \"Rows 8 and above are under cover\". Also verbatim: \"Each section features between five and nine rows, creating smaller seating areas and easier access to the concourse\". No fan-review text was returned for this section. No netting, screening or obstructed-view note appears on this page. ",
+    "source": "https://www.rateyourseats.com/oriole-park/seating/sections/212"
+  },
+  {
+    "section": "214",
+    "zone": "Club Level",
+    "location": "\"The Club Level wraps around more than half of the stadium on the second tier between the lower bowl and the upper deck.\" \"Sections on this level include: 204-240 along the first base side\" and \"242-280 along the third base side\". (Zone-level location text served on this section page; the page carries no sentence placing Section 214 individually. Section 214 falls in the stated 204-240 FIRST BASE range.)",
+    "rows": "\"Rows in Section 214 are labeled 1-9\"",
+    "entrance_row": "\"An entrance to this section is located at Row 9\"",
+    "seat_direction": "PARK-WIDE BOILERPLATE (Row Numbers block, identical on every Oriole Park section page): \"When looking towards the field, lower number seats are on the right\". PER-SECTION: No per-section statement naming a side for seat numbering in Section 214 was found anywhere on the page (no Q&A, expert answer, fan review or insight line names a side or a seat count for this section).",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights / Seating Notes, verbatim: \"Premium seating area as part of the Club Level\"; \"Climate-Controlled Concourse: Fans have access to indoor lounges, bars, and specialty concessions\"; \"In-Seat Wait Service (Orioles Games - Select Areas): Some sections offer in-seat food and beverage service during Baltimore Orioles games.\"; \"Compact Sections: Most sections feature 5-9 rows, creating a smaller and less crowded seating experience.\"; \"The Club Level offers limited overhead protection, meaning many seats will be exposed to the sun during day games.\" Covered rows, verbatim: \"Rows 8 & Above - Covered\" and \"Rows 8 and above are under cover\". No fan-review text was returned for this section. No netting, screening or obstructed-view note appears on this page. ",
+    "source": "https://www.rateyourseats.com/oriole-park/seating/sections/214"
+  },
+  {
+    "section": "216",
+    "zone": "Club Level",
+    "location": "\"The Club Level wraps around more than half of the stadium on the second tier between the lower bowl and the upper deck.\" \"Sections on this level include: 204-240 along the first base side\" and \"242-280 along the third base side\". (Zone-level location text served on this section page; the page carries no sentence placing Section 216 individually. Section 216 falls in the stated 204-240 FIRST BASE range.)",
+    "rows": "\"Rows in Section 216 are labeled 1-9\"",
+    "entrance_row": "\"An entrance to this section is located at Row 9\"",
+    "seat_direction": "PARK-WIDE BOILERPLATE (Row Numbers block, identical on every Oriole Park section page): \"When looking towards the field, lower number seats are on the right\". PER-SECTION: No per-section statement naming a side for seat numbering in Section 216 was found anywhere on the page (no Q&A, expert answer, fan review or insight line names a side or a seat count for this section).",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights / Seating Notes, verbatim: \"Premium seating area as part of the Club Level\"; \"Climate-Controlled Concourse: Fans have access to indoor lounges, bars, and specialty concessions\"; \"In-Seat Wait Service (Orioles Games - Select Areas): Some sections offer in-seat food and beverage service during Baltimore Orioles games.\"; \"Compact Sections: Most sections feature 5-9 rows, creating a smaller and less crowded seating experience.\"; \"The Club Level offers limited overhead protection, meaning many seats will be exposed to the sun during day games.\" Covered rows, verbatim: \"Rows 8 & Above - Covered\" and \"Rows 8 and above are under cover\". Top-pick badge, verbatim: \"Top Pick for Outstanding Convenience Rows 5-9\" and \"Rows 5-9 are recommended for outstanding convenience\". No fan-review text was returned for this section. No netting, screening or obstructed-view note appears on this page. ",
+    "source": "https://www.rateyourseats.com/oriole-park/seating/sections/216"
+  },
+  {
+    "section": "218",
+    "zone": "Club Level",
+    "location": "\"The Club Level wraps around more than half of the stadium on the second tier between the lower bowl and the upper deck.\" \"Sections on this level include: 204-240 along the first base side\" and \"242-280 along the third base side\". (Zone-level location text served on this section page; the page carries no sentence placing Section 218 individually. Section 218 falls in the stated 204-240 FIRST BASE range.)",
+    "rows": "\"Rows in Section 218 are labeled 1-9\"",
+    "entrance_row": "\"An entrance to this section is located at Row 9\"",
+    "seat_direction": "PARK-WIDE BOILERPLATE (Row Numbers block, identical on every Oriole Park section page): \"When looking towards the field, lower number seats are on the right\". PER-SECTION: No per-section statement naming a side for seat numbering in Section 218 was found anywhere on the page (no Q&A, expert answer, fan review or insight line names a side or a seat count for this section).",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights / Seating Notes, verbatim: \"Premium seating area as part of the Club Level\"; \"Climate-Controlled Concourse: Fans have access to indoor lounges, bars, and specialty concessions\"; \"In-Seat Wait Service (Orioles Games - Select Areas): Some sections offer in-seat food and beverage service during Baltimore Orioles games.\"; \"Compact Sections: Most sections feature 5-9 rows, creating a smaller and less crowded seating experience.\"; \"The Club Level offers limited overhead protection, meaning many seats will be exposed to the sun during day games.\" Covered rows, verbatim: \"Rows 8 & Above - Covered\" and \"Rows 8 and above are under cover\". FAN FEEDBACK, verbatim: \"The closeness to food and drinks is great, the view is wonderful and the ease of getting to the seats is outstanding.\" No netting, screening or obstructed-view note appears on this page. ",
+    "source": "https://www.rateyourseats.com/oriole-park/seating/sections/218"
+  },
+  {
+    "section": "220",
+    "zone": "Club Level",
+    "location": "\"The Club Level wraps around more than half of the stadium on the second tier between the lower bowl and the upper deck.\" \"Sections on this level include: 204-240 along the first base side\" and \"242-280 along the third base side\". (Zone-level location text served on this section page; the page carries no sentence placing Section 220 individually. Section 220 falls in the stated 204-240 FIRST BASE range.)",
+    "rows": "\"Rows in Section 220 are labeled 1-9\"",
+    "entrance_row": "\"An entrance to this section is located at Row 9\"",
+    "seat_direction": "PARK-WIDE BOILERPLATE (Row Numbers block, identical on every Oriole Park section page): \"When looking towards the field, lower number seats are on the right\". PER-SECTION: No per-section statement naming a side for seat numbering in Section 220 was found anywhere on the page (no Q&A, expert answer, fan review or insight line names a side or a seat count for this section).",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights / Seating Notes, verbatim: \"Premium seating area as part of the Club Level\"; \"Climate-Controlled Concourse: Fans have access to indoor lounges, bars, and specialty concessions\"; \"In-Seat Wait Service (Orioles Games - Select Areas): Some sections offer in-seat food and beverage service during Baltimore Orioles games.\"; \"Compact Sections: Most sections feature 5-9 rows, creating a smaller and less crowded seating experience.\"; \"The Club Level offers limited overhead protection, meaning many seats will be exposed to the sun during day games.\" Covered rows, verbatim: \"Rows 8 & Above - Covered\" and \"Rows 8 and above are under cover\". Top-pick badges, verbatim: \"Top Pick for Outstanding Convenience Rows 5-9\", \"Rows 5-9 are recommended for outstanding convenience\", \"Top Pick for Impressing a Guest\" and \"Recommended seating for impressing a guest\". FAN FEEDBACK, verbatim: 5-star review headed \"San Diego Padres at Baltimore Orioles - Jun 14, 2026 - Great view! Great people around us!\" No netting, screening or obstructed-view note appears on this page. ",
+    "source": "https://www.rateyourseats.com/oriole-park/seating/sections/220"
+  },
+  {
+    "section": "222",
+    "zone": "Club Level",
+    "location": "\"The Club Level wraps around more than half of the stadium on the second tier between the lower bowl and the upper deck.\" \"Sections on this level include: 204-240 along the first base side\" and \"242-280 along the third base side\". (Zone-level location text served on this section page; the page carries no sentence placing Section 222 individually. Section 222 falls in the stated 204-240 FIRST BASE range.)",
+    "rows": "\"Rows in Section 222 are labeled 1-9\"",
+    "entrance_row": "\"An entrance to this section is located at Row 9\"",
+    "seat_direction": "PARK-WIDE BOILERPLATE (Row Numbers block, identical on every Oriole Park section page): \"When looking towards the field, lower number seats are on the right\". PER-SECTION: No per-section statement naming a side for seat numbering in Section 222 was found anywhere on the page (no Q&A, expert answer, fan review or insight line names a side or a seat count for this section).",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights / Seating Notes, verbatim: \"Premium seating area as part of the Club Level\"; \"Climate-Controlled Concourse: Fans have access to indoor lounges, bars, and specialty concessions\"; \"In-Seat Wait Service (Orioles Games - Select Areas): Some sections offer in-seat food and beverage service during Baltimore Orioles games.\"; \"Compact Sections: Most sections feature 5-9 rows, creating a smaller and less crowded seating experience.\"; \"The Club Level offers limited overhead protection, meaning many seats will be exposed to the sun during day games.\" Covered rows, verbatim: \"Rows 8 & Above - Covered\" and \"Rows 8 and above are under cover\". Top-pick badge, verbatim: \"Top Pick for Impressing a Guest\" and \"Recommended seating for impressing a guest\". No fan-review text was returned for this section. No netting, screening or obstructed-view note appears on this page. ",
+    "source": "https://www.rateyourseats.com/oriole-park/seating/sections/222"
+  },
+  {
+    "section": "226",
+    "zone": "Club Level",
+    "location": "\"The Club Level wraps around more than half of the stadium on the second tier between the lower bowl and the upper deck.\" \"Sections on this level include: 204-240 along the first base side\" and \"242-280 along the third base side\". (Zone-level location text served on this section page; the page carries no sentence placing Section 226 individually. Section 226 falls in the stated 204-240 FIRST BASE range.)",
+    "rows": "\"Rows in Section 226 are labeled 1-9\"",
+    "entrance_row": "\"An entrance to this section is located at Row 9\"",
+    "seat_direction": "PARK-WIDE BOILERPLATE (Row Numbers block, identical on every Oriole Park section page): \"When looking towards the field, lower number seats are on the right\". PER-SECTION: No per-section statement naming a side for seat numbering in Section 226 was found anywhere on the page (no Q&A, expert answer, fan review or insight line names a side or a seat count for this section).",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights / Seating Notes, verbatim: \"Premium seating area as part of the Club Level\"; \"Climate-Controlled Concourse: Fans have access to indoor lounges, bars, and specialty concessions\"; \"In-Seat Wait Service (Orioles Games - Select Areas): Some sections offer in-seat food and beverage service during Baltimore Orioles games.\"; \"Compact Sections: Most sections feature 5-9 rows, creating a smaller and less crowded seating experience.\"; \"The Club Level offers limited overhead protection, meaning many seats will be exposed to the sun during day games.\" Covered rows, verbatim: \"Rows 8 & Above - Covered\" and \"Rows 8 and above are under cover\". Top-pick badge, verbatim: \"Top Pick for Impressing a Guest\" and \"Recommended seating for impressing a guest\". Shade, verbatim: \"This particular row is both shaded and covered, which is ideal\". Amenities, verbatim: \"climate-controlled indoor concourse, which includes several lounge spaces\" and \"in-seat wait service, allowing fans to order food and drinks\". No netting, screening or obstructed-view note appears on this page. ",
+    "source": "https://www.rateyourseats.com/oriole-park/seating/sections/226"
+  },
+  {
+    "section": "228",
+    "zone": "Club Level (page also badges this section \"Home Plate Club\")",
+    "location": "SECTION-SPECIFIC, verbatim: \"Located along the first base line but still close to home plate, Section 228 is one of the closest club-level sections to the action.\" and \"Section 228 at Oriole Park at Camden Yards is home to the brand-new Home Plate Club.\" This places 228 on the FIRST BASE side, consistent with discovery.json's direction (low club numbers = first base).",
+    "rows": "\"Rows in Section 228 are labeled 1-9\"",
+    "entrance_row": "\"An entrance to this section is located at Row 9\"",
+    "seat_direction": "PARK-WIDE BOILERPLATE (Row Numbers block, identical on every Oriole Park section page): \"When looking towards the field, lower number seats are on the right\". PER-SECTION: No per-section statement naming a side for seat numbering in Section 228 was found anywhere on the page (no Q&A, expert answer, fan review or insight line names a side or a seat count for this section).",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Badges/notes, verbatim: \"Top Pick for Outstanding Convenience Rows 5-9\"; \"Top Pick for Impressing a Guest\"; \"Club Level\"; \"Home Plate Club\"; \"Rows 8 & Above - Covered\"; \"Rows 1-9\"; \"Rows 5-9 are recommended for outstanding convenience\"; \"Rows 8 and above are under cover\". FAN FEEDBACK, verbatim: \"Crazy great view of the stadium and field, could hear the ball hit the catchers mitt on every pitch\" and \"Four foul balls came right by us in one game!\" - the foul-ball comment is the only hint at netting/screening exposure; no netting or screening line is printed. NEW FOR 2026: the \"brand-new Home Plate Club\" named here is a premium product attached to Section 228; discovery.json separately records a new 2026 premium club behind home plate with sections given only as the range C31-C43. Whether these are the same product is NOT stated on this page - recorded, not reconciled.",
+    "source": "https://www.rateyourseats.com/oriole-park/seating/sections/228"
+  },
+  {
+    "section": "230",
+    "zone": "Club Level",
+    "location": "SECTION-SPECIFIC, verbatim: \"For the best centered views, sections 230 and 242 are closest to home plate and offer some of the most desirable vantage points on the level.\" Badge line, verbatim: \"Home Plate View\" and \"Desirable view from behind home plate\". This places 230 immediately on the first-base side of the home-plate centre point, with 242 the mirror section on the third-base side - consistent with the Club Level zone split \"204-240 along the first base side\" / \"242-280 along the third base side\".",
+    "rows": "\"Rows in Section 230 are labeled 1-9\"",
+    "entrance_row": "\"An entrance to this section is located at Row 9\"",
+    "seat_direction": "PARK-WIDE BOILERPLATE (Row Numbers block, identical on every Oriole Park section page): \"When looking towards the field, lower number seats are on the right\". PER-SECTION: No per-section statement naming a side for seat numbering in Section 230 was found anywhere on the page (no Q&A, expert answer, fan review or insight line names a side or a seat count for this section).",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Badges/notes, verbatim: \"Top Pick for Outstanding Convenience Rows 5-9\"; \"Top Pick for Impressing a Guest\"; \"Home Plate View\"; \"Club Level\"; \"Rows 8 & Above - Covered\"; \"Rows 1-9\"; \"Rows 5-9 are recommended for outstanding convenience\"; \"Recommended seating for impressing a guest\"; \"Desirable view from behind home plate\"; \"Premium seating area as part of the Club Level\"; \"Rows 8 and above are under cover\". FAN FEEDBACK, verbatim: \"Amazing seats and great unobstructed views.\" No netting, screening or obstructed-view note appears on this page. GAP IN THE SERIES: 230 is the last Club Level section before the batch jumps to 242; discovery.json records 232, 234, 236, 238 and 240 as absent from the 2026 section index with no explanation, even though the zone page still says \"204-240 along the first base side\". This page repeats that stale 204-240 range without explaining the gap.",
+    "source": "https://www.rateyourseats.com/oriole-park/seating/sections/230"
+  },
+  {
+    "section": "242",
+    "zone": "Club Level",
+    "location": "SECTION-SPECIFIC side statement, verbatim: \"along the third base side\" (Club Level Location & Amenities), with the zone list \"Sections 242-280 along the third base side\". The Section 230 page adds, verbatim: \"For the best centered views, sections 230 and 242 are closest to home plate and offer some of the most desirable vantage points on the level.\" So 242 is the first Club Level section on the THIRD BASE side of home plate - consistent with discovery.json.",
+    "rows": "\"Rows in Section 242 are labeled 1-9\"",
+    "entrance_row": "\"An entrance to this section is located at Row 9\"",
+    "seat_direction": "PARK-WIDE BOILERPLATE (Row Numbers block, identical on every Oriole Park section page): \"When looking towards the field, lower number seats are on the right\". PER-SECTION: No per-section statement naming a side for seat numbering in Section 242 was found anywhere on the page (no Q&A, expert answer, fan review or insight line names a side or a seat count for this section).",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Badges/notes, verbatim: \"Top Pick for Impressing a Guest\"; \"Top Pick for Great Views of the Field\"; \"Home Plate View\"; \"Club Level\"; \"Rows 8 & Above - Covered\"; \"Rows 1-9\"; \"Recommended seating for impressing a guest\"; \"Recommended seating for great views of the field\"; \"Desirable view from behind home plate\"; \"Premium seating area as part of the Club Level\"; \"Rows 8 and above are under cover\". SHADE, verbatim: \"Fans looking for better sun positioning should consider seats on the third base side (Sections 242-280)\" - agrees with discovery.json's shade note that \"Sections 242-264 will be entirely shaded by the middle innings\". No fan-review text was returned for this section. No netting, screening or obstructed-view note appears on this page. ",
+    "source": "https://www.rateyourseats.com/oriole-park/seating/sections/242"
+  },
+  {
+    "section": "244",
+    "zone": "Club Level",
+    "location": "\"The Club Level wraps around more than half of the stadium on the second tier between the lower bowl and the upper deck.\" \"Sections on this level include: 204-240 along the first base side\" and \"242-280 along the third base side\". (Zone-level location text served on this section page; a targeted re-read confirmed the page states NO side for Section 244 in any 244-specific sentence. Section 244 falls in the stated 242-280 THIRD BASE range, but that is inference from the zone list, not a statement about 244.)",
+    "rows": "\"Rows in Section 244 are labeled 1-9\"",
+    "entrance_row": "\"An entrance to this section is located at Row 9\"",
+    "seat_direction": "PARK-WIDE BOILERPLATE (Row Numbers block, identical on every Oriole Park section page): \"When looking towards the field, lower number seats are on the right\". PER-SECTION: No per-section statement naming a side for seat numbering in Section 244 was found anywhere on the page (no Q&A, expert answer, fan review or insight line names a side or a seat count for this section).",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights / Seating Notes, verbatim: \"Premium seating area as part of the Club Level\"; \"Climate-Controlled Concourse: Fans have access to indoor lounges, bars, and specialty concessions\"; \"In-Seat Wait Service (Orioles Games - Select Areas): Some sections offer in-seat food and beverage service during Baltimore Orioles games.\"; \"Compact Sections: Most sections feature 5-9 rows, creating a smaller and less crowded seating experience.\"; \"The Club Level offers limited overhead protection, meaning many seats will be exposed to the sun during day games.\" Covered rows, verbatim: \"Rows 8 & Above - Covered\" and \"Rows 8 and above are under cover\". Badges, verbatim: \"Top Pick for Impressing a Guest\"; \"Top Pick for Great Views of the Field\"; \"Recommended seating for impressing a guest\"; \"Recommended seating for great views of the field\"; \"Premium seating area as part of the Club Level\". PER-SECTION Q&A, verbatim: question \"Are there a lot of stairs to get to Section 244, Row 9?\" with the answer \"Row 9 is the last row in Section 244 at Oriole Park (Camden Yards).\" - this independently confirms the 1-9 row range and that Row 9 is the rear/entrance row. It says nothing about seat-numbering side. FAN FEEDBACK, verbatim: review headed \"Perfect Section\", posted from \"Sec 244 / Row 8\". Price line, verbatim: \"$37 lowest price in Section 244\". No netting, screening or obstructed-view note appears on this page. ",
+    "source": "https://www.rateyourseats.com/oriole-park/seating/sections/244"
+  }
+]

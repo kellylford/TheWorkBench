@@ -1,0 +1,15 @@
+{
+  "name": "cribbage",
+  "version": "1.0.0",
+  "description": "Cribbage against the computer, built to be playable by keyboard and screen reader.",
+  "private": true,
+  "scripts": {
+    "test": "node tests/rules-oracle.js && node tests/invariants.js && node tests/randomness.js && node tests/ui-dom.js && node tests/audit.js",
+    "test:rules": "node tests/rules-oracle.js",
+    "test:invariants": "node tests/invariants.js",
+    "test:ui": "node tests/ui-dom.js",
+    "test:random": "node tests/randomness.js",
+    "audit": "node tests/audit.js"
+  },
+  "license": "MIT"
+}

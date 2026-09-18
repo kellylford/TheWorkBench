@@ -1,0 +1,79 @@
+[
+ {
+  "section": "A",
+  "zone": "Terra Club",
+  "location": "\"The Terra Club (formerly the Nationals Club) includes Sections A\u2013E located directly behind home plate on the field level.\" \"Sections A\u2013E sit directly behind home plate.\" Section A is \"directly behind home plate and centered between the dugouts.\"",
+  "rows": "For most events, rows in Section A are labeled A-L",
+  "entrance_row": "An entrance to this section is located at Row L",
+  "seat_direction": "When looking towards the field/stage, lower number seats are on the right",
+  "seats_per_row": "UNKNOWN",
+  "notes": "Premium all-inclusive field-level club seating. The source calls it \"one of the most luxurious all-inclusive experiences,\" with a gourmet buffet, draft beer, wine and soda, access to a climate-controlled lounge, and \"views into the Batting Cage and Press Conference Room.\" This is a per-section detail page, not a zone page.",
+  "source": "https://www.rateyourseats.com/nationals-park/seating/sections/A"
+ },
+ {
+  "section": "B",
+  "zone": "Terra Club",
+  "location": "\"Sections A\u2013E sit directly behind home plate\" and are \"located directly behind home plate on the field level. These sections sit between the two dugouts.\"",
+  "rows": "For most events, rows in Section B are labeled A-L",
+  "entrance_row": "An entrance to this section is located at Row L",
+  "seat_direction": "When looking towards the field/stage, lower number seats are on the right",
+  "seats_per_row": "UNKNOWN",
+  "notes": "Premium all-inclusive seating described as \"the closest seats at Nationals Park,\" including a \"gourmet buffet, draft beer, house wine, soda, and complimentary in-seat food and beverage service\" for baseball games, plus a climate-controlled lounge and \"views into the home batting cage.\" For concerts the source notes a head-on view of the performance but possible \"sightline limitations depending on the stage setup.\" This is a per-section detail page, not a zone page.",
+  "source": "https://www.rateyourseats.com/nationals-park/seating/sections/B"
+ },
+ {
+  "section": "C",
+  "zone": "Terra Club",
+  "location": "\"Sections A\u2013E sit directly behind home plate\" \u2014 \"directly behind home plate on the field level\" and \"between the two dugouts.\"",
+  "rows": "For most events, rows in Section C are labeled A-G, L",
+  "entrance_row": "An entrance to this section is located at Row L",
+  "seat_direction": "When looking towards the field/stage, lower number seats are on the right",
+  "seats_per_row": "UNKNOWN",
+  "notes": "Part of the all-inclusive Terra Club premium experience: gourmet buffet, beverages, private lounge access and \"complimentary in-seat food and beverage service.\" Marketed to fans \"looking for the ultimate Nationals Park experience,\" and for \"business entertainment, special occasions.\" The source describes views of \"home plate and the entire field\" with \"unmatched proximity to the field.\" This is a per-section detail page, not a zone page.",
+  "source": "https://www.rateyourseats.com/nationals-park/seating/sections/C"
+ },
+ {
+  "section": "D",
+  "zone": "Terra Club",
+  "location": "\"Sections A\u2013E sit directly behind home plate\" and are \"located directly behind home plate on the field level. These sections sit between the two dugouts.\" \"Sections D and E are closest to the Nationals' on-deck circle.\"",
+  "rows": "For most events, rows in Section D are labeled A-L",
+  "entrance_row": "An entrance to this section is located at Row L",
+  "seat_direction": "When looking towards the field/stage, lower number seats are on the right",
+  "seats_per_row": "UNKNOWN",
+  "notes": "Premium seating within the Terra Club, with an \"all-inclusive gourmet buffet, draft beer, house wine, soda, and complimentary in-seat food and beverage service\" plus a climate-controlled lounge. Fan feedback on the page mentions \"netting or screening in front of sections 116-129\"; the page does not state whether Section D itself sits behind netting. This is a per-section detail page, not a zone page.",
+  "source": "https://www.rateyourseats.com/nationals-park/seating/sections/D"
+ },
+ {
+  "section": "Diamond Club Tables",
+  "zone": "Diamond Club",
+  "location": "\"directly behind home plate at the front of the lower bowl, positioned just above the Terra Club sections.\" \"Behind the seating area is the PNC Diamond Club Lounge.\"",
+  "rows": "UNKNOWN",
+  "entrance_row": "UNKNOWN",
+  "seat_direction": "UNKNOWN",
+  "seats_per_row": "These tables typically seat four guests",
+  "notes": "Table-style seating rather than conventional rows \u2014 \"Diamond Club Tables, which offer a table-style seating setup for fans looking for a more social viewing experience,\" sold as \"a table-style seating experience for small groups\" and \"a unique place to enjoy food and drinks with views of the field,\" part of the all-inclusive Diamond Club. The page gives no row labels, entrance row or seat-numbering direction; because the area is tables rather than numbered rows, that detail does not exist for this ticket type.",
+  "source": "https://www.rateyourseats.com/nationals-park/seating/sections/diamond_club_tables"
+ },
+ {
+  "section": "E",
+  "zone": "Terra Club",
+  "location": "\"Sections A\u2013E sit directly behind home plate\" \u2014 \"directly behind home plate on the field level\" and \"between the two dugouts.\" \"Sections D and E are closest to the Nationals' on-deck circle.\"",
+  "rows": "For most events, rows in Section E are labeled A-L",
+  "entrance_row": "An entrance to this section is located at Row L",
+  "seat_direction": "When looking towards the field/stage, lower number seats are on the right",
+  "seats_per_row": "UNKNOWN",
+  "notes": "Premium all-inclusive seating with \"a gourmet buffet, draft beer, house wine, soda, and complimentary in-seat food and beverage service\" and \"access to a climate-controlled lounge.\" The source calls these the \"Closest Seats at Nationals Park\" with \"outstanding views of home plate.\" This is a per-section detail page, not a zone page.",
+  "source": "https://www.rateyourseats.com/nationals-park/seating/sections/E"
+ },
+ {
+  "section": "SRO",
+  "zone": "Standing room",
+  "location": "UNKNOWN",
+  "rows": "UNKNOWN",
+  "entrance_row": "UNKNOWN",
+  "seat_direction": "UNKNOWN",
+  "seats_per_row": "UNKNOWN",
+  "notes": "The ticketing source lists this as \"Standing Room Only\" at Nationals Park. Its page carries no descriptive content at all \u2014 no location, no rows, no entrance, no capacity, no amenities \u2014 only an interactive ticket map and an event picker, so nothing can be stated about where in the ballpark standing-room ticket holders stand. Standing room is a ticket type without assigned seats, so row and seat-numbering detail does not apply.",
+  "source": "https://www.rateyourseats.com/nationals-park/seating/sections/SRO"
+ }
+]

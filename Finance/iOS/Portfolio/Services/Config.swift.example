@@ -1,0 +1,6 @@
+import Foundation
+
+struct Config {
+    // Get your free API key from https://finnhub.io
+    static let finnhubAPIKey = "YOUR_FINNHUB_API_KEY_HERE"
+}

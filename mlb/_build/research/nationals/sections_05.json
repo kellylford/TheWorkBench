@@ -1,0 +1,222 @@
+[
+  {
+    "section": "237",
+    "zone": "Scoreboard Pavilion",
+    "location": "Second tier behind the outfield walls; \"Sections 237 and 238 sit closer to right field, while sections 240–243 extend farther toward right-center field.\" \"Bullpen Views Available: Front rows of Sections 237 and 238 offer a unique view overlooking the bullpen below.\"",
+    "rows": "A-P",
+    "entrance_row": "Row P",
+    "seat_direction": "When looking towards the field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "\"Rows G and above are under cover.\" \"Scoreboard Pavilion sections do not have an overhang above them, meaning fans will typically be exposed to sun, wind, and rain during games\" (zone-level statement; conflicts somewhat with the row-237-specific 'Rows G and above are under cover' note — recorded as stated). \"The main videoboard sits behind these seats, requiring fans to turn around to view replays.\"",
+    "source": "https://www.rateyourseats.com/nationals-park/seating/sections/237"
+  },
+  {
+    "section": "238",
+    "zone": "Scoreboard Pavilion",
+    "location": "Second tier behind the outfield walls; \"Sections 237 and 238 sit closer to right field, while sections 240–243 extend farther toward right-center field.\" \"Bullpen Views Available: Front rows of Sections 237 and 238 offer a unique view overlooking the bullpen below.\"",
+    "rows": "A-P",
+    "entrance_row": "Row P",
+    "seat_direction": "When looking towards the field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "\"238 is behind the stage or to the side of the stage for most concerts. This may restrict or limit your view of the performance.\" Scoreboard Pavilion sections have no overhang, exposed to sun/wind/rain; main videoboard sits behind the sections.",
+    "source": "https://www.rateyourseats.com/nationals-park/seating/sections/238"
+  },
+  {
+    "section": "239",
+    "zone": "Scoreboard Pavilion",
+    "location": "Second tier behind the outfield walls, part of Sections 237-243 (page gives no section-239-specific location detail beyond the general zone description)",
+    "rows": "A-P",
+    "entrance_row": "Row P",
+    "seat_direction": "When looking towards the field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "\"239 is behind the stage or to the side of the stage for most concerts. This may restrict or limit your view of the performance.\" Scoreboard Pavilion sections have no overhang, exposed to sun/wind/rain; main videoboard sits behind the sections.",
+    "source": "https://www.rateyourseats.com/nationals-park/seating/sections/239"
+  },
+  {
+    "section": "240",
+    "zone": "Scoreboard Pavilion",
+    "location": "Second tier behind the outfield walls; \"sections 240–243 extend farther toward right-center field\" creating \"more of a center field viewing angle compared to the sections closer to the foul pole.\"",
+    "rows": "A-P",
+    "entrance_row": "Row P",
+    "seat_direction": "When looking towards the field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "\"240 is behind the stage or to the side of the stage for most concerts. This may restrict or limit your view of the performance.\" Scoreboard Pavilion sections have no overhang, exposed to sun/wind/rain; main videoboard sits behind the sections.",
+    "source": "https://www.rateyourseats.com/nationals-park/seating/sections/240"
+  },
+  {
+    "section": "241",
+    "zone": "Scoreboard Pavilion",
+    "location": "Second tier behind the outfield walls; \"sections 240–243 extend farther toward right-center field\" creating \"more of a center field viewing angle compared to the sections closer to the foul pole.\"",
+    "rows": "A-P",
+    "entrance_row": "Row P",
+    "seat_direction": "When looking towards the field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "\"241 is behind the stage or to the side of the stage for most concerts. This may restrict or limit your view of the performance.\" Scoreboard Pavilion sections have no overhang, exposed to sun/wind/rain; main videoboard sits behind the sections.",
+    "source": "https://www.rateyourseats.com/nationals-park/seating/sections/241"
+  },
+  {
+    "section": "242",
+    "zone": "Scoreboard Pavilion",
+    "location": "Second tier behind the outfield walls; \"sections 240–243 extend farther toward right-center field\" creating \"more of a center field viewing angle compared to the sections closer to the foul pole.\"",
+    "rows": "A-P",
+    "entrance_row": "Row P",
+    "seat_direction": "When looking towards the field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights: \"Top Pick for Outstanding Convenience — Rows L-P\"; Seating Notes: \"For baseball games, we recommend rows L-P for outstanding convenience.\" \"242 is behind the stage or to the side of the stage for most concerts.\" Scoreboard Pavilion sections have no overhang, exposed to sun/wind/rain; main videoboard sits behind the sections.",
+    "source": "https://www.rateyourseats.com/nationals-park/seating/sections/242"
+  },
+  {
+    "section": "243",
+    "zone": "Scoreboard Pavilion",
+    "location": "Second tier behind the outfield walls; \"sections 240–243 extend farther toward right-center field\" creating \"more of a center field viewing angle compared to the sections closer to the foul pole.\"",
+    "rows": "A-P",
+    "entrance_row": "Row P",
+    "seat_direction": "When looking towards the field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "\"243 is behind the stage or to the side of the stage for most concerts. This may restrict or limit your view of the performance.\" Scoreboard Pavilion sections have no overhang, exposed to sun/wind/rain; main videoboard sits behind the sections.",
+    "source": "https://www.rateyourseats.com/nationals-park/seating/sections/243"
+  },
+  {
+    "section": "301",
+    "zone": "Gallery Seating",
+    "location": "\"The Gallery (300-Level) is the lower portion of the upper deck.\" No section-301-specific location beyond the general 300-Level description (page does not state whether 301 is behind home plate or down the line).",
+    "rows": "A-J",
+    "entrance_row": "Row J",
+    "seat_direction": "When looking towards the field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "\"The 300-Level Gallery sections do not have an overhead structure above them\" — exposed to sun, wind, rain, especially during day games.",
+    "source": "https://www.rateyourseats.com/nationals-park/seating/sections/301"
+  },
+  {
+    "section": "302",
+    "zone": "Gallery Seating",
+    "location": "\"The Gallery (300-Level) is the lower portion of the upper deck.\" No section-302-specific location beyond the general 300-Level description.",
+    "rows": "A-J",
+    "entrance_row": "Row J",
+    "seat_direction": "When looking towards the field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "\"The 300-Level Gallery sections do not have an overhead structure above them\" — exposed to sun, wind, rain, especially during day games.",
+    "source": "https://www.rateyourseats.com/nationals-park/seating/sections/302"
+  },
+  {
+    "section": "303",
+    "zone": "Gallery Seating",
+    "location": "\"The Gallery (300-Level) is the lower portion of the upper deck.\" No section-303-specific location beyond the general 300-Level description.",
+    "rows": "A-L",
+    "entrance_row": "Row L",
+    "seat_direction": "When looking towards the field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights: \"Top Pick for Outstanding Convenience — Rows H-L\"; Seating Notes: \"For baseball games, we recommend rows H-L for outstanding convenience.\" Fan review (Row J): \"Bar on railing completely blocked out home plate, the pitchers mound, and second base.\" \"The 300-Level Gallery sections do not have an overhead structure above them\" — exposed to sun, wind, rain.",
+    "source": "https://www.rateyourseats.com/nationals-park/seating/sections/303"
+  },
+  {
+    "section": "304",
+    "zone": "Gallery Seating",
+    "location": "\"The Gallery (300-Level) is the lower portion of the upper deck.\" No section-304-specific location beyond the general 300-Level description.",
+    "rows": "A-L",
+    "entrance_row": "Row L",
+    "seat_direction": "When looking towards the field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights: \"Top Pick for Outstanding Convenience — Rows H-L\"; Seating Notes: \"For baseball games, we recommend rows H-L for outstanding convenience.\" \"The 300-Level Gallery sections do not have an overhead structure above them\" — exposed to sun, wind, rain.",
+    "source": "https://www.rateyourseats.com/nationals-park/seating/sections/304"
+  },
+  {
+    "section": "305",
+    "zone": "Gallery Seating",
+    "location": "\"The Gallery (300-Level) is the lower portion of the upper deck.\" No section-305-specific location beyond the general 300-Level description.",
+    "rows": "A-J",
+    "entrance_row": "Row J",
+    "seat_direction": "When looking towards the field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "\"The 300-Level Gallery sections do not have an overhead structure above them\" — exposed to sun, wind, rain, especially during day games.",
+    "source": "https://www.rateyourseats.com/nationals-park/seating/sections/305"
+  },
+  {
+    "section": "306",
+    "zone": "Gallery Seating",
+    "location": "\"The Gallery (300-Level) is the lower portion of the upper deck.\" No section-306-specific location beyond the general 300-Level description.",
+    "rows": "A-J",
+    "entrance_row": "Row J",
+    "seat_direction": "When looking towards the field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "\"The 300-Level Gallery sections do not have an overhead structure above them\" — exposed to sun, wind, rain, especially during day games.",
+    "source": "https://www.rateyourseats.com/nationals-park/seating/sections/306"
+  },
+  {
+    "section": "307",
+    "zone": "Gallery Seating",
+    "location": "\"The Gallery (300-Level) is the lower portion of the upper deck.\" No section-307-specific location beyond the general 300-Level description.",
+    "rows": "A-L",
+    "entrance_row": "Row L",
+    "seat_direction": "When looking towards the field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "\"The 300-Level Gallery sections do not have an overhead structure above them\" — exposed to sun, wind, rain, especially during day games.",
+    "source": "https://www.rateyourseats.com/nationals-park/seating/sections/307"
+  },
+  {
+    "section": "308",
+    "zone": "Gallery Seating",
+    "location": "\"The Gallery (300-Level) is the lower portion of the upper deck.\" No section-308-specific location beyond the general 300-Level description.",
+    "rows": "A-L",
+    "entrance_row": "Row L",
+    "seat_direction": "When looking towards the field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights: \"Top Pick for Outstanding Convenience — Rows H-L\"; Seating Notes: \"For baseball games, we recommend rows H-L for outstanding convenience.\" \"The 300-Level Gallery sections do not have an overhead structure above them\" — exposed to sun, wind, rain.",
+    "source": "https://www.rateyourseats.com/nationals-park/seating/sections/308"
+  },
+  {
+    "section": "309",
+    "zone": "Gallery Seating",
+    "location": "\"The Gallery (300-Level) is the lower portion of the upper deck.\" No section-309-specific location beyond the general 300-Level description.",
+    "rows": "A-L",
+    "entrance_row": "Row L",
+    "seat_direction": "When looking towards the field/stage, lower number seats are on the right",
+    "seats_per_row": "Rows A-F have 26 seats; Rows J-L (top of section) have 7 seats each (per Seating and Ticket Q&A, Verified Feb 2026: \"At the front of the section are Rows A-F which have 26 seats, while Rows J-L (at the top of the section) are much smaller and have just 7 seats in each.\")",
+    "notes": "Section Insights: \"Top Pick for Outstanding Convenience — Rows H-L\"; Seating Notes: \"For baseball games, we recommend rows H-L for outstanding convenience.\" Q&A also states: \"As you face the field from Section 309, seat 1 will be on the right.\" Fan review (Row F): \"Food choices in the upper deck are not anywhere near as good as on the lower levels.\" \"The 300-Level Gallery sections do not have an overhead structure above them\" — exposed to sun, wind, rain.",
+    "source": "https://www.rateyourseats.com/nationals-park/seating/sections/309"
+  },
+  {
+    "section": "310",
+    "zone": "Gallery Seating",
+    "location": "\"Sections located directly behind home plate (310–316) are the most desirable on this level. From these seats, fans get a centered view of the infield and pitching matchups.\"",
+    "rows": "A-J",
+    "entrance_row": "Row J",
+    "seat_direction": "When looking towards the field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "\"The 300-Level Gallery sections do not have an overhead structure above them\" — exposed to sun, wind, rain, especially during day games.",
+    "source": "https://www.rateyourseats.com/nationals-park/seating/sections/310"
+  },
+  {
+    "section": "311",
+    "zone": "Gallery Seating",
+    "location": "\"Sections located directly behind home plate (310–316) are the most desirable on this level.\" Section Insights tag: \"Home Plate View.\"",
+    "rows": "A-J",
+    "entrance_row": "Row J",
+    "seat_direction": "When looking towards the field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights: \"Home Plate View\", \"Head-on View (most shows)\", \"Afternoon Shade in Select Rows.\" Seating Notes: \"For baseball games, desirable view from behind home plate\"; \"Head-on view of the performance for end-stage concerts\"; \"Rows G and above are shaded during most day games.\" Fan review: \"Great seats and lots of options available for food restrooms and overlooks with picnic tables.\"",
+    "source": "https://www.rateyourseats.com/nationals-park/seating/sections/311"
+  },
+  {
+    "section": "312",
+    "zone": "Gallery Seating",
+    "location": "\"Sections located directly behind home plate (310–316) are the most desirable on this level.\" Section Insights tag: \"Home Plate View.\"",
+    "rows": "A-J",
+    "entrance_row": "Row J",
+    "seat_direction": "When looking towards the field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights: \"Home Plate View\", \"Head-on View (most shows)\", \"Afternoon Shade in Select Rows.\" Seating Notes: \"For baseball games, desirable view from behind home plate\"; \"Head-on view of the performance for end-stage concerts\"; \"Rows E and above are shaded during most day games.\"",
+    "source": "https://www.rateyourseats.com/nationals-park/seating/sections/312"
+  },
+  {
+    "section": "313",
+    "zone": "Gallery Seating",
+    "location": "\"Sections located directly behind home plate (310–316) are the most desirable on this level.\" Section Insights tag: \"Home Plate View.\"",
+    "rows": "A-J",
+    "entrance_row": "Row J",
+    "seat_direction": "When looking towards the field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights: \"Home Plate View\", \"Head-on View (most shows)\", \"Afternoon Shade in Select Rows.\" Seating Notes: \"For baseball games, desirable view from behind home plate\"; \"Head-on view of the performance for end-stage concerts\"; \"Rows E and above are shaded during most day games.\"",
+    "source": "https://www.rateyourseats.com/nationals-park/seating/sections/313"
+  }
+]

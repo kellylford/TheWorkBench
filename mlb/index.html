@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ballpark seating guides — where every section actually is — The Idea Place</title>
+<meta name="description" content="Guides in words to the layout, sections, rows and seat numbering at thirty Major League ballparks across six divisions.">
+<style>
+:root{
+  --bg:#ffffff; --fg:#1b1b1b; --muted:#4a4a4a; --line:#8a8a8a; --soft:#f2f4f7;
+  --link:#0b4f9e; --visited:#6b2fa0; --focus:#b34700; --accent:#0b4f9e; --flag:#8a3d00;
+  --zebra:#f7f8fa;
+}
+@media (prefers-color-scheme: dark){
+  :root{ --bg:#121212; --fg:#f1f1f1; --muted:#c9c9c9; --line:#7a7a7a; --soft:#1e1e1e;
+         --link:#8fc0ff; --visited:#d3a9ff; --focus:#ffb266; --accent:#8fc0ff; --flag:#ffb266;
+         --zebra:#181818; }
+}
+*{box-sizing:border-box}
+html{font-size:100%}
+body{margin:0;background:var(--bg);color:var(--fg);
+  font-family:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  font-size:1.0625rem;line-height:1.65;overflow-wrap:break-word}
+a,code{overflow-wrap:anywhere}
+.wrap{max-width:78rem;margin:0 auto;padding:0 1rem}
+.prose{max-width:70ch}
+a{color:var(--link);text-decoration:underline;text-underline-offset:.15em}
+a:visited{color:var(--visited)}
+a:hover{text-decoration-thickness:.18em}
+:focus-visible{outline:3px solid var(--focus);outline-offset:2px;border-radius:2px}
+h1,h2,h3,h4{line-height:1.25;margin:2rem 0 .5rem}
+h1{font-size:2rem;margin-top:1rem}
+h2{font-size:1.5rem;border-bottom:2px solid var(--line);padding-bottom:.3rem}
+h3{font-size:1.2rem}
+p,li{max-width:70ch}
+.skip{position:absolute;left:-9999px;top:0;background:var(--bg);color:var(--fg);
+  padding:.75rem 1rem;border:3px solid var(--focus);z-index:10}
+.skip:focus{left:.5rem;top:.5rem}
+header.site{border-bottom:1px solid var(--line);padding:.75rem 0}
+nav.toc ol{padding-left:1.4rem}
+.lede{background:var(--soft);border-left:.35rem solid var(--accent);padding:1rem 1.25rem;margin:1.5rem 0}
+.lede p{margin:.5rem 0}
+.callout{border:2px solid var(--line);padding:1rem 1.25rem;margin:1.5rem 0;background:var(--soft)}
+.tablewrap{overflow-x:auto;border:1px solid var(--line);margin:1rem 0}
+.tablewrap:focus-visible{outline:3px solid var(--focus);outline-offset:0}
+table{border-collapse:collapse;width:100%;font-size:.95rem}
+caption{text-align:left;font-weight:700;padding:.6rem;background:var(--soft);border-bottom:1px solid var(--line)}
+th,td{border:1px solid var(--line);padding:.5rem .6rem;text-align:left;vertical-align:top}
+thead th{background:var(--soft)}
+tbody th{background:var(--soft);white-space:nowrap}
+tbody tr:nth-child(even) td{background:var(--zebra)}
+form.filters{border:2px solid var(--line);padding:1rem 1.25rem;margin:1.5rem 0;background:var(--soft)}
+fieldset{border:1px solid var(--line);margin:1rem 0 0;padding:.75rem 1rem}
+legend{font-weight:700;padding:0 .35rem}
+label{display:inline-block}
+.field{margin:.5rem 0}
+.field label{display:block;font-weight:700;margin-bottom:.25rem}
+input[type=search],select{font:inherit;padding:.55rem .6rem;min-height:2.75rem;width:100%;max-width:28rem;
+  border:2px solid var(--line);background:var(--bg);color:var(--fg);border-radius:3px}
+.checks{display:flex;flex-wrap:wrap;gap:.5rem 1.5rem}
+.checks label{display:flex;align-items:center;gap:.5rem;min-height:2.75rem;font-weight:400}
+input[type=checkbox]{width:1.35rem;height:1.35rem;min-width:1.35rem;accent-color:var(--accent)}
+button{font:inherit;min-height:2.75rem;padding:.55rem 1rem;border:2px solid var(--accent);
+  background:var(--accent);color:var(--bg);border-radius:3px;cursor:pointer}
+button.secondary{background:var(--bg);color:var(--link);border-color:var(--link)}
+.status{margin:1rem 0;font-weight:700}
+.sec{border:1px solid var(--line);border-left:.35rem solid var(--accent);
+  padding:.75rem 1.25rem 1rem;margin:1rem 0;background:var(--bg)}
+.sec h3{margin-top:.5rem}
+dl.kv{margin:0}
+dl.kv>div{display:grid;grid-template-columns:14rem 1fr;gap:.25rem 1rem;
+  padding:.4rem 0;border-top:1px solid var(--line)}
+dl.kv dt{font-weight:700;margin:0}
+dl.kv dt,dl.kv dd{min-width:0;overflow-wrap:anywhere}
+dl.kv dd{margin:0;max-width:70ch}
+@media (max-width:40rem){ dl.kv>div{grid-template-columns:1fr} dl.kv dt{margin-bottom:0} }
+.flag{color:var(--flag);font-weight:700}
+.vh{position:absolute!important;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;
+  clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap;border:0}
+footer.site{border-top:1px solid var(--line);margin-top:3rem;padding:1.5rem 0 3rem;color:var(--muted)}
+.backtop{margin:.5rem 0 0}
+@media print{ .filters,.skip,nav.toc{display:none} }
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to main content</a>
+
+<header class="site">
+  <div class="wrap"><p><strong>The Idea Place</strong> &middot; Projects</p></div>
+</header>
+
+<div class="wrap">
+<main id="main">
+
+<h1>Ballpark seating guides: where every section actually is</h1>
+
+<div class="lede">
+  <p>In order to assist in finding tickets for baseball games, these are overviews of each stadium,
+  its sections, and details about the location of every section in the stadium.</p>
+</div>
+
+<p class="prose">A ticketing seat map answers one question at a glance: <em>where would I actually
+be sitting?</em> These guides answer the same question in words. For every section in every park
+covered here you get the level, where the section sits relative to home plate, how many rows deep it
+is, which row the entrance is on, and which end of the row seat 1 is on.</p>
+
+<p class="prose">4723 sections across 30 ballparks are documented so far, covering the whole of
+the American League East, Central and West, and the National League East, Central and West.</p>
+
+<h2 id="why">Why a section number on its own is not enough</h2>
+
+<p class="prose">You might reasonably assume the conventions are the same everywhere. They are not.
+Across the thirty parks here:</p>
+
+<ul>
+  <li><strong>Section numbers run in different directions.</strong> At seven parks they climb toward
+  first base and right field, and at nineteen they climb the other way. At three more &mdash; Dodger
+  Stadium, Petco Park and Tropicana Field &mdash; they do not sweep round the bowl at all: they run
+  outward from home plate, odd numbers down one line and even numbers down the other. Fenway Park
+  does both at once, sweeping on its lower tiers and numbering by parity on the Pavilion tiers.</li>
+  <li><strong>Seat 1 is not on the same side.</strong> Facing the field it is on your left at eight
+  parks and your right at nineteen. At Dodger Stadium and Petco Park it changes with the parity of
+  the section, because seat 1 is the end of the row nearest home plate on both halves of the
+  ballpark. At Sutter Health Park no source states it at all, and at Citi Field two sources state
+  opposite rules.</li>
+  <li><strong>Rows are numbers at some parks and letters at others.</strong> Angel Stadium, PNC Park,
+  Great American Ball Park, Progressive Field, Kauffman Stadium, Nationals Park, Dodger Stadium and
+  Tropicana Field use letters, running past Z into AA and beyond. Busch Stadium, Sutter Health Park,
+  Comerica Park, Citi Field, loanDepot park, Oracle Park, Chase Field, Coors Field and Fenway Park
+  use both at once. At most of those the lettered rows sit in front of the numbered ones; at Coors
+  Field the numbers come first and a lettered block C to W sits behind them.</li>
+  <li><strong>Even the dugouts move.</strong> The home dugout is on the first-base side at most of
+  these parks, and the third-base side at Wrigley Field, PNC Park, Sutter Health Park, Rate Field,
+  Progressive Field, Comerica Park, Oracle Park, Chase Field, Dodger Stadium and Rogers Centre. At
+  loanDepot park and Yankee Stadium the sources contradict each other outright.</li>
+  <li><strong>Accessible rows are labelled differently everywhere.</strong> WCH at Rate Field and
+  again at Tropicana Field, VWC or WWC at Kauffman, an AC suffix at Comerica, WCA at Rogers Centre, a
+  C or W suffix at Chase Field, WC interleaved mid-numbering at Target Field, a WC suffix on the last
+  row at Citizens Bank Park, and at Nationals Park a WC suffix on the section number rather than the
+  row. Oracle Park, Petco Park, Dodger Stadium and Fenway Park publish no convention at all, and at
+  Oriole Park at Camden Yards there is no label either &mdash; section 336 reads 1&ndash;5,
+  9&ndash;25 and the missing rows 6 to 8 are the wheelchair platform.</li>
+  <li><strong>Numbering is not always continuous.</strong> Globe Life Field's lower level runs
+  1&ndash;26 round the infield and then jumps to left field for 27&ndash;33. Target Field's Main
+  Level wraps the whole way round, putting 132&ndash;140 back in right field, and Truist Park's,
+  loanDepot park's and Oracle Park's lower levels do the same. American Family Field's Terrace rows
+  skip 4, 6 and 7 entirely, and Nationals Park has no sections 410&ndash;415 because the press box
+  sits there. At Oriole Park at Camden Yards one run of numbers, 1&ndash;98, alternates between two
+  tiers, the even sections in front and the odd sections directly behind them.</li>
+</ul>
+
+<p class="prose">So a habit learned at one ballpark will mislead you at the next one. Each guide
+below states the rule for that park and then applies it section by section, so you do not have to
+work it out from the number alone.</p>
+
+<div class="tablewrap" tabindex="0" role="group" aria-labelledby="cap-compare">
+<table>
+  <caption id="cap-compare">How the ballparks compare</caption>
+  <thead>
+    <tr>
+      <th scope="col">Ballpark</th><th scope="col">Team</th><th scope="col">Sections</th>
+      <th scope="col">How the numbers run</th>
+      <th scope="col">Facing the field, seat 1 is on your</th>
+      <th scope="col">Which end of the row that is</th>
+      <th scope="col">Rows labelled with</th>
+    </tr>
+  </thead>
+  <tbody>
+<tr><th scope="rowgroup" colspan="7">American League East</th></tr>
+<tr><th scope="row"><a href="yankeestadium/">Yankee Stadium</a></th><td>New York Yankees</td><td>181</td><td>toward third base and left field</td><td>right</td><td>the lower-numbered side</td><td>Numbers on every tier</td></tr>
+<tr><th scope="row"><a href="fenwaypark/">Fenway Park</a></th><td>Boston Red Sox</td><td>273</td><td>two schemes at once &mdash; a sweep toward third base and left field on most tiers, outward from home plate by parity on the Pavilion tiers</td><td>right</td><td>the lower-numbered side on the sweeping tiers; no such side on the Pavilion tiers</td><td>Letters and numbers</td></tr>
+<tr><th scope="row"><a href="oriolepark/">Oriole Park at Camden Yards</a></th><td>Baltimore Orioles</td><td>163</td><td>toward third base and left field</td><td>right</td><td>the lower-numbered side</td><td>Numbers on every tier</td></tr>
+<tr><th scope="row"><a href="rogerscentre/">Rogers Centre</a></th><td>Toronto Blue Jays</td><td>155</td><td>toward third base and left field</td><td>right</td><td>the lower-numbered side</td><td>Numbers</td></tr>
+<tr><th scope="row"><a href="tropicanafield/">Tropicana Field</a></th><td>Tampa Bay Rays</td><td>120</td><td>outward from home plate by parity &mdash; odd toward third base, even toward first</td><td>left, everywhere</td><td>nearest home plate in even sections, farthest from it in odd ones</td><td>Letters everywhere</td></tr>
+<tr><th scope="rowgroup" colspan="7">American League Central</th></tr>
+<tr><th scope="row"><a href="ratefield/">Rate Field</a></th><td>Chicago White Sox</td><td>133</td><td>toward third base and left field</td><td>right</td><td>the lower-numbered side</td><td>Numbers</td></tr>
+<tr><th scope="row"><a href="progressivefield/">Progressive Field</a></th><td>Cleveland Guardians</td><td>178</td><td>toward third base and left field</td><td>right</td><td>the lower-numbered side</td><td>Letters</td></tr>
+<tr><th scope="row"><a href="comericapark/">Comerica Park</a></th><td>Detroit Tigers</td><td>123</td><td>toward third base and left field</td><td>right</td><td>the lower-numbered side</td><td>Mixed letters and numbers - any row ending AC is the accessible row</td></tr>
+<tr><th scope="row"><a href="kauffmanstadium/">Kauffman Stadium</a></th><td>Kansas City Royals</td><td>174</td><td>toward first base and right field</td><td>left</td><td>the lower-numbered side</td><td>Letters on every level</td></tr>
+<tr><th scope="row"><a href="targetfield/">Target Field</a></th><td>Minnesota Twins</td><td>149</td><td>toward third base and left field</td><td>right</td><td>the lower-numbered side</td><td>Numbers</td></tr>
+<tr><th scope="rowgroup" colspan="7">American League West</th></tr>
+<tr><th scope="row"><a href="daikinpark/">Daikin Park</a></th><td>Houston Astros</td><td>142</td><td>toward first base and right field</td><td>left</td><td>the lower-numbered side</td><td>Numbers</td></tr>
+<tr><th scope="row"><a href="angelstadium/">Angel Stadium</a></th><td>Los Angeles Angels</td><td>202</td><td>toward first base and right field</td><td>left</td><td>the lower-numbered side</td><td>Letters at every level</td></tr>
+<tr><th scope="row"><a href="sutterhealthpark/">Sutter Health Park</a></th><td>Athletics</td><td>54</td><td>toward third base and left field</td><td>not published</td><td>not documented</td><td>Mixed - lettered front rows</td></tr>
+<tr><th scope="row"><a href="tmobilepark/">T-Mobile Park</a></th><td>Seattle Mariners</td><td>145</td><td>toward third base and left field</td><td>right</td><td>the lower-numbered side</td><td>Numbers</td></tr>
+<tr><th scope="row"><a href="globelifefield/">Globe Life Field</a></th><td>Texas Rangers</td><td>168</td><td>toward first base and right field</td><td>left</td><td>the lower-numbered side</td><td>Numbers</td></tr>
+<tr><th scope="rowgroup" colspan="7">National League East</th></tr>
+<tr><th scope="row"><a href="truistpark/">Truist Park</a></th><td>Atlanta Braves</td><td>181</td><td>toward third base and left field</td><td>right</td><td>the lower-numbered side</td><td>Numbers on every level</td></tr>
+<tr><th scope="row"><a href="loandepotpark/">loanDepot park</a></th><td>Miami Marlins</td><td>107</td><td>toward third base and left field</td><td>right</td><td>the lower-numbered side</td><td>Mixed - lettered rows in front of numbered ones</td></tr>
+<tr><th scope="row"><a href="citifield/">Citi Field</a></th><td>New York Mets</td><td>176</td><td>toward third base and left field</td><td>left</td><td>the higher-numbered side</td><td>Mixed - lettered rows sit in front of numbered row 1 at Field Level</td></tr>
+<tr><th scope="row"><a href="citizensbankpark/">Citizens Bank Park</a></th><td>Philadelphia Phillies</td><td>153</td><td>toward third base and left field</td><td>right</td><td>the lower-numbered side</td><td>Numbers</td></tr>
+<tr><th scope="row"><a href="nationalspark/">Nationals Park</a></th><td>Washington Nationals</td><td>129</td><td>toward first base and right field</td><td>right</td><td>the higher-numbered side</td><td>Letters on every level</td></tr>
+<tr><th scope="rowgroup" colspan="7">National League Central</th></tr>
+<tr><th scope="row"><a href="amfamfield/">American Family Field</a></th><td>Milwaukee Brewers</td><td>151</td><td>toward third base and left field</td><td>left</td><td>the higher-numbered side</td><td>Numbers</td></tr>
+<tr><th scope="row"><a href="wrigleyfield/">Wrigley Field</a></th><td>Chicago Cubs</td><td>194</td><td>toward first base and right field</td><td>left</td><td>the lower-numbered side</td><td>Numbers</td></tr>
+<tr><th scope="row"><a href="buschstadium/">Busch Stadium</a></th><td>St. Louis Cardinals</td><td>183</td><td>toward third base and left field</td><td>right</td><td>the lower-numbered side</td><td>Mixed</td></tr>
+<tr><th scope="row"><a href="greatamericanballpark/">Great American Ball Park</a></th><td>Cincinnati Reds</td><td>157</td><td>toward first base and right field</td><td>right</td><td>the higher-numbered side</td><td>Letters</td></tr>
+<tr><th scope="row"><a href="pncpark/">PNC Park</a></th><td>Pittsburgh Pirates</td><td>136</td><td>toward third base and left field</td><td>right</td><td>the lower-numbered side</td><td>Letters</td></tr>
+<tr><th scope="rowgroup" colspan="7">National League West</th></tr>
+<tr><th scope="row"><a href="dodgerstadium/">Dodger Stadium</a></th><td>Los Angeles Dodgers</td><td>276</td><td>outward from home plate by parity &mdash; odd toward third base, even toward first</td><td>right in odd sections, left in even</td><td>the end of the row nearest home plate, on both halves</td><td>Letters almost everywhere</td></tr>
+<tr><th scope="row"><a href="oraclepark/">Oracle Park</a></th><td>San Francisco Giants</td><td>111</td><td>toward third base and left field</td><td>right</td><td>the lower-numbered side</td><td>Mixed</td></tr>
+<tr><th scope="row"><a href="petcopark/">Petco Park</a></th><td>San Diego Padres</td><td>132</td><td>outward from home plate by parity &mdash; odd toward first base, even toward third</td><td>left in odd sections, right in even</td><td>the end of the row nearest home plate, on both halves</td><td>Numbers</td></tr>
+<tr><th scope="row"><a href="chasefield/">Chase Field</a></th><td>Arizona Diamondbacks</td><td>138</td><td>toward third base and left field</td><td>right</td><td>the lower-numbered side</td><td>Numbers on the three numbered tiers</td></tr>
+<tr><th scope="row"><a href="coorsfield/">Coors Field</a></th><td>Colorado Rockies</td><td>139</td><td>toward third base and left field</td><td>right</td><td>the lower-numbered side</td><td>Mixed</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h2 id="parks">The ballparks</h2>
+<p class="prose">Grouped by division. Each links to a full guide.</p>
+<h3 id="div-0">American League East</h3>
+
+<div class="sec">
+  <h4><a href="yankeestadium/">Yankee Stadium</a></h4>
+  <p><strong>New York Yankees</strong> &middot; Bronx, New York &middot; opened 2009
+  &middot; capacity 46,537 or 50,287</p>
+  <dl class="kv">
+    <div><dt>Sections documented</dt><dd>181</dd></div>
+    <div><dt>Section numbers increase toward</dt><dd>third base and left field</dd></div>
+    <div><dt>Facing the field, seat 1 is on your</dt><dd>right &mdash; which puts it on the
+      lower-numbered side of the section</dd></div>
+    <div><dt>Rows are labelled with</dt><dd>Numbers on every tier, starting at row 1 at the front</dd></div>
+    <div><dt>Worth knowing</dt><dd>Opened across the street from the 1923 ballpark of the same name, which was demolished, so anything written about that building describes a different place. The Bleachers, 201-204 and 235-239, share the 200 series with the Main Level without being part of it.</dd></div>
+  </dl>
+  <p><a href="yankeestadium/">Read the full Yankee Stadium guide &mdash; all 181 sections</a></p>
+</div>
+
+<div class="sec">
+  <h4><a href="fenwaypark/">Fenway Park</a></h4>
+  <p><strong>Boston Red Sox</strong> &middot; Boston, Massachusetts &middot; opened 1912
+  &middot; capacity 37,775</p>
+  <dl class="kv">
+    <div><dt>Sections documented</dt><dd>273</dd></div>
+    <div><dt>Section numbers increase</dt><dd>two ways at once &mdash; on the Field Box, Loge Box, Grandstand and Bleacher tiers they sweep from right field and first base, past home plate, on toward third base and left field, while on the Pavilion tiers they run outward from home plate by parity, odd down the first-base line and even down the third-base line</dd></div>
+    <div><dt>Facing the field, seat 1 is on your</dt><dd>right &mdash;
+      which puts it on the lower-numbered side of the section on the sweeping tiers; the Pavilion tiers run out from the plate both ways, so they have no lower- or higher-numbered side to be on</dd></div>
+    <div><dt>Rows are labelled with</dt><dd>Letters and numbers, differing tier by tier and section by section</dd></div>
+    <div><dt>Worth knowing</dt><dd>The oldest ballpark in the majors. Every section identifier carries a letter prefix naming its tier, because the plain numbers repeat &mdash; there is a 42 in the Field Boxes, a 42 in the Bleachers and a 42 in the Grandstand, hundreds of feet apart.</dd></div>
+  </dl>
+  <p><a href="fenwaypark/">Read the full Fenway Park guide &mdash; all 273 sections</a></p>
+</div>
+
+<div class="sec">
+  <h4><a href="oriolepark/">Oriole Park at Camden Yards</a></h4>
+  <p><strong>Baltimore Orioles</strong> &middot; Baltimore, Maryland &middot; opened 1992
+  &middot; capacity 42,455 for 2026</p>
+  <dl class="kv">
+    <div><dt>Sections documented</dt><dd>163</dd></div>
+    <div><dt>Section numbers increase toward</dt><dd>third base and left field</dd></div>
+    <div><dt>Facing the field, seat 1 is on your</dt><dd>right &mdash; which puts it on the
+      lower-numbered side of the section</dd></div>
+    <div><dt>Rows are labelled with</dt><dd>Numbers on every tier, with an EAL entrance row in the even Field Level sections</dd></div>
+    <div><dt>Worth knowing</dt><dd>The lower bowl runs one series 1-98 across two tiers &mdash; the even sections are the Field Level in front and the odd sections the Terrace Level directly behind them, so a count of numbers toward the plate counts both bands. Work between the 2025 and 2026 seasons changed the seat count and put a new Premium Club behind home plate.</dd></div>
+  </dl>
+  <p><a href="oriolepark/">Read the full Oriole Park at Camden Yards guide &mdash; all 163 sections</a></p>
+</div>
+
+<div class="sec">
+  <h4><a href="rogerscentre/">Rogers Centre</a></h4>
+  <p><strong>Toronto Blue Jays</strong> &middot; Toronto, Ontario &middot; opened 1989
+  &middot; capacity 39,150</p>
+  <dl class="kv">
+    <div><dt>Sections documented</dt><dd>155</dd></div>
+    <div><dt>Section numbers increase toward</dt><dd>third base and left field</dd></div>
+    <div><dt>Facing the field, seat 1 is on your</dt><dd>right &mdash; which puts it on the
+      lower-numbered side of the section</dd></div>
+    <div><dt>Rows are labelled with</dt><dd>Numbers, with a lettered row at the back of many 100 Level sections</dd></div>
+    <div><dt>Worth knowing</dt><dd>Opened as SkyDome and renamed after Rogers Communications bought the building in 2005. The 300 and 400 levels are sold by suite and carry no section numbers at all. Accessible rows are labelled WCA and are usually the entrance row as well.</dd></div>
+  </dl>
+  <p><a href="rogerscentre/">Read the full Rogers Centre guide &mdash; all 155 sections</a></p>
+</div>
+
+<div class="sec">
+  <h4><a href="tropicanafield/">Tropicana Field</a></h4>
+  <p><strong>Tampa Bay Rays</strong> &middot; St. Petersburg, Florida &middot; opening year not stated by the sources
+  &middot; capacity 25,025</p>
+  <dl class="kv">
+    <div><dt>Sections documented</dt><dd>120</dd></div>
+    <div><dt>Section numbers increase</dt><dd>outward from home plate rather than one way round the bowl &mdash; odd numbers run down the third-base side toward left field, even numbers down the first-base side toward right field</dd></div>
+    <div><dt>Facing the field, seat 1 is on your</dt><dd>left, in every section of the ballpark &mdash;
+      but the sections mirror about home plate and the seat numbers do not, so seat 1 is the end of the row nearest home plate in an even-numbered section and the end farthest from it in an odd-numbered one</dd></div>
+    <div><dt>Rows are labelled with</dt><dd>Letters everywhere, a single-letter series and then doubled AA to JJ and beyond</dd></div>
+    <div><dt>Worth knowing</dt><dd>A fixed-roof dome, so no section here carries sun or shade advice. Hurricane Milton tore the roof off in October 2024 and the Rays played 2025 elsewhere; they opened at home again on 6 April 2026 with the roof rebuilt.</dd></div>
+  </dl>
+  <p><a href="tropicanafield/">Read the full Tropicana Field guide &mdash; all 120 sections</a></p>
+</div>
+<h3 id="div-1">American League Central</h3>
+
+<div class="sec">
+  <h4><a href="ratefield/">Rate Field</a></h4>
+  <p><strong>Chicago White Sox</strong> &middot; Chicago, Illinois &middot; opened 1991
+  &middot; capacity 40,615</p>
+  <dl class="kv">
+    <div><dt>Sections documented</dt><dd>133</dd></div>
+    <div><dt>Section numbers increase toward</dt><dd>third base and left field</dd></div>
+    <div><dt>Facing the field, seat 1 is on your</dt><dd>right &mdash; which puts it on the
+      lower-numbered side of the section</dd></div>
+    <div><dt>Rows are labelled with</dt><dd>Numbers, many sections ending in a WCH wheelchair row</dd></div>
+    <div><dt>Worth knowing</dt><dd>Renamed from Guaranteed Rate Field in December 2024. Premium seats behind the plate carry an S suffix - 130S, 131S, 133S, 134S. There is no 200 or 400 series.</dd></div>
+  </dl>
+  <p><a href="ratefield/">Read the full Rate Field guide &mdash; all 133 sections</a></p>
+</div>
+
+<div class="sec">
+  <h4><a href="progressivefield/">Progressive Field</a></h4>
+  <p><strong>Cleveland Guardians</strong> &middot; Cleveland, Ohio &middot; opened 1994
+  &middot; capacity about 34,800</p>
+  <dl class="kv">
+    <div><dt>Sections documented</dt><dd>178</dd></div>
+    <div><dt>Section numbers increase toward</dt><dd>third base and left field</dd></div>
+    <div><dt>Facing the field, seat 1 is on your</dt><dd>right &mdash; which puts it on the
+      lower-numbered side of the section</dd></div>
+    <div><dt>Rows are labelled with</dt><dd>Letters, A to Z then AA to HH</dd></div>
+    <div><dt>Worth knowing</dt><dd>The 300-series Press Level runs only along the first-base side and never wraps behind the plate, so distances from home plate are left blank on that tier.</dd></div>
+  </dl>
+  <p><a href="progressivefield/">Read the full Progressive Field guide &mdash; all 178 sections</a></p>
+</div>
+
+<div class="sec">
+  <h4><a href="comericapark/">Comerica Park</a></h4>
+  <p><strong>Detroit Tigers</strong> &middot; Detroit, Michigan &middot; opened 2000
+  &middot; capacity 41,083</p>
+  <dl class="kv">
+    <div><dt>Sections documented</dt><dd>123</dd></div>
+    <div><dt>Section numbers increase toward</dt><dd>third base and left field</dd></div>
+    <div><dt>Facing the field, seat 1 is on your</dt><dd>right &mdash; which puts it on the
+      lower-numbered side of the section</dd></div>
+    <div><dt>Rows are labelled with</dt><dd>Mixed letters and numbers - any row ending AC is the accessible row</dd></div>
+    <div><dt>Worth knowing</dt><dd>The Tigers dugout is on the third-base side. The Mezzanine, 210-219, exists only down the right-field line. There is no section 335.</dd></div>
+  </dl>
+  <p><a href="comericapark/">Read the full Comerica Park guide &mdash; all 123 sections</a></p>
+</div>
+
+<div class="sec">
+  <h4><a href="kauffmanstadium/">Kauffman Stadium</a></h4>
+  <p><strong>Kansas City Royals</strong> &middot; Kansas City, Missouri &middot; opened 1973
+  &middot; capacity about 37,900</p>
+  <dl class="kv">
+    <div><dt>Sections documented</dt><dd>174</dd></div>
+    <div><dt>Section numbers increase toward</dt><dd>first base and right field</dd></div>
+    <div><dt>Facing the field, seat 1 is on your</dt><dd>left &mdash; which puts it on the
+      lower-numbered side of the section</dd></div>
+    <div><dt>Rows are labelled with</dt><dd>Letters on every level, often ending in a VWC or WWC wheelchair row</dd></div>
+    <div><dt>Worth knowing</dt><dd>The only park in its division whose numbers run the other way. Section 141's page contradicts the park's own seat-1 rule.</dd></div>
+  </dl>
+  <p><a href="kauffmanstadium/">Read the full Kauffman Stadium guide &mdash; all 174 sections</a></p>
+</div>
+
+<div class="sec">
+  <h4><a href="targetfield/">Target Field</a></h4>
+  <p><strong>Minnesota Twins</strong> &middot; Minneapolis, Minnesota &middot; opened 2010
+  &middot; capacity 38,544</p>
+  <dl class="kv">
+    <div><dt>Sections documented</dt><dd>149</dd></div>
+    <div><dt>Section numbers increase toward</dt><dd>third base and left field</dd></div>
+    <div><dt>Facing the field, seat 1 is on your</dt><dd>right &mdash; which puts it on the
+      lower-numbered side of the section</dd></div>
+    <div><dt>Rows are labelled with</dt><dd>Numbers, with WC rows interleaved into the numbering rather than at one end</dd></div>
+    <div><dt>Worth knowing</dt><dd>The Main Level wraps the whole way round - 128-131 are in left field but 132-140 come back around into right field.</dd></div>
+  </dl>
+  <p><a href="targetfield/">Read the full Target Field guide &mdash; all 149 sections</a></p>
+</div>
+<h3 id="div-2">American League West</h3>
+
+<div class="sec">
+  <h4><a href="daikinpark/">Daikin Park</a></h4>
+  <p><strong>Houston Astros</strong> &middot; Houston, Texas &middot; opened 2000
+  &middot; capacity about 41,000</p>
+  <dl class="kv">
+    <div><dt>Sections documented</dt><dd>142</dd></div>
+    <div><dt>Section numbers increase toward</dt><dd>first base and right field</dd></div>
+    <div><dt>Facing the field, seat 1 is on your</dt><dd>left &mdash; which puts it on the
+      lower-numbered side of the section</dd></div>
+    <div><dt>Rows are labelled with</dt><dd>Numbers, with infield sections starting at row 5</dd></div>
+    <div><dt>Worth knowing</dt><dd>Renamed from Minute Maid Park in January 2025. The Crawford Boxes, sections 100-104, are the short porch in left field.</dd></div>
+  </dl>
+  <p><a href="daikinpark/">Read the full Daikin Park guide &mdash; all 142 sections</a></p>
+</div>
+
+<div class="sec">
+  <h4><a href="angelstadium/">Angel Stadium</a></h4>
+  <p><strong>Los Angeles Angels</strong> &middot; Anaheim, California &middot; opened 1966
+  &middot; capacity 45,517</p>
+  <dl class="kv">
+    <div><dt>Sections documented</dt><dd>202</dd></div>
+    <div><dt>Section numbers increase toward</dt><dd>first base and right field</dd></div>
+    <div><dt>Facing the field, seat 1 is on your</dt><dd>left &mdash; which puts it on the
+      lower-numbered side of the section</dd></div>
+    <div><dt>Rows are labelled with</dt><dd>Letters at every level, with I, O and Q skipped</dd></div>
+    <div><dt>Worth knowing</dt><dd>Fourth-oldest ballpark in the majors. Sections 214-220 are not sold as numbered seats at all - a club occupies that gap behind home plate.</dd></div>
+  </dl>
+  <p><a href="angelstadium/">Read the full Angel Stadium guide &mdash; all 202 sections</a></p>
+</div>
+
+<div class="sec">
+  <h4><a href="sutterhealthpark/">Sutter Health Park</a></h4>
+  <p><strong>Athletics</strong> &middot; West Sacramento, California &middot; opened 2000
+  &middot; capacity about 14,000</p>
+  <dl class="kv">
+    <div><dt>Sections documented</dt><dd>54</dd></div>
+    <div><dt>Section numbers increase</dt><dd>third base and left field</dd></div>
+    <div><dt>Facing the field, seat 1 is on your</dt><dd>not published by any source &mdash;
+      no source states which side seat 1 is on, so this guide does not either</dd></div>
+    <div><dt>Rows are labelled with</dt><dd>Mixed - lettered front rows, numbered rows, and a WC accessible row on top</dd></div>
+    <div><dt>Worth knowing</dt><dd>The Athletics' temporary home through at least 2027 and by far the smallest park here. It is also the one park where no source states which side seat 1 is on.</dd></div>
+  </dl>
+  <p><a href="sutterhealthpark/">Read the full Sutter Health Park guide &mdash; all 54 sections</a></p>
+</div>
+
+<div class="sec">
+  <h4><a href="tmobilepark/">T-Mobile Park</a></h4>
+  <p><strong>Seattle Mariners</strong> &middot; Seattle, Washington &middot; opened 1999
+  &middot; capacity about 47,400</p>
+  <dl class="kv">
+    <div><dt>Sections documented</dt><dd>145</dd></div>
+    <div><dt>Section numbers increase toward</dt><dd>third base and left field</dd></div>
+    <div><dt>Facing the field, seat 1 is on your</dt><dd>right &mdash; which puts it on the
+      lower-numbered side of the section</dd></div>
+    <div><dt>Rows are labelled with</dt><dd>Numbers, but many sections start at row 5, 9, 17 or 23 rather than 1</dd></div>
+    <div><dt>Worth knowing</dt><dd>The roof covers without enclosing, so it keeps rain off but never becomes an indoor stadium.</dd></div>
+  </dl>
+  <p><a href="tmobilepark/">Read the full T-Mobile Park guide &mdash; all 145 sections</a></p>
+</div>
+
+<div class="sec">
+  <h4><a href="globelifefield/">Globe Life Field</a></h4>
+  <p><strong>Texas Rangers</strong> &middot; Arlington, Texas &middot; opened 2020
+  &middot; capacity about 40,300</p>
+  <dl class="kv">
+    <div><dt>Sections documented</dt><dd>168</dd></div>
+    <div><dt>Section numbers increase toward</dt><dd>first base and right field</dd></div>
+    <div><dt>Facing the field, seat 1 is on your</dt><dd>left &mdash; which puts it on the
+      lower-numbered side of the section</dd></div>
+    <div><dt>Rows are labelled with</dt><dd>Numbers</dd></div>
+    <div><dt>Worth knowing</dt><dd>The Lower Level uses one- and two-digit numbers, so section 14 is a premium seat and section 114 is a tier up. Sections 27-33 break the sequence and sit in left field.</dd></div>
+  </dl>
+  <p><a href="globelifefield/">Read the full Globe Life Field guide &mdash; all 168 sections</a></p>
+</div>
+<h3 id="div-3">National League East</h3>
+
+<div class="sec">
+  <h4><a href="truistpark/">Truist Park</a></h4>
+  <p><strong>Atlanta Braves</strong> &middot; Atlanta, Georgia &middot; opened 2017
+  &middot; capacity about 41,100</p>
+  <dl class="kv">
+    <div><dt>Sections documented</dt><dd>181</dd></div>
+    <div><dt>Section numbers increase toward</dt><dd>third base and left field</dd></div>
+    <div><dt>Facing the field, seat 1 is on your</dt><dd>right &mdash; which puts it on the
+      lower-numbered side of the section</dd></div>
+    <div><dt>Rows are labelled with</dt><dd>Numbers on every level, with no lettered rows anywhere</dd></div>
+    <div><dt>Worth knowing</dt><dd>Opened as SunTrust Park and renamed in 2020. The Lower Level wraps the whole way round - 153-155 reach centre field and 156-160 come back into right field as the Chop House.</dd></div>
+  </dl>
+  <p><a href="truistpark/">Read the full Truist Park guide &mdash; all 181 sections</a></p>
+</div>
+
+<div class="sec">
+  <h4><a href="loandepotpark/">loanDepot park</a></h4>
+  <p><strong>Miami Marlins</strong> &middot; Miami, Florida &middot; opened 2012
+  &middot; capacity 37,442</p>
+  <dl class="kv">
+    <div><dt>Sections documented</dt><dd>107</dd></div>
+    <div><dt>Section numbers increase toward</dt><dd>third base and left field</dd></div>
+    <div><dt>Facing the field, seat 1 is on your</dt><dd>right &mdash; which puts it on the
+      lower-numbered side of the section</dd></div>
+    <div><dt>Rows are labelled with</dt><dd>Mixed - lettered rows in front of numbered ones, with a WC row on top</dd></div>
+    <div><dt>Worth knowing</dt><dd>Renamed from Marlins Park in 2021, and the only park here that closes its roof and air-conditions. Sections 212-218 do not exist, so the Legends level never reaches home plate.</dd></div>
+  </dl>
+  <p><a href="loandepotpark/">Read the full loanDepot park guide &mdash; all 107 sections</a></p>
+</div>
+
+<div class="sec">
+  <h4><a href="citifield/">Citi Field</a></h4>
+  <p><strong>New York Mets</strong> &middot; Flushing, New York &middot; opened 2009
+  &middot; capacity 41,922</p>
+  <dl class="kv">
+    <div><dt>Sections documented</dt><dd>176</dd></div>
+    <div><dt>Section numbers increase toward</dt><dd>third base and left field</dd></div>
+    <div><dt>Facing the field, seat 1 is on your</dt><dd>left &mdash; which puts it on the
+      higher-numbered side of the section</dd></div>
+    <div><dt>Rows are labelled with</dt><dd>Mixed - lettered rows sit in front of numbered row 1 at Field Level</dd></div>
+    <div><dt>Worth knowing</dt><dd>There is no 200 series at all; the Empire Suite Level fills that band. Sources contradict each other on which side seat 1 is on, and the whole rule rests on it.</dd></div>
+  </dl>
+  <p><a href="citifield/">Read the full Citi Field guide &mdash; all 176 sections</a></p>
+</div>
+
+<div class="sec">
+  <h4><a href="citizensbankpark/">Citizens Bank Park</a></h4>
+  <p><strong>Philadelphia Phillies</strong> &middot; Philadelphia, Pennsylvania &middot; opened 2004
+  &middot; capacity 42,901</p>
+  <dl class="kv">
+    <div><dt>Sections documented</dt><dd>153</dd></div>
+    <div><dt>Section numbers increase toward</dt><dd>third base and left field</dd></div>
+    <div><dt>Facing the field, seat 1 is on your</dt><dd>right &mdash; which puts it on the
+      lower-numbered side of the section</dd></div>
+    <div><dt>Rows are labelled with</dt><dd>Numbers, with a WC suffix on the last row of accessible sections</dd></div>
+    <div><dt>Worth knowing</dt><dd>Centre field has no numbered sections, so the run stops at 148 rather than wrapping. There are no sections 238-240 or 311, and the 400 level starts at 412.</dd></div>
+  </dl>
+  <p><a href="citizensbankpark/">Read the full Citizens Bank Park guide &mdash; all 153 sections</a></p>
+</div>
+
+<div class="sec">
+  <h4><a href="nationalspark/">Nationals Park</a></h4>
+  <p><strong>Washington Nationals</strong> &middot; Washington, D.C. &middot; opened 2008
+  &middot; capacity 41,373</p>
+  <dl class="kv">
+    <div><dt>Sections documented</dt><dd>129</dd></div>
+    <div><dt>Section numbers increase toward</dt><dd>first base and right field</dd></div>
+    <div><dt>Facing the field, seat 1 is on your</dt><dd>right &mdash; which puts it on the
+      higher-numbered side of the section</dd></div>
+    <div><dt>Rows are labelled with</dt><dd>Letters on every level, running past Z into AA and beyond</dd></div>
+    <div><dt>Worth knowing</dt><dd>The only park in its division whose numbers run the other way. The press box splits the upper deck in two behind home plate, so sections 410-415 do not exist.</dd></div>
+  </dl>
+  <p><a href="nationalspark/">Read the full Nationals Park guide &mdash; all 129 sections</a></p>
+</div>
+<h3 id="div-4">National League Central</h3>
+
+<div class="sec">
+  <h4><a href="amfamfield/">American Family Field</a></h4>
+  <p><strong>Milwaukee Brewers</strong> &middot; Milwaukee, Wisconsin &middot; opened 2001
+  &middot; capacity 41,900</p>
+  <dl class="kv">
+    <div><dt>Sections documented</dt><dd>151</dd></div>
+    <div><dt>Section numbers increase toward</dt><dd>third base and left field</dd></div>
+    <div><dt>Facing the field, seat 1 is on your</dt><dd>left &mdash; which puts it on the
+      higher-numbered side of the section</dd></div>
+    <div><dt>Rows are labelled with</dt><dd>Numbers, with gaps on the Terrace level — rows 4, 6 and 7 do not exist</dd></div>
+    <div><dt>Worth knowing</dt><dd>A wheelchair platform sits in the row gap between rows 3 and 5 in the even-numbered Terrace sections, which is visible in the row labels.</dd></div>
+  </dl>
+  <p><a href="amfamfield/">Read the full American Family Field guide &mdash; all 151 sections</a></p>
+</div>
+
+<div class="sec">
+  <h4><a href="wrigleyfield/">Wrigley Field</a></h4>
+  <p><strong>Chicago Cubs</strong> &middot; Chicago, Illinois &middot; opened 1914
+  &middot; capacity 41,649</p>
+  <dl class="kv">
+    <div><dt>Sections documented</dt><dd>194</dd></div>
+    <div><dt>Section numbers increase toward</dt><dd>first base and right field</dd></div>
+    <div><dt>Facing the field, seat 1 is on your</dt><dd>left &mdash; which puts it on the
+      lower-numbered side of the section</dd></div>
+    <div><dt>Rows are labelled with</dt><dd>Numbers</dd></div>
+    <div><dt>Worth knowing</dt><dd>A 1914 steel-post ballpark. Support posts obstruct many Terrace-level seats from about row 7 back; rows 1 to 6 are the only pole-free rows.</dd></div>
+  </dl>
+  <p><a href="wrigleyfield/">Read the full Wrigley Field guide &mdash; all 194 sections</a></p>
+</div>
+
+<div class="sec">
+  <h4><a href="buschstadium/">Busch Stadium</a></h4>
+  <p><strong>St. Louis Cardinals</strong> &middot; St. Louis, Missouri &middot; opened 2006
+  &middot; capacity about 44,000</p>
+  <dl class="kv">
+    <div><dt>Sections documented</dt><dd>183</dd></div>
+    <div><dt>Section numbers increase toward</dt><dd>third base and left field</dd></div>
+    <div><dt>Facing the field, seat 1 is on your</dt><dd>right &mdash; which puts it on the
+      lower-numbered side of the section</dd></div>
+    <div><dt>Rows are labelled with</dt><dd>Mixed — lettered rows in front, numbered rows behind a cross-aisle</dd></div>
+    <div><dt>Worth knowing</dt><dd>Field-level infield sections read like &ldquo;F-L, 1-24&rdquo;. Row F is the front row and row 1 is behind row L, which catches people out.</dd></div>
+  </dl>
+  <p><a href="buschstadium/">Read the full Busch Stadium guide &mdash; all 183 sections</a></p>
+</div>
+
+<div class="sec">
+  <h4><a href="greatamericanballpark/">Great American Ball Park</a></h4>
+  <p><strong>Cincinnati Reds</strong> &middot; Cincinnati, Ohio &middot; opened 2003
+  &middot; capacity 45,814</p>
+  <dl class="kv">
+    <div><dt>Sections documented</dt><dd>157</dd></div>
+    <div><dt>Section numbers increase toward</dt><dd>first base and right field</dd></div>
+    <div><dt>Facing the field, seat 1 is on your</dt><dd>right &mdash; which puts it on the
+      higher-numbered side of the section</dd></div>
+    <div><dt>Rows are labelled with</dt><dd>Letters, running A to Z and then AA to GG</dd></div>
+    <div><dt>Worth knowing</dt><dd>Accessible seating is in the last row of sections across nearly every price level, rather than at the front.</dd></div>
+  </dl>
+  <p><a href="greatamericanballpark/">Read the full Great American Ball Park guide &mdash; all 157 sections</a></p>
+</div>
+
+<div class="sec">
+  <h4><a href="pncpark/">PNC Park</a></h4>
+  <p><strong>Pittsburgh Pirates</strong> &middot; Pittsburgh, Pennsylvania &middot; opened 2001
+  &middot; capacity about 38,700</p>
+  <dl class="kv">
+    <div><dt>Sections documented</dt><dd>136</dd></div>
+    <div><dt>Section numbers increase toward</dt><dd>third base and left field</dd></div>
+    <div><dt>Facing the field, seat 1 is on your</dt><dd>right &mdash; which puts it on the
+      lower-numbered side of the section</dd></div>
+    <div><dt>Rows are labelled with</dt><dd>Letters, running A to Z and then AA to KK</dd></div>
+    <div><dt>Worth knowing</dt><dd>The Pirates dugout is on the third-base side — unusual in the majors, and done so the home team looks out over right field toward the skyline.</dd></div>
+  </dl>
+  <p><a href="pncpark/">Read the full PNC Park guide &mdash; all 136 sections</a></p>
+</div>
+<h3 id="div-5">National League West</h3>
+
+<div class="sec">
+  <h4><a href="dodgerstadium/">Dodger Stadium</a></h4>
+  <p><strong>Los Angeles Dodgers</strong> &middot; Los Angeles, California &middot; opened 1962
+  &middot; capacity 56,000</p>
+  <dl class="kv">
+    <div><dt>Sections documented</dt><dd>276</dd></div>
+    <div><dt>Section numbers increase</dt><dd>outward from home plate rather than one way round the bowl &mdash; odd numbers run down the third-base side toward left field, even numbers down the first-base side toward right field</dd></div>
+    <div><dt>Facing the field, seat 1 is on your</dt><dd>right in odd-numbered sections and left in even-numbered ones &mdash;
+      on both halves that is the end of the row nearest home plate</dd></div>
+    <div><dt>Rows are labelled with</dt><dd>Letters almost everywhere, with a DR drink rail behind row X in the home-plate sections</dd></div>
+    <div><dt>Worth knowing</dt><dd>The largest capacity in the majors, held at 56,000 through every renovation. UNIQLO bought the naming rights to the field in March 2026, so the playing surface is UNIQLO Field and the building is still Dodger Stadium.</dd></div>
+  </dl>
+  <p><a href="dodgerstadium/">Read the full Dodger Stadium guide &mdash; all 276 sections</a></p>
+</div>
+
+<div class="sec">
+  <h4><a href="oraclepark/">Oracle Park</a></h4>
+  <p><strong>San Francisco Giants</strong> &middot; San Francisco, California &middot; opened 2000
+  &middot; capacity 40,260</p>
+  <dl class="kv">
+    <div><dt>Sections documented</dt><dd>111</dd></div>
+    <div><dt>Section numbers increase toward</dt><dd>third base and left field</dd></div>
+    <div><dt>Facing the field, seat 1 is on your</dt><dd>right &mdash; which puts it on the
+      lower-numbered side of the section</dd></div>
+    <div><dt>Rows are labelled with</dt><dd>Mixed &mdash; lettered rows run straight into numbered ones inside one section</dd></div>
+    <div><dt>Worth knowing</dt><dd>Opened as Pacific Bell Park, became SBC Park in 2004 and AT&amp;T Park in 2007. The Promenade series does not stop at the left-field corner but carries on round the outfield, so 145-152, the Arcade on top of the right-field wall, are the one place here where a high number means right field.</dd></div>
+  </dl>
+  <p><a href="oraclepark/">Read the full Oracle Park guide &mdash; all 111 sections</a></p>
+</div>
+
+<div class="sec">
+  <h4><a href="petcopark/">Petco Park</a></h4>
+  <p><strong>San Diego Padres</strong> &middot; San Diego, California &middot; opened 2004
+  &middot; capacity 39,860</p>
+  <dl class="kv">
+    <div><dt>Sections documented</dt><dd>132</dd></div>
+    <div><dt>Section numbers increase</dt><dd>outward from home plate rather than one way round the bowl &mdash; odd numbers run up the first-base side toward right field, even numbers down the third-base side toward left field</dd></div>
+    <div><dt>Facing the field, seat 1 is on your</dt><dd>left in odd-numbered sections and right in even-numbered ones &mdash;
+      on both halves that is the end of the row nearest home plate</dd></div>
+    <div><dt>Rows are labelled with</dt><dd>Numbers, with lettered front rows A and B in sections 126 and 128</dd></div>
+    <div><dt>Worth knowing</dt><dd>The Upper Deck never reaches the outfield &mdash; the Upper Box sections 226-235 in left and right field sit on the 200 level instead, with Gallagher Square between them. The Western Metal Supply Co. Building stands in the left-field corner and its corner is the foul pole.</dd></div>
+  </dl>
+  <p><a href="petcopark/">Read the full Petco Park guide &mdash; all 132 sections</a></p>
+</div>
+
+<div class="sec">
+  <h4><a href="chasefield/">Chase Field</a></h4>
+  <p><strong>Arizona Diamondbacks</strong> &middot; Phoenix, Arizona &middot; opened 1998
+  &middot; capacity 48,330</p>
+  <dl class="kv">
+    <div><dt>Sections documented</dt><dd>138</dd></div>
+    <div><dt>Section numbers increase toward</dt><dd>third base and left field</dd></div>
+    <div><dt>Facing the field, seat 1 is on your</dt><dd>right &mdash; which puts it on the
+      lower-numbered side of the section</dd></div>
+    <div><dt>Rows are labelled with</dt><dd>Numbers on the three numbered tiers, letters on the Field Level ring</dd></div>
+    <div><dt>Worth knowing</dt><dd>Opened as Bank One Ballpark and renamed in 2005. The lettered Field Level ring A-S sits in front of the 100 Level, so the 100 Level infield starts at row 21 rather than row 1. Accessible rows repeat the row number with a C or W suffix.</dd></div>
+  </dl>
+  <p><a href="chasefield/">Read the full Chase Field guide &mdash; all 138 sections</a></p>
+</div>
+
+<div class="sec">
+  <h4><a href="coorsfield/">Coors Field</a></h4>
+  <p><strong>Colorado Rockies</strong> &middot; Denver, Colorado &middot; opened 1995
+  &middot; capacity 46,897</p>
+  <dl class="kv">
+    <div><dt>Sections documented</dt><dd>139</dd></div>
+    <div><dt>Section numbers increase toward</dt><dd>third base and left field</dd></div>
+    <div><dt>Facing the field, seat 1 is on your</dt><dd>right &mdash; which puts it on the
+      lower-numbered side of the section</dd></div>
+    <div><dt>Rows are labelled with</dt><dd>Mixed &mdash; numbered rows from the field back, then a lettered block C to W behind them</dd></div>
+    <div><dt>Worth knowing</dt><dd>Lower Level sections are entered at row W at the top, so you come in behind the lettered block and walk down as far as 38 rows. The Rockpile, 401-403, is a three-section bleacher block in straightaway centre field, about 600 feet from home plate.</dd></div>
+  </dl>
+  <p><a href="coorsfield/">Read the full Coors Field guide &mdash; all 139 sections</a></p>
+</div>
+
+<h2 id="method">How these were built</h2>
+
+<p class="prose">Rows, entrance rows, ticket zones and seat-numbering direction come from
+RateYourSeats, one page fetched per section, with A View From My Seat as a fallback. Orientation,
+dugouts, bullpens, capacity and accessibility come from each team's own ballpark and accessibility
+guides, cross-checked against independent ballpark guides.</p>
+
+<p class="prose">Where a source does not state something, the data says so rather than guessing.
+Every section carries a confidence rating, and every guide lists what could not be confirmed. The
+underlying CSV and notes files are linked for download from each ballpark's page, so you can check
+the working or reuse the data.</p>
+
+<p class="prose">These pages are built to WCAG 2.2 Level AA and audited with axe-core in both light
+and dark mode. No JavaScript is required to read any of the content.</p>
+
+<h2 id="caveats">Before you buy</h2>
+
+<p class="prose">Ballparks change. Netting gets extended, sections get renamed, construction blocks
+sightlines that were fine last season. Everything here was compiled in August 2026 from public
+sources and is not a substitute for the team's own ticket office, which can confirm a specific seat
+and is the right place to arrange accessible seating.</p>
+
+<p class="prose">If something here is wrong &mdash; a section placed on the wrong side of the park, a
+row range that does not match the ticket in your hand, a seat-numbering rule that reads backwards
+&mdash; please <a href="https://github.com/kellylford/TheWorkBench/issues">file an issue on
+GitHub</a>. Corrections from people who know a ballpark first-hand are the fastest way this gets
+better, and the underlying data files linked from every ballpark page are there so you can check the
+working.</p>
+
+</main>
+</div>
+
+<footer class="site">
+  <div class="wrap">
+    <p>Compiled August 2026 from public sources. Part of
+    <a href="../">The Idea Place projects</a>.</p>
+  </div>
+</footer>
+</body>
+</html>

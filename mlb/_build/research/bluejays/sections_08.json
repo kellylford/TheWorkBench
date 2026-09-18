@@ -1,0 +1,167 @@
+[
+  {
+    "section": "527",
+    "zone": "Section 527 at Rogers Centre (500 Level)",
+    "location": "\"The 500 Level is the highest seating tier at Rogers Centre, wrapping around the entire stadium above the 200 and 300 levels.\" The page also carries the 500 Level Infield-category text \"Infield seats are the best overall option on the 500 level.\" and \"Located directly behind home plate\". CAUTION: that \"Located directly behind home plate\" phrase is the generic 500 Level Infield-category description, not a sentence naming Section 527 itself; the same phrase was returned on the 533 and 534 pages, and the zone page defines the infield block as \"Infield (Sections 522-526)\", which does NOT include 527. Treat it as zone boilerplate, not a per-section placement.",
+    "rows": "\"Rows in Section 527 are labeled 1-21\"",
+    "entrance_row": "\"An entrance to this section is located at Row 5\"",
+    "seat_direction": "BOILERPLATE (site-wide, appears identically on every Rogers Centre section page): \"When looking towards the field/ring/stage, lower number seats are on the right\". PER-SECTION: No per-section statement. No question-and-answer text, expert answer or fan review on this page names a side for seat 1 in Section 527.",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights: \"Top Pick for Great Views of the Field\" (Rows 3-5). Seating Notes: \"For baseball games, we recommend rows 3-5 for great views of the field\". OBSTRUCTION, per-section and verbatim: \"The first row in Section 527 does have an obstruction with a blue railing on top of the wall in front, but the obstruction is not very large.\" This is the only genuine per-section obstruction statement in this batch. No netting, shade or overhang line specific to 527. No fan reviews returned. CROSS-CHECK vs discovery.json: the Blue Jays A-Z guide places the Gate 9 elevator at \"Sec. 127 (100L), Sec. 227 (200L)... Sec. 527 (500L)\", i.e. 527 immediately on the third-base side of home plate; the page itself states nothing about side, so this is not a contradiction, merely an absence.",
+    "source": "https://www.rateyourseats.com/rogers-centre/seating/sections/527"
+  },
+  {
+    "section": "528",
+    "zone": "Section 528 at Rogers Centre (500 Level)",
+    "location": "\"The 500 Level is the highest seating tier at Rogers Centre, wrapping around the entire stadium above the 200 and 300 levels.\" No sentence on the page places Section 528 specifically by side or by field position. The page lists the level breakdown \"Infield (Sections 522-526)\", which does not include 528.",
+    "rows": "\"Rows in Section 528 are labeled 1-21\"",
+    "entrance_row": "\"An entrance to this section is located at Row 5\"",
+    "seat_direction": "BOILERPLATE (site-wide, appears identically on every Rogers Centre section page): \"When looking towards the field/ring/stage, lower number seats are on the right\". PER-SECTION: No per-section statement. No question-and-answer text, expert answer or fan review on this page names a side for seat 1 in Section 528.",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights: \"Rows 1-21\". No Seating Notes, netting, obstruction, shade or overhang line specific to 528. No fan reviews returned. The page serves largely generic 500 Level zone content rather than section-specific prose: the only placement sentence is the level-wide \"The 500 Level is the highest seating tier at Rogers Centre, wrapping around the entire stadium above the 200 and 300 levels.\" No section-specific left-field/right-field or first-base/third-base label appears. This matches discovery.json's note that \"NO EXPLICIT LEFT/RIGHT-FIELD LABEL WAS FOUND ON THE INDIVIDUAL 200- AND 500-LEVEL END SECTIONS.\"",
+    "source": "https://www.rateyourseats.com/rogers-centre/seating/sections/528"
+  },
+  {
+    "section": "529",
+    "zone": "Section 529 at Rogers Centre (500 Level)",
+    "location": "\"The 500 Level is the highest seating tier at Rogers Centre, wrapping around the entire stadium above the 200 and 300 levels.\" No sentence on the page places Section 529 specifically by side or by field position. The page lists the level breakdown \"Infield (Sections 522-526)\", which does not include 529.",
+    "rows": "\"Rows in Section 529 are labeled 1-21\"",
+    "entrance_row": "\"An entrance to this section is located at Row 5\"",
+    "seat_direction": "BOILERPLATE (site-wide, appears identically on every Rogers Centre section page): \"When looking towards the field/ring/stage, lower number seats are on the right\". PER-SECTION: No per-section statement. No question-and-answer text, expert answer or fan review on this page names a side for seat 1 in Section 529.",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights: \"Rows 1-21\". No Seating Notes, netting, obstruction, shade or overhang line specific to 529. No fan reviews returned. The page serves largely generic 500 Level zone content rather than section-specific prose: the only placement sentence is the level-wide \"The 500 Level is the highest seating tier at Rogers Centre, wrapping around the entire stadium above the 200 and 300 levels.\" No section-specific left-field/right-field or first-base/third-base label appears. This matches discovery.json's note that \"NO EXPLICIT LEFT/RIGHT-FIELD LABEL WAS FOUND ON THE INDIVIDUAL 200- AND 500-LEVEL END SECTIONS.\"",
+    "source": "https://www.rateyourseats.com/rogers-centre/seating/sections/529"
+  },
+  {
+    "section": "530",
+    "zone": "Section 530 at Rogers Centre (500 Level)",
+    "location": "\"The 500 Level is the highest seating tier at Rogers Centre, wrapping around the entire stadium above the 200 and 300 levels.\" The page also names this section in the level-wide caution: \"However, due to the shape of the upper bowl, some nearby sections (like 518 or 530) sit farther from the field than expected.\"",
+    "rows": "\"Rows in Section 530 are labeled 1-21\"",
+    "entrance_row": "\"An entrance to this section is located at Row 5\"",
+    "seat_direction": "BOILERPLATE (site-wide, appears identically on every Rogers Centre section page): \"When looking towards the field/ring/stage, lower number seats are on the right\". PER-SECTION: No per-section statement. No question-and-answer text, expert answer or fan review on this page names a side for seat 1 in Section 530.",
+    "seats_per_row": "UNKNOWN",
+    "notes": "DISTANCE CAUTION naming this section verbatim: \"However, due to the shape of the upper bowl, some nearby sections (like 518 or 530) sit farther from the field than expected.\" This is 500 Level zone text but it names 530 explicitly, so it is recorded as applying to this section. No Section Insights labels, Seating Notes, netting, obstruction or shade lines returned; no fan reviews. Otherwise the page serves largely generic 500 Level zone content rather than section-specific prose: the only placement sentence is the level-wide \"The 500 Level is the highest seating tier at Rogers Centre, wrapping around the entire stadium above the 200 and 300 levels.\" No section-specific left-field/right-field or first-base/third-base label appears. This matches discovery.json's note that \"NO EXPLICIT LEFT/RIGHT-FIELD LABEL WAS FOUND ON THE INDIVIDUAL 200- AND 500-LEVEL END SECTIONS.\"",
+    "source": "https://www.rateyourseats.com/rogers-centre/seating/sections/530"
+  },
+  {
+    "section": "531",
+    "zone": "Section 531 at Rogers Centre (500 Level)",
+    "location": "\"The 500 Level is the highest seating tier at Rogers Centre, wrapping around the entire stadium above the 200 and 300 levels.\" No sentence on the page places Section 531 specifically by side or by field position. The page lists the level breakdown \"Infield (Sections 522-526)\", which does not include 531.",
+    "rows": "\"Rows in Section 531 are labeled 1-22\"",
+    "entrance_row": "\"An entrance to this section is located at Row 5\"",
+    "seat_direction": "BOILERPLATE (site-wide, appears identically on every Rogers Centre section page): \"When looking towards the field/ring/stage, lower number seats are on the right\". PER-SECTION: No per-section statement. No question-and-answer text, expert answer or fan review on this page names a side for seat 1 in Section 531.",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights: \"Top Pick for Outstanding Convenience\" (Rows 1-9); \"Rows 1-22\". Seating Notes: \"For baseball games, we recommend rows 1-9 for outstanding convenience\". No netting, obstruction, shade or overhang line specific to 531. No fan reviews returned. The page serves largely generic 500 Level zone content rather than section-specific prose: the only placement sentence is the level-wide \"The 500 Level is the highest seating tier at Rogers Centre, wrapping around the entire stadium above the 200 and 300 levels.\" No section-specific left-field/right-field or first-base/third-base label appears. This matches discovery.json's note that \"NO EXPLICIT LEFT/RIGHT-FIELD LABEL WAS FOUND ON THE INDIVIDUAL 200- AND 500-LEVEL END SECTIONS.\"",
+    "source": "https://www.rateyourseats.com/rogers-centre/seating/sections/531"
+  },
+  {
+    "section": "532",
+    "zone": "Section 532 at Rogers Centre (500 Level)",
+    "location": "\"The 500 Level is the highest seating tier at Rogers Centre, wrapping around the entire stadium above the 200 and 300 levels.\" No sentence on the page places Section 532 specifically by side or by field position. The page lists the level breakdown \"Infield (Sections 522-526)\", which does not include 532.",
+    "rows": "\"Rows in Section 532 are labeled 1-24\"",
+    "entrance_row": "\"An entrance to this section is located at Row 5\"",
+    "seat_direction": "BOILERPLATE (site-wide, appears identically on every Rogers Centre section page): \"When looking towards the field/ring/stage, lower number seats are on the right\". PER-SECTION: No per-section statement. No question-and-answer text, expert answer or fan review on this page names a side for seat 1 in Section 532.",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights: \"Top Pick for Outstanding Convenience\" (Rows 1-9). Seating Notes: \"For baseball games, we recommend rows 1-9 for outstanding convenience\". No netting, obstruction, shade or overhang line specific to 532. No fan reviews returned. The page serves largely generic 500 Level zone content rather than section-specific prose: the only placement sentence is the level-wide \"The 500 Level is the highest seating tier at Rogers Centre, wrapping around the entire stadium above the 200 and 300 levels.\" No section-specific left-field/right-field or first-base/third-base label appears. This matches discovery.json's note that \"NO EXPLICIT LEFT/RIGHT-FIELD LABEL WAS FOUND ON THE INDIVIDUAL 200- AND 500-LEVEL END SECTIONS.\" CROSS-CHECK vs discovery.json (not a contradiction, just corroborating context): the Blue Jays A-Z guide places Fan Services and a Reverse ATM on the 500 Level \"near Sections 508 and 532\"; the RateYourSeats page itself says nothing about amenities at 532.",
+    "source": "https://www.rateyourseats.com/rogers-centre/seating/sections/532"
+  },
+  {
+    "section": "533",
+    "zone": "Section 533 at Rogers Centre (500 Level)",
+    "location": "\"The 500 Level is the highest seating tier at Rogers Centre, wrapping around the entire stadium above the 200 and 300 levels.\" The page also returns the 500 Level Infield-category text \"Infield seats are the best overall option on the 500 level. Located directly behind home plate\". CAUTION: that is the generic Infield-category description; the same page defines the infield block as \"Infield (Sections 522-526)\", which does NOT include 533, so this phrase must not be read as placing Section 533 behind home plate.",
+    "rows": "\"Rows in Section 533 are labeled 1-24\"",
+    "entrance_row": "\"An entrance to this section is located at Row 5\"",
+    "seat_direction": "BOILERPLATE (site-wide, appears identically on every Rogers Centre section page): \"When looking towards the field/ring/stage, lower number seats are on the right\". PER-SECTION: No per-section statement. No question-and-answer text, expert answer or fan review on this page names a side for seat 1 in Section 533.",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights: \"Rows 1-24\". Expert review themes listed on the page: \"Most Affordable Options\", \"Multiple Views\", \"Skyline & Videoboard Views\", \"Social Spaces Nearby\". No netting, obstruction, shade or overhang line specific to 533. FAN REVIEW (sole entry, a CONCERT review, not baseball): \"Worst sound ever!! Disappionting ! Anniversary outing\" - tagged \"Sec 533 / Row 11 - Concert\". CONTRADICTION FLAG: the \"Located directly behind home plate\" phrase returned on this page conflicts with the same page's own \"Infield (Sections 522-526)\" definition. Not reconciled here; it is zone boilerplate bleeding into a non-infield section page.",
+    "source": "https://www.rateyourseats.com/rogers-centre/seating/sections/533"
+  },
+  {
+    "section": "534",
+    "zone": "Section 534 at Rogers Centre (500 Level)",
+    "location": "\"Located directly behind home plate\" - CAUTION: this is the generic 500 Level Infield-category description returned on the page, NOT a sentence naming Section 534. The same 500 Level content defines the infield block as \"Infield (Sections 522-526)\", which does not include 534. No genuine per-section placement sentence appears. A fan review does state \"Great view of home plate and the whole field.\"",
+    "rows": "\"Rows in Section 534 are labeled 1-24\"",
+    "entrance_row": "\"An entrance to this section is located at Row 5\"",
+    "seat_direction": "BOILERPLATE (site-wide, appears identically on every Rogers Centre section page): \"When looking towards the field/ring/stage, lower number seats are on the right\". PER-SECTION: No per-section statement. No question-and-answer text, expert answer or fan review on this page names a side for seat 1 in Section 534.",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights: \"Top Pick for Outstanding Convenience\" (Rows 1-9); \"Rows 1-24\". Seating Notes: \"For baseball games, we recommend rows 1-9 for outstanding convenience\". FAN REVIEW, verbatim: \"Great view of home plate and the whole field. Being in the second row was great because we didn't have to worry about so many heads to look over especially when people stood up to cheer. With small kids, I wasn't so nervous about the railing as I would have been in the first row.\" - this fan reference to \"the railing\" in the first row is consistent in kind with the explicit front-row railing obstruction stated on the Section 527 page, but the 534 page does not itself state an obstruction. No netting, shade or overhang line specific to 534. CONTRADICTION FLAG: \"Located directly behind home plate\" conflicts with the page's own \"Infield (Sections 522-526)\" definition; recorded, not reconciled.",
+    "source": "https://www.rateyourseats.com/rogers-centre/seating/sections/534"
+  },
+  {
+    "section": "535",
+    "zone": "Section 535 at Rogers Centre (500 Level)",
+    "location": "\"The 500 Level is the highest seating tier at Rogers Centre, wrapping around the entire stadium above the 200 and 300 levels.\" No sentence on the page places Section 535 specifically by side or by field position.",
+    "rows": "\"Rows in Section 535 are labeled 1-24\"",
+    "entrance_row": "\"An entrance to this section is located at Row 5\"",
+    "seat_direction": "BOILERPLATE (site-wide, appears identically on every Rogers Centre section page): \"When looking towards the field/ring/stage, lower number seats are on the right\". PER-SECTION: No per-section statement. No question-and-answer text, expert answer or fan review on this page names a side for seat 1 in Section 535.",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights: \"Top Pick for Outstanding Convenience\" (Rows 1-9). Seating Notes: \"For baseball games, we recommend rows 1-9 for outstanding convenience\". SHADE / COVERAGE lines returned on this page, all of them 500 Level zone-wide rather than section-specific: \"First base side: More exposed when the roof is open\" / \"Third base side: Better protection and shade\" / \"Left field sections offer the best overhead coverage\". The page does not say which of those categories Section 535 falls into. No netting or obstruction line. No fan reviews returned. The page serves largely generic 500 Level zone content rather than section-specific prose: the only placement sentence is the level-wide \"The 500 Level is the highest seating tier at Rogers Centre, wrapping around the entire stadium above the 200 and 300 levels.\" No section-specific left-field/right-field or first-base/third-base label appears. This matches discovery.json's note that \"NO EXPLICIT LEFT/RIGHT-FIELD LABEL WAS FOUND ON THE INDIVIDUAL 200- AND 500-LEVEL END SECTIONS.\"",
+    "source": "https://www.rateyourseats.com/rogers-centre/seating/sections/535"
+  },
+  {
+    "section": "536",
+    "zone": "Section 536 at Rogers Centre (500 Level)",
+    "location": "\"The 500 Level is the highest seating tier at Rogers Centre, wrapping around the entire stadium above the 200 and 300 levels.\" No sentence on the page places Section 536 specifically by side or by field position.",
+    "rows": "\"Rows in Section 536 are labeled 1-25\"",
+    "entrance_row": "\"An entrance to this section is located at Row 5\"",
+    "seat_direction": "BOILERPLATE (site-wide, appears identically on every Rogers Centre section page): \"When looking towards the field/ring/stage, lower number seats are on the right\". PER-SECTION: No per-section statement. No question-and-answer text, expert answer or fan review on this page names a side for seat 1 in Section 536.",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights: \"Top Pick for Outstanding Convenience\" (Rows 1-9). Seating Notes: \"For baseball games, we recommend rows 1-9 for outstanding convenience\". No netting, obstruction, shade or overhang line specific to 536. FAN REVIEW, verbatim, titled \"Close to the Tunnel, Otherwise Forgettable\": \"The best thing about these seats is that - after the long walk up the ramp - this row is close to the tunnel. Otherwise, the view is quite bad. Parts of the field can't be seen and you're really far from home plate. Seats were in the sun for the beginning of a 1pm game, so they were pretty hot. Cool view of the CN Tower though.\" NOTE this fan report of sun exposure and of a CN Tower view; discovery.json records RateYourSeats stating \"For the best views of the CN Tower from Rogers Centre, select seats on the third base side of the field\" and treats the third-base side as the shade side, so the fan's \"in the sun\" remark sits awkwardly with the shade generalisation. Recorded, NOT reconciled - it is one fan report of one 1pm game with a retractable roof in play. The page serves largely generic 500 Level zone content rather than section-specific prose: the only placement sentence is the level-wide \"The 500 Level is the highest seating tier at Rogers Centre, wrapping around the entire stadium above the 200 and 300 levels.\" No section-specific left-field/right-field or first-base/third-base label appears. This matches discovery.json's note that \"NO EXPLICIT LEFT/RIGHT-FIELD LABEL WAS FOUND ON THE INDIVIDUAL 200- AND 500-LEVEL END SECTIONS.\"",
+    "source": "https://www.rateyourseats.com/rogers-centre/seating/sections/536"
+  },
+  {
+    "section": "537",
+    "zone": "Section 537 at Rogers Centre (500 Level)",
+    "location": "\"The 500 Level is the highest seating tier at Rogers Centre, wrapping around the entire stadium above the 200 and 300 levels.\" No sentence on the page places Section 537 specifically by side or by field position.",
+    "rows": "\"Rows in Section 537 are labeled 1-23\"",
+    "entrance_row": "\"An entrance to this section is located at Row 5\"",
+    "seat_direction": "BOILERPLATE (site-wide, appears identically on every Rogers Centre section page): \"When looking towards the field/ring/stage, lower number seats are on the right\". PER-SECTION: No per-section statement. No question-and-answer text, expert answer or fan review on this page names a side for seat 1 in Section 537.",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights: \"Rows 1-23\". No Seating Notes, netting, obstruction, shade or overhang line specific to 537. No fan reviews returned. The page serves largely generic 500 Level zone content rather than section-specific prose: the only placement sentence is the level-wide \"The 500 Level is the highest seating tier at Rogers Centre, wrapping around the entire stadium above the 200 and 300 levels.\" No section-specific left-field/right-field or first-base/third-base label appears. This matches discovery.json's note that \"NO EXPLICIT LEFT/RIGHT-FIELD LABEL WAS FOUND ON THE INDIVIDUAL 200- AND 500-LEVEL END SECTIONS.\"",
+    "source": "https://www.rateyourseats.com/rogers-centre/seating/sections/537"
+  },
+  {
+    "section": "538",
+    "zone": "Section 538 at Rogers Centre (500 Level)",
+    "location": "UNKNOWN - no sentence on the page places Section 538 in the ballpark. The page returns generic 500 Level information only.",
+    "rows": "\"Rows in Section 538 are labeled 1-22\"",
+    "entrance_row": "\"An entrance to this section is located at Row 5\"",
+    "seat_direction": "BOILERPLATE (site-wide, appears identically on every Rogers Centre section page): \"When looking towards the field/ring/stage, lower number seats are on the right\". PER-SECTION: No per-section statement. No question-and-answer text, expert answer or fan review on this page names a side for seat 1 in Section 538.",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights: \"Rows 1-22\". Generic 500 Level notes about rooftop patios, overhead coverage and sun exposure by side are present on the page but are NOT stated as applying to Section 538. No netting or obstruction line. No fan reviews returned. The page serves largely generic 500 Level zone content rather than section-specific prose: the only placement sentence is the level-wide \"The 500 Level is the highest seating tier at Rogers Centre, wrapping around the entire stadium above the 200 and 300 levels.\" No section-specific left-field/right-field or first-base/third-base label appears. This matches discovery.json's note that \"NO EXPLICIT LEFT/RIGHT-FIELD LABEL WAS FOUND ON THE INDIVIDUAL 200- AND 500-LEVEL END SECTIONS.\" CROSS-CHECK vs discovery.json (corroborating context only, not from this page): the Blue Jays A-Z guide places a First Aid room and a Multi-Purpose Washroom on each level \"near Sections 140, 238 and 538\".",
+    "source": "https://www.rateyourseats.com/rogers-centre/seating/sections/538"
+  },
+  {
+    "section": "539",
+    "zone": "Section 539 at Rogers Centre (500 Level)",
+    "location": "UNKNOWN - no sentence on the page places Section 539 in the ballpark. The page returns generic 500 Level information only.",
+    "rows": "\"Rows in Section 539 are labeled 1-20\"",
+    "entrance_row": "\"An entrance to this section is located at Row 5\"",
+    "seat_direction": "BOILERPLATE (site-wide, appears identically on every Rogers Centre section page): \"When looking towards the field/ring/stage, lower number seats are on the right\". PER-SECTION: No per-section statement. No question-and-answer text, expert answer or fan review on this page names a side for seat 1 in Section 539.",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights label: \"500 Level\". No Seating Notes, netting, obstruction, shade or overhang line specific to 539. No fan reviews returned. The page serves largely generic 500 Level zone content rather than section-specific prose: the only placement sentence is the level-wide \"The 500 Level is the highest seating tier at Rogers Centre, wrapping around the entire stadium above the 200 and 300 levels.\" No section-specific left-field/right-field or first-base/third-base label appears. This matches discovery.json's note that \"NO EXPLICIT LEFT/RIGHT-FIELD LABEL WAS FOUND ON THE INDIVIDUAL 200- AND 500-LEVEL END SECTIONS.\" CROSS-CHECK vs discovery.json (corroborating context only, not from this page): the Blue Jays A-Z guide pairs \"Gate 13: Sec. 141 (100L), Sec. 240 (200L), Suite 359 (300L), Suite 491 (400L), Sec. 539 (500L)\", which discovery uses to place 539 at the LEFT-FIELD / third-base end. The RateYourSeats page states nothing about side, so it neither confirms nor contradicts this.",
+    "source": "https://www.rateyourseats.com/rogers-centre/seating/sections/539"
+  },
+  {
+    "section": "540",
+    "zone": "Section 540 at Rogers Centre (500 Level)",
+    "location": "No baseball placement sentence. The only placement text is concert-specific: \"540 is behind the stage or to the side of the stage for most concerts.\" and the insight label \"Behind/Side Stage (most shows)\". For baseball, the page states nothing about where Section 540 sits.",
+    "rows": "\"Rows in Section 540 are labeled 1-13\"",
+    "entrance_row": "\"An entrance to this section is located at Row 5\"",
+    "seat_direction": "BOILERPLATE (site-wide, appears identically on every Rogers Centre section page): \"When looking towards the field/ring/stage, lower number seats are on the right\". PER-SECTION: No per-section statement. No question-and-answer text, expert answer or fan review on this page names a side for seat 1 in Section 540.",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights: \"Rows 1-13\"; \"Behind/Side Stage (most shows)\". Seating note / warning heading: \"For Concerts, Section 540 May Have a Limited View\", with the body text \"540 is behind the stage or to the side of the stage for most concerts. This may restrict or limit your view of the performance.\" THAT RESTRICTION IS CONCERT-ONLY AND MUST NOT BE APPLIED TO BASEBALL - it matches the pattern discovery.json already recorded for Sections 101A, 105, 148B, 204, 244 and 508. No baseball netting, obstruction, shade or overhang line. No fan reviews returned. Row count 1-13 is the shortest in this batch, consistent with discovery.json's prior observation \"Section 540 'Rows 1-13' with 'An entrance to this section is located at Row 5'\" - an exact match, so the page is stable.",
+    "source": "https://www.rateyourseats.com/rogers-centre/seating/sections/540"
+  },
+  {
+    "section": "W 11",
+    "zone": "\"W 11 at Rogers Centre\" - no zone/level heading is stated on the page.",
+    "location": "UNKNOWN",
+    "rows": "UNKNOWN",
+    "entrance_row": "UNKNOWN",
+    "seat_direction": "UNKNOWN. The RateYourSeats stub page carries no seat-numbering text at all - not even the site-wide boilerplate that appears on every other Rogers Centre section page. No per-section statement either.",
+    "seats_per_row": "UNKNOWN",
+    "notes": "URL RESOLUTION FINDING: the identifier is rendered \"W 11\" in the RateYourSeats section index, but the index links it to the slug \"w_11\", not \"W 11\" or \"W11\". https://www.rateyourseats.com/rogers-centre/seating/sections/W%2011 and .../W11 both resolved back to the sections index rather than a section page; .../w_11 is the working URL. STUB PAGE: the working page exists and is headed \"W 11 at Rogers Centre\" but is unpopulated - no row labels, no entrance row, no seat-numbering line, no Section Insights, no Seating Notes, no seat map, no fan reviews. Per the brief this is a finding, not a failure: rows, entrance row, seats per row and seat direction are all recorded UNKNOWN and nothing has been padded. FALLBACK SOURCE (aviewfrommyseat.com), which DOES have content, recorded verbatim: page heading \"Rogers Centre, section W11, home of Toronto Blue Jays, Toronto Argonauts\"; a single 5-star fan review by user \"MattHotel\" from a Blue Jays vs Seattle Mariners game reading \"Accessible seating, great view. Also has access to Club 328\"; one photo from Row A, Seat 3; seat tags for the section listing \"extra leg room, wait service, folding chairs, wheelchair accessibility, and padded seating\". Note the fallback spells the section \"W11\" (no space) where the RateYourSeats index prints \"W 11\" - a real-ticket vs URL identifier discrepancy worth flagging. SUPPORTS discovery.json's `uncertain` entry on this identifier: the fan text \"Accessible seating\" plus the wheelchair-accessibility and folding-chair tags confirm this is a WHEELCHAIR / ACCESSIBLE PLATFORM, not an ordinary seating section, matching RateYourSeats' rule that \"Accessible tickets are usually identified with a 'W' prefix\". It should almost certainly be excluded from distance and seat-1 generation. However, discovery speculated W 11 might be a truncation of \"W111\" near Section 111 (right-field side); the fallback instead ties it to \"Club 328\" - a 300-Level premium club ('Heinz Club 328' in the Blue Jays A-Z guide). THAT CONTRADICTS the Section-111 guess and points at the 300 Level instead. Recorded, NOT reconciled. Its location and geometry remain UNKNOWN.",
+    "source": "https://www.rateyourseats.com/rogers-centre/seating/sections/w_11 (working stub page) ; https://www.rateyourseats.com/rogers-centre/seating/sections/W%2011 (redirected to the sections index) ; https://www.rateyourseats.com/rogers-centre/seating/sections/W11 (redirected to the sections index) ; https://www.aviewfrommyseat.com/venue/Rogers+Centre/W11/ (fallback, has content)"
+  }
+]
