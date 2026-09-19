@@ -1,0 +1,68 @@
+name: Portfolio Accessibility Demo
+options:
+  minimumXcodeGenVersion: 2.38.0
+  deploymentTarget:
+    iOS: 15.0
+settings:
+  base:
+    SWIFT_VERSION: 5.9
+    DEVELOPMENT_TEAM: P887QF74N8
+    PRODUCT_BUNDLE_IDENTIFIER: com.example.Portfolio
+targets:
+  Portfolio:
+    type: application
+    platform: iOS
+    deploymentTarget: "15.0"
+    info:
+      path: Portfolio/Info.plist
+    sources:
+      - path: Portfolio
+        excludes:
+          - Assets.xcassets
+      - path: Portfolio/Views
+      - path: Portfolio/Models
+      - path: Portfolio/Services
+      - path: Portfolio/Utilities
+    resources:
+      - path: Portfolio/Assets.xcassets
+    settings:
+      base:
+        PRODUCT_NAME: Portfolio Accessibility Demo
+        INFOPLIST_FILE: Portfolio/Info.plist
+        CODE_SIGN_STYLE: Automatic
+        CURRENT_PROJECT_VERSION: 1
+        MARKETING_VERSION: 1.0
+        GENERATE_INFOPLIST_FILE: NO
+  PortfolioTests:
+    type: bundle.unit-test
+    platform: iOS
+    deploymentTarget: "15.0"
+    sources:
+      - path: PortfolioTests
+    dependencies:
+      - target: Portfolio
+  PortfolioUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    deploymentTarget: "15.0"
+    sources:
+      - path: PortfolioUITests
+    dependencies:
+      - target: Portfolio
+schemes:
+  Portfolio Accessibility Demo:
+    build:
+      targets:
+        Portfolio: all
+    run:
+      config: Debug
+    test:
+      config: Debug
+      targets:
+        - PortfolioTests
+    profile:
+      config: Release
+    analyze:
+      config: Debug
+    archive:
+      config: Release

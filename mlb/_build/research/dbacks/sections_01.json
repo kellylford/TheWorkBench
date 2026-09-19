@@ -1,0 +1,222 @@
+[
+  {
+    "section": "101",
+    "zone": "Bleacher Seats",
+    "location": "\"Bleacher seating at Chase Field is located behind the outfield walls in two main areas: Right Field: Sections 101-105 / Left Field: Sections 139-144\" and \"Sections in right-center field (Section 101) are among the best in this area, offering slightly better angles toward home plate and proximity to key attractions.\"",
+    "rows": "22-31",
+    "entrance_row": "Row 31",
+    "seat_direction": "When looking towards the field/field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights: \"Rows 22-31\"; \"Behind/Side Stage (most shows)\". RYS Expert Review served on this page is \"Bleacher Seats (2026 Review)\", which states \"Home Run Territory: Sections 101-105 (right field) and 139-144 (left field) behind the outfield walls\", \"Classic Bleacher Seating: Long bench-style rows with up to ~40 rows per section\", \"Sun Exposure: Right field bleachers get the most sun when the roof is open\" and \"Social Atmosphere: Close to attractions like the pool area, Strike Zone, and Picnic Pavilion\". Concert note: \"101 is behind the stage or to the side of the stage for most concerts. This may restrict or limit your view of the performance.\" No netting or obstruction statement on this page. NOTE: this is the ONLY section in the batch whose entrance row is at the middle/top of a short row range (Row 31) rather than Row 40W; recorded exactly as printed.",
+    "source": "https://www.rateyourseats.com/chase-field/seating/sections/101"
+  },
+  {
+    "section": "102",
+    "zone": "Bleacher Seats",
+    "location": "\"Bleacher seating at Chase Field is located behind the outfield walls in two main areas: Right Field: Sections 101-105 / Left Field: Sections 139-144\"",
+    "rows": "14-39, 40C-40W",
+    "entrance_row": "Row 40W",
+    "seat_direction": "When looking towards the field/field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights: \"Rows 14-39, 40C-40W\"; \"Behind/Side Stage (most shows)\". RYS Expert Review served on this page is \"Bleacher Seats (2026 Review)\" with the same 101-105 right field / 139-144 left field text. Concert note: \"102 is behind the stage or to the side of the stage for most concerts. This may restrict or limit your view of the performance.\" No Fan Feedback, no netting or obstruction statement on this page.",
+    "source": "https://www.rateyourseats.com/chase-field/seating/sections/102"
+  },
+  {
+    "section": "103",
+    "zone": "Bleacher Seats",
+    "location": "\"Bleacher seating at Chase Field is located behind the outfield walls in two main areas: Right Field: Sections 101-105 / Left Field: Sections 139-144\"",
+    "rows": "1W, 14-39, 40C-40W",
+    "entrance_row": "Row 40W",
+    "seat_direction": "When looking towards the field/field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights: \"Rows 1W, 14-39, 40C-40W\"; \"Behind/Side Stage (most shows)\". Row Numbers block also states \"For football games, row 14 is usually the first row\". RYS Expert Review served on this page is \"Bleacher Seats (2026 Review)\". Concert note: \"103 is behind the stage or to the side of the stage for most concerts. This may restrict or limit your view of the performance.\" No Fan Feedback, no netting or obstruction statement on this page. NOTE the isolated front wheelchair row label \"1W\" sitting ahead of Row 14, while the stated entrance is at Row 40W at the back.",
+    "source": "https://www.rateyourseats.com/chase-field/seating/sections/103"
+  },
+  {
+    "section": "104",
+    "zone": "Bleacher Seats",
+    "location": "\"Bleacher seating at Chase Field is located behind the outfield walls in two main areas: Right Field: Sections 101-105 / Left Field: Sections 139-144\"",
+    "rows": "1W, 14-39, 40C-40W",
+    "entrance_row": "Row 40W",
+    "seat_direction": "When looking towards the field/field/stage, lower number seats are on the right",
+    "seats_per_row": "\"In section 104, rows 14 to 39 all have 22 seats. Seat 1 is on the right, when looking at the field, and seat 22 is on the left.\" (RYS Seating and Ticket Q&A, marked \"Verified Feb 2026\")",
+    "notes": "Section Insights: \"Top Pick for Outstanding Convenience Rows 37-40W\"; \"Rows 1W, 14-39, 40C-40W\"; \"Behind/Side Stage (most shows)\". Row Numbers block also states \"For football games, row 14 is usually the first row\". Seating Notes: \"For baseball games, we recommend rows 37-40W for outstanding convenience\". Seating and Ticket Q&A (verbatim): \"How many seats are in row 38 of Section 104, and when facing the field, how are they numbered?\" - \"In section 104, rows 14 to 39 all have 22 seats. Seat 1 is on the right, when looking at the field, and seat 22 is on the left. Verified Feb 2026\". This independently corroborates the park-wide seat-1-on-the-right rule. Concert note: \"104 is behind the stage or to the side of the stage for most concerts. This may restrict or limit your view of the performance.\" No netting or obstruction statement on this page.",
+    "source": "https://www.rateyourseats.com/chase-field/seating/sections/104"
+  },
+  {
+    "section": "105",
+    "zone": "Bleacher Seats",
+    "location": "\"Bleacher seating at Chase Field is located behind the outfield walls in two main areas: Right Field: Sections 101-105 / Left Field: Sections 139-144\" and \"Fans looking to be near the action can sit: Near the visiting bullpen (Section 105)\"",
+    "rows": "17-39, 40C-40W",
+    "entrance_row": "Row 40W",
+    "seat_direction": "When looking towards the field/field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights: \"Rows 17-39, 40C-40W\". RYS Expert Review served on this page is \"Bleacher Seats (2026 Review)\", which places the VISITING bullpen at Section 105 - consistent with discovery.json (visiting bullpen in right field, visiting dugout on the first base side). No Fan Feedback, no netting or obstruction statement on this page. Unlike 101-104 this page carries NO \"Behind/Side Stage (most shows)\" concert flag.",
+    "source": "https://www.rateyourseats.com/chase-field/seating/sections/105"
+  },
+  {
+    "section": "106",
+    "zone": "100 Level Outfield",
+    "location": "\"seats in Row 25 of sections 106-108 overlooking the visitor bullpen\" and Fan Feedback \"The Visitor Bullpen at Chase Field is in Front of Sections 106-108\"",
+    "rows": "22-39, 40C-40W",
+    "entrance_row": "Row 40W",
+    "seat_direction": "When looking towards the field/field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights: \"Rows 22-39, 40C-40W\". RYS Expert Review served on this page is \"100 Level Outfield (Baseball)\": \"100 Outfield is the most affordable option for fans that want to be right up against the field within the inner seating bowl. These sections are also home to some of the best seats for watching the action in the bullpens, with seats in Row 25 of sections 136-138 overlooking the Diamondbacks bullpen, and seats in Row 25 of sections 106-108 overlooking the visitor bullpen.\" Fan Feedback (verbatim): \"The Visitor Bullpen at Chase Field is in Front of Sections 106-108 - Sit in row 25 to be in the first row behind the Visitor bullpen.\" No netting statement on this page; no physical obstruction reported.",
+    "source": "https://www.rateyourseats.com/chase-field/seating/sections/106"
+  },
+  {
+    "section": "107",
+    "zone": "100 Level Outfield",
+    "location": "\"seats in Row 25 of sections 106-108 overlooking the visitor bullpen\"; also \"Team Store Kiosks (Sections 107, 111, and 133)\"",
+    "rows": "25-39, 40C-40W",
+    "entrance_row": "Row 40W",
+    "seat_direction": "When looking towards the field/field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights: \"Rows 25-39, 40C-40W\". RYS Expert Review served on this page is \"100 Level Outfield (Baseball)\", which also states \"offer many family friendly concessions such as Cold Stone Creamery (Section 137), Team Store Kiosks (Sections 107, 111, and 133) and Family Restrooms (Sections 109 and 135).\" Fan Feedback (verbatim): \"The Visitor Bullpen at Chase Field is in Front of Sections 106-108 - Sit in row 25 to be in the first row behind the Visitor bullpen.\" NOTE the section's first labelled row IS Row 25, so on this page the \"Row 25\" bullpen-front claim coincides with the very front row of the section. No netting statement on this page.",
+    "source": "https://www.rateyourseats.com/chase-field/seating/sections/107"
+  },
+  {
+    "section": "108",
+    "zone": "100 Level Outfield",
+    "location": "\"seats in Row 25 of sections 106-108 overlooking the visitor bullpen\" and Fan Feedback \"The Visitor Bullpen at Chase Field is in Front of Sections 106-108\"",
+    "rows": "11-39, 40C-40W",
+    "entrance_row": "Row 40W",
+    "seat_direction": "When looking towards the field/field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights: \"Top Pick for Outstanding Convenience Rows 37-40W\"; \"Rows 11-39, 40C-40W\". Seating Notes: \"For baseball games, we recommend rows 37-40W for outstanding convenience\". Fan Feedback (verbatim): \"The Visitor Bullpen at Chase Field is in Front of Sections 106-108 - Sit in row 25 to be in the first row behind the Visitor bullpen.\" Fan Feedback (verbatim): \"Great view of the field and hovers right over the opposing team's bullpen.\" CONTRADICTION ON THE SAME PAGE, RECORDED UNRECONCILED: a 5-star fan review from Sec 108 / Row 32 states verbatim \"Just okay, but cheap - These seats were right next to the D-Back's dugout. The view was only okay seeing as the foul pole blocked a bit of our view... Not a bad price to stay on the lower level and get a chance to see some of the bullpen pitchers up close and maybe even have em throw you a ball!\" - i.e. that fan calls 108 next to the DIAMONDBACKS dugout and reports a FOUL POLE obstruction, whereas the RYS expert review and two Fan Feedback entries on the same page put 108 over the VISITOR bullpen, and discovery.json places the D-backs dugout on the third base side (Sections N-Q) and the left field foul pole near Sections 136-138. Both readings recorded; not reconciled.",
+    "source": "https://www.rateyourseats.com/chase-field/seating/sections/108"
+  },
+  {
+    "section": "109",
+    "zone": "100 Level Outfield",
+    "location": "\"Family Restrooms (Sections 109 and 135)\" within the \"100 Level Outfield (Baseball)\" zone, described as \"right up against the field within the inner seating bowl\"",
+    "rows": "5-39, 40C-40W",
+    "entrance_row": "Row 40W",
+    "seat_direction": "When looking towards the field/field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights: \"Top Pick for Outstanding Convenience Rows 37-40W\"; \"Rows 5-39, 40C-40W\". Seating Notes: \"For baseball games, we recommend rows 37-40W for outstanding convenience\". RYS Expert Review served on this page is \"100 Level Outfield (Baseball)\". No Fan Feedback on this page. No netting or obstruction statement on this page. The page does not name Section 109 in any bullpen or foul-pole sentence; the only section-specific mention is the Family Restrooms line.",
+    "source": "https://www.rateyourseats.com/chase-field/seating/sections/109"
+  },
+  {
+    "section": "110",
+    "zone": "100 Level Outfield",
+    "location": "\"100 Outfield is the most affordable option for fans that want to be right up against the field within the inner seating bowl.\" (zone-level statement; the page contains NO sentence naming Section 110 specifically)",
+    "rows": "3-39, 40C-40W",
+    "entrance_row": "Row 40W",
+    "seat_direction": "When looking towards the field/field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights: \"Rows 3-39, 40C-40W\". The ONLY content block is the \"100 Level Outfield (Baseball)\" RYS Expert Review; Section 110 is not named in any of its section lists (136-138 / 106-108 bullpens, 137 / 107, 111, 133 / 109, 135 concessions). No Fan Feedback, no Seating Notes, no netting or obstruction statement on this page. Separately, discovery.json records that the official Diamondbacks ADA page contradicts itself on the main-level ramp, listing it once \"Across from Section 111\" and once \"Across from Section 110\" - not restated here because the RYS page says nothing about ramps.",
+    "source": "https://www.rateyourseats.com/chase-field/seating/sections/110"
+  },
+  {
+    "section": "111",
+    "zone": "100 Level Outfield",
+    "location": "\"Team Store Kiosks (Sections 107, 111, and 133)\" within the \"100 Level Outfield (Baseball)\" zone, described as \"right up against the field within the inner seating bowl\"",
+    "rows": "1-39, 40C-40W",
+    "entrance_row": "Row 40W",
+    "seat_direction": "When looking towards the field/field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights: \"Rows 1-39, 40C-40W\". Fan Feedback (verbatim): \"Great for roof open day game - Seats are 2nd row from the food court and covered. Perfect for the 12:40pm first pitch day game when the roof was open. Even though it was early May and the 100+ degree days of the Arizona heat had not yet hit, it was still hot. No sunburn from these seats!\" (Sec 111 / Row 38). Fan Feedback (verbatim): \"Great seats - Some people in front would stand and we couldn't see.\" (Sec 111 / Row 3) - a standing-fans sightline complaint, not a structural obstruction. Other Photos caption: \"view of videoboard from section 111\". CONTRADICTION WORTH FLAGGING, RECORDED UNRECONCILED: RateYourSeats serves Section 111 the \"100 Level Outfield (Baseball)\" zone review, whereas discovery.json's numbering summary places \"roughly 111-117\" along the FIRST BASE line and the official D-backs ADA elevator list pairs 117/209/310 as an infield bank. The RYS page itself gives no first-base-line wording for 111. No netting statement on this page.",
+    "source": "https://www.rateyourseats.com/chase-field/seating/sections/111"
+  },
+  {
+    "section": "112",
+    "zone": "100 Level Outfield",
+    "location": "\"100 Outfield is the most affordable option for fans that want to be right up against the field within the inner seating bowl.\" (zone-level statement; the page contains NO sentence naming Section 112 specifically)",
+    "rows": "1-39, 40C-40W",
+    "entrance_row": "Row 40W",
+    "seat_direction": "When looking towards the field/field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights: \"Rows 1-39, 40C-40W\". TWO expert reviews are served on this page and they place the section differently; both recorded, not reconciled: (a) \"100 Level Outfield (Baseball)\" - \"right up against the field within the inner seating bowl\"; (b) \"100 Level Endzone (Football)\" - \"Endzone seating options include the sections along the first base line, as well as those just beyond the left field wall... For the best overall experience from the lower endzone options, we recommend the higher rows of Sections 114-117 (along the first base line).\" Note (b) is a FOOTBALL zone review and names 114-117, not 112. Fan Feedback (verbatim): \"Great views of both the game and the fireworks - Aisle seats, so be prepared to get up and down often if there are people that need in or out in your row. Good news is you can leave your seats without affecting anyone else! Close enough to see the players, watch the home runs track across the sky, good viewing angle for the big screen, great views of the fireworks after the game.\" (Sec 112 / Row 6). Second Fan Review, Sec 112 / Row 5: \"Chicago White Sox at Arizona Diamondbacks - Apr 23, 2026\" (no text). Other Photos caption: \"postgame fireworks from section 112\". No netting statement on this page.",
+    "source": "https://www.rateyourseats.com/chase-field/seating/sections/112"
+  },
+  {
+    "section": "113",
+    "zone": "100 Level Infield",
+    "location": "\"100 Level Infield seating provides fans with close views of the field from 1st base to 3rd base inside the inner seating bowl. Located just behind the Field Level sections, none of the 100 Level Infield sections extend to the field\" (zone-level; the page contains NO sentence naming Section 113 specifically)",
+    "rows": "11-39, 40C-40W",
+    "entrance_row": "Row 40W",
+    "seat_direction": "When looking towards the field/field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights: \"Rows 11-39, 40C-40W\". Two expert reviews served: \"100 Level Endzone (Football)\" (which recommends \"the higher rows of Sections 114-117 (along the first base line)\" - 113 not named) and \"100 Level Infield (Baseball)\". CONTRADICTION ON THE SAME PAGE, RECORDED UNRECONCILED: the 100 Level Infield review states \"The seating sections start at row 21 in the front and run through row 39 in the back\", but this section's own Row Numbers block says \"rows in Section 113 are labeled 11-39, 40C-40W\" - i.e. the section starts at Row 11, ten rows ahead of the stated zone front row. No Fan Feedback, no netting or obstruction statement on this page.",
+    "source": "https://www.rateyourseats.com/chase-field/seating/sections/113"
+  },
+  {
+    "section": "114",
+    "zone": "100 Level Infield",
+    "location": "\"For the best overall experience from the lower endzone options, we recommend the higher rows of Sections 114-117 (along the first base line).\" (RYS \"100 Level Endzone (Football)\" review served on this page)",
+    "rows": "11-39, 40C-40W",
+    "entrance_row": "Row 40W",
+    "seat_direction": "When looking towards the field/field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights: \"Rows 11-39, 40C-40W\". Two expert reviews served: \"100 Level Endzone (Football)\" - which is the only text on the page that places 114 geographically, and does so \"along the first base line\", consistent with discovery.json - and \"100 Level Infield (Baseball)\". CONTRADICTION ON THE SAME PAGE, RECORDED UNRECONCILED: the 100 Level Infield review states \"The seating sections start at row 21 in the front and run through row 39 in the back\", but this section's Row Numbers block says \"rows in Section 114 are labeled 11-39, 40C-40W\". No Fan Feedback, no netting or obstruction statement on this page (the netting Fan Feedback band begins at 115).",
+    "source": "https://www.rateyourseats.com/chase-field/seating/sections/114"
+  },
+  {
+    "section": "115",
+    "zone": "100 Level Infield",
+    "location": "\"For the best overall experience from the lower endzone options, we recommend the higher rows of Sections 114-117 (along the first base line).\" (RYS \"100 Level Endzone (Football)\" review served on this page)",
+    "rows": "21-39, 40C-40W",
+    "entrance_row": "Row 40W",
+    "seat_direction": "When looking towards the field/field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights: \"Top Pick for Great Views of the Field\"; \"Rows 21-39, 40C-40W\". Seating Notes: \"For baseball games, we recommend these seats for great views of the field\". NETTING - Fan Feedback (verbatim): \"Front of sections 115-129 are behind the netting - There is some amount of netting or screening in front of sections 115-129. The height and coverage of netting or screening will vary by section.\" Section 115 is the FIRST section in the batch to carry this netting flag. Note discovery.json records an unresolved conflict between this user-generated 115-129 range and 2019/2020 news reporting that Chase Field's netting was extended \"to each foul pole\"; no official 2026 netting diagram was retrievable, so the extent beyond 115-129 is UNKNOWN. Row range 21-39 matches the zone statement \"The seating sections start at row 21 in the front and run through row 39 in the back\".",
+    "source": "https://www.rateyourseats.com/chase-field/seating/sections/115"
+  },
+  {
+    "section": "116",
+    "zone": "100 Level Infield",
+    "location": "\"For the best overall experience from the lower endzone options, we recommend the higher rows of Sections 114-117 (along the first base line).\" (RYS \"100 Level Endzone (Football)\" review served on this page); also \"Close to the field and dugouts. Good viewing angle toward the middle of the infield. Higher in the lower seating tier for better elevation above field level\"",
+    "rows": "21-39, 40C-40W",
+    "entrance_row": "Row 40W",
+    "seat_direction": "When looking towards the field/field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "This URL served RateYourSeats' alternate (mobile-style) page template, which has no \"Section Insights\" block; the Row Numbers block is present and reads \"For most events, rows in Section 116 are labeled 21-39, 40C-40W\" and \"An entrance to this section is located at Row 40W\". Seating Notes: \"For baseball games, we recommend these seats for great views of the field\", expanded as \"For Baseball - Recommended For Great Views of the Field - Close to the field and dugouts. Good viewing angle toward the middle of the infield. Higher in the lower seating tier for better elevation above field level\". NETTING - review headed \"Front of sections 115-129 are behind the netting\" (Baseball Review), verbatim: \"There is some amount of netting or screening in front of sections 115-129. The height and coverage of netting or screening will vary by section.\" Also served the \"100 Level Endzone (Football)\" and \"100 Level Infield (Baseball)\" zone reviews. The page carries a SeatScore rating widget with no numeric value rendered.",
+    "source": "https://www.rateyourseats.com/chase-field/seating/sections/116"
+  },
+  {
+    "section": "117",
+    "zone": "100 Level Infield",
+    "location": "\"For the best overall experience from the lower endzone options, we recommend the higher rows of Sections 114-117 (along the first base line).\" (RYS \"100 Level Endzone (Football)\" review served on this page)",
+    "rows": "21-39, 40C-40W",
+    "entrance_row": "Row 40W",
+    "seat_direction": "When looking towards the field/field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights: \"Top Pick for Great Views of the Field\"; \"Rows 21-39, 40C-40W\". Seating Notes: \"For baseball games, we recommend these seats for great views of the field\". NETTING - Fan Feedback (verbatim): \"Front of sections 115-129 are behind the netting - There is some amount of netting or screening in front of sections 115-129. The height and coverage of netting or screening will vary by section.\" Second Fan Review, Sec 117 / Row 22: \"Cincinnati Reds at Arizona Diamondbacks - Sep 15, 2019\" (5 stars, no text). 117 is the highest-numbered section RYS explicitly names \"along the first base line\"; discovery.json independently ties 117 to the official D-backs elevator bank \"Across from Sections 117 / 209 / 310 - closest to Gate J\".",
+    "source": "https://www.rateyourseats.com/chase-field/seating/sections/117"
+  },
+  {
+    "section": "118",
+    "zone": "100 Level Infield",
+    "location": "\"100 Level Infield seating provides fans with close views of the field from 1st base to 3rd base inside the inner seating bowl.\" (zone-level; the page contains NO sentence naming Section 118 specifically)",
+    "rows": "21-39, 40C-40W",
+    "entrance_row": "Row 40W",
+    "seat_direction": "When looking towards the field/field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights: \"Rows 21-39, 40C-40W\". NETTING - Fan Feedback (verbatim): \"Front of sections 115-129 are behind the netting - There is some amount of netting or screening in front of sections 115-129. The height and coverage of netting or screening will vary by section.\" The football zone review served here changes from \"100 Level Endzone\" (114-117) to \"100 Level Corner (Football)\", verbatim: \"Corner views from the lowest seating tier at Chase Field can be found both behind home plate, as well as near the left field corner. Seats behind home plate offer a clearer view as you won't have to battle the left field foul pole, with the best views here coming in the last rows of the 100 level sections... In the left field corner, Sections 136-138 offer an interesting option... However the foul pole can cause some viewing obstructions in many of the areas, so we recommend staying in the lower numbered seats of Section 136 or the higher numbered seats of Section 138 where the sight lines are more clear.\" That foul-pole obstruction text refers to Sections 136-138, NOT to 118. No Seating Notes on this page; 118 is NOT flagged \"Home Plate View\".",
+    "source": "https://www.rateyourseats.com/chase-field/seating/sections/118"
+  },
+  {
+    "section": "119",
+    "zone": "100 Level Infield",
+    "location": "\"100 Level Infield seating provides fans with close views of the field from 1st base to 3rd base inside the inner seating bowl.\" (zone-level; the page contains NO sentence naming Section 119 specifically)",
+    "rows": "21-38, 40C-40W",
+    "entrance_row": "Row 40W",
+    "seat_direction": "When looking towards the field/field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights: \"Rows 21-38, 40C-40W\". NOTE the row range ends at 38, not 39 - unlike every neighbouring section in this batch and unlike the zone statement \"The seating sections start at row 21 in the front and run through row 39 in the back\"; both readings recorded, not reconciled. NETTING - Fan Feedback (verbatim): \"Front of sections 115-129 are behind the netting - There is some amount of netting or screening in front of sections 115-129. The height and coverage of netting or screening will vary by section.\" Second Fan Review, Sec 119 / Row 23: \"Great View\" (5 stars, no further text). Also served the \"100 Level Corner (Football)\" review whose foul-pole obstruction warning applies to Sections 136-138, not 119. No Seating Notes; 119 is NOT flagged \"Home Plate View\".",
+    "source": "https://www.rateyourseats.com/chase-field/seating/sections/119"
+  },
+  {
+    "section": "120",
+    "zone": "100 Level Infield",
+    "location": "\"For baseball games, desirable view from behind home plate\" (RYS Seating Notes) with Section Insight \"Home Plate View\"; zone text \"100 Level Infield seating provides fans with close views of the field from 1st base to 3rd base inside the inner seating bowl.\"",
+    "rows": "21-39, 40C-40W",
+    "entrance_row": "Row 40W",
+    "seat_direction": "When looking towards the field/field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights: \"Top Pick for Outstanding Convenience Rows 37-40W\"; \"Home Plate View\"; \"Rows 21-39, 40C-40W\". Seating Notes (both lines verbatim): \"For baseball games, we recommend rows 37-40W for outstanding convenience\" and \"For baseball games, desirable view from behind home plate\". WORTH ESCALATING: discovery.json states \"only Section 122 is explicitly flagged by RateYourSeats as a home-plate section\" on the 100 Level, but Section 120's page carries BOTH the \"Home Plate View\" insight and the \"desirable view from behind home plate\" note. Both readings recorded, not reconciled - the 100 Level behind-the-plate flagged set is therefore at least {120, 122}. NETTING - Fan Feedback (verbatim): \"Front of sections 115-129 are behind the netting - There is some amount of netting or screening in front of sections 115-129. The height and coverage of netting or screening will vary by section.\" Also served the \"100 Level Corner (Football)\" review, whose foul-pole obstruction warning applies to Sections 136-138, not 120.",
+    "source": "https://www.rateyourseats.com/chase-field/seating/sections/120"
+  }
+]

@@ -1,0 +1,222 @@
+[
+  {
+    "section": "314",
+    "zone": "Terrace Infield (Baseball)",
+    "location": "\"The Terrace Level is located on the third deck at Yankee Stadium.\"",
+    "rows": "\"Rows in Section 314 are labeled 1-7, 8WC, 9SR\"",
+    "entrance_row": "\"An entrance to this section is located at Row 9SR\"",
+    "seat_direction": "BOILERPLATE (park-wide, identical on every Yankee Stadium section page): \"When looking towards the field/field/stage/field, lower number seats are on the right\". The repeated 'field/field/stage/field' is the RateYourSeats multi-sport template placeholder artifact, not printed prose; the load-bearing clause is \"lower number seats are on the right\". PER-SECTION: No per-section statement. No Q&A, expert answer or fan review on this page names a side for seat 1 in Section 314.",
+    "seats_per_row": "\"Row 8WC has 18 seats labeled 1-18\". No seat count stated for Rows 1-7 or Row 9SR.",
+    "notes": "Accessible-row convention present: Row 8WC is the wheelchair row and Row 9SR the standing-room row, matching discovery's Terrace convention (1..7, 8WC, 9SR). \"There is standing room only space behind Row 8WC\". Shade/coverage: \"From a weather standpoint, these seats are not very well covered and don't offer much sun protection.\" View: \"These seats have a great view of the scoreboard in center field, but are much higher up than 200 level seating.\" Fan-experience caveat: \"Standing Room Only crowd located behind them...may occasionally try to poach your seat while you're away.\" No netting, obstruction, dugout or bullpen statement on this page. Nothing here contradicts discovery.json.",
+    "source": "https://www.rateyourseats.com/yankee-stadium/seating/sections/314"
+  },
+  {
+    "section": "315",
+    "zone": "Terrace Infield (Baseball) / Terrace Level Seating",
+    "location": "\"The Terrace Level is located on the third deck at Yankee Stadium.\"",
+    "rows": "\"Rows in Section 315 are labeled 1-7, 8WC, 9SR\"",
+    "entrance_row": "\"An entrance to this section is located at Row 9SR\"",
+    "seat_direction": "BOILERPLATE (park-wide): \"When looking towards the field/field/stage/field, lower number seats are on the right\" ('field/field/stage/field' is a template artifact; the load-bearing clause is \"lower number seats are on the right\"). PER-SECTION: no statement naming a SIDE for seat 1. A fan review does name specific seat numbers but not a side: \"seat 20 view of home plate partially obscured by safety glass panel\" and \"Seats 18-19 do not have this problem.\" That identifies WHICH seats are affected, not which side seat 1 is on, so it neither confirms nor contradicts the boilerplate.",
+    "seats_per_row": "\"Rows 1-7 have 21 seats labeled 1-21\". No count stated for Row 8WC or Row 9SR.",
+    "notes": "OBSTRUCTION (per-section, fan review): \"seat 20 view of home plate partially obscured by safety glass panel\", with \"Seats 18-19 do not have this problem.\" A safety-glass panel obstruction at the high-seat-number end of the row is worth carrying forward. Accessible-row convention: Row 8WC wheelchair row, Row 9SR standing-room row; \"There is standing room only space behind Row 8WC\". Coverage: \"These seats are not very well covered and don't offer much sun protection\" - but a Row 4 fan review separately mentions \"good seats in shade\", a mild internal tension between the generic coverage warning and one fan's experience. Crowding: \"Standing Room Only crowd located behind them\". No netting, dugout or bullpen statement. Nothing contradicts discovery.json.",
+    "source": "https://www.rateyourseats.com/yankee-stadium/seating/sections/315"
+  },
+  {
+    "section": "316",
+    "zone": "Terrace Infield (Baseball)",
+    "location": "\"The Terrace Level is located on the third deck at Yankee Stadium.\"",
+    "rows": "\"Rows in Section 316 are labeled 1-10\"",
+    "entrance_row": "\"An entrance to this section is located at Row 10\"",
+    "seat_direction": "BOILERPLATE (park-wide): \"When looking towards the field/field/stage/field, lower number seats are on the right\" ('field/field/stage/field' is a template artifact; the load-bearing clause is \"lower number seats are on the right\"). PER-SECTION: No per-section statement. Nothing on this page names a side for seat 1 in Section 316.",
+    "seats_per_row": "\"Rows 1-7 have 21 seats labeled 1-21\" and \"Rows 8-9 have 16 seats labeled 1-16\". No count stated for Row 10.",
+    "notes": "ROW-LABEL EXCEPTION: Section 316 is labeled \"Rows 1-10\" - plain numbering with NO 8WC wheelchair row and NO 9SR standing-room row, unlike its Terrace neighbours 314, 315, 317 and 322-323 which run 1-7, 8WC, 9SR. Discovery.json flags 316 in the official outlet-equipped accessible list only indirectly (its list runs 317-320A, so 316 is NOT in it); the plain row set is consistent with 316 not being a wheelchair-row section. Same pattern as 320B, 324, 328, 329. Coverage: \"These seats are not very well covered and don't offer much sun protection.\" View: \"These seats have a great view of the scoreboard in center field, but are much higher up than 200 level seating.\" Crowding: \"Standing Room Only crowd located behind them\" may \"occasionally try to poach your seat.\" No netting, obstruction, dugout or bullpen statement.",
+    "source": "https://www.rateyourseats.com/yankee-stadium/seating/sections/316"
+  },
+  {
+    "section": "317",
+    "zone": "Section 317 at Yankee Stadium",
+    "location": "\"Sections 317-321 behind home plate are part of the Jim Beam Suites and include additional amenities.\"",
+    "rows": "\"Rows in Section 317 are labeled 1-7, 8WC, 9SR\"",
+    "entrance_row": "\"An entrance to this section is located at Row 9SR\"",
+    "seat_direction": "BOILERPLATE (park-wide): \"When looking towards the field/field/stage/field, lower number seats are on the right\" ('field/field/stage/field' is a template artifact; the load-bearing clause is \"lower number seats are on the right\"). PER-SECTION: No per-section statement. Nothing on this page names a side for seat 1 in Section 317.",
+    "seats_per_row": "\"Rows 1-4 have 19 seats labeled 1-19\" and \"Rows 5-7 have 20 seats labeled 1-20\". No count stated for Row 8WC or Row 9SR.",
+    "notes": "CONTRADICTS discovery.json ON THE JIM BEAM SUITE RANGE - FLAGGED, NOT RECONCILED. This page states verbatim \"Sections 317-321 behind home plate are part of the Jim Beam Suites\", i.e. a FIVE-section range 317-321. discovery.json records the Jim Beam Suite as sections 319-321 (\"Sections 319-321 are the Jim Beam Suite club sections\", sourced to the section 318 page) and calls 318 and 322 \"the closest non-club Terrace sections to home plate\". The 317-321 sentence is printed identically on the 317, 318, 320A, 320B, 320C and 321 pages in this batch, so it is the site's own boilerplate for this group and is not a one-off typo. Note the internal contradiction WITHIN RateYourSeats itself: the 318 page carries BOTH \"Sections 317-321 ... are part of the Jim Beam Suites\" AND \"Sections 318 and 322 sit just outside the Jim Beam Suite sections\" - 318 cannot be both inside and outside. Left unreconciled per the brief. Also note this page extends the 'behind home plate' claim down to 317, wider than discovery's Terrace home-plate anchor of 318-322. Accessible-row convention: Row 8WC, Row 9SR; \"There is standing room only space behind Row 8WC\". Coverage: \"Not Covered by the Roof: Limited overhead protection\". Fan feedback: \"Seats are cushioned, and the view is pretty nice!\" - cushioned seating is consistent with a club/premium product.",
+    "source": "https://www.rateyourseats.com/yankee-stadium/seating/sections/317"
+  },
+  {
+    "section": "318",
+    "zone": "Section 318 at Yankee Stadium",
+    "location": "\"Sections 317-321 behind home plate are part of the Jim Beam Suites and include additional amenities.\" and \"Sections 318 and 322 sit just outside the Jim Beam Suite sections\"",
+    "rows": "\"Rows in Section 318 are labeled 1-7, 8WC, 9SR\"",
+    "entrance_row": "\"An entrance to this section is located at Row 9SR\"",
+    "seat_direction": "BOILERPLATE (park-wide): \"When looking towards the field/field/stage/field, lower number seats are on the right\" ('field/field/stage/field' is a template artifact; the load-bearing clause is \"lower number seats are on the right\"). PER-SECTION: No per-section statement. Nothing on this page names a side for seat 1 in Section 318.",
+    "seats_per_row": "\"Rows 1-2 have 18 seats labeled 1-18\", \"Rows 3-5 have 19 seats labeled 1-19\", \"Rows 6-7 have 20 seats labeled 1-20\". No count stated for Row 8WC or Row 9SR.",
+    "notes": "SELF-CONTRADICTION ON THE SAME PAGE - FLAGGED, NOT RECONCILED. This page carries BOTH \"Sections 317-321 behind home plate are part of the Jim Beam Suites and include additional amenities.\" (which INCLUDES 318) AND \"Sections 318 and 322 sit just outside the Jim Beam Suite sections\" (which EXCLUDES 318). The two sentences cannot both be true. discovery.json sided with the second (Jim Beam = 319-321, with 318 and 322 just outside); the first sentence is the one repeated across 317, 320A, 320B, 320C and 321 in this batch. Recorded as an unresolved conflict for the later reconciliation pass. Top pick: \"Top Pick for Great Views of the Field Rows 2-9\" and \"For baseball games, we recommend rows 2-9 for great views\". Note the recommendation range 'Rows 2-9' spans the WC and SR rows, since this section's rows are 1-7, 8WC, 9SR. Accessible-row convention: Row 8WC, Row 9SR; \"There is standing room only space behind Row 8WC\". Coverage: \"Not Covered by the Roof: Limited overhead protection\". No netting, obstruction, dugout or bullpen statement.",
+    "source": "https://www.rateyourseats.com/yankee-stadium/seating/sections/318"
+  },
+  {
+    "section": "319",
+    "zone": "Section 319 at Yankee Stadium",
+    "location": "\"Sections 317-321 directly behind home plate on the upper tier\" and \"The Terrace Level includes all 300-level sections\"",
+    "rows": "\"Rows in Section 319 are labeled 1-7, 8WC, 9SR\"",
+    "entrance_row": "\"An entrance to this section is located at Row 9SR\"",
+    "seat_direction": "BOILERPLATE (park-wide): \"When looking towards the field/field/stage/field, lower number seats are on the right\" ('field/field/stage/field' is a template artifact; the load-bearing clause is \"lower number seats are on the right\"). PER-SECTION: No per-section statement. A fan review reads \"Obstructed seats. Sec 319 / Row 1\" but names a row, not a side or a seat number, so it does not bear on seat direction.",
+    "seats_per_row": "\"Row 9SR has 10 seats labeled 1-10\". No count stated for Rows 1-7 or Row 8WC.",
+    "notes": "Home-plate anchor CONFIRMED for this section: \"Home Plate View\" insight tag and \"For baseball games, desirable view from behind home plate\", plus the location line \"Sections 317-321 directly behind home plate on the upper tier\". This supports discovery's Terrace home-plate anchor, though it states the wider range 317-321 rather than discovery's 318-322/319-321 (see the Jim Beam conflict noted at sections 317 and 318). Club status stated verbatim: \"Premium seating area as part of the Jim Beam Suites for Yankees games\" - 319 is inside the Jim Beam range on every reading, so 319 is not part of the disputed boundary. OBSTRUCTION (per-section, fan review): \"Obstructed seats. Sec 319 / Row 1\" - a front-row obstruction report, unexplained on the page; no cause given. SUN: \"The only downside was that we were in direct heat and sun until the 5th inning\", consistent with the Terrace level's stated lack of roof coverage. Top pick: \"Top Pick for Great Views of the FieldRows 2-9\" (the missing space between 'Field' and 'Rows' is in the source rendering) and \"For baseball games, we recommend rows 2-9 for great views of the field\". Accessible-row convention: Row 8WC, Row 9SR; \"There is standing room only space behind Row 8WC\". Note Row 9SR at only 10 seats is roughly half the width of the seated rows.",
+    "source": "https://www.rateyourseats.com/yankee-stadium/seating/sections/319"
+  },
+  {
+    "section": "320A",
+    "zone": "Section 320A at Yankee Stadium",
+    "location": "\"Sections 317-321 behind home plate are part of the Jim Beam Suites and include additional amenities.\"",
+    "rows": "\"Rows in Section 320A are labeled 1-7, 8WC, 9SR\"",
+    "entrance_row": "\"An entrance to this section is located at Row 9SR\"",
+    "seat_direction": "BOILERPLATE (park-wide): \"When looking towards the field/field/stage/field, lower number seats are on the right\" ('field/field/stage/field' is a template artifact; the load-bearing clause is \"lower number seats are on the right\"). PER-SECTION: No per-section statement. Nothing on this page names a side for seat 1 in Section 320A.",
+    "seats_per_row": "\"Row 8WC has 15 seats labeled 1-15\". No count stated for Rows 1-7 or Row 9SR.",
+    "notes": "Home-plate anchor CONFIRMED: \"Home Plate View\" insight tag and \"For baseball games, desirable view from behind home plate\". Club status: inside the stated \"Sections 317-321 ... Jim Beam Suites\" range (see the 317/318 conflict note - the range 317-321 conflicts with discovery's 319-321, unreconciled). 320A is inside the Jim Beam range on every reading. Top pick: \"Top Pick for Great Views of the FieldRows 2-9\" and \"For baseball games, we recommend rows 2-9 for great views of the field\". Accessible-row convention: Row 8WC wheelchair row (15 seats), Row 9SR standing-room row; \"There is standing room only space behind Row 8WC\". 320A appears in discovery's official outlet-equipped wheelchair-accessible section list (\"317-320A\"), consistent with it carrying an 8WC row. Coverage: \"Not Covered by the Roof: Limited overhead protection\". No netting, obstruction, dugout or bullpen statement.",
+    "source": "https://www.rateyourseats.com/yankee-stadium/seating/sections/320A"
+  },
+  {
+    "section": "320B",
+    "zone": "Section 320B at Yankee Stadium",
+    "location": "\"The Terrace Level includes all 300-level sections and shares a concourse with the 400-level Grandstand sections.\" and \"Sections 317-321 behind home plate are part of the Jim Beam Suites and include additional amenities.\"",
+    "rows": "\"Rows in Section 320B are labeled 1-10\"",
+    "entrance_row": "\"An entrance to this section is located at Row 10\"",
+    "seat_direction": "BOILERPLATE (park-wide): \"When looking towards the field/field/stage/field, lower number seats are on the right\" ('field/field/stage/field' is a template artifact; the load-bearing clause is \"lower number seats are on the right\"). PER-SECTION: No per-section statement. Nothing on this page names a side for seat 1 in Section 320B.",
+    "seats_per_row": "\"Row 1 has 18 seats labeled 1-18\", \"Rows 2-3 have 19 seats labeled 1-19\", \"Rows 4-6 have 20 seats labeled 1-20\", \"Row 7 has 21 seats labeled 1-21\". No count stated for Rows 8-10. Seat counts INCREASE with row number, as expected for a fan-shaped section widening away from the field.",
+    "notes": "CONTRADICTS discovery.json ON THIS SECTION'S ROW SET - FLAGGED. discovery.json states \"Delta Sky360 section 220B is labeled 'Rows 1-7, 8WC'\" and separately lists 320B under the Terrace convention; this page states plainly \"Rows in Section 320B are labeled 1-10\" with entrance at Row 10 - NO 8WC and NO 9SR row, unlike its immediate neighbours 320A and 320C which both run 1-7, 8WC, 9SR. discovery's official outlet-equipped accessible list also runs \"317-320A, 320C-323\", pointedly SKIPPING 320B, which independently corroborates that 320B has no wheelchair row. The two 320B row facts are therefore consistent once separated from the 220B statement; recorded here as observed. Club status: \"Rows 1-10 in Section 320B are Jim Beam Seats\" and \"In 320B, rows 1-10 receive all the amenities\" - i.e. the ENTIRE section is club product, unlike sections where only the front rows are. Home-plate anchor CONFIRMED: \"Home Plate View\" insight tag. Top pick: \"Top Pick for Great Views of the FieldRows 2-9\". Coverage: \"Not Covered by the Roof: Limited overhead protection\". No netting, obstruction, dugout or bullpen statement.",
+    "source": "https://www.rateyourseats.com/yankee-stadium/seating/sections/320B"
+  },
+  {
+    "section": "320C",
+    "zone": "Section 320C at Yankee Stadium",
+    "location": "\"Sections 317-321 behind home plate are part of the Jim Beam Suites and include additional amenities.\"",
+    "rows": "\"Rows in Section 320C are labeled 1-7, 8WC, 9SR\"",
+    "entrance_row": "\"An entrance to this section is located at Row 9SR\"",
+    "seat_direction": "BOILERPLATE (park-wide): \"When looking towards the field/field/stage/field, lower number seats are on the right\" ('field/field/stage/field' is a template artifact; the load-bearing clause is \"lower number seats are on the right\"). PER-SECTION: No per-section statement. Nothing on this page names a side for seat 1 in Section 320C.",
+    "seats_per_row": "\"Row 8WC has 15 seats labeled 1-15\". No count stated for Rows 1-7 or Row 9SR.",
+    "notes": "Home-plate anchor CONFIRMED: \"Home Plate View\" insight tag and \"For baseball games, desirable view from behind home plate\". Club status: inside the stated \"Sections 317-321 ... Jim Beam Suites\" range (see the 317/318 conflict note, unreconciled). Accessible-row convention: Row 8WC wheelchair row (15 seats, same as 320A), Row 9SR standing-room row; \"There is standing room only space behind Row 8WC\". 320C appears in discovery's official outlet-equipped wheelchair-accessible list (\"320C-323\"), consistent with the 8WC row. Note the 320A / 320B / 320C triple: A and C both carry wheelchair rows and appear in the official outlet list, while B - sandwiched between them - has neither, which is a coherent picture of a wheelchair platform split around a central club block. Top pick: \"Top Pick for Great Views of the FieldRows 2-9\" and \"For baseball games, we recommend rows 2-9 for great views of the field\". Coverage: \"Not Covered by the Roof: Limited overhead protection\". No netting, obstruction, dugout or bullpen statement.",
+    "source": "https://www.rateyourseats.com/yankee-stadium/seating/sections/320C"
+  },
+  {
+    "section": "321",
+    "zone": "Section 321 at Yankee Stadium",
+    "location": "\"Sections 317-321 behind home plate are part of the Jim Beam Suites and include additional amenities.\"",
+    "rows": "\"Rows in Section 321 are labeled 1-7, 8WC, 9SR\"",
+    "entrance_row": "\"An entrance to this section is located at Row 9SR\"",
+    "seat_direction": "BOILERPLATE (park-wide): \"When looking towards the field/field/stage/field, lower number seats are on the right\" ('field/field/stage/field' is a template artifact; the load-bearing clause is \"lower number seats are on the right\"). PER-SECTION: No per-section statement. Nothing on this page names a side for seat 1 in Section 321.",
+    "seats_per_row": "\"Row 1 has 18 seats labeled 1-18\", \"Rows 2-3 have 19 seats labeled 1-19\", \"Rows 4-6 have 20 seats labeled 1-20\", \"Row 7 has 21 seats labeled 1-21\". No count stated for Row 8WC or Row 9SR. Identical per-row counts to Sections 320B and 322.",
+    "notes": "Home-plate anchor CONFIRMED: \"Home Plate View\" insight tag. Club status: 321 is inside the Jim Beam range on every reading (both the page's \"317-321\" and discovery's \"319-321\"), so it is not part of the disputed boundary. Top pick: \"Top Pick for Great Views of the Field Rows 2-9\" and \"For baseball games, we recommend rows 2-9 for great views of the field\". Accessible-row convention: Row 8WC, Row 9SR; \"There is standing room only space behind Row 8WC\". 321 appears in discovery's official outlet-equipped wheelchair-accessible list (\"320C-323\"). Coverage: \"Not Covered by the Roof: Limited overhead protection\". No netting, obstruction, dugout or bullpen statement.",
+    "source": "https://www.rateyourseats.com/yankee-stadium/seating/sections/321"
+  },
+  {
+    "section": "322",
+    "zone": "Terrace Infield (Baseball) / Terrace Level Seating",
+    "location": "\"The Terrace Level is located on the third deck at Yankee Stadium.\"",
+    "rows": "\"Rows in Section 322 are labeled 1-7, 8WC, 9SR\"",
+    "entrance_row": "\"An entrance to this section is located at Row 9SR\"",
+    "seat_direction": "BOILERPLATE (park-wide): \"When looking towards the field/field/stage/field, lower number seats are on the right\" ('field/field/stage/field' is a template artifact; the load-bearing clause is \"lower number seats are on the right\"). PER-SECTION: No per-section statement. Nothing on this page names a side for seat 1 in Section 322.",
+    "seats_per_row": "\"Row 1 has 18 seats labeled 1-18\", \"Rows 2-3 have 19 seats labeled 1-19\", \"Rows 4-6 have 20 seats labeled 1-20\", \"Row 7 has 21 seats labeled 1-21\". No count stated for Row 8WC or Row 9SR. NOTE an internal inconsistency on this page: the prose separately warns \"With up to 25 seats in a row, you'll want to get aisle seats\", but no row in the published per-row table exceeds 21 seats. The '25 seats' figure appears to be generic Terrace-level prose rather than a Section 322 measurement; recorded verbatim, not reconciled.",
+    "notes": "Zone reverts to the generic \"Terrace Infield (Baseball)\" here rather than a Jim Beam club heading, and this page does NOT repeat the \"Sections 317-321 ... Jim Beam Suites\" line - consistent with discovery's reading that 322 sits just OUTSIDE the club sections, and with the 318 page's \"Sections 318 and 322 sit just outside the Jim Beam Suite sections\". Top pick: \"Top Pick for Great Views of the FieldRows 2-9\". Accessible-row convention: Row 8WC, Row 9SR; \"There is standing room only space behind Row 8WC\". 322 appears in discovery's official outlet-equipped wheelchair-accessible list (\"320C-323\"). Coverage, stated twice: \"These seats are not covered by the roof structure\" and \"From a weather standpoint, these seats are not very well covered\". Row-width caveat: \"With up to 25 seats in a row, you'll want to get aisle seats\". No netting, obstruction, dugout or bullpen statement.",
+    "source": "https://www.rateyourseats.com/yankee-stadium/seating/sections/322"
+  },
+  {
+    "section": "323",
+    "zone": "Section 323 at Yankee Stadium / Terrace Infield (Baseball)",
+    "location": "\"The Terrace Level is located on the third deck at Yankee Stadium.\"",
+    "rows": "\"Rows in Section 323 are labeled 1-7, 8WC, 9SR\"",
+    "entrance_row": "\"An entrance to this section is located at Row 9SR\"",
+    "seat_direction": "BOILERPLATE (park-wide): \"When looking towards the field/field/stage/field, lower number seats are on the right\" ('field/field/stage/field' is a template artifact; the load-bearing clause is \"lower number seats are on the right\"). PER-SECTION: No per-section statement. Nothing on this page names a side for seat 1 in Section 323.",
+    "seats_per_row": "\"Rows 1-4 have 19 seats labeled 1-19\" and \"Rows 5-7 have 20 seats labeled 1-20\". No count stated for Row 8WC or Row 9SR. Identical per-row counts to Section 317, its mirror-image counterpart across home plate.",
+    "notes": "Accessible-row convention: Row 8WC wheelchair row, Row 9SR standing-room row; \"There is standing room only space behind Row 8WC\". 323 appears in discovery's official outlet-equipped wheelchair-accessible list (\"320C-323\"). View: \"These seats have a great view of the scoreboard in center field, but are much higher up than 200 level seating.\" Coverage: \"These seats are not very well covered and don't offer much sun protection.\" Crowding: \"The Standing Room Only crowd located behind them. They make for more crowded lines and concourses and may occasionally try to poach your seat while you're away.\" No netting, obstruction, dugout or bullpen statement. Nothing contradicts discovery.json.",
+    "source": "https://www.rateyourseats.com/yankee-stadium/seating/sections/323"
+  },
+  {
+    "section": "324",
+    "zone": "Terrace Infield (Baseball) / Terrace Level Seating",
+    "location": "\"The Terrace Level is located on the third deck at Yankee Stadium.\"",
+    "rows": "\"Rows in Section 324 are labeled 1-10\"",
+    "entrance_row": "\"An entrance to this section is located at Row 10\"",
+    "seat_direction": "BOILERPLATE (park-wide): \"When looking towards the field/field/stage/field, lower number seats are on the right\" ('field/field/stage/field' is a template artifact; the load-bearing clause is \"lower number seats are on the right\"). PER-SECTION: No per-section statement. Nothing on this page names a side for seat 1 in Section 324.",
+    "seats_per_row": "\"Rows 1-7 have 20 seats labeled 1-20\" and \"Rows 8-9 have 16 seats labeled 1-16\". No count stated for Row 10.",
+    "notes": "ROW-LABEL EXCEPTION: \"Rows 1-10\" - plain numbering with NO 8WC and NO 9SR row, matching sections 316, 320B, 328 and 329 and differing from the 1-7/8WC/9SR pattern of most Terrace sections. 324 is absent from discovery's official outlet-equipped wheelchair-accessible list (which runs \"320C-323, 325-327\", skipping 324), independently consistent with 324 having no wheelchair row. This 316/320B/324/328/329 grouping is a real and repeating pattern across the Terrace level, not noise. View: \"These seats have a great view of the scoreboard in center field, but are much higher up than 200 level seating.\" Coverage: \"These seats are not very well covered and don't offer much sun protection.\" Crowding: \"Standing Room Only crowd located behind them. They make for more crowded lines and concourses.\" No netting, obstruction, dugout or bullpen statement.",
+    "source": "https://www.rateyourseats.com/yankee-stadium/seating/sections/324"
+  },
+  {
+    "section": "325",
+    "zone": "Section 325 at Yankee Stadium",
+    "location": "UNKNOWN. No sentence on the page places Section 325 in the ballpark; the page does not carry the \"The Terrace Level is located on the third deck\" line that most of its neighbours print. The only positional hint is the soccer-specific insight \"For soccer matchs, desirable view from near midfield\" (typo in source), which is a SOCCER geometry statement and does not establish a baseball location.",
+    "rows": "\"Rows in Section 325 are labeled 1-7, 8WC, 9SR\"",
+    "entrance_row": "\"An entrance to this section is located at Row 9SR\"",
+    "seat_direction": "BOILERPLATE (park-wide): \"When looking towards the field/field/stage/field, lower number seats are on the right\" ('field/field/stage/field' is a template artifact; the load-bearing clause is \"lower number seats are on the right\"). PER-SECTION: No per-section statement. Nothing on this page names a side for seat 1 in Section 325.",
+    "seats_per_row": "\"Row 9SR has 10 seats labeled 1-10\". No count stated for Rows 1-7 or Row 8WC.",
+    "notes": "The \"Midfield View\" insight tag and \"For soccer matchs, desirable view from near midfield\" are SOCCER-ONLY (NYCFC) statements and must not be read as baseball geometry - midfield for soccer does not correspond to any baseball landmark. Flagged because a naive reader could mistake 'Midfield View' for an infield claim. Same tag appears at 330 and 331. Accessible-row convention: Row 8WC, Row 9SR; \"There is standing room only space behind Row 8WC\". 325 appears in discovery's official outlet-equipped wheelchair-accessible list (\"325-327\"). View: \"These seats have a great view of the scoreboard in center field, but are much higher up than 200 level seating.\" Coverage: \"From a weather standpoint, these seats are not very well covered and don't offer much sun protection.\" Crowding: \"Standing Room Only crowd located behind them...may occasionally try to poach your seat while you're away.\" No netting, obstruction, dugout or bullpen statement.",
+    "source": "https://www.rateyourseats.com/yankee-stadium/seating/sections/325"
+  },
+  {
+    "section": "326",
+    "zone": "Section 326 at Yankee Stadium",
+    "location": "\"The Terrace Level is located on the third deck at Yankee Stadium.\"",
+    "rows": "\"Rows in Section 326 are labeled 1-7, 8WC, 9SR\"",
+    "entrance_row": "\"An entrance to this section is located at Row 9SR\"",
+    "seat_direction": "BOILERPLATE (park-wide): \"When looking towards the field/field/stage/field, lower number seats are on the right\" ('field/field/stage/field' is a template artifact; the load-bearing clause is \"lower number seats are on the right\"). PER-SECTION: No per-section statement. Nothing on this page names a side for seat 1 in Section 326.",
+    "seats_per_row": "\"Row 8WC has 18 seats labeled 1-18\". No count stated for Rows 1-7 or Row 9SR. NOTE the same internal inconsistency seen at Section 322: the prose says \"with up to 25 seats in a row, you'll want to get aisle seats to avoid having to step over a dozen strangers\", but the only published per-row count is 18. The '25 seats' figure reads as generic Terrace prose, not a Section 326 measurement; recorded verbatim, not reconciled.",
+    "notes": "Accessible-row convention: Row 8WC wheelchair row (18 seats), Row 9SR standing-room row. 326 appears in discovery's official outlet-equipped wheelchair-accessible list (\"325-327\"). View: \"These seats have a great view of the scoreboard in center field, but are much higher up than 200 level seating.\" Row-width caveat: \"with up to 25 seats in a row, you'll want to get aisle seats to avoid having to step over a dozen strangers.\" Coverage: \"these seats are not very well covered and don't offer much sun protection\". Crowding: \"Standing Room Only crowd located behind them.\" No netting, obstruction, dugout or bullpen statement.",
+    "source": "https://www.rateyourseats.com/yankee-stadium/seating/sections/326"
+  },
+  {
+    "section": "327",
+    "zone": "Terrace Infield (Baseball) / Terrace Level Seating",
+    "location": "\"The Terrace Level is located on the third deck at Yankee Stadium.\"",
+    "rows": "\"Rows in Section 327 are labeled 1-7, 8WC, 9SR\"",
+    "entrance_row": "\"An entrance to this section is located at Row 9SR\"",
+    "seat_direction": "BOILERPLATE (park-wide): \"When looking towards the field/field/stage/field, lower number seats are on the right\" ('field/field/stage/field' is a template artifact; the load-bearing clause is \"lower number seats are on the right\"). PER-SECTION: No per-section statement. Nothing on this page names a side for seat 1 in Section 327.",
+    "seats_per_row": "\"Row 8WC has 18 seats labeled 1-18\". No count stated for Rows 1-7 or Row 9SR.",
+    "notes": "Zone is still \"Terrace Infield (Baseball)\" at 327, which is a useful boundary marker: the very next sections in this batch, 328 and 329, are described instead as outfield seats that \"wrap around into home run territory\". So the Terrace infield/outfield boundary falls between 327 and 328 on the high-numbered (left-field / third-base) side, consistent with discovery's numbering direction. Accessible-row convention: Row 8WC (18 seats), Row 9SR; \"There is standing room only space behind Row 8WC\". 327 appears in discovery's official outlet-equipped wheelchair-accessible list (\"325-327\"). View: \"These seats have a great view of the scoreboard in center field, but are much higher up than 200 level seating.\" Coverage: \"These seats are not covered and don't offer much sun protection.\" Crowding: \"The Standing Room Only crowd located behind them...may occasionally try to poach your seat while you're away.\" No netting, obstruction, dugout or bullpen statement.",
+    "source": "https://www.rateyourseats.com/yankee-stadium/seating/sections/327"
+  },
+  {
+    "section": "328",
+    "zone": "Section 328 at Yankee Stadium",
+    "location": "\"Terrace level seats in the outfield run down both baselines and wrap around into home run territory.\" and \"310-312, 328-329: Closest views; poor angle to home plate\"",
+    "rows": "\"Rows in Section 328 are labeled 1-10\"",
+    "entrance_row": "\"An entrance to this section is located at Row 10\"",
+    "seat_direction": "BOILERPLATE (park-wide): \"When looking towards the field/field/stage/field, lower number seats are on the right\" ('field/field/stage/field' is a template artifact; the load-bearing clause is \"lower number seats are on the right\"). PER-SECTION STATEMENT - PRESENT AND EXPLICIT, THE ONLY ONE IN THIS BATCH: \"There are a total of 24 seats in Section 328 Row 6 at Yankee Stadium. As you face the field from the section, seat 1 will be on the aisle at the right, while seat 24 is on the aisle at the left.\" The per-section statement AGREES with the boilerplate: seat 1 on the right when facing the field. NO DISAGREEMENT.",
+    "seats_per_row": "\"Rows 1-7 have 24 seats labeled 1-24\" and, for the specific row named in the Q&A, \"There are a total of 24 seats in Section 328 Row 6 at Yankee Stadium\". No count stated for Rows 8-10.",
+    "notes": "KEY EVIDENCE FOR THE SEAT-1 QUESTION. This is the only per-section seat-side statement found anywhere in batch 07, and it CONFIRMS the park-wide boilerplate on the high-numbered (left-field / third-base) side of the Terrace level: \"As you face the field from the section, seat 1 will be on the aisle at the right, while seat 24 is on the aisle at the left.\" discovery.json had corroborated the boilerplate in right field (103), left field (136) and the bleachers (201) but recorded NO Terrace-level per-section confirmation; this supplies one, and it lands the same way. Still no half-of-the-park disagreement at Yankee Stadium. LOCATION/GEOMETRY: \"Terrace level seats in the outfield run down both baselines and wrap around into home run territory\" and the comparison line \"310-312, 328-329: Closest views; poor angle to home plate\" - note this pairs 310-312 with 328-329 as symmetric counterparts either side of the diamond, consistent with discovery's single monotonic sweep and with home plate near 318-322. ROW-LABEL EXCEPTION: \"Rows 1-10\", no 8WC and no 9SR; 328 is absent from discovery's official outlet-equipped accessible list, consistent. Coverage: \"Not Covered by the Roof: Limited overhead protection.\" Amenities: \"plenty of nearby concession stands, beer stands and restroom options on each side of the field.\" No netting, dugout or bullpen statement.",
+    "source": "https://www.rateyourseats.com/yankee-stadium/seating/sections/328"
+  },
+  {
+    "section": "329",
+    "zone": "Section 329 at Yankee Stadium",
+    "location": "\"Terrace level seats in the outfield run down both baselines and wrap around into home run territory.\" and \"310-312, 328-329: Closest views; poor angle to home plate\"",
+    "rows": "\"Rows in Section 329 are labeled 1-10\"",
+    "entrance_row": "\"An entrance to this section is located at Row 10\"",
+    "seat_direction": "BOILERPLATE (park-wide): \"When looking towards the field/field/stage/field, lower number seats are on the right\" ('field/field/stage/field' is a template artifact; the load-bearing clause is \"lower number seats are on the right\"). PER-SECTION: No per-section statement. Nothing on this page names a side for seat 1 in Section 329. Note its immediate neighbour 328 DOES carry such a statement and it agrees with the boilerplate.",
+    "seats_per_row": "\"Rows 1-7 have 23 seats labeled 1-23\". No count stated for Rows 8-10.",
+    "notes": "ROW-LABEL EXCEPTION: \"Rows 1-10\", no 8WC and no 9SR row; 329 is absent from discovery's official outlet-equipped wheelchair-accessible list, consistent. Geometry: \"310-312, 328-329: Closest views; poor angle to home plate\" - the same paired comparison printed at 328, treating 310-312 and 328-329 as symmetric outfield counterparts. \"Terrace level seats in the outfield run down both baselines and wrap around into home run territory.\" Coverage: \"Not Covered by the Roof: Limited overhead protection.\" Amenities: \"there are plenty of nearby concession stands, beer stands and restroom options on each side of the field.\" No netting, obstruction, dugout or bullpen statement.",
+    "source": "https://www.rateyourseats.com/yankee-stadium/seating/sections/329"
+  },
+  {
+    "section": "330",
+    "zone": "Section 330 at Yankee Stadium",
+    "location": "UNKNOWN. No sentence on the page places Section 330 in the ballpark; the page carries neither the \"The Terrace Level is located on the third deck\" line nor the outfield 'wrap around into home run territory' line. The only positional hint is the soccer-specific \"Midfield View\" tag, which is not a baseball location.",
+    "rows": "\"Rows in Section 330 are labeled 1-7, 8WC, 9SR\"",
+    "entrance_row": "\"An entrance to this section is located at Row 9SR\"",
+    "seat_direction": "BOILERPLATE (park-wide): \"When looking towards the field/field/stage/field, lower number seats are on the right\" ('field/field/stage/field' is a template artifact; the load-bearing clause is \"lower number seats are on the right\"). PER-SECTION: No per-section statement. Nothing on this page names a side for seat 1 in Section 330.",
+    "seats_per_row": "\"Row 1 has 19 seats labeled 1-19\", \"Rows 2-5 have 20 seats labeled 1-20\", \"Rows 6-7 have 21 seats labeled 1-21\". No count stated for Row 8WC or Row 9SR.",
+    "notes": "The \"Midfield View\" tag is a SOCCER (NYCFC) insight, as at 325 and 331, and must not be read as baseball infield geometry - flagged to prevent misreading. Accessible-row convention: Row 8WC, Row 9SR; \"There is standing room only space behind Row 8WC\". 330 appears in discovery's official outlet-equipped wheelchair-accessible list (\"330-331\"). Coverage: \"Not Covered by the Roof: Limited overhead protection\". FAN FEEDBACK, DIRECTLY RELEVANT TO ACCESSIBILITY AND FAMILIES: \"Standing room only. Terrible with kids\" - a negative report tied to the SR row behind this section. Countered by \"Great view of field. Leg room a bit small\", which flags restricted legroom. No netting, obstruction, dugout or bullpen statement.",
+    "source": "https://www.rateyourseats.com/yankee-stadium/seating/sections/330"
+  },
+  {
+    "section": "331",
+    "zone": "Section 331 at Yankee Stadium",
+    "location": "UNKNOWN. No sentence on the page places Section 331 in the ballpark. The only positional hint is the soccer-specific \"Midfield View\" tag, which is not a baseball location.",
+    "rows": "\"Rows in Section 331 are labeled 1-7, 8WC, 9SR\"",
+    "entrance_row": "\"An entrance to this section is located at Row 9SR\"",
+    "seat_direction": "BOILERPLATE (park-wide): \"When looking towards the field/field/stage/field, lower number seats are on the right\" ('field/field/stage/field' is a template artifact; the load-bearing clause is \"lower number seats are on the right\"). PER-SECTION: No per-section statement. Nothing on this page names a side for seat 1 in Section 331.",
+    "seats_per_row": "\"Rows 1-2 have 20 seats labeled 1-20\" and \"Rows 3-7 have 22 seats labeled 1-22\". No count stated for Row 8WC or Row 9SR.",
+    "notes": "The \"Midfield View\" tag is a SOCCER (NYCFC) insight, as at 325 and 330 - not baseball geometry. Accessible-row convention: Row 8WC, Row 9SR; \"There is standing room only space behind Row 8WC\". 331 appears in discovery's official outlet-equipped wheelchair-accessible list (\"330-331\"). SUN/SHADE, per-section and unusually specific: \"Section 331 will see a good amount of sun during day games with no over head protection\" (typo 'over head' is in the source), alongside the generic \"Not Covered by the Roof: Limited overhead protection\". No netting, obstruction, dugout or bullpen statement. Nothing contradicts discovery.json.",
+    "source": "https://www.rateyourseats.com/yankee-stadium/seating/sections/331"
+  }
+]

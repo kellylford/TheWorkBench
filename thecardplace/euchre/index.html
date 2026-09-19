@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- Without this the browser asks for /favicon.ico at the SITE root, which
+     belongs to the user page rather than this project — so every page here
+     logged a 404 nobody could fix from this repository. -->
+<link rel="icon" href="../shared/favicon.svg" type="image/svg+xml">
+<title>Euchre</title>
+<meta name="description" content="Euchre for four. Play against the computer or with other people at a shared table. Works with a keyboard alone and with a screen reader.">
+<!-- The shared sheet first, this game's second. Order is the override
+     mechanism: anything said in styles.css wins, with no !important anywhere. -->
+<link rel="stylesheet" href="../shared/styles/core.css">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to main content</a>
+
+<header class="app-header">
+  <h1>Euchre</h1>
+  <p class="tagline">Four players, two partnerships, five tricks a hand.</p>
+</header>
+
+<main id="main" tabindex="-1">
+
+  <!-- ============ LOBBY ============
+       The first screen a person meets when they want to play with somebody else,
+       and therefore the one that decides whether the rest of the game ever
+       happens for them.
+
+       Everything here is an ordinary heading, form field, button and table. The
+       code entry is a plain text input rather than five separate boxes: split
+       inputs look tidy and are miserable with a screen reader, because every
+       keystroke moves focus and the field you are in is never the field you
+       thought. -->
+  <section id="lobby-section" aria-labelledby="lobby-h" hidden>
+    <h2 id="lobby-h">Play with other people</h2>
+
+    <!-- Visible, and deliberately NOT a live region. It carries the same words the
+         announcer speaks, and a second independent live region would say all of
+         them twice — and reintroduce exactly the race the announcement queue
+         exists to prevent, on the messages that tell a player whether they are
+         connected. Same reason the game log is not one. -->
+    <p id="lobby-status" class="status"></p>
+
+    <div id="lobby-choose">
+      <p class="hint">Anyone can join a table with its code. There are no accounts and nothing to
+        install. A euchre table is always four seats, and any seat nobody is sitting in is played
+        by the computer &mdash; so a table works with two people, or three, or four.</p>
+
+      <p class="actions">
+        <button type="button" id="lobby-create" class="primary">Start a new table</button>
+      </p>
+
+      <form id="lobby-join-form">
+        <p class="field">
+          <label for="lobby-code">Join a table with its code</label>
+          <input type="text" id="lobby-code" name="code" autocomplete="off" spellcheck="false"
+                 maxlength="12" aria-describedby="lobby-code-hint">
+          <span id="lobby-code-hint" class="hint">Five letters and numbers. Upper or lower case both
+            work, and spaces and dashes are ignored. The letters O, I and L and the digits zero and
+            one are never used, so there is nothing to mistake for anything else.</span>
+        </p>
+        <p class="actions">
+          <button type="submit">Join this table</button>
+        </p>
+      </form>
+
+      <p class="actions">
+        <button type="button" id="lobby-back">Play against the computer instead</button>
+      </p>
+    </div>
+
+    <div id="lobby-table" hidden>
+      <h3 id="lobby-code-h">Your table code</h3>
+      <p id="lobby-code-display" class="table-code" tabindex="-1"></p>
+      <!-- The invite link, and the code above it. Both, because they are
+           for different situations: the link for anywhere you can paste,
+           the code for reading down a phone. -->
+      <p class="hint" id="lobby-invite-hint">Send the link to whoever you want to play
+        with. It opens the game with this table already chosen; they still pick their own
+        name. If it is easier to read the code out, that works too.</p>
+      <p class="table-link"><a id="lobby-invite" href="#">Invite link</a></p>
+      <p class="actions">
+        <button type="button" id="lobby-copy">Copy the invite link</button>
+        <button type="button" id="lobby-leave" class="consequential">Leave this table</button>
+      </p>
+
+      <!-- Nothing is dealt until somebody presses this. A table that starts the
+           moment it is made leaves the host no time to send anybody the code —
+           by the time they have read it out, the computer has played their seat
+           through half a hand. -->
+      <p class="actions">
+        <button type="button" id="lobby-start" class="primary">Start the game</button>
+      </p>
+      <p class="hint" id="lobby-start-hint">Send the code to the people you want to play with, wait
+        for them to appear in the seats below, then start. Any seat still empty is played by the
+        computer, so you can start whenever you like.</p>
+
+      <h3 id="lobby-seats-h">Seats</h3>
+      <div class="table-wrap">
+        <table id="lobby-seats">
+          <caption class="sr-only">Every seat at this table, who is in it, and which side they are
+            on. Seats 1 and 3 are partners, and so are seats 2 and 4. Empty seats are played by the
+            computer.</caption>
+          <thead>
+            <tr>
+              <th scope="col">Seat</th>
+              <th scope="col">Who</th>
+              <th scope="col">Side</th>
+              <th scope="col">Status</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SETUP ============ -->
+  <section id="setup-section" aria-labelledby="setup-h">
+    <h2 id="setup-h">New game</h2>
+    <form id="setup-form">
+      <!-- Shown only when somebody has arrived on an invite link. -->
+      <p id="invite-note" class="invite-note" hidden></p>
+      <fieldset>
+        <legend>You</legend>
+        <p class="field">
+          <label for="opt-name">Your name</label>
+          <span id="opt-name-hint" class="hint">This is what everybody else at the table sees, so it is worth changing.</span>
+          <input type="text" id="opt-name" name="name" value="MyPlayerName" aria-describedby="opt-name-hint" autocomplete="off" maxlength="16">
+        </p>
+        <p class="hint">Euchre is four players in two fixed partnerships. You sit in seat 1, and
+          your partner is across the table in seat 3. Playing on your own, the other three seats are
+          computer players.</p>
+      </fieldset>
+
+      <fieldset>
+        <legend>Game settings</legend>
+        <p class="hint">These are remembered, so a new game uses them again unless you change them.</p>
+        <p id="settings-online-note" class="hint" hidden>At an online table the rules were set when
+          the table was made and cannot be changed from here, and the tempo belongs to the room &mdash;
+          the computer seats play about a second apart for everybody, whatever pace you choose for a
+          game of your own. Your turn is never taken while you are still at the table, however long
+          you want to spend on it.</p>
+        <p id="settings-summary" class="settings-summary"></p>
+        <p class="actions">
+          <button type="button" id="setup-settings">Change game settings</button>
+        </p>
+      </fieldset>
+
+      <p class="actions">
+        <button type="submit" class="primary">Start game</button>
+        <button type="button" id="setup-online">Play with other people</button>
+        <button type="button" id="setup-rules">How to play Euchre</button>
+        <button type="button" id="setup-a11y">Accessibility hints</button>
+      </p>
+    </form>
+  </section>
+
+  <!-- ============ GAME ============ -->
+  <section id="game-section" aria-labelledby="game-h" hidden>
+    <!-- Kept for document structure and to name the section, but not shown: the
+         status line directly beneath says something far more useful, and the
+         heading costs a line above the fold on every screen. -->
+    <h2 id="game-h" class="sr-only">Game</h2>
+
+    <!-- The table code, on the game screen, for the whole game.
+         The host is meant to read this to somebody on the phone, and the lobby
+         that showed it disappears the instant the first hand is dealt. Spoken
+         once and gone is no use: a code you cannot check is a code you cannot
+         share. Focusable so it can be jumped to, and it spells itself out. -->
+    <p id="table-code-line" class="table-code-line" tabindex="-1" hidden></p>
+    <p class="actions" id="table-code-actions" hidden>
+      <button type="button" id="game-copy-code">Copy the invite link</button>
+    </p>
+
+    <!-- THE CONNECTION, SAID OUT LOUD AND LEFT ON SCREEN.
+         Connection state written only to the lobby's status line is announced
+         exactly once and then unavailable, because the lobby is hidden the moment
+         play starts — and after that the board sits there rendering a hand that
+         has stopped being true. role="status" rather than alert: spoken politely,
+         and unlike an announcement it STAYS, so it can be found again by anybody
+         who missed it. -->
+    <p id="net-line" class="net-line" role="status" tabindex="-1" hidden></p>
+    <p class="actions" id="net-actions" hidden>
+      <button type="button" id="net-reconnect">Reconnect to this table</button>
+    </p>
+
+    <p id="status" class="status"></p>
+
+    <!-- THE REVIEW CONTROLS, AND THEY ARE UP HERE ON PURPOSE.
+         They used to sit below the score table, between the hand and the log. So
+         tabbing from your cards to "what has happened" went through all
+         seventeen of these buttons — nine review keys, Next, and seven under
+         Records and Settings — every time you wanted to check what you had
+         missed. A player asked for the log to be one tab past their hand, which
+         is what it is in hearts and spades, and the only thing standing between
+         them was this block.
+
+         Every one of these is also a keyboard shortcut, and every shortcut is
+         also one of these, so nothing is reachable only one way. Keeping them
+         above the game means nothing sits between the cards and the thing you
+         do with them, in either direction. -->
+    <div class="toolbar">
+      <div class="tool-group" role="group" aria-labelledby="tg-review">
+        <span class="tool-group-name" id="tg-review">Review</span>
+        <button type="button" data-say="hand" aria-keyshortcuts="H">Hand <kbd>H</kbd></button>
+        <button type="button" data-say="trick" aria-keyshortcuts="T">Trick <kbd>T</kbd></button>
+        <button type="button" data-say="last" aria-keyshortcuts="L">Last trick <kbd>L</kbd></button>
+        <button type="button" data-say="score" aria-keyshortcuts="S">Score <kbd>S</kbd></button>
+        <button type="button" data-say="bidding" aria-keyshortcuts="P">Trump and partners <kbd>P</kbd></button>
+        <button type="button" data-say="order" aria-keyshortcuts="O">Play order <kbd>O</kbd></button>
+        <button type="button" data-say="count" aria-keyshortcuts="C">Cards played <kbd>C</kbd></button>
+        <button type="button" data-say="who" aria-keyshortcuts="W">Who is here <kbd>W</kbd></button>
+        <button type="button" data-say="repeat" aria-keyshortcuts="R">Repeat <kbd>R</kbd></button>
+      </div>
+
+      <div class="tool-group" role="group" aria-labelledby="tg-play">
+        <span class="tool-group-name" id="tg-play">Play</span>
+        <!-- N has always worked here. It was never advertised, so nobody was
+             told: no button, no aria-keyshortcuts, nothing for a screen reader
+             to list. A shortcut nobody knows about is a shortcut nobody uses,
+             and it is the same key in every game in this repository. -->
+        <button type="button" id="tool-next" aria-keyshortcuts="N">Next <kbd>N</kbd></button>
+      </div>
+
+      <div class="tool-group" role="group" aria-labelledby="tg-records">
+        <span class="tool-group-name" id="tg-records">Records</span>
+        <button type="button" id="btn-log" aria-keyshortcuts="G">Game log <kbd>G</kbd></button>
+        <button type="button" id="btn-export" aria-keyshortcuts="E">Export log <kbd>E</kbd></button>
+        <button type="button" id="btn-bug" aria-keyshortcuts="B">Report a bug <kbd>B</kbd></button>
+      </div>
+
+      <div class="tool-group" role="group" aria-labelledby="tg-help">
+        <span class="tool-group-name" id="tg-help">Settings and help</span>
+        <button type="button" id="btn-settings">Settings</button>
+        <button type="button" id="btn-rules">How to play</button>
+        <button type="button" id="btn-a11y" aria-keyshortcuts="?">Accessibility hints <kbd>?</kbd></button>
+        <button type="button" id="btn-newgame" class="consequential">New game</button>
+      </div>
+    </div>
+
+    <section aria-labelledby="action-h" id="action-section">
+      <h3 id="action-h">Your turn</h3>
+      <div id="actions" class="actions-area"></div>
+    </section>
+
+    <section aria-labelledby="hand-h">
+      <h3 id="hand-h">Your hand</h3>
+      <div id="hand" class="hand" role="group" aria-labelledby="hand-h"></div>
+    </section>
+
+    <!-- Decorative only. The players table below carries the same information
+         for assistive technology, so this is hidden from it entirely. -->
+    <div id="seats" class="seats" aria-hidden="true"></div>
+
+    <section aria-labelledby="trick-h">
+      <h3 id="trick-h">Current trick</h3>
+      <ol id="trick" class="trick"></ol>
+    </section>
+
+    <section aria-labelledby="lasttrick-h">
+      <h3 id="lasttrick-h">Last completed trick</h3>
+      <ol id="lasttrick" class="trick"></ol>
+    </section>
+
+    <!-- What was face down, laid out once the hand is over. "The dealer buried a
+         card" tells a player nothing; the card itself tells them everything. -->
+    <section aria-labelledby="deal-h" id="deal-section" hidden>
+      <h3 id="deal-h">The upcard and the kitty</h3>
+      <p id="deal-note" class="hint"></p>
+      <div id="deal-cards" class="hand static"></div>
+    </section>
+
+    <section aria-labelledby="players-h">
+      <h3 id="players-h">Players</h3>
+      <div class="table-wrap">
+        <table id="players-table">
+          <caption class="sr-only">Each player, the side they are on, what they did in the bidding,
+            how many cards they are holding and how many tricks they have taken this hand. Tricks
+            always total five.</caption>
+          <thead>
+            <tr>
+              <th scope="col">Player</th>
+              <th scope="col">Side</th>
+              <th scope="col">Role</th>
+              <th scope="col">Cards</th>
+              <th scope="col">Tricks</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+          <tfoot></tfoot>
+        </table>
+      </div>
+    </section>
+
+    <!-- The score is its own table rather than a column on the one above,
+         because in euchre it belongs to a SIDE and not to a player. Repeating one
+         number down two rows of a per-player table invites reading it as two. -->
+    <section aria-labelledby="score-h" id="score-section">
+      <h3 id="score-h">Score</h3>
+      <div class="table-wrap">
+        <table id="score-table">
+          <caption class="sr-only">The two sides, the tricks each has taken this hand, the points
+            each has in this game, and how many games each has won.</caption>
+          <thead>
+            <tr>
+              <th scope="col">Side</th>
+              <th scope="col">Tricks this hand</th>
+              <th scope="col">Points this game</th>
+              <th scope="col">Games won</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+
+
+    <section aria-labelledby="log-h">
+      <h3 id="log-h">What has happened <kbd aria-hidden="true">G</kbd></h3>
+      <p class="hint">Newest entry first. Press <kbd>G</kbd> to jump here, then <kbd>Up</kbd> and <kbd>Down</kbd> to move entry by entry, <kbd>Home</kbd> for the newest and <kbd>End</kbd> for the oldest. This region is never spoken automatically, so you can read back through it at your own pace.</p>
+      <ul id="log" class="log" aria-labelledby="log-h"></ul>
+    </section>
+  </section>
+</main>
+
+<!-- Outside <main> on purpose, so it is there on the setup screen and during a
+     game alike rather than appearing and disappearing with the section you
+     happen to be on. -->
+<footer class="site-footer">
+  <nav aria-label="Elsewhere">
+    <a href="../index.html">Back to The Card Place</a>
+  </nav>
+</footer>
+
+<!-- Live regions. Kept off screen but available to assistive technology. -->
+<div id="announcer" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+<div id="alerts" class="sr-only" role="alert" aria-atomic="true"></div>
+
+<dialog id="settings-dialog" aria-labelledby="settings-h">
+  <div class="dialog-body">
+    <h2 id="settings-h">Game settings</h2>
+    <p class="hint">Everything here is remembered between games. Changes to pace, speech and
+      appearance take effect straight away; rule changes take effect from the next hand, so a hand
+      in progress is never scored by rules it did not start under.</p>
+
+    <fieldset>
+      <legend>Rules</legend>
+      <p class="field">
+        <label for="opt-points">Game is played to</label>
+        <select id="opt-points" name="points">
+          <option value="10" selected>10 points &mdash; the standard game</option>
+          <option value="11">11 points</option>
+          <option value="15">15 points &mdash; a longer game</option>
+          <option value="5">5 points &mdash; a quick one</option>
+        </select>
+      </p>
+      <p class="field checkbox">
+        <input type="checkbox" id="opt-stick" name="stick">
+        <label for="opt-stick">Stick the dealer &mdash; if everybody passes twice the dealer must
+          name a suit, so no hand is ever thrown in</label>
+      </p>
+      <p class="field checkbox">
+        <input type="checkbox" id="opt-alone-rule" name="alonerule" checked>
+        <label for="opt-alone-rule">Allow going alone &mdash; whoever makes trump may send their
+          partner out of the hand, for four points if they take all five tricks</label>
+      </p>
+      <p class="field">
+        <label for="opt-difficulty">Opponent skill</label>
+        <select id="opt-difficulty" name="difficulty">
+          <option value="easy">Easy &mdash; they bid on too little and misplay</option>
+          <option value="normal" selected>Normal</option>
+          <option value="hard">Hard &mdash; they count cards and press advantages</option>
+        </select>
+      </p>
+    </fieldset>
+
+    <fieldset>
+      <legend>Pace and speech</legend>
+      <p class="field">
+        <label for="opt-pace">How fast the computer players move</label>
+        <select id="opt-pace" name="pace">
+          <option value="0">Immediate</option>
+          <option value="900">Brisk</option>
+          <option value="2500">Comfortable</option>
+          <option value="4000" selected>Relaxed</option>
+          <option value="-1">Wait for me to continue</option>
+        </select>
+        <span class="hint">A timed pace is a ceiling, not a wait you are held to: Continue is on
+          screen as well, and taking it drops the pending pause.</span>
+      </p>
+      <p class="field checkbox">
+        <input type="checkbox" id="opt-verbose" name="verbose" checked>
+        <label for="opt-verbose">Fuller announcements &mdash; name the bowers and say what is
+          winning the trick, rather than just the cards</label>
+      </p>
+      <p class="field checkbox">
+        <input type="checkbox" id="opt-autofocus" name="autofocus" checked>
+        <label for="opt-autofocus">Move focus to my cards when it becomes my turn</label>
+      </p>
+    </fieldset>
+
+    <fieldset>
+      <legend>Appearance</legend>
+      <p class="field">
+        <label for="opt-skin">Card style</label>
+        <select id="opt-skin" name="skin">
+          <option value="traditional" selected>Traditional &mdash; printed card faces on a green table</option>
+          <option value="plain">Plain &mdash; large rank and suit on flat panels</option>
+        </select>
+      </p>
+      <p class="field">
+        <label for="opt-layout">Desktop layout</label>
+        <select id="opt-layout" name="layout">
+          <option value="one" selected>One column</option>
+          <option value="two">Two columns on a wide screen</option>
+        </select>
+      </p>
+    </fieldset>
+
+    <p class="actions">
+      <button type="button" id="settings-close" class="primary">Done</button>
+      <button type="button" id="settings-reset">Reset to defaults</button>
+    </p>
+  </div>
+</dialog>
+
+<!-- THE RULES, ON THE PAGE.
+
+     These used to live in a modal, which cannot be linked to: the
+     text was written and complete and reachable only by pressing a
+     button inside the game. The landing page wants to point somebody at
+     the rules before they start, and a modal has no address.
+
+     Not copied into a separate guide page, for the obvious reason: two
+     copies of the rules is one copy that goes stale. This is the copy,
+     and the How to play button now moves focus here. -->
+<section id="rules-section" aria-labelledby="rules-h">
+  <h2 id="rules-h">How to play Euchre</h2>
+
+  <p>Four players in two fixed partnerships, sitting alternately: seats 1 and 3 are one side,
+    seats 2 and 4 the other. You are in seat 1, so your partner is in seat 3, across the table.
+    First side to ten points wins.</p>
+
+  <h3>The deck</h3>
+  <p>Twenty-four cards: nine, ten, jack, queen, king and ace in each suit. Everything lower is
+    taken out.</p>
+
+  <h3>The bowers &mdash; the one rule that surprises everybody</h3>
+  <p>Once a suit is trump, the two highest cards in the game are:</p>
+  <ul>
+    <li><strong>The right bower</strong> &mdash; the jack of the trump suit.</li>
+    <li><strong>The left bower</strong> &mdash; the jack of the <em>other suit of the same
+      colour</em>. And while it is the left bower, <strong>it is a trump card and not a card of
+      its printed suit at all</strong>. With spades trump, the jack of clubs is a spade: it
+      follows spades, and you may not play it on a club lead if you hold any spade.</li>
+  </ul>
+  <p>So with spades trump the order is: jack of spades, jack of clubs, ace, king, queen, ten,
+    nine of spades &mdash; then everything else. Clubs are down to six cards, because their jack
+    has left.</p>
+  <p>This game marks both bowers in your hand and names them whenever a card is read out, so you
+    never have to work it out under time pressure.</p>
+
+  <h3>The deal</h3>
+  <p>Five cards each. Four are left over; the top one is turned face up for everybody to see.
+    That is the <strong>upcard</strong>.</p>
+
+  <h3>The bidding</h3>
+  <p><strong>First round.</strong> Starting to the dealer's left, each player in turn may
+    <strong>order it up</strong> &mdash; making the upcard's suit trump &mdash; or pass. Whoever
+    orders it up, <em>the dealer</em> takes the upcard into their hand and puts one card back
+    face down. If the dealer orders it up themselves, that is called taking it up.</p>
+  <p><strong>Second round.</strong> If all four pass, the upcard is turned down and its suit is
+    out for the hand. Starting again to the dealer's left, each player may <strong>name</strong>
+    any other suit as trump, or pass. If everybody passes again the hand is thrown in and
+    redealt &mdash; unless <em>stick the dealer</em> is on, in which case the dealer has to name
+    something.</p>
+  <p>Whoever settles the trump suit is called the <strong>maker</strong>, and their side has to
+    take at least three of the five tricks.</p>
+
+  <h3>Going alone</h3>
+  <p>The maker may play the hand <strong>alone</strong>. Their partner puts their cards down and
+    sits the hand out, so it is one player against two. It pays four points instead of two if
+    they take all five tricks, and nothing extra otherwise &mdash; so it is a bid for a sweep,
+    not a safer way to make three.</p>
+
+  <h3>The play</h3>
+  <p>The player to the dealer's left leads to the first trick. You must follow the suit that was
+    led if you can &mdash; remembering that the left bower counts as trump. If you cannot follow,
+    you may play anything, including trump. Highest trump takes the trick; with no trump in it,
+    the highest card of the suit led. The winner leads to the next one.</p>
+
+  <h3>Scoring</h3>
+  <table>
+    <caption>What a hand is worth</caption>
+    <thead>
+      <tr><th scope="col">The makers take</th><th scope="col">Score</th></tr>
+    </thead>
+    <tbody>
+      <tr><th scope="row">Three or four tricks</th><td>1 point to the makers</td></tr>
+      <tr><th scope="row">All five tricks</th><td>2 points to the makers</td></tr>
+      <tr><th scope="row">All five, playing alone</th><td>4 points to the makers</td></tr>
+      <tr><th scope="row">Three or four, playing alone</th><td>1 point to the makers</td></tr>
+      <tr><th scope="row">Fewer than three &mdash; euchred</th><td>2 points to the other side</td></tr>
+    </tbody>
+  </table>
+  <p>Being euchred is the thing to avoid: it hands the other side two points for a hand you asked
+    to play. That is why ordering up on a weak hand is worse than passing on a fair one.</p>
+
+  <h3>What this game does not do</h3>
+  <p>There is no defending alone, no farmer's hand, no no-trump and no six-handed variant. Those
+    are all real house rules somewhere; they are simply not implemented here.</p>
+
+
+  <!-- The Close button that used to sit here went with the dialog; this one
+       did not, and removing it by accident took the only route from the
+       rules to the keyboard guidance. -->
+  <p class="actions">
+    <button type="button" id="rules-to-a11y">Accessibility hints</button>
+  </p>
+</section>
+
+<dialog id="a11y-dialog" aria-labelledby="a11y-h">
+  <div class="dialog-body">
+    <h2 id="a11y-h">Accessibility hints</h2>
+
+    <p>Nothing in this game is conveyed by sight alone. Every card is a real button that says what
+      it is, whether you may play it right now, and why not if you may not. Nothing is marked as an
+      application region, so your screen reader's browse, focus and forms modes all behave
+      normally.</p>
+
+    <h3>Keys</h3>
+    <p>Single letters are quick navigation keys in a screen reader's browse mode, so they may not
+      reach the page. That is why <strong>every one of them is also a button</strong> in the toolbar
+      under the table &mdash; nothing depends on a shortcut being available, and
+      <kbd>Tab</kbd>, <kbd>Enter</kbd> and <kbd>Space</kbd> alone are enough to play a whole game.</p>
+
+    <table>
+      <caption>Keyboard</caption>
+      <thead><tr><th scope="col">Key</th><th scope="col">Action</th></tr></thead>
+      <tbody>
+        <tr><th scope="row"><kbd>Tab</kbd></th><td>Move between controls</td></tr>
+        <tr><th scope="row"><kbd>Left</kbd> <kbd>Right</kbd></th><td>Move card to card within your hand</td></tr>
+        <tr><th scope="row"><kbd>Home</kbd> <kbd>End</kbd></th><td>First / last card</td></tr>
+        <tr><th scope="row"><kbd>Enter</kbd> <kbd>Space</kbd></th><td>Play the focused card, or select it to put back</td></tr>
+        <tr><th scope="row"><kbd>1</kbd>&ndash;<kbd>6</kbd></th><td>Jump straight to that card</td></tr>
+        <tr><th scope="row"><kbd>H</kbd></th><td>Your hand, grouped by trump and suit</td></tr>
+        <tr><th scope="row"><kbd>T</kbd></th><td>The current trick</td></tr>
+        <tr><th scope="row"><kbd>L</kbd></th><td>The last completed trick</td></tr>
+        <tr><th scope="row"><kbd>S</kbd></th><td>Tricks this hand, the game score and games won</td></tr>
+        <tr><th scope="row"><kbd>P</kbd></th><td>Trump, who made it, who your partner is, who is sitting out</td></tr>
+        <tr><th scope="row"><kbd>O</kbd></th><td>Play order for this trick, and where you sit in it</td></tr>
+        <tr><th scope="row"><kbd>C</kbd></th><td>Counting aid: trump gone, highest cards not yet seen</td></tr>
+        <tr><th scope="row"><kbd>W</kbd></th><td>Who is at the table, and whether they are still connected</td></tr>
+        <tr><th scope="row"><kbd>G</kbd></th><td>Jump into the game log</td></tr>
+        <tr><th scope="row"><kbd>E</kbd></th><td>Export the game log</td></tr>
+        <tr><th scope="row"><kbd>B</kbd></th><td>Report a bug</td></tr>
+        <tr><th scope="row"><kbd>N</kbd></th><td>Advance: Continue wherever it is offered, or deal the next hand</td></tr>
+        <tr><th scope="row"><kbd>R</kbd></th><td>Repeat the last announcement</td></tr>
+        <tr><th scope="row"><kbd>?</kbd></th><td>This help</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Reading your hand while you bid</h3>
+    <p>Pressing <kbd>H</kbd> during the bidding tells you what your hand would look like
+      <em>with the suit on offer as trump</em> &mdash; which cards would be trump, and which jack
+      would become the left bower. A sighted player works that out at a glance from cards they can
+      see all at once. Having to hold four jacks and a colour rule in your head while a timer runs
+      is a different game, and a harder one, so the program does the mapping and you make the
+      decision.</p>
+
+    <h3>The game log</h3>
+    <p>A plain focusable list, newest first, and deliberately <em>not</em> a live region &mdash; so
+      it is never spoken twice and you can read back through it at your own pace. Press
+      <kbd>G</kbd> to jump to the newest entry, then <kbd>Up</kbd> and <kbd>Down</kbd> to move one
+      entry at a time, <kbd>Page Up</kbd> and <kbd>Page Down</kbd> for ten, <kbd>Home</kbd> and
+      <kbd>End</kbd> for the newest and oldest. Number keys are ignored inside the log, so you
+      cannot play a card by accident while reading.</p>
+
+    <h3>Announcements</h3>
+    <p>A run of computer turns is collected and spoken as one polite message, so nothing is cut off
+      half way through by the next play. Anything you asked to hear jumps ahead of anything the game
+      wanted to say, and the game's message is put back in the queue rather than thrown away.
+      Errors and direct replies to a keypress go to a separate assertive region.</p>
+
+    <h3>Focus</h3>
+    <p>Focus moves to your cards when it becomes your turn, but never while you are typing in a
+      field, reading this help, or reading back through the log. The announcement still tells you it
+      is your turn. You can turn the behaviour off in Settings.</p>
+
+    <h3>Playing with other people</h3>
+    <p>At an online table you cannot see the other players, so the game says what silence means:
+      whose turn it is, whether their browser is still answering, and whether the connection to the
+      table is healthy. Press <kbd>W</kbd> at any time for the full picture. If your connection
+      drops, the computer plays your seat so the table does not stall, and making any move takes it
+      straight back.</p>
+
+    <p class="actions">
+      <button type="button" id="a11y-close" class="primary">Close</button>
+      <button type="button" id="a11y-to-rules">How to play Euchre</button>
+    </p>
+  </div>
+</dialog>
+
+<dialog id="export-dialog" aria-labelledby="export-h">
+  <div class="dialog-body">
+    <h2 id="export-h">Export the game log</h2>
+    <p id="export-summary" class="hint"></p>
+    <label for="export-text">The complete log</label>
+    <textarea id="export-text" rows="16" readonly spellcheck="false"></textarea>
+    <p class="actions">
+      <button type="button" id="export-download" class="primary">Download as a text file</button>
+      <button type="button" id="export-copy">Copy to the clipboard</button>
+      <button type="button" id="export-close">Close</button>
+    </p>
+  </div>
+</dialog>
+
+<dialog id="bug-dialog" aria-labelledby="bug-h">
+  <div class="dialog-body">
+    <h2 id="bug-h">Report a bug</h2>
+    <p class="hint">Nothing is sent anywhere on its own. The box at the bottom shows exactly what
+      will be copied, and posting an issue is your own action and needs a GitHub account.</p>
+    <label for="bug-title">One line: what went wrong</label>
+    <input type="text" id="bug-title" maxlength="120" autocomplete="off">
+    <label for="bug-what">What happened, and what you expected</label>
+    <textarea id="bug-what" rows="5" spellcheck="true"></textarea>
+    <p class="field checkbox">
+      <input type="checkbox" id="bug-include-log" checked>
+      <label for="bug-include-log">Include the full game log &mdash; much easier to diagnose with it</label>
+    </p>
+    <label for="bug-preview">Exactly what will be copied</label>
+    <textarea id="bug-preview" rows="10" readonly spellcheck="false"></textarea>
+    <p class="actions">
+      <button type="button" id="bug-open" class="primary">Copy report and open GitHub</button>
+      <button type="button" id="bug-copy">Copy the report only</button>
+      <button type="button" id="bug-close">Close</button>
+    </p>
+  </div>
+</dialog>
+
+<script src="js/cards.js"></script>
+<script src="js/game.js"></script>
+<script src="js/ai.js"></script>
+<script src="js/view.js"></script>
+<script src="js/config.js"></script>
+<script src="../shared/js/table.js"></script>
+<script src="../shared/js/net.js"></script>
+<script src="../shared/js/localserver.js"></script>
+<script src="js/ui.js"></script>
+<script>SH.UI.init();</script>
+</body>
+</html>

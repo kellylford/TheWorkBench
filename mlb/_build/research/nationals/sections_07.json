@@ -1,0 +1,24 @@
+[
+  {
+    "section": "419",
+    "zone": "Gallery Seating (Upper Gallery / 400-Level)",
+    "location": "UNKNOWN — page gives no third-base/first-base or outfield location statement specific to Section 419; only general Gallery Level context (300-Level vs 400-Level, best sections 310-316 behind home plate) is given",
+    "rows": "A-N",
+    "entrance_row": "Row A",
+    "seat_direction": "When looking towards the field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Rows C and above are under cover (Section Insights: 'Rows C & Above - Covered'; Seating Notes: 'Rows C and above are under cover'). No netting or other obstruction stated for this section.",
+    "source": "https://www.rateyourseats.com/nationals-park/seating/sections/419"
+  },
+  {
+    "section": "420",
+    "zone": "Gallery Seating (Upper Gallery / 400-Level)",
+    "location": "UNKNOWN — page gives no third-base/first-base or outfield location statement specific to Section 420; only general Gallery Level context (300-Level vs 400-Level, best sections 310-316 behind home plate) is given. Note: discovery.json's numbering-direction anchor cites a WebSearch summary claiming Section 420 'is along the 1st base line,' but that wording does not appear on this directly-fetched page — flagged as unconfirmed rather than recorded as fact.",
+    "rows": "A-N",
+    "entrance_row": "Row A",
+    "seat_direction": "When looking towards the field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Rows C and above are under cover (Section Insights: 'Rows C & Above - Covered'; Seating Notes: 'Rows C and above are under cover'). No netting or other obstruction stated for this section.",
+    "source": "https://www.rateyourseats.com/nationals-park/seating/sections/420"
+  }
+]

@@ -1,0 +1,14 @@
+Welcome to The Card Place. Five card games against the computer - hearts, euchre, spades, cribbage and sheephead - played entirely on the device, with no network of any kind.
+
+These are native ports, not the web games in a wrapper. The rules, the computer players and the words each game says come from the browser versions at The Card Place, rebuilt in Swift with the same kinds of test suites behind them.
+
+Every game is laid out the same way. The bottom of the screen is fixed: your hand, and under it a section headed Controls. The button that moves the game on - Deal, Cut, Throw, Pass, Bid, Next, or Continue during a pause - is always the lower left corner. Log and Repeat are always the lower right. When a phase has other choices, such as ordering up or bidding nil, they sit in a row just above. Your hand keeps the space of a full hand as cards are played, so the cards you still hold do not move about. The table scrolls above: the status line, the last announcement, the trick or the play, the scores, and the hands played.
+
+What to test
+- VoiceOver, above everything else. Every card is a button that says what it is, anything worth knowing about it right now, and where it sits in your hand. A card you may not play stays in the list and says why.
+- Finding your hand and the lower left button by touch in every game, at the deal, mid-hand and between hands. Neither should move. When the move is a card in your hand, the button is dimmed, says "Play a card", and reads the status when tapped.
+- The Log button at the lower right: double-tap for the full log, newest first; with VoiceOver, swipe up or down for the last five entries, and press and hold for the same.
+- The announcements. They are meant to be spoken one at a time, never cutting each other off. Anything you ask for from the Review menu should jump ahead of the game's own messages, and the message it interrupted should be said again afterwards.
+- Moving by headings, always in the same order: the table sections, then Your hand, then Controls.
+- The pace setting, and whether Continue always gets you moving again.
+- Larger text sizes, and dark mode. At the largest sizes a full hand scrolls within its own space rather than pushing the controls off the screen.

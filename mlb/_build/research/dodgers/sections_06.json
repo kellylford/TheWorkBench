@@ -1,0 +1,222 @@
+[
+  {
+    "section": "141",
+    "zone": "Loge Level",
+    "location": "UNKNOWN",
+    "rows": "Rows in Section 141 are labeled A-T, U-W",
+    "entrance_row": "An entrance to this section is located at Row W",
+    "seat_direction": "Boilerplate (\"Row Numbers\" block): \"When looking towards the field/stage, lower number seats are on the right\"",
+    "seats_per_row": "Q&A (row-specific, not section-wide): \"In Loge section 141, row H, there are 8 seats.\"",
+    "notes": "Section Insights: \"Top Pick for Kids and Family\" Section Insights: \"Rows N & Above - Covered\" Section Insights: \"Rows A-T, U-W\" Seating Notes: \"For baseball games, we recommend these seats for kids and family\" Seating Notes: \"Rows N and above are under cover\" Seating and Ticket Q&A question: \"How many seats in sec 141 row H?\" Answer: \"In Loge section 141, row H, there are 8 seats.\" This is row-specific, not a stated section-wide seats-per-row figure. Fan review (Cincinnati Reds at Los Angeles Dodgers - Apr 15, 2019, Section 141, Row K): \"Perfect shade view awesomeness in location is prime\" No sentence anywhere on the page states where Section 141 sits in the ballpark; location left UNKNOWN rather than inferred. Fallback https://www.aviewfrommyseat.com/venue/Dodger+Stadium/141/ was also checked and states \"Sorry, we do not have any photos for Section 141 at Dodger Stadium yet.\"",
+    "source": "https://www.rateyourseats.com/uniqlo-field-at-dodger-stadium/seating/sections/141 ; also checked https://www.aviewfrommyseat.com/venue/Dodger+Stadium/141/ (no data)"
+  },
+  {
+    "section": "142",
+    "zone": "Loge Level",
+    "location": "UNKNOWN",
+    "rows": "Rows in Section 142 are labeled A-T, U-W",
+    "entrance_row": "An entrance to this section is located at Row W",
+    "seat_direction": "Boilerplate (\"Row Numbers\" block): \"When looking towards the field/stage, lower number seats are on the right\"",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights: \"Rows N & Above - Covered\" Section Insights: \"Rows A-T, U-W\" Seating Notes: \"Rows N and above are under cover\" Seating Notes: \"Wheelchair seating is available behind Row T\" No questions/Q&A block on the page; no per-section seat-numbering statement to test the boilerplate against.",
+    "source": "https://www.rateyourseats.com/uniqlo-field-at-dodger-stadium/seating/sections/142"
+  },
+  {
+    "section": "143",
+    "zone": "Loge Level",
+    "location": "UNKNOWN",
+    "rows": "Rows in Section 143 are labeled A-T, U-W",
+    "entrance_row": "An entrance to this section is located at Row W",
+    "seat_direction": "Boilerplate (\"Row Numbers\" block): \"When looking towards the field/stage, lower number seats are on the right\"",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights: \"Top Pick for Kids and Family\" Section Insights: \"Rows N & Above - Covered\" Section Insights: \"Rows A-T, U-W\" Seating Notes: \"For baseball games, we recommend these seats for kids and family\" Seating Notes: \"Rows N and above are under cover\" No questions/Q&A block on the page.",
+    "source": "https://www.rateyourseats.com/uniqlo-field-at-dodger-stadium/seating/sections/143"
+  },
+  {
+    "section": "144",
+    "zone": "Loge Level",
+    "location": "UNKNOWN",
+    "rows": "Rows in Section 144 are labeled A-T, U-W",
+    "entrance_row": "An entrance to this section is located at Row W",
+    "seat_direction": "Boilerplate (\"Row Numbers\" block): \"When looking towards the field/stage, lower number seats are on the right\" | Per-section \"Seating and Ticket Q&A\" answer: \"In Section 144 there 8 seats in each row of seating. As you face the field, Seat 1 is on the aisle at the left side of the row (closer to home plate), while Seat 8 is on the right side of the row (closer to the right field corner).\" This CONTRADICTS the boilerplate above.",
+    "seats_per_row": "Q&A: \"In Section 144 there 8 seats in each row of seating.\"",
+    "notes": "Section Insights: \"Rows N & Above - Covered\" Section Insights: \"Rows A-T, U-W\" Seating Notes: \"Rows N and above are under cover\" CONTRADICTION: the park-wide boilerplate says \"lower number seats are on the right\", but this page's own \"Seating and Ticket Q&A\" says \"As you face the field, Seat 1 is on the aisle at the left side of the row (closer to home plate), while Seat 8 is on the right side of the row (closer to the right field corner).\" The two directly disagree. Recorded as found; not reconciled. The Q&A places Seat 1 toward home plate for this even (first base / right field side) section, consistent with a centre-out numbering scheme rather than a single park-wide sweep.",
+    "source": "https://www.rateyourseats.com/uniqlo-field-at-dodger-stadium/seating/sections/144"
+  },
+  {
+    "section": "145",
+    "zone": "Loge Level",
+    "location": "UNKNOWN",
+    "rows": "Rows in Section 145 are labeled A-T, U-W",
+    "entrance_row": "An entrance to this section is located at Row W",
+    "seat_direction": "Boilerplate (\"Row Numbers\" block): \"When looking towards the field/stage, lower number seats are on the right\"",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights: \"Top Pick for Kids and Family\" Section Insights: \"Rows N & Above - Covered\" Section Insights: \"Rows in Section 145 are labeled A-T, U-W\" Seating Notes: \"For baseball games, we recommend these seats for kids and family\" Seating Notes: \"Rows N and above are under cover\" Seating Notes: \"Wheelchair seating is available behind Row T\" No questions/Q&A block on the page.",
+    "source": "https://www.rateyourseats.com/uniqlo-field-at-dodger-stadium/seating/sections/145"
+  },
+  {
+    "section": "146",
+    "zone": "Loge Level",
+    "location": "UNKNOWN",
+    "rows": "Rows in Section 146 are labeled A-T, U-W",
+    "entrance_row": "An entrance to this section is located at Row W",
+    "seat_direction": "Boilerplate (\"Row Numbers\" block): \"When looking towards the field/stage, lower number seats are on the right\"",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights: \"Rows N & Above - Covered\" Section Insights: \"Rows A-T, U-W\" Seating Notes: \"Rows N and above are under cover\" No questions/Q&A block on the page. An earlier extraction pass echoed the boilerplate line as if it were a per-section answer; a targeted re-check confirmed there is no per-section seat-side statement here.",
+    "source": "https://www.rateyourseats.com/uniqlo-field-at-dodger-stadium/seating/sections/146"
+  },
+  {
+    "section": "147",
+    "zone": "Loge Level",
+    "location": "UNKNOWN",
+    "rows": "Rows in Section 147 are labeled A-T, U-W",
+    "entrance_row": "An entrance to this section is located at Row W",
+    "seat_direction": "Boilerplate (\"Row Numbers\" block): \"When looking towards the field/stage, lower number seats are on the right\"",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights: \"Top Pick for Kids and Family\" Section Insights: \"Rows N & Above - Covered\" Section Insights: \"Rows A-T, U-W\" Seating Notes: \"For baseball games, we recommend these seats for kids and family\" Seating Notes: \"Rows N and above are under cover\" No questions/Q&A block on the page.",
+    "source": "https://www.rateyourseats.com/uniqlo-field-at-dodger-stadium/seating/sections/147"
+  },
+  {
+    "section": "148",
+    "zone": "Loge Level",
+    "location": "UNKNOWN",
+    "rows": "Rows in Section 148 are labeled A-T, U-W",
+    "entrance_row": "An entrance to this section is located at Row W",
+    "seat_direction": "Boilerplate (\"Row Numbers\" block): \"When looking towards the field/stage, lower number seats are on the right\"",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights: \"Rows N & Above - Covered\" Section Insights: \"Rows A-T, U-W\" Seating Notes: \"Rows N and above are under cover\" Seating Notes: \"Wheelchair seating is available behind Row T\" No questions/Q&A block on the page.",
+    "source": "https://www.rateyourseats.com/uniqlo-field-at-dodger-stadium/seating/sections/148"
+  },
+  {
+    "section": "149",
+    "zone": "Loge Level",
+    "location": "UNKNOWN",
+    "rows": "Rows in Section 149 are labeled A-T, U-W",
+    "entrance_row": "An entrance to this section is located at Row W",
+    "seat_direction": "Boilerplate (\"Row Numbers\" block): \"When looking towards the field/stage, lower number seats are on the right\"",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights: \"Top Pick for Kids and Family\" Section Insights: \"Rows N & Above - Covered\" Seating Notes: \"For baseball games, we recommend these seats for kids and family\" Seating Notes: \"Rows N and above are under cover\" Seating Notes: \"Wheelchair seating is available behind Row T\" No questions/Q&A block on the page.",
+    "source": "https://www.rateyourseats.com/uniqlo-field-at-dodger-stadium/seating/sections/149"
+  },
+  {
+    "section": "150",
+    "zone": "Loge Level",
+    "location": "UNKNOWN",
+    "rows": "Rows in Section 150 are labeled A-T, U-W",
+    "entrance_row": "An entrance to this section is located at Row W",
+    "seat_direction": "Boilerplate (\"Row Numbers\" block): \"When looking towards the field/stage, lower number seats are on the right\"",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights: \"Rows N & Above - Covered\" Section Insights: \"Rows A-T, U-W\" Seating Notes: \"Rows N and above are under cover\" Seating Notes: \"Wheelchair seating is available behind Row T\" No questions/Q&A block on the page.",
+    "source": "https://www.rateyourseats.com/uniqlo-field-at-dodger-stadium/seating/sections/150"
+  },
+  {
+    "section": "151",
+    "zone": "Loge Level",
+    "location": "UNKNOWN",
+    "rows": "Rows in Section 151 are labeled A-T, U-W",
+    "entrance_row": "An entrance to this section is located at Row W",
+    "seat_direction": "Boilerplate (\"Row Numbers\" block): \"When looking towards the field/stage, lower number seats are on the right\"",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights: \"Top Pick for Kids and Family\" Section Insights: \"Rows N & Above - Covered\" Section Insights: \"Rows A-T, U-W\" Seating Notes: \"For baseball games, we recommend these seats for kids and family\" Seating Notes: \"Rows N and above are under cover\" No questions/Q&A block on the page.",
+    "source": "https://www.rateyourseats.com/uniqlo-field-at-dodger-stadium/seating/sections/151"
+  },
+  {
+    "section": "152",
+    "zone": "Loge Level",
+    "location": "UNKNOWN",
+    "rows": "Rows in Section 152 are labeled A-T, U-W",
+    "entrance_row": "An entrance to this section is located at Row W",
+    "seat_direction": "Boilerplate (\"Row Numbers\" block): \"When looking towards the field/stage, lower number seats are on the right\"",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights: \"Rows N & Above - Covered\" Seating Notes: \"There is open space behind Row T\" Seating Notes: \"Rows N and above are under cover\" No questions/Q&A block on the page.",
+    "source": "https://www.rateyourseats.com/uniqlo-field-at-dodger-stadium/seating/sections/152"
+  },
+  {
+    "section": "153",
+    "zone": "Loge Level",
+    "location": "UNKNOWN",
+    "rows": "Rows in Section 153 are labeled A-T, U-W",
+    "entrance_row": "An entrance to this section is located at Row W",
+    "seat_direction": "Boilerplate (\"Row Numbers\" block): \"When looking towards the field/stage, lower number seats are on the right\"",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights: \"Top Pick for Kids and Family\" Section Insights: \"Rows N & Above - Covered\" Section Insights: \"Rows A-T, U-W\" Seating Notes: \"For baseball games, we recommend these seats for kids and family\" Seating Notes: \"Rows N and above are under cover\" Seating Notes: \"There is open space behind Row T\" No questions/Q&A block on the page.",
+    "source": "https://www.rateyourseats.com/uniqlo-field-at-dodger-stadium/seating/sections/153"
+  },
+  {
+    "section": "154",
+    "zone": "Loge Level",
+    "location": "UNKNOWN",
+    "rows": "Rows in Section 154 are labeled A-T, U-W",
+    "entrance_row": "An entrance to this section is located at Row W",
+    "seat_direction": "Boilerplate (\"Row Numbers\" block): \"When looking towards the field/stage, lower number seats are on the right\"",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights: \"Rows N & Above - Covered\" Section Insights: \"Rows A-T, U-W\" Seating Notes: \"Rows N and above are under cover\" Seating Notes link: \"See all shaded and covered seating\" No questions/Q&A block on the page.",
+    "source": "https://www.rateyourseats.com/uniqlo-field-at-dodger-stadium/seating/sections/154"
+  },
+  {
+    "section": "155",
+    "zone": "Loge Level",
+    "location": "UNKNOWN",
+    "rows": "Rows in Section 155 are labeled A-T, U-W",
+    "entrance_row": "An entrance to this section is located at Row W",
+    "seat_direction": "Boilerplate (\"Row Numbers\" block): \"When looking towards the field/stage, lower number seats are on the right\"",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights: \"Rows N & Above - Covered\" Seating Notes: \"There is open space behind Row T\" Seating Notes: \"Rows N and above are under cover\" No questions/Q&A block on the page.",
+    "source": "https://www.rateyourseats.com/uniqlo-field-at-dodger-stadium/seating/sections/155"
+  },
+  {
+    "section": "156",
+    "zone": "Loge Level",
+    "location": "UNKNOWN",
+    "rows": "Rows in Section 156 are labeled A-T, U-W",
+    "entrance_row": "An entrance to this section is located at Row W",
+    "seat_direction": "Boilerplate (\"Row Numbers\" block): \"When looking towards the field/stage, lower number seats are on the right\"",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights: \"Rows N & Above - Covered\" Section Insights: \"Rows A-T, U-W\" Seating Notes: \"Rows N and above are under cover\" Seating Notes: \"There is open space behind Row T\" No questions/Q&A block on the page.",
+    "source": "https://www.rateyourseats.com/uniqlo-field-at-dodger-stadium/seating/sections/156"
+  },
+  {
+    "section": "157",
+    "zone": "Loge Level; the page also calls it \"Preferred Loge Box\" / \"Section PB157\"",
+    "location": "\"Preferred Loge Box Section 157 is located down the left field line on the second tier of seating at Dodger Stadium.\" (from the page's Seating and Ticket Q&A answer)",
+    "rows": "Rows in Section 157 are labeled A-T, PB",
+    "entrance_row": "An entrance to this section is located at Row PB",
+    "seat_direction": "Boilerplate (\"Row Numbers\" block): \"When looking towards the field/stage, lower number seats are on the right\"",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights: \"Rows N & Above - Covered\" Section Insights: \"Rows A-T, PB\" Seating Notes: \"Rows N and above are under cover\" Row labels and entrance differ from neighbouring Loge sections: this page gives \"A-T, PB\" with the entrance at Row PB, where sections 141-156, 159 and 160 give \"A-T, U-W\" with the entrance at Row W. The page refers to this section as \"Preferred Loge Box\" and as \"Section PB157\", i.e. a real ticket may read PB157 rather than 157. Seating and Ticket Q&A question: \"How do I view details on Section PB157 at Dodger Stadium?\" The answer is largely site navigation instructions and includes the filter name \"Loge Level Down the Line\". It contains no seat-numbering or seats-per-row statement. Location sentence places this odd-numbered section down the LEFT field line, consistent with the project park fact that odd sections run down the third base / left field side.",
+    "source": "https://www.rateyourseats.com/uniqlo-field-at-dodger-stadium/seating/sections/157"
+  },
+  {
+    "section": "158",
+    "zone": "Loge Level; row labels and the mirror section 157 indicate the \"Preferred Loge Box\" grouping",
+    "location": "UNKNOWN",
+    "rows": "Rows in Section 158 are labeled A-T, PB",
+    "entrance_row": "An entrance to this section is located at Row PB",
+    "seat_direction": "Boilerplate (\"Row Numbers\" block): \"When looking towards the field/stage, lower number seats are on the right\" | Per-section \"Seating and Ticket Q&A\" answer to \"How many seats in Row K Loge Section 158 - Dodger Stadium?\": \"There are a total of 23 seats is Loge Section 158 Row K. As you face the field from the section, Seat 1 will be on the left and Seat 23 will be on the right.\" This CONTRADICTS the boilerplate above.",
+    "seats_per_row": "Q&A (row-specific): \"There are a total of 23 seats is Loge Section 158 Row K.\"",
+    "notes": "Section Insights: \"Rows N & Above - Covered\" Section Insights: \"Rows A-T, PB\" Seating Notes: \"Rows N and above are under cover\" Seating Notes link: \"See all shaded and covered seating\" Row labels and entrance differ from neighbouring Loge sections: \"A-T, PB\" with the entrance at Row PB, versus \"A-T, U-W\" and Row W elsewhere in this batch. CONTRADICTION: the park-wide boilerplate says \"lower number seats are on the right\", but this page's own Q&A says \"As you face the field from the section, Seat 1 will be on the left and Seat 23 will be on the right.\" The two directly disagree. Recorded as found; not reconciled. The Q&A also gives a much wider row than the 8-seat rows quoted for 141 and 144: \"There are a total of 23 seats is Loge Section 158 Row K.\" (sic - \"is\" appears in the source). No location sentence appears on this page, though its mirror 157 is described as down the left field line.",
+    "source": "https://www.rateyourseats.com/uniqlo-field-at-dodger-stadium/seating/sections/158"
+  },
+  {
+    "section": "159",
+    "zone": "Loge Level",
+    "location": "UNKNOWN",
+    "rows": "Rows in Section 159 are labeled A-T, U-W",
+    "entrance_row": "An entrance to this section is located at Row W",
+    "seat_direction": "Boilerplate (\"Row Numbers\" block): \"When looking towards the field/stage, lower number seats are on the right\"",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights: \"Rows N & Above - Covered\" Section Insights: \"Rows A-T, U-W\" Seating Notes: \"Rows N and above are under cover\" Seating Notes: \"Wheelchair seating is available behind Row T\" No questions/Q&A block on the page.",
+    "source": "https://www.rateyourseats.com/uniqlo-field-at-dodger-stadium/seating/sections/159"
+  },
+  {
+    "section": "160",
+    "zone": "Loge Level",
+    "location": "UNKNOWN",
+    "rows": "Rows in Section 160 are labeled A-T, U-W",
+    "entrance_row": "An entrance to this section is located at Row W",
+    "seat_direction": "Boilerplate (\"Row Numbers\" block): \"When looking towards the field/stage, lower number seats are on the right\"",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights / Related Seating: \"Loge Level\" Seating Notes: \"Rows N and above are under cover\" Seating Notes: \"Wheelchair seating is available behind Row T\" The page shows a \"Seating & Ticket Questions\" block, but the only entry is a question about a DIFFERENT section - \"How do I view details on Section PB157 at Dodger Stadium?\" - with no answer text on this page (only an \"All Questions & Answers\" link). It is not evidence about Section 160. Fan review states a row width that conflicts with the site's other Loge figures: \"Most loge sections are 8 or so seats wide. This row had 18 seats, which meant that seat 10 was almost smack in the middle.\" Left out of seats_per_row because it is one fan's row-specific count, not a site statement.",
+    "source": "https://www.rateyourseats.com/uniqlo-field-at-dodger-stadium/seating/sections/160"
+  }
+]
