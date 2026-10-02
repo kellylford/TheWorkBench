@@ -181,17 +181,24 @@ $archNames = @{ 0 = 'x86'; 9 = 'x64'; 12 = 'Arm64' }
 $hostArch = [int](Get-CimInstance Win32_Processor | Select-Object -First 1).Architecture
 
 if (-not $IsoPath) {
+    # An ISO kept next to the script wins, so a folder carried to another PC
+    # (on OneDrive or a USB stick) brings its ISO with it. Downloads is next.
     $downloads = Join-Path $env:USERPROFILE 'Downloads'
+    $isoFolders = @($PSScriptRoot, $downloads) | Where-Object { $_ } | Select-Object -Unique
     $downloadPage = if ($hostArch -eq 12) { 'https://www.microsoft.com/software-download/windows11arm64' } else { 'https://www.microsoft.com/software-download/windows11' }
     # Microsoft names its ISOs with the processor type, for example
     # Win11_25H2_English_x64.iso and Win11_25H2_English_Arm64.iso. Skip any whose
     # name says it's for the other kind of PC, so one Downloads folder can hold both.
     $otherArch = if ($hostArch -eq 12) { 'x64|amd64' } else { 'arm64|aarch64' }
-    $iso = Get-ChildItem -LiteralPath $downloads -Filter '*.iso' -ErrorAction SilentlyContinue |
-        Where-Object { $_.Name -match 'win' -and $_.Name -notmatch $otherArch } |
-        Sort-Object LastWriteTime -Descending | Select-Object -First 1
+    $iso = $null
+    foreach ($folder in $isoFolders) {
+        $iso = Get-ChildItem -LiteralPath $folder -Filter '*.iso' -ErrorAction SilentlyContinue |
+            Where-Object { $_.Name -match 'win' -and $_.Name -notmatch $otherArch } |
+            Sort-Object LastWriteTime -Descending | Select-Object -First 1
+        if ($iso) { break }
+    }
     if (-not $iso) {
-        throw "No $($archNames[$hostArch]) Windows ISO found in $downloads. Download one from $downloadPage and run the script again, or pass its location with -IsoPath."
+        throw "No $($archNames[$hostArch]) Windows ISO found in $($isoFolders -join ' or '). Download one from $downloadPage and run the script again, or pass its location with -IsoPath."
     }
     $IsoPath = $iso.FullName
 }

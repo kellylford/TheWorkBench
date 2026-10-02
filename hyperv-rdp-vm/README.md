@@ -27,7 +27,9 @@ bars.
   PCs, Arm64 on Arm PCs. They're on
   [the x64 download page](https://www.microsoft.com/software-download/windows11)
   and [the Arm64 download page](https://www.microsoft.com/software-download/windows11arm64).
-  Put it in your Downloads folder and the script finds it on its own. The same
+  Put it in the same folder as the script, or in your Downloads folder, and
+  the script finds it on its own. The script's folder is checked first, so a
+  folder copied to another PC brings its ISO with it. The same
   script works on both kinds of PC: it reads the processor type and sets up the
   VM to match. If Downloads holds both kinds of ISO, it skips the one whose
   file name says it's for the other processor.
@@ -81,7 +83,7 @@ Start-VM Win11-RDP
 
 | Option            | Default                | What it does                                   |
 |-------------------|------------------------|------------------------------------------------|
-| `-IsoPath`        | newest Windows ISO in Downloads for this PC's processor | The Windows ISO to install from |
+| `-IsoPath`        | newest Windows ISO for this PC's processor in the script's own folder, then in Downloads | The Windows ISO to install from |
 | `-VMName`         | Win11-RDP              | VM name, and the computer name (15 characters) |
 | `-Edition`        | Windows 11 Pro         | Edition inside the ISO. Home is refused.       |
 | `-UserName`       | vmuser                 | Windows account name                           |
