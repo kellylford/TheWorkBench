@@ -36,6 +36,16 @@ public static class NewVmScript
     /// * ? [ ] as wildcards.</summary>
     public static bool HasForbiddenCharacters(string name) => name.IndexOfAny(['\\', '/', ':', '*', '?', '"', '<', '>', '|', '[', ']']) >= 0;
 
+    /// <summary>Why a name can't be a VM's, or null if it can. It becomes folder and file names,
+    /// which can't be "." or "..", or end in a dot or space.</summary>
+    public static string? NameProblem(string name)
+    {
+        if (name.Length == 0) return "Give the VM a name.";
+        if (HasForbiddenCharacters(name)) return "The name can't contain any of these: \\ / : * ? \" < > | [ ]";
+        if (name.EndsWith('.') || name.EndsWith(' ')) return "The name can't end with a dot or a space.";
+        return null;
+    }
+
     /// <summary>
     /// The PowerShell command that runs the script with these options: every value a quoted
     /// literal, so nothing typed into the form can be read as code. Empty text fields are left
@@ -87,8 +97,10 @@ public static class NewVmScript
         $name = {{Ps.Quote(vmName)}}
         $iso = {{Ps.Quote(isoPath)}}
         $vhd = {{Ps.Quote(vhdPath)}}
-        if ($iso) { Dismount-DiskImage -ImagePath $iso -ErrorAction SilentlyContinue | Out-Null }
-        Dismount-VHD -Path $vhd -ErrorAction SilentlyContinue
+        # Each in its own try: the runner stops on errors, and a dismount of something already
+        # dismounted mustn't skip the rest.
+        if ($iso) { try { Dismount-DiskImage -ImagePath $iso -ErrorAction Stop | Out-Null } catch { } }
+        try { Dismount-VHD -Path $vhd -ErrorAction Stop } catch { }
         if (Get-VM | Where-Object Name -eq $name) {
             "The virtual machine $name had already been created. Delete it from the list if you don't want it."
         } elseif (Test-Path -LiteralPath $vhd) {
@@ -156,7 +168,8 @@ public static class NewVmScript
             }
             catch (OperationCanceledException)
             {
-                try { process.Kill(entireProcessTree: true); } catch (InvalidOperationException) { }
+                // Whatever the kill reports, the cleanup still has to run.
+                try { process.Kill(entireProcessTree: true); } catch (Exception) { }
                 process.WaitForExit();
                 onLine("Stopped. Cleaning up what the build had made so far.");
                 try

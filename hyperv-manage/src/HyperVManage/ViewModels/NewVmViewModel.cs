@@ -88,8 +88,10 @@ public sealed partial class NewVmViewModel : ObservableObject
         // The ISO is always passed explicitly, so a stopped build knows which one to dismount.
         if (iso.Length == 0) iso = IsoFinder.FindNewest(IsoFinder.DownloadsFolder, IsoFinder.HostIsArm64) ?? "";
 
-        if (name.Length == 0) problem = "Give the VM a name.";
-        else if (NewVmScript.HasForbiddenCharacters(name)) problem = "The name can't contain any of these: \\ / : * ? \" < > | [ ]";
+        // The script mounts the full path, so the cleanup after a stop must dismount that same path.
+        if (iso.Length > 0) { try { iso = System.IO.Path.GetFullPath(iso); } catch (Exception) { } }
+
+        if (NewVmScript.NameProblem(name) is { } nameProblem) problem = nameProblem;
         else if (RemoteDesktop.ComputerName(name).Length == 0) problem = "The name needs at least one letter or digit, since Windows names the computer after it.";
         else if (iso.Length == 0) problem = "There's no Windows ISO in your Downloads folder. Choose one with Browse.";
         else if (!System.IO.File.Exists(iso)) problem = $"Can't find the ISO {iso}.";

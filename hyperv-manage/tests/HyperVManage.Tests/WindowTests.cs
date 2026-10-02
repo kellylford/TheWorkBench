@@ -11,14 +11,32 @@ using Xunit;
 
 namespace HyperVManage.Tests;
 
+/// <summary>
+/// WPF allows one Application per process, and the windows need it for their resources. Every test
+/// that opens a window is in this one collection, so they never run at once and race to make it.
+/// </summary>
+[CollectionDefinition("Wpf", DisableParallelization = true)]
+public sealed class WpfCollection;
+
+public static class TestApp
+{
+    private static readonly object Gate = new();
+
+    public static void Ensure()
+    {
+        lock (Gate)
+        {
+            if (Application.Current is null) _ = new Application { ShutdownMode = ShutdownMode.OnExplicitShutdown };
+            Application.Current!.Resources["BoolToVisibility"] = new BooleanToVisibilityConverter();
+        }
+    }
+}
+
 /// <summary>Real windows, loaded and shown off-screen against the demo backend.</summary>
+[Collection("Wpf")]
 public class WindowTests
 {
-    private static void EnsureApp()
-    {
-        if (Application.Current is null) _ = new Application { ShutdownMode = ShutdownMode.OnExplicitShutdown };
-        Application.Current!.Resources["BoolToVisibility"] = new BooleanToVisibilityConverter();
-    }
+    private static void EnsureApp() => TestApp.Ensure();
 
     private static void Pump()
     {

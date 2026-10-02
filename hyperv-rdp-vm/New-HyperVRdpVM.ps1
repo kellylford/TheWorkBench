@@ -176,10 +176,14 @@ if ($Remove) {
         $address = Get-Content -LiteralPath $rdpFile | Where-Object { $_ -like 'full address:s:*' } |
             Select-Object -First 1 | ForEach-Object { $_.Substring(15) }
         $ours = @("$ComputerName.local", $ComputerName, "$ComputerName.mshome.net") + $ips
-        if ($address -and ($ours -contains $address)) {
+        # This script writes "username:s:<computer>\<user>", which marks the file as this VM's
+        # even when the VM is off and has no address to compare.
+        $madeForIt = [bool](Get-Content -LiteralPath $rdpFile | Where-Object { $_ -like "username:s:$ComputerName\*" })
+        if ($address -and (($ours -contains $address) -or $madeForIt)) {
             cmdkey /delete:"TERMSRV/$address" | Out-Null
             Say "Deleting $rdpFile and its saved sign-in."
-            Remove-Item -LiteralPath $rdpFile -Force
+            try { Remove-Item -LiteralPath $rdpFile -Force -ErrorAction Stop }
+            catch { Say "Couldn't delete $rdpFile. $($_.Exception.Message)" }
         } else {
             Say "Keeping $rdpFile, which connects to $address rather than this VM."
         }
@@ -245,7 +249,10 @@ if ($SwitchName) {
             throw "Can't find the network adapter this PC uses for the internet, so the VM can't join your network. Connect to a network and run the script again, or run it with -HostOnly to make a VM only this PC can reach."
         }
         $SwitchName = 'External Network'
-        if (Get-VMSwitch -Name $SwitchName -ErrorAction SilentlyContinue) {
+        $taken = Get-VMSwitch -Name $SwitchName -ErrorAction SilentlyContinue
+        if ($taken -and $taken.SwitchType -eq 'External') {
+            throw "The switch '$SwitchName' is on a network adapter that isn't connected ($($taken.NetAdapterInterfaceDescription)). Connect it, for example by docking the PC, or pass another switch with -SwitchName, or use -HostOnly."
+        } elseif ($taken) {
             throw "A Hyper-V switch named '$SwitchName' already exists but isn't an external switch. Rename it, or pass a switch with -SwitchName."
         }
     }

@@ -119,13 +119,16 @@ public sealed partial class VmSettingsViewModel : ObservableObject
             Error = $"Processors must be a whole number from 1 to {Environment.ProcessorCount}, the number this PC has.";
             return null;
         }
-        if (!double.TryParse(MemoryGB.Trim(), out var gb) || gb < 0.5 || gb > 1024)
+        var memoryEdited = MemoryGB.Trim() != _memoryAsLoaded;
+        var gb = 0.0;
+        if (memoryEdited && (!double.TryParse(MemoryGB.Trim(), out gb) || gb < 0.5 || gb > 1024))
         {
+            // Only a value the user typed is checked: a VM made with less is still saveable.
             Error = "Memory must be a number of gigabytes, at least 0.5.";
             return null;
         }
         // Hyper-V wants startup memory in whole multiples of 2 MB.
-        var mb = MemoryGB.Trim() == _memoryAsLoaded ? _current.MemoryStartupMB : (long)Math.Round(gb * 1024 / 2) * 2;
+        var mb = memoryEdited ? (long)Math.Round(gb * 1024 / 2) * 2 : _current.MemoryStartupMB;
         Error = "";
         // No list to choose from (it couldn't be read) means no change to the network.
         return new VmSettings(cpus, mb, DynamicMemory, _switchesLoaded && SelectedSwitch is not null ? SelectedSwitch.Name : _current.SwitchName,

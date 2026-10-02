@@ -92,9 +92,14 @@ public static class RemoteDesktop
     /// </summary>
     public static bool FileConnectsTo(IEnumerable<string> rdpLines, string vmName, IReadOnlyList<string> addresses)
     {
-        var address = rdpLines.FirstOrDefault(l => l.StartsWith("full address:s:", StringComparison.OrdinalIgnoreCase))?[15..].Trim();
+        var lines = rdpLines.ToList();
+        var address = lines.FirstOrDefault(l => l.StartsWith("full address:s:", StringComparison.OrdinalIgnoreCase))?[15..].Trim();
         if (string.IsNullOrEmpty(address)) return false;
         var computer = ComputerName(vmName);
+        // The script writes "username:s:<computer>\<user>", which marks its file even when the VM's
+        // address has changed since.
+        if (computer.Length > 0 && lines.Any(l => l.StartsWith($"username:s:{computer}\\", StringComparison.OrdinalIgnoreCase)))
+            return true;
         var ours = new[] { $"{computer}.local", computer, $"{computer}.mshome.net" }.Concat(addresses);
         return ours.Any(o => o.Length > 0 && string.Equals(o, address, StringComparison.OrdinalIgnoreCase));
     }

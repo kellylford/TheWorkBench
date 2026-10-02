@@ -53,15 +53,17 @@
                 </Grid>
 
                 <GroupBox Header="Network" Padding="8" Margin="0,10,0,0" AutomationProperties.Name="Network">
-                    <!-- One tab stop; the arrows move between the two and choose as they go. -->
-                    <!-- One tab stop: only the chosen button is a stop, so Tab or Shift+Tab into the
-                         group lands on the choice already made and never changes it. The arrows move
-                         between the two and choose as they go. -->
-                    <StackPanel KeyboardNavigation.DirectionalNavigation="Cycle">
-                        <RadioButton GroupName="Network" IsChecked="{Binding OnYourNetwork}" IsTabStop="{Binding OnYourNetwork}" GotKeyboardFocus="Radio_GotKeyboardFocus"
+                    <!-- One tab stop; the arrows move between the two and choose as they go.
+                         Don't bind IsTabStop to IsChecked to steer Tab: WPF's arrow navigation skips
+                         non-tab-stops too, which leaves the other choice unreachable from the keyboard.
+                         NetworkGroup_PreviewGotKeyboardFocus steers Tab to the chosen button instead. -->
+                    <StackPanel x:Name="NetworkGroup"
+                                KeyboardNavigation.TabNavigation="Once" KeyboardNavigation.DirectionalNavigation="Cycle"
+                                PreviewGotKeyboardFocus="NetworkGroup_PreviewGotKeyboardFocus">
+                        <RadioButton x:Name="YourNetworkRadio" GroupName="Network" IsChecked="{Binding OnYourNetwork}" GotKeyboardFocus="Radio_GotKeyboardFocus"
                                      Content="Your network: other computers can connect (recommended)"
                                      ToolTip="Uses an external switch, creating one if there isn't one yet. This PC's connection drops for a few seconds when it is created."/>
-                        <RadioButton GroupName="Network" IsChecked="{Binding HostOnly}" IsTabStop="{Binding HostOnly}" GotKeyboardFocus="Radio_GotKeyboardFocus" Margin="0,4,0,0"
+                        <RadioButton x:Name="HostOnlyRadio" GroupName="Network" IsChecked="{Binding HostOnly}" GotKeyboardFocus="Radio_GotKeyboardFocus" Margin="0,4,0,0"
                                      Content="This PC only (Default Switch)"/>
                     </StackPanel>
                 </GroupBox>

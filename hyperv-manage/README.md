@@ -126,6 +126,10 @@ Tests:
 dotnet test tests\HyperVManage.Tests
 ```
 
+One test presses real keys at a real window, checking that the arrow keys move between the
+network choices in New Virtual Machine and that Tab into them never changes the choice. It takes
+focus from whatever else is on screen, so it only runs with `HYPERVMANAGE_RUN_INPUT_TESTS=1` set.
+
 ## How it is put together
 
 ```

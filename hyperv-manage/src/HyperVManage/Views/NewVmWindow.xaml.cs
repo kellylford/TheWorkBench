@@ -78,6 +78,20 @@ public partial class NewVmWindow : Window
         if (sender is RadioButton rb && rb.IsChecked != true) rb.IsChecked = true;
     }
 
+    // Tab or Shift+Tab into the group must land on the choice already made. WPF lands on the
+    // first or last radio, and with selection following focus that would quietly change the
+    // choice, so focus arriving from outside on an unchosen radio is sent to the chosen one.
+    // Arrowing within the group is untouched.
+    private void NetworkGroup_PreviewGotKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e)
+    {
+        var fromOutside = e.OldFocus is not DependencyObject old || !NetworkGroup.IsAncestorOf(old);
+        if (!fromOutside || e.NewFocus is not RadioButton { IsChecked: not true }) return;
+        var chosen = NetworkGroup.Children.OfType<RadioButton>().FirstOrDefault(r => r.IsChecked == true);
+        if (chosen is null) return;
+        e.Handled = true; // cancels this focus change
+        Dispatcher.BeginInvoke(() => chosen.Focus(), System.Windows.Threading.DispatcherPriority.Input);
+    }
+
     private void Browse_Click(object sender, RoutedEventArgs e)
     {
         var dialog = new OpenFileDialog
@@ -104,6 +118,13 @@ public partial class NewVmWindow : Window
                 "that VM is left in the list for you to delete.",
                 "Stop building the VM?", MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No);
             if (answer != MessageBoxResult.Yes) return;
+            if (!_vm.IsRunning)
+            {
+                // It finished while the question was up: nothing to stop, so just close.
+                e.Cancel = false;
+                base.OnClosing(e);
+                return;
+            }
             _closeWhenStopped = true;
             _vm.Stop();
             return;

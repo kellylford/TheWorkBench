@@ -116,7 +116,7 @@ public sealed class PowerShellHyperVService : IHyperVService
         $newName = {{Ps.Quote(newName)}}
         # Where-Object, not Get-VM -Name, which would read [ ] * ? in a name as wildcards.
         if (Get-VM | Where-Object Name -eq $newName) { throw "There is already a VM named $newName." }
-        if ($vm.State -notin 'Off', 'Saved') { throw "Shut down or save $($vm.Name) first. A copy of a running VM would join the network as a second machine with the same name." }
+        if ($vm.State -notin 'Off', 'Saved') { throw "Shut down or save $($vm.Name) first, so the copy is taken from a VM that isn't changing." }
         $vmHost = Get-VMHost
         $vmFolder = Join-Path $vmHost.VirtualMachinePath $newName
         $diskFolder = Join-Path $vmHost.VirtualHardDiskPath $newName
@@ -142,11 +142,24 @@ public sealed class PowerShellHyperVService : IHyperVService
 
     public async Task<IReadOnlyList<string>> GetDiskPathsAsync(string vmId, CancellationToken ct = default)
     {
-        var output = await PowerShellRunner.RunAsync(GetVm(vmId) +
-            "ConvertTo-Json -InputObject @(Get-VMHardDiskDrive -VM $vm | ForEach-Object { [string]$_.Path } | Where-Object { $_ }) -Compress", ct)
-            .ConfigureAwait(false);
+        var output = await PowerShellRunner.RunAsync(GetVm(vmId) + DiskPathsScript, ct).ConfigureAwait(false);
         return ParseStringList(output);
     }
+
+    // With checkpoints, a VM's attached disk is a checkpoint's .avhdx. Delete merges checkpoints
+    // first, so the file that actually goes is the .vhdx at the end of that chain: name that one.
+    internal const string DiskPathsScript = """
+        $paths = @(Get-VMHardDiskDrive -VM $vm | ForEach-Object {
+            $p = [string]$_.Path
+            while ($p -and $p -like '*.avhdx') {
+                $parent = (Get-VHD -Path $p -ErrorAction SilentlyContinue).ParentPath
+                if (-not $parent) { break }
+                $p = $parent
+            }
+            $p
+        } | Where-Object { $_ })
+        ConvertTo-Json -InputObject $paths -Compress
+        """;
 
     internal static IReadOnlyList<string> ParseStringList(string json)
     {
@@ -203,10 +216,13 @@ public sealed class PowerShellHyperVService : IHyperVService
             $address = Get-Content -LiteralPath $rdp | Where-Object { $_ -like 'full address:s:*' } |
                 Select-Object -First 1 | ForEach-Object { $_.Substring(15) }
             $ours = @("$computer.local", $computer, "$computer.mshome.net") + $ips
-            if ($address -and ($ours -contains $address)) {
+            # The script writes "username:s:<computer>\<user>". That identifies its file even when
+            # the VM is off, has no address to compare, or its address has changed since.
+            $madeForIt = [bool](Get-Content -LiteralPath $rdp | Where-Object { $_ -like "username:s:$computer\*" })
+            if ($address -and (($ours -contains $address) -or $madeForIt)) {
                 cmdkey /delete:"TERMSRV/$address" | Out-Null
-                Remove-Item -LiteralPath $rdp -Force
-                $deleted += $rdp
+                try { Remove-Item -LiteralPath $rdp -Force -ErrorAction Stop; $deleted += $rdp }
+                catch { $failed += "$rdp ($($_.Exception.Message))" }
             } else {
                 $kept += "$rdp, which connects to $address rather than this VM"
             }

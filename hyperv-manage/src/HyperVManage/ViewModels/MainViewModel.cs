@@ -212,6 +212,12 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         var vm = Selected!;
         var name = RequestCloneName?.Invoke(vm)?.Trim();
         if (string.IsNullOrEmpty(name)) return Task.CompletedTask;
+        if (NewVmScript.NameProblem(name) is { } problem)
+        {
+            StatusText = problem;
+            Announce?.Invoke(problem);
+            return Task.CompletedTask;
+        }
         return RunAsync(vm, $"Cloning {vm.Name} as {name}. This copies the whole disk and can take several minutes.",
             v => _hyperV.CloneAsync(v.Id, name), v => $"{name} is ready, a copy of {v.Name}.");
     }
