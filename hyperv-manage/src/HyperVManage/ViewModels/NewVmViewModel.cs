@@ -101,7 +101,7 @@ public sealed partial class NewVmViewModel : ObservableObject
         if (NewVmScript.NameProblem(name) is { } nameProblem) problem = nameProblem;
         else if (computer.Length == 0) problem = "The name needs at least one letter or digit, since Windows names the computer after it.";
         else if (computer.All(char.IsAsciiDigit)) problem = "The name needs at least one letter: Windows can't use a computer name made only of digits.";
-        else if (user.Length > 20 || user.IndexOfAny(['"', '/', '\\', '[', ']', ':', ';', '|', '=', ',', '+', '*', '?', '<', '>', '@']) >= 0)
+        else if (user.Length > 20 || (user.Length > 0 && user.Trim('.', ' ').Length == 0) || user.IndexOfAny(['"', '/', '\\', '[', ']', ':', ';', '|', '=', ',', '+', '*', '?', '<', '>', '@']) >= 0)
             problem = "Windows can't use that user name. Use up to 20 letters, digits, spaces, dots, hyphens or underscores.";
         else if (Password.Contains('"')) problem = "The password can't contain a double quote (\").";
         else if (iso.Length == 0) problem = "There's no Windows ISO in your Downloads folder. Choose one with Browse.";

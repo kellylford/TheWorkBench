@@ -183,13 +183,15 @@ public sealed class PowerShellHyperVService : IHyperVService
     /// and its saved sign-in go only when the file connects to this VM, by its name or address;
     /// a file that merely shares the VM's name belongs to something else. The VM's computer name
     /// is worked out by the script's own lines, taken from the embedded script, so the file the
-    /// script made is always recognised. Folders named after the VM under Hyper-V's VM and disk
-    /// folders, which Clone makes, go too once nothing is left in them.
+    /// script made is always recognised, as is one an earlier version made (its computer name was
+    /// the first 15 characters). The folders Clone makes, named after the VM under Hyper-V's VM and
+    /// disk folders, go too once nothing is left in them, but only when this VM's configuration or
+    /// one of its disks was in them, so an unrelated folder that happens to share the name stays.
     /// </summary>
     internal static string BuildDeleteScript(string vmId) => GetVm(vmId) + "$VMName = $vm.Name\n" + NewVmScript.ComputerNameRule() + """
 
         $name = $vm.Name
-        $computer = $ComputerName
+        $names = @($ComputerName, $LegacyComputerName) | Select-Object -Unique
         $ips = @(Get-VMNetworkAdapter -VM $vm | ForEach-Object { $_.IPAddresses })
         if ($vm.State -ne 'Off') { Stop-VM -VM $vm -TurnOff -Force }
         Get-VMSnapshot -VM $vm -ErrorAction SilentlyContinue | Remove-VMSnapshot -IncludeAllChildSnapshots -ErrorAction SilentlyContinue
@@ -208,7 +210,14 @@ public sealed class PowerShellHyperVService : IHyperVService
         }
         $deleted = @(); $kept = @(); $failed = @()
         $vmHost = Get-VMHost
-        $nameFolders = @((Join-Path $vmHost.VirtualMachinePath $name), (Join-Path $vmHost.VirtualHardDiskPath $name))
+        function Test-Inside([string]$child, [string]$parent) {
+            $child -and $child.TrimEnd('\').StartsWith($parent.TrimEnd('\') + '\', [StringComparison]::OrdinalIgnoreCase)
+        }
+        $nameFolders = @()
+        $vmFolder = Join-Path $vmHost.VirtualMachinePath $name
+        if (Test-Inside $vm.ConfigurationLocation $vmFolder) { $nameFolders += $vmFolder }
+        $diskFolder = Join-Path $vmHost.VirtualHardDiskPath $name
+        if ($disks | Where-Object { Test-Inside $_ $diskFolder }) { $nameFolders += $diskFolder }
         Remove-VM -VM $vm -Force
         foreach ($d in $disks) {
             if (-not $d) { continue }
@@ -220,10 +229,10 @@ public sealed class PowerShellHyperVService : IHyperVService
         if (Test-Path -LiteralPath $rdp) {
             $address = Get-Content -LiteralPath $rdp | Where-Object { $_ -like 'full address:s:*' } |
                 Select-Object -First 1 | ForEach-Object { $_.Substring(15) }
-            $ours = @("$computer.local", $computer, "$computer.mshome.net") + $ips
+            $ours = @($names | ForEach-Object { "$_.local"; $_; "$_.mshome.net" }) + $ips
             # The script writes "username:s:<computer>\<user>". That identifies its file even when
             # the VM is off, has no address to compare, or its address has changed since.
-            $madeForIt = [bool](Get-Content -LiteralPath $rdp | Where-Object { $_ -like "username:s:$computer\*" })
+            $madeForIt = [bool](Get-Content -LiteralPath $rdp | Where-Object { $line = $_; $names | Where-Object { $line -like "username:s:$_\*" } })
             if ($address -and (($ours -contains $address) -or $madeForIt)) {
                 cmdkey /delete:"TERMSRV/$address" | Out-Null
                 try { Remove-Item -LiteralPath $rdp -Force -ErrorAction Stop; $deleted += $rdp }

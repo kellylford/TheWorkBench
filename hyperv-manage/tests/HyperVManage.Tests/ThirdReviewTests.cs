@@ -16,7 +16,7 @@ public class ThirdReviewTests
         // computer name and left the script's connection file and saved sign-in behind.
         var delete = PowerShellHyperVService.BuildDeleteScript("id");
         Assert.Contains(NewVmScript.ComputerNameRule(), delete);
-        Assert.Contains("$computer = $ComputerName", delete);
+        Assert.Contains("$names = @($ComputerName, $LegacyComputerName)", delete);
         Assert.DoesNotContain("$computer.Substring(0, 15)", delete);
     }
 
@@ -32,12 +32,36 @@ public class ThirdReviewTests
     }
 
     [Fact]
-    public void Delete_RemovesOnlyEmptyFoldersNamedAfterTheVm()
+    public void Delete_RemovesOnlyEmptyFoldersThatHeldThisVm()
     {
         var delete = PowerShellHyperVService.BuildDeleteScript("id");
         Assert.Contains("Join-Path $vmHost.VirtualMachinePath $name", delete);
         Assert.Contains("Join-Path $vmHost.VirtualHardDiskPath $name", delete);
-        Assert.Contains("-Recurse -File -Force", delete); // nothing is removed while a file is left
+        Assert.Contains("Test-Inside $vm.ConfigurationLocation $vmFolder", delete); // only if this VM lived there
+        Assert.Contains("Test-Inside $_ $diskFolder", delete);                     // or one of its disks did
+        Assert.Contains("-Recurse -File -Force", delete);                          // and nothing is left in it
+    }
+
+    [Fact]
+    public void AVmMadeByAnEarlierVersion_IsStillRecognisedByItsFile()
+    {
+        // Earlier versions took the first 15 characters: SURFACEPRO7-Win11 became SURFACEPRO7-Win.
+        Assert.Equal("SURFACEPRO7-Win", RemoteDesktop.LegacyComputerName("SURFACEPRO7-Win11"));
+        Assert.True(RemoteDesktop.FileConnectsTo(["full address:s:SURFACEPRO7-Win.local", @"username:s:SURFACEPRO7-Win\vmuser"], "SURFACEPRO7-Win11", []));
+        var script = File.ReadAllText(Path.Combine(ScriptBuildingTests.RepoRoot(), "hyperv-rdp-vm", "New-HyperVRdpVM.ps1"));
+        Assert.Contains("$LegacyComputerName", script);
+        Assert.Contains("$LegacyComputerName", PowerShellHyperVService.BuildDeleteScript("id"));
+    }
+
+    [Theory]
+    [InlineData("...")]
+    [InlineData(" . ")]
+    public void NewVm_RefusesAUserNameOfOnlyDotsAndSpaces(string user)
+    {
+        var iso = Path.Combine(Path.GetTempPath(), "hvm-test-win.iso");
+        if (!File.Exists(iso)) File.WriteAllText(iso, "");
+        var n = new NewVmViewModel([]) { VmName = "Lab", UserName = user, IsoPath = iso, Processors = "1", MemoryGB = "2", DiskGB = "64" };
+        Assert.Null(n.Validate());
     }
 
     [Fact]
@@ -87,27 +111,32 @@ public class ThirdReviewTests
         .IsInRole(System.Security.Principal.WindowsBuiltInRole.Administrator);
 
     [Fact(Skip = "Needs administrator rights, as the app has.", SkipUnless = nameof(IsAdmin))]
-    public void TheScriptsFolder_OnlyAdministratorsAndSystemCanChange()
+    public async Task TheAdministratorsOnlyPipe_DeliversTheScriptToElevatedPowerShell()
     {
-        var programData = Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData);
-        var top = Path.Combine(programData, $"HyperVManage-test-{Guid.NewGuid():N}");
-        var run = Path.Combine(top, "Run");
-        try
-        {
-            // Made first with the ordinary inherited permissions, as someone else could have.
-            Directory.CreateDirectory(run);
-            AdminOnlyFolder.Ensure(programData, run);
-            foreach (var folder in new[] { top, run })
-            {
-                var acl = new DirectoryInfo(folder).GetAccessControl();
-                Assert.True(acl.AreAccessRulesProtected, $"{folder} still inherits");
-                var who = acl.GetAccessRules(true, true, typeof(System.Security.Principal.SecurityIdentifier))
-                    .Cast<System.Security.AccessControl.FileSystemAccessRule>()
-                    .Select(r => ((System.Security.Principal.SecurityIdentifier)r.IdentityReference).Value).Distinct().OrderBy(s => s);
-                Assert.Equal(["S-1-5-18", "S-1-5-32-544"], who); // SYSTEM, Administrators
-            }
-        }
-        finally { Directory.Delete(top, recursive: true); }
+        // As the app runs it: no allowance for the current user, so only an elevated PowerShell
+        // can open the pipe.
+        var lines = new List<string>();
+        using var p = await NewVmScript.StartWithScriptAsync("Write-Host 'arrived through the pipe'",
+            pipe => NewVmScript.ReadScriptFromPipe(pipe) + "& ([scriptblock]::Create($scriptText))",
+            lines.Add, ct: TestContext.Current.CancellationToken);
+        await p.WaitForExitAsync(TestContext.Current.CancellationToken);
+        p.WaitForExit();
+        Assert.Equal(0, p.ExitCode);
+        Assert.Equal(["arrived through the pipe"], lines.Where(l => l.Trim().Length > 0));
+    }
+
+    [Fact]
+    public void PowerShellsXmlErrorStream_BecomesPlainLines()
+    {
+        // Captured from Windows PowerShell 5.1 with its output redirected: a progress record that
+        // must not be read out, and an error that must be, as plain text.
+        const string progress = """<Objs Version="1.1.0.1" xmlns="http://schemas.microsoft.com/powershell/2004/04"><Obj S="progress" RefId="0"><TN RefId="0"><T>System.Management.Automation.PSCustomObject</T><T>System.Object</T></TN><MS><I64 N="SourceId">1</I64><PR N="Record"><AV>Preparing modules for first use.</AV><AI>0</AI><Nil /><PI>-1</PI><PC>-1</PC><T>Completed</T><SR>-1</SR><SD> </SD></PR></MS></Obj></Objs>""";
+        const string error = """<Objs Version="1.1.0.1" xmlns="http://schemas.microsoft.com/powershell/2004/04"><S S="Error">The VM name &apos;a&lt;b&apos; can't contain any of these_x000D__x000A_</S><S S="Error">At line:3 char:1_x000D__x000A_</S></Objs>""";
+        Assert.Empty(CliXml.Lines("#< CLIXML"));
+        Assert.Empty(CliXml.Lines(progress));
+        Assert.Equal(["The VM name 'a<b' can't contain any of these", "At line:3 char:1"], CliXml.Lines(error));
+        Assert.Equal(["Step 1 of 5: Reading the ISO."], CliXml.Lines("Step 1 of 5: Reading the ISO."));
+        Assert.Equal("The VM name 'a<b' can't contain any of these\nAt line:3 char:1", CliXml.Clean("#< CLIXML\r\n" + progress + "\r\n" + error));
     }
 
     [Fact]

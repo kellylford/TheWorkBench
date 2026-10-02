@@ -17,6 +17,7 @@ public static class SystemTools
     public static string PowerShell { get; } = Path.Combine(Environment.SystemDirectory, @"WindowsPowerShell\v1.0\powershell.exe");
     public static string RemoteDesktop { get; } = Path.Combine(Environment.SystemDirectory, "mstsc.exe");
     public static string Console { get; } = Path.Combine(Environment.SystemDirectory, "vmconnect.exe");
+    public static string CredentialManager { get; } = Path.Combine(Environment.SystemDirectory, "cmdkey.exe");
 }
 
 /// <summary>
@@ -62,7 +63,8 @@ public static class PowerShellRunner
         var stderr = process.StandardError.ReadToEndAsync(ct);
         await process.WaitForExitAsync(ct).ConfigureAwait(false);
         var output = await stdout.ConfigureAwait(false);
-        var error = (await stderr.ConfigureAwait(false)).Trim();
+        // Plain text, not the XML Windows PowerShell wraps some of it in when its output is captured.
+        var error = CliXml.Clean(await stderr.ConfigureAwait(false));
 
         if (process.ExitCode != 0)
             throw new HyperVException(error.Length > 0 ? error : $"PowerShell exited with code {process.ExitCode}.");

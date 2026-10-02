@@ -122,7 +122,8 @@ public static class RemoteDesktop
     /// A desktop file of that name that belongs to something else is never overwritten, and one
     /// that already connects to this VM alone is left as it is: the script's own file carries the
     /// user name its saved sign-in is stored under. A file whose address has gone stale is
-    /// rewritten, keeping its user name line.
+    /// rewritten, keeping its user name line so Windows asks only for the password, and the
+    /// saved sign-in for the old address, which nothing will use again, is removed.
     /// </summary>
     public static async Task<SavedConnection> SaveDesktopFileAsync(string vmName, IReadOnlyList<string> addresses)
     {
@@ -137,9 +138,33 @@ public static class RemoteDesktop
         var target = await ChooseTargetAsync(vmName, addresses, ResolveAsync).ConfigureAwait(false) ?? addresses[0];
         var content = BuildRdpFile(target);
         var userLine = existing?.FirstOrDefault(l => l.StartsWith("username:s:", StringComparison.OrdinalIgnoreCase));
-        if (userLine is not null) content = userLine + "\r\n" + content;
+        if (userLine is not null)
+        {
+            // The user name is known, so Windows asks only for the password, and can remember it.
+            content = userLine + "\r\n" + content.Replace("prompt for credentials:i:1", "prompt for credentials:i:0");
+            var oldTarget = AddressIn(existing!);
+            if (!string.IsNullOrEmpty(oldTarget) && !string.Equals(oldTarget, target, StringComparison.OrdinalIgnoreCase))
+                ForgetSignIn(oldTarget);
+        }
         await File.WriteAllTextAsync(file, content, Encoding.Unicode).ConfigureAwait(false);
         return new SavedConnection(file, AlreadyThere: false);
+    }
+
+    /// <summary>Removes the sign-in Credential Manager holds for Remote Desktop to an address.</summary>
+    private static void ForgetSignIn(string address)
+    {
+        try
+        {
+            using var p = Process.Start(new ProcessStartInfo(SystemTools.CredentialManager)
+            {
+                UseShellExecute = false,
+                CreateNoWindow = true,
+                RedirectStandardOutput = true,
+                ArgumentList = { $"/delete:TERMSRV/{address}" },
+            });
+            p?.WaitForExit(5000);
+        }
+        catch (Exception) { } // Only tidying: a sign-in left behind does no harm.
     }
 
     /// <summary>Why there's nothing to connect to yet, and what to do.</summary>
@@ -173,13 +198,23 @@ public static class RemoteDesktop
         var lines = rdpLines.ToList();
         var address = AddressIn(lines);
         if (string.IsNullOrEmpty(address)) return false;
-        var computer = ComputerName(vmName);
+        // The computer name this version gives, and the one earlier versions gave, so a VM made by
+        // one of those is still recognised.
+        var computers = new[] { ComputerName(vmName), LegacyComputerName(vmName) }.Where(c => c.Length > 0).Distinct().ToList();
         // The script writes "username:s:<computer>\<user>", which marks its file even when the VM's
         // address has changed since.
-        if (computer.Length > 0 && lines.Any(l => l.StartsWith($"username:s:{computer}\\", StringComparison.OrdinalIgnoreCase)))
+        if (lines.Any(l => computers.Any(c => l.StartsWith($"username:s:{c}\\", StringComparison.OrdinalIgnoreCase))))
             return true;
-        var ours = new[] { $"{computer}.local", computer, $"{computer}.mshome.net" }.Concat(addresses);
+        var ours = computers.SelectMany(c => new[] { $"{c}.local", c, $"{c}.mshome.net" }).Concat(addresses);
         return ours.Any(o => o.Length > 0 && string.Equals(o, address, StringComparison.OrdinalIgnoreCase));
+    }
+
+    /// <summary>The computer name versions of the script before the hashed rule gave a VM: the
+    /// first 15 letters, digits and hyphens of its name. The script's $LegacyComputerName.</summary>
+    public static string LegacyComputerName(string vmName)
+    {
+        var s = new string(vmName.Where(c => char.IsAsciiLetterOrDigit(c) || c == '-').ToArray());
+        return s.Length > 15 ? s[..15] : s;
     }
 
     /// <summary>The Hyper-V console window (VMConnect). No sound reaches a screen reader through

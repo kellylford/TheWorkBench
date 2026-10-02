@@ -4,7 +4,7 @@
         Title="Keyboard shortcuts" Width="560" Height="520" MinWidth="360" MinHeight="300"
         WindowStartupLocation="CenterOwner" ShowInTaskbar="False">
     <DockPanel Margin="14">
-        <Button DockPanel.Dock="Bottom" Content="Close" IsCancel="True" IsDefault="True" MinWidth="80"
+        <Button DockPanel.Dock="Bottom" Content="Close" IsCancel="True" MinWidth="80"
                 HorizontalAlignment="Right" Margin="0,10,0,0" Click="Close_Click"/>
         <!-- One shortcut per line, and each section's heading a line of its own, so the arrow keys
              walk through them in order and a screen reader reads one at a time. -->

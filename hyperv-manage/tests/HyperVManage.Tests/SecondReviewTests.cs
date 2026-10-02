@@ -24,10 +24,10 @@ public class SecondReviewTests
     public void Delete_RecognisesTheScriptsFileTheSameWay_AndReportsAFailedRemoval()
     {
         var delete = PowerShellHyperVService.BuildDeleteScript("id");
-        Assert.Contains(@"-like ""username:s:$computer\*""", delete);
+        Assert.Contains(@"$line -like ""username:s:$_\*""", delete);
         Assert.Contains("$failed += \"$rdp", delete);
         var script = File.ReadAllText(Path.Combine(ScriptBuildingTests.RepoRoot(), "hyperv-rdp-vm", "New-HyperVRdpVM.ps1"));
-        Assert.Contains(@"-like ""username:s:$ComputerName\*""", script);
+        Assert.Contains(@"$line -like ""username:s:$_\*""", script);
     }
 
     [Fact]

@@ -289,7 +289,7 @@ public class ScriptBuildingTests
             PowerShellHyperVService.BuildDeleteScript("id"),
             PowerShellHyperVService.BuildSettingsScript("id", Current, new VmSettings(2, 2048, false, "X", "Start", true)),
             PowerShellHyperVService.BuildSettingsScript("id", Current, Current with { SwitchName = "" }),
-            NewVmScript.BuildCommand(@"C:\x\New-HyperVRdpVM.ps1", Options()),
+            NewVmScript.BuildCommand(Options(), "HyperVManage-test"),
             NewVmScript.BuildPrecheckScript("Kelly's VM", @"C:\ISOs\Kelly's.iso"),
             NewVmScript.BuildCleanupScript("Kelly's VM", @"C:\ISOs\a.iso", @"C:\VHD\Kelly's VM.vhdx"),
         };
@@ -307,8 +307,8 @@ public class ScriptBuildingTests
     [Fact]
     public void NewVmCommand_QuotesEveryValue_AndPassesSwitchesOnlyWhenSet()
     {
-        var cmd = NewVmScript.BuildCommand(@"C:\x\New-HyperVRdpVM.ps1", Options());
-        Assert.Contains("& 'C:\\x\\New-HyperVRdpVM.ps1' -VMName 'Kelly''s VM'", cmd);
+        var cmd = NewVmScript.BuildCommand(Options(), "HyperVManage-test");
+        Assert.Contains("& ([scriptblock]::Create($scriptText)) -VMName 'Kelly''s VM'", cmd);
         Assert.Contains("-IsoPath 'C:\\ISOs\\Win11 Arm64.iso'", cmd);
         Assert.Contains("-Password 'pa''ss'", cmd);
         Assert.Contains("-MemoryGB 8", cmd);
@@ -316,7 +316,7 @@ public class ScriptBuildingTests
         Assert.DoesNotContain("-NoAutoStart", cmd);
         Assert.DoesNotContain("-NoConnect", cmd);
 
-        var other = NewVmScript.BuildCommand("s.ps1", Options(hostOnly: true, autoStart: false, connect: false));
+        var other = NewVmScript.BuildCommand(Options(hostOnly: true, autoStart: false, connect: false), "HyperVManage-test");
         Assert.Contains("-HostOnly", other);
         Assert.Contains("-NoAutoStart", other);
         Assert.Contains("-NoConnect", other);
@@ -325,18 +325,44 @@ public class ScriptBuildingTests
     [Fact]
     public void TheEmbeddedScript_IsTheOneInTheRepository()
     {
-        var folder = Directory.CreateTempSubdirectory("hvm-script-").FullName;
-        var path = NewVmScript.ExtractScript(folder);
-        try
-        {
-            var repo = File.ReadAllBytes(Path.Combine(RepoRoot(), "hyperv-rdp-vm", "New-HyperVRdpVM.ps1"));
-            Assert.Equal(repo, File.ReadAllBytes(path));
-            // A fresh name each time, so nothing can be waiting at a known path.
-            var second = NewVmScript.ExtractScript(folder);
-            Assert.NotEqual(path, second);
-            File.Delete(second);
-        }
-        finally { File.Delete(path); }
+        var repo = File.ReadAllBytes(Path.Combine(RepoRoot(), "hyperv-rdp-vm", "New-HyperVRdpVM.ps1"));
+        Assert.Equal(repo, NewVmScript.ScriptBytes());
+    }
+
+    [Fact]
+    public async Task TheScript_ParsesAsTheScriptBlockTheAppRunsItAs()
+    {
+        // The app hands the script to PowerShell through a pipe and runs it as a script block,
+        // never from a file, so it must parse as one, param block and all. Nothing but the count
+        // may be printed: on standard input, PowerShell would wrap its output in XML.
+        var lines = new List<string>();
+        using var p = await NewVmScript.StartWithScriptAsync(NewVmScript.ScriptText(),
+            pipe => NewVmScript.ReadScriptFromPipe(pipe) + "([scriptblock]::Create($scriptText)).Ast.ParamBlock.Parameters.Count",
+            lines.Add, allowCurrentUser: true, ct: TestContext.Current.CancellationToken);
+        await p.WaitForExitAsync(TestContext.Current.CancellationToken);
+        p.WaitForExit();
+        Assert.Equal(0, p.ExitCode);
+        var printed = lines.Where(l => l.Trim().Length > 0).Select(l => l.Trim()).ToList();
+        Assert.True(printed.Count == 1 && int.Parse(printed[0]) > 10, "PowerShell printed:\n" + string.Join("\n", printed));
+    }
+
+    [Fact]
+    public async Task TheBuildCommand_RunsTheScriptFromStandardInput_WithEveryValueIntact()
+    {
+        // A stand-in with the script's parameters: the real one would ask to elevate.
+        const string standIn = """
+            [CmdletBinding()]
+            param([string]$VMName, [string]$IsoPath, [string]$Edition, [string]$UserName, [string]$Password,
+                  [int]$ProcessorCount, [int]$MemoryGB, [int]$DiskGB, [switch]$HostOnly, [switch]$NoAutoStart, [switch]$NoConnect)
+            Write-Host "name=$VMName|iso=$IsoPath|password=$Password|memory=$MemoryGB|hostonly=$HostOnly|root=[$PSScriptRoot]"
+            """;
+        var lines = new List<string>();
+        using var p = await NewVmScript.StartWithScriptAsync(standIn, pipe => NewVmScript.BuildCommand(Options(hostOnly: true), pipe),
+            lines.Add, allowCurrentUser: true, ct: TestContext.Current.CancellationToken);
+        await p.WaitForExitAsync(TestContext.Current.CancellationToken);
+        p.WaitForExit();
+        Assert.Equal(0, p.ExitCode);
+        Assert.Contains(@"name=Kelly's VM|iso=C:\ISOs\Win11 Arm64.iso|password=pa'ss|memory=8|hostonly=True|root=[]", lines);
     }
 
     [Fact]
@@ -418,6 +444,8 @@ public class RemoteDesktopTests
         ("DESKTOP-ABC1234-Win11", "DESKT44eq-Win11"),
         ("DESKTOP-ABC9876-Win11", "DESKT2mbp-Win11"),
         ("-Edge-", "Edge"),
+        // The Kelvin sign and the long s match [A-Za-z] when case is ignored; neither is allowed.
+        ("a" + '\u212A' + "b" + '\u017F' + "c", "abc"),
     ];
 
     public static TheoryData<string, string> ComputerNames()

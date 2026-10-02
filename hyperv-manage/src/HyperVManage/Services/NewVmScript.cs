@@ -1,6 +1,9 @@
 using System.Diagnostics;
 using System.IO;
+using System.IO.Pipes;
 using System.Runtime.InteropServices;
+using System.Security.AccessControl;
+using System.Security.Principal;
 using System.Text;
 using System.Text.Json;
 
@@ -49,14 +52,26 @@ public static class NewVmScript
     /// <summary>
     /// The PowerShell command that runs the script with these options: every value a quoted
     /// literal, so nothing typed into the form can be read as code. Empty text fields are left
-    /// out so the script's own defaults apply.
+    /// out so the script's own defaults apply. The script itself is read from the named pipe
+    /// <paramref name="pipeName"/> (see <see cref="StartWithScriptAsync"/>), never from a file.
     /// </summary>
-    public static string BuildCommand(string scriptPath, NewVmOptions o)
+    public static string BuildCommand(NewVmOptions o, string pipeName) =>
+        ReadScriptFromPipe(pipeName) + "& ([scriptblock]::Create($scriptText))" + Arguments(o);
+
+    /// <summary>PowerShell lines that read the script from the app's pipe into $scriptText.</summary>
+    internal static string ReadScriptFromPipe(string pipeName) => $$"""
+        [Console]::OutputEncoding = New-Object System.Text.UTF8Encoding $false
+        $pipe = New-Object System.IO.Pipes.NamedPipeClientStream('.', {{Ps.Quote(pipeName)}}, [System.IO.Pipes.PipeDirection]::In)
+        $pipe.Connect(30000)
+        $reader = New-Object System.IO.StreamReader($pipe, (New-Object System.Text.UTF8Encoding $false))
+        $scriptText = $reader.ReadToEnd()
+        $reader.Dispose()
+
+        """;
+
+    private static string Arguments(NewVmOptions o)
     {
         var sb = new StringBuilder();
-        // Write-Host text arrives as UTF-8, so names and paths outside ASCII read correctly.
-        sb.Append("[Console]::OutputEncoding = New-Object System.Text.UTF8Encoding $false\n");
-        sb.Append("& ").Append(Ps.Quote(scriptPath));
         sb.Append(" -VMName ").Append(Ps.Quote(o.VMName));
         if (o.IsoPath.Length > 0) sb.Append(" -IsoPath ").Append(Ps.Quote(o.IsoPath));
         if (o.Edition.Length > 0) sb.Append(" -Edition ").Append(Ps.Quote(o.Edition));
@@ -142,29 +157,8 @@ public static class NewVmScript
         }
         catch (OperationCanceledException) { return BuildOutcome.Stopped; }
 
-        var script = ExtractScript();
-        try
         {
-            var psi = new ProcessStartInfo(SystemTools.PowerShell)
-            {
-                UseShellExecute = false,
-                CreateNoWindow = true,
-                RedirectStandardOutput = true,
-                RedirectStandardError = true,
-                StandardOutputEncoding = Encoding.UTF8,
-                StandardErrorEncoding = Encoding.UTF8,
-            };
-            foreach (var a in new[] { "-NoProfile", "-NonInteractive", "-ExecutionPolicy", "Bypass", "-OutputFormat", "Text",
-                                      "-EncodedCommand", Convert.ToBase64String(Encoding.Unicode.GetBytes(BuildCommand(script, options))) })
-                psi.ArgumentList.Add(a);
-
-            using var process = new Process { StartInfo = psi };
-            process.OutputDataReceived += (_, e) => { if (e.Data is not null) onLine(e.Data); };
-            process.ErrorDataReceived += (_, e) => { if (e.Data is not null) onLine(e.Data); };
-            process.Start();
-            process.BeginOutputReadLine();
-            process.BeginErrorReadLine();
-
+            using var process = await StartWithScriptAsync(ScriptText(), pipe => BuildCommand(options, pipe), onLine, ct: ct).ConfigureAwait(false);
             try
             {
                 await process.WaitForExitAsync(ct).ConfigureAwait(false);
@@ -187,43 +181,84 @@ public static class NewVmScript
                 return BuildOutcome.Stopped;
             }
         }
-        finally
-        {
-            try { File.Delete(script); } catch (IOException) { } catch (UnauthorizedAccessException) { }
-        }
     }
 
     /// <summary>
-    /// Writes the embedded script where powershell.exe can run it, and returns its path. The app
-    /// runs it elevated, so it goes in a folder only Administrators and SYSTEM can write to:
-    /// in the user's TEMP, any program the user runs, elevated or not, could rewrite the file in
-    /// the moment before PowerShell reads it, and its code would then run as administrator.
+    /// Starts powershell.exe running the command <paramref name="commandFor"/> makes for a pipe
+    /// name, and hands it <paramref name="scriptText"/> through that pipe. Every line PowerShell
+    /// prints goes to <paramref name="onLine"/>.
+    ///
+    /// The script is never written to a file: the app runs it elevated, and a file is something
+    /// another program could rewrite in the moment before PowerShell opens it. It doesn't go on
+    /// standard input either, which makes Windows PowerShell wrap its progress and errors in XML.
+    /// The pipe has a random name, refuses a second instance, and only Administrators and SYSTEM
+    /// can open it, so only the elevated PowerShell the app starts can read it.
     /// </summary>
-    /// <param name="folder">Only for tests, which run without administrator rights.</param>
-    public static string ExtractScript(string? folder = null)
+    /// <param name="allowCurrentUser">Only for tests, which run without administrator rights.</param>
+    internal static async Task<Process> StartWithScriptAsync(string scriptText, Func<string, string> commandFor, Action<string> onLine,
+        bool allowCurrentUser = false, CancellationToken ct = default)
     {
-        if (folder is null)
+        var pipeName = $"HyperVManage-{Guid.NewGuid():N}";
+        var security = new PipeSecurity();
+        security.AddAccessRule(new PipeAccessRule(new SecurityIdentifier(WellKnownSidType.BuiltinAdministratorsSid, null), PipeAccessRights.ReadWrite, AccessControlType.Allow));
+        security.AddAccessRule(new PipeAccessRule(new SecurityIdentifier(WellKnownSidType.LocalSystemSid, null), PipeAccessRights.ReadWrite, AccessControlType.Allow));
+        if (allowCurrentUser)
+            security.AddAccessRule(new PipeAccessRule(WindowsIdentity.GetCurrent().User!, PipeAccessRights.ReadWrite, AccessControlType.Allow));
+        using var server = NamedPipeServerStreamAcl.Create(pipeName, PipeDirection.Out, 1, PipeTransmissionMode.Byte,
+            PipeOptions.Asynchronous | PipeOptions.FirstPipeInstance, 0, 0, security);
+
+        var psi = new ProcessStartInfo(SystemTools.PowerShell)
         {
-            var programData = Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData);
-            folder = Path.Combine(programData, "HyperVManage", "Run");
-            AdminOnlyFolder.Ensure(programData, folder);
+            UseShellExecute = false,
+            CreateNoWindow = true,
+            RedirectStandardOutput = true,
+            RedirectStandardError = true,
+            StandardOutputEncoding = Encoding.UTF8,
+            StandardErrorEncoding = Encoding.UTF8,
+        };
+        foreach (var a in new[] { "-NoProfile", "-NonInteractive", "-ExecutionPolicy", "Bypass", "-OutputFormat", "Text",
+                                  "-EncodedCommand", Convert.ToBase64String(Encoding.Unicode.GetBytes(commandFor(pipeName))) })
+            psi.ArgumentList.Add(a);
+
+        var process = new Process { StartInfo = psi };
+        process.OutputDataReceived += (_, e) => { if (e.Data is not null) onLine(e.Data); };
+        process.ErrorDataReceived += (_, e) => { if (e.Data is not null) foreach (var line in CliXml.Lines(e.Data)) onLine(line); };
+        process.Start();
+        process.BeginOutputReadLine();
+        process.BeginErrorReadLine();
+
+        // If PowerShell ends before it connects, its own error says why; don't wait for it.
+        using var stop = CancellationTokenSource.CreateLinkedTokenSource(ct);
+        var connect = server.WaitForConnectionAsync(stop.Token);
+        var exited = process.WaitForExitAsync(stop.Token);
+        if (await Task.WhenAny(connect, exited, Task.Delay(TimeSpan.FromSeconds(60), stop.Token)).ConfigureAwait(false) == connect
+            && connect.IsCompletedSuccessfully)
+        {
+            await server.WriteAsync(new UTF8Encoding(false).GetBytes(scriptText), ct).ConfigureAwait(false);
+            await server.FlushAsync(ct).ConfigureAwait(false);
+            server.WaitForPipeDrain();
         }
-        var path = Path.Combine(folder, $"New-HyperVRdpVM-{Guid.NewGuid():N}.ps1");
+        stop.Cancel();
+        return process;
+    }
+    /// <summary>The embedded script's bytes, exactly as in the repository.</summary>
+    public static byte[] ScriptBytes()
+    {
         using var resource = typeof(NewVmScript).Assembly.GetManifestResourceStream(ResourceName)
             ?? throw new InvalidOperationException($"{ResourceName} isn't embedded in this build.");
-        using var file = new FileStream(path, FileMode.CreateNew, FileAccess.Write);
-        resource.CopyTo(file);
-        return path;
+        using var copy = new MemoryStream();
+        resource.CopyTo(copy);
+        return copy.ToArray();
     }
+
+    /// <summary>The embedded script as text. It is pure ASCII, as Windows PowerShell 5.1 needs.</summary>
+    public static string ScriptText() => Encoding.UTF8.GetString(ScriptBytes());
 
     /// <summary>The script's own lines that turn $VMName into $ComputerName, from the embedded
     /// script, so anything else that needs a VM's computer name gets exactly the script's answer.</summary>
     public static string ComputerNameRule()
     {
-        using var resource = typeof(NewVmScript).Assembly.GetManifestResourceStream(ResourceName)
-            ?? throw new InvalidOperationException($"{ResourceName} isn't embedded in this build.");
-        using var reader = new StreamReader(resource);
-        var script = reader.ReadToEnd();
+        var script = ScriptText();
         var start = script.IndexOf("$ComputerName = ($VMName", StringComparison.Ordinal);
         var end = start < 0 ? -1 : script.IndexOf("if (-not $ComputerName)", start, StringComparison.Ordinal);
         if (start < 0 || end < 0) throw new InvalidOperationException("The computer-name lines weren't found in the embedded script.");

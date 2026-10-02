@@ -188,12 +188,17 @@ hyperv-manage/
   computer name the script gives it. A test runs the script's own lines for that name in
   PowerShell and checks the app computes the same for each case.
 - **Nothing it runs as administrator can be swapped by another program.** The app runs elevated,
-  so the creation script is written to `%ProgramData%\HyperVManage\Run`, a folder only
-  Administrators and SYSTEM can change (the app resets its permissions each time and refuses a
-  link in its place), rather than to the user's TEMP, where any program could rewrite it in the
-  moment before PowerShell reads it. PowerShell, Remote Desktop and the console are started by
-  their full paths in System32, never by bare name, which would find a copy in the app's own
-  folder first.
+  so the creation script is never written to a file, where another program could rewrite it in
+  the moment before PowerShell reads it. The app opens a named pipe with a random name that only
+  Administrators and SYSTEM can open, starts PowerShell with a short command that reads the
+  script from that pipe, and runs it from memory. (Standard input was tried and rejected:
+  Windows PowerShell then wraps its messages in XML.) PowerShell, Remote Desktop, the console and
+  `cmdkey` are started by their full paths in System32, never by bare name, which would find a
+  copy in the app's own folder first.
+- **What PowerShell prints is read out as plain text.** With its output captured, Windows
+  PowerShell writes some messages as XML ("#< CLIXML"), including a "Preparing modules for first
+  use" progress record. The app drops progress records and turns errors back into plain lines
+  before showing or speaking them.
 - **Still to do before others use it:** the single-file exe unpacks some of .NET's own libraries
   to the user's TEMP when it starts, where another program could replace them. Shipping it
   installed (for example as an MSIX package, as the Microsoft Store does) avoids that.

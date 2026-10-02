@@ -156,7 +156,13 @@ if ($VMName -match '[\\/:*?"<>|\[\]]') {
 # SURFACEPRO7-Win11 becomes SURFA, four characters, then -Win11.
 # Hyper-V Manage's RemoteDesktop.ComputerName does the same, and a test checks
 # that the two agree.
-$ComputerName = ($VMName -replace '[^A-Za-z0-9-]', '').Trim('-')
+# -creplace, not -replace: ignoring case lets the Kelvin sign and the long s
+# match A-Z, and they aren't letters Windows allows in a computer name.
+$ComputerName = ($VMName -creplace '[^A-Za-z0-9-]', '').Trim('-')
+# The name earlier versions gave: the first 15 of those characters. A VM made
+# by one is still recognised by -Remove.
+$LegacyComputerName = ($VMName -creplace '[^A-Za-z0-9-]', '')
+if ($LegacyComputerName.Length -gt 15) { $LegacyComputerName = $LegacyComputerName.Substring(0, 15) }
 if ($ComputerName.Length -gt 15) {
     $sha1 = [Security.Cryptography.SHA1]::Create()
     $hashBytes = $sha1.ComputeHash([Text.Encoding]::UTF8.GetBytes($ComputerName.ToUpperInvariant()))
@@ -239,10 +245,11 @@ if ($Remove) {
     if (Test-Path -LiteralPath $rdpFile) {
         $address = Get-Content -LiteralPath $rdpFile | Where-Object { $_ -like 'full address:s:*' } |
             Select-Object -First 1 | ForEach-Object { $_.Substring(15) }
-        $ours = @("$ComputerName.local", $ComputerName, "$ComputerName.mshome.net") + $ips
+        $names = @($ComputerName, $LegacyComputerName) | Select-Object -Unique
+        $ours = @($names | ForEach-Object { "$_.local"; $_; "$_.mshome.net" }) + $ips
         # This script writes "username:s:<computer>\<user>", which marks the file as this VM's
         # even when the VM is off or gone and has no address to compare.
-        $madeForIt = [bool](Get-Content -LiteralPath $rdpFile | Where-Object { $_ -like "username:s:$ComputerName\*" })
+        $madeForIt = [bool](Get-Content -LiteralPath $rdpFile | Where-Object { $line = $_; $names | Where-Object { $line -like "username:s:$_\*" } })
         if ($address -and (($ours -contains $address) -or $madeForIt)) {
             cmdkey /delete:"TERMSRV/$address" | Out-Null
             Say "Deleting $rdpFile and its saved sign-in."
