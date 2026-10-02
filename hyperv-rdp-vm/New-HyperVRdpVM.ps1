@@ -56,7 +56,10 @@ param(
     [string]$Edition = 'Windows 11 Pro',
     [string]$UserName = 'vmuser',
     [string]$Password = 'vmadmin',
+    [ValidateRange(1, 64)]
     [int]$ProcessorCount = 4,
+    # Dynamic memory never goes below 2 GB, so the starting memory can't either.
+    [ValidateRange(2, 512)]
     [int]$MemoryGB = 4,
     [int]$DiskGB = 128,
     [string]$SwitchName = 'Default Switch',
@@ -80,13 +83,19 @@ $principal = [Security.Principal.WindowsPrincipal][Security.Principal.WindowsIde
 if (-not $principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {
     Say 'This script needs administrator rights. Windows will ask for permission,'
     Say 'then the script carries on in a new PowerShell window.'
-    $argList = @('-NoProfile', '-NoExit', '-ExecutionPolicy', 'Bypass', '-File', "`"$PSCommandPath`"")
+    # Quote for the Windows command line: a backslash before a quote, or at the
+    # end, has to be doubled, or "D:\VMs\" would swallow the next argument.
+    function ConvertTo-QuotedArgument([string]$Value) {
+        $escaped = $Value -replace '(\\*)"', '$1$1\"' -replace '(\\+)$', '$1$1'
+        "`"$escaped`""
+    }
+    $argList = @('-NoProfile', '-NoExit', '-ExecutionPolicy', 'Bypass', '-File', (ConvertTo-QuotedArgument $PSCommandPath))
     foreach ($p in $PSBoundParameters.GetEnumerator()) {
         if ($p.Value -is [switch]) {
             if ($p.Value) { $argList += "-$($p.Key)" }
         } else {
             $argList += "-$($p.Key)"
-            $argList += "`"$($p.Value)`""
+            $argList += ConvertTo-QuotedArgument "$($p.Value)"
         }
     }
     Start-Process -FilePath powershell.exe -Verb RunAs -ArgumentList $argList
@@ -116,12 +125,29 @@ $rdpFile = Join-Path $desktop "$VMName.rdp"
 
 # --- Remove mode --------------------------------------------------------------
 if ($Remove) {
+    $disks = @()
     $vm = Get-VM -Name $VMName -ErrorAction SilentlyContinue
-    if (-not $vm) { Say "There is no virtual machine named $VMName."; return }
-    $disks = @(Get-VMHardDiskDrive -VMName $VMName | Select-Object -ExpandProperty Path)
-    if ($vm.State -ne 'Off') { Say "Turning off $VMName."; Stop-VM -Name $VMName -TurnOff -Force }
-    Say "Deleting the virtual machine $VMName."
-    Remove-VM -Name $VMName -Force
+    if ($vm) {
+        $disks = @(Get-VMHardDiskDrive -VMName $VMName | Select-Object -ExpandProperty Path)
+        if ($vm.State -ne 'Off') { Say "Turning off $VMName."; Stop-VM -Name $VMName -TurnOff -Force }
+        Say "Deleting the virtual machine $VMName."
+        Remove-VM -Name $VMName -Force
+    } else {
+        Say "There is no virtual machine named $VMName. Looking for anything a failed run left behind."
+    }
+    # A run that failed after the disk was built but before the VM existed
+    # leaves the disk behind, and the next run refuses to overwrite it. Delete
+    # it too, as long as no other virtual machine is using it.
+    $folder = if ($VhdFolder) { $VhdFolder } else { (Get-VMHost).VirtualHardDiskPath }
+    $leftover = Join-Path $folder "$VMName.vhdx"
+    if ((Test-Path -LiteralPath $leftover) -and $disks -notcontains $leftover) {
+        $inUse = @(Get-VM | Get-VMHardDiskDrive | Where-Object { $_.Path -eq $leftover })
+        if ($inUse) {
+            Say "Leaving $leftover alone, because the virtual machine $($inUse[0].VMName) uses it."
+        } else {
+            $disks += $leftover
+        }
+    }
     foreach ($d in $disks) { Say "Deleting the virtual disk $d."; Remove-Item -LiteralPath $d -Force -ErrorAction SilentlyContinue }
     if (Test-Path -LiteralPath $rdpFile) {
         foreach ($line in Get-Content -LiteralPath $rdpFile) {
@@ -135,6 +161,10 @@ if ($Remove) {
 }
 
 # --- Check everything before touching anything --------------------------------
+if ($Locale) {
+    try { $null = [Globalization.CultureInfo]::GetCultureInfo($Locale) }
+    catch { throw "'$Locale' isn't a language Windows knows. Use a tag such as en-US or en-GB." }
+}
 if ($Edition -match 'Home') {
     throw "$Edition can't accept Remote Desktop connections. Use a Pro, Enterprise or Education edition."
 }
@@ -183,11 +213,20 @@ Say 'This usually takes 15 to 30 minutes. You do not need to do anything until i
 $isoMounted = $false
 $vhdMounted = $false
 $vhdDone = $false
+$bcdWork = $null
 try {
     Step 'Step 1 of 5: Reading the ISO.'
-    $isoImage = Mount-DiskImage -ImagePath $IsoPath -PassThru
-    $isoMounted = $true
+    # If the ISO is already open in File Explorer, use that copy and leave it
+    # mounted afterwards; only dismount what this script mounted.
+    $isoImage = Get-DiskImage -ImagePath $IsoPath
+    if (-not $isoImage.Attached) {
+        $isoImage = Mount-DiskImage -ImagePath $IsoPath -PassThru
+        $isoMounted = $true
+    }
     $isoLetter = ($isoImage | Get-Volume).DriveLetter
+    if (-not $isoLetter) {
+        throw "$IsoPath is mounted but has no drive letter. Eject it in File Explorer and run the script again."
+    }
     $wim = @("${isoLetter}:\sources\install.wim", "${isoLetter}:\sources\install.esd") |
         Where-Object { Test-Path -LiteralPath $_ } | Select-Object -First 1
     if (-not $wim) { throw "$IsoPath doesn't look like a Windows install ISO. There is no sources\install.wim or install.esd on it." }
@@ -236,14 +275,33 @@ try {
     Say 'Windows is copied.'
 
     Step 'Step 3 of 5: Making the disk bootable and adding the answer file.'
+    $efiBoot = "${sysLetter}:\EFI\Microsoft\Boot"
+    function Invoke-Bcdedit([string]$Arguments) {
+        $out = cmd /c "bcdedit $Arguments 2>&1" | Out-String
+        if ($LASTEXITCODE -ne 0) { throw "bcdedit $Arguments failed: $($out.Trim()) (bcdboot said: $($bootOutput.Trim()))" }
+        return $out
+    }
+    # "partition=X:" (or a reference through the VHDX file) records this PC's
+    # view of the disk, which the VM can't find: it stops at Windows Boot
+    # Manager with 0xc000000e. "boot" and "locate" are resolved at boot time.
+    $portableDevices = @('device locate', 'osdevice locate')
+
     # bcdboot loads the new boot store under the same registry key as this PC's
-    # own, and on some builds (seen on 26300 Insider) that collides and it fails
-    # with 0xc0000035. If it does, build the same boot files and store by hand:
-    # bcdedit /createstore loads the store under a key of its own.
+    # own, and on some builds (seen on 26340 Insider) that collides and it fails
+    # with 0xc0000035. Only then, build the same boot files and store by hand:
+    # bcdedit /createstore loads the store under a key of its own. Any other
+    # bcdboot failure is a real problem, so it stops the script.
     $bootOutput = cmd /c "`"${winLetter}:\Windows\System32\bcdboot.exe`" ${winLetter}:\Windows /s ${sysLetter}: /f UEFI 2>&1" | Out-String
-    if ($LASTEXITCODE -ne 0) {
-        Say "bcdboot couldn't do it (exit code $LASTEXITCODE), so the boot files are being set up directly instead."
-        $efiBoot = "${sysLetter}:\EFI\Microsoft\Boot"
+    $bootExit = $LASTEXITCODE
+    if ($bootExit -eq 0) {
+        Invoke-Bcdedit "/store `"$efiBoot\BCD`" /set {bootmgr} device boot" | Out-Null
+        foreach ($setting in $portableDevices) {
+            Invoke-Bcdedit "/store `"$efiBoot\BCD`" /set {default} $setting" | Out-Null
+        }
+    } elseif ($bootOutput -notmatch 'c0000035') {
+        throw "bcdboot couldn't make the disk bootable (exit code $bootExit): $($bootOutput.Trim())"
+    } else {
+        Say "bcdboot couldn't do it (exit code $bootExit), so the boot files are being set up directly instead."
         # Start clean: the failed bcdboot can leave a partial BCD store behind.
         Remove-Item -LiteralPath "${sysLetter}:\EFI" -Recurse -Force -ErrorAction SilentlyContinue
         New-Item -ItemType Directory -Path $efiBoot, "${sysLetter}:\EFI\Boot" -Force | Out-Null
@@ -258,11 +316,6 @@ try {
         $bcdWork = Join-Path $env:TEMP "NewVmBcd-$([guid]::NewGuid().ToString('N'))"
         New-Item -ItemType Directory -Path $bcdWork | Out-Null
         $store = "$bcdWork\BCD"
-        function Invoke-Bcdedit([string]$Arguments) {
-            $out = cmd /c "bcdedit $Arguments 2>&1" | Out-String
-            if ($LASTEXITCODE -ne 0) { throw "bcdedit $Arguments failed: $($out.Trim()) (bcdboot said: $($bootOutput.Trim()))" }
-            return $out
-        }
         Invoke-Bcdedit "/createstore `"$store`"" | Out-Null
 
         # bcdedit /createstore makes an ordinary store. The specialize pass
@@ -293,14 +346,23 @@ public static class NewVmAppHive {
     static extern bool AdjustTokenPrivileges(IntPtr token, bool disableAll, ref TokenPrivilege state, int length, IntPtr previous, IntPtr returnLength);
     [DllImport("kernel32.dll")]
     static extern IntPtr GetCurrentProcess();
+    [DllImport("kernel32.dll")]
+    static extern bool CloseHandle(IntPtr handle);
     [StructLayout(LayoutKind.Sequential, Pack = 4)]
     struct TokenPrivilege { public int Count; public long Luid; public int Attributes; }
     static void Enable(string name) {
         IntPtr token;
         if (!OpenProcessToken(GetCurrentProcess(), 0x28, out token)) throw new System.ComponentModel.Win32Exception();
-        TokenPrivilege tp = new TokenPrivilege { Count = 1, Attributes = 2 };
-        if (!LookupPrivilegeValue(null, name, out tp.Luid)) throw new System.ComponentModel.Win32Exception();
-        if (!AdjustTokenPrivileges(token, false, ref tp, 0, IntPtr.Zero, IntPtr.Zero)) throw new System.ComponentModel.Win32Exception();
+        try {
+            TokenPrivilege tp = new TokenPrivilege { Count = 1, Attributes = 2 };
+            if (!LookupPrivilegeValue(null, name, out tp.Luid)) throw new System.ComponentModel.Win32Exception();
+            if (!AdjustTokenPrivileges(token, false, ref tp, 0, IntPtr.Zero, IntPtr.Zero)) throw new System.ComponentModel.Win32Exception();
+            // AdjustTokenPrivileges also succeeds when the account doesn't hold
+            // the privilege at all; that only shows up as ERROR_NOT_ALL_ASSIGNED.
+            if (Marshal.GetLastWin32Error() == 1300) {
+                throw new InvalidOperationException("This account doesn't have " + name + ", which is needed to write the boot store. Run the script from a full administrator account.");
+            }
+        } finally { CloseHandle(token); }
     }
     public static RegistryKey Open(string file) {
         IntPtr h;
@@ -325,7 +387,10 @@ public static class NewVmAppHive {
         }
         $hiveFile = "$bcdWork\store.hiv"
         [IO.File]::WriteAllBytes($hiveFile, [IO.File]::ReadAllBytes($store))
+        # Every key is closed in a finally: the hive stays loaded, and the file
+        # locked, until the last handle to it is gone.
         $root = [NewVmAppHive]::Open($hiveFile)
+        $desc = $null
         try {
             $desc = [NewVmAppHive]::OpenForWrite($root, 'Description')
             $desc.SetValue('KeyName', 'BCD00000000', [Microsoft.Win32.RegistryValueKind]::String)
@@ -333,8 +398,10 @@ public static class NewVmAppHive {
             $desc.SetValue('TreatAsSystem', 1, [Microsoft.Win32.RegistryValueKind]::DWord)
             [NewVmAppHive]::Flush($desc)
             [NewVmAppHive]::Flush($root)
-            $desc.Close()
-        } finally { $root.Close() }
+        } finally {
+            if ($desc) { $desc.Close() }
+            $root.Close()
+        }
         [GC]::Collect(); [GC]::WaitForPendingFinalizers()
         $flagged = [IO.File]::ReadAllBytes($hiveFile)
 
@@ -342,35 +409,30 @@ public static class NewVmAppHive {
         $verifyFile = "$bcdWork\verify.hiv"
         [IO.File]::WriteAllBytes($verifyFile, $flagged)
         $root = [NewVmAppHive]::Open($verifyFile)
+        $desc = $null
         try {
             $desc = $root.OpenSubKey('Description')
             if (-not $desc -or [int]$desc.GetValue('System', 0) -ne 1 -or [int]$desc.GetValue('TreatAsSystem', 0) -ne 1) {
                 throw "The new boot store didn't keep its system-store flags."
             }
-            $desc.Close()
-        } finally { $root.Close() }
+        } finally {
+            if ($desc) { $desc.Close() }
+            $root.Close()
+        }
         [GC]::Collect(); [GC]::WaitForPendingFinalizers()
 
-        # Put the flagged store on the boot partition, dropping bcdedit's
-        # transaction log so it can't be replayed over the flags, then add the
-        # entries there.
-        Remove-Item -Path "$store.LOG*" -Force -ErrorAction SilentlyContinue
+        # Put the flagged store on the boot partition and add the entries there.
         $store = "$efiBoot\BCD"
         [IO.File]::WriteAllBytes($store, $flagged)
-        Remove-Item -LiteralPath $bcdWork -Recurse -Force -ErrorAction SilentlyContinue
 
         Invoke-Bcdedit "/store `"$store`" /create {bootmgr} /d `"Windows Boot Manager`"" | Out-Null
-        # "partition=X:" would record this PC's view of the disk, which the VM
-        # can't find (0xc000000e). "boot" and "locate" are resolved at boot time.
         Invoke-Bcdedit "/store `"$store`" /set {bootmgr} device boot" | Out-Null
         Invoke-Bcdedit "/store `"$store`" /set {bootmgr} locale $imageLanguage" | Out-Null
         Invoke-Bcdedit "/store `"$store`" /set {bootmgr} timeout 0" | Out-Null
         $created = Invoke-Bcdedit "/store `"$store`" /create /d `"Windows`" /application osloader"
         $loader = [regex]::Match($created, '\{[0-9a-fA-F-]{36}\}').Value
         if (-not $loader) { throw "bcdedit didn't report the new boot entry: $created" }
-        foreach ($setting in @(
-            'device locate'
-            'osdevice locate'
+        foreach ($setting in $portableDevices + @(
             'path \Windows\system32\winload.efi'
             'systemroot \Windows'
             "locale $imageLanguage"
@@ -385,6 +447,8 @@ public static class NewVmAppHive {
     $xUser = [Security.SecurityElement]::Escape($UserName)
     $xPass = [Security.SecurityElement]::Escape($Password)
     $xTz   = [Security.SecurityElement]::Escape($TimeZone)
+    $xLocale = [Security.SecurityElement]::Escape($Locale)
+    $xLanguage = [Security.SecurityElement]::Escape($imageLanguage)
     $component = "processorArchitecture=`"$unattendArch`" publicKeyToken=`"31bf3856ad364e35`" language=`"neutral`" versionScope=`"nonSxS`""
 
     # Windows Setup is skipped entirely, so only the specialize and oobeSystem
@@ -432,10 +496,10 @@ public static class NewVmAppHive {
   </settings>
   <settings pass="oobeSystem">
     <component name="Microsoft-Windows-International-Core" $component>
-      <InputLocale>$Locale</InputLocale>
-      <SystemLocale>$Locale</SystemLocale>
-      <UILanguage>$imageLanguage</UILanguage>
-      <UserLocale>$Locale</UserLocale>
+      <InputLocale>$xLocale</InputLocale>
+      <SystemLocale>$xLocale</SystemLocale>
+      <UILanguage>$xLanguage</UILanguage>
+      <UserLocale>$xLocale</UserLocale>
     </component>
     <component name="Microsoft-Windows-Shell-Setup" $component>
       <OOBE>
@@ -475,6 +539,10 @@ public static class NewVmAppHive {
     $vhdDone = $true
 }
 finally {
+    if ($bcdWork) {
+        [GC]::Collect(); [GC]::WaitForPendingFinalizers()
+        Remove-Item -LiteralPath $bcdWork -Recurse -Force -ErrorAction SilentlyContinue
+    }
     if ($vhdMounted) { Dismount-VHD -Path $vhdPath -ErrorAction SilentlyContinue }
     if ($isoMounted) { Dismount-DiskImage -ImagePath $IsoPath -ErrorAction SilentlyContinue | Out-Null }
     if (-not $vhdDone -and (Test-Path -LiteralPath $vhdPath)) {
