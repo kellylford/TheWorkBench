@@ -1,11 +1,12 @@
 # Hyper-V Windows VM, ready for Remote Desktop
 
-> **Status: written but never run.** It was written on a Windows 11 Home
-> machine (Snapdragon X Elite, Arm64), which has no Hyper-V. Only two checks
-> have been done: the PowerShell parser reports no errors, and the answer file
-> it generates parses as XML. See
-> [Picking this up on a Pro machine](#picking-this-up-on-a-pro-machine) for the
-> test plan and the assumptions most likely to be wrong.
+> **Status: works on Arm64; not yet run on x64.** On 1 October 2026 it built a
+> VM end to end on a Snapdragon X Elite host running Windows 11 Pro Insider
+> (build 26340) from the Arm64 26300 ISO. Remote Desktop signed in on its own
+> and sound played on the host. That host needed the manual boot-store
+> fallback described below. An x64 host hasn't been tried yet. See
+> [Picking this up on a Pro machine](#picking-this-up-on-a-pro-machine) for
+> the test plan.
 
 One script that builds a Windows virtual machine in Hyper-V with a fully
 unattended install and leaves it ready to sign in to with Remote Desktop.
@@ -23,9 +24,13 @@ bars.
   does not include Hyper-V.
 - **Hyper-V turned on.** If it isn't, the script tells you the command to run.
 - **A Windows ISO** that matches the host's processor: x64 on Intel and AMD
-  PCs, Arm64 on Arm PCs. Both are on
-  [Microsoft's Windows 11 download page](https://www.microsoft.com/software-download/windows11).
-  Put it in your Downloads folder and the script finds it on its own.
+  PCs, Arm64 on Arm PCs. They're on
+  [the x64 download page](https://www.microsoft.com/software-download/windows11)
+  and [the Arm64 download page](https://www.microsoft.com/software-download/windows11arm64).
+  Put it in your Downloads folder and the script finds it on its own. The same
+  script works on both kinds of PC: it reads the processor type and sets up the
+  VM to match. If Downloads holds both kinds of ISO, it skips the one whose
+  file name says it's for the other processor.
 - About 20 GB of free disk space. The virtual disk is 128 GB but only grows as
   it fills.
 
@@ -60,11 +65,23 @@ it whenever it resolves.
 The password is set never to expire, the VM never sleeps, and automatic
 checkpoints are off.
 
+## Reconnecting later
+
+Open `Win11-RDP.rdp` on your desktop, or connect Remote Desktop to
+`Win11-RDP.mshome.net`. The VM has to be running. Hyper-V starts it again
+when your PC restarts if it was running when the PC shut down; give it a
+minute to boot. If you shut the VM itself down, start it from an
+administrator PowerShell window:
+
+```powershell
+Start-VM Win11-RDP
+```
+
 ## Options
 
 | Option            | Default                | What it does                                   |
 |-------------------|------------------------|------------------------------------------------|
-| `-IsoPath`        | newest Windows ISO in Downloads | The Windows ISO to install from       |
+| `-IsoPath`        | newest Windows ISO in Downloads for this PC's processor | The Windows ISO to install from |
 | `-VMName`         | Win11-RDP              | VM name, and the computer name (15 characters) |
 | `-Edition`        | Windows 11 Pro         | Edition inside the ISO. Home is refused.       |
 | `-UserName`       | vmuser                 | Windows account name                           |
@@ -164,7 +181,8 @@ progress bars, no pop-up dialogs.
    260 MB FAT32 partition (made as basic data so it can take a drive
    letter), a 16 MB MSR and an NTFS Windows partition.
 5. Runs `Expand-WindowsImage` onto the Windows partition, then the image's
-   own `bcdboot.exe /f UEFI`.
+   own `bcdboot.exe /f UEFI`. If bcdboot fails, it builds the boot files
+   and store by hand; see [The boot-store fallback](#the-boot-store-fallback).
 6. Writes `\Windows\Panther\unattend.xml`, which has only the `specialize`
    and `oobeSystem` passes. It then switches the first partition's GPT type
    to EFI System and dismounts everything. If this stage fails, the
@@ -200,34 +218,46 @@ progress bars, no pop-up dialogs.
 5. If possible, try an `install.esd` ISO (Media Creation Tool) as well as
    an `install.wim` one, and both x64 and Arm64 hosts.
 
-### Assumptions that haven't been checked
+### What the Arm64 run confirmed
 
-These are the most likely places for the first run to fail, roughly in order:
+All of these worked as designed on the first full run: skipping every
+first-run screen (no product key or region page appeared), PowerShell Direct
+as `COMPUTERNAME\vmuser`, the disk layout and booting from
+`\EFI\Boot\bootaa64.efi` with no NVRAM entry, `InputLocale` as `en-US`, the
+`cmdkey` sign-in being used by `mstsc`, `mshome.net` resolving, and the vTPM
+(it was added without a note).
 
-- **First-run screens:** `SkipMachineOOBE` / `SkipUserOOBE` together with
-  `LocalAccounts` should create `vmuser` and skip every first-run screen on
-  24H2/25H2 when Windows was applied with DISM rather than Setup. Watch the
-  VM in VMConnect during the first run for any screen that stops and waits.
-  A product key or region page is the most likely one. If a key page
-  appears, add a `ProductKey` element to the specialize-pass Shell-Setup
-  component using the generic Pro install key.
-- **PowerShell Direct:** it should accept `COMPUTERNAME\vmuser` (a local
-  admin that isn't the built-in Administrator) and run elevated enough to
-  write HKLM and the firewall. If it keeps failing after the VM reaches the
-  sign-in screen, try `.\vmuser` or plain `vmuser`, and check that the
-  answer file's `ComputerName` was applied.
-- **Disk layout:** `Remove-Partition` should be able to remove the MSR that
-  `Initialize-Disk` may create. `Set-Partition -GptType` should work on a
-  partition that still has a drive letter. The Hyper-V UEFI firmware should
-  boot from `\EFI\Boot\bootx64.efi` (or `bootaa64.efi`) with no NVRAM entry.
-- **Language settings:** `InputLocale` should accept a tag like `en-US`
-  rather than `0409:00000409`.
-- **Saved sign-in:** a credential saved with `cmdkey` from the elevated
-  window should be used by `mstsc`, and `mshome.net` should resolve through
-  `[Net.Dns]` on the host.
-- **vTPM on Arm64:** `Set-VMKeyProtector -NewLocalKeyProtector` and
-  `Enable-VMTPM` may not be supported on Arm64 client Hyper-V. Failure is
-  caught and only prints a note.
+Still unchecked: an x64 host, an `install.esd` ISO, and whether bcdboot
+works normally on a release (non-Insider) build.
+
+### The boot-store fallback
+
+On the 26340 Insider host, `bcdboot /s` fails with exit code 183 and
+`Failed to create a new system store. Status = [c0000035]`. It loads the new
+store under `HKLM\BCD00000000`, the key the host's own store already uses.
+`/offline` and `/nofirmwaresync` don't help. So when bcdboot fails, the script
+does its job by hand. Each step below fixes a failure seen while testing:
+
+1. Copies `Windows\Boot\EFI` and `Fonts` from the applied image to
+   `\EFI\Microsoft\Boot`, and `bootmgfw.efi` to `\EFI\Boot\boot<arch>.efi`.
+2. Creates the store with `bcdedit /createstore` in `%TEMP%`, which loads it
+   under a key of its own.
+3. Flags it as the system store at once: `Description` gets `KeyName` =
+   `BCD00000000`, `System` = 1 and `TreatAsSystem` = 1. Without the flags, the
+   specialize pass logs `BCD: File is not system store` and stops with
+   "Windows Setup could not configure Windows to run on this computer's
+   hardware". `reg load` refuses BCD files ("The filename or extension is too
+   long"), so the script opens a byte copy with `RegLoadAppKey`. That only
+   works before bcdedit adds entries; afterwards it is access denied. The
+   `Description` key denies Administrators write access, so the write uses
+   `REG_OPTION_BACKUP_RESTORE` with the backup and restore privileges. The
+   flags are read back before going on.
+4. Copies the flagged store to the boot partition and adds `{bootmgr}`
+   (`device boot`) and a Windows loader (`device locate`, `osdevice locate`).
+   `partition=X:` records the host's view of the disk, and the VM then stops
+   at Windows Boot Manager with 0xc000000e. With Secure Boot on, the same
+   mistake shows up as the VM turning itself off half a second after it
+   starts.
 
 ### Where to look when it fails
 

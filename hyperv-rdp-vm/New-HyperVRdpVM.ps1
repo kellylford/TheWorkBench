@@ -146,12 +146,22 @@ if (-not (Get-VMSwitch -Name $SwitchName -ErrorAction SilentlyContinue)) {
     throw "There is no Hyper-V virtual switch named '$SwitchName'. Switches on this PC: $names. Pass one with -SwitchName."
 }
 
+# Win32_Processor.Architecture uses the same numbers as a Windows image: 9 is x64, 12 is Arm64.
+$archNames = @{ 0 = 'x86'; 9 = 'x64'; 12 = 'Arm64' }
+$hostArch = [int](Get-CimInstance Win32_Processor | Select-Object -First 1).Architecture
+
 if (-not $IsoPath) {
     $downloads = Join-Path $env:USERPROFILE 'Downloads'
+    $downloadPage = if ($hostArch -eq 12) { 'https://www.microsoft.com/software-download/windows11arm64' } else { 'https://www.microsoft.com/software-download/windows11' }
+    # Microsoft names its ISOs with the processor type, for example
+    # Win11_25H2_English_x64.iso and Win11_25H2_English_Arm64.iso. Skip any whose
+    # name says it's for the other kind of PC, so one Downloads folder can hold both.
+    $otherArch = if ($hostArch -eq 12) { 'x64|amd64' } else { 'arm64|aarch64' }
     $iso = Get-ChildItem -LiteralPath $downloads -Filter '*.iso' -ErrorAction SilentlyContinue |
-        Where-Object Name -match 'win' | Sort-Object LastWriteTime -Descending | Select-Object -First 1
+        Where-Object { $_.Name -match 'win' -and $_.Name -notmatch $otherArch } |
+        Sort-Object LastWriteTime -Descending | Select-Object -First 1
     if (-not $iso) {
-        throw "No Windows ISO found in $downloads. Download one from https://www.microsoft.com/software-download/windows11 and run the script again, or pass its location with -IsoPath."
+        throw "No $($archNames[$hostArch]) Windows ISO found in $downloads. Download one from $downloadPage and run the script again, or pass its location with -IsoPath."
     }
     $IsoPath = $iso.FullName
 }
@@ -164,10 +174,6 @@ $vhdPath = Join-Path $VhdFolder "$VMName.vhdx"
 if (Test-Path -LiteralPath $vhdPath) {
     throw "The virtual disk $vhdPath already exists. Delete it or pick another VM name."
 }
-
-# Win32_Processor.Architecture uses the same numbers as a Windows image: 9 is x64, 12 is Arm64.
-$archNames = @{ 0 = 'x86'; 9 = 'x64'; 12 = 'Arm64' }
-$hostArch = [int](Get-CimInstance Win32_Processor | Select-Object -First 1).Architecture
 
 Say "Creating the virtual machine $VMName."
 Say "Windows image: $IsoPath"
@@ -230,8 +236,151 @@ try {
     Say 'Windows is copied.'
 
     Step 'Step 3 of 5: Making the disk bootable and adding the answer file.'
-    & "${winLetter}:\Windows\System32\bcdboot.exe" "${winLetter}:\Windows" /s "${sysLetter}:" /f UEFI | Out-Null
-    if ($LASTEXITCODE -ne 0) { throw "bcdboot couldn't make the disk bootable (exit code $LASTEXITCODE)." }
+    # bcdboot loads the new boot store under the same registry key as this PC's
+    # own, and on some builds (seen on 26300 Insider) that collides and it fails
+    # with 0xc0000035. If it does, build the same boot files and store by hand:
+    # bcdedit /createstore loads the store under a key of its own.
+    $bootOutput = cmd /c "`"${winLetter}:\Windows\System32\bcdboot.exe`" ${winLetter}:\Windows /s ${sysLetter}: /f UEFI 2>&1" | Out-String
+    if ($LASTEXITCODE -ne 0) {
+        Say "bcdboot couldn't do it (exit code $LASTEXITCODE), so the boot files are being set up directly instead."
+        $efiBoot = "${sysLetter}:\EFI\Microsoft\Boot"
+        # Start clean: the failed bcdboot can leave a partial BCD store behind.
+        Remove-Item -LiteralPath "${sysLetter}:\EFI" -Recurse -Force -ErrorAction SilentlyContinue
+        New-Item -ItemType Directory -Path $efiBoot, "${sysLetter}:\EFI\Boot" -Force | Out-Null
+        Copy-Item -Path "${winLetter}:\Windows\Boot\EFI\*" -Destination $efiBoot -Recurse -Force
+        if (Test-Path "${winLetter}:\Windows\Boot\Fonts") {
+            Copy-Item -Path "${winLetter}:\Windows\Boot\Fonts" -Destination $efiBoot -Recurse -Force
+        }
+        # The firmware starts \EFI\Boot\boot<arch>.efi when it has no boot entry of its own.
+        $fallbackName = if ($hostArch -eq 12) { 'bootaa64.efi' } else { 'bootx64.efi' }
+        Copy-Item -Path "$efiBoot\bootmgfw.efi" -Destination "${sysLetter}:\EFI\Boot\$fallbackName" -Force
+
+        $bcdWork = Join-Path $env:TEMP "NewVmBcd-$([guid]::NewGuid().ToString('N'))"
+        New-Item -ItemType Directory -Path $bcdWork | Out-Null
+        $store = "$bcdWork\BCD"
+        function Invoke-Bcdedit([string]$Arguments) {
+            $out = cmd /c "bcdedit $Arguments 2>&1" | Out-String
+            if ($LASTEXITCODE -ne 0) { throw "bcdedit $Arguments failed: $($out.Trim()) (bcdboot said: $($bootOutput.Trim()))" }
+            return $out
+        }
+        Invoke-Bcdedit "/createstore `"$store`"" | Out-Null
+
+        # bcdedit /createstore makes an ordinary store. The specialize pass
+        # refuses one that isn't flagged as the system store ("File is not
+        # system store", then "could not configure Windows to run on this
+        # computer's hardware"), so set the flags bcdboot would have set.
+        # reg load refuses BCD files ("The filename or extension is too long"),
+        # but RegLoadAppKey opens a byte-for-byte copy with another name. It has
+        # to happen now: once bcdedit adds entries, opening it is access denied.
+        if (-not ('NewVmAppHive' -as [type])) {
+            Add-Type -TypeDefinition @'
+using System;
+using System.Runtime.InteropServices;
+using Microsoft.Win32;
+using Microsoft.Win32.SafeHandles;
+public static class NewVmAppHive {
+    [DllImport("advapi32.dll", CharSet = CharSet.Unicode)]
+    static extern int RegLoadAppKey(string file, out IntPtr key, int sam, int options, int reserved);
+    [DllImport("advapi32.dll", CharSet = CharSet.Unicode)]
+    static extern int RegCreateKeyEx(SafeRegistryHandle key, string subKey, int reserved, string cls, int options, int sam, IntPtr security, out IntPtr result, out int disposition);
+    [DllImport("advapi32.dll")]
+    static extern int RegFlushKey(SafeRegistryHandle key);
+    [DllImport("advapi32.dll", SetLastError = true)]
+    static extern bool OpenProcessToken(IntPtr process, int access, out IntPtr token);
+    [DllImport("advapi32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
+    static extern bool LookupPrivilegeValue(string system, string name, out long luid);
+    [DllImport("advapi32.dll", SetLastError = true)]
+    static extern bool AdjustTokenPrivileges(IntPtr token, bool disableAll, ref TokenPrivilege state, int length, IntPtr previous, IntPtr returnLength);
+    [DllImport("kernel32.dll")]
+    static extern IntPtr GetCurrentProcess();
+    [StructLayout(LayoutKind.Sequential, Pack = 4)]
+    struct TokenPrivilege { public int Count; public long Luid; public int Attributes; }
+    static void Enable(string name) {
+        IntPtr token;
+        if (!OpenProcessToken(GetCurrentProcess(), 0x28, out token)) throw new System.ComponentModel.Win32Exception();
+        TokenPrivilege tp = new TokenPrivilege { Count = 1, Attributes = 2 };
+        if (!LookupPrivilegeValue(null, name, out tp.Luid)) throw new System.ComponentModel.Win32Exception();
+        if (!AdjustTokenPrivileges(token, false, ref tp, 0, IntPtr.Zero, IntPtr.Zero)) throw new System.ComponentModel.Win32Exception();
+    }
+    public static RegistryKey Open(string file) {
+        IntPtr h;
+        int rc = RegLoadAppKey(file, out h, 0xF003F, 0, 0);
+        if (rc != 0) throw new System.ComponentModel.Win32Exception(rc);
+        return RegistryKey.FromHandle(new SafeRegistryHandle(h, true));
+    }
+    // The store's keys deny Administrators write access. Opening with
+    // REG_OPTION_BACKUP_RESTORE and the backup and restore privileges
+    // writes regardless of the key's own permissions.
+    public static RegistryKey OpenForWrite(RegistryKey parent, string name) {
+        Enable("SeBackupPrivilege");
+        Enable("SeRestorePrivilege");
+        IntPtr h; int disposition;
+        int rc = RegCreateKeyEx(parent.Handle, name, 0, null, 4, 0x20006 | 0x0001, IntPtr.Zero, out h, out disposition);
+        if (rc != 0) throw new System.ComponentModel.Win32Exception(rc);
+        return RegistryKey.FromHandle(new SafeRegistryHandle(h, true));
+    }
+    public static void Flush(RegistryKey key) { RegFlushKey(key.Handle); }
+}
+'@
+        }
+        $hiveFile = "$bcdWork\store.hiv"
+        [IO.File]::WriteAllBytes($hiveFile, [IO.File]::ReadAllBytes($store))
+        $root = [NewVmAppHive]::Open($hiveFile)
+        try {
+            $desc = [NewVmAppHive]::OpenForWrite($root, 'Description')
+            $desc.SetValue('KeyName', 'BCD00000000', [Microsoft.Win32.RegistryValueKind]::String)
+            $desc.SetValue('System', 1, [Microsoft.Win32.RegistryValueKind]::DWord)
+            $desc.SetValue('TreatAsSystem', 1, [Microsoft.Win32.RegistryValueKind]::DWord)
+            [NewVmAppHive]::Flush($desc)
+            [NewVmAppHive]::Flush($root)
+            $desc.Close()
+        } finally { $root.Close() }
+        [GC]::Collect(); [GC]::WaitForPendingFinalizers()
+        $flagged = [IO.File]::ReadAllBytes($hiveFile)
+
+        # Read the flags back so a silent failure shows up here, not at first boot.
+        $verifyFile = "$bcdWork\verify.hiv"
+        [IO.File]::WriteAllBytes($verifyFile, $flagged)
+        $root = [NewVmAppHive]::Open($verifyFile)
+        try {
+            $desc = $root.OpenSubKey('Description')
+            if (-not $desc -or [int]$desc.GetValue('System', 0) -ne 1 -or [int]$desc.GetValue('TreatAsSystem', 0) -ne 1) {
+                throw "The new boot store didn't keep its system-store flags."
+            }
+            $desc.Close()
+        } finally { $root.Close() }
+        [GC]::Collect(); [GC]::WaitForPendingFinalizers()
+
+        # Put the flagged store on the boot partition, dropping bcdedit's
+        # transaction log so it can't be replayed over the flags, then add the
+        # entries there.
+        Remove-Item -Path "$store.LOG*" -Force -ErrorAction SilentlyContinue
+        $store = "$efiBoot\BCD"
+        [IO.File]::WriteAllBytes($store, $flagged)
+        Remove-Item -LiteralPath $bcdWork -Recurse -Force -ErrorAction SilentlyContinue
+
+        Invoke-Bcdedit "/store `"$store`" /create {bootmgr} /d `"Windows Boot Manager`"" | Out-Null
+        # "partition=X:" would record this PC's view of the disk, which the VM
+        # can't find (0xc000000e). "boot" and "locate" are resolved at boot time.
+        Invoke-Bcdedit "/store `"$store`" /set {bootmgr} device boot" | Out-Null
+        Invoke-Bcdedit "/store `"$store`" /set {bootmgr} locale $imageLanguage" | Out-Null
+        Invoke-Bcdedit "/store `"$store`" /set {bootmgr} timeout 0" | Out-Null
+        $created = Invoke-Bcdedit "/store `"$store`" /create /d `"Windows`" /application osloader"
+        $loader = [regex]::Match($created, '\{[0-9a-fA-F-]{36}\}').Value
+        if (-not $loader) { throw "bcdedit didn't report the new boot entry: $created" }
+        foreach ($setting in @(
+            'device locate'
+            'osdevice locate'
+            'path \Windows\system32\winload.efi'
+            'systemroot \Windows'
+            "locale $imageLanguage"
+            'nx OptIn'
+        )) {
+            Invoke-Bcdedit "/store `"$store`" /set $loader $setting" | Out-Null
+        }
+        Invoke-Bcdedit "/store `"$store`" /set {bootmgr} default $loader" | Out-Null
+        Invoke-Bcdedit "/store `"$store`" /set {bootmgr} displayorder $loader" | Out-Null
+    }
 
     $xUser = [Security.SecurityElement]::Escape($UserName)
     $xPass = [Security.SecurityElement]::Escape($Password)
