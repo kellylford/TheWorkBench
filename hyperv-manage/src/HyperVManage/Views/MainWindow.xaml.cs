@@ -101,11 +101,13 @@ public partial class MainWindow : Window
 
     private bool AskDelete(VmInfo vm, IReadOnlyList<string> disks)
     {
-        var files = disks.Count == 0 ? "It has no disks attached." : "Its disk files:\n" + string.Join("\n", disks);
+        // Only what will happen to this VM. A disk another VM turns out to rely on is kept, and the
+        // message after the delete says so; saying it here for every VM read as if it applied.
+        var files = disks.Count == 0 ? "It has no disks attached." : "Its disk files are deleted with it:\n" + string.Join("\n", disks);
         var answer = MessageBox.Show(this,
             $"Delete {vm.Name}?\n\nThis turns it off and permanently deletes the virtual machine and its checkpoints. " +
-            $"{files}\n\nA disk another VM uses is kept. The desktop connection file {vm.Name}.rdp and its saved sign-in " +
-            "are deleted too, if they connect to this VM. It can't be undone.",
+            $"{files}\n\nThe desktop connection file {vm.Name}.rdp and its saved sign-in are deleted too, if they " +
+            "connect to this VM. It can't be undone.",
             "Delete virtual machine", MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No);
         return answer == MessageBoxResult.Yes;
     }

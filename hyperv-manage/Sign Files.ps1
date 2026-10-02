@@ -25,7 +25,9 @@ param(
 
 $ErrorActionPreference = 'Stop'
 
-$files = foreach ($p in $Path) { (Resolve-Path -LiteralPath $p).Path }
+# @() keeps one file a list: without it a single path is a string, and @files below would
+# splat it into one argument per character.
+$files = @(foreach ($p in $Path) { (Resolve-Path -LiteralPath $p).Path })
 
 # The add-on is x64, and signtool has to match it, so the x64 signtool is used on Arm PCs too.
 $dlib = Join-Path $env:LOCALAPPDATA 'Microsoft\MicrosoftTrustedSigningClientTools\Azure.CodeSigning.Dlib.dll'
