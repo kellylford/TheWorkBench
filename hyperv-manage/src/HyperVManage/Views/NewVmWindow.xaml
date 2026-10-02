@@ -20,6 +20,13 @@
                     <TextBox x:Name="IsoBox" AutomationProperties.Name="Windows ISO" Text="{Binding IsoPath, UpdateSourceTrigger=PropertyChanged}"
                              AutomationProperties.HelpText="Leave empty to use the newest Windows ISO in your Downloads folder."/>
                 </DockPanel>
+                <!-- Microsoft's download pages: this PC's kind first. Each link is a Tab stop and
+                     opens in the browser with Enter. Text and addresses are set in code. -->
+                <TextBlock Margin="0,4,0,0" TextWrapping="Wrap">
+                    <Hyperlink x:Name="IsoLinkThisPc" Click="IsoLink_Click"><Run x:Name="IsoLinkThisPcText"/></Hyperlink>
+                    <LineBreak/>
+                    <Hyperlink x:Name="IsoLinkOther" Click="IsoLink_Click"><Run x:Name="IsoLinkOtherText"/></Hyperlink>
+                </TextBlock>
 
                 <Label Content="_Edition:" Target="{Binding ElementName=EditionBox}" Padding="0,8,0,2"/>
                 <TextBox x:Name="EditionBox" AutomationProperties.Name="Edition" Text="{Binding Edition, UpdateSourceTrigger=PropertyChanged}"/>

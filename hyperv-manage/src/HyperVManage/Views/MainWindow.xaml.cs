@@ -4,6 +4,7 @@ using System.Windows.Input;
 using System.Windows.Threading;
 using HyperVManage.Helpers;
 using HyperVManage.Models;
+using HyperVManage.Services;
 using HyperVManage.ViewModels;
 
 namespace HyperVManage.Views;
@@ -19,6 +20,13 @@ public partial class MainWindow : Window
         InitializeComponent();
         _vm = vm;
         _demo = demo;
+
+        // Access keys D and W: Help already uses K and A.
+        var downloads = IsoDownloads.ForThisPcFirst(IsoFinder.HostIsArm64);
+        IsoMenuThisPc.Header = "_" + downloads[0].Text;
+        IsoMenuThisPc.Tag = downloads[0].Page;
+        IsoMenuOther.Header = downloads[1].Text.Replace("Download Windows", "Download _Windows");
+        IsoMenuOther.Tag = downloads[1].Page;
         DataContext = vm;
         if (demo) Title = "Hyper-V Manage (demo, pretend VMs)";
 
@@ -141,6 +149,17 @@ public partial class MainWindow : Window
     }
 
     private void Shortcuts_Click(object sender, RoutedEventArgs e) => new ShortcutsWindow { Owner = this }.ShowDialog();
+
+    private void IsoMenu_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is not System.Windows.Controls.MenuItem { Tag: Uri page }) return;
+        try
+        {
+            HyperVManage.Services.IsoDownloads.Open(page);
+            Announcer.Announce(this, "Opening the download page in your browser.");
+        }
+        catch (Exception ex) { Announcer.Announce(this, $"Couldn't open the download page: {ex.Message}"); }
+    }
 
     private void About_Click(object sender, RoutedEventArgs e) =>
         MessageBox.Show(this,

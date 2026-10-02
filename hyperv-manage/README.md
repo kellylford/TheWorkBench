@@ -40,6 +40,10 @@ It isn't called Hyper-V Manager because Windows already has a Hyper-V Manager.
   - Delete asks first, naming the disk files it will remove. It keeps any disk another VM uses
     or depends on, and only removes a desktop connection file that connects to this VM. It says
     afterwards what it kept and anything it couldn't delete.
+- **Windows ISO downloads**: New Virtual Machine has links, under the ISO field, to Microsoft's
+  Windows 11 download pages, with the page for this PC's kind of processor first (Hyper-V only
+  runs Windows built for it) and the other kind's second. The Help menu has the same two. They
+  open in your browser as you, not as administrator.
 - **New Virtual Machine**: the script's options in a form, with a name that starts with this
   PC's name (for example `SURFACEPRO7-Win11`) so VMs made on different PCs never share one. Then
   the script's own progress as it

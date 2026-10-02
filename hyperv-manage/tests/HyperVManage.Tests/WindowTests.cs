@@ -200,6 +200,51 @@ public class WindowTests
     }
 
     [StaFact]
+    public void NewVmWindow_LinksToTheIsoDownloads_ThisPcsKindFirst()
+    {
+        EnsureApp();
+        var window = new NewVmWindow(new NewVmViewModel([]));
+        try
+        {
+            ShowOffscreen(window);
+            var mine = (System.Windows.Documents.Hyperlink)window.FindName("IsoLinkThisPc");
+            var other = (System.Windows.Documents.Hyperlink)window.FindName("IsoLinkOther");
+            var expected = IsoFinder.HostIsArm64 ? IsoDownloads.Arm64 : IsoDownloads.X64;
+            Assert.Equal(expected.Page, mine.NavigateUri);
+            Assert.NotEqual(mine.NavigateUri, other.NavigateUri);
+            foreach (var link in new[] { mine, other })
+            {
+                var peer = new System.Windows.Automation.Peers.HyperlinkAutomationPeer(link);
+                Assert.StartsWith("Download Windows 11", peer.GetName());
+                Assert.True(link.Focusable, "a link must be reachable with Tab");
+            }
+            Assert.EndsWith("which this PC needs", new System.Windows.Automation.Peers.HyperlinkAutomationPeer(mine).GetName());
+        }
+        finally { window.Close(); }
+    }
+
+    [StaFact]
+    public async Task HelpMenu_LinksToBothIsoDownloads()
+    {
+        EnsureApp();
+        var vm = new MainViewModel(new DemoHyperVService { Delay = TimeSpan.Zero });
+        await vm.RefreshAsync();
+        var window = new MainWindow(vm, demo: true);
+        try
+        {
+            ShowOffscreen(window);
+            var pages = new[] { "IsoMenuThisPc", "IsoMenuOther" }.Select(n => ((MenuItem)window.FindName(n)).Tag).ToList();
+            Assert.Contains(IsoDownloads.X64.Page, pages);
+            Assert.Contains(IsoDownloads.Arm64.Page, pages);
+        }
+        finally { window.Close(); }
+    }
+
+    [Fact]
+    public void OnlyHttpsPagesAreOpened() =>
+        Assert.Throws<ArgumentException>(() => IsoDownloads.Open(new Uri(@"file:///C:/Windows/System32/cmd.exe")));
+
+    [StaFact]
     public void NewVmWindow_Loads_WithEveryFieldLabelled()
     {
         EnsureApp();

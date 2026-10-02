@@ -34,6 +34,12 @@ public partial class NewVmWindow : Window
         };
         Loaded += (_, _) => { NameBox.Focus(); NameBox.SelectAll(); };
 
+        var downloads = IsoDownloads.ForThisPcFirst(IsoFinder.HostIsArm64);
+        IsoLinkThisPc.NavigateUri = downloads[0].Page;
+        IsoLinkThisPcText.Text = downloads[0].Text;
+        IsoLinkOther.NavigateUri = downloads[1].Page;
+        IsoLinkOtherText.Text = downloads[1].Text;
+
         PreviewKeyDown += (_, e) =>
         {
             // Escape closes, as Cancel does; modeless windows don't get that from IsCancel.
@@ -102,6 +108,17 @@ public partial class NewVmWindow : Window
         };
         if (dialog.ShowDialog(this) == true) _vm.IsoPath = dialog.FileName;
         IsoBox.Focus();
+    }
+
+    private void IsoLink_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is not System.Windows.Documents.Hyperlink { NavigateUri: { } page }) return;
+        try
+        {
+            IsoDownloads.Open(page);
+            Announcer.Announce(this, "Opening the download page in your browser.");
+        }
+        catch (Exception ex) { Announcer.Announce(this, $"Couldn't open the download page: {ex.Message}"); }
     }
 
     private void Close_Click(object sender, RoutedEventArgs e) => Close();

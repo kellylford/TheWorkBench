@@ -47,6 +47,10 @@
                 <MenuItem Header="_Delete…" Command="{Binding DeleteCommand}" InputGestureText="Delete"/>
             </MenuItem>
             <MenuItem Header="_Help">
+                <!-- Microsoft's ISO download pages, this PC's kind first; headers are set in code. -->
+                <MenuItem x:Name="IsoMenuThisPc" Click="IsoMenu_Click"/>
+                <MenuItem x:Name="IsoMenuOther" Click="IsoMenu_Click"/>
+                <Separator/>
                 <MenuItem Header="_Keyboard Shortcuts" Click="Shortcuts_Click"/>
                 <MenuItem Header="_About Hyper-V Manage" Click="About_Click"/>
             </MenuItem>
