@@ -7,9 +7,19 @@
 > fallback described below. An x64 host hasn't been tried yet. See
 > [Picking this up on a Pro machine](#picking-this-up-on-a-pro-machine) for
 > the test plan.
+>
+> **New and not yet run end to end:** joining your own network by default,
+> starting with the PC, and connecting by `.local` name. Each was done by hand
+> on that Arm64 host first (an external switch on Wi-Fi, the VM moved onto it,
+> `Win11-RDP.local` resolving to its new address and Remote Desktop answering
+> there, checked from the host), and the script now does the same steps.
 
 One script that builds a Windows virtual machine in Hyper-V with a fully
-unattended install and leaves it ready to sign in to with Remote Desktop.
+unattended install and leaves it ready to sign in to with Remote Desktop, from
+this PC or from any other computer on your network.
+
+To do the same from a window instead of the command line, and to manage the VM
+afterwards, use [Hyper-V Manage](../hyperv-manage/), which runs this script.
 
 Remote Desktop is the way to get proper audio out of a Hyper-V VM for JAWS,
 NVDA or Narrator, so the script finishes by opening a Remote Desktop connection
@@ -55,23 +65,41 @@ it opens Remote Desktop and signs you in.
 | User name       | vmuser (an administrator)                    |
 | Password        | vmadmin                                      |
 | Connection file | `Win11-RDP.rdp` on your desktop              |
-| Address         | `Win11-RDP.mshome.net`, or an IP address     |
+| Address         | `Win11-RDP.local`, or an IP address          |
+| Network         | Your own network, through an external switch |
+| Starts          | Whenever this PC starts                      |
+
+The VM joins your own network, so other computers on it can connect with
+Remote Desktop too, and it starts whenever your PC does, so turning the PC on
+is all it takes. The connection file uses the VM's name, `Win11-RDP.local`,
+rather than its address, because your router can give it a new address; other
+Windows PCs and Macs on your network can look the name up as well.
 
 The sign-in is saved in Windows Credential Manager, so opening the connection
-file logs you straight in. The Default Switch gives the VM a new IP address
-when your PC restarts; the `mshome.net` name keeps working, and the script uses
-it whenever it resolves.
+file logs you straight in.
 
 The password is set never to expire, the VM never sleeps, and automatic
 checkpoints are off.
 
+### The network
+
+If this PC has no external switch yet, the script creates one called
+`External Network` on the adapter you use for the internet, Wi-Fi or Ethernet.
+**This PC's network connection drops for a few seconds while Windows sets it
+up**, and the script waits for it to come back. If an external switch already
+exists, the script uses it and changes nothing.
+
+To keep the VM private to this PC instead, as earlier versions of the script
+did, use `-HostOnly`. It then goes on the Default Switch, where only this PC can
+reach it, at `Win11-RDP.mshome.net`.
+
 ## Reconnecting later
 
 Open `Win11-RDP.rdp` on your desktop, or connect Remote Desktop to
-`Win11-RDP.mshome.net`. The VM has to be running. Hyper-V starts it again
-when your PC restarts if it was running when the PC shut down; give it a
-minute to boot. If you shut the VM itself down, start it from an
-administrator PowerShell window:
+`Win11-RDP.local` from any computer on your network. Copy the `.rdp` file to
+another computer to use it there. The VM starts whenever your PC does; give it
+a minute to boot. If you shut the VM itself down, start it from Hyper-V Manage,
+or from an administrator PowerShell window:
 
 ```powershell
 Start-VM Win11-RDP
@@ -89,7 +117,9 @@ Start-VM Win11-RDP
 | `-ProcessorCount` | 4                      | Virtual processors                             |
 | `-MemoryGB`       | 4                      | Starting memory; it can grow to twice this, or 8 GB |
 | `-DiskGB`         | 128                    | Virtual disk size                              |
-| `-SwitchName`     | Default Switch         | Hyper-V virtual switch                         |
+| `-SwitchName`     | an external switch     | Hyper-V virtual switch. Left out, the VM joins your network through an external switch, created if there isn't one |
+| `-HostOnly`       | off                    | Use the Default Switch: only this PC can reach the VM |
+| `-NoAutoStart`    | off                    | Don't start the VM when this PC starts         |
 | `-VhdFolder`      | Hyper-V's disk folder  | Where the virtual disk goes                    |
 | `-TimeZone`       | this PC's time zone    | Windows time zone name                         |
 | `-NoConnect`      | off                    | Don't open Remote Desktop at the end           |
@@ -141,6 +171,16 @@ processor. Hyper-V can't run the other kind.
 **Remote Desktop asks whether you trust the publisher of the connection.** The
 connection file isn't signed. Check "Don't ask me again" and choose Connect.
 
+**Other computers can't reach the VM, or setup never finds its address.**
+The VM gets its address from your router. A few routers refuse more than one
+address from the same Wi-Fi connection, which is how a VM shares it. Plug the PC
+into Ethernet, or start over with `-HostOnly` and connect from this PC.
+
+**The connection file stopped working.** If `Win11-RDP.local` doesn't answer,
+your network may not pass names around. Find the VM's current address in
+Hyper-V Manage and connect to that; setting up an address reservation for the VM
+in your router stops it changing.
+
 **No sound.** In the Remote Desktop window, open Show Options, then Local
 Resources, then Remote audio Settings, and make sure "Play on this computer" is
 selected. The connection file sets this, but a copy of Remote Desktop that has
@@ -171,9 +211,14 @@ progress bars, no pop-up dialogs.
 
 1. Relaunches itself elevated with `-NoExit` if it isn't already.
 2. Checks that `New-VM` exists (Hyper-V is on), the VM name and VHDX are
-   free, the switch exists, the edition isn't Home, and the ISO's
-   architecture matches the host's (`Win32_Processor.Architecture`: 9 is
-   x64, 12 is Arm64, the same numbers `Get-WindowsImage` uses).
+   free, the edition isn't Home, and the ISO's architecture matches the
+   host's (`Win32_Processor.Architecture`: 9 is x64, 12 is Arm64, the same
+   numbers `Get-WindowsImage` uses). It then picks the switch: `-SwitchName`
+   if given, the Default Switch with `-HostOnly`, otherwise the first external
+   switch. With none, it finds the internet adapter (the lowest-metric
+   `0.0.0.0/0` route on a physical adapter that is up) and creates
+   `External Network` on it with `-AllowManagementOS`, before any disk work,
+   so a failure there costs nothing.
 3. Mounts the ISO, finds `sources\install.wim` or `install.esd`, and picks
    the index whose `ImageName` equals `-Edition`.
 4. Creates a dynamic VHDX, mounts it, and initialises it as GPT. Any
@@ -188,8 +233,9 @@ progress bars, no pop-up dialogs.
    to EFI System and dismounts everything. If this stage fails, the
    half-built VHDX is deleted.
 7. Creates a Generation 2 VM with dynamic memory and automatic checkpoints
-   off, boots from the hard disk first, and adds a vTPM if it can (a
-   failure only prints a note).
+   off, boots from the hard disk first, sets `AutomaticStartAction Start`
+   (unless `-NoAutoStart`), and adds a vTPM if it can (a failure only prints a
+   note).
 8. Polls `Invoke-Command -VMName` (PowerShell Direct) every 15 seconds with
    `COMPUTERNAME\vmuser`. The call fails until the answer file has created
    the account. Once it gets in, it waits until `HKLM\SYSTEM\Setup` shows
@@ -197,9 +243,12 @@ progress bars, no pop-up dialogs.
    enables RDP and its firewall group (`@FirewallAPI.dll,-28752`, which
    works in any language), sets the RDP audio policies, starts Audiosrv,
    marks the network Private and returns the VM's IPv4 address.
-9. Uses `COMPUTERNAME.mshome.net` if it resolves to that IP, otherwise the
-   IP. It waits for TCP 3389 to answer, then writes the `.rdp` file to the
-   desktop, runs `cmdkey /generic:TERMSRV/<target>`, and launches `mstsc`.
+9. Picks a name that resolves to that IP, trying for up to a minute while
+   the VM's name registration catches up: `COMPUTERNAME.local` then
+   `COMPUTERNAME` on an external switch, `COMPUTERNAME.mshome.net` on the
+   Default Switch. Otherwise it uses the IP. It waits for TCP 3389 to answer,
+   then writes the `.rdp` file to the desktop, runs
+   `cmdkey /generic:TERMSRV/<target>`, and launches `mstsc`.
 
 ### Test plan
 
@@ -212,7 +261,9 @@ progress bars, no pop-up dialogs.
    - you are signed in as `vmuser`, and it's an administrator;
    - sound plays on the host (start Narrator with Ctrl+Win+Enter);
    - `Win11-RDP.rdp` reconnects after closing the session;
-   - it still reconnects after restarting the host, when the IP changes.
+   - it still reconnects after restarting the host, when the IP changes;
+   - another computer on the network can connect to `Win11-RDP.local`;
+   - the VM is running again after the host restarts, without starting it.
 4. Run `.\New-HyperVRdpVM.ps1 -Remove` and confirm that the VM, VHDX, `.rdp`
    file and saved credential (`cmdkey /list`) are all gone.
 5. If possible, try an `install.esd` ISO (Media Creation Tool) as well as

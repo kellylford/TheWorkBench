@@ -93,6 +93,19 @@ Windows 11 ARM installation scripts and resources.
 
 [View Project][2]
 
+### hyperv-manage
+A Windows application for managing Hyper-V virtual machines, built screen reader first: start,
+stop, connect with Remote Desktop, settings, checkpoints, cloning, and building new Windows VMs.
+The Windows counterpart of parallels-manager.
+
+[View Project][6]
+
+### hyperv-rdp-vm
+One PowerShell script that builds a Hyper-V Windows VM with an unattended install, ready to sign
+in to with Remote Desktop from any computer on your network.
+
+[View Project][7]
+
 ## Getting Started
 
 ## Requirements
@@ -110,6 +123,8 @@ Contributions to existing projects are welcome. If you have a script, app or oth
 [3]:	./LICENSE
 [4]:	./thecardplace/sheephead
 [5]:	https://kellylford.github.io/TheWorkBench/thecardplace/
+[6]:	./hyperv-manage
+[7]:	./hyperv-rdp-vm
 [6]:	./thecardplace/Cribbage
 [7]:	./thecardplace/TESTING.md
 [8]:	./thecardplace/sheephead-multiplayer

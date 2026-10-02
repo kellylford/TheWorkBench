@@ -36,6 +36,20 @@
     Which edition in the ISO to install. It must be one that can accept
     Remote Desktop connections, so Home editions are refused.
 
+.PARAMETER SwitchName
+    The Hyper-V virtual switch to connect the VM to. Leave it out and the VM
+    joins this PC's own network through an external switch: an existing one
+    if there is one, otherwise one the script creates on the adapter this PC
+    uses for the internet. Other computers on your network can then reach it.
+
+.PARAMETER HostOnly
+    Use the Default Switch instead, as earlier versions did. The VM can then be
+    reached only from this PC, and nothing about this PC's networking changes.
+
+.PARAMETER NoAutoStart
+    Don't start the VM when this PC starts. By default it starts every time,
+    so turning the PC on is enough to be able to connect.
+
 .PARAMETER Remove
     Deletes the virtual machine named by VMName, its virtual disk, its .rdp
     file and its saved sign-in, so you can start over.
@@ -59,12 +73,14 @@ param(
     [int]$ProcessorCount = 4,
     [int]$MemoryGB = 4,
     [int]$DiskGB = 128,
-    [string]$SwitchName = 'Default Switch',
+    [string]$SwitchName,
     [string]$VhdFolder,
     [string]$Locale,
     [string]$TimeZone = (Get-TimeZone).Id,
     [int]$TimeoutMinutes = 45,
     [switch]$NoConnect,
+    [switch]$HostOnly,
+    [switch]$NoAutoStart,
     [switch]$Remove
 )
 
@@ -141,9 +157,48 @@ if ($Edition -match 'Home') {
 if (Get-VM -Name $VMName -ErrorAction SilentlyContinue) {
     throw "A virtual machine named $VMName already exists. Pick another name with -VMName, or delete it with -Remove."
 }
-if (-not (Get-VMSwitch -Name $SwitchName -ErrorAction SilentlyContinue)) {
-    $names = (Get-VMSwitch | Select-Object -ExpandProperty Name) -join ', '
-    throw "There is no Hyper-V virtual switch named '$SwitchName'. Switches on this PC: $names. Pass one with -SwitchName."
+
+# --- Network -------------------------------------------------------------------
+# By default the VM joins this PC's own network through an external switch, so
+# other computers can reach it with Remote Desktop. The Default Switch hides the
+# VM behind this PC, where only this PC can reach it; -HostOnly asks for that.
+
+# The adapter this PC reaches the internet through: the lowest-metric default
+# route on a physical adapter that is up.
+function Get-InternetAdapter {
+    $routes = Get-NetRoute -DestinationPrefix '0.0.0.0/0' -ErrorAction SilentlyContinue | Sort-Object RouteMetric
+    foreach ($route in $routes) {
+        $adapter = Get-NetAdapter -InterfaceIndex $route.ifIndex -ErrorAction SilentlyContinue
+        if ($adapter -and $adapter.Status -eq 'Up' -and -not $adapter.Virtual) { return $adapter }
+    }
+    return $null
+}
+
+$createSwitchOn = $null
+if ($SwitchName) {
+    if (-not (Get-VMSwitch -Name $SwitchName -ErrorAction SilentlyContinue)) {
+        $names = (Get-VMSwitch | Select-Object -ExpandProperty Name) -join ', '
+        throw "There is no Hyper-V virtual switch named '$SwitchName'. Switches on this PC: $names. Pass one with -SwitchName."
+    }
+} elseif ($HostOnly) {
+    $SwitchName = 'Default Switch'
+    if (-not (Get-VMSwitch -Name $SwitchName -ErrorAction SilentlyContinue)) {
+        throw "There is no Default Switch on this PC. Pass a switch with -SwitchName."
+    }
+} else {
+    $external = Get-VMSwitch -SwitchType External -ErrorAction SilentlyContinue | Select-Object -First 1
+    if ($external) {
+        $SwitchName = $external.Name
+    } else {
+        $createSwitchOn = Get-InternetAdapter
+        if (-not $createSwitchOn) {
+            throw "Can't find the network adapter this PC uses for the internet, so the VM can't join your network. Connect to a network and run the script again, or run it with -HostOnly to make a VM only this PC can reach."
+        }
+        $SwitchName = 'External Network'
+        if (Get-VMSwitch -Name $SwitchName -ErrorAction SilentlyContinue) {
+            throw "A Hyper-V switch named '$SwitchName' already exists but isn't an external switch. Rename it, or pass a switch with -SwitchName."
+        }
+    }
 }
 
 # Win32_Processor.Architecture uses the same numbers as a Windows image: 9 is x64, 12 is Arm64.
@@ -178,6 +233,22 @@ if (Test-Path -LiteralPath $vhdPath) {
 Say "Creating the virtual machine $VMName."
 Say "Windows image: $IsoPath"
 Say 'This usually takes 15 to 30 minutes. You do not need to do anything until it finishes.'
+
+if ($createSwitchOn) {
+    Step "Setting up network access: creating a Hyper-V switch named $SwitchName on $($createSwitchOn.Name), so other computers can reach the VM."
+    Say "This PC's network connection drops for a few seconds while Windows sets it up."
+    New-VMSwitch -Name $SwitchName -NetAdapterName $createSwitchOn.Name -AllowManagementOS $true | Out-Null
+    # Wait for this PC's own connection to come back before going on.
+    $netDeadline = (Get-Date).AddSeconds(90)
+    while (-not (Get-NetRoute -DestinationPrefix '0.0.0.0/0' -ErrorAction SilentlyContinue) -and (Get-Date) -lt $netDeadline) {
+        Start-Sleep -Seconds 3
+    }
+    Say 'The switch is ready.'
+} elseif ($SwitchName -eq 'Default Switch') {
+    Say 'Network: the Default Switch. Only this PC can reach the VM.'
+} else {
+    Say "Network: the $SwitchName switch."
+}
 
 # --- Build the virtual disk ---------------------------------------------------
 $isoMounted = $false
@@ -488,6 +559,11 @@ New-VM -Name $VMName -Generation 2 -MemoryStartupBytes ([int64]$MemoryGB * 1GB) 
 Set-VMProcessor -VMName $VMName -Count $ProcessorCount
 Set-VMMemory -VMName $VMName -DynamicMemoryEnabled $true -MinimumBytes 2GB -StartupBytes ([int64]$MemoryGB * 1GB) -MaximumBytes ([int64][Math]::Max($MemoryGB * 2, 8) * 1GB)
 Set-VM -Name $VMName -AutomaticCheckpointsEnabled $false
+if (-not $NoAutoStart) {
+    # Start with this PC every time, not only when it was running at shutdown,
+    # so turning the PC on is all it takes to be able to connect.
+    Set-VM -Name $VMName -AutomaticStartAction Start -AutomaticStartDelay 0
+}
 Set-VMFirmware -VMName $VMName -FirstBootDevice (Get-VMHardDiskDrive -VMName $VMName)
 try {
     # A virtual TPM keeps Windows 11 happy for future feature updates.
@@ -549,13 +625,24 @@ while (-not ($guest -and $guest.Ready -and $guest.IPAddress)) {
 }
 Say "Windows is set up. The virtual machine's address is $($guest.IPAddress)."
 
-# The Default Switch hands out a new address when the host restarts, but it
-# also publishes <computer>.mshome.net, which keeps pointing at the VM.
+# Connect by name where one points at the VM, since its address can change: the
+# Default Switch hands out a new one when this PC restarts, and a router can too.
+# The Default Switch publishes <computer>.mshome.net, visible only to this PC.
+# On your own network the VM answers to <computer>.local, which other Windows
+# PCs and Macs can look up too; it can take a little while to start answering.
+$names = if ($SwitchName -eq 'Default Switch') { @("$ComputerName.mshome.net") } else { @("$ComputerName.local", $ComputerName) }
 $target = $guest.IPAddress
-try {
-    $named = [Net.Dns]::GetHostAddresses("$ComputerName.mshome.net") | ForEach-Object IPAddressToString
-    if ($named -contains $guest.IPAddress) { $target = "$ComputerName.mshome.net" }
-} catch { }
+$nameDeadline = (Get-Date).AddSeconds(60)
+do {
+    foreach ($name in $names) {
+        try {
+            $resolved = [Net.Dns]::GetHostAddresses($name) | ForEach-Object IPAddressToString
+            if ($resolved -contains $guest.IPAddress) { $target = $name; break }
+        } catch { }
+    }
+    if ($target -ne $guest.IPAddress) { break }
+    Start-Sleep -Seconds 5
+} while ((Get-Date) -lt $nameDeadline)
 
 function Test-RdpPort([string]$HostName) {
     $client = New-Object Net.Sockets.TcpClient
@@ -594,6 +681,12 @@ Write-Host ''
 Say 'All done.'
 Say "Virtual machine: $VMName"
 Say "Connect to: $target"
+if ($SwitchName -ne 'Default Switch') {
+    Say 'Other computers on your network can connect to that address too.'
+}
+if (-not $NoAutoStart) {
+    Say 'The virtual machine starts whenever this PC starts.'
+}
 Say "User name: $UserName"
 Say "Password: $Password"
 Say "Connection file: $rdpFile"
