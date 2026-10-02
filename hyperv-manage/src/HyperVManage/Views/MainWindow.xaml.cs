@@ -158,7 +158,13 @@ public partial class MainWindow : Window
             "Ctrl+R: restart\n" +
             "Alt+Enter: settings\n" +
             "Ctrl+K: checkpoint\n" +
-            "Ctrl+D: clone",
+            "Ctrl+D: clone\n" +
+            "Alt or F10: the menu bar\n\n" +
+            "In the Hyper-V console window (Open Console):\n" +
+            "Ctrl+Alt+Left Arrow: take the keyboard back from the VM\n" +
+            "Ctrl+Alt+End: send Ctrl+Alt+Delete to the VM\n" +
+            "Ctrl+Alt+Pause: switch between full screen and a window\n" +
+            "View menu, Enhanced Session: switch to a session that can carry sound",
             "Keyboard shortcuts", MessageBoxButton.OK, MessageBoxImage.Information);
 
     private void About_Click(object sender, RoutedEventArgs e) =>

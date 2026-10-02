@@ -1,18 +1,18 @@
 # Hyper-V Windows VM, ready for Remote Desktop
 
-> **Status: works on Arm64; not yet run on x64.** On 1 October 2026 it built a
-> VM end to end on a Snapdragon X Elite host running Windows 11 Pro Insider
-> (build 26340) from the Arm64 26300 ISO. Remote Desktop signed in on its own
-> and sound played on the host. That host needed the manual boot-store
-> fallback described below. An x64 host hasn't been tried yet. See
-> [Picking this up on a Pro machine](#picking-this-up-on-a-pro-machine) for
-> the test plan.
->
-> **New and not yet run end to end:** joining your own network by default,
-> starting with the PC, and connecting by `.local` name. Each was done by hand
-> on that Arm64 host first (an external switch on Wi-Fi, the VM moved onto it,
-> `Win11-RDP.local` resolving to its new address and Remote Desktop answering
-> there, checked from the host), and the script now does the same steps.
+> **Status: works on Arm64 and x64.**
+> - **1 October 2026, Arm64:** the script built a VM end to end on a
+>   Snapdragon X Elite host running Windows 11 Pro Insider (build 26340) from
+>   the Arm64 26300 ISO. Remote Desktop signed in on its own and sound played
+>   on the host. That host needed the manual boot-store fallback described
+>   below.
+> - **2 October 2026, both kinds of PC:** Hyper-V Manage, which runs this
+>   script, built VMs end to end on that Arm64 host and on an x64 host. Both
+>   joined the home network through an external switch.
+> - **Not yet run end to end:** the default name that starts with this PC's
+>   name, and the check for a name already in use on the network. Both were
+>   added after two VMs named `Win11-RDP` on one network let Remote Desktop
+>   connect to the wrong one.
 
 One script that builds a Windows virtual machine in Hyper-V with a fully
 unattended install and leaves it ready to sign in to with Remote Desktop, from
@@ -71,23 +71,51 @@ it opens Remote Desktop and signs you in.
 
 | Item            | Value                                        |
 |-----------------|----------------------------------------------|
-| VM name         | Win11-RDP                                    |
-| Computer name   | Win11-RDP                                    |
+| VM name         | This PC's name and `-Win11`, for example `SURFACEPRO7-Win11` |
+| Computer name   | The same, cut to 15 characters: `SURFACEPR-Win11` |
 | User name       | vmuser (an administrator)                    |
 | Password        | vmadmin                                      |
-| Connection file | `Win11-RDP.rdp` on your desktop              |
-| Address         | `Win11-RDP.local`, or an IP address          |
+| Connection file | `SURFACEPRO7-Win11.rdp` on your desktop      |
+| Address         | `SURFACEPR-Win11.local`, or an IP address    |
 | Network         | Your own network, through an external switch |
 | Starts          | Whenever this PC starts                      |
 
+The examples on this page use a PC called SURFACEPRO7. Yours will use your
+PC's name.
+
 The VM joins your own network, so other computers on it can connect with
 Remote Desktop too, and it starts whenever your PC does, so turning the PC on
-is all it takes. The connection file uses the VM's name, `Win11-RDP.local`,
-rather than its address, because your router can give it a new address; other
-Windows PCs and Macs on your network can look the name up as well.
+is all it takes. The connection file uses the VM's computer name with
+`.local` rather than its address, because your router can give it a new
+address; other Windows PCs and Macs on your network can look the name up as
+well. It uses the name only when the name leads to this VM and nothing else,
+and otherwise the address.
+
+### Names
+
+The VM's name starts with this PC's name so that VMs made on different PCs
+on one network never share a name. Two computers with one name confuse
+Remote Desktop: it can connect to the other one, and since both have the same
+sign-in, nothing warns you. Before building anything, the script asks the
+network whether a computer already has the name, and stops if one does.
+
+Windows limits a computer name to 15 characters. When the VM's name is
+longer, the computer name keeps the ending, which is what tells VMs apart,
+and shortens the start: `SURFACEPRO7-Win11` becomes `SURFACEPR-Win11`, and a
+second VM, `SURFACEPRO7-Win11-2`, becomes `SURFACE-Win11-2`. Choose your own
+name with `-VMName`.
+
+VMs made by earlier versions are called `Win11-RDP`. They keep that name; use
+`-VMName Win11-RDP` with `-Remove` for them.
+
+### Signing in
 
 The sign-in is saved in Windows Credential Manager, so opening the connection
-file logs you straight in.
+file signs you in without typing the password. **Remote Desktop still asks
+each time** whether to let the connection use your sound, microphone and
+clipboard, and there's no setting to stop it. Choose Connect. Recent versions
+of Windows show this for every connection file that isn't digitally signed,
+which a file made on your own PC is not.
 
 The password is set never to expire, the VM never sleeps, and automatic
 checkpoints are off.
@@ -111,18 +139,37 @@ Remove-VMSwitch -Name 'External Network'
 
 To keep the VM private to this PC instead, as earlier versions of the script
 did, use `-HostOnly`. It then goes on the Default Switch, where only this PC can
-reach it, at `Win11-RDP.mshome.net`.
+reach it, at `<computer name>.mshome.net`, for example
+`SURFACEPR-Win11.mshome.net`.
+
+### Moving between Wi-Fi and a cable
+
+An external switch is tied to one network adapter. On a laptop that uses
+Wi-Fi sometimes and a cable at other times, the VM loses its network when the
+adapter its switch uses disconnects. Windows often drops Wi-Fi when you plug
+in a cable. Make a switch on each adapter, then move the VM to whichever one
+is connected, in Hyper-V Manage's Settings or in an administrator PowerShell
+window:
+
+```powershell
+New-VMSwitch -Name 'External Ethernet' -NetAdapterName 'Ethernet' -AllowManagementOS $true
+Connect-VMNetworkAdapter -VMName SURFACEPRO7-Win11 -SwitchName 'External Ethernet'
+```
+
+Use the adapter's name as it appears in Settings, Network and internet. This
+PC's network drops for a few seconds while Windows makes a switch.
 
 ## Reconnecting later
 
-Open `Win11-RDP.rdp` on your desktop, or connect Remote Desktop to
-`Win11-RDP.local` from any computer on your network. Copy the `.rdp` file to
-another computer to use it there. The VM starts whenever your PC does; give it
-a minute to boot. If you shut the VM itself down, start it from Hyper-V Manage,
-or from an administrator PowerShell window:
+Open the VM's connection file on your desktop, `SURFACEPRO7-Win11.rdp`, or
+connect Remote Desktop to its `.local` name from any computer on your
+network. Copy the `.rdp` file to another computer to use it there. If the file
+is lost, Hyper-V Manage's Save Connection File makes a new one. The VM starts
+whenever your PC does; give it a minute to boot. If you shut the VM itself
+down, start it from Hyper-V Manage, or from an administrator PowerShell window:
 
 ```powershell
-Start-VM Win11-RDP
+Start-VM SURFACEPRO7-Win11
 ```
 
 ## Options
@@ -130,7 +177,7 @@ Start-VM Win11-RDP
 | Option            | Default                | What it does                                   |
 |-------------------|------------------------|------------------------------------------------|
 | `-IsoPath`        | newest Windows ISO for this PC's processor in the script's own folder, then in Downloads | The Windows ISO to install from |
-| `-VMName`         | Win11-RDP              | VM name, and the computer name (15 characters) |
+| `-VMName`         | this PC's name and `-Win11` | VM name, and the computer name (see [Names](#names)) |
 | `-Edition`        | Windows 11 Pro         | Edition inside the ISO. Home is refused.       |
 | `-UserName`       | vmuser                 | Windows account name                           |
 | `-Password`       | vmadmin                | Windows account password                       |
@@ -154,8 +201,11 @@ For example, a second VM with more memory:
 ## Starting over
 
 ```powershell
-.\New-HyperVRdpVM.ps1 -VMName Win11-RDP -Remove
+.\New-HyperVRdpVM.ps1 -VMName SURFACEPRO7-Win11 -Remove
 ```
+
+Without `-VMName`, `-Remove` uses the default name, this PC's name and
+`-Win11`.
 
 This also works after a run that failed partway. If there's no VM with that
 name, it still deletes the virtual disk, connection file and saved sign-in
@@ -193,8 +243,23 @@ Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Hyper-V-All
 **"This ISO is for x64 PCs, but this PC is Arm64."** Download the ISO for your
 processor. Hyper-V can't run the other kind.
 
-**Remote Desktop asks whether you trust the publisher of the connection.** The
-connection file isn't signed. Check "Don't ask me again" and choose Connect.
+**Remote Desktop asks about sharing every time you connect.** It lists the
+sound, microphone and clipboard the connection uses and asks whether to
+connect. Recent versions of Windows show this for every connection file that
+isn't digitally signed, and it can't be turned off. Choose Connect. Signing
+the file (with `rdpsign.exe` and a certificate your PC trusts) is the only way
+round it; the script doesn't do that, because it would mean adding a
+certificate to Windows' trusted list.
+
+**Remote Desktop connected to the wrong VM.** Two computers on the network
+have the same name, usually VMs made on two PCs by an earlier version of the
+script, which called every VM `Win11-RDP`. Run `ipconfig` in the session to
+see which one you reached. Rename one VM's Windows computer name, or connect by
+address. The current script stops before building a VM whose name is already
+in use.
+
+**"Another computer on your network is already called ..."** The name the VM
+would get is taken. Pick another with `-VMName`.
 
 **Other computers can't reach the VM, or setup never finds its address.**
 The VM gets its address from your router. A few routers refuse more than one
@@ -206,8 +271,10 @@ the connection file and saved sign-in. It keeps a disk another VM uses (one
 attached to it, or the parent of one of its differencing disks), and a desktop
 `.rdp` file of the same name that connects to something else.
 
-**The connection file stopped working.** If `Win11-RDP.local` doesn't answer,
-your network may not pass names around. Find the VM's current address in
+**The connection file stopped working.** If the VM's `.local` name doesn't
+answer, the VM may have lost its network (see
+[Moving between Wi-Fi and a cable](#moving-between-wi-fi-and-a-cable)), or your
+network may not pass names around. Find the VM's current address in
 Hyper-V Manage and connect to that; setting up an address reservation for the VM
 in your router stops it changing.
 
@@ -296,19 +363,25 @@ progress bars, no pop-up dialogs.
 1. On a Pro, Enterprise or Education host with Hyper-V on, download the
    Windows 11 ISO for the host's architecture into Downloads.
 2. Run `Create VM.cmd`. Expect about 30 lines of step messages and a
-   "Still setting up" line every 3 minutes. Remote Desktop should then open
-   and sign in without asking for anything.
+   "Still setting up" line every 3 minutes. Remote Desktop should then open,
+   ask once about sharing sound and the clipboard, and sign in without asking
+   for a password.
 3. In the session, confirm that:
    - you are signed in as `vmuser`, and it's an administrator;
    - sound plays on the host (start Narrator with Ctrl+Win+Enter);
-   - `Win11-RDP.rdp` reconnects after closing the session;
+   - `ipconfig` shows the address the script reported, so you reached this VM;
+   - the desktop `.rdp` file reconnects after closing the session;
    - it still reconnects after restarting the host, when the IP changes;
-   - another computer on the network can connect to `Win11-RDP.local`;
+   - another computer on the network can connect to the VM's `.local` name;
    - the VM is running again after the host restarts, without starting it.
-4. Run `.\New-HyperVRdpVM.ps1 -Remove` and confirm that the VM, VHDX, `.rdp`
+4. With that VM still running, run the script again with
+   `-VMName <the same name>-Copy`, then again on a second PC with the first
+   VM's exact name. The first should build; the second should stop at once
+   with "Another computer on your network is already called ...".
+5. Run `.\New-HyperVRdpVM.ps1 -Remove` and confirm that the VM, VHDX, `.rdp`
    file and saved credential (`cmdkey /list`) are all gone.
-5. If possible, try an `install.esd` ISO (Media Creation Tool) as well as
-   an `install.wim` one, and both x64 and Arm64 hosts.
+6. If possible, try an `install.esd` ISO (Media Creation Tool) as well as
+   an `install.wim` one.
 
 ### What the Arm64 run confirmed
 
@@ -319,10 +392,11 @@ as `COMPUTERNAME\vmuser`, the disk layout and booting from
 `cmdkey` sign-in being used by `mstsc`, `mshome.net` resolving, and the vTPM
 (it was added without a note).
 
-Still unchecked: an x64 host, an `install.esd` ISO, and the path where
-bcdboot succeeds. That path should work on a release (non-Insider) build, but
-it hasn't run yet. Its `boot` / `locate` device fix was added after a code
-review, without a test.
+An x64 host has since built a VM end to end through Hyper-V Manage. Still
+unchecked: an `install.esd` ISO, and whether that x64 run went through the
+path where bcdboot succeeds (its `boot` / `locate` device fix was added after
+a code review) or through the fallback. The step 3 line "bcdboot couldn't do
+it" appears only for the fallback.
 
 ### The boot-store fallback
 

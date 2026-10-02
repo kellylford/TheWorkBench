@@ -60,7 +60,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
     private void RefreshCommandStates()
     {
         foreach (var c in new IRelayCommand[] { StartCommand, ShutDownCommand, TurnOffCommand, SaveCommand,
-                     PauseCommand, ResumeCommand, RestartCommand, ConnectCommand, OpenConsoleCommand,
+                     PauseCommand, ResumeCommand, RestartCommand, ConnectCommand, OpenConsoleCommand, SaveConnectionFileCommand,
                      SettingsCommand, CheckpointCommand, CloneCommand, DeleteCommand })
             c.NotifyCanExecuteChanged();
     }
@@ -191,6 +191,18 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         catch (Exception ex) { Fail(vm, "Couldn't open the console", ex); }
     }
     private bool CanOpenConsole() => Selected is not null;
+
+    [RelayCommand(CanExecute = nameof(CanConnect))]
+    private async Task SaveConnectionFile()
+    {
+        var vm = Selected!;
+        try
+        {
+            var file = await _hyperV.SaveConnectionFileAsync(vm);
+            StatusText = $"Saved {System.IO.Path.GetFileName(file)} on the desktop. Opening it connects to {vm.Name}.";
+        }
+        catch (Exception ex) { Fail(vm, "Couldn't save a connection file", ex); }
+    }
 
     [RelayCommand(CanExecute = nameof(CanSettle))]
     private void Settings() => OpenSettings?.Invoke(Selected!);

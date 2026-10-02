@@ -156,7 +156,7 @@ public class WindowTests
     public void NewVmWindow_Loads_WithEveryFieldLabelled()
     {
         EnsureApp();
-        var window = new NewVmWindow(new NewVmViewModel(["Win11-RDP"]));
+        var window = new NewVmWindow(new NewVmViewModel([$"{Environment.MachineName}-Win11"]));
         try
         {
             ShowOffscreen(window);
@@ -167,7 +167,8 @@ public class WindowTests
                 var peer = UIElementAutomationPeer.CreatePeerForElement(tb);
                 Assert.False(string.IsNullOrWhiteSpace(peer.GetName()), $"{box} has no accessible name");
             }
-            Assert.Equal("Win11-RDP-2", ((TextBox)window.FindName("NameBox")).Text);
+            // This PC's name first, so VMs made on different PCs don't share a name.
+            Assert.Equal($"{Environment.MachineName}-Win11-2", ((TextBox)window.FindName("NameBox")).Text);
             Assert.Equal("Progress", UIElementAutomationPeer.CreatePeerForElement((TextBox)window.FindName("LogBox")).GetName());
         }
         finally { window.Close(); }

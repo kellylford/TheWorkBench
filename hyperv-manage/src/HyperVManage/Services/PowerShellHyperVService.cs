@@ -280,6 +280,9 @@ public sealed class PowerShellHyperVService : IHyperVService
 
     public void OpenConsole(VmInfo vm) => RemoteDesktop.OpenConsole(vm.Id);
 
+    public Task<string> SaveConnectionFileAsync(VmInfo vm, CancellationToken ct = default) =>
+        RemoteDesktop.SaveDesktopFileAsync(vm.Name, vm.IpAddresses);
+
     private static string GetVm(string vmId) => $"$vm = Get-VM -Id {Ps.Quote(vmId)}\n";
 
     // ── Parsing ──────────────────────────────────────────────────────────────

@@ -384,12 +384,79 @@ public class RemoteDesktopTests
         Assert.Null(await RemoteDesktop.ChooseTargetAsync("A", [], Dns(new())));
     }
 
+    [Fact]
+    public async Task IgnoresANameAnotherComputerAnswersToAsWell()
+    {
+        // Seen for real: VMs with the same name made on two PCs on one network. Win11-RDP.local
+        // answered with both, and Remote Desktop connected to the other PC's VM.
+        var target = await RemoteDesktop.ChooseTargetAsync("Win11-RDP", ["10.1.1.44"],
+            Dns(new() { ["Win11-RDP.local"] = ["10.0.0.41", "10.1.1.44"], ["Win11-RDP"] = ["10.0.0.41"] }));
+        Assert.Equal("10.1.1.44", target);
+    }
+
     [Theory]
-    [InlineData("Win11-RDP", "Win11-RDP")]
-    [InlineData("Build Agent (old)", "BuildAgentold")]
-    [InlineData("AVeryLongVirtualMachineName", "AVeryLongVirtua")]
-    public void ComputerName_MatchesTheScript(string vmName, string expected) =>
+    [InlineData("10.1.1.44", true)]
+    [InlineData("10.0.0.41", false)]
+    [InlineData("Win11-RDP.local", false)] // answers with both VMs
+    [InlineData("Mine.local", true)]
+    [InlineData("Nobody.local", false)]
+    public async Task LeadsOnlyTo_TheVmAndNothingElse(string address, bool expected)
+    {
+        var dns = Dns(new() { ["Win11-RDP.local"] = ["10.0.0.41", "10.1.1.44"], ["Mine.local"] = ["10.1.1.44"] });
+        Assert.Equal(expected, await RemoteDesktop.LeadsOnlyToAsync(address, ["10.1.1.44"], dns));
+    }
+
+    private static readonly (string VmName, string Expected)[] NamePairs =
+    [
+        ("Win11-RDP", "Win11-RDP"),
+        ("Build Agent (old)", "BuildAgentold"),
+        ("AVeryLongVirtualMachineName", "AVeryLongVirtua"),
+        ("SURFACEPRO7-Win11", "SURFACEPR-Win11"),
+        ("SURFACEPRO7-Win11-2", "SURFACE-Win11-2"),
+        // A Windows-default host name has a hyphen of its own; the VM must not end up with it.
+        ("DESKTOP-ABC1234-Win11", "DESKTOP-A-Win11"),
+        ("-Edge-", "Edge"),
+    ];
+
+    public static TheoryData<string, string> ComputerNames()
+    {
+        var data = new TheoryData<string, string>();
+        foreach (var (vmName, expected) in NamePairs) data.Add(vmName, expected);
+        return data;
+    }
+
+    [Theory]
+    [MemberData(nameof(ComputerNames))]
+    public void ComputerName_ShortensToFifteenKeepingTheEnding(string vmName, string expected) =>
         Assert.Equal(expected, RemoteDesktop.ComputerName(vmName));
+
+    [Fact]
+    public void ComputerName_IsWhatTheScriptItselfComputes()
+    {
+        // Runs the script's own lines for the name, so the app and the script can't drift apart:
+        // the app finds a VM on the network by this name.
+        var script = File.ReadAllText(Path.Combine(ScriptBuildingTests.RepoRoot(), "hyperv-rdp-vm", "New-HyperVRdpVM.ps1"));
+        var start = script.IndexOf("$ComputerName = ($VMName", StringComparison.Ordinal);
+        var end = script.IndexOf("if (-not $ComputerName)", start, StringComparison.Ordinal);
+        Assert.True(start > 0 && end > start, "the script's computer-name lines weren't found");
+        var rule = script[start..end];
+
+        var names = NamePairs.Select(p => p.VmName).ToList();
+        var command = string.Join("\n", names.Select(n => $"$VMName = {Ps.Quote(n)}\n{rule}\n$ComputerName"));
+        var psi = new System.Diagnostics.ProcessStartInfo("powershell.exe")
+        {
+            RedirectStandardOutput = true,
+            UseShellExecute = false,
+            CreateNoWindow = true,
+        };
+        foreach (var a in new[] { "-NoProfile", "-NonInteractive", "-EncodedCommand", Convert.ToBase64String(System.Text.Encoding.Unicode.GetBytes(command)) })
+            psi.ArgumentList.Add(a);
+        using var p = System.Diagnostics.Process.Start(psi)!;
+        var output = p.StandardOutput.ReadToEnd().Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+        p.WaitForExit();
+
+        Assert.Equal(names.Select(RemoteDesktop.ComputerName), output);
+    }
 
     [Theory]
     [InlineData("full address:s:Win11-RDP.local", true)]

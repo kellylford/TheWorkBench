@@ -1,9 +1,9 @@
 # Hyper-V Manage
 
-> **Status: new, tested against pretend VMs only.** The interface, every dialog and the
-> creation flow were exercised in demo mode, and the PowerShell it sends to Hyper-V is checked
-> by the tests to parse. It has not yet been run against real Hyper-V VMs. See
-> [Testing it on a real machine](#testing-it-on-a-real-machine).
+> **Status: in use on real Hyper-V, not yet released.** On 2 October 2026 it built Windows VMs
+> end to end on an Arm64 PC and an x64 PC, connected to them with Remote Desktop, opened the
+> console, and paused one. Settings, Checkpoint, Clone and Delete have so far been exercised only
+> against the pretend VMs of demo mode. See [Testing it on a real machine](#testing-it-on-a-real-machine).
 
 A Windows app for managing Hyper-V virtual machines, built screen reader first. It is the
 Windows counterpart of [Parallels Manager](../parallels-manager/), and it builds new Windows
@@ -19,7 +19,12 @@ It isn't called Hyper-V Manager because Windows already has a Hyper-V Manager.
 - **Connect with Remote Desktop**, the way to hear a VM with a screen reader. It opens the
   connection file the script left on your desktop if there is one, so the saved sign-in is
   used; otherwise it makes a connection to the VM's name, which keeps working when its address
-  changes.
+  changes. Either way, it connects by name only when the name leads to this VM and nothing
+  else, and otherwise by address: a VM with the same name on another PC answers to the same
+  name, and Remote Desktop could reach that one instead.
+- **Save Connection File** puts `<VM name>.rdp` on the desktop, for a VM whose file was lost or
+  that you want to connect to from another computer. It never overwrites a desktop file of that
+  name that connects somewhere else.
 - **Open Console**: the Hyper-V window, for when Windows inside the VM isn't up yet.
 - **Start, Shut Down, Turn Off, Save, Pause, Resume, Restart.** Only the ones that make sense for
   the VM's state are available. Shut Down and Restart ask Windows inside the VM, so nothing
@@ -35,7 +40,9 @@ It isn't called Hyper-V Manager because Windows already has a Hyper-V Manager.
   - Delete asks first, naming the disk files it will remove. It keeps any disk another VM uses
     or depends on, and only removes a desktop connection file that connects to this VM. It says
     afterwards what it kept and anything it couldn't delete.
-- **New Virtual Machine**: the script's options in a form, then the script's own progress as it
+- **New Virtual Machine**: the script's options in a form, with a name that starts with this
+  PC's name (for example `SURFACEPRO7-Win11`) so VMs made on different PCs never share one. Then
+  the script's own progress as it
   runs, one line at a time, each one also spoken (PowerShell's own error detail lines stay in the
   log but aren't read out). Closing the window during a build stops it and cleans up what it had
   made: the ISO and disk are unmounted and the half-built disk deleted. If it had already got as
@@ -88,8 +95,27 @@ Anywhere in the window:
 | Ctrl+K | Checkpoint |
 | Ctrl+D | Clone |
 
-Every action is also on the VM menu (Alt+V) and in the list's context menu. Help, then Keyboard
-Shortcuts lists these in the app.
+Every action is also on the VM menu (Alt+V) and in the list's context menu. The menu bar is
+reached with Alt or F10, never with Tab. Help, then Keyboard Shortcuts lists these in the app.
+
+In the Hyper-V console window that Open Console opens:
+
+| Key | Action |
+|---|---|
+| Ctrl+Alt+Left Arrow | Take the keyboard back from the VM |
+| Ctrl+Alt+End | Send Ctrl+Alt+Delete to the VM |
+| Ctrl+Alt+Pause | Switch between full screen and a window |
+
+Its View menu has Enhanced Session, which runs the console over Remote Desktop and can carry
+sound once Windows in the VM is up. Connect with Remote Desktop is still the dependable way to
+hear a VM.
+
+### Remote Desktop asks each time
+
+Windows asks about sharing every time a connection file opens: it lists the sound, microphone
+and clipboard the connection uses, and you choose Connect. Recent versions of Windows do this for
+every connection file that isn't digitally signed, which a file made on your own PC is not, and
+it can't be turned off. The saved sign-in still means you don't type the password.
 
 ### What it says
 
@@ -106,8 +132,8 @@ HyperVManage.exe --demo
 
 Three pretend VMs, no Hyper-V, and no administrator rights. Every action and dialog works
 against them, and New Virtual Machine prints the script's steps without running anything.
-Connect and Open Console say there is no real VM, rather than reaching a real one that happens
-to share a demo VM's name. Use it to
+Connect, Open Console and Save Connection File say there is no real VM, rather than reaching a
+real one that happens to share a demo VM's name. Use it to
 try the app, or to check the interface on a PC without Hyper-V.
 
 ## Building
@@ -126,9 +152,10 @@ Tests:
 dotnet test tests\HyperVManage.Tests
 ```
 
-One test presses real keys at a real window, checking that the arrow keys move between the
-network choices in New Virtual Machine and that Tab into them never changes the choice. It takes
-focus from whatever else is on screen, so it only runs with `HYPERVMANAGE_RUN_INPUT_TESTS=1` set.
+Two tests press real keys at a real window: one checks that the arrow keys move between the
+network choices in New Virtual Machine and that Tab into them never changes the choice, the
+other that Tab from the VM list never stops on the menu bar. They take focus from whatever else
+is on screen, so they only run with `HYPERVMANAGE_RUN_INPUT_TESTS=1` set.
 
 ## How it is put together
 
@@ -155,6 +182,9 @@ hyperv-manage/
 - **No value is ever pasted into PowerShell as code.** Names, paths and passwords go through
   `Ps.Quote`, and a test checks PowerShell's own parser reads each one back unchanged. Another
   test parses every script the app can send.
+- **The computer name rule is shared.** The app finds a VM on the network by the Windows
+  computer name the script gives it. A test runs the script's own lines for that name in
+  PowerShell and checks the app computes the same for each case.
 - **VMs are addressed by id.** Hyper-V allows two VMs with the same name, and `Get-VM -Name`
   reads `* ? [ ]` as wildcards, so names are never used to find a VM to act on.
 - **The list is updated in place.** Replacing it would move a screen reader back to the top
@@ -162,13 +192,17 @@ hyperv-manage/
 
 ## Testing it on a real machine
 
-Not yet done. On a PC with Hyper-V:
+Done so far, on 2 October 2026: building a VM with New Virtual Machine on an Arm64 PC and on an
+x64 PC, each on "Your network"; Connect with Remote Desktop; Open Console; Pause.
 
-1. Run the app and confirm the list matches `Get-VM`.
-2. Start, Shut Down, Save, Pause and Resume a test VM, and Turn Off one that is running.
-3. Connect with Remote Desktop and confirm sound plays.
-4. In Settings, change the network and the start setting on a running VM; then shut it down
+Still to do, on a PC with Hyper-V:
+
+1. Confirm the list matches `Get-VM`.
+2. Start, Shut Down, Save and Resume a test VM, and Turn Off one that is running.
+3. Connect with Remote Desktop and confirm sound plays, and that `ipconfig` in the session shows
+   the address the list shows.
+4. Save Connection File, then open the file from the desktop.
+5. In Settings, change the network and the start setting on a running VM; then shut it down
    and change processors and memory.
-5. Checkpoint it, Clone it, then Delete the clone and confirm its folder and disk are gone.
-6. Build a VM with New Virtual Machine, choosing "Your network", and connect to it from another
-   computer.
+6. Checkpoint it, Clone it, then Delete the clone and confirm its folder and disk are gone.
+7. Connect to a VM from another computer on the network.

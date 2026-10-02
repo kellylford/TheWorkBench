@@ -29,8 +29,13 @@
     processor: an x64 ISO on an Intel or AMD PC, an Arm64 ISO on an Arm PC.
 
 .PARAMETER VMName
-    Name of the virtual machine. It is also used, shortened to 15 characters,
-    as the Windows computer name.
+    Name of the virtual machine. The default is this PC's name followed by
+    -Win11, for example SURFACEPRO7-Win11, so VMs made on different PCs on
+    one network don't share a name. It is also the Windows computer name,
+    shortened if needed to Windows' limit of 15 characters by trimming the
+    part before the first hyphen: SURFACEPRO7-Win11 becomes SURFACEPR-Win11.
+    The script stops if another computer on the network already has that
+    computer name.
 
 .PARAMETER Edition
     Which edition in the ISO to install. It must be one that can accept
@@ -62,11 +67,15 @@
 
 .EXAMPLE
     .\New-HyperVRdpVM.ps1 -VMName Test2 -Remove
+
+.NOTES
+    Windows blocks running scripts by default. Start this one with
+    Create VM.cmd, or with: powershell -ExecutionPolicy Bypass -File .\New-HyperVRdpVM.ps1
 #>
 [CmdletBinding()]
 param(
     [string]$IsoPath,
-    [string]$VMName = 'Win11-RDP',
+    [string]$VMName = "$env:COMPUTERNAME-Win11",
     [string]$Edition = 'Windows 11 Pro',
     [string]$UserName = 'vmuser',
     [string]$Password = 'vmadmin',
@@ -138,8 +147,24 @@ if ($VMName -match '[\\/:*?"<>|\[\]]') {
 }
 
 # Windows computer names: letters, digits and hyphens, 15 characters at most.
-$ComputerName = ($VMName -replace '[^A-Za-z0-9-]', '')
-if ($ComputerName.Length -gt 15) { $ComputerName = $ComputerName.Substring(0, 15) }
+# A longer name keeps its ending, from the earliest hyphen that leaves room
+# (13 characters or fewer), since the ending is what tells VMs apart, and
+# trims the start, usually this PC's name: SURFACEPRO7-Win11-2 becomes
+# SURFACE-Win11-2, and DESKTOP-ABC1234-Win11 becomes DESKTOP-A-Win11 rather
+# than the host's own name. Hyper-V Manage's RemoteDesktop.ComputerName does
+# the same; keep the two in step.
+$ComputerName = ($VMName -replace '[^A-Za-z0-9-]', '').Trim('-')
+if ($ComputerName.Length -gt 15) {
+    $cut = -1
+    for ($i = 1; $i -lt $ComputerName.Length; $i++) {
+        if ($ComputerName[$i] -eq '-' -and ($ComputerName.Length - $i) -le 13) { $cut = $i; break }
+    }
+    $ComputerName = if ($cut -gt 0) {
+        $ComputerName.Substring(0, 15 - ($ComputerName.Length - $cut)).TrimEnd('-') + $ComputerName.Substring($cut)
+    } else {
+        $ComputerName.Substring(0, 15).TrimEnd('-')
+    }
+}
 if (-not $ComputerName) { throw "Can't make a Windows computer name from the VM name '$VMName'. Use letters and digits." }
 
 $desktop = [Environment]::GetFolderPath('Desktop')
@@ -220,6 +245,19 @@ if ($Remove) {
 }
 
 # --- Check everything before touching anything --------------------------------
+# Two computers with one name confuse Remote Desktop (it can connect to the
+# wrong one, and with the same sign-in nothing warns you) and Windows
+# networking. Only <name>.local is asked: just computers on this network answer
+# it, where some internet providers answer a bare name with an address of
+# their own. A name nothing answers to takes a few seconds to time out.
+$answering = @()
+try {
+    $answering = @([Net.Dns]::GetHostAddresses("$ComputerName.local") |
+        Where-Object AddressFamily -eq 'InterNetwork' | ForEach-Object IPAddressToString)
+} catch { }
+if ($answering.Count -gt 0) {
+    throw "Another computer on your network is already called $ComputerName (at $($answering -join ', ')). Pick another name with -VMName."
+}
 if ($Locale) {
     try { $null = [Globalization.CultureInfo]::GetCultureInfo($Locale) }
     catch { throw "'$Locale' isn't a language Windows knows. Use a tag such as en-US or en-GB." }
@@ -787,8 +825,11 @@ $nameDeadline = (Get-Date).AddSeconds(60)
 do {
     foreach ($name in $names) {
         try {
-            $resolved = [Net.Dns]::GetHostAddresses($name) | ForEach-Object IPAddressToString
-            if ($resolved -contains $guest.IPAddress) { $target = $name; break }
+            # Only a name that means this VM alone. Another computer with the same
+            # name on the network answers too, and Remote Desktop could pick it.
+            $resolved = @([Net.Dns]::GetHostAddresses($name) |
+                Where-Object AddressFamily -eq 'InterNetwork' | ForEach-Object IPAddressToString)
+            if ($resolved.Count -gt 0 -and -not ($resolved | Where-Object { $_ -ne $guest.IPAddress })) { $target = $name; break }
         } catch { }
     }
     if ($target -ne $guest.IPAddress) { break }
@@ -841,7 +882,8 @@ if (-not $NoAutoStart) {
 Say "User name: $UserName"
 Say "Password: $Password"
 Say "Connection file: $rdpFile"
-Say 'The sign-in is saved, so opening the connection file logs you straight in.'
+Say 'The sign-in is saved, so opening the connection file signs you in without typing the password.'
+Say 'Remote Desktop still asks each time whether to allow sound, the microphone and the clipboard. Choose Connect.'
 
 if (-not $NoConnect) {
     Say 'Opening Remote Desktop now.'

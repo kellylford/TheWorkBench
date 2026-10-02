@@ -22,11 +22,13 @@ public sealed partial class NewVmViewModel : ObservableObject
     public NewVmViewModel(IEnumerable<string> existingNames)
     {
         var taken = new HashSet<string>(existingNames, StringComparer.OrdinalIgnoreCase);
-        _vmName = SuggestName("Win11-RDP", taken);
+        // This PC's name first, as the script does, so VMs made on different PCs on one network
+        // don't share a name: two computers with one name confuse Remote Desktop.
+        _vmName = SuggestName($"{Environment.MachineName}-Win11", taken);
         _isoPath = IsoFinder.FindNewest(IsoFinder.DownloadsFolder, IsoFinder.HostIsArm64) ?? "";
     }
 
-    /// <summary>Win11-RDP, or Win11-RDP-2, -3 ... if that is taken.</summary>
+    /// <summary>The base name, for example SURFACEPRO7-Win11, or -2, -3 ... after it if that is taken.</summary>
     internal static string SuggestName(string baseName, ISet<string> taken)
     {
         if (!taken.Contains(baseName)) return baseName;

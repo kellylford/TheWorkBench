@@ -10,9 +10,10 @@ public static class RemoteDesktop
 {
     /// <summary>
     /// The address to connect to. A name keeps working when the VM's address changes, so one is
-    /// preferred when it really points at the VM: &lt;name&gt;.local on your own network (other
-    /// PCs and Macs can look it up too), the bare name, or &lt;name&gt;.mshome.net behind the
-    /// Default Switch. Otherwise the first address.
+    /// preferred when it points at this VM and nothing else: &lt;name&gt;.local on your own
+    /// network (other PCs and Macs can look it up too), the bare name, or &lt;name&gt;.mshome.net
+    /// behind the Default Switch. A name that also reaches another computer, such as a VM with
+    /// the same name made on another PC, could connect there instead. Otherwise the first address.
     /// </summary>
     public static async Task<string?> ChooseTargetAsync(
         string vmName, IReadOnlyList<string> addresses, Func<string, Task<string[]>> resolve)
@@ -26,18 +27,28 @@ public static class RemoteDesktop
                 string[] resolved;
                 try { resolved = await resolve(candidate).ConfigureAwait(false); }
                 catch { continue; }
-                if (resolved.Any(addresses.Contains)) return candidate;
+                if (resolved.Length > 0 && resolved.All(addresses.Contains)) return candidate;
             }
         }
         return addresses[0];
     }
 
-    /// <summary>The Windows computer name New-HyperVRdpVM.ps1 gives a VM: letters, digits and
-    /// hyphens from its name, at most 15 characters.</summary>
+    /// <summary>
+    /// The Windows computer name New-HyperVRdpVM.ps1 gives a VM: letters, digits and hyphens from
+    /// its name, at most 15 characters. A longer name keeps its ending from the earliest hyphen
+    /// that leaves room, since the ending tells VMs apart, and trims the start (usually the host's
+    /// name): SURFACEPRO7-Win11-2 becomes SURFACE-Win11-2. Must match the script exactly.
+    /// </summary>
     public static string ComputerName(string vmName)
     {
-        var s = new string(vmName.Where(c => char.IsAsciiLetterOrDigit(c) || c == '-').ToArray());
-        return s.Length > 15 ? s[..15] : s;
+        var s = new string(vmName.Where(c => char.IsAsciiLetterOrDigit(c) || c == '-').ToArray()).Trim('-');
+        if (s.Length <= 15) return s;
+        for (var i = 1; i < s.Length; i++)
+        {
+            if (s[i] == '-' && s.Length - i <= 13)
+                return s[..(15 - (s.Length - i))].TrimEnd('-') + s[i..];
+        }
+        return s[..15].TrimEnd('-');
     }
 
     public static Task<string[]> ResolveAsync(string name) =>
@@ -67,11 +78,19 @@ public static class RemoteDesktop
     /// otherwise a fresh one. Returns where it is connecting, for the announcement.</summary>
     public static async Task<string> ConnectAsync(string vmName, IReadOnlyList<string> addresses)
     {
-        var desktopFile = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), $"{vmName}.rdp");
-        if (File.Exists(desktopFile) && FileConnectsTo(await File.ReadAllLinesAsync(desktopFile).ConfigureAwait(false), vmName, addresses))
+        var desktopFile = DesktopFile(vmName);
+        if (File.Exists(desktopFile))
         {
-            Launch(desktopFile);
-            return desktopFile;
+            var lines = await File.ReadAllLinesAsync(desktopFile).ConfigureAwait(false);
+            // The script's file carries the saved sign-in, so it is the one to open, but only
+            // while its address still leads to this VM alone: a name another computer answers
+            // to as well could connect there, and with the same sign-in nothing would warn.
+            if (FileConnectsTo(lines, vmName, addresses)
+                && (addresses.Count == 0 || await LeadsOnlyToAsync(AddressIn(lines)!, addresses, ResolveAsync).ConfigureAwait(false)))
+            {
+                Launch(desktopFile);
+                return desktopFile;
+            }
         }
 
         var target = await ChooseTargetAsync(vmName, addresses, ResolveAsync).ConfigureAwait(false)
@@ -86,6 +105,39 @@ public static class RemoteDesktop
     }
 
     /// <summary>
+    /// Saves &lt;VM name&gt;.rdp on the desktop, for a VM made without one or whose file was lost.
+    /// A desktop file of that name that belongs to something else is never overwritten. Returns
+    /// the file's path.
+    /// </summary>
+    public static async Task<string> SaveDesktopFileAsync(string vmName, IReadOnlyList<string> addresses)
+    {
+        var file = DesktopFile(vmName);
+        if (File.Exists(file) && !FileConnectsTo(await File.ReadAllLinesAsync(file).ConfigureAwait(false), vmName, addresses))
+            throw new HyperVException($"There's already a file called {Path.GetFileName(file)} on the desktop that connects somewhere else, so it was left alone. Rename it and try again.");
+        var target = await ChooseTargetAsync(vmName, addresses, ResolveAsync).ConfigureAwait(false)
+            ?? throw new HyperVException($"{vmName} has no network address yet. Start it, wait for it to finish starting, then try again.");
+        await File.WriteAllTextAsync(file, BuildRdpFile(target), Encoding.Unicode).ConfigureAwait(false);
+        return file;
+    }
+
+    /// <summary>Whether an address leads to this VM and nothing else: one of its addresses, or a
+    /// name that resolves only to them.</summary>
+    public static async Task<bool> LeadsOnlyToAsync(string address, IReadOnlyList<string> addresses, Func<string, Task<string[]>> resolve)
+    {
+        if (System.Net.IPAddress.TryParse(address, out _)) return addresses.Contains(address);
+        string[] resolved;
+        try { resolved = await resolve(address).ConfigureAwait(false); }
+        catch { return false; }
+        return resolved.Length > 0 && resolved.All(addresses.Contains);
+    }
+
+    private static string DesktopFile(string vmName) =>
+        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), SafeFileName(vmName) + ".rdp");
+
+    private static string? AddressIn(IEnumerable<string> rdpLines) =>
+        rdpLines.FirstOrDefault(l => l.StartsWith("full address:s:", StringComparison.OrdinalIgnoreCase))?[15..].Trim();
+
+    /// <summary>
     /// Whether a connection file is the one New-HyperVRdpVM.ps1 made for this VM: its address is
     /// one of the VM's names or addresses. A desktop file that merely shares the VM's name, say
     /// Office.rdp for a real PC, belongs to something else and is never opened or deleted for it.
@@ -93,7 +145,7 @@ public static class RemoteDesktop
     public static bool FileConnectsTo(IEnumerable<string> rdpLines, string vmName, IReadOnlyList<string> addresses)
     {
         var lines = rdpLines.ToList();
-        var address = lines.FirstOrDefault(l => l.StartsWith("full address:s:", StringComparison.OrdinalIgnoreCase))?[15..].Trim();
+        var address = AddressIn(lines);
         if (string.IsNullOrEmpty(address)) return false;
         var computer = ComputerName(vmName);
         // The script writes "username:s:<computer>\<user>", which marks its file even when the VM's
