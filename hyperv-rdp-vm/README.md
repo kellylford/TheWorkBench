@@ -37,7 +37,9 @@ bars.
   PCs, Arm64 on Arm PCs. They're on
   [the x64 download page](https://www.microsoft.com/software-download/windows11)
   and [the Arm64 download page](https://www.microsoft.com/software-download/windows11arm64).
-  Put it in your Downloads folder and the script finds it on its own. The same
+  Put it in the same folder as the script, or in your Downloads folder, and
+  the script finds it on its own. The script's folder is checked first, so a
+  folder copied to another PC brings its ISO with it. The same
   script works on both kinds of PC: it reads the processor type and sets up the
   VM to match. If Downloads holds both kinds of ISO, it skips the one whose
   file name says it's for the other processor.
@@ -46,11 +48,20 @@ bars.
 
 ## Running it
 
-Open `Create VM.cmd` in File Explorer, or run this in PowerShell:
+Open `Create VM.cmd` in File Explorer, or run this in PowerShell in the
+script's folder:
 
 ```powershell
-.\New-HyperVRdpVM.ps1
+powershell -ExecutionPolicy Bypass -File .\New-HyperVRdpVM.ps1
 ```
+
+Running `.\New-HyperVRdpVM.ps1` on its own fails on most PCs with an error
+about execution policy, because Windows blocks scripts by default.
+`-ExecutionPolicy Bypass` lifts that for this one run and changes nothing
+else. `Create VM.cmd` does the same.
+
+The other examples below start with `.\New-HyperVRdpVM.ps1` for short. Put
+`powershell -ExecutionPolicy Bypass -File` in front of them in the same way.
 
 Windows asks for administrator permission, then the script runs in a new
 window. It takes 15 to 30 minutes and needs nothing from you. When it finishes
@@ -118,13 +129,13 @@ Start-VM Win11-RDP
 
 | Option            | Default                | What it does                                   |
 |-------------------|------------------------|------------------------------------------------|
-| `-IsoPath`        | newest Windows ISO in Downloads for this PC's processor | The Windows ISO to install from |
+| `-IsoPath`        | newest Windows ISO for this PC's processor in the script's own folder, then in Downloads | The Windows ISO to install from |
 | `-VMName`         | Win11-RDP              | VM name, and the computer name (15 characters) |
 | `-Edition`        | Windows 11 Pro         | Edition inside the ISO. Home is refused.       |
 | `-UserName`       | vmuser                 | Windows account name                           |
 | `-Password`       | vmadmin                | Windows account password                       |
 | `-ProcessorCount` | 4                      | Virtual processors                             |
-| `-MemoryGB`       | 4                      | Starting memory; it can grow to twice this, or 8 GB |
+| `-MemoryGB`       | 4                      | Starting memory, at least 2; it can grow to twice this, or 8 GB |
 | `-DiskGB`         | 128                    | Virtual disk size                              |
 | `-SwitchName`     | an external switch     | Hyper-V virtual switch. Left out, the VM joins your network through an external switch, created if there isn't one |
 | `-HostOnly`       | off                    | Use the Default Switch: only this PC can reach the VM |
@@ -132,7 +143,7 @@ Start-VM Win11-RDP
 | `-VhdFolder`      | Hyper-V's disk folder  | Where the virtual disk goes                    |
 | `-TimeZone`       | this PC's time zone    | Windows time zone name                         |
 | `-NoConnect`      | off                    | Don't open Remote Desktop at the end           |
-| `-Remove`         | off                    | Delete the VM, its disk, connection file and saved sign-in |
+| `-Remove`         | off                    | Delete the VM, its disk, connection file and saved sign-in, and anything a failed run left behind |
 
 For example, a second VM with more memory:
 
@@ -145,6 +156,11 @@ For example, a second VM with more memory:
 ```powershell
 .\New-HyperVRdpVM.ps1 -VMName Win11-RDP -Remove
 ```
+
+This also works after a run that failed partway. If there's no VM with that
+name, it still deletes the virtual disk, connection file and saved sign-in
+that the run left behind, so you can start again. It leaves a disk alone if
+another VM is using it.
 
 ## How it works
 
@@ -242,8 +258,12 @@ progress bars, no pop-up dialogs.
    260 MB FAT32 partition (made as basic data so it can take a drive
    letter), a 16 MB MSR and an NTFS Windows partition.
 5. Runs `Expand-WindowsImage` onto the Windows partition, then the image's
-   own `bcdboot.exe /f UEFI`. If bcdboot fails, it builds the boot files
-   and store by hand; see [The boot-store fallback](#the-boot-store-fallback).
+   own `bcdboot.exe /f UEFI`. It then sets the store's devices to `boot`
+   and `locate`. bcdboot records the host's view of the mounted VHDX, which
+   the VM can't find (0xc000000e); Convert-WindowsImage makes the same fix.
+   If bcdboot fails with 0xc0000035, the script builds the boot files and
+   store by hand; see [The boot-store fallback](#the-boot-store-fallback).
+   Any other bcdboot failure stops the script with bcdboot's own message.
 6. Writes `\Windows\Panther\unattend.xml`, which has only the `specialize`
    and `oobeSystem` passes. It then switches the first partition's GPT type
    to EFI System and dismounts everything. If this stage fails, the
@@ -299,16 +319,18 @@ as `COMPUTERNAME\vmuser`, the disk layout and booting from
 `cmdkey` sign-in being used by `mstsc`, `mshome.net` resolving, and the vTPM
 (it was added without a note).
 
-Still unchecked: an x64 host, an `install.esd` ISO, and whether bcdboot
-works normally on a release (non-Insider) build.
+Still unchecked: an x64 host, an `install.esd` ISO, and the path where
+bcdboot succeeds. That path should work on a release (non-Insider) build, but
+it hasn't run yet. Its `boot` / `locate` device fix was added after a code
+review, without a test.
 
 ### The boot-store fallback
 
 On the 26340 Insider host, `bcdboot /s` fails with exit code 183 and
 `Failed to create a new system store. Status = [c0000035]`. It loads the new
 store under `HKLM\BCD00000000`, the key the host's own store already uses.
-`/offline` and `/nofirmwaresync` don't help. So when bcdboot fails, the script
-does its job by hand. Each step below fixes a failure seen while testing:
+`/offline` and `/nofirmwaresync` don't help. So when bcdboot fails with
+c0000035, the script does its job by hand. Each step below fixes a failure seen while testing:
 
 1. Copies `Windows\Boot\EFI` and `Fonts` from the applied image to
    `\EFI\Microsoft\Boot`, and `bootmgfw.efi` to `\EFI\Boot\boot<arch>.efi`.
