@@ -1,8 +1,7 @@
-using System.Diagnostics;
 using System.Text;
+using System.Text.RegularExpressions;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using HyperVManage.Models;
 using HyperVManage.Services;
 
 namespace HyperVManage.ViewModels;
@@ -15,10 +14,10 @@ public sealed partial class NewVmViewModel : ObservableObject
 {
     private readonly SynchronizationContext? _ui = SynchronizationContext.Current;
     private readonly StringBuilder _log = new();
-    private Process? _process;
+    private CancellationTokenSource? _stop;
 
-    /// <summary>Starts the script. Swapped in tests so nothing real runs.</summary>
-    internal Func<NewVmOptions, Action<string>, Process?> StartScript { get; set; } = NewVmScript.Start;
+    /// <summary>Runs the build. Swapped for the demo, and in tests, so nothing real runs.</summary>
+    internal Func<NewVmOptions, Action<string>, CancellationToken, Task<BuildOutcome>> RunScript { get; set; } = NewVmScript.RunAsync;
 
     public NewVmViewModel(IEnumerable<string> existingNames)
     {
@@ -27,8 +26,7 @@ public sealed partial class NewVmViewModel : ObservableObject
         _isoPath = IsoFinder.FindNewest(IsoFinder.DownloadsFolder, IsoFinder.HostIsArm64) ?? "";
     }
 
-    /// <summary>Win11-RDP, or Win11-RDP-2, -3 ... if that is taken. Kept within the 15
-    /// characters Windows allows a computer name, since the script names the computer after the VM.</summary>
+    /// <summary>Win11-RDP, or Win11-RDP-2, -3 ... if that is taken.</summary>
     internal static string SuggestName(string baseName, ISet<string> taken)
     {
         if (!taken.Contains(baseName)) return baseName;
@@ -63,26 +61,38 @@ public sealed partial class NewVmViewModel : ObservableObject
     [NotifyCanExecuteChangedFor(nameof(CreateCommand))]
     private bool _hasStarted;
     [ObservableProperty] [NotifyCanExecuteChangedFor(nameof(CreateCommand))] private bool _isRunning;
-    [ObservableProperty] private string _logText = "";
     [ObservableProperty] private string _outcome = "";
 
     public bool HasError => Error.Length > 0;
     public bool ShowForm => !HasStarted;
     public bool ShowProgress => HasStarted;
 
-    /// <summary>Text for a screen reader: each line the script prints, and how it ended.</summary>
+    /// <summary>Everything printed so far. The window appends lines as they come (see
+    /// <see cref="LineAppended"/>) rather than binding to this, so the caret isn't reset.</summary>
+    public string LogText => _log.ToString();
+
+    /// <summary>A new line for the progress box.</summary>
+    public event Action<string>? LineAppended;
+
+    /// <summary>Text for a screen reader: the script's lines, and how it ended.</summary>
     public event Action<string>? Announce;
 
-    /// <summary>Raised when the script ends: true if it succeeded. The main list refreshes on it.</summary>
-    public event Action<bool>? Finished;
+    /// <summary>Raised when the build ends, however it ended.</summary>
+    public event Action<BuildOutcome>? Finished;
 
     internal NewVmOptions? Validate()
     {
         string? problem = null;
         var name = VmName.Trim();
+        var iso = IsoPath.Trim();
+        // The ISO is always passed explicitly, so a stopped build knows which one to dismount.
+        if (iso.Length == 0) iso = IsoFinder.FindNewest(IsoFinder.DownloadsFolder, IsoFinder.HostIsArm64) ?? "";
+
         if (name.Length == 0) problem = "Give the VM a name.";
+        else if (NewVmScript.HasForbiddenCharacters(name)) problem = "The name can't contain any of these: \\ / : * ? \" < > | [ ]";
         else if (RemoteDesktop.ComputerName(name).Length == 0) problem = "The name needs at least one letter or digit, since Windows names the computer after it.";
-        else if (IsoPath.Trim().Length > 0 && !System.IO.File.Exists(IsoPath.Trim())) problem = $"Can't find the ISO {IsoPath.Trim()}.";
+        else if (iso.Length == 0) problem = "There's no Windows ISO in your Downloads folder. Choose one with Browse.";
+        else if (!System.IO.File.Exists(iso)) problem = $"Can't find the ISO {iso}.";
         else if (!int.TryParse(Processors.Trim(), out var c) || c < 1 || c > Environment.ProcessorCount)
             problem = $"Processors must be a whole number from 1 to {Environment.ProcessorCount}.";
         else if (!int.TryParse(MemoryGB.Trim(), out var m) || m < 2) problem = "Memory must be a whole number of gigabytes, at least 2.";
@@ -91,68 +101,65 @@ public sealed partial class NewVmViewModel : ObservableObject
 
         Error = problem ?? "";
         if (problem is not null) return null;
-        return new NewVmOptions(name, IsoPath.Trim(), Edition.Trim(), UserName.Trim(), Password,
+        return new NewVmOptions(name, iso, Edition.Trim(), UserName.Trim(), Password,
             int.Parse(Processors.Trim()), int.Parse(MemoryGB.Trim()), int.Parse(DiskGB.Trim()),
             HostOnly, AutoStart, ConnectWhenDone);
     }
 
     [RelayCommand(CanExecute = nameof(CanCreate))]
-    private void Create()
+    private async Task Create()
     {
         var options = Validate();
         if (options is null) { Announce?.Invoke(Error); return; }
 
         HasStarted = true;
         IsRunning = true;
+        _stop = new CancellationTokenSource();
         Append("Starting New-HyperVRdpVM.ps1.");
+        BuildOutcome result;
         try
         {
-            _process = StartScript(options, line => Post(() => Append(line)));
-            if (_process is null) { End(false); return; }
-            _process.Exited += (_, _) =>
-            {
-                // Exited can arrive before the last output lines; WaitForExit drains them.
-                _process.WaitForExit();
-                var ok = _process.ExitCode == 0;
-                Post(() => End(ok));
-            };
-            if (_process.HasExited) { _process.WaitForExit(); End(_process.ExitCode == 0); }
+            result = await RunScript(options, line => Post(() => Append(line)), _stop.Token);
         }
         catch (Exception ex)
         {
-            Append($"Couldn't start the script: {ex.Message}");
-            End(false);
+            Append($"Couldn't run the script: {ex.Message}");
+            result = BuildOutcome.Failed;
         }
+        // Lines posted from the runner's thread land before this, which is posted after them.
+        Post(() => End(result, options.VMName));
     }
     private bool CanCreate() => !HasStarted && !IsRunning;
 
-    /// <summary>Stops the script partway. The VM it was building is left half made, for the
-    /// user to delete; the window says so before asking.</summary>
-    public void Stop()
-    {
-        try { _process?.Kill(entireProcessTree: true); } catch { }
-    }
+    /// <summary>Stops the build. The runner cleans up what it had made, then Finished is raised.</summary>
+    public void Stop() => _stop?.Cancel();
 
-    private bool _ended;
-
-    private void End(bool ok)
+    private void End(BuildOutcome result, string name)
     {
-        if (_ended) return;
-        _ended = true;
         IsRunning = false;
-        Outcome = ok
-            ? $"Finished. {VmName.Trim()} is ready."
-            : "The script stopped with an error. The lines above say what went wrong.";
+        _stop?.Dispose();
+        _stop = null;
+        Outcome = result switch
+        {
+            BuildOutcome.Succeeded => $"Finished. {name} is ready.",
+            BuildOutcome.Stopped => "Stopped.",
+            _ => "The script stopped with an error. The lines above say what went wrong.",
+        };
         Append(Outcome);
-        Finished?.Invoke(ok);
+        Finished?.Invoke(result);
     }
+
+    // PowerShell's error records add lines like "At C:\...ps1:123 char:5", "+ throw ..." and
+    // "    + CategoryInfo ...". Useful in the log; noise when spoken one by one.
+    private static readonly Regex ErrorRecordDetail = new(@"^\s*(At [A-Za-z]:\\|At line:|\+)", RegexOptions.Compiled);
 
     internal void Append(string line)
     {
         if (_log.Length > 0) _log.AppendLine();
         _log.Append(line);
-        LogText = _log.ToString();
-        if (!string.IsNullOrWhiteSpace(line)) Announce?.Invoke(line);
+        OnPropertyChanged(nameof(LogText));
+        LineAppended?.Invoke(line);
+        if (!string.IsNullOrWhiteSpace(line) && !ErrorRecordDetail.IsMatch(line)) Announce?.Invoke(line);
     }
 
     private void Post(Action a)

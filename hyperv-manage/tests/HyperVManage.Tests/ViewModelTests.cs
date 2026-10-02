@@ -1,3 +1,4 @@
+using System.IO;
 using System.Diagnostics;
 using HyperVManage.Models;
 using HyperVManage.Services;
@@ -98,19 +99,73 @@ public class MainViewModelTests
     }
 
     [Fact]
-    public async Task Delete_AsksFirst_AndDoesNothingOnNo()
+    public async Task Delete_AsksFirst_NamingTheFiles_AndDoesNothingOnNo()
     {
         var (vm, _) = Make();
         await vm.RefreshAsync();
         vm.Selected = vm.Vms[0];
-        vm.ConfirmDelete = _ => false;
+        IReadOnlyList<string>? shown = null;
+        vm.ConfirmDelete = (_, disks) => { shown = disks; return false; };
 
         await vm.DeleteCommand.ExecuteAsync(null);
         Assert.Equal(3, vm.Vms.Count);
+        Assert.NotNull(shown);
+        Assert.Contains(shown, d => d.EndsWith("Win11-RDP.vhdx", StringComparison.Ordinal));
 
-        vm.ConfirmDelete = _ => true;
+        vm.ConfirmDelete = (_, _) => true;
         await vm.DeleteCommand.ExecuteAsync(null);
         Assert.Equal(2, vm.Vms.Count);
+    }
+
+    [Fact]
+    public async Task DeletingTheSelectedVm_SelectsItsNeighbour_AndAsksForFocusThere()
+    {
+        var (vm, _) = Make();
+        await vm.RefreshAsync();
+        vm.Selected = vm.Vms[1];
+        var replaced = 0;
+        vm.SelectionReplaced += () => replaced++;
+        vm.ConfirmDelete = (_, _) => true;
+
+        await vm.DeleteCommand.ExecuteAsync(null);
+
+        Assert.Equal(1, replaced);
+        Assert.Same(vm.Vms[1], vm.Selected); // the row that moved up into its place
+    }
+
+    [Fact]
+    public void DescribeDelete_SaysWhatWasKeptAndWhatFailed()
+    {
+        Assert.Equal("A is deleted.", MainViewModel.DescribeDelete("A", new DeleteResult(["x"], [], [])));
+        var text = MainViewModel.DescribeDelete("A", new DeleteResult([], ["base.vhdx, which B uses"], ["c.vhdx (in use)"]));
+        Assert.Contains("Kept base.vhdx, which B uses.", text);
+        Assert.Contains("Couldn't delete c.vhdx (in use).", text);
+    }
+
+    [Fact]
+    public async Task Clone_OnlyFromOffOrSaved()
+    {
+        var (vm, _) = Make();
+        await vm.RefreshAsync();
+        vm.Selected = vm.Vms.Single(v => v.State == "Running");
+        Assert.False(vm.CloneCommand.CanExecute(null));
+        vm.Selected = vm.Vms.Single(v => v.State == "Saved");
+        Assert.True(vm.CloneCommand.CanExecute(null));
+    }
+
+    [Fact]
+    public async Task Demo_ConnectAndConsole_NeverReachARealVm()
+    {
+        var (vm, _) = Make();
+        await vm.RefreshAsync();
+        vm.Selected = vm.Vms.Single(v => v.Name == "Win11-RDP");
+        var said = new List<string>();
+        vm.Announce += said.Add;
+
+        await vm.ConnectCommand.ExecuteAsync(null);
+        vm.OpenConsoleCommand.Execute(null);
+
+        Assert.Equal(2, said.Count(s => s.Contains("demo", StringComparison.OrdinalIgnoreCase)));
     }
 
     [Fact]
@@ -118,7 +173,7 @@ public class MainViewModelTests
     {
         var (vm, _) = Make();
         await vm.RefreshAsync();
-        vm.Selected = vm.Vms[0];
+        vm.Selected = vm.Vms.Single(v => v.State == "Off");
 
         vm.RequestCloneName = _ => null;
         await vm.CloneCommand.ExecuteAsync(null);
@@ -178,6 +233,50 @@ public class VmSettingsViewModelTests
     }
 
     [Fact]
+    public async Task ADisconnectedVm_StaysDisconnected_WhenSomethingElseIsSaved()
+    {
+        var info = Vm("Off");
+        info.SwitchName = "";
+        var s = new VmSettingsViewModel(new DemoHyperVService { Delay = TimeSpan.Zero }, info);
+        await s.LoadAsync();
+        Assert.Same(SwitchInfo.NotConnected, s.SelectedSwitch);
+        Assert.Equal("Not connected", s.SelectedSwitch!.ToString());
+        Assert.Equal("", s.Validate()!.SwitchName);
+    }
+
+    [Fact]
+    public async Task ASwitchThatNoLongerExists_IsShownAsItIs_AndKept()
+    {
+        var info = Vm("Off");
+        info.SwitchName = "Old Dock";
+        var s = new VmSettingsViewModel(new DemoHyperVService { Delay = TimeSpan.Zero }, info);
+        await s.LoadAsync();
+        Assert.Equal("Old Dock, which no longer exists", s.SelectedSwitch!.ToString());
+        Assert.Equal("Old Dock", s.Validate()!.SwitchName);
+    }
+
+    [Fact]
+    public void MemoryNotEdited_IsKeptExactly()
+    {
+        // 1500 MB shows as "1.46"; saving that back would quietly become 1496 MB.
+        var info = Vm("Off");
+        info.MemoryStartupMB = 1500;
+        var s = new VmSettingsViewModel(new DemoHyperVService(), info);
+        Assert.Equal(1500, s.Validate()!.MemoryStartupMB);
+        s.MemoryGB = "2";
+        Assert.Equal(2048, s.Validate()!.MemoryStartupMB);
+    }
+
+    [Fact]
+    public void AnUnknownStartSetting_IsKept()
+    {
+        var info = Vm("Off");
+        info.AutomaticStartAction = "Delayed";
+        var s = new VmSettingsViewModel(new DemoHyperVService(), info);
+        Assert.Equal("Delayed", s.Validate()!.AutomaticStartAction);
+    }
+
+    [Fact]
     public async Task OffersToCreateAnExternalSwitch_OnlyWhenThereIsNone()
     {
         var s = new VmSettingsViewModel(new DemoHyperVService { Delay = TimeSpan.Zero }, Vm("Off"));
@@ -226,30 +325,43 @@ public class NewVmViewModelTests
         Assert.False(n.OnYourNetwork);
     }
 
+    private static string AnIso()
+    {
+        var path = Path.Combine(Path.GetTempPath(), "hvm-test-win.iso");
+        if (!File.Exists(path)) File.WriteAllText(path, "");
+        return path;
+    }
+
+    private static NewVmViewModel Ready(string name) =>
+        new([]) { VmName = name, IsoPath = AnIso(), Processors = "2", MemoryGB = "4", DiskGB = "128" };
+
     [Fact]
     public async Task Create_ShowsAndSpeaksEachLine_ThenTheOutcome()
     {
-        var n = new NewVmViewModel([]) { VmName = "Test3", IsoPath = "", Processors = "2", MemoryGB = "4", DiskGB = "128" };
+        var n = Ready("Test3");
         NewVmOptions? passed = null;
-        n.StartScript = (options, onLine) =>
+        n.RunScript = (options, onLine, _) =>
         {
             passed = options;
             onLine("Step 1 of 5: Reading the ISO.");
             onLine("All done.");
-            // A real process that exits at once with code 0 stands in for powershell.exe.
-            return Process.Start(new ProcessStartInfo("cmd.exe", "/c exit 0") { CreateNoWindow = true, UseShellExecute = false, })!.WithRaisingEvents();
+            return Task.FromResult(BuildOutcome.Succeeded);
         };
         var said = new List<string>();
-        var finished = new TaskCompletionSource<bool>();
+        var appended = new List<string>();
+        var finished = new TaskCompletionSource<BuildOutcome>();
         n.Announce += said.Add;
-        n.Finished += ok => finished.TrySetResult(ok);
+        n.LineAppended += appended.Add;
+        n.Finished += r => finished.TrySetResult(r);
 
-        n.CreateCommand.Execute(null);
+        await n.CreateCommand.ExecuteAsync(null);
 
-        Assert.True(await finished.Task.WaitAsync(TimeSpan.FromSeconds(10), TestContext.Current.CancellationToken));
+        Assert.Equal(BuildOutcome.Succeeded, await finished.Task.WaitAsync(TimeSpan.FromSeconds(10), TestContext.Current.CancellationToken));
         Assert.Equal("Test3", passed!.VMName);
+        Assert.Equal(AnIso(), passed.IsoPath);
         Assert.False(passed.HostOnly);
         Assert.Contains("Step 1 of 5: Reading the ISO.", n.LogText);
+        Assert.Contains("All done.", appended);
         Assert.Contains(said, s => s == "All done.");
         Assert.Contains(said, s => s.StartsWith("Finished.", StringComparison.Ordinal));
         Assert.False(n.IsRunning);
@@ -257,29 +369,70 @@ public class NewVmViewModelTests
     }
 
     [Fact]
-    public async Task Create_ReportsAFailure()
+    public async Task Create_ReportsAFailure_WithoutSpeakingPowerShellsErrorClutter()
     {
-        var n = new NewVmViewModel([]) { VmName = "Test4", IsoPath = "", Processors = "2", MemoryGB = "4", DiskGB = "128" };
-        n.StartScript = (_, onLine) =>
+        var n = Ready("Test4");
+        n.RunScript = (_, onLine, _) =>
         {
             onLine("A virtual machine named Test4 already exists.");
-            return Process.Start(new ProcessStartInfo("cmd.exe", "/c exit 1") { CreateNoWindow = true, UseShellExecute = false })!.WithRaisingEvents();
+            onLine(@"At C:\Temp\New-HyperVRdpVM.ps1:158 char:5");
+            onLine("+     throw \"A virtual machine named Test4 already exists.\"");
+            onLine("    + CategoryInfo          : OperationStopped");
+            return Task.FromResult(BuildOutcome.Failed);
         };
-        var finished = new TaskCompletionSource<bool>();
-        n.Finished += ok => finished.TrySetResult(ok);
+        var said = new List<string>();
+        n.Announce += said.Add;
 
-        n.CreateCommand.Execute(null);
+        await n.CreateCommand.ExecuteAsync(null);
 
-        Assert.False(await finished.Task.WaitAsync(TimeSpan.FromSeconds(10), TestContext.Current.CancellationToken));
         Assert.Contains("stopped with an error", n.Outcome);
+        Assert.Contains("CategoryInfo", n.LogText);                  // in the log
+        Assert.DoesNotContain(said, s => s.Contains("CategoryInfo")); // not spoken
+        Assert.DoesNotContain(said, s => s.StartsWith("At C:", StringComparison.Ordinal));
+        Assert.Contains(said, s => s == "A virtual machine named Test4 already exists.");
     }
-}
 
-internal static class ProcessTestExtensions
-{
-    public static Process WithRaisingEvents(this Process p)
+    [Fact]
+    public async Task Stop_CancelsTheRun_AndEndsAsStopped()
     {
-        p.EnableRaisingEvents = true;
-        return p;
+        var n = Ready("Test5");
+        n.RunScript = async (_, onLine, ct) =>
+        {
+            try { await Task.Delay(Timeout.Infinite, ct); }
+            catch (OperationCanceledException) { onLine("Stopped. Cleaning up."); }
+            return BuildOutcome.Stopped;
+        };
+        var finished = new TaskCompletionSource<BuildOutcome>();
+        n.Finished += r => finished.TrySetResult(r);
+
+        var running = n.CreateCommand.ExecuteAsync(null);
+        Assert.True(n.IsRunning);
+        n.Stop();
+        await running;
+
+        Assert.Equal(BuildOutcome.Stopped, await finished.Task.WaitAsync(TimeSpan.FromSeconds(10), TestContext.Current.CancellationToken));
+        Assert.Equal("Stopped.", n.Outcome);
+        Assert.Contains("Cleaning up", n.LogText);
+    }
+
+    [Fact]
+    public async Task DemoScript_RunsNoProcess_AndNothingTypedIsExecuted()
+    {
+        DemoNewVmScript.Pace = TimeSpan.Zero;
+        var lines = new List<string>();
+        var before = System.Diagnostics.Process.GetProcessesByName("cmd").Length;
+        var result = await DemoNewVmScript.RunAsync(
+            new NewVmOptions("x & calc", "", "", "", "", 1, 2, 64, false, true, true), lines.Add, TestContext.Current.CancellationToken);
+        Assert.Equal(BuildOutcome.Succeeded, result);
+        Assert.Contains(lines, l => l.Contains("x & calc"));   // shown as text, nothing more
+        Assert.True(System.Diagnostics.Process.GetProcessesByName("cmd").Length <= before);
+    }
+
+    [Fact]
+    public void Validate_RefusesPathAndWildcardCharactersInTheName()
+    {
+        var n = Ready("Win*");
+        Assert.Null(n.Validate());
+        Assert.Contains("can't contain", n.Error);
     }
 }

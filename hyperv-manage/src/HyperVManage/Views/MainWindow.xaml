@@ -39,7 +39,7 @@
                 <MenuItem Header="Res_ume" Command="{Binding ResumeCommand}" InputGestureText="Ctrl+Shift+P"/>
                 <MenuItem Header="R_estart" Command="{Binding RestartCommand}" InputGestureText="Ctrl+R"/>
                 <Separator/>
-                <MenuItem Header="Se_ttings…" Command="{Binding SettingsCommand}" InputGestureText="Alt+Enter"/>
+                <MenuItem Header="Setti_ngs…" Command="{Binding SettingsCommand}" InputGestureText="Alt+Enter"/>
                 <MenuItem Header="Chec_kpoint…" Command="{Binding CheckpointCommand}" InputGestureText="Ctrl+K"/>
                 <MenuItem Header="Cl_one…" Command="{Binding CloneCommand}" InputGestureText="Ctrl+D"/>
                 <MenuItem Header="_Delete…" Command="{Binding DeleteCommand}" InputGestureText="Delete"/>
@@ -82,7 +82,7 @@
                                     <MenuItem Header="Res_ume" Command="{Binding ResumeCommand}" InputGestureText="Ctrl+Shift+P"/>
                                     <MenuItem Header="R_estart" Command="{Binding RestartCommand}" InputGestureText="Ctrl+R"/>
                                     <Separator/>
-                                    <MenuItem Header="Se_ttings…" Command="{Binding SettingsCommand}" InputGestureText="Alt+Enter"/>
+                                    <MenuItem Header="Setti_ngs…" Command="{Binding SettingsCommand}" InputGestureText="Alt+Enter"/>
                                     <MenuItem Header="Chec_kpoint…" Command="{Binding CheckpointCommand}" InputGestureText="Ctrl+K"/>
                                     <MenuItem Header="Cl_one…" Command="{Binding CloneCommand}" InputGestureText="Ctrl+D"/>
                                     <MenuItem Header="_Delete…" Command="{Binding DeleteCommand}" InputGestureText="Delete"/>

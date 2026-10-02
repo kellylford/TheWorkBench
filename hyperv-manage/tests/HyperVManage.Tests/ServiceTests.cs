@@ -179,6 +179,90 @@ public class ScriptBuildingTests
     }
 
     [Fact]
+    public void Settings_NotConnected_Disconnects()
+    {
+        var script = PowerShellHyperVService.BuildSettingsScript("id-1", Current, Current with { SwitchName = "" });
+        Assert.Contains("Disconnect-VMNetworkAdapter", script);
+        Assert.DoesNotContain("Connect-VMNetworkAdapter -SwitchName", script);
+    }
+
+    [Fact]
+    public void Restart_AsksWindowsToReboot_RatherThanResetting()
+    {
+        // Without -Type Reboot, Restart-VM resets: the power-cord pull that loses unsaved work.
+        Assert.Contains("Restart-VM", ServiceScriptFor(VmAction.Restart));
+        Assert.Contains("-Type Reboot", ServiceScriptFor(VmAction.Restart));
+    }
+
+    private static string ServiceScriptFor(VmAction action)
+    {
+        // RunActionAsync builds and runs in one go; read its verb table through the source instead.
+        var src = File.ReadAllText(Path.Combine(RepoRoot(), "hyperv-manage", "src", "HyperVManage", "Services", "PowerShellHyperVService.cs"));
+        var line = src.Split('\n').First(l => l.Contains($"VmAction.{action} =>"));
+        return line;
+    }
+
+    [Fact]
+    public void Delete_KeepsWhatOtherVmsUse_AndOnlyItsOwnConnectionFile()
+    {
+        var delete = PowerShellHyperVService.BuildDeleteScript("id-1");
+        Assert.Contains("ParentPath", delete);          // walks other VMs' differencing chains
+        Assert.Contains("$inUse.ContainsKey", delete);
+        Assert.Contains("$ours -contains $address", delete);
+        Assert.Contains("-ErrorAction Stop", delete);   // a disk that can't go is reported, not hidden
+    }
+
+    [Fact]
+    public void Clone_RefusesRunningVms_AndCleansUpAfterAFailure()
+    {
+        var clone = PowerShellHyperVService.BuildCloneScript("id-1", "Copy");
+        Assert.Contains("$vm.State -notin 'Off', 'Saved'", clone);
+        Assert.Contains("Where-Object Name -eq $newName", clone);   // not Get-VM -Name, a wildcard
+        Assert.Contains("Remove-VM -VM $copy", clone);
+        Assert.DoesNotContain("$env:TEMP", clone);
+    }
+
+    [Fact]
+    public void ParseDeleteResult_ReadsAllThreeLists()
+    {
+        var r = PowerShellHyperVService.ParseDeleteResult(
+            """{"Deleted":["C:\\a.vhdx"],"Kept":["C:\\base.vhdx, which Other uses"],"Failed":[]}""");
+        Assert.Equal([@"C:\a.vhdx"], r.Deleted);
+        Assert.Single(r.Kept);
+        Assert.Empty(r.Failed);
+        Assert.Equal(["x"], PowerShellHyperVService.ParseStringList("\"x\""));
+        Assert.Equal(["x", "y"], PowerShellHyperVService.ParseStringList("[\"x\",\"y\"]"));
+    }
+
+    [Theory]
+    [InlineData("Win11-RDP", false)]
+    [InlineData("Build Agent (old)", false)]
+    [InlineData("W*", true)]
+    [InlineData("a[1]", true)]
+    [InlineData("x/y", true)]
+    [InlineData("C:", true)]
+    public void VmNames_WithPathOrWildcardCharacters_AreRefused(string name, bool refused) =>
+        Assert.Equal(refused, NewVmScript.HasForbiddenCharacters(name));
+
+    [Fact]
+    public void TheScriptRefusesThem_Too()
+    {
+        var script = File.ReadAllText(Path.Combine(RepoRoot(), "hyperv-rdp-vm", "New-HyperVRdpVM.ps1"));
+        Assert.Contains("can't contain any of these", script);
+    }
+
+    [Fact]
+    public void TheScript_MakesTheSwitchOnlyAfterTheDiskIsBuilt()
+    {
+        // A wrong ISO or a full disk must never change this PC's networking.
+        var script = File.ReadAllText(Path.Combine(RepoRoot(), "hyperv-rdp-vm", "New-HyperVRdpVM.ps1"));
+        var newSwitch = script.IndexOf("New-VMSwitch -Name $SwitchName", StringComparison.Ordinal);
+        Assert.True(newSwitch > script.IndexOf("Expand-WindowsImage", StringComparison.Ordinal));
+        Assert.True(newSwitch > script.IndexOf("Get-WindowsImage -ImagePath $wim -Index", StringComparison.Ordinal));
+        Assert.True(newSwitch < script.IndexOf("New-VM -Name $VMName", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void CloneAndDelete_QuoteWhatTheyAreGiven()
     {
         var clone = PowerShellHyperVService.BuildCloneScript("id-1", "Kelly's copy");
@@ -204,7 +288,10 @@ public class ScriptBuildingTests
             PowerShellHyperVService.BuildCloneScript("id", "copy"),
             PowerShellHyperVService.BuildDeleteScript("id"),
             PowerShellHyperVService.BuildSettingsScript("id", Current, new VmSettings(2, 2048, false, "X", "Start", true)),
+            PowerShellHyperVService.BuildSettingsScript("id", Current, Current with { SwitchName = "" }),
             NewVmScript.BuildCommand(@"C:\x\New-HyperVRdpVM.ps1", Options()),
+            NewVmScript.BuildPrecheckScript("Kelly's VM"),
+            NewVmScript.BuildCleanupScript("Kelly's VM", @"C:\ISOs\a.iso", @"C:\VHD\Kelly's VM.vhdx"),
         };
         foreach (var s in scripts)
         {
@@ -238,9 +325,17 @@ public class ScriptBuildingTests
     [Fact]
     public void TheEmbeddedScript_IsTheOneInTheRepository()
     {
-        var extracted = File.ReadAllBytes(NewVmScript.ExtractScript());
-        var repo = File.ReadAllBytes(Path.Combine(RepoRoot(), "hyperv-rdp-vm", "New-HyperVRdpVM.ps1"));
-        Assert.Equal(repo, extracted);
+        var path = NewVmScript.ExtractScript();
+        try
+        {
+            var repo = File.ReadAllBytes(Path.Combine(RepoRoot(), "hyperv-rdp-vm", "New-HyperVRdpVM.ps1"));
+            Assert.Equal(repo, File.ReadAllBytes(path));
+            // A fresh name each time, so nothing can be waiting at a known path.
+            var second = NewVmScript.ExtractScript();
+            Assert.NotEqual(path, second);
+            File.Delete(second);
+        }
+        finally { File.Delete(path); }
     }
 
     [Fact]
@@ -295,6 +390,16 @@ public class RemoteDesktopTests
     [InlineData("AVeryLongVirtualMachineName", "AVeryLongVirtua")]
     public void ComputerName_MatchesTheScript(string vmName, string expected) =>
         Assert.Equal(expected, RemoteDesktop.ComputerName(vmName));
+
+    [Theory]
+    [InlineData("full address:s:Win11-RDP.local", true)]
+    [InlineData("full address:s:WIN11-RDP", true)]
+    [InlineData("full address:s:10.0.0.41", true)]
+    [InlineData("full address:s:Win11-RDP.mshome.net", true)]
+    [InlineData("full address:s:office-pc.example.com", false)]
+    [InlineData("username:s:x", false)]
+    public void ADesktopFile_IsTheVmsOnlyIfItConnectsToTheVm(string line, bool expected) =>
+        Assert.Equal(expected, RemoteDesktop.FileConnectsTo(["screen mode id:i:2", line], "Win11-RDP", ["10.0.0.41"]));
 
     [Fact]
     public void RdpFile_PlaysSoundHere_AndSendsTheMicrophone()

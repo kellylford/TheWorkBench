@@ -119,6 +119,8 @@ public static class VmStates
     /// A VM partway through starting or saving is left alone until it gets there.</summary>
     public static bool IsSettled(string s) => s is "Off" or "Running" or "Paused" or "Saved";
 
+    public static bool CanClone(string s) => s is "Off" or "Saved";
+
     /// <summary>Processor count, startup memory and dynamic memory can only change while off.</summary>
     public static bool CanChangeHardware(string s) => s is "Off";
 }

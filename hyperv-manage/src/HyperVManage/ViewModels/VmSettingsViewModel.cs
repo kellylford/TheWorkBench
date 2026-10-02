@@ -36,10 +36,20 @@ public sealed partial class VmSettingsViewModel : ObservableObject
 
         _processors = vm.ProcessorCount.ToString();
         _memoryGB = (vm.MemoryStartupMB / 1024.0).ToString("0.##");
+        _memoryAsLoaded = _memoryGB;
         _dynamicMemory = vm.DynamicMemory;
         _automaticCheckpoints = vm.AutomaticCheckpoints;
-        _startOption = StartOption.All.FirstOrDefault(o => o.Value == vm.AutomaticStartAction) ?? StartOption.All[1];
+        // A value this list doesn't know is kept as it is, rather than quietly changed on Save.
+        var known = StartOption.All.FirstOrDefault(o => o.Value == vm.AutomaticStartAction);
+        StartOptions = known is not null || vm.AutomaticStartAction.Length == 0
+            ? StartOption.All
+            : [.. StartOption.All, new StartOption(vm.AutomaticStartAction, vm.AutomaticStartAction)];
+        _startOption = known ?? StartOptions[^1];
     }
+
+    // The memory box shows a rounded figure (1500 MB reads "1.46"); turning that back into MB
+    // would change the VM's memory on every save. Only an edit to the box counts.
+    private readonly string _memoryAsLoaded;
 
     public string VmId { get; }
     public string VmName { get; }
@@ -64,10 +74,13 @@ public sealed partial class VmSettingsViewModel : ObservableObject
     public bool HasError => Error.Length > 0;
 
     public ObservableCollection<SwitchInfo> Switches { get; } = [];
-    public IReadOnlyList<StartOption> StartOptions => StartOption.All;
+    public IReadOnlyList<StartOption> StartOptions { get; }
 
-    /// <summary>Offered when no switch reaches the PC's own network.</summary>
-    public bool HasNoExternalSwitch => Switches.All(s => s.SwitchType != "External");
+    private bool _switchesLoaded;
+
+    /// <summary>Offered when no switch reaches the PC's own network. Not when the list couldn't be
+    /// read: an empty list then says nothing about what switches exist.</summary>
+    public bool HasNoExternalSwitch => _switchesLoaded && Switches.All(s => s.SwitchType != "External");
 
     /// <summary>Raised with text to speak, and when the window should close after a save.</summary>
     public event Action<string>? Announce;
@@ -77,9 +90,22 @@ public sealed partial class VmSettingsViewModel : ObservableObject
     {
         try
         {
+            var switches = await _hyperV.GetSwitchesAsync();
             Switches.Clear();
-            foreach (var s in await _hyperV.GetSwitchesAsync()) Switches.Add(s);
-            SelectedSwitch = Switches.FirstOrDefault(s => s.Name == _current.SwitchName) ?? Switches.FirstOrDefault();
+            // "Not connected" is a real choice, and the only right one to show for a VM whose
+            // adapter isn't connected: anything else would connect it on the next Save.
+            Switches.Add(SwitchInfo.NotConnected);
+            foreach (var s in switches) Switches.Add(s);
+            var current = Switches.FirstOrDefault(s => s.Name == _current.SwitchName);
+            if (current is null)
+            {
+                // Connected to a switch that no longer exists. Show it as it is, so Save leaves
+                // it alone unless the user picks something else.
+                current = new SwitchInfo(_current.SwitchName, "Missing", "");
+                Switches.Add(current);
+            }
+            SelectedSwitch = current;
+            _switchesLoaded = true;
         }
         catch (Exception ex) { Error = $"Couldn't read the network switches: {ex.Message}"; }
         OnPropertyChanged(nameof(HasNoExternalSwitch));
@@ -99,9 +125,10 @@ public sealed partial class VmSettingsViewModel : ObservableObject
             return null;
         }
         // Hyper-V wants startup memory in whole multiples of 2 MB.
-        var mb = (long)Math.Round(gb * 1024 / 2) * 2;
+        var mb = MemoryGB.Trim() == _memoryAsLoaded ? _current.MemoryStartupMB : (long)Math.Round(gb * 1024 / 2) * 2;
         Error = "";
-        return new VmSettings(cpus, mb, DynamicMemory, SelectedSwitch?.Name ?? _current.SwitchName,
+        // No list to choose from (it couldn't be read) means no change to the network.
+        return new VmSettings(cpus, mb, DynamicMemory, _switchesLoaded && SelectedSwitch is not null ? SelectedSwitch.Name : _current.SwitchName,
                               StartOption.Value, AutomaticCheckpoints);
     }
 

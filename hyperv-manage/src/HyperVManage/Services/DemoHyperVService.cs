@@ -97,7 +97,10 @@ public sealed class DemoHyperVService : IHyperVService
         {
             if (_vms.Any(v => v.Name.Equals(newName, StringComparison.OrdinalIgnoreCase)))
                 throw new HyperVException($"There is already a VM named {newName}.");
-            var copy = Copy(Find(vmId), Guid.NewGuid().ToString());
+            var source = Find(vmId);
+            if (source.State is not ("Off" or "Saved"))
+                throw new HyperVException($"Shut down or save {source.Name} first.");
+            var copy = Copy(source, Guid.NewGuid().ToString());
             copy.Name = newName;
             copy.State = "Off";
             copy.IpAddresses = [];
@@ -106,11 +109,26 @@ public sealed class DemoHyperVService : IHyperVService
         }
     }
 
-    public async Task DeleteAsync(string vmId, CancellationToken ct = default)
+    public Task<IReadOnlyList<string>> GetDiskPathsAsync(string vmId, CancellationToken ct = default)
     {
+        lock (_gate)
+            return Task.FromResult<IReadOnlyList<string>>([$@"C:\ProgramData\Microsoft\Windows\Virtual Hard Disks\{Find(vmId).Name}.vhdx"]);
+    }
+
+    public async Task<DeleteResult> DeleteAsync(string vmId, CancellationToken ct = default)
+    {
+        var disks = await GetDiskPathsAsync(vmId, ct);
         await Task.Delay(Delay, ct);
         lock (_gate) _vms.Remove(Find(vmId));
+        return new DeleteResult(disks, [], []);
     }
+
+    // Demo mode never reaches a real VM, even one whose name matches a demo VM.
+    public Task ConnectAsync(VmInfo vm, CancellationToken ct = default) =>
+        throw new HyperVException("This is the demo, so there's no real VM to connect to.");
+
+    public void OpenConsole(VmInfo vm) =>
+        throw new HyperVException("This is the demo, so there's no real VM to open.");
 
     public async Task<string> CreateExternalSwitchAsync(CancellationToken ct = default)
     {

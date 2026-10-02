@@ -54,11 +54,14 @@
 
                 <GroupBox Header="Network" Padding="8" Margin="0,10,0,0" AutomationProperties.Name="Network">
                     <!-- One tab stop; the arrows move between the two and choose as they go. -->
-                    <StackPanel KeyboardNavigation.TabNavigation="Once" KeyboardNavigation.DirectionalNavigation="Cycle">
-                        <RadioButton GroupName="Network" IsChecked="{Binding OnYourNetwork}" GotKeyboardFocus="Radio_GotKeyboardFocus"
+                    <!-- One tab stop: only the chosen button is a stop, so Tab or Shift+Tab into the
+                         group lands on the choice already made and never changes it. The arrows move
+                         between the two and choose as they go. -->
+                    <StackPanel KeyboardNavigation.DirectionalNavigation="Cycle">
+                        <RadioButton GroupName="Network" IsChecked="{Binding OnYourNetwork}" IsTabStop="{Binding OnYourNetwork}" GotKeyboardFocus="Radio_GotKeyboardFocus"
                                      Content="Your network: other computers can connect (recommended)"
                                      ToolTip="Uses an external switch, creating one if there isn't one yet. This PC's connection drops for a few seconds when it is created."/>
-                        <RadioButton GroupName="Network" IsChecked="{Binding HostOnly}" GotKeyboardFocus="Radio_GotKeyboardFocus" Margin="0,4,0,0"
+                        <RadioButton GroupName="Network" IsChecked="{Binding HostOnly}" IsTabStop="{Binding HostOnly}" GotKeyboardFocus="Radio_GotKeyboardFocus" Margin="0,4,0,0"
                                      Content="This PC only (Default Switch)"/>
                     </StackPanel>
                 </GroupBox>
@@ -82,9 +85,10 @@
                 <Button x:Name="CloseButton" Content="C_lose" MinWidth="80" Click="Close_Click"/>
             </StackPanel>
             <Label DockPanel.Dock="Top" Content="Pro_gress:" Target="{Binding ElementName=LogBox}" Padding="0,0,0,2"/>
-            <TextBox x:Name="LogBox" AutomationProperties.Name="Progress" Text="{Binding LogText, Mode=OneWay}" IsReadOnly="True"
-                     TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" AcceptsReturn="True"
-                     TextChanged="LogBox_TextChanged"/>
+            <!-- Filled from code a line at a time (AppendText), not bound: replacing the whole text
+                 on every line would throw the caret back to the top while someone reads. -->
+            <TextBox x:Name="LogBox" AutomationProperties.Name="Progress" IsReadOnly="True"
+                     TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" AcceptsReturn="True"/>
         </DockPanel>
     </Grid>
 </Window>

@@ -29,10 +29,16 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
     /// <summary>Raised with text a screen reader should speak: an operation finishing or failing.</summary>
     public event Action<string>? Announce;
 
+    /// <summary>Raised when the selected VM left the list (deleted here or elsewhere) and another
+    /// was selected in its place. Keyboard focus was on the row that went, so the window moves it
+    /// to the new one rather than leaving it nowhere.</summary>
+    public event Action? SelectionReplaced;
+
     // The window answers these. Null means the user cancelled.
     public Func<VmInfo, string?>? RequestCloneName { get; set; }
     public Func<VmInfo, string?>? RequestCheckpointName { get; set; }
-    public Func<VmInfo, bool>? ConfirmDelete { get; set; }
+    /// <summary>Asked before deleting, with the disk files that would go.</summary>
+    public Func<VmInfo, IReadOnlyList<string>, bool>? ConfirmDelete { get; set; }
     public Action<VmInfo>? OpenSettings { get; set; }
     public Action? OpenNewVm { get; set; }
 
@@ -116,6 +122,8 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
     internal void Merge(IReadOnlyList<VmInfo> fresh)
     {
         var byId = fresh.ToDictionary(v => v.Id);
+        var selectedIndex = Selected is null ? -1 : Vms.IndexOf(Selected);
+        var selectedGone = Selected is not null && !byId.ContainsKey(Selected.Id);
         for (var i = Vms.Count - 1; i >= 0; i--)
             if (!byId.ContainsKey(Vms[i].Id)) Vms.RemoveAt(i);
         foreach (var vm in fresh)
@@ -125,6 +133,12 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             else existing.UpdateFrom(vm);
         }
         IsEmpty = Vms.Count == 0;
+        if (selectedGone)
+        {
+            // The row that took its place, or the one before it at the end of the list.
+            Selected = Vms.Count == 0 ? null : Vms[Math.Clamp(selectedIndex, 0, Vms.Count - 1)];
+            SelectionReplaced?.Invoke();
+        }
         Selected ??= Vms.FirstOrDefault();
     }
 
@@ -162,7 +176,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         var vm = Selected!;
         try
         {
-            await RemoteDesktop.ConnectAsync(vm.Name, vm.IpAddresses);
+            await _hyperV.ConnectAsync(vm);
             StatusText = $"Opening Remote Desktop to {vm.Name}.";
         }
         catch (Exception ex) { Fail(vm, "Couldn't open Remote Desktop", ex); }
@@ -173,7 +187,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
     private void OpenConsole()
     {
         var vm = Selected!;
-        try { RemoteDesktop.OpenConsole(vm.Id); StatusText = $"Opening the console for {vm.Name}."; }
+        try { _hyperV.OpenConsole(vm); StatusText = $"Opening the console for {vm.Name}."; }
         catch (Exception ex) { Fail(vm, "Couldn't open the console", ex); }
     }
     private bool CanOpenConsole() => Selected is not null;
@@ -192,7 +206,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             v => _hyperV.CreateCheckpointAsync(v.Id, name.Trim()), v => $"Checkpoint {name.Trim()} created for {v.Name}.");
     }
 
-    [RelayCommand(CanExecute = nameof(CanSettle))]
+    [RelayCommand(CanExecute = nameof(CanClone))]
     private Task Clone()
     {
         var vm = Selected!;
@@ -202,12 +216,30 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             v => _hyperV.CloneAsync(v.Id, name), v => $"{name} is ready, a copy of {v.Name}.");
     }
 
+    /// <summary>Only from off or saved: a copy of a running VM would join the network as a
+    /// second machine with the same name.</summary>
+    private bool CanClone() => Can(VmStates.CanClone);
+
     [RelayCommand(CanExecute = nameof(CanSettle))]
-    private Task Delete()
+    private async Task Delete()
     {
         var vm = Selected!;
-        if (ConfirmDelete?.Invoke(vm) != true) return Task.CompletedTask;
-        return RunAsync(vm, $"Deleting {vm.Name}.", v => _hyperV.DeleteAsync(v.Id), v => $"{v.Name} is deleted.");
+        IReadOnlyList<string> disks;
+        try { disks = await _hyperV.GetDiskPathsAsync(vm.Id); }
+        catch (Exception ex) { Fail(vm, $"Couldn't read {vm.Name}'s disks, so nothing was deleted", ex); return; }
+        if (ConfirmDelete?.Invoke(vm, disks) != true) return;
+
+        DeleteResult? result = null;
+        await RunAsync(vm, $"Deleting {vm.Name}.", async v => result = await _hyperV.DeleteAsync(v.Id),
+            v => DescribeDelete(v.Name, result!));
+    }
+
+    internal static string DescribeDelete(string name, DeleteResult r)
+    {
+        var text = new System.Text.StringBuilder($"{name} is deleted.");
+        if (r.Kept.Count > 0) text.Append(" Kept ").Append(string.Join("; ", r.Kept)).Append('.');
+        if (r.Failed.Count > 0) text.Append(" Couldn't delete ").Append(string.Join("; ", r.Failed)).Append('.');
+        return text.ToString();
     }
 
     [RelayCommand]

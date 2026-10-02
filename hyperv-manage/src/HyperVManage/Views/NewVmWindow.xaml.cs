@@ -17,6 +17,7 @@ namespace HyperVManage.Views;
 public partial class NewVmWindow : Window
 {
     private readonly NewVmViewModel _vm;
+    private bool _closeWhenStopped;
 
     public NewVmWindow(NewVmViewModel vm)
     {
@@ -24,7 +25,13 @@ public partial class NewVmWindow : Window
         _vm = vm;
         DataContext = vm;
         vm.Announce += text => Announcer.Announce(this, text);
+        vm.LineAppended += AppendLine;
         vm.PropertyChanged += OnVmPropertyChanged;
+        vm.Finished += _ =>
+        {
+            // The user asked to close during the build; now that it has stopped and cleaned up, do.
+            if (_closeWhenStopped) Close();
+        };
         Loaded += (_, _) => { NameBox.Focus(); NameBox.SelectAll(); };
 
         PreviewKeyDown += (_, e) =>
@@ -38,12 +45,30 @@ public partial class NewVmWindow : Window
         };
     }
 
+    /// <summary>True while the script runs. The main window won't close until this window has.</summary>
+    public bool IsBuilding => _vm.IsRunning;
+
     private void OnVmPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
         // Once the script starts the form disappears; put focus on its output so the user is
         // somewhere they can read, rather than on a control that just vanished.
         if (e.PropertyName == nameof(NewVmViewModel.HasStarted) && _vm.HasStarted)
             Dispatcher.BeginInvoke(() => LogBox.Focus(), System.Windows.Threading.DispatcherPriority.Input);
+    }
+
+    /// <summary>
+    /// Adds a line without disturbing the reader: AppendText leaves the caret where it is, and the
+    /// view only follows the new text if the caret was already at the end.
+    /// </summary>
+    private void AppendLine(string line)
+    {
+        var atEnd = LogBox.CaretIndex >= LogBox.Text.Length;
+        LogBox.AppendText(LogBox.Text.Length == 0 ? line : Environment.NewLine + line);
+        if (atEnd)
+        {
+            LogBox.CaretIndex = LogBox.Text.Length;
+            LogBox.ScrollToEnd();
+        }
     }
 
     // Selection follows focus in the radio group, as in any Windows radio group: arrowing to a
@@ -65,20 +90,23 @@ public partial class NewVmWindow : Window
         IsoBox.Focus();
     }
 
-    private void LogBox_TextChanged(object sender, TextChangedEventArgs e) => LogBox.ScrollToEnd();
-
     private void Close_Click(object sender, RoutedEventArgs e) => Close();
 
     protected override void OnClosing(CancelEventArgs e)
     {
         if (_vm.IsRunning)
         {
+            e.Cancel = true;
+            if (_closeWhenStopped) return; // already stopping; it closes when the cleanup is done
             var answer = MessageBox.Show(this,
-                "The VM is still being built. Closing this window stops the build partway, and leaves a half-made VM " +
-                "for you to delete from the list.\n\nStop building it?",
+                "The virtual machine is still being built. Stop the build?\n\n" +
+                "Whatever it has made so far is cleaned up. If it has already got as far as creating the VM, " +
+                "that VM is left in the list for you to delete.",
                 "Stop building the VM?", MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No);
-            if (answer != MessageBoxResult.Yes) { e.Cancel = true; return; }
+            if (answer != MessageBoxResult.Yes) return;
+            _closeWhenStopped = true;
             _vm.Stop();
+            return;
         }
         base.OnClosing(e);
     }

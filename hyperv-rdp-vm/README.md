@@ -83,11 +83,20 @@ checkpoints are off.
 
 ### The network
 
-If this PC has no external switch yet, the script creates one called
-`External Network` on the adapter you use for the internet, Wi-Fi or Ethernet.
+If this PC has no external switch whose adapter is connected, the script
+creates one called `External Network` on the adapter Windows uses for the
+internet, Wi-Fi or Ethernet. It does that only after the ISO has been checked
+and the virtual disk built, so a wrong ISO never changes your networking.
 **This PC's network connection drops for a few seconds while Windows sets it
 up**, and the script waits for it to come back. If an external switch already
 exists, the script uses it and changes nothing.
+
+To undo it later, delete the switch in an administrator PowerShell window once
+no VM uses it. Deleting a VM never removes the switch, since others may use it.
+
+```powershell
+Remove-VMSwitch -Name 'External Network'
+```
 
 To keep the VM private to this PC instead, as earlier versions of the script
 did, use `-HostOnly`. It then goes on the Default Switch, where only this PC can
@@ -176,6 +185,11 @@ The VM gets its address from your router. A few routers refuse more than one
 address from the same Wi-Fi connection, which is how a VM shares it. Plug the PC
 into Ethernet, or start over with `-HostOnly` and connect from this PC.
 
+**-Remove** turns the VM off, deletes it, its checkpoints and its disk, and
+the connection file and saved sign-in. It keeps a disk another VM uses (one
+attached to it, or the parent of one of its differencing disks), and a desktop
+`.rdp` file of the same name that connects to something else.
+
 **The connection file stopped working.** If `Win11-RDP.local` doesn't answer,
 your network may not pass names around. Find the VM's current address in
 Hyper-V Manage and connect to that; setting up an address reservation for the VM
@@ -213,12 +227,14 @@ progress bars, no pop-up dialogs.
 2. Checks that `New-VM` exists (Hyper-V is on), the VM name and VHDX are
    free, the edition isn't Home, and the ISO's architecture matches the
    host's (`Win32_Processor.Architecture`: 9 is x64, 12 is Arm64, the same
-   numbers `Get-WindowsImage` uses). It then picks the switch: `-SwitchName`
-   if given, the Default Switch with `-HostOnly`, otherwise the first external
-   switch. With none, it finds the internet adapter (the lowest-metric
-   `0.0.0.0/0` route on a physical adapter that is up) and creates
-   `External Network` on it with `-AllowManagementOS`, before any disk work,
-   so a failure there costs nothing.
+   numbers `Get-WindowsImage` uses; this one is made in step 3, once the ISO
+   is mounted). It then picks the switch: `-SwitchName` if given, the Default
+   Switch with `-HostOnly`, otherwise the first external switch whose adapter
+   is up. With none, it notes the internet adapter (the `0.0.0.0/0` route
+   with the lowest route metric plus interface metric, on a physical adapter
+   that is up) to create `External Network` on later. The VM name is refused
+   if it holds `\ / : * ? " < > | [ ]`: it becomes file names, and
+   `Get-VM -Name` reads the last few as wildcards.
 3. Mounts the ISO, finds `sources\install.wim` or `install.esd`, and picks
    the index whose `ImageName` equals `-Edition`.
 4. Creates a dynamic VHDX, mounts it, and initialises it as GPT. Any
@@ -232,18 +248,23 @@ progress bars, no pop-up dialogs.
    and `oobeSystem` passes. It then switches the first partition's GPT type
    to EFI System and dismounts everything. If this stage fails, the
    half-built VHDX is deleted.
-7. Creates a Generation 2 VM with dynamic memory and automatic checkpoints
+7. Creates `External Network` with `-AllowManagementOS` if step 2 said to,
+   now that the ISO and disk have passed, and waits up to 90 seconds for this
+   PC's default route to return through `vEthernet (External Network)`. A
+   failure deletes the new disk, so a second run isn't blocked, and says how
+   to remove a half-made switch.
+8. Creates a Generation 2 VM with dynamic memory and automatic checkpoints
    off, boots from the hard disk first, sets `AutomaticStartAction Start`
    (unless `-NoAutoStart`), and adds a vTPM if it can (a failure only prints a
    note).
-8. Polls `Invoke-Command -VMName` (PowerShell Direct) every 15 seconds with
+9. Polls `Invoke-Command -VMName` (PowerShell Direct) every 15 seconds with
    `COMPUTERNAME\vmuser`. The call fails until the answer file has created
    the account. Once it gets in, it waits until `HKLM\SYSTEM\Setup` shows
    `SystemSetupInProgress` and `OOBEInProgress` at 0. The same call then
    enables RDP and its firewall group (`@FirewallAPI.dll,-28752`, which
    works in any language), sets the RDP audio policies, starts Audiosrv,
    marks the network Private and returns the VM's IPv4 address.
-9. Picks a name that resolves to that IP, trying for up to a minute while
+10. Picks a name that resolves to that IP, trying for up to a minute while
    the VM's name registration catches up: `COMPUTERNAME.local` then
    `COMPUTERNAME` on an external switch, `COMPUTERNAME.mshome.net` on the
    Default Switch. Otherwise it uses the IP. It waits for TCP 3389 to answer,

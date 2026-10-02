@@ -61,7 +61,9 @@ public sealed class PowerShellHyperVService : IHyperVService
             VmAction.Save => "Save-VM -VM $vm",
             VmAction.Pause => "Suspend-VM -VM $vm",
             VmAction.Resume => "Resume-VM -VM $vm",
-            VmAction.Restart => "Restart-VM -VM $vm -Force",
+            // -Type Reboot asks Windows inside the VM to restart, like Shut Down does. Without
+            // it Restart-VM resets the VM, which is pulling the power and loses unsaved work.
+            VmAction.Restart => "Restart-VM -VM $vm -Type Reboot -Force",
             _ => throw new ArgumentOutOfRangeException(nameof(action)),
         };
         return PowerShellRunner.RunAsync(GetVm(vmId) + verb, ct);
@@ -88,7 +90,9 @@ public sealed class PowerShellHyperVService : IHyperVService
                 : $"Set-VMMemory -VM $vm -DynamicMemoryEnabled $false -StartupBytes {startup}");
         }
         if (wanted.SwitchName != current.SwitchName)
-            lines.Add($"Get-VMNetworkAdapter -VM $vm | Select-Object -First 1 | Connect-VMNetworkAdapter -SwitchName {Ps.Quote(wanted.SwitchName)}");
+            lines.Add(wanted.SwitchName.Length == 0
+                ? "Get-VMNetworkAdapter -VM $vm | Select-Object -First 1 | Disconnect-VMNetworkAdapter"
+                : $"Get-VMNetworkAdapter -VM $vm | Select-Object -First 1 | Connect-VMNetworkAdapter -SwitchName {Ps.Quote(wanted.SwitchName)}");
         if (wanted.AutomaticStartAction != current.AutomaticStartAction)
             lines.Add($"Set-VM -VM $vm -AutomaticStartAction {wanted.AutomaticStartAction}");
         if (wanted.AutomaticCheckpoints != current.AutomaticCheckpoints)
@@ -103,73 +107,162 @@ public sealed class PowerShellHyperVService : IHyperVService
         PowerShellRunner.RunAsync(BuildCloneScript(vmId, newName), ct);
 
     /// <summary>
-    /// Hyper-V has no clone command. Export the VM to a temporary folder, import that as a copy
-    /// with a new id into the usual VM and disk folders under the new name, then delete the export.
+    /// Hyper-V has no clone command. Export the VM, import that as a copy with a new id into the
+    /// usual VM and disk folders under the new name, then delete the export. The export goes beside
+    /// the VM disks, not into TEMP, since it is a full copy of the disk and the system drive may be
+    /// the small one. Anything made before a failure is removed again.
     /// </summary>
     internal static string BuildCloneScript(string vmId, string newName) => GetVm(vmId) + $$"""
         $newName = {{Ps.Quote(newName)}}
-        if (Get-VM -Name $newName -ErrorAction SilentlyContinue) { throw "There is already a VM named $newName." }
+        # Where-Object, not Get-VM -Name, which would read [ ] * ? in a name as wildcards.
+        if (Get-VM | Where-Object Name -eq $newName) { throw "There is already a VM named $newName." }
+        if ($vm.State -notin 'Off', 'Saved') { throw "Shut down or save $($vm.Name) first. A copy of a running VM would join the network as a second machine with the same name." }
         $vmHost = Get-VMHost
-        $export = Join-Path $env:TEMP ('HyperVManage-clone-' + [guid]::NewGuid().ToString('N'))
+        $vmFolder = Join-Path $vmHost.VirtualMachinePath $newName
+        $diskFolder = Join-Path $vmHost.VirtualHardDiskPath $newName
+        foreach ($f in $vmFolder, $diskFolder) { if (Test-Path -LiteralPath $f) { throw "The folder $f already exists. Pick another name, or remove the folder." } }
+        $export = Join-Path $vmHost.VirtualHardDiskPath ('.HyperVManage-clone-' + [guid]::NewGuid().ToString('N'))
+        $copy = $null
         try {
             Export-VM -VM $vm -Path $export
-            $config = Get-ChildItem -Path $export -Recurse -Filter *.vmcx | Where-Object { $_.Directory.Name -eq 'Virtual Machines' } | Select-Object -First 1
+            $config = Get-ChildItem -LiteralPath $export -Recurse -Filter *.vmcx | Where-Object { $_.Directory.Name -eq 'Virtual Machines' } | Select-Object -First 1
             if (-not $config) { throw "The export of $($vm.Name) has no VM configuration in it." }
-            $vmFolder = Join-Path $vmHost.VirtualMachinePath $newName
             $copy = Import-VM -Path $config.FullName -Copy -GenerateNewId `
                 -VirtualMachinePath $vmFolder -SnapshotFilePath $vmFolder -SmartPagingFilePath $vmFolder `
-                -VhdDestinationPath (Join-Path $vmHost.VirtualHardDiskPath $newName)
+                -VhdDestinationPath $diskFolder
             Rename-VM -VM $copy -NewName $newName
+        } catch {
+            if ($copy) { Remove-VM -VM $copy -Force -ErrorAction SilentlyContinue }
+            foreach ($f in $vmFolder, $diskFolder) { Remove-Item -LiteralPath $f -Recurse -Force -ErrorAction SilentlyContinue }
+            throw
         } finally {
             Remove-Item -LiteralPath $export -Recurse -Force -ErrorAction SilentlyContinue
         }
         """;
 
-    public Task DeleteAsync(string vmId, CancellationToken ct = default) =>
-        PowerShellRunner.RunAsync(BuildDeleteScript(vmId), ct);
+    public async Task<IReadOnlyList<string>> GetDiskPathsAsync(string vmId, CancellationToken ct = default)
+    {
+        var output = await PowerShellRunner.RunAsync(GetVm(vmId) +
+            "ConvertTo-Json -InputObject @(Get-VMHardDiskDrive -VM $vm | ForEach-Object { [string]$_.Path } | Where-Object { $_ }) -Compress", ct)
+            .ConfigureAwait(false);
+        return ParseStringList(output);
+    }
+
+    internal static IReadOnlyList<string> ParseStringList(string json)
+    {
+        using var doc = JsonDocument.Parse(NonEmpty(json));
+        var root = doc.RootElement;
+        return root.ValueKind switch
+        {
+            JsonValueKind.Array => root.EnumerateArray().Where(e => e.ValueKind == JsonValueKind.String).Select(e => e.GetString()!).ToList(),
+            JsonValueKind.String => [root.GetString()!],
+            _ => [],
+        };
+    }
+
+    public async Task<DeleteResult> DeleteAsync(string vmId, CancellationToken ct = default) =>
+        ParseDeleteResult(await PowerShellRunner.RunAsync(BuildDeleteScript(vmId), ct).ConfigureAwait(false));
 
     /// <summary>
-    /// Matches New-HyperVRdpVM.ps1 -Remove: the VM, its disks, the desktop connection file the
-    /// script made and the sign-in it saved. Checkpoints are removed first so their changes merge
-    /// into the disks being deleted rather than leaving .avhdx files behind.
+    /// Matches New-HyperVRdpVM.ps1 -Remove. Checkpoints go first so their changes merge into the
+    /// disks rather than leaving .avhdx files behind. A disk another VM relies on is kept: one it
+    /// has attached, or the parent of one of its differencing disks. The desktop connection file
+    /// and its saved sign-in go only when the file connects to this VM, by its name or address;
+    /// a file that merely shares the VM's name belongs to something else.
     /// </summary>
     internal static string BuildDeleteScript(string vmId) => GetVm(vmId) + """
+        $name = $vm.Name
+        $computer = $name -replace '[^A-Za-z0-9-]', ''
+        if ($computer.Length -gt 15) { $computer = $computer.Substring(0, 15) }
+        $ips = @(Get-VMNetworkAdapter -VM $vm | ForEach-Object { $_.IPAddresses })
         if ($vm.State -ne 'Off') { Stop-VM -VM $vm -TurnOff -Force }
         Get-VMSnapshot -VM $vm -ErrorAction SilentlyContinue | Remove-VMSnapshot -IncludeAllChildSnapshots -ErrorAction SilentlyContinue
         $deadline = (Get-Date).AddMinutes(5)
         while ((Get-VM -Id $vm.Id).Status -match 'Merging' -and (Get-Date) -lt $deadline) { Start-Sleep -Seconds 2 }
         $disks = @(Get-VMHardDiskDrive -VM $vm | Select-Object -ExpandProperty Path)
-        $name = $vm.Name
+        $inUse = @{}
+        foreach ($other in @(Get-VM | Where-Object { $_.Id -ne $vm.Id })) {
+            foreach ($path in @(Get-VMHardDiskDrive -VM $other | Select-Object -ExpandProperty Path)) {
+                $current = $path
+                while ($current) {
+                    $inUse[$current.ToLowerInvariant()] = $other.Name
+                    $current = (Get-VHD -Path $current -ErrorAction SilentlyContinue).ParentPath
+                }
+            }
+        }
+        $deleted = @(); $kept = @(); $failed = @()
         Remove-VM -VM $vm -Force
-        foreach ($d in $disks) { if ($d) { Remove-Item -LiteralPath $d -Force -ErrorAction SilentlyContinue } }
+        foreach ($d in $disks) {
+            if (-not $d) { continue }
+            if ($inUse.ContainsKey($d.ToLowerInvariant())) { $kept += "$d, which $($inUse[$d.ToLowerInvariant()]) uses"; continue }
+            try { Remove-Item -LiteralPath $d -Force -ErrorAction Stop; $deleted += $d }
+            catch { $failed += "$d ($($_.Exception.Message))" }
+        }
         $rdp = Join-Path ([Environment]::GetFolderPath('Desktop')) "$name.rdp"
         if (Test-Path -LiteralPath $rdp) {
-            foreach ($line in Get-Content -LiteralPath $rdp) {
-                if ($line -like 'full address:s:*') { cmdkey /delete:"TERMSRV/$($line.Substring(15))" | Out-Null }
+            $address = Get-Content -LiteralPath $rdp | Where-Object { $_ -like 'full address:s:*' } |
+                Select-Object -First 1 | ForEach-Object { $_.Substring(15) }
+            $ours = @("$computer.local", $computer, "$computer.mshome.net") + $ips
+            if ($address -and ($ours -contains $address)) {
+                cmdkey /delete:"TERMSRV/$address" | Out-Null
+                Remove-Item -LiteralPath $rdp -Force
+                $deleted += $rdp
+            } else {
+                $kept += "$rdp, which connects to $address rather than this VM"
             }
-            Remove-Item -LiteralPath $rdp -Force
         }
+        ConvertTo-Json -InputObject ([pscustomobject]@{ Deleted = @($deleted); Kept = @($kept); Failed = @($failed) }) -Depth 3 -Compress
         """;
+
+    internal static DeleteResult ParseDeleteResult(string json)
+    {
+        using var doc = JsonDocument.Parse(string.IsNullOrWhiteSpace(json) ? "{}" : json);
+        var root = doc.RootElement;
+        return new DeleteResult(Strings(root, "Deleted"), Strings(root, "Kept"), Strings(root, "Failed"));
+    }
 
     public async Task<string> CreateExternalSwitchAsync(CancellationToken ct = default) =>
         (await PowerShellRunner.RunAsync(CreateSwitchScript, ct).ConfigureAwait(false)).Trim();
 
-    // The same adapter choice as New-HyperVRdpVM.ps1: the lowest-metric default route on a
-    // physical adapter that is up.
+    // The same choices as New-HyperVRdpVM.ps1: reuse an external switch whose adapter is up;
+    // otherwise create one on the adapter Windows prefers for the internet (route metric plus
+    // interface metric, on a physical adapter that is up), then wait for this PC's own
+    // connection to come back through it.
     internal const string CreateSwitchScript = """
-        $existing = Get-VMSwitch -SwitchType External -ErrorAction SilentlyContinue | Select-Object -First 1
+        $existing = Get-VMSwitch -SwitchType External -ErrorAction SilentlyContinue | Where-Object {
+            @(Get-NetAdapter -InterfaceDescription $_.NetAdapterInterfaceDescription -ErrorAction SilentlyContinue |
+                Where-Object Status -eq 'Up').Count -gt 0
+        } | Select-Object -First 1
         if ($existing) { $existing.Name; return }
+        $routes = Get-NetRoute -DestinationPrefix '0.0.0.0/0' -ErrorAction SilentlyContinue | ForEach-Object {
+            $interface = Get-NetIPInterface -InterfaceIndex $_.ifIndex -AddressFamily IPv4 -ErrorAction SilentlyContinue
+            [pscustomobject]@{ Index = $_.ifIndex; Metric = [int]$_.RouteMetric + [int]$interface.InterfaceMetric }
+        } | Sort-Object Metric
         $adapter = $null
-        foreach ($route in (Get-NetRoute -DestinationPrefix '0.0.0.0/0' -ErrorAction SilentlyContinue | Sort-Object RouteMetric)) {
-            $a = Get-NetAdapter -InterfaceIndex $route.ifIndex -ErrorAction SilentlyContinue
+        foreach ($route in $routes) {
+            $a = Get-NetAdapter -InterfaceIndex $route.Index -ErrorAction SilentlyContinue
             if ($a -and $a.Status -eq 'Up' -and -not $a.Virtual) { $adapter = $a; break }
         }
         if (-not $adapter) { throw "Can't find the network adapter this PC uses for the internet. Connect to a network first." }
         $name = 'External Network'
-        if (Get-VMSwitch -Name $name -ErrorAction SilentlyContinue) { throw "A switch named '$name' already exists but isn't an external switch." }
-        New-VMSwitch -Name $name -NetAdapterName $adapter.Name -AllowManagementOS $true | Out-Null
+        if (Get-VMSwitch -Name $name -ErrorAction SilentlyContinue) { throw "A switch named '$name' already exists but isn't an external switch whose adapter is connected. Remove it in Hyper-V Manager, then try again." }
+        try {
+            New-VMSwitch -Name $name -NetAdapterName $adapter.Name -AllowManagementOS $true -ErrorAction Stop | Out-Null
+        } catch {
+            throw "Couldn't create the switch on $($adapter.Name): $($_.Exception.Message) If this PC has lost its network connection, remove what was made by running Remove-VMSwitch -Name '$name' -Force in an administrator PowerShell window."
+        }
+        $deadline = (Get-Date).AddSeconds(90)
+        while (-not (Get-NetRoute -DestinationPrefix '0.0.0.0/0' -InterfaceAlias "vEthernet ($name)" -ErrorAction SilentlyContinue) -and (Get-Date) -lt $deadline) { Start-Sleep -Seconds 3 }
+        if (-not (Get-NetRoute -DestinationPrefix '0.0.0.0/0' -InterfaceAlias "vEthernet ($name)" -ErrorAction SilentlyContinue)) {
+            throw "The switch $name was created, but this PC hasn't got its network connection back through it after 90 seconds. If it doesn't return, remove the switch by running Remove-VMSwitch -Name '$name' -Force in an administrator PowerShell window."
+        }
         $name
         """;
+
+    public Task ConnectAsync(VmInfo vm, CancellationToken ct = default) =>
+        RemoteDesktop.ConnectAsync(vm.Name, vm.IpAddresses);
+
+    public void OpenConsole(VmInfo vm) => RemoteDesktop.OpenConsole(vm.Id);
 
     private static string GetVm(string vmId) => $"$vm = Get-VM -Id {Ps.Quote(vmId)}\n";
 
@@ -210,15 +303,15 @@ public sealed class PowerShellHyperVService : IHyperVService
             .ToList();
     }
 
-    private static string NonEmpty(string json) => string.IsNullOrWhiteSpace(json) ? "[]" : json;
+    internal static string NonEmpty(string json) => string.IsNullOrWhiteSpace(json) ? "[]" : json;
 
     // Windows PowerShell can still unwrap a one-item array in some paths; accept a bare object too.
-    private static IEnumerable<JsonElement> AsArray(JsonElement root) =>
+    internal static IEnumerable<JsonElement> AsArray(JsonElement root) =>
         root.ValueKind == JsonValueKind.Array ? root.EnumerateArray()
         : root.ValueKind == JsonValueKind.Object ? [root]
         : [];
 
-    private static string Str(JsonElement e, string name) =>
+    internal static string Str(JsonElement e, string name) =>
         e.TryGetProperty(name, out var v) && v.ValueKind == JsonValueKind.String ? v.GetString() ?? "" : "";
 
     private static long Num(JsonElement e, string name) =>
@@ -227,7 +320,7 @@ public sealed class PowerShellHyperVService : IHyperVService
     private static bool Flag(JsonElement e, string name) =>
         e.TryGetProperty(name, out var v) && v.ValueKind == JsonValueKind.True;
 
-    private static string[] Strings(JsonElement e, string name)
+    internal static string[] Strings(JsonElement e, string name)
     {
         if (!e.TryGetProperty(name, out var v)) return [];
         return v.ValueKind switch

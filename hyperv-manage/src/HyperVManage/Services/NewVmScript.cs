@@ -2,6 +2,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Text.Json;
 
 namespace HyperVManage.Services;
 
@@ -19,13 +20,21 @@ public sealed record NewVmOptions(
     bool AutoStart,
     bool Connect);
 
+/// <summary>How a build ended.</summary>
+public enum BuildOutcome { Succeeded, Failed, Stopped }
+
 /// <summary>
 /// Runs New-HyperVRdpVM.ps1, which is embedded in the app, and hands back each line it prints.
-/// The script is the single source of truth for building a VM; the app only fills in its options.
+/// The script is the single source of truth for building a VM; the app only fills in its options,
+/// checks up front what the script would refuse, and cleans up if the user stops it.
 /// </summary>
 public static class NewVmScript
 {
     public const string ResourceName = "New-HyperVRdpVM.ps1";
+
+    /// <summary>Characters a VM name can't have: it becomes file names, and Get-VM -Name reads
+    /// * ? [ ] as wildcards.</summary>
+    public static bool HasForbiddenCharacters(string name) => name.IndexOfAny(['\\', '/', ':', '*', '?', '"', '<', '>', '|', '[', ']']) >= 0;
 
     /// <summary>
     /// The PowerShell command that runs the script with these options: every value a quoted
@@ -52,60 +61,148 @@ public static class NewVmScript
         return sb.ToString();
     }
 
-    /// <summary>Writes the embedded script where powershell.exe can run it. Rewritten every time,
-    /// so the copy that runs is always the one this build of the app carries.</summary>
-    public static string ExtractScript()
+    /// <summary>
+    /// What the script would refuse, asked before it starts: a VM of that name, or a disk already
+    /// at the path it would build. Also returns that path, which the cleanup after a stop needs;
+    /// knowing the disk didn't exist beforehand is what makes it safe to delete then.
+    /// </summary>
+    internal static string BuildPrecheckScript(string vmName) => $$"""
+        $name = {{Ps.Quote(vmName)}}
+        $vhd = Join-Path (Get-VMHost).VirtualHardDiskPath "$name.vhdx"
+        ConvertTo-Json -Compress -InputObject ([pscustomobject]@{
+            Vhd = $vhd
+            VhdExists = [bool](Test-Path -LiteralPath $vhd)
+            VmExists = [bool](Get-VM | Where-Object Name -eq $name)
+        })
+        """;
+
+    /// <summary>
+    /// Undoes a build stopped partway. Killing powershell.exe skips the script's own finally
+    /// block, which would have done this: dismount the ISO and the half-built disk, and delete
+    /// the disk if no VM was made from it yet. The precheck established that the disk didn't
+    /// exist before the build, so it is the build's own. A VM that already exists is left for
+    /// the user to delete, since by then it is a real VM.
+    /// </summary>
+    internal static string BuildCleanupScript(string vmName, string isoPath, string vhdPath) => $$"""
+        $name = {{Ps.Quote(vmName)}}
+        $iso = {{Ps.Quote(isoPath)}}
+        $vhd = {{Ps.Quote(vhdPath)}}
+        if ($iso) { Dismount-DiskImage -ImagePath $iso -ErrorAction SilentlyContinue | Out-Null }
+        Dismount-VHD -Path $vhd -ErrorAction SilentlyContinue
+        if (Get-VM | Where-Object Name -eq $name) {
+            "The virtual machine $name had already been created. Delete it from the list if you don't want it."
+        } elseif (Test-Path -LiteralPath $vhd) {
+            Remove-Item -LiteralPath $vhd -Force
+            "Removed the half-built disk $vhd."
+        } else {
+            "Nothing had been built yet."
+        }
+        """;
+
+    /// <summary>
+    /// Builds a VM: checks, runs the script with each line to <paramref name="onLine"/> (on a
+    /// background thread), and if <paramref name="ct"/> is cancelled, stops it and cleans up.
+    /// </summary>
+    public static async Task<BuildOutcome> RunAsync(NewVmOptions options, Action<string> onLine, CancellationToken ct)
     {
-        var folder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "HyperVManage");
-        Directory.CreateDirectory(folder);
-        var path = Path.Combine(folder, ResourceName);
-        using var resource = typeof(NewVmScript).Assembly.GetManifestResourceStream(ResourceName)
-            ?? throw new InvalidOperationException($"{ResourceName} isn't embedded in this build.");
-        using var file = File.Create(path);
-        resource.CopyTo(file);
-        return path;
+        string vhdPath;
+        try
+        {
+            using var doc = JsonDocument.Parse(await PowerShellRunner.RunAsync(BuildPrecheckScript(options.VMName), ct).ConfigureAwait(false));
+            var r = doc.RootElement;
+            vhdPath = r.GetProperty("Vhd").GetString() ?? "";
+            if (r.GetProperty("VmExists").GetBoolean())
+            {
+                onLine($"There is already a virtual machine named {options.VMName}. Pick another name.");
+                return BuildOutcome.Failed;
+            }
+            if (r.GetProperty("VhdExists").GetBoolean())
+            {
+                onLine($"The virtual disk {vhdPath} already exists. Delete it or pick another name.");
+                return BuildOutcome.Failed;
+            }
+        }
+        catch (OperationCanceledException) { return BuildOutcome.Stopped; }
+
+        var script = ExtractScript();
+        try
+        {
+            var psi = new ProcessStartInfo("powershell.exe")
+            {
+                UseShellExecute = false,
+                CreateNoWindow = true,
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                StandardOutputEncoding = Encoding.UTF8,
+                StandardErrorEncoding = Encoding.UTF8,
+            };
+            foreach (var a in new[] { "-NoProfile", "-NonInteractive", "-ExecutionPolicy", "Bypass", "-OutputFormat", "Text",
+                                      "-EncodedCommand", Convert.ToBase64String(Encoding.Unicode.GetBytes(BuildCommand(script, options))) })
+                psi.ArgumentList.Add(a);
+
+            using var process = new Process { StartInfo = psi };
+            process.OutputDataReceived += (_, e) => { if (e.Data is not null) onLine(e.Data); };
+            process.ErrorDataReceived += (_, e) => { if (e.Data is not null) onLine(e.Data); };
+            process.Start();
+            process.BeginOutputReadLine();
+            process.BeginErrorReadLine();
+
+            try
+            {
+                await process.WaitForExitAsync(ct).ConfigureAwait(false);
+                // The parameterless wait drains the last output lines after exit.
+                process.WaitForExit();
+                return process.ExitCode == 0 ? BuildOutcome.Succeeded : BuildOutcome.Failed;
+            }
+            catch (OperationCanceledException)
+            {
+                try { process.Kill(entireProcessTree: true); } catch (InvalidOperationException) { }
+                process.WaitForExit();
+                onLine("Stopped. Cleaning up what the build had made so far.");
+                try
+                {
+                    var report = await PowerShellRunner.RunAsync(BuildCleanupScript(options.VMName, options.IsoPath, vhdPath)).ConfigureAwait(false);
+                    foreach (var line in report.Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)) onLine(line);
+                }
+                catch (Exception ex) { onLine($"Couldn't clean up: {ex.Message}"); }
+                return BuildOutcome.Stopped;
+            }
+        }
+        finally
+        {
+            try { File.Delete(script); } catch (IOException) { } catch (UnauthorizedAccessException) { }
+        }
     }
 
-    /// <summary>Starts the script. Each line it prints, output or error, goes to
-    /// <paramref name="onLine"/> on a background thread. The returned process is the caller's to
-    /// wait on, or to kill if the user stops it.</summary>
-    public static Process Start(NewVmOptions options, Action<string> onLine)
+    /// <summary>
+    /// Writes the embedded script where powershell.exe can run it, under a new random name each
+    /// time, and deleted after the run: the app runs it elevated, so a fixed path another program
+    /// could swap the file at would be a gift.
+    /// </summary>
+    public static string ExtractScript()
     {
-        var psi = new ProcessStartInfo("powershell.exe")
-        {
-            UseShellExecute = false,
-            CreateNoWindow = true,
-            RedirectStandardOutput = true,
-            RedirectStandardError = true,
-            StandardOutputEncoding = Encoding.UTF8,
-            StandardErrorEncoding = Encoding.UTF8,
-        };
-        var command = BuildCommand(ExtractScript(), options);
-        foreach (var a in new[] { "-NoProfile", "-NonInteractive", "-ExecutionPolicy", "Bypass",
-                                  "-OutputFormat", "Text",
-                                  "-EncodedCommand", Convert.ToBase64String(Encoding.Unicode.GetBytes(command)) })
-            psi.ArgumentList.Add(a);
-
-        var process = new Process { StartInfo = psi, EnableRaisingEvents = true };
-        process.OutputDataReceived += (_, e) => { if (e.Data is not null) onLine(e.Data); };
-        process.ErrorDataReceived += (_, e) => { if (e.Data is not null) onLine(e.Data); };
-        process.Start();
-        process.BeginOutputReadLine();
-        process.BeginErrorReadLine();
-        return process;
+        var path = Path.Combine(Path.GetTempPath(), $"HyperVManage-{Guid.NewGuid():N}.ps1");
+        using var resource = typeof(NewVmScript).Assembly.GetManifestResourceStream(ResourceName)
+            ?? throw new InvalidOperationException($"{ResourceName} isn't embedded in this build.");
+        using var file = new FileStream(path, FileMode.CreateNew, FileAccess.Write);
+        resource.CopyTo(file);
+        return path;
     }
 }
 
 /// <summary>
-/// What New VM runs in demo mode instead of the script: a few of its lines, a second apart, from a
-/// process that does nothing else. Demo mode must never build a real VM.
+/// What New VM runs in demo mode instead of the script: a few of its lines, a second apart,
+/// produced in-process. No process starts and nothing typed into the form is run, so demo mode
+/// can never build a real VM.
 /// </summary>
 public static class DemoNewVmScript
 {
-    public static Process Start(NewVmOptions options, Action<string> onLine)
+    public static TimeSpan Pace { get; set; } = TimeSpan.FromSeconds(1);
+
+    public static async Task<BuildOutcome> RunAsync(NewVmOptions options, Action<string> onLine, CancellationToken ct)
     {
-        var lines = new[]
-        {
+        string[] lines =
+        [
             $"Creating the virtual machine {options.VMName}. (Demo: nothing is really being built.)",
             "Step 1 of 5: Reading the ISO.",
             "Step 2 of 5: Creating a virtual disk and copying Windows onto it.",
@@ -113,20 +210,21 @@ public static class DemoNewVmScript
             "Step 4 of 5: Creating the virtual machine and starting it.",
             "Step 5 of 5: Waiting for Windows to finish setting up.",
             "All done.",
-        };
-        // One "timeout" between lines; ping is the delay that works without a console.
-        var script = string.Join(" & ", lines.Select(l => "echo " + l.Replace("(", "^(").Replace(")", "^)") + " & ping -n 2 127.0.0.1 >nul"));
-        var psi = new ProcessStartInfo("cmd.exe")
+        ];
+        try
         {
-            UseShellExecute = false, CreateNoWindow = true, RedirectStandardOutput = true,
-        };
-        psi.ArgumentList.Add("/c");
-        psi.ArgumentList.Add(script);
-        var process = new Process { StartInfo = psi, EnableRaisingEvents = true };
-        process.OutputDataReceived += (_, e) => { if (!string.IsNullOrEmpty(e.Data)) onLine(e.Data); };
-        process.Start();
-        process.BeginOutputReadLine();
-        return process;
+            foreach (var line in lines)
+            {
+                onLine(line);
+                await Task.Delay(Pace, ct).ConfigureAwait(false);
+            }
+            return BuildOutcome.Succeeded;
+        }
+        catch (OperationCanceledException)
+        {
+            onLine("Stopped. (Demo: there was nothing to clean up.)");
+            return BuildOutcome.Stopped;
+        }
     }
 }
 

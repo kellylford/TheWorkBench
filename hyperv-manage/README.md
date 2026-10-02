@@ -22,15 +22,25 @@ It isn't called Hyper-V Manager because Windows already has a Hyper-V Manager.
   changes.
 - **Open Console**: the Hyper-V window, for when Windows inside the VM isn't up yet.
 - **Start, Shut Down, Turn Off, Save, Pause, Resume, Restart.** Only the ones that make sense for
-  the VM's state are available.
+  the VM's state are available. Shut Down and Restart ask Windows inside the VM, so nothing
+  unsaved is lost; Turn Off is the power switch.
 - **Settings**: processors, memory, network, whether it starts with the PC, and automatic
   checkpoints. Processors and memory can only change while the VM is off; the window says so
   and keeps the current values readable. If no switch reaches your own network, it offers to
   create one.
-- **Checkpoint, Clone, Delete.** Delete asks first, and removes the VM's disk, checkpoints, and
-  the desktop connection file and saved sign-in the script made.
+- **Checkpoint, Clone, Delete.**
+  - Clone works on a VM that is off or saved, since a copy of a running one would join the
+    network as a second machine with the same name. Windows inside the copy keeps the same
+    computer name; rename it there before running both.
+  - Delete asks first, naming the disk files it will remove. It keeps any disk another VM uses
+    or depends on, and only removes a desktop connection file that connects to this VM. It says
+    afterwards what it kept and anything it couldn't delete.
 - **New Virtual Machine**: the script's options in a form, then the script's own progress as it
-  runs, one line at a time, each one also spoken.
+  runs, one line at a time, each one also spoken (PowerShell's own error detail lines stay in the
+  log but aren't read out). Closing the window during a build stops it and cleans up what it had
+  made: the ISO and disk are unmounted and the half-built disk deleted. If it had already got as
+  far as creating the VM, that VM is left in the list to delete. The main window won't close
+  while a build runs.
 
 Every action goes through Hyper-V's own PowerShell commands, the way Parallels Manager goes
 through `prlctl`, so anything the app does can be repeated by hand.
@@ -95,7 +105,9 @@ HyperVManage.exe --demo
 ```
 
 Three pretend VMs, no Hyper-V, and no administrator rights. Every action and dialog works
-against them, and New Virtual Machine prints the script's steps without running it. Use it to
+against them, and New Virtual Machine prints the script's steps without running anything.
+Connect and Open Console say there is no real VM, rather than reaching a real one that happens
+to share a demo VM's name. Use it to
 try the app, or to check the interface on a PC without Hyper-V.
 
 ## Building
@@ -139,7 +151,8 @@ hyperv-manage/
 - **No value is ever pasted into PowerShell as code.** Names, paths and passwords go through
   `Ps.Quote`, and a test checks PowerShell's own parser reads each one back unchanged. Another
   test parses every script the app can send.
-- **VMs are addressed by id.** Hyper-V allows two VMs with the same name.
+- **VMs are addressed by id.** Hyper-V allows two VMs with the same name, and `Get-VM -Name`
+  reads `* ? [ ]` as wildcards, so names are never used to find a VM to act on.
 - **The list is updated in place.** Replacing it would move a screen reader back to the top
   every ten seconds.
 

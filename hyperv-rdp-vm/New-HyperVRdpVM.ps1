@@ -122,6 +122,12 @@ if (-not (Get-Command New-VM -ErrorAction SilentlyContinue)) {
     return
 }
 
+# The name becomes file names, and Get-VM -Name reads * ? [ ] as wildcards, which
+# would let -Remove match more than one VM.
+if ($VMName -match '[\\/:*?"<>|\[\]]') {
+    throw "The VM name '$VMName' can't contain any of these: \ / : * ? `" < > | [ ]"
+}
+
 # Windows computer names: letters, digits and hyphens, 15 characters at most.
 $ComputerName = ($VMName -replace '[^A-Za-z0-9-]', '')
 if ($ComputerName.Length -gt 15) { $ComputerName = $ComputerName.Substring(0, 15) }
@@ -132,19 +138,51 @@ $rdpFile = Join-Path $desktop "$VMName.rdp"
 
 # --- Remove mode --------------------------------------------------------------
 if ($Remove) {
-    $vm = Get-VM -Name $VMName -ErrorAction SilentlyContinue
-    if (-not $vm) { Say "There is no virtual machine named $VMName."; return }
-    $disks = @(Get-VMHardDiskDrive -VMName $VMName | Select-Object -ExpandProperty Path)
-    if ($vm.State -ne 'Off') { Say "Turning off $VMName."; Stop-VM -Name $VMName -TurnOff -Force }
-    Say "Deleting the virtual machine $VMName."
-    Remove-VM -Name $VMName -Force
-    foreach ($d in $disks) { Say "Deleting the virtual disk $d."; Remove-Item -LiteralPath $d -Force -ErrorAction SilentlyContinue }
-    if (Test-Path -LiteralPath $rdpFile) {
-        foreach ($line in Get-Content -LiteralPath $rdpFile) {
-            if ($line -like 'full address:s:*') { cmdkey /delete:"TERMSRV/$($line.Substring(15))" | Out-Null }
+    $vm = @(Get-VM | Where-Object Name -eq $VMName)
+    if ($vm.Count -eq 0) { Say "There is no virtual machine named $VMName."; return }
+    if ($vm.Count -gt 1) { throw "There are $($vm.Count) virtual machines named $VMName. Delete the one you mean in Hyper-V Manager." }
+    $vm = $vm[0]
+    $ips = @(Get-VMNetworkAdapter -VM $vm | ForEach-Object { $_.IPAddresses })
+    if ($vm.State -ne 'Off') { Say "Turning off $VMName."; Stop-VM -VM $vm -TurnOff -Force }
+    Get-VMSnapshot -VM $vm -ErrorAction SilentlyContinue | Remove-VMSnapshot -IncludeAllChildSnapshots -ErrorAction SilentlyContinue
+    $mergeDeadline = (Get-Date).AddMinutes(5)
+    while ((Get-VM -Id $vm.Id).Status -match 'Merging' -and (Get-Date) -lt $mergeDeadline) { Start-Sleep -Seconds 2 }
+    $disks = @(Get-VMHardDiskDrive -VM $vm | Select-Object -ExpandProperty Path)
+
+    # A disk another VM relies on stays: one it has attached, or the parent of one of its
+    # differencing disks. Deleting either would leave that VM unable to start.
+    $inUse = @{}
+    foreach ($other in @(Get-VM | Where-Object { $_.Id -ne $vm.Id })) {
+        foreach ($path in @(Get-VMHardDiskDrive -VM $other | Select-Object -ExpandProperty Path)) {
+            $current = $path
+            while ($current) {
+                $inUse[$current.ToLowerInvariant()] = $other.Name
+                $current = (Get-VHD -Path $current -ErrorAction SilentlyContinue).ParentPath
+            }
         }
-        Say "Deleting $rdpFile."
-        Remove-Item -LiteralPath $rdpFile -Force
+    }
+
+    Say "Deleting the virtual machine $VMName."
+    Remove-VM -VM $vm -Force
+    foreach ($d in $disks) {
+        if (-not $d) { continue }
+        if ($inUse.ContainsKey($d.ToLowerInvariant())) { Say "Keeping $d, which $($inUse[$d.ToLowerInvariant()]) uses."; continue }
+        Say "Deleting the virtual disk $d."
+        try { Remove-Item -LiteralPath $d -Force -ErrorAction Stop }
+        catch { Say "Couldn't delete $d. $($_.Exception.Message)" }
+    }
+    # Only the connection file this script made: one that connects to this VM.
+    if (Test-Path -LiteralPath $rdpFile) {
+        $address = Get-Content -LiteralPath $rdpFile | Where-Object { $_ -like 'full address:s:*' } |
+            Select-Object -First 1 | ForEach-Object { $_.Substring(15) }
+        $ours = @("$ComputerName.local", $ComputerName, "$ComputerName.mshome.net") + $ips
+        if ($address -and ($ours -contains $address)) {
+            cmdkey /delete:"TERMSRV/$address" | Out-Null
+            Say "Deleting $rdpFile and its saved sign-in."
+            Remove-Item -LiteralPath $rdpFile -Force
+        } else {
+            Say "Keeping $rdpFile, which connects to $address rather than this VM."
+        }
     }
     Say 'Done.'
     return
@@ -163,12 +201,17 @@ if (Get-VM -Name $VMName -ErrorAction SilentlyContinue) {
 # other computers can reach it with Remote Desktop. The Default Switch hides the
 # VM behind this PC, where only this PC can reach it; -HostOnly asks for that.
 
-# The adapter this PC reaches the internet through: the lowest-metric default
-# route on a physical adapter that is up.
+# The adapter this PC reaches the internet through: the default route Windows
+# itself prefers, judged as Windows does by route metric plus interface metric
+# (DHCP routes nearly all have route metric 0, so that alone can't tell Wi-Fi
+# from Ethernet), on a physical adapter that is up.
 function Get-InternetAdapter {
-    $routes = Get-NetRoute -DestinationPrefix '0.0.0.0/0' -ErrorAction SilentlyContinue | Sort-Object RouteMetric
+    $routes = Get-NetRoute -DestinationPrefix '0.0.0.0/0' -ErrorAction SilentlyContinue | ForEach-Object {
+        $interface = Get-NetIPInterface -InterfaceIndex $_.ifIndex -AddressFamily IPv4 -ErrorAction SilentlyContinue
+        [pscustomobject]@{ Index = $_.ifIndex; Metric = [int]$_.RouteMetric + [int]$interface.InterfaceMetric }
+    } | Sort-Object Metric
     foreach ($route in $routes) {
-        $adapter = Get-NetAdapter -InterfaceIndex $route.ifIndex -ErrorAction SilentlyContinue
+        $adapter = Get-NetAdapter -InterfaceIndex $route.Index -ErrorAction SilentlyContinue
         if ($adapter -and $adapter.Status -eq 'Up' -and -not $adapter.Virtual) { return $adapter }
     }
     return $null
@@ -186,7 +229,14 @@ if ($SwitchName) {
         throw "There is no Default Switch on this PC. Pass a switch with -SwitchName."
     }
 } else {
-    $external = Get-VMSwitch -SwitchType External -ErrorAction SilentlyContinue | Select-Object -First 1
+    # Only a switch whose adapter is connected: one left on an unplugged dock's
+    # Ethernet would leave the VM waiting for an address that never comes.
+    $external = Get-VMSwitch -SwitchType External -ErrorAction SilentlyContinue | Where-Object {
+        # Several adapters can share one description (a Wi-Fi card that has been
+        # reinstalled leaves 'Not Present' copies), so ask whether any of them is up.
+        @(Get-NetAdapter -InterfaceDescription $_.NetAdapterInterfaceDescription -ErrorAction SilentlyContinue |
+            Where-Object Status -eq 'Up').Count -gt 0
+    } | Select-Object -First 1
     if ($external) {
         $SwitchName = $external.Name
     } else {
@@ -235,15 +285,7 @@ Say "Windows image: $IsoPath"
 Say 'This usually takes 15 to 30 minutes. You do not need to do anything until it finishes.'
 
 if ($createSwitchOn) {
-    Step "Setting up network access: creating a Hyper-V switch named $SwitchName on $($createSwitchOn.Name), so other computers can reach the VM."
-    Say "This PC's network connection drops for a few seconds while Windows sets it up."
-    New-VMSwitch -Name $SwitchName -NetAdapterName $createSwitchOn.Name -AllowManagementOS $true | Out-Null
-    # Wait for this PC's own connection to come back before going on.
-    $netDeadline = (Get-Date).AddSeconds(90)
-    while (-not (Get-NetRoute -DestinationPrefix '0.0.0.0/0' -ErrorAction SilentlyContinue) -and (Get-Date) -lt $netDeadline) {
-        Start-Sleep -Seconds 3
-    }
-    Say 'The switch is ready.'
+    Say "Network: a new Hyper-V switch named $SwitchName on $($createSwitchOn.Name), so other computers can reach the VM. It is made once the virtual disk is ready."
 } elseif ($SwitchName -eq 'Default Switch') {
     Say 'Network: the Default Switch. Only this PC can reach the VM.'
 } else {
@@ -553,6 +595,32 @@ finally {
     }
 }
 
+# --- Network switch -----------------------------------------------------------
+# Made only now, after every check and the disk build have passed, so a wrong ISO
+# or a full disk never changes this PC's networking.
+if ($createSwitchOn) {
+    Step "Setting up network access: creating the Hyper-V switch $SwitchName on $($createSwitchOn.Name)."
+    Say "This PC's network connection drops for a few seconds while Windows sets it up."
+    try {
+        New-VMSwitch -Name $SwitchName -NetAdapterName $createSwitchOn.Name -AllowManagementOS $true -ErrorAction Stop | Out-Null
+    } catch {
+        # Leave nothing that would block a second run: the disk goes too.
+        Remove-Item -LiteralPath $vhdPath -Force -ErrorAction SilentlyContinue
+        throw "Couldn't create the switch $SwitchName on $($createSwitchOn.Name): $($_.Exception.Message) If this PC has lost its network connection, remove what was made with: Remove-VMSwitch -Name '$SwitchName' -Force. Then run the script again, or add -HostOnly to keep the VM on this PC only."
+    }
+    # Wait for this PC's own connection to come back, now through the switch.
+    $netDeadline = (Get-Date).AddSeconds(90)
+    while (-not (Get-NetRoute -DestinationPrefix '0.0.0.0/0' -InterfaceAlias "vEthernet ($SwitchName)" -ErrorAction SilentlyContinue) -and (Get-Date) -lt $netDeadline) {
+        Start-Sleep -Seconds 3
+    }
+    if (Get-NetRoute -DestinationPrefix '0.0.0.0/0' -InterfaceAlias "vEthernet ($SwitchName)" -ErrorAction SilentlyContinue) {
+        Say 'The switch is ready and this PC is back on the network.'
+    } else {
+        Say "This PC hasn't got its network connection back through the switch yet. The VM is being set up anyway."
+        Say "If the connection doesn't return, remove the switch with: Remove-VMSwitch -Name '$SwitchName' -Force"
+    }
+}
+
 # --- Create and start the VM --------------------------------------------------
 Step 'Step 4 of 5: Creating the virtual machine and starting it.'
 New-VM -Name $VMName -Generation 2 -MemoryStartupBytes ([int64]$MemoryGB * 1GB) -VHDPath $vhdPath -SwitchName $SwitchName | Out-Null
@@ -681,7 +749,7 @@ Write-Host ''
 Say 'All done.'
 Say "Virtual machine: $VMName"
 Say "Connect to: $target"
-if ($SwitchName -ne 'Default Switch') {
+if ((Get-VMSwitch -Name $SwitchName).SwitchType -eq 'External') {
     Say 'Other computers on your network can connect to that address too.'
 }
 if (-not $NoAutoStart) {

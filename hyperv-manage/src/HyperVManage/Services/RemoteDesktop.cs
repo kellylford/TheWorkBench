@@ -68,7 +68,7 @@ public static class RemoteDesktop
     public static async Task<string> ConnectAsync(string vmName, IReadOnlyList<string> addresses)
     {
         var desktopFile = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), $"{vmName}.rdp");
-        if (File.Exists(desktopFile))
+        if (File.Exists(desktopFile) && FileConnectsTo(await File.ReadAllLinesAsync(desktopFile).ConfigureAwait(false), vmName, addresses))
         {
             Launch(desktopFile);
             return desktopFile;
@@ -83,6 +83,20 @@ public static class RemoteDesktop
         await File.WriteAllTextAsync(file, BuildRdpFile(target), Encoding.Unicode).ConfigureAwait(false);
         Launch(file);
         return target;
+    }
+
+    /// <summary>
+    /// Whether a connection file is the one New-HyperVRdpVM.ps1 made for this VM: its address is
+    /// one of the VM's names or addresses. A desktop file that merely shares the VM's name, say
+    /// Office.rdp for a real PC, belongs to something else and is never opened or deleted for it.
+    /// </summary>
+    public static bool FileConnectsTo(IEnumerable<string> rdpLines, string vmName, IReadOnlyList<string> addresses)
+    {
+        var address = rdpLines.FirstOrDefault(l => l.StartsWith("full address:s:", StringComparison.OrdinalIgnoreCase))?[15..].Trim();
+        if (string.IsNullOrEmpty(address)) return false;
+        var computer = ComputerName(vmName);
+        var ours = new[] { $"{computer}.local", computer, $"{computer}.mshome.net" }.Concat(addresses);
+        return ours.Any(o => o.Length > 0 && string.Equals(o, address, StringComparison.OrdinalIgnoreCase));
     }
 
     /// <summary>The Hyper-V console window (VMConnect). No sound reaches a screen reader through

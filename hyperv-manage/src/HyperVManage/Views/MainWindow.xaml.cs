@@ -26,6 +26,12 @@ public partial class MainWindow : Window
         vm.RequestCloneName = AskCloneName;
         vm.RequestCheckpointName = AskCheckpointName;
         vm.ConfirmDelete = AskDelete;
+        vm.SelectionReplaced += () =>
+        {
+            // Only if focus was in the list (on the row that just went) or nowhere at all.
+            if (IsActive && (VmList.IsKeyboardFocusWithin || Keyboard.FocusedElement is null || ReferenceEquals(Keyboard.FocusedElement, this)))
+                FocusSelectedRow();
+        };
         vm.OpenSettings = ShowSettings;
         vm.OpenNewVm = ShowNewVm;
 
@@ -85,10 +91,13 @@ public partial class MainWindow : Window
             $"{vm.Name} {DateTime.Now:yyyy-MM-dd HH.mm}",
             "A checkpoint saves the VM as it is now, so you can return to it from Hyper-V Manager.");
 
-    private bool AskDelete(VmInfo vm)
+    private bool AskDelete(VmInfo vm, IReadOnlyList<string> disks)
     {
+        var files = disks.Count == 0 ? "It has no disks attached." : "Its disk files:\n" + string.Join("\n", disks);
         var answer = MessageBox.Show(this,
-            $"Delete {vm.Name}?\n\nThis turns it off and permanently deletes it, its virtual disk and its checkpoints. It can't be undone.",
+            $"Delete {vm.Name}?\n\nThis turns it off and permanently deletes the virtual machine and its checkpoints. " +
+            $"{files}\n\nA disk another VM uses is kept. The desktop connection file {vm.Name}.rdp and its saved sign-in " +
+            "are deleted too, if they connect to this VM. It can't be undone.",
             "Delete virtual machine", MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No);
         return answer == MessageBoxResult.Yes;
     }
@@ -107,8 +116,8 @@ public partial class MainWindow : Window
         // One at a time: the script works on disks and switches that a second run would trip over.
         if (_newVmWindow is not null) { _newVmWindow.Activate(); return; }
         var newVm = new NewVmViewModel(_vm.Vms.Select(v => v.Name));
-        if (_demo) newVm.StartScript = Services.DemoNewVmScript.Start;
-        newVm.Finished += ok => { _ = _vm.RefreshAsync(quiet: true); };
+        if (_demo) newVm.RunScript = Services.DemoNewVmScript.RunAsync;
+        newVm.Finished += outcome => { _ = _vm.RefreshAsync(quiet: true); };
         // Modeless, so the list stays usable during the 15 to 30 minutes a build takes.
         _newVmWindow = new NewVmWindow(newVm) { Owner = this };
         _newVmWindow.Closed += (_, _) => { _newVmWindow = null; FocusSelectedRow(); };
@@ -116,6 +125,20 @@ public partial class MainWindow : Window
     }
 
     private void Exit_Click(object sender, RoutedEventArgs e) => Close();
+
+    protected override void OnClosing(System.ComponentModel.CancelEventArgs e)
+    {
+        // Closing the app would end a build without its cleanup and without asking. Send the user
+        // to the build's own window, which asks and then cleans up properly.
+        if (_newVmWindow is { IsBuilding: true } building)
+        {
+            e.Cancel = true;
+            building.Activate();
+            Announcer.Announce(building, "A virtual machine is still being built. Close this window to stop it first, or wait for it to finish.");
+            return;
+        }
+        base.OnClosing(e);
+    }
 
     private void Shortcuts_Click(object sender, RoutedEventArgs e) =>
         MessageBox.Show(this,
