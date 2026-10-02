@@ -152,6 +152,34 @@ match the PC. Pass `x64` or `arm64` to choose:
 "Build App.cmd" x64
 ```
 
+### Signing
+
+Builds are signed with Kelly Ford's Azure Artifact Signing certificate (publisher "kelly ford"),
+like the other apps; see `The-Idea-Place-Projects/signing/windows.md`.
+
+- **On this PC:** add `sign` to sign the exe after building, or sign any file with
+  `Sign Files.ps1`. It needs `winget install Microsoft.Azure.TrustedSigningClientTools` and
+  `az login` once, and fails unless every file comes out validly signed and timestamped.
+
+  ```bat
+  "Build App.cmd" x64 sign
+  powershell -ExecutionPolicy Bypass -File "Sign Files.ps1" build\arm64\HyperVManage.exe
+  ```
+
+- **Releases:** pushing a tag `hyperv-manage-v<major>.<minor>.<patch>` runs
+  `.github/workflows/release-hyperv-manage.yml`. It tests, builds both apps with the tag as their
+  version, signs them and the VM script, checks every signature, and publishes a GitHub release
+  with `HyperVManage-x64.exe`, `HyperVManage-arm64.exe` and a zip of the script. A pull request
+  touching either project runs the same build and tests, unsigned.
+
+  ```bat
+  git tag hyperv-manage-v1.0.0
+  git push origin hyperv-manage-v1.0.0
+  ```
+
+The repository's `New-HyperVRdpVM.ps1` stays unsigned: the app embeds it and a test checks the
+embedded copy byte for byte. Only the copies handed out are signed.
+
 Tests:
 
 ```bat

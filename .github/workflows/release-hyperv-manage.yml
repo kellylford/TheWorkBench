@@ -1,0 +1,160 @@
+name: Release Hyper-V Manage
+
+# TheWorkBench holds several unrelated projects, so releases are scoped by tag prefix. A tag
+# like hyperv-manage-v1.0.0 builds Hyper-V Manage for x64 and Arm64, signs both apps and the
+# VM script with Azure Artifact Signing, checks every signature, and publishes a release.
+#
+#   git tag hyperv-manage-v1.0.0
+#   git push origin hyperv-manage-v1.0.0
+#
+# Run by hand (Actions, Run workflow) or for a pull request, it builds and tests the same way but
+# signs nothing and publishes nothing; the unsigned files are kept as a workflow artifact.
+#
+# Signing follows the other apps (see The-Idea-Place-Projects/signing/windows.md): the job runs
+# in the unprotected azure-signing environment, so GitHub's OIDC subject matches the federated
+# credential Azure trusts, and azure/login exchanges that token for a short-lived credential.
+# There is no certificate or secret to store; the three AZURE_* secrets are identifiers.
+
+on:
+  push:
+    tags:
+      - 'hyperv-manage-v*'
+  # A pull request that touches either project builds and tests it the same way, unsigned, so a
+  # broken release is found before the tag rather than after.
+  pull_request:
+    paths:
+      - 'hyperv-manage/**'
+      - 'hyperv-rdp-vm/**'
+      - '.github/workflows/release-hyperv-manage.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write   # create the release
+  id-token: write   # the OIDC token azure/login exchanges for Azure credentials
+
+jobs:
+  release:
+    runs-on: windows-latest
+    environment: azure-signing
+    env:
+      SIGN: ${{ startsWith(github.ref, 'refs/tags/hyperv-manage-v') }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: '10.0.x'
+
+      # The keyboard tests take focus and only run when HYPERVMANAGE_RUN_INPUT_TESTS is set;
+      # tests that need administrator rights skip themselves.
+      - name: Test
+        shell: pwsh
+        run: dotnet test hyperv-manage/tests/HyperVManage.Tests -c Release
+
+      # The tag is the version: MSBuild reads the Version environment variable as the
+      # property, so hyperv-manage-v1.2.0 builds 1.2.0, which About shows. A hand run keeps the
+      # project's own version.
+      - name: Take the version from the tag
+        if: env.SIGN == 'true'
+        shell: pwsh
+        run: |
+          $version = $env:GITHUB_REF_NAME -replace '^hyperv-manage-v', ''
+          if ($version -notmatch '^\d+\.\d+\.\d+$') { throw "The tag must be hyperv-manage-v<major>.<minor>.<patch>, not $env:GITHUB_REF_NAME." }
+          "Version=$version" | Out-File $env:GITHUB_ENV -Append
+
+      - name: Build both apps
+        shell: cmd
+        run: |
+          call "hyperv-manage\Build App.cmd" x64 || exit /b 1
+          call "hyperv-manage\Build App.cmd" arm64 || exit /b 1
+
+      # The script for people who'd rather not use the app goes alongside it. The repository's
+      # copy stays unsigned: the app embeds it and a test checks it byte for byte.
+      - name: Stage the release files
+        shell: pwsh
+        run: |
+          $dist = New-Item -ItemType Directory -Force dist
+          Copy-Item 'hyperv-manage\build\x64\HyperVManage.exe' "$dist\HyperVManage-x64.exe"
+          Copy-Item 'hyperv-manage\build\arm64\HyperVManage.exe' "$dist\HyperVManage-arm64.exe"
+          $script = New-Item -ItemType Directory -Force "$dist\hyperv-rdp-vm"
+          Copy-Item 'hyperv-rdp-vm\New-HyperVRdpVM.ps1', 'hyperv-rdp-vm\Create VM.cmd', 'hyperv-rdp-vm\README.md' $script
+          Get-ChildItem $dist -Recurse -File | Select-Object FullName, Length
+
+      - name: Azure login (code signing)
+        if: env.SIGN == 'true'
+        uses: azure/login@v3
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Sign the apps and the script
+        if: env.SIGN == 'true'
+        uses: azure/artifact-signing-action@v2
+        with:
+          endpoint: https://eus.codesigning.azure.net/
+          signing-account-name: kellylford
+          certificate-profile-name: kellyford-public
+          files: |
+            ${{ github.workspace }}\dist\HyperVManage-x64.exe
+            ${{ github.workspace }}\dist\HyperVManage-arm64.exe
+            ${{ github.workspace }}\dist\hyperv-rdp-vm\New-HyperVRdpVM.ps1
+          file-digest: SHA256
+          # Artifact Signing certificates last days; the timestamp keeps signatures valid after.
+          timestamp-rfc3161: http://timestamp.acs.microsoft.com
+          timestamp-digest: SHA256
+
+      # A tag can never publish anything unsigned.
+      - name: Check every signature
+        if: env.SIGN == 'true'
+        shell: pwsh
+        run: |
+          $files = 'dist\HyperVManage-x64.exe', 'dist\HyperVManage-arm64.exe', 'dist\hyperv-rdp-vm\New-HyperVRdpVM.ps1'
+          $bad = 0
+          foreach ($f in $files) {
+            $sig = Get-AuthenticodeSignature $f
+            Write-Host "$f`n  status:  $($sig.Status)`n  signer:  $($sig.SignerCertificate.Subject)`n  stamped: $([bool]$sig.TimeStamperCertificate)"
+            if ($sig.Status -ne 'Valid' -or -not $sig.TimeStamperCertificate) { $bad++ }
+          }
+          if ($bad) { throw "$bad file(s) aren't validly signed and timestamped." }
+
+      - name: Zip the script
+        shell: pwsh
+        run: Compress-Archive -Path 'dist\hyperv-rdp-vm' -DestinationPath "dist\New-HyperVRdpVM-$env:GITHUB_REF_NAME.zip" -Force
+
+      - name: Keep the unsigned build
+        if: env.SIGN != 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: hyperv-manage-unsigned
+          path: dist
+
+      - name: Create the release
+        if: env.SIGN == 'true'
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $notes = @'
+          Hyper-V Manage lists, starts, stops and connects to Hyper-V virtual machines, and builds
+          new Windows VMs ready for Remote Desktop with sound, screen reader first. It needs
+          Windows 10 or 11 Pro, Enterprise or Education with Hyper-V turned on, and asks for
+          administrator rights when it starts.
+
+          **Download** HyperVManage-x64.exe for Intel and AMD PCs, or HyperVManage-arm64.exe for
+          Arm PCs. Each is one self-contained program; there is nothing to install.
+
+          **Prefer the command line?** The zip holds New-HyperVRdpVM.ps1, the script the app runs
+          to build a VM. Extract it and open Create VM.cmd.
+
+          Both apps and the script are signed by "kelly ford". Windows SmartScreen may still ask
+          about a new download until the publisher builds up reputation.
+
+          Read the [Hyper-V Manage README](https://github.com/kellylford/TheWorkBench/tree/main/hyperv-manage)
+          and the [script's README](https://github.com/kellylford/TheWorkBench/tree/main/hyperv-rdp-vm).
+          '@
+          Set-Content notes.md $notes
+          $version = $env:GITHUB_REF_NAME -replace '^hyperv-manage-v', ''
+          gh release create $env:GITHUB_REF_NAME `
+            'dist\HyperVManage-x64.exe' 'dist\HyperVManage-arm64.exe' "dist\New-HyperVRdpVM-$env:GITHUB_REF_NAME.zip" `
+            --title "Hyper-V Manage $version" --notes-file notes.md

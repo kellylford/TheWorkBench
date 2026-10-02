@@ -161,9 +161,17 @@ public partial class MainWindow : Window
         catch (Exception ex) { Announcer.Announce(this, $"Couldn't open the download page: {ex.Message}"); }
     }
 
+    /// <summary>The build's version, from the project or the release tag; .NET adds "+commit"
+    /// to the informational version, which isn't for people.</summary>
+    internal static string AppVersion =>
+        (System.Reflection.Assembly.GetExecutingAssembly()
+            .GetCustomAttributes(typeof(System.Reflection.AssemblyInformationalVersionAttribute), false)
+            .OfType<System.Reflection.AssemblyInformationalVersionAttribute>().FirstOrDefault()?.InformationalVersion ?? "")
+        .Split('+')[0];
+
     private void About_Click(object sender, RoutedEventArgs e) =>
         MessageBox.Show(this,
-            "Hyper-V Manage 1.0\n\nManages Hyper-V virtual machines, and builds new Windows VMs ready for Remote Desktop " +
+            $"Hyper-V Manage {AppVersion}\n\nManages Hyper-V virtual machines, and builds new Windows VMs ready for Remote Desktop " +
             "with New-HyperVRdpVM.ps1. Everything it does goes through Hyper-V's own PowerShell commands.",
             "About Hyper-V Manage", MessageBoxButton.OK, MessageBoxImage.Information);
 }
