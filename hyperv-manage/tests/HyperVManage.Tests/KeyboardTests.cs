@@ -97,4 +97,38 @@ public class KeyboardTests
         }
         finally { window.Close(); }
     }
+
+    [StaFact(Skip = InputTests.SkipReason, SkipUnless = nameof(InputTests.Enabled), SkipType = typeof(InputTests))]
+    public async Task MainWindow_TabNeverLandsOnTheMenuBar()
+    {
+        // The menu bar is reached with Alt or F10, as in any Windows app. Tab stopping on
+        // File, VM and Help puts three extra stops between the user and the list.
+        TestApp.Ensure();
+        var vm = new MainViewModel(new HyperVManage.Services.DemoHyperVService { Delay = TimeSpan.Zero });
+        await vm.RefreshAsync();
+        var window = new MainWindow(vm, demo: true) { WindowStartupLocation = WindowStartupLocation.Manual, Left = 0, Top = 0 };
+        window.Show();
+        window.Activate();
+        Pump();
+        try
+        {
+            var list = (ListView)window.FindName("VmList");
+            list.SelectedIndex = 0;
+            Pump();
+            ((ListViewItem)list.ItemContainerGenerator.ContainerFromIndex(0)).Focus();
+            Pump();
+            Assert.True(list.IsKeyboardFocusWithin, "couldn't put focus on the list");
+
+            for (var i = 0; i < 6; i++)
+            {
+                Press(window, Key.Tab);
+                var focused = Keyboard.FocusedElement as DependencyObject;
+                for (var d = focused; d is not null; d = System.Windows.Media.VisualTreeHelper.GetParent(d) ?? LogicalTreeHelper.GetParent(d))
+                {
+                    Assert.False(d is Menu, $"Tab {i + 1} landed on the menu bar ({focused})");
+                }
+            }
+        }
+        finally { window.Close(); }
+    }
 }

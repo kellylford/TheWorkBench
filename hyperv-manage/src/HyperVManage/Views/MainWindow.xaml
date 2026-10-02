@@ -20,7 +20,8 @@
     </Window.InputBindings>
 
     <DockPanel>
-        <Menu DockPanel.Dock="Top">
+        <!-- Reached with Alt or F10, as in any Windows app; never a Tab stop. -->
+        <Menu DockPanel.Dock="Top" KeyboardNavigation.TabNavigation="None">
             <MenuItem Header="_File">
                 <MenuItem Header="_New Virtual Machine…" Command="{Binding NewVmCommand}" InputGestureText="Ctrl+N"/>
                 <MenuItem Header="_Refresh" Command="{Binding RefreshCommand}" InputGestureText="F5"/>
