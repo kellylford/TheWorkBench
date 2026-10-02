@@ -118,9 +118,12 @@ jobs:
           }
           if ($bad) { throw "$bad file(s) aren't validly signed and timestamped." }
 
+      # Named after the tag on a release; a pull request's ref name (139/merge) can't be a file name.
       - name: Zip the script
         shell: pwsh
-        run: Compress-Archive -Path 'dist\hyperv-rdp-vm' -DestinationPath "dist\New-HyperVRdpVM-$env:GITHUB_REF_NAME.zip" -Force
+        run: |
+          $label = if ($env:SIGN -eq 'true') { $env:GITHUB_REF_NAME } else { 'unsigned' }
+          Compress-Archive -Path 'dist\hyperv-rdp-vm' -DestinationPath "dist\New-HyperVRdpVM-$label.zip" -Force
 
       - name: Keep the unsigned build
         if: env.SIGN != 'true'
