@@ -156,8 +156,22 @@ jobs:
           Read the [Hyper-V Manage README](https://github.com/kellylford/TheWorkBench/tree/main/hyperv-manage)
           and the [script's README](https://github.com/kellylford/TheWorkBench/tree/main/hyperv-rdp-vm).
           '@
-          Set-Content notes.md $notes
           $version = $env:GITHUB_REF_NAME -replace '^hyperv-manage-v', ''
+          # Before 1.0 a release is a pre-release, and says why.
+          $pre = @()
+          if ($version.StartsWith('0.')) {
+            $pre = @('--prerelease')
+            $notes = @'
+          **This is a pre-release.** Building VMs, connecting, Open Console, Save Connection File,
+          Pause and Delete have been used on real Hyper-V on x64 and Arm64 PCs; Settings,
+          Checkpoint and Clone so far only against the pretend VMs of `--demo`. Every VM is made
+          with the user name **vmuser** and password **vmadmin** unless you choose others, and
+          joins your network with Remote Desktop on, so choose your own password on a network
+          you share.
+
+          '@ + $notes
+          }
+          Set-Content notes.md $notes
           gh release create $env:GITHUB_REF_NAME `
             'dist\HyperVManage-x64.exe' 'dist\HyperVManage-arm64.exe' "dist\New-HyperVRdpVM-$env:GITHUB_REF_NAME.zip" `
-            --title "Hyper-V Manage $version" --notes-file notes.md
+            --title "Hyper-V Manage $version" --notes-file notes.md @pre
