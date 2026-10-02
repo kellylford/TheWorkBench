@@ -1,10 +1,23 @@
 using System.Diagnostics;
+using System.IO;
 using System.Text;
 
 namespace HyperVManage.Services;
 
 /// <summary>A PowerShell command failed; the message is PowerShell's own error text.</summary>
 public sealed class HyperVException(string message) : Exception(message);
+
+/// <summary>
+/// Full paths to the Windows programs the app starts. The app runs elevated, and a bare name is
+/// looked up in the app's own folder first: a powershell.exe dropped beside HyperVManage.exe in
+/// Downloads would otherwise run as administrator.
+/// </summary>
+public static class SystemTools
+{
+    public static string PowerShell { get; } = Path.Combine(Environment.SystemDirectory, @"WindowsPowerShell\v1.0\powershell.exe");
+    public static string RemoteDesktop { get; } = Path.Combine(Environment.SystemDirectory, "mstsc.exe");
+    public static string Console { get; } = Path.Combine(Environment.SystemDirectory, "vmconnect.exe");
+}
 
 /// <summary>
 /// Runs Windows PowerShell (powershell.exe, where the Hyper-V module lives) and returns what the
@@ -30,7 +43,7 @@ public static class PowerShellRunner
             "  exit 1\n}\n";
         var encoded = Convert.ToBase64String(Encoding.Unicode.GetBytes(wrapped));
 
-        var psi = new ProcessStartInfo("powershell.exe")
+        var psi = new ProcessStartInfo(SystemTools.PowerShell)
         {
             UseShellExecute = false,
             CreateNoWindow = true,

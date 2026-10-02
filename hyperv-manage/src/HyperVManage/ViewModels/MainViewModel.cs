@@ -15,7 +15,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
 {
     private readonly IHyperVService _hyperV;
     private readonly CancellationTokenSource _lifetime = new();
-    private bool _refreshing;
+    private Task? _reading;
 
     public MainViewModel(IHyperVService hyperV) => _hyperV = hyperV;
 
@@ -94,10 +94,22 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
     /// added, gone ones removed. Replacing the list would reset the selection and move a screen
     /// reader back to the top every ten seconds.
     /// </summary>
-    public async Task RefreshAsync(bool quiet = false)
+    /// <param name="mustRead">If a read is already under way, wait for it and then read again,
+    /// rather than skipping. After an action the list has to show its result, and a read that
+    /// began before the action finished doesn't.</param>
+    public async Task RefreshAsync(bool quiet = false, bool mustRead = false)
     {
-        if (_refreshing) return;
-        _refreshing = true;
+        if (_reading is { IsCompleted: false })
+        {
+            if (!mustRead) return;
+            await _reading;
+        }
+        _reading = ReadAsync(quiet);
+        await _reading;
+    }
+
+    private async Task ReadAsync(bool quiet)
+    {
         try
         {
             var fresh = await _hyperV.GetVmsAsync(_lifetime.Token);
@@ -114,7 +126,6 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         }
         finally
         {
-            _refreshing = false;
             HasLoaded = true;
         }
     }
@@ -198,8 +209,12 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         var vm = Selected!;
         try
         {
-            var file = await _hyperV.SaveConnectionFileAsync(vm);
-            StatusText = $"Saved {System.IO.Path.GetFileName(file)} on the desktop. Opening it connects to {vm.Name}.";
+            var saved = await _hyperV.SaveConnectionFileAsync(vm);
+            var name = System.IO.Path.GetFileName(saved.Path);
+            StatusText = saved.AlreadyThere
+                ? $"{name} on the desktop already connects to {vm.Name}, so it was left as it is."
+                : $"Saved {name} on the desktop. Opening it connects to {vm.Name}.";
+            Announce?.Invoke(StatusText);
         }
         catch (Exception ex) { Fail(vm, "Couldn't save a connection file", ex); }
     }
@@ -274,7 +289,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         {
             await op(vm);
             vm.IsBusy = false;
-            await RefreshAsync(quiet: true);
+            await RefreshAsync(quiet: true, mustRead: true);
             var text = finished(vm);
             StatusText = text;
             Announce?.Invoke(text);
@@ -283,7 +298,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         {
             vm.IsBusy = false;
             Fail(vm, $"{vm.Name}: that didn't work", ex);
-            await RefreshAsync(quiet: true);
+            await RefreshAsync(quiet: true, mustRead: true);
         }
     }
 

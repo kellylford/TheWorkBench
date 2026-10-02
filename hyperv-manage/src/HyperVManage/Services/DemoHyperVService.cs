@@ -130,7 +130,7 @@ public sealed class DemoHyperVService : IHyperVService
     public void OpenConsole(VmInfo vm) =>
         throw new HyperVException("This is the demo, so there's no real VM to open.");
 
-    public Task<string> SaveConnectionFileAsync(VmInfo vm, CancellationToken ct = default) =>
+    public Task<SavedConnection> SaveConnectionFileAsync(VmInfo vm, CancellationToken ct = default) =>
         throw new HyperVException("This is the demo, so no connection file was saved.");
 
     public async Task<string> CreateExternalSwitchAsync(CancellationToken ct = default)

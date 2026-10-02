@@ -69,7 +69,7 @@ public sealed partial class NewVmViewModel : ObservableObject
     public bool ShowForm => !HasStarted;
     public bool ShowProgress => HasStarted;
 
-    /// <summary>Everything printed so far. The window appends lines as they come (see
+    /// <summary>Everything printed so far, for tests and the log. The window appends lines as they come (see
     /// <see cref="LineAppended"/>) rather than binding to this, so the caret isn't reset.</summary>
     public string LogText => _log.ToString();
 
@@ -93,13 +93,22 @@ public sealed partial class NewVmViewModel : ObservableObject
         // The script mounts the full path, so the cleanup after a stop must dismount that same path.
         if (iso.Length > 0) { try { iso = System.IO.Path.GetFullPath(iso); } catch (Exception) { } }
 
+        // The same limits as the script's own checks, asked here so they show in the form rather
+        // than as a failed build.
+        var computer = RemoteDesktop.ComputerName(name);
+        var user = UserName.Trim();
+        var maxProcessors = Math.Min(Environment.ProcessorCount, 64);
         if (NewVmScript.NameProblem(name) is { } nameProblem) problem = nameProblem;
-        else if (RemoteDesktop.ComputerName(name).Length == 0) problem = "The name needs at least one letter or digit, since Windows names the computer after it.";
+        else if (computer.Length == 0) problem = "The name needs at least one letter or digit, since Windows names the computer after it.";
+        else if (computer.All(char.IsAsciiDigit)) problem = "The name needs at least one letter: Windows can't use a computer name made only of digits.";
+        else if (user.Length > 20 || user.IndexOfAny(['"', '/', '\\', '[', ']', ':', ';', '|', '=', ',', '+', '*', '?', '<', '>', '@']) >= 0)
+            problem = "Windows can't use that user name. Use up to 20 letters, digits, spaces, dots, hyphens or underscores.";
+        else if (Password.Contains('"')) problem = "The password can't contain a double quote (\").";
         else if (iso.Length == 0) problem = "There's no Windows ISO in your Downloads folder. Choose one with Browse.";
         else if (!System.IO.File.Exists(iso)) problem = $"Can't find the ISO {iso}.";
-        else if (!int.TryParse(Processors.Trim(), out var c) || c < 1 || c > Environment.ProcessorCount)
-            problem = $"Processors must be a whole number from 1 to {Environment.ProcessorCount}.";
-        else if (!int.TryParse(MemoryGB.Trim(), out var m) || m < 2) problem = "Memory must be a whole number of gigabytes, at least 2.";
+        else if (!int.TryParse(Processors.Trim(), out var c) || c < 1 || c > maxProcessors)
+            problem = $"Processors must be a whole number from 1 to {maxProcessors}.";
+        else if (!int.TryParse(MemoryGB.Trim(), out var m) || m < 2 || m > 512) problem = "Memory must be a whole number of gigabytes, from 2 to 512.";
         else if (!int.TryParse(DiskGB.Trim(), out var d) || d < 64) problem = "Disk size must be a whole number of gigabytes, at least 64. Windows 11 needs that much.";
         else if (Edition.Contains("Home", StringComparison.OrdinalIgnoreCase)) problem = "Home editions can't accept Remote Desktop connections. Use Pro, Enterprise or Education.";
 
@@ -161,7 +170,6 @@ public sealed partial class NewVmViewModel : ObservableObject
     {
         if (_log.Length > 0) _log.AppendLine();
         _log.Append(line);
-        OnPropertyChanged(nameof(LogText));
         LineAppended?.Invoke(line);
         if (!string.IsNullOrWhiteSpace(line) && !ErrorRecordDetail.IsMatch(line)) Announce?.Invoke(line);
     }

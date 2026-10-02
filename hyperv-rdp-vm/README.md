@@ -72,11 +72,11 @@ it opens Remote Desktop and signs you in.
 | Item            | Value                                        |
 |-----------------|----------------------------------------------|
 | VM name         | This PC's name and `-Win11`, for example `SURFACEPRO7-Win11` |
-| Computer name   | The same, cut to 15 characters: `SURFACEPR-Win11` |
+| Computer name   | The same, shortened to 15 characters: `SURFAebkv-Win11` (see [Names](#names)) |
 | User name       | vmuser (an administrator)                    |
 | Password        | vmadmin                                      |
 | Connection file | `SURFACEPRO7-Win11.rdp` on your desktop      |
-| Address         | `SURFACEPR-Win11.local`, or an IP address    |
+| Address         | `SURFAebkv-Win11.local`, or an IP address    |
 | Network         | Your own network, through an external switch |
 | Starts          | Whenever this PC starts                      |
 
@@ -97,13 +97,19 @@ The VM's name starts with this PC's name so that VMs made on different PCs
 on one network never share a name. Two computers with one name confuse
 Remote Desktop: it can connect to the other one, and since both have the same
 sign-in, nothing warns you. Before building anything, the script asks the
-network whether a computer already has the name, and stops if one does.
+network whether a computer already has the name, and stops if one does. That
+only finds computers that are on at the time, so the name rule below also
+makes a clash unlikely to begin with.
 
 Windows limits a computer name to 15 characters. When the VM's name is
-longer, the computer name keeps the ending, which is what tells VMs apart,
-and shortens the start: `SURFACEPRO7-Win11` becomes `SURFACEPR-Win11`, and a
-second VM, `SURFACEPRO7-Win11-2`, becomes `SURFACE-Win11-2`. Choose your own
-name with `-VMName`.
+longer, the computer name keeps the ending, which is what tells one PC's VMs
+apart, and cuts the start short, adding four characters worked out from the
+whole name. That keeps names apart even for PCs whose names begin the same
+way, as Windows' own `DESKTOP-` names do. `SURFACEPRO7-Win11` becomes
+`SURFAebkv-Win11`, and a second VM, `SURFACEPRO7-Win11-2`, becomes
+`SURwt9e-Win11-2`. The script says which computer name it uses as it starts.
+Choose your own name with `-VMName`; one of 15 characters or fewer is used
+exactly as it is.
 
 VMs made by earlier versions are called `Win11-RDP`. They keep that name; use
 `-VMName Win11-RDP` with `-Remove` for them.
@@ -140,7 +146,7 @@ Remove-VMSwitch -Name 'External Network'
 To keep the VM private to this PC instead, as earlier versions of the script
 did, use `-HostOnly`. It then goes on the Default Switch, where only this PC can
 reach it, at `<computer name>.mshome.net`, for example
-`SURFACEPR-Win11.mshome.net`.
+`SURFAebkv-Win11.mshome.net`.
 
 ### Moving between Wi-Fi and a cable
 
@@ -189,6 +195,8 @@ Start-VM SURFACEPRO7-Win11
 | `-NoAutoStart`    | off                    | Don't start the VM when this PC starts         |
 | `-VhdFolder`      | Hyper-V's disk folder  | Where the virtual disk goes                    |
 | `-TimeZone`       | this PC's time zone    | Windows time zone name                         |
+| `-Locale`         | the ISO's language     | Language for formats and the keyboard, such as `en-GB` |
+| `-TimeoutMinutes` | 45                     | How long to wait for Windows to finish setting up |
 | `-NoConnect`      | off                    | Don't open Remote Desktop at the end           |
 | `-Remove`         | off                    | Delete the VM, its disk, connection file and saved sign-in, and anything a failed run left behind |
 

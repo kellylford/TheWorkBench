@@ -16,6 +16,9 @@ public partial class PromptWindow : Window
         // A label's Target moves focus on its access key but doesn't name the box; name it here.
         System.Windows.Automation.AutomationProperties.SetName(w.AnswerBox, label.TrimEnd(':'));
         w.NoteText.Text = note;
+        // Focus goes straight to the box, so the note under it would never be read unless it is
+        // the box's description: screen readers speak that after its name.
+        System.Windows.Automation.AutomationProperties.SetHelpText(w.AnswerBox, note);
         w.OkButton.Content = title.Split(' ')[0]; // "Clone", "Checkpoint"
         w.Loaded += (_, _) => { w.AnswerBox.Focus(); w.AnswerBox.SelectAll(); };
         return w.ShowDialog() == true ? w.AnswerBox.Text.Trim() : null;

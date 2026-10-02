@@ -64,7 +64,7 @@ public interface IHyperVService
     /// <summary>Opens the Hyper-V console window for the VM.</summary>
     void OpenConsole(VmInfo vm);
 
-    /// <summary>Saves a Remote Desktop connection file for the VM on the desktop and returns
-    /// its path.</summary>
-    Task<string> SaveConnectionFileAsync(VmInfo vm, CancellationToken ct = default);
+    /// <summary>Saves a Remote Desktop connection file for the VM on the desktop, or finds the
+    /// one already there that connects to it.</summary>
+    Task<SavedConnection> SaveConnectionFileAsync(VmInfo vm, CancellationToken ct = default);
 }

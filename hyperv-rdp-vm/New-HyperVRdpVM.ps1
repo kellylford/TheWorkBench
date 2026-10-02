@@ -32,10 +32,11 @@
     Name of the virtual machine. The default is this PC's name followed by
     -Win11, for example SURFACEPRO7-Win11, so VMs made on different PCs on
     one network don't share a name. It is also the Windows computer name,
-    shortened if needed to Windows' limit of 15 characters by trimming the
-    part before the first hyphen: SURFACEPRO7-Win11 becomes SURFACEPR-Win11.
-    The script stops if another computer on the network already has that
-    computer name.
+    shortened if needed to Windows' limit of 15 characters: the ending is
+    kept, and the start is cut short and followed by four characters worked
+    out from the whole name, so SURFACEPRO7-Win11 becomes something like
+    SURFAk3x9-Win11. The script prints the computer name it uses, and stops if
+    another computer on the network already has it.
 
 .PARAMETER Edition
     Which edition in the ISO to install. It must be one that can accept
@@ -147,25 +148,36 @@ if ($VMName -match '[\\/:*?"<>|\[\]]') {
 }
 
 # Windows computer names: letters, digits and hyphens, 15 characters at most.
-# A longer name keeps its ending, from the earliest hyphen that leaves room
-# (13 characters or fewer), since the ending is what tells VMs apart, and
-# trims the start, usually this PC's name: SURFACEPRO7-Win11-2 becomes
-# SURFACE-Win11-2, and DESKTOP-ABC1234-Win11 becomes DESKTOP-A-Win11 rather
-# than the host's own name. Hyper-V Manage's RemoteDesktop.ComputerName does
-# the same; keep the two in step.
+# A longer name keeps its ending, from the earliest hyphen that leaves room,
+# since the ending tells a PC's VMs apart (-Win11, -Win11-2). The start,
+# usually this PC's name, is cut short and followed by four characters worked
+# out from the whole name, so PCs whose names begin alike (DESKTOP-ABC1234 and
+# DESKTOP-ABC9876) still give their VMs different names:
+# SURFACEPRO7-Win11 becomes SURFA, four characters, then -Win11.
+# Hyper-V Manage's RemoteDesktop.ComputerName does the same, and a test checks
+# that the two agree.
 $ComputerName = ($VMName -replace '[^A-Za-z0-9-]', '').Trim('-')
 if ($ComputerName.Length -gt 15) {
+    $sha1 = [Security.Cryptography.SHA1]::Create()
+    $hashBytes = $sha1.ComputeHash([Text.Encoding]::UTF8.GetBytes($ComputerName.ToUpperInvariant()))
+    $n = ((([uint64]$hashBytes[0] * 256 + $hashBytes[1]) * 256 + $hashBytes[2]) * 256 + $hashBytes[3]) % 1679616
+    $tag = ''
+    for ($i = 0; $i -lt 4; $i++) {
+        $tag = [string]'0123456789abcdefghijklmnopqrstuvwxyz'[[int]($n % 36)] + $tag
+        $n = [uint64][math]::Floor($n / 36)
+    }
     $cut = -1
     for ($i = 1; $i -lt $ComputerName.Length; $i++) {
-        if ($ComputerName[$i] -eq '-' -and ($ComputerName.Length - $i) -le 13) { $cut = $i; break }
+        if ($ComputerName[$i] -eq '-' -and ($ComputerName.Length - $i) -le 10) { $cut = $i; break }
     }
     $ComputerName = if ($cut -gt 0) {
-        $ComputerName.Substring(0, 15 - ($ComputerName.Length - $cut)).TrimEnd('-') + $ComputerName.Substring($cut)
+        $ComputerName.Substring(0, 11 - ($ComputerName.Length - $cut)) + $tag + $ComputerName.Substring($cut)
     } else {
-        $ComputerName.Substring(0, 15).TrimEnd('-')
+        $ComputerName.Substring(0, 11) + $tag
     }
 }
 if (-not $ComputerName) { throw "Can't make a Windows computer name from the VM name '$VMName'. Use letters and digits." }
+if ($ComputerName -match '^[0-9]+$') { throw "Windows can't use a computer name made only of digits ($ComputerName). Put a letter in the VM name." }
 
 $desktop = [Environment]::GetFolderPath('Desktop')
 $rdpFile = Join-Path $desktop "$VMName.rdp"
@@ -257,6 +269,16 @@ try {
 } catch { }
 if ($answering.Count -gt 0) {
     throw "Another computer on your network is already called $ComputerName (at $($answering -join ', ')). Pick another name with -VMName."
+}
+# Windows would only refuse these inside the VM, after the disk is built, where
+# the failure looks like setup never finishing.
+if ($UserName.Length -lt 1 -or $UserName.Length -gt 20 -or $UserName -match '["/\\\[\]:;|=,+*?<>@]' -or $UserName.Trim('. ') -eq '') {
+    throw "Windows can't use '$UserName' as a user name. Use 1 to 20 letters, digits, spaces, dots, hyphens or underscores."
+}
+# Remote Desktop won't sign in to an account with no password, and a double
+# quote can't be passed safely to cmdkey, which saves the sign-in.
+if (-not $Password -or $Password.Contains('"')) {
+    throw 'The password must not be empty, and must not contain a double quote (").'
 }
 if ($Locale) {
     try { $null = [Globalization.CultureInfo]::GetCultureInfo($Locale) }
@@ -364,6 +386,7 @@ if (Test-Path -LiteralPath $vhdPath) {
 }
 
 Say "Creating the virtual machine $VMName."
+if ($ComputerName -ne $VMName) { Say "Its Windows computer name is $ComputerName, which Windows limits to 15 characters." }
 Say "Windows image: $IsoPath"
 Say 'This usually takes 15 to 30 minutes. You do not need to do anything until it finishes.'
 
@@ -794,7 +817,18 @@ $started = Get-Date
 $deadline = $started.AddMinutes($TimeoutMinutes)
 $nextNote = $started.AddMinutes(3)
 $guest = $null
+$readyWithoutAddress = $null
 while (-not ($guest -and $guest.Ready -and $guest.IPAddress)) {
+    # Set up but never given an address is a network problem, not a slow setup:
+    # say so, rather than waiting out the whole timeout.
+    if ($guest -and $guest.Ready -and -not $guest.IPAddress) {
+        if (-not $readyWithoutAddress) {
+            $readyWithoutAddress = Get-Date
+            Say 'Windows is set up, but the virtual machine has no network address yet. Waiting for one.'
+        } elseif ((Get-Date) -gt $readyWithoutAddress.AddMinutes(5)) {
+            throw "Windows is set up, but the virtual machine hasn't been given a network address in 5 minutes on the $SwitchName switch. Some routers refuse a second address over Wi-Fi. Plug this PC into Ethernet, or start again with -HostOnly. Delete this VM first with: .\New-HyperVRdpVM.ps1 -VMName $VMName -Remove"
+        }
+    }
     if ((Get-Date) -gt $deadline) {
         throw "Windows didn't finish setting up within $TimeoutMinutes minutes. The VM is left running so you can look at it in Hyper-V Manager. Delete it with: .\New-HyperVRdpVM.ps1 -VMName $VMName -Remove"
     }

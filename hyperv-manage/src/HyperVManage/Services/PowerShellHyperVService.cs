@@ -181,12 +181,15 @@ public sealed class PowerShellHyperVService : IHyperVService
     /// disks rather than leaving .avhdx files behind. A disk another VM relies on is kept: one it
     /// has attached, or the parent of one of its differencing disks. The desktop connection file
     /// and its saved sign-in go only when the file connects to this VM, by its name or address;
-    /// a file that merely shares the VM's name belongs to something else.
+    /// a file that merely shares the VM's name belongs to something else. The VM's computer name
+    /// is worked out by the script's own lines, taken from the embedded script, so the file the
+    /// script made is always recognised. Folders named after the VM under Hyper-V's VM and disk
+    /// folders, which Clone makes, go too once nothing is left in them.
     /// </summary>
-    internal static string BuildDeleteScript(string vmId) => GetVm(vmId) + """
+    internal static string BuildDeleteScript(string vmId) => GetVm(vmId) + "$VMName = $vm.Name\n" + NewVmScript.ComputerNameRule() + """
+
         $name = $vm.Name
-        $computer = $name -replace '[^A-Za-z0-9-]', ''
-        if ($computer.Length -gt 15) { $computer = $computer.Substring(0, 15) }
+        $computer = $ComputerName
         $ips = @(Get-VMNetworkAdapter -VM $vm | ForEach-Object { $_.IPAddresses })
         if ($vm.State -ne 'Off') { Stop-VM -VM $vm -TurnOff -Force }
         Get-VMSnapshot -VM $vm -ErrorAction SilentlyContinue | Remove-VMSnapshot -IncludeAllChildSnapshots -ErrorAction SilentlyContinue
@@ -204,6 +207,8 @@ public sealed class PowerShellHyperVService : IHyperVService
             }
         }
         $deleted = @(); $kept = @(); $failed = @()
+        $vmHost = Get-VMHost
+        $nameFolders = @((Join-Path $vmHost.VirtualMachinePath $name), (Join-Path $vmHost.VirtualHardDiskPath $name))
         Remove-VM -VM $vm -Force
         foreach ($d in $disks) {
             if (-not $d) { continue }
@@ -225,6 +230,15 @@ public sealed class PowerShellHyperVService : IHyperVService
                 catch { $failed += "$rdp ($($_.Exception.Message))" }
             } else {
                 $kept += "$rdp, which connects to $address rather than this VM"
+            }
+        }
+        # Only a folder with no files left anywhere in it: Hyper-V's shared folders themselves,
+        # and anything another VM keeps there, are never touched.
+        foreach ($folder in $nameFolders) {
+            if ((Test-Path -LiteralPath $folder -PathType Container) -and
+                -not (Get-ChildItem -LiteralPath $folder -Recurse -File -Force -ErrorAction SilentlyContinue | Select-Object -First 1)) {
+                try { Remove-Item -LiteralPath $folder -Recurse -Force -ErrorAction Stop; $deleted += $folder }
+                catch { $failed += "$folder ($($_.Exception.Message))" }
             }
         }
         ConvertTo-Json -InputObject ([pscustomobject]@{ Deleted = @($deleted); Kept = @($kept); Failed = @($failed) }) -Depth 3 -Compress
@@ -275,13 +289,35 @@ public sealed class PowerShellHyperVService : IHyperVService
         $name
         """;
 
-    public Task ConnectAsync(VmInfo vm, CancellationToken ct = default) =>
-        RemoteDesktop.ConnectAsync(vm.Name, vm.IpAddresses);
+    public async Task ConnectAsync(VmInfo vm, CancellationToken ct = default) =>
+        await RemoteDesktop.ConnectAsync(vm.Name, await CurrentAddressesAsync(vm, ct).ConfigureAwait(false)).ConfigureAwait(false);
 
     public void OpenConsole(VmInfo vm) => RemoteDesktop.OpenConsole(vm.Id);
 
-    public Task<string> SaveConnectionFileAsync(VmInfo vm, CancellationToken ct = default) =>
-        RemoteDesktop.SaveDesktopFileAsync(vm.Name, vm.IpAddresses);
+    public async Task<SavedConnection> SaveConnectionFileAsync(VmInfo vm, CancellationToken ct = default) =>
+        await RemoteDesktop.SaveDesktopFileAsync(vm.Name, await CurrentAddressesAsync(vm, ct).ConfigureAwait(false)).ConfigureAwait(false);
+
+    /// <summary>
+    /// The VM's IPv4 addresses as Hyper-V reports them now. The list's copy can be up to ten
+    /// seconds old, and Windows inside a VM that has just started or resumed reports its address
+    /// only once it is up, so a connection made from the list's copy can find none yet.
+    /// </summary>
+    private static async Task<IReadOnlyList<string>> CurrentAddressesAsync(VmInfo vm, CancellationToken ct)
+    {
+        try
+        {
+            var output = await PowerShellRunner.RunAsync(GetVm(vm.Id) + AddressesScript, ct).ConfigureAwait(false);
+            var fresh = ParseStringList(output);
+            return fresh.Count > 0 ? fresh : vm.IpAddresses;
+        }
+        catch (HyperVException) { return vm.IpAddresses; }
+    }
+
+    internal const string AddressesScript = """
+        $addresses = @(Get-VMNetworkAdapter -VM $vm | ForEach-Object { $_.IPAddresses } |
+            Where-Object { $_ -and $_ -notmatch ':' } | ForEach-Object { [string]$_ })
+        ConvertTo-Json -InputObject $addresses -Compress
+        """;
 
     private static string GetVm(string vmId) => $"$vm = Get-VM -Id {Ps.Quote(vmId)}\n";
 

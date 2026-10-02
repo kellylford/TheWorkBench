@@ -76,13 +76,15 @@ public static class NewVmScript
     /// at the path it would build. Also returns that path, which the cleanup after a stop needs;
     /// knowing the disk didn't exist beforehand is what makes it safe to delete then.
     /// </summary>
-    internal static string BuildPrecheckScript(string vmName) => $$"""
+    internal static string BuildPrecheckScript(string vmName, string isoPath) => $$"""
         $name = {{Ps.Quote(vmName)}}
+        $iso = {{Ps.Quote(isoPath)}}
         $vhd = Join-Path (Get-VMHost).VirtualHardDiskPath "$name.vhdx"
         ConvertTo-Json -Compress -InputObject ([pscustomobject]@{
             Vhd = $vhd
             VhdExists = [bool](Test-Path -LiteralPath $vhd)
             VmExists = [bool](Get-VM | Where-Object Name -eq $name)
+            IsoWasMounted = [bool]($iso -and (Get-DiskImage -ImagePath $iso -ErrorAction SilentlyContinue).Attached)
         })
         """;
 
@@ -93,9 +95,11 @@ public static class NewVmScript
     /// exist before the build, so it is the build's own. A VM that already exists is left for
     /// the user to delete, since by then it is a real VM.
     /// </summary>
-    internal static string BuildCleanupScript(string vmName, string isoPath, string vhdPath) => $$"""
+    internal static string BuildCleanupScript(string vmName, string isoPath, string vhdPath, bool isoWasMounted = false) => $$"""
         $name = {{Ps.Quote(vmName)}}
-        $iso = {{Ps.Quote(isoPath)}}
+        # An ISO that was already open before the build, in File Explorer, stays open, as the
+        # script itself leaves it.
+        $iso = {{(isoWasMounted ? "''" : Ps.Quote(isoPath))}}
         $vhd = {{Ps.Quote(vhdPath)}}
         # Each in its own try: the runner stops on errors, and a dismount of something already
         # dismounted mustn't skip the rest.
@@ -118,11 +122,13 @@ public static class NewVmScript
     public static async Task<BuildOutcome> RunAsync(NewVmOptions options, Action<string> onLine, CancellationToken ct)
     {
         string vhdPath;
+        bool isoWasMounted;
         try
         {
-            using var doc = JsonDocument.Parse(await PowerShellRunner.RunAsync(BuildPrecheckScript(options.VMName), ct).ConfigureAwait(false));
+            using var doc = JsonDocument.Parse(await PowerShellRunner.RunAsync(BuildPrecheckScript(options.VMName, options.IsoPath), ct).ConfigureAwait(false));
             var r = doc.RootElement;
             vhdPath = r.GetProperty("Vhd").GetString() ?? "";
+            isoWasMounted = r.TryGetProperty("IsoWasMounted", out var m) && m.ValueKind == JsonValueKind.True;
             if (r.GetProperty("VmExists").GetBoolean())
             {
                 onLine($"There is already a virtual machine named {options.VMName}. Pick another name.");
@@ -139,7 +145,7 @@ public static class NewVmScript
         var script = ExtractScript();
         try
         {
-            var psi = new ProcessStartInfo("powershell.exe")
+            var psi = new ProcessStartInfo(SystemTools.PowerShell)
             {
                 UseShellExecute = false,
                 CreateNoWindow = true,
@@ -174,7 +180,7 @@ public static class NewVmScript
                 onLine("Stopped. Cleaning up what the build had made so far.");
                 try
                 {
-                    var report = await PowerShellRunner.RunAsync(BuildCleanupScript(options.VMName, options.IsoPath, vhdPath)).ConfigureAwait(false);
+                    var report = await PowerShellRunner.RunAsync(BuildCleanupScript(options.VMName, options.IsoPath, vhdPath, isoWasMounted)).ConfigureAwait(false);
                     foreach (var line in report.Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)) onLine(line);
                 }
                 catch (Exception ex) { onLine($"Couldn't clean up: {ex.Message}"); }
@@ -188,18 +194,40 @@ public static class NewVmScript
     }
 
     /// <summary>
-    /// Writes the embedded script where powershell.exe can run it, under a new random name each
-    /// time, and deleted after the run: the app runs it elevated, so a fixed path another program
-    /// could swap the file at would be a gift.
+    /// Writes the embedded script where powershell.exe can run it, and returns its path. The app
+    /// runs it elevated, so it goes in a folder only Administrators and SYSTEM can write to:
+    /// in the user's TEMP, any program the user runs, elevated or not, could rewrite the file in
+    /// the moment before PowerShell reads it, and its code would then run as administrator.
     /// </summary>
-    public static string ExtractScript()
+    /// <param name="folder">Only for tests, which run without administrator rights.</param>
+    public static string ExtractScript(string? folder = null)
     {
-        var path = Path.Combine(Path.GetTempPath(), $"HyperVManage-{Guid.NewGuid():N}.ps1");
+        if (folder is null)
+        {
+            var programData = Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData);
+            folder = Path.Combine(programData, "HyperVManage", "Run");
+            AdminOnlyFolder.Ensure(programData, folder);
+        }
+        var path = Path.Combine(folder, $"New-HyperVRdpVM-{Guid.NewGuid():N}.ps1");
         using var resource = typeof(NewVmScript).Assembly.GetManifestResourceStream(ResourceName)
             ?? throw new InvalidOperationException($"{ResourceName} isn't embedded in this build.");
         using var file = new FileStream(path, FileMode.CreateNew, FileAccess.Write);
         resource.CopyTo(file);
         return path;
+    }
+
+    /// <summary>The script's own lines that turn $VMName into $ComputerName, from the embedded
+    /// script, so anything else that needs a VM's computer name gets exactly the script's answer.</summary>
+    public static string ComputerNameRule()
+    {
+        using var resource = typeof(NewVmScript).Assembly.GetManifestResourceStream(ResourceName)
+            ?? throw new InvalidOperationException($"{ResourceName} isn't embedded in this build.");
+        using var reader = new StreamReader(resource);
+        var script = reader.ReadToEnd();
+        var start = script.IndexOf("$ComputerName = ($VMName", StringComparison.Ordinal);
+        var end = start < 0 ? -1 : script.IndexOf("if (-not $ComputerName)", start, StringComparison.Ordinal);
+        if (start < 0 || end < 0) throw new InvalidOperationException("The computer-name lines weren't found in the embedded script.");
+        return script[start..end];
     }
 }
 
@@ -241,8 +269,9 @@ public static class DemoNewVmScript
     }
 }
 
-/// <summary>Finds the Windows ISO the script would pick: the newest one in Downloads with "win"
-/// in its name that isn't marked for the other kind of processor.</summary>
+/// <summary>Finds the ISO the New VM form suggests: the newest one in Downloads with "win" in its
+/// name that isn't marked for the other kind of processor. The app always passes the ISO to the
+/// script, so the script's own search (its folder first, then Downloads) doesn't come into it.</summary>
 public static class IsoFinder
 {
     public static string? FindNewest(string folder, bool hostIsArm64)

@@ -290,7 +290,7 @@ public class ScriptBuildingTests
             PowerShellHyperVService.BuildSettingsScript("id", Current, new VmSettings(2, 2048, false, "X", "Start", true)),
             PowerShellHyperVService.BuildSettingsScript("id", Current, Current with { SwitchName = "" }),
             NewVmScript.BuildCommand(@"C:\x\New-HyperVRdpVM.ps1", Options()),
-            NewVmScript.BuildPrecheckScript("Kelly's VM"),
+            NewVmScript.BuildPrecheckScript("Kelly's VM", @"C:\ISOs\Kelly's.iso"),
             NewVmScript.BuildCleanupScript("Kelly's VM", @"C:\ISOs\a.iso", @"C:\VHD\Kelly's VM.vhdx"),
         };
         foreach (var s in scripts)
@@ -325,13 +325,14 @@ public class ScriptBuildingTests
     [Fact]
     public void TheEmbeddedScript_IsTheOneInTheRepository()
     {
-        var path = NewVmScript.ExtractScript();
+        var folder = Directory.CreateTempSubdirectory("hvm-script-").FullName;
+        var path = NewVmScript.ExtractScript(folder);
         try
         {
             var repo = File.ReadAllBytes(Path.Combine(RepoRoot(), "hyperv-rdp-vm", "New-HyperVRdpVM.ps1"));
             Assert.Equal(repo, File.ReadAllBytes(path));
             // A fresh name each time, so nothing can be waiting at a known path.
-            var second = NewVmScript.ExtractScript();
+            var second = NewVmScript.ExtractScript(folder);
             Assert.NotEqual(path, second);
             File.Delete(second);
         }
@@ -410,11 +411,12 @@ public class RemoteDesktopTests
     [
         ("Win11-RDP", "Win11-RDP"),
         ("Build Agent (old)", "BuildAgentold"),
-        ("AVeryLongVirtualMachineName", "AVeryLongVirtua"),
-        ("SURFACEPRO7-Win11", "SURFACEPR-Win11"),
-        ("SURFACEPRO7-Win11-2", "SURFACE-Win11-2"),
-        // A Windows-default host name has a hyphen of its own; the VM must not end up with it.
-        ("DESKTOP-ABC1234-Win11", "DESKTOP-A-Win11"),
+        ("AVeryLongVirtualMachineName", "AVeryLongViiies"),
+        ("SURFACEPRO7-Win11", "SURFAebkv-Win11"),
+        ("SURFACEPRO7-Win11-2", "SURwt9e-Win11-2"),
+        // Windows-default host names begin alike; their VMs must still get different names.
+        ("DESKTOP-ABC1234-Win11", "DESKT44eq-Win11"),
+        ("DESKTOP-ABC9876-Win11", "DESKT2mbp-Win11"),
         ("-Edge-", "Edge"),
     ];
 

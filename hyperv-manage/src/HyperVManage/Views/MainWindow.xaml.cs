@@ -140,32 +140,7 @@ public partial class MainWindow : Window
         base.OnClosing(e);
     }
 
-    private void Shortcuts_Click(object sender, RoutedEventArgs e) =>
-        MessageBox.Show(this,
-            "In the list of virtual machines:\n" +
-            "Enter: connect with Remote Desktop\n" +
-            "Delete: delete the VM (asks first)\n" +
-            "Shift+F10 or the Applications key: all actions for the VM\n\n" +
-            "Anywhere in the window:\n" +
-            "Ctrl+N: new virtual machine\n" +
-            "F5: refresh the list\n" +
-            "Ctrl+Enter: start\n" +
-            "Ctrl+Period: shut down\n" +
-            "Ctrl+Shift+Period: turn off\n" +
-            "Ctrl+U: save\n" +
-            "Ctrl+P: pause\n" +
-            "Ctrl+Shift+P: resume\n" +
-            "Ctrl+R: restart\n" +
-            "Alt+Enter: settings\n" +
-            "Ctrl+K: checkpoint\n" +
-            "Ctrl+D: clone\n" +
-            "Alt or F10: the menu bar\n\n" +
-            "In the Hyper-V console window (Open Console):\n" +
-            "Ctrl+Alt+Left Arrow: take the keyboard back from the VM\n" +
-            "Ctrl+Alt+End: send Ctrl+Alt+Delete to the VM\n" +
-            "Ctrl+Alt+Pause: switch between full screen and a window\n" +
-            "View menu, Enhanced Session: switch to a session that can carry sound",
-            "Keyboard shortcuts", MessageBoxButton.OK, MessageBoxImage.Information);
+    private void Shortcuts_Click(object sender, RoutedEventArgs e) => new ShortcutsWindow { Owner = this }.ShowDialog();
 
     private void About_Click(object sender, RoutedEventArgs e) =>
         MessageBox.Show(this,

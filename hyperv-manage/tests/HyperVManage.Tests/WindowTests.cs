@@ -153,6 +153,53 @@ public class WindowTests
     }
 
     [StaFact]
+    public void ShortcutsWindow_IsAListOneShortcutPerLine_WithHeadingsAsLines()
+    {
+        EnsureApp();
+        var window = new ShortcutsWindow();
+        try
+        {
+            ShowOffscreen(window);
+            var list = (ListBox)window.FindName("ShortcutList");
+            Assert.Equal(ShortcutsWindow.Lines.Count, list.Items.Count);
+            Assert.Equal(0, list.SelectedIndex);
+            for (var i = 0; i < list.Items.Count; i++)
+            {
+                // Lines out of view are only made when scrolled to, as arrowing down does.
+                list.ScrollIntoView(list.Items[i]);
+                list.UpdateLayout();
+                var item = (ListBoxItem)list.ItemContainerGenerator.ContainerFromIndex(i);
+                var name = UIElementAutomationPeer.CreatePeerForElement(item).GetName();
+                Assert.Equal(ShortcutsWindow.Lines[i].Text, name);
+            }
+            Assert.Equal(ShortcutsWindow.Sections.Count, ShortcutsWindow.Lines.Count(l => l.IsHeading));
+            Assert.True(ShortcutsWindow.Lines[0].IsHeading);
+        }
+        finally { window.Close(); }
+    }
+
+    [StaFact]
+    public async Task EveryShortcutOnTheMenus_IsInTheShortcutsList()
+    {
+        EnsureApp();
+        var vm = new MainViewModel(new DemoHyperVService { Delay = TimeSpan.Zero });
+        await vm.RefreshAsync();
+        var window = new MainWindow(vm, demo: true);
+        try
+        {
+            ShowOffscreen(window);
+            var vmMenu = (MenuItem)window.FindName("VmMenu");
+            var keys = ShortcutsWindow.Sections.SelectMany(s => s.Keys).Select(k => k.Key).ToList();
+            foreach (var item in vmMenu.Items.OfType<MenuItem>().Where(m => !string.IsNullOrEmpty(m.InputGestureText)))
+            {
+                var gesture = item.InputGestureText.Replace("Ctrl+.", "Ctrl+Period").Replace("Ctrl+Shift+.", "Ctrl+Shift+Period");
+                Assert.Contains(gesture, keys);
+            }
+        }
+        finally { window.Close(); }
+    }
+
+    [StaFact]
     public void NewVmWindow_Loads_WithEveryFieldLabelled()
     {
         EnsureApp();

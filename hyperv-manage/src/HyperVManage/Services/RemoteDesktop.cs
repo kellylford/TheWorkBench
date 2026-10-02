@@ -5,6 +5,9 @@ using System.Text;
 
 namespace HyperVManage.Services;
 
+/// <summary>A connection file on the desktop, and whether it was already there and left as it was.</summary>
+public sealed record SavedConnection(string Path, bool AlreadyThere);
+
 /// <summary>Opens a Remote Desktop connection to a VM, the way to get its sound to a screen reader.</summary>
 public static class RemoteDesktop
 {
@@ -36,19 +39,29 @@ public static class RemoteDesktop
     /// <summary>
     /// The Windows computer name New-HyperVRdpVM.ps1 gives a VM: letters, digits and hyphens from
     /// its name, at most 15 characters. A longer name keeps its ending from the earliest hyphen
-    /// that leaves room, since the ending tells VMs apart, and trims the start (usually the host's
-    /// name): SURFACEPRO7-Win11-2 becomes SURFACE-Win11-2. Must match the script exactly.
+    /// that leaves room, since the ending tells a PC's VMs apart; the start (usually the host's
+    /// name) is cut short and followed by four characters from a hash of the whole name, so hosts
+    /// whose names begin alike still give their VMs different names. Must match the script
+    /// exactly; a test runs the script's own lines and compares.
     /// </summary>
     public static string ComputerName(string vmName)
     {
         var s = new string(vmName.Where(c => char.IsAsciiLetterOrDigit(c) || c == '-').ToArray()).Trim('-');
         if (s.Length <= 15) return s;
+
+        var hash = System.Security.Cryptography.SHA1.HashData(Encoding.UTF8.GetBytes(s.ToUpperInvariant()));
+        var n = (((ulong)hash[0] * 256 + hash[1]) * 256 + hash[2]) * 256 + hash[3];
+        n %= 1679616; // 36^4
+        const string digits = "0123456789abcdefghijklmnopqrstuvwxyz";
+        var tag = new char[4];
+        for (var i = 3; i >= 0; i--) { tag[i] = digits[(int)(n % 36)]; n /= 36; }
+
         for (var i = 1; i < s.Length; i++)
         {
-            if (s[i] == '-' && s.Length - i <= 13)
-                return s[..(15 - (s.Length - i))].TrimEnd('-') + s[i..];
+            if (s[i] == '-' && s.Length - i <= 10)
+                return s[..(11 - (s.Length - i))] + new string(tag) + s[i..];
         }
-        return s[..15].TrimEnd('-');
+        return s[..11] + new string(tag);
     }
 
     public static Task<string[]> ResolveAsync(string name) =>
@@ -94,7 +107,7 @@ public static class RemoteDesktop
         }
 
         var target = await ChooseTargetAsync(vmName, addresses, ResolveAsync).ConfigureAwait(false)
-            ?? throw new HyperVException($"{vmName} has no network address yet. Wait for it to finish starting, then try again.");
+            ?? throw new HyperVException(NoAddress(vmName));
         var folder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
                                   "HyperVManage", "Connections");
         Directory.CreateDirectory(folder);
@@ -106,19 +119,32 @@ public static class RemoteDesktop
 
     /// <summary>
     /// Saves &lt;VM name&gt;.rdp on the desktop, for a VM made without one or whose file was lost.
-    /// A desktop file of that name that belongs to something else is never overwritten. Returns
-    /// the file's path.
+    /// A desktop file of that name that belongs to something else is never overwritten, and one
+    /// that already connects to this VM alone is left as it is: the script's own file carries the
+    /// user name its saved sign-in is stored under. A file whose address has gone stale is
+    /// rewritten, keeping its user name line.
     /// </summary>
-    public static async Task<string> SaveDesktopFileAsync(string vmName, IReadOnlyList<string> addresses)
+    public static async Task<SavedConnection> SaveDesktopFileAsync(string vmName, IReadOnlyList<string> addresses)
     {
         var file = DesktopFile(vmName);
-        if (File.Exists(file) && !FileConnectsTo(await File.ReadAllLinesAsync(file).ConfigureAwait(false), vmName, addresses))
+        var existing = File.Exists(file) ? await File.ReadAllLinesAsync(file).ConfigureAwait(false) : null;
+        if (existing is not null && !FileConnectsTo(existing, vmName, addresses))
             throw new HyperVException($"There's already a file called {Path.GetFileName(file)} on the desktop that connects somewhere else, so it was left alone. Rename it and try again.");
-        var target = await ChooseTargetAsync(vmName, addresses, ResolveAsync).ConfigureAwait(false)
-            ?? throw new HyperVException($"{vmName} has no network address yet. Start it, wait for it to finish starting, then try again.");
-        await File.WriteAllTextAsync(file, BuildRdpFile(target), Encoding.Unicode).ConfigureAwait(false);
-        return file;
+        if (addresses.Count == 0) throw new HyperVException(NoAddress(vmName));
+        if (existing is not null && await LeadsOnlyToAsync(AddressIn(existing)!, addresses, ResolveAsync).ConfigureAwait(false))
+            return new SavedConnection(file, AlreadyThere: true);
+
+        var target = await ChooseTargetAsync(vmName, addresses, ResolveAsync).ConfigureAwait(false) ?? addresses[0];
+        var content = BuildRdpFile(target);
+        var userLine = existing?.FirstOrDefault(l => l.StartsWith("username:s:", StringComparison.OrdinalIgnoreCase));
+        if (userLine is not null) content = userLine + "\r\n" + content;
+        await File.WriteAllTextAsync(file, content, Encoding.Unicode).ConfigureAwait(false);
+        return new SavedConnection(file, AlreadyThere: false);
     }
+
+    /// <summary>Why there's nothing to connect to yet, and what to do.</summary>
+    public static string NoAddress(string vmName) =>
+        $"{vmName} hasn't reported a network address. If it has just started or resumed, wait a minute for Windows inside it to finish starting, then try again.";
 
     /// <summary>Whether an address leads to this VM and nothing else: one of its addresses, or a
     /// name that resolves only to them.</summary>
@@ -159,10 +185,10 @@ public static class RemoteDesktop
     /// <summary>The Hyper-V console window (VMConnect). No sound reaches a screen reader through
     /// it, but it shows the VM before Windows is up, which Remote Desktop can't.</summary>
     public static void OpenConsole(string vmId) =>
-        Process.Start(new ProcessStartInfo("vmconnect.exe") { UseShellExecute = false, ArgumentList = { "localhost", "-G", vmId } });
+        Process.Start(new ProcessStartInfo(SystemTools.Console) { UseShellExecute = false, ArgumentList = { "localhost", "-G", vmId } });
 
     private static void Launch(string rdpFile) =>
-        Process.Start(new ProcessStartInfo("mstsc.exe") { UseShellExecute = false, ArgumentList = { rdpFile } });
+        Process.Start(new ProcessStartInfo(SystemTools.RemoteDesktop) { UseShellExecute = false, ArgumentList = { rdpFile } });
 
     private static string SafeFileName(string name)
     {

@@ -96,7 +96,9 @@ Anywhere in the window:
 | Ctrl+D | Clone |
 
 Every action is also on the VM menu (Alt+V) and in the list's context menu. The menu bar is
-reached with Alt or F10, never with Tab. Help, then Keyboard Shortcuts lists these in the app.
+reached with Alt or F10, never with Tab. Help, then Keyboard Shortcuts opens these as a list, one
+shortcut per line and each section's heading a line of its own: arrow through it, and press
+Escape to close it.
 
 In the Hyper-V console window that Open Console opens:
 
@@ -185,6 +187,16 @@ hyperv-manage/
 - **The computer name rule is shared.** The app finds a VM on the network by the Windows
   computer name the script gives it. A test runs the script's own lines for that name in
   PowerShell and checks the app computes the same for each case.
+- **Nothing it runs as administrator can be swapped by another program.** The app runs elevated,
+  so the creation script is written to `%ProgramData%\HyperVManage\Run`, a folder only
+  Administrators and SYSTEM can change (the app resets its permissions each time and refuses a
+  link in its place), rather than to the user's TEMP, where any program could rewrite it in the
+  moment before PowerShell reads it. PowerShell, Remote Desktop and the console are started by
+  their full paths in System32, never by bare name, which would find a copy in the app's own
+  folder first.
+- **Still to do before others use it:** the single-file exe unpacks some of .NET's own libraries
+  to the user's TEMP when it starts, where another program could replace them. Shipping it
+  installed (for example as an MSIX package, as the Microsoft Store does) avoids that.
 - **VMs are addressed by id.** Hyper-V allows two VMs with the same name, and `Get-VM -Name`
   reads `* ? [ ]` as wildcards, so names are never used to find a VM to act on.
 - **The list is updated in place.** Replacing it would move a screen reader back to the top
