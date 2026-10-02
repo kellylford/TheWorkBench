@@ -29,12 +29,32 @@
     processor: an x64 ISO on an Intel or AMD PC, an Arm64 ISO on an Arm PC.
 
 .PARAMETER VMName
-    Name of the virtual machine. It is also used, shortened to 15 characters,
-    as the Windows computer name.
+    Name of the virtual machine. The default is this PC's name followed by
+    -Win11, for example SURFACEPRO7-Win11, so VMs made on different PCs on
+    one network don't share a name. It is also the Windows computer name,
+    shortened if needed to Windows' limit of 15 characters: the ending is
+    kept, and the start is cut short and followed by four characters worked
+    out from the whole name, so SURFACEPRO7-Win11 becomes something like
+    SURFAk3x9-Win11. The script prints the computer name it uses, and stops if
+    another computer on the network already has it.
 
 .PARAMETER Edition
     Which edition in the ISO to install. It must be one that can accept
     Remote Desktop connections, so Home editions are refused.
+
+.PARAMETER SwitchName
+    The Hyper-V virtual switch to connect the VM to. Leave it out and the VM
+    joins this PC's own network through an external switch: an existing one
+    if there is one, otherwise one the script creates on the adapter this PC
+    uses for the internet. Other computers on your network can then reach it.
+
+.PARAMETER HostOnly
+    Use the Default Switch instead, as earlier versions did. The VM can then be
+    reached only from this PC, and nothing about this PC's networking changes.
+
+.PARAMETER NoAutoStart
+    Don't start the VM when this PC starts. By default it starts every time,
+    so turning the PC on is enough to be able to connect.
 
 .PARAMETER Remove
     Deletes the virtual machine named by VMName, its virtual disk, its .rdp
@@ -48,23 +68,32 @@
 
 .EXAMPLE
     .\New-HyperVRdpVM.ps1 -VMName Test2 -Remove
+
+.NOTES
+    Windows blocks running scripts by default. Start this one with
+    Create VM.cmd, or with: powershell -ExecutionPolicy Bypass -File .\New-HyperVRdpVM.ps1
 #>
 [CmdletBinding()]
 param(
     [string]$IsoPath,
-    [string]$VMName = 'Win11-RDP',
+    [string]$VMName = "$env:COMPUTERNAME-Win11",
     [string]$Edition = 'Windows 11 Pro',
     [string]$UserName = 'vmuser',
     [string]$Password = 'vmadmin',
+    [ValidateRange(1, 64)]
     [int]$ProcessorCount = 4,
+    # Dynamic memory never goes below 2 GB, so the starting memory can't either.
+    [ValidateRange(2, 512)]
     [int]$MemoryGB = 4,
     [int]$DiskGB = 128,
-    [string]$SwitchName = 'Default Switch',
+    [string]$SwitchName,
     [string]$VhdFolder,
     [string]$Locale,
     [string]$TimeZone = (Get-TimeZone).Id,
     [int]$TimeoutMinutes = 45,
     [switch]$NoConnect,
+    [switch]$HostOnly,
+    [switch]$NoAutoStart,
     [switch]$Remove
 )
 
@@ -80,13 +109,19 @@ $principal = [Security.Principal.WindowsPrincipal][Security.Principal.WindowsIde
 if (-not $principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {
     Say 'This script needs administrator rights. Windows will ask for permission,'
     Say 'then the script carries on in a new PowerShell window.'
-    $argList = @('-NoProfile', '-NoExit', '-ExecutionPolicy', 'Bypass', '-File', "`"$PSCommandPath`"")
+    # Quote for the Windows command line: a backslash before a quote, or at the
+    # end, has to be doubled, or "D:\VMs\" would swallow the next argument.
+    function ConvertTo-QuotedArgument([string]$Value) {
+        $escaped = $Value -replace '(\\*)"', '$1$1\"' -replace '(\\+)$', '$1$1'
+        "`"$escaped`""
+    }
+    $argList = @('-NoProfile', '-NoExit', '-ExecutionPolicy', 'Bypass', '-File', (ConvertTo-QuotedArgument $PSCommandPath))
     foreach ($p in $PSBoundParameters.GetEnumerator()) {
         if ($p.Value -is [switch]) {
             if ($p.Value) { $argList += "-$($p.Key)" }
         } else {
             $argList += "-$($p.Key)"
-            $argList += "`"$($p.Value)`""
+            $argList += ConvertTo-QuotedArgument "$($p.Value)"
         }
     }
     Start-Process -FilePath powershell.exe -Verb RunAs -ArgumentList $argList
@@ -106,44 +141,219 @@ if (-not (Get-Command New-VM -ErrorAction SilentlyContinue)) {
     return
 }
 
+# The name becomes file names, and Get-VM -Name reads * ? [ ] as wildcards, which
+# would let -Remove match more than one VM.
+if ($VMName -match '[\\/:*?"<>|\[\]]') {
+    throw "The VM name '$VMName' can't contain any of these: \ / : * ? `" < > | [ ]"
+}
+
 # Windows computer names: letters, digits and hyphens, 15 characters at most.
-$ComputerName = ($VMName -replace '[^A-Za-z0-9-]', '')
-if ($ComputerName.Length -gt 15) { $ComputerName = $ComputerName.Substring(0, 15) }
+# A longer name keeps its ending, from the earliest hyphen that leaves room,
+# since the ending tells a PC's VMs apart (-Win11, -Win11-2). The start,
+# usually this PC's name, is cut short and followed by four characters worked
+# out from the whole name, so PCs whose names begin alike (DESKTOP-ABC1234 and
+# DESKTOP-ABC9876) still give their VMs different names:
+# SURFACEPRO7-Win11 becomes SURFA, four characters, then -Win11.
+# Hyper-V Manage's RemoteDesktop.ComputerName does the same, and a test checks
+# that the two agree.
+# -creplace, not -replace: ignoring case lets the Kelvin sign and the long s
+# match A-Z, and they aren't letters Windows allows in a computer name.
+$ComputerName = ($VMName -creplace '[^A-Za-z0-9-]', '').Trim('-')
+# The name earlier versions gave: the first 15 of those characters. A VM made
+# by one is still recognised by -Remove.
+$LegacyComputerName = ($VMName -creplace '[^A-Za-z0-9-]', '')
+if ($LegacyComputerName.Length -gt 15) { $LegacyComputerName = $LegacyComputerName.Substring(0, 15) }
+if ($ComputerName.Length -gt 15) {
+    $sha1 = [Security.Cryptography.SHA1]::Create()
+    $hashBytes = $sha1.ComputeHash([Text.Encoding]::UTF8.GetBytes($ComputerName.ToUpperInvariant()))
+    $n = ((([uint64]$hashBytes[0] * 256 + $hashBytes[1]) * 256 + $hashBytes[2]) * 256 + $hashBytes[3]) % 1679616
+    $tag = ''
+    for ($i = 0; $i -lt 4; $i++) {
+        $tag = [string]'0123456789abcdefghijklmnopqrstuvwxyz'[[int]($n % 36)] + $tag
+        $n = [uint64][math]::Floor($n / 36)
+    }
+    $cut = -1
+    for ($i = 1; $i -lt $ComputerName.Length; $i++) {
+        if ($ComputerName[$i] -eq '-' -and ($ComputerName.Length - $i) -le 10) { $cut = $i; break }
+    }
+    $ComputerName = if ($cut -gt 0) {
+        $ComputerName.Substring(0, 11 - ($ComputerName.Length - $cut)) + $tag + $ComputerName.Substring($cut)
+    } else {
+        $ComputerName.Substring(0, 11) + $tag
+    }
+}
 if (-not $ComputerName) { throw "Can't make a Windows computer name from the VM name '$VMName'. Use letters and digits." }
+if ($ComputerName -match '^[0-9]+$') { throw "Windows can't use a computer name made only of digits ($ComputerName). Put a letter in the VM name." }
 
 $desktop = [Environment]::GetFolderPath('Desktop')
 $rdpFile = Join-Path $desktop "$VMName.rdp"
 
 # --- Remove mode --------------------------------------------------------------
 if ($Remove) {
-    $vm = Get-VM -Name $VMName -ErrorAction SilentlyContinue
-    if (-not $vm) { Say "There is no virtual machine named $VMName."; return }
-    $disks = @(Get-VMHardDiskDrive -VMName $VMName | Select-Object -ExpandProperty Path)
-    if ($vm.State -ne 'Off') { Say "Turning off $VMName."; Stop-VM -Name $VMName -TurnOff -Force }
-    Say "Deleting the virtual machine $VMName."
-    Remove-VM -Name $VMName -Force
-    foreach ($d in $disks) { Say "Deleting the virtual disk $d."; Remove-Item -LiteralPath $d -Force -ErrorAction SilentlyContinue }
-    if (Test-Path -LiteralPath $rdpFile) {
-        foreach ($line in Get-Content -LiteralPath $rdpFile) {
-            if ($line -like 'full address:s:*') { cmdkey /delete:"TERMSRV/$($line.Substring(15))" | Out-Null }
+    $vm = @(Get-VM | Where-Object Name -eq $VMName)
+    if ($vm.Count -gt 1) { throw "There are $($vm.Count) virtual machines named $VMName. Delete the one you mean in Hyper-V Manager." }
+    $disks = @()
+    $ips = @()
+    $vmId = $null
+    if ($vm.Count -eq 1) {
+        $vm = $vm[0]
+        $vmId = $vm.Id
+        $ips = @(Get-VMNetworkAdapter -VM $vm | ForEach-Object { $_.IPAddresses })
+        if ($vm.State -ne 'Off') { Say "Turning off $VMName."; Stop-VM -VM $vm -TurnOff -Force }
+        Get-VMSnapshot -VM $vm -ErrorAction SilentlyContinue | Remove-VMSnapshot -IncludeAllChildSnapshots -ErrorAction SilentlyContinue
+        $mergeDeadline = (Get-Date).AddMinutes(5)
+        while ((Get-VM -Id $vm.Id).Status -match 'Merging' -and (Get-Date) -lt $mergeDeadline) { Start-Sleep -Seconds 2 }
+        $disks = @(Get-VMHardDiskDrive -VM $vm | Select-Object -ExpandProperty Path)
+    } else {
+        $vm = $null
+        Say "There is no virtual machine named $VMName. Looking for anything a failed run left behind."
+    }
+
+    # A run that failed after the disk was built but before the VM existed
+    # leaves the disk behind, and the next run refuses to overwrite it.
+    $folder = if ($VhdFolder) { $VhdFolder } else { (Get-VMHost).VirtualHardDiskPath }
+    $leftover = Join-Path $folder "$VMName.vhdx"
+    if ((Test-Path -LiteralPath $leftover) -and -not ($disks | Where-Object { $_ -and $_.ToLowerInvariant() -eq $leftover.ToLowerInvariant() })) {
+        $disks += $leftover
+    }
+
+    # A disk another VM relies on stays: one it has attached, or the parent of one of its
+    # differencing disks. Deleting either would leave that VM unable to start.
+    $inUse = @{}
+    foreach ($other in @(Get-VM | Where-Object { $_.Id -ne $vmId })) {
+        foreach ($path in @(Get-VMHardDiskDrive -VM $other | Select-Object -ExpandProperty Path)) {
+            $current = $path
+            while ($current) {
+                $inUse[$current.ToLowerInvariant()] = $other.Name
+                $current = (Get-VHD -Path $current -ErrorAction SilentlyContinue).ParentPath
+            }
         }
-        Say "Deleting $rdpFile."
-        Remove-Item -LiteralPath $rdpFile -Force
+    }
+
+    if ($vm) {
+        Say "Deleting the virtual machine $VMName."
+        Remove-VM -VM $vm -Force
+    }
+    foreach ($d in $disks) {
+        if (-not $d) { continue }
+        if ($inUse.ContainsKey($d.ToLowerInvariant())) { Say "Keeping $d, which $($inUse[$d.ToLowerInvariant()]) uses."; continue }
+        Say "Deleting the virtual disk $d."
+        try { Remove-Item -LiteralPath $d -Force -ErrorAction Stop }
+        catch { Say "Couldn't delete $d. $($_.Exception.Message)" }
+    }
+    # Only the connection file this script made: one that connects to this VM.
+    if (Test-Path -LiteralPath $rdpFile) {
+        $address = Get-Content -LiteralPath $rdpFile | Where-Object { $_ -like 'full address:s:*' } |
+            Select-Object -First 1 | ForEach-Object { $_.Substring(15) }
+        $names = @($ComputerName, $LegacyComputerName) | Select-Object -Unique
+        $ours = @($names | ForEach-Object { "$_.local"; $_; "$_.mshome.net" }) + $ips
+        # This script writes "username:s:<computer>\<user>", which marks the file as this VM's
+        # even when the VM is off or gone and has no address to compare.
+        $madeForIt = [bool](Get-Content -LiteralPath $rdpFile | Where-Object { $line = $_; $names | Where-Object { $line -like "username:s:$_\*" } })
+        if ($address -and (($ours -contains $address) -or $madeForIt)) {
+            cmdkey /delete:"TERMSRV/$address" | Out-Null
+            Say "Deleting $rdpFile and its saved sign-in."
+            try { Remove-Item -LiteralPath $rdpFile -Force -ErrorAction Stop }
+            catch { Say "Couldn't delete $rdpFile. $($_.Exception.Message)" }
+        } else {
+            Say "Keeping $rdpFile, which connects to $address rather than this VM."
+        }
     }
     Say 'Done.'
     return
 }
 
 # --- Check everything before touching anything --------------------------------
+# Two computers with one name confuse Remote Desktop (it can connect to the
+# wrong one, and with the same sign-in nothing warns you) and Windows
+# networking. Only <name>.local is asked: just computers on this network answer
+# it, where some internet providers answer a bare name with an address of
+# their own. A name nothing answers to takes a few seconds to time out.
+$answering = @()
+try {
+    $answering = @([Net.Dns]::GetHostAddresses("$ComputerName.local") |
+        Where-Object AddressFamily -eq 'InterNetwork' | ForEach-Object IPAddressToString)
+} catch { }
+if ($answering.Count -gt 0) {
+    throw "Another computer on your network is already called $ComputerName (at $($answering -join ', ')). Pick another name with -VMName."
+}
+# Windows would only refuse these inside the VM, after the disk is built, where
+# the failure looks like setup never finishing.
+if ($UserName.Length -lt 1 -or $UserName.Length -gt 20 -or $UserName -match '["/\\\[\]:;|=,+*?<>@]' -or $UserName.Trim('. ') -eq '') {
+    throw "Windows can't use '$UserName' as a user name. Use 1 to 20 letters, digits, spaces, dots, hyphens or underscores."
+}
+# Remote Desktop won't sign in to an account with no password, and a double
+# quote can't be passed safely to cmdkey, which saves the sign-in.
+if (-not $Password -or $Password.Contains('"')) {
+    throw 'The password must not be empty, and must not contain a double quote (").'
+}
+if ($Locale) {
+    try { $null = [Globalization.CultureInfo]::GetCultureInfo($Locale) }
+    catch { throw "'$Locale' isn't a language Windows knows. Use a tag such as en-US or en-GB." }
+}
 if ($Edition -match 'Home') {
     throw "$Edition can't accept Remote Desktop connections. Use a Pro, Enterprise or Education edition."
 }
 if (Get-VM -Name $VMName -ErrorAction SilentlyContinue) {
     throw "A virtual machine named $VMName already exists. Pick another name with -VMName, or delete it with -Remove."
 }
-if (-not (Get-VMSwitch -Name $SwitchName -ErrorAction SilentlyContinue)) {
-    $names = (Get-VMSwitch | Select-Object -ExpandProperty Name) -join ', '
-    throw "There is no Hyper-V virtual switch named '$SwitchName'. Switches on this PC: $names. Pass one with -SwitchName."
+
+# --- Network -------------------------------------------------------------------
+# By default the VM joins this PC's own network through an external switch, so
+# other computers can reach it with Remote Desktop. The Default Switch hides the
+# VM behind this PC, where only this PC can reach it; -HostOnly asks for that.
+
+# The adapter this PC reaches the internet through: the default route Windows
+# itself prefers, judged as Windows does by route metric plus interface metric
+# (DHCP routes nearly all have route metric 0, so that alone can't tell Wi-Fi
+# from Ethernet), on a physical adapter that is up.
+function Get-InternetAdapter {
+    $routes = Get-NetRoute -DestinationPrefix '0.0.0.0/0' -ErrorAction SilentlyContinue | ForEach-Object {
+        $interface = Get-NetIPInterface -InterfaceIndex $_.ifIndex -AddressFamily IPv4 -ErrorAction SilentlyContinue
+        [pscustomobject]@{ Index = $_.ifIndex; Metric = [int]$_.RouteMetric + [int]$interface.InterfaceMetric }
+    } | Sort-Object Metric
+    foreach ($route in $routes) {
+        $adapter = Get-NetAdapter -InterfaceIndex $route.Index -ErrorAction SilentlyContinue
+        if ($adapter -and $adapter.Status -eq 'Up' -and -not $adapter.Virtual) { return $adapter }
+    }
+    return $null
+}
+
+$createSwitchOn = $null
+if ($SwitchName) {
+    if (-not (Get-VMSwitch -Name $SwitchName -ErrorAction SilentlyContinue)) {
+        $names = (Get-VMSwitch | Select-Object -ExpandProperty Name) -join ', '
+        throw "There is no Hyper-V virtual switch named '$SwitchName'. Switches on this PC: $names. Pass one with -SwitchName."
+    }
+} elseif ($HostOnly) {
+    $SwitchName = 'Default Switch'
+    if (-not (Get-VMSwitch -Name $SwitchName -ErrorAction SilentlyContinue)) {
+        throw "There is no Default Switch on this PC. Pass a switch with -SwitchName."
+    }
+} else {
+    # Only a switch whose adapter is connected: one left on an unplugged dock's
+    # Ethernet would leave the VM waiting for an address that never comes.
+    $external = Get-VMSwitch -SwitchType External -ErrorAction SilentlyContinue | Where-Object {
+        # Several adapters can share one description (a Wi-Fi card that has been
+        # reinstalled leaves 'Not Present' copies), so ask whether any of them is up.
+        @(Get-NetAdapter -InterfaceDescription $_.NetAdapterInterfaceDescription -ErrorAction SilentlyContinue |
+            Where-Object Status -eq 'Up').Count -gt 0
+    } | Select-Object -First 1
+    if ($external) {
+        $SwitchName = $external.Name
+    } else {
+        $createSwitchOn = Get-InternetAdapter
+        if (-not $createSwitchOn) {
+            throw "Can't find the network adapter this PC uses for the internet, so the VM can't join your network. Connect to a network and run the script again, or run it with -HostOnly to make a VM only this PC can reach."
+        }
+        $SwitchName = 'External Network'
+        $taken = Get-VMSwitch -Name $SwitchName -ErrorAction SilentlyContinue
+        if ($taken -and $taken.SwitchType -eq 'External') {
+            throw "The switch '$SwitchName' is on a network adapter that isn't connected ($($taken.NetAdapterInterfaceDescription)). Connect it, for example by docking the PC, or pass another switch with -SwitchName, or use -HostOnly."
+        } elseif ($taken) {
+            throw "A Hyper-V switch named '$SwitchName' already exists but isn't an external switch. Rename it, or pass a switch with -SwitchName."
+        }
+    }
 }
 
 # Win32_Processor.Architecture uses the same numbers as a Windows image: 9 is x64, 12 is Arm64.
@@ -151,17 +361,24 @@ $archNames = @{ 0 = 'x86'; 9 = 'x64'; 12 = 'Arm64' }
 $hostArch = [int](Get-CimInstance Win32_Processor | Select-Object -First 1).Architecture
 
 if (-not $IsoPath) {
+    # An ISO kept next to the script wins, so a folder carried to another PC
+    # (on OneDrive or a USB stick) brings its ISO with it. Downloads is next.
     $downloads = Join-Path $env:USERPROFILE 'Downloads'
+    $isoFolders = @($PSScriptRoot, $downloads) | Where-Object { $_ } | Select-Object -Unique
     $downloadPage = if ($hostArch -eq 12) { 'https://www.microsoft.com/software-download/windows11arm64' } else { 'https://www.microsoft.com/software-download/windows11' }
     # Microsoft names its ISOs with the processor type, for example
     # Win11_25H2_English_x64.iso and Win11_25H2_English_Arm64.iso. Skip any whose
     # name says it's for the other kind of PC, so one Downloads folder can hold both.
     $otherArch = if ($hostArch -eq 12) { 'x64|amd64' } else { 'arm64|aarch64' }
-    $iso = Get-ChildItem -LiteralPath $downloads -Filter '*.iso' -ErrorAction SilentlyContinue |
-        Where-Object { $_.Name -match 'win' -and $_.Name -notmatch $otherArch } |
-        Sort-Object LastWriteTime -Descending | Select-Object -First 1
+    $iso = $null
+    foreach ($folder in $isoFolders) {
+        $iso = Get-ChildItem -LiteralPath $folder -Filter '*.iso' -ErrorAction SilentlyContinue |
+            Where-Object { $_.Name -match 'win' -and $_.Name -notmatch $otherArch } |
+            Sort-Object LastWriteTime -Descending | Select-Object -First 1
+        if ($iso) { break }
+    }
     if (-not $iso) {
-        throw "No $($archNames[$hostArch]) Windows ISO found in $downloads. Download one from $downloadPage and run the script again, or pass its location with -IsoPath."
+        throw "No $($archNames[$hostArch]) Windows ISO found in $($isoFolders -join ' or '). Download one from $downloadPage and run the script again, or pass its location with -IsoPath."
     }
     $IsoPath = $iso.FullName
 }
@@ -176,18 +393,36 @@ if (Test-Path -LiteralPath $vhdPath) {
 }
 
 Say "Creating the virtual machine $VMName."
+if ($ComputerName -ne $VMName) { Say "Its Windows computer name is $ComputerName, which Windows limits to 15 characters." }
 Say "Windows image: $IsoPath"
 Say 'This usually takes 15 to 30 minutes. You do not need to do anything until it finishes.'
+
+if ($createSwitchOn) {
+    Say "Network: a new Hyper-V switch named $SwitchName on $($createSwitchOn.Name), so other computers can reach the VM. It is made once the virtual disk is ready."
+} elseif ($SwitchName -eq 'Default Switch') {
+    Say 'Network: the Default Switch. Only this PC can reach the VM.'
+} else {
+    Say "Network: the $SwitchName switch."
+}
 
 # --- Build the virtual disk ---------------------------------------------------
 $isoMounted = $false
 $vhdMounted = $false
 $vhdDone = $false
+$bcdWork = $null
 try {
     Step 'Step 1 of 5: Reading the ISO.'
-    $isoImage = Mount-DiskImage -ImagePath $IsoPath -PassThru
-    $isoMounted = $true
+    # If the ISO is already open in File Explorer, use that copy and leave it
+    # mounted afterwards; only dismount what this script mounted.
+    $isoImage = Get-DiskImage -ImagePath $IsoPath
+    if (-not $isoImage.Attached) {
+        $isoImage = Mount-DiskImage -ImagePath $IsoPath -PassThru
+        $isoMounted = $true
+    }
     $isoLetter = ($isoImage | Get-Volume).DriveLetter
+    if (-not $isoLetter) {
+        throw "$IsoPath is mounted but has no drive letter. Eject it in File Explorer and run the script again."
+    }
     $wim = @("${isoLetter}:\sources\install.wim", "${isoLetter}:\sources\install.esd") |
         Where-Object { Test-Path -LiteralPath $_ } | Select-Object -First 1
     if (-not $wim) { throw "$IsoPath doesn't look like a Windows install ISO. There is no sources\install.wim or install.esd on it." }
@@ -236,14 +471,33 @@ try {
     Say 'Windows is copied.'
 
     Step 'Step 3 of 5: Making the disk bootable and adding the answer file.'
+    $efiBoot = "${sysLetter}:\EFI\Microsoft\Boot"
+    function Invoke-Bcdedit([string]$Arguments) {
+        $out = cmd /c "bcdedit $Arguments 2>&1" | Out-String
+        if ($LASTEXITCODE -ne 0) { throw "bcdedit $Arguments failed: $($out.Trim()) (bcdboot said: $($bootOutput.Trim()))" }
+        return $out
+    }
+    # "partition=X:" (or a reference through the VHDX file) records this PC's
+    # view of the disk, which the VM can't find: it stops at Windows Boot
+    # Manager with 0xc000000e. "boot" and "locate" are resolved at boot time.
+    $portableDevices = @('device locate', 'osdevice locate')
+
     # bcdboot loads the new boot store under the same registry key as this PC's
-    # own, and on some builds (seen on 26300 Insider) that collides and it fails
-    # with 0xc0000035. If it does, build the same boot files and store by hand:
-    # bcdedit /createstore loads the store under a key of its own.
+    # own, and on some builds (seen on 26340 Insider) that collides and it fails
+    # with 0xc0000035. Only then, build the same boot files and store by hand:
+    # bcdedit /createstore loads the store under a key of its own. Any other
+    # bcdboot failure is a real problem, so it stops the script.
     $bootOutput = cmd /c "`"${winLetter}:\Windows\System32\bcdboot.exe`" ${winLetter}:\Windows /s ${sysLetter}: /f UEFI 2>&1" | Out-String
-    if ($LASTEXITCODE -ne 0) {
-        Say "bcdboot couldn't do it (exit code $LASTEXITCODE), so the boot files are being set up directly instead."
-        $efiBoot = "${sysLetter}:\EFI\Microsoft\Boot"
+    $bootExit = $LASTEXITCODE
+    if ($bootExit -eq 0) {
+        Invoke-Bcdedit "/store `"$efiBoot\BCD`" /set {bootmgr} device boot" | Out-Null
+        foreach ($setting in $portableDevices) {
+            Invoke-Bcdedit "/store `"$efiBoot\BCD`" /set {default} $setting" | Out-Null
+        }
+    } elseif ($bootOutput -notmatch 'c0000035') {
+        throw "bcdboot couldn't make the disk bootable (exit code $bootExit): $($bootOutput.Trim())"
+    } else {
+        Say "bcdboot couldn't do it (exit code $bootExit), so the boot files are being set up directly instead."
         # Start clean: the failed bcdboot can leave a partial BCD store behind.
         Remove-Item -LiteralPath "${sysLetter}:\EFI" -Recurse -Force -ErrorAction SilentlyContinue
         New-Item -ItemType Directory -Path $efiBoot, "${sysLetter}:\EFI\Boot" -Force | Out-Null
@@ -258,11 +512,6 @@ try {
         $bcdWork = Join-Path $env:TEMP "NewVmBcd-$([guid]::NewGuid().ToString('N'))"
         New-Item -ItemType Directory -Path $bcdWork | Out-Null
         $store = "$bcdWork\BCD"
-        function Invoke-Bcdedit([string]$Arguments) {
-            $out = cmd /c "bcdedit $Arguments 2>&1" | Out-String
-            if ($LASTEXITCODE -ne 0) { throw "bcdedit $Arguments failed: $($out.Trim()) (bcdboot said: $($bootOutput.Trim()))" }
-            return $out
-        }
         Invoke-Bcdedit "/createstore `"$store`"" | Out-Null
 
         # bcdedit /createstore makes an ordinary store. The specialize pass
@@ -293,14 +542,23 @@ public static class NewVmAppHive {
     static extern bool AdjustTokenPrivileges(IntPtr token, bool disableAll, ref TokenPrivilege state, int length, IntPtr previous, IntPtr returnLength);
     [DllImport("kernel32.dll")]
     static extern IntPtr GetCurrentProcess();
+    [DllImport("kernel32.dll")]
+    static extern bool CloseHandle(IntPtr handle);
     [StructLayout(LayoutKind.Sequential, Pack = 4)]
     struct TokenPrivilege { public int Count; public long Luid; public int Attributes; }
     static void Enable(string name) {
         IntPtr token;
         if (!OpenProcessToken(GetCurrentProcess(), 0x28, out token)) throw new System.ComponentModel.Win32Exception();
-        TokenPrivilege tp = new TokenPrivilege { Count = 1, Attributes = 2 };
-        if (!LookupPrivilegeValue(null, name, out tp.Luid)) throw new System.ComponentModel.Win32Exception();
-        if (!AdjustTokenPrivileges(token, false, ref tp, 0, IntPtr.Zero, IntPtr.Zero)) throw new System.ComponentModel.Win32Exception();
+        try {
+            TokenPrivilege tp = new TokenPrivilege { Count = 1, Attributes = 2 };
+            if (!LookupPrivilegeValue(null, name, out tp.Luid)) throw new System.ComponentModel.Win32Exception();
+            if (!AdjustTokenPrivileges(token, false, ref tp, 0, IntPtr.Zero, IntPtr.Zero)) throw new System.ComponentModel.Win32Exception();
+            // AdjustTokenPrivileges also succeeds when the account doesn't hold
+            // the privilege at all; that only shows up as ERROR_NOT_ALL_ASSIGNED.
+            if (Marshal.GetLastWin32Error() == 1300) {
+                throw new InvalidOperationException("This account doesn't have " + name + ", which is needed to write the boot store. Run the script from a full administrator account.");
+            }
+        } finally { CloseHandle(token); }
     }
     public static RegistryKey Open(string file) {
         IntPtr h;
@@ -325,7 +583,10 @@ public static class NewVmAppHive {
         }
         $hiveFile = "$bcdWork\store.hiv"
         [IO.File]::WriteAllBytes($hiveFile, [IO.File]::ReadAllBytes($store))
+        # Every key is closed in a finally: the hive stays loaded, and the file
+        # locked, until the last handle to it is gone.
         $root = [NewVmAppHive]::Open($hiveFile)
+        $desc = $null
         try {
             $desc = [NewVmAppHive]::OpenForWrite($root, 'Description')
             $desc.SetValue('KeyName', 'BCD00000000', [Microsoft.Win32.RegistryValueKind]::String)
@@ -333,8 +594,10 @@ public static class NewVmAppHive {
             $desc.SetValue('TreatAsSystem', 1, [Microsoft.Win32.RegistryValueKind]::DWord)
             [NewVmAppHive]::Flush($desc)
             [NewVmAppHive]::Flush($root)
-            $desc.Close()
-        } finally { $root.Close() }
+        } finally {
+            if ($desc) { $desc.Close() }
+            $root.Close()
+        }
         [GC]::Collect(); [GC]::WaitForPendingFinalizers()
         $flagged = [IO.File]::ReadAllBytes($hiveFile)
 
@@ -342,35 +605,30 @@ public static class NewVmAppHive {
         $verifyFile = "$bcdWork\verify.hiv"
         [IO.File]::WriteAllBytes($verifyFile, $flagged)
         $root = [NewVmAppHive]::Open($verifyFile)
+        $desc = $null
         try {
             $desc = $root.OpenSubKey('Description')
             if (-not $desc -or [int]$desc.GetValue('System', 0) -ne 1 -or [int]$desc.GetValue('TreatAsSystem', 0) -ne 1) {
                 throw "The new boot store didn't keep its system-store flags."
             }
-            $desc.Close()
-        } finally { $root.Close() }
+        } finally {
+            if ($desc) { $desc.Close() }
+            $root.Close()
+        }
         [GC]::Collect(); [GC]::WaitForPendingFinalizers()
 
-        # Put the flagged store on the boot partition, dropping bcdedit's
-        # transaction log so it can't be replayed over the flags, then add the
-        # entries there.
-        Remove-Item -Path "$store.LOG*" -Force -ErrorAction SilentlyContinue
+        # Put the flagged store on the boot partition and add the entries there.
         $store = "$efiBoot\BCD"
         [IO.File]::WriteAllBytes($store, $flagged)
-        Remove-Item -LiteralPath $bcdWork -Recurse -Force -ErrorAction SilentlyContinue
 
         Invoke-Bcdedit "/store `"$store`" /create {bootmgr} /d `"Windows Boot Manager`"" | Out-Null
-        # "partition=X:" would record this PC's view of the disk, which the VM
-        # can't find (0xc000000e). "boot" and "locate" are resolved at boot time.
         Invoke-Bcdedit "/store `"$store`" /set {bootmgr} device boot" | Out-Null
         Invoke-Bcdedit "/store `"$store`" /set {bootmgr} locale $imageLanguage" | Out-Null
         Invoke-Bcdedit "/store `"$store`" /set {bootmgr} timeout 0" | Out-Null
         $created = Invoke-Bcdedit "/store `"$store`" /create /d `"Windows`" /application osloader"
         $loader = [regex]::Match($created, '\{[0-9a-fA-F-]{36}\}').Value
         if (-not $loader) { throw "bcdedit didn't report the new boot entry: $created" }
-        foreach ($setting in @(
-            'device locate'
-            'osdevice locate'
+        foreach ($setting in $portableDevices + @(
             'path \Windows\system32\winload.efi'
             'systemroot \Windows'
             "locale $imageLanguage"
@@ -385,6 +643,8 @@ public static class NewVmAppHive {
     $xUser = [Security.SecurityElement]::Escape($UserName)
     $xPass = [Security.SecurityElement]::Escape($Password)
     $xTz   = [Security.SecurityElement]::Escape($TimeZone)
+    $xLocale = [Security.SecurityElement]::Escape($Locale)
+    $xLanguage = [Security.SecurityElement]::Escape($imageLanguage)
     $component = "processorArchitecture=`"$unattendArch`" publicKeyToken=`"31bf3856ad364e35`" language=`"neutral`" versionScope=`"nonSxS`""
 
     # Windows Setup is skipped entirely, so only the specialize and oobeSystem
@@ -432,10 +692,10 @@ public static class NewVmAppHive {
   </settings>
   <settings pass="oobeSystem">
     <component name="Microsoft-Windows-International-Core" $component>
-      <InputLocale>$Locale</InputLocale>
-      <SystemLocale>$Locale</SystemLocale>
-      <UILanguage>$imageLanguage</UILanguage>
-      <UserLocale>$Locale</UserLocale>
+      <InputLocale>$xLocale</InputLocale>
+      <SystemLocale>$xLocale</SystemLocale>
+      <UILanguage>$xLanguage</UILanguage>
+      <UserLocale>$xLocale</UserLocale>
     </component>
     <component name="Microsoft-Windows-Shell-Setup" $component>
       <OOBE>
@@ -475,10 +735,40 @@ public static class NewVmAppHive {
     $vhdDone = $true
 }
 finally {
+    if ($bcdWork) {
+        [GC]::Collect(); [GC]::WaitForPendingFinalizers()
+        Remove-Item -LiteralPath $bcdWork -Recurse -Force -ErrorAction SilentlyContinue
+    }
     if ($vhdMounted) { Dismount-VHD -Path $vhdPath -ErrorAction SilentlyContinue }
     if ($isoMounted) { Dismount-DiskImage -ImagePath $IsoPath -ErrorAction SilentlyContinue | Out-Null }
     if (-not $vhdDone -and (Test-Path -LiteralPath $vhdPath)) {
         Remove-Item -LiteralPath $vhdPath -Force -ErrorAction SilentlyContinue
+    }
+}
+
+# --- Network switch -----------------------------------------------------------
+# Made only now, after every check and the disk build have passed, so a wrong ISO
+# or a full disk never changes this PC's networking.
+if ($createSwitchOn) {
+    Step "Setting up network access: creating the Hyper-V switch $SwitchName on $($createSwitchOn.Name)."
+    Say "This PC's network connection drops for a few seconds while Windows sets it up."
+    try {
+        New-VMSwitch -Name $SwitchName -NetAdapterName $createSwitchOn.Name -AllowManagementOS $true -ErrorAction Stop | Out-Null
+    } catch {
+        # Leave nothing that would block a second run: the disk goes too.
+        Remove-Item -LiteralPath $vhdPath -Force -ErrorAction SilentlyContinue
+        throw "Couldn't create the switch $SwitchName on $($createSwitchOn.Name): $($_.Exception.Message) If this PC has lost its network connection, remove what was made with: Remove-VMSwitch -Name '$SwitchName' -Force. Then run the script again, or add -HostOnly to keep the VM on this PC only."
+    }
+    # Wait for this PC's own connection to come back, now through the switch.
+    $netDeadline = (Get-Date).AddSeconds(90)
+    while (-not (Get-NetRoute -DestinationPrefix '0.0.0.0/0' -InterfaceAlias "vEthernet ($SwitchName)" -ErrorAction SilentlyContinue) -and (Get-Date) -lt $netDeadline) {
+        Start-Sleep -Seconds 3
+    }
+    if (Get-NetRoute -DestinationPrefix '0.0.0.0/0' -InterfaceAlias "vEthernet ($SwitchName)" -ErrorAction SilentlyContinue) {
+        Say 'The switch is ready and this PC is back on the network.'
+    } else {
+        Say "This PC hasn't got its network connection back through the switch yet. The VM is being set up anyway."
+        Say "If the connection doesn't return, remove the switch with: Remove-VMSwitch -Name '$SwitchName' -Force"
     }
 }
 
@@ -488,6 +778,11 @@ New-VM -Name $VMName -Generation 2 -MemoryStartupBytes ([int64]$MemoryGB * 1GB) 
 Set-VMProcessor -VMName $VMName -Count $ProcessorCount
 Set-VMMemory -VMName $VMName -DynamicMemoryEnabled $true -MinimumBytes 2GB -StartupBytes ([int64]$MemoryGB * 1GB) -MaximumBytes ([int64][Math]::Max($MemoryGB * 2, 8) * 1GB)
 Set-VM -Name $VMName -AutomaticCheckpointsEnabled $false
+if (-not $NoAutoStart) {
+    # Start with this PC every time, not only when it was running at shutdown,
+    # so turning the PC on is all it takes to be able to connect.
+    Set-VM -Name $VMName -AutomaticStartAction Start -AutomaticStartDelay 0
+}
 Set-VMFirmware -VMName $VMName -FirstBootDevice (Get-VMHardDiskDrive -VMName $VMName)
 try {
     # A virtual TPM keeps Windows 11 happy for future feature updates.
@@ -529,7 +824,18 @@ $started = Get-Date
 $deadline = $started.AddMinutes($TimeoutMinutes)
 $nextNote = $started.AddMinutes(3)
 $guest = $null
+$readyWithoutAddress = $null
 while (-not ($guest -and $guest.Ready -and $guest.IPAddress)) {
+    # Set up but never given an address is a network problem, not a slow setup:
+    # say so, rather than waiting out the whole timeout.
+    if ($guest -and $guest.Ready -and -not $guest.IPAddress) {
+        if (-not $readyWithoutAddress) {
+            $readyWithoutAddress = Get-Date
+            Say 'Windows is set up, but the virtual machine has no network address yet. Waiting for one.'
+        } elseif ((Get-Date) -gt $readyWithoutAddress.AddMinutes(5)) {
+            throw "Windows is set up, but the virtual machine hasn't been given a network address in 5 minutes on the $SwitchName switch. Some routers refuse a second address over Wi-Fi. Plug this PC into Ethernet, or start again with -HostOnly. Delete this VM first with: .\New-HyperVRdpVM.ps1 -VMName $VMName -Remove"
+        }
+    }
     if ((Get-Date) -gt $deadline) {
         throw "Windows didn't finish setting up within $TimeoutMinutes minutes. The VM is left running so you can look at it in Hyper-V Manager. Delete it with: .\New-HyperVRdpVM.ps1 -VMName $VMName -Remove"
     }
@@ -549,13 +855,27 @@ while (-not ($guest -and $guest.Ready -and $guest.IPAddress)) {
 }
 Say "Windows is set up. The virtual machine's address is $($guest.IPAddress)."
 
-# The Default Switch hands out a new address when the host restarts, but it
-# also publishes <computer>.mshome.net, which keeps pointing at the VM.
+# Connect by name where one points at the VM, since its address can change: the
+# Default Switch hands out a new one when this PC restarts, and a router can too.
+# The Default Switch publishes <computer>.mshome.net, visible only to this PC.
+# On your own network the VM answers to <computer>.local, which other Windows
+# PCs and Macs can look up too; it can take a little while to start answering.
+$names = if ($SwitchName -eq 'Default Switch') { @("$ComputerName.mshome.net") } else { @("$ComputerName.local", $ComputerName) }
 $target = $guest.IPAddress
-try {
-    $named = [Net.Dns]::GetHostAddresses("$ComputerName.mshome.net") | ForEach-Object IPAddressToString
-    if ($named -contains $guest.IPAddress) { $target = "$ComputerName.mshome.net" }
-} catch { }
+$nameDeadline = (Get-Date).AddSeconds(60)
+do {
+    foreach ($name in $names) {
+        try {
+            # Only a name that means this VM alone. Another computer with the same
+            # name on the network answers too, and Remote Desktop could pick it.
+            $resolved = @([Net.Dns]::GetHostAddresses($name) |
+                Where-Object AddressFamily -eq 'InterNetwork' | ForEach-Object IPAddressToString)
+            if ($resolved.Count -gt 0 -and -not ($resolved | Where-Object { $_ -ne $guest.IPAddress })) { $target = $name; break }
+        } catch { }
+    }
+    if ($target -ne $guest.IPAddress) { break }
+    Start-Sleep -Seconds 5
+} while ((Get-Date) -lt $nameDeadline)
 
 function Test-RdpPort([string]$HostName) {
     $client = New-Object Net.Sockets.TcpClient
@@ -594,10 +914,17 @@ Write-Host ''
 Say 'All done.'
 Say "Virtual machine: $VMName"
 Say "Connect to: $target"
+if ((Get-VMSwitch -Name $SwitchName).SwitchType -eq 'External') {
+    Say 'Other computers on your network can connect to that address too.'
+}
+if (-not $NoAutoStart) {
+    Say 'The virtual machine starts whenever this PC starts.'
+}
 Say "User name: $UserName"
 Say "Password: $Password"
 Say "Connection file: $rdpFile"
-Say 'The sign-in is saved, so opening the connection file logs you straight in.'
+Say 'The sign-in is saved, so opening the connection file signs you in without typing the password.'
+Say 'Remote Desktop still asks each time whether to allow sound, the microphone and the clipboard. Choose Connect.'
 
 if (-not $NoConnect) {
     Say 'Opening Remote Desktop now.'

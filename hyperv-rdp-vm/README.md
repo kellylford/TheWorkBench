@@ -1,15 +1,25 @@
 # Hyper-V Windows VM, ready for Remote Desktop
 
-> **Status: works on Arm64; not yet run on x64.** On 1 October 2026 it built a
-> VM end to end on a Snapdragon X Elite host running Windows 11 Pro Insider
-> (build 26340) from the Arm64 26300 ISO. Remote Desktop signed in on its own
-> and sound played on the host. That host needed the manual boot-store
-> fallback described below. An x64 host hasn't been tried yet. See
-> [Picking this up on a Pro machine](#picking-this-up-on-a-pro-machine) for
-> the test plan.
+> **Status: works on Arm64 and x64.**
+> - **1 October 2026, Arm64:** the script built a VM end to end on a
+>   Snapdragon X Elite host running Windows 11 Pro Insider (build 26340) from
+>   the Arm64 26300 ISO. Remote Desktop signed in on its own and sound played
+>   on the host. That host needed the manual boot-store fallback described
+>   below.
+> - **2 October 2026, both kinds of PC:** Hyper-V Manage, which runs this
+>   script, built VMs end to end on that Arm64 host and on an x64 host. Both
+>   joined the home network through an external switch.
+> - **Not yet run end to end:** the default name that starts with this PC's
+>   name, and the check for a name already in use on the network. Both were
+>   added after two VMs named `Win11-RDP` on one network let Remote Desktop
+>   connect to the wrong one.
 
 One script that builds a Windows virtual machine in Hyper-V with a fully
-unattended install and leaves it ready to sign in to with Remote Desktop.
+unattended install and leaves it ready to sign in to with Remote Desktop, from
+this PC or from any other computer on your network.
+
+To do the same from a window instead of the command line, and to manage the VM
+afterwards, use [Hyper-V Manage](../hyperv-manage/), which runs this script.
 
 Remote Desktop is the way to get proper audio out of a Hyper-V VM for JAWS,
 NVDA or Narrator, so the script finishes by opening a Remote Desktop connection
@@ -27,7 +37,9 @@ bars.
   PCs, Arm64 on Arm PCs. They're on
   [the x64 download page](https://www.microsoft.com/software-download/windows11)
   and [the Arm64 download page](https://www.microsoft.com/software-download/windows11arm64).
-  Put it in your Downloads folder and the script finds it on its own. The same
+  Put it in the same folder as the script, or in your Downloads folder, and
+  the script finds it on its own. The script's folder is checked first, so a
+  folder copied to another PC brings its ISO with it. The same
   script works on both kinds of PC: it reads the processor type and sets up the
   VM to match. If Downloads holds both kinds of ISO, it skips the one whose
   file name says it's for the other processor.
@@ -36,11 +48,20 @@ bars.
 
 ## Running it
 
-Open `Create VM.cmd` in File Explorer, or run this in PowerShell:
+Open `Create VM.cmd` in File Explorer, or run this in PowerShell in the
+script's folder:
 
 ```powershell
-.\New-HyperVRdpVM.ps1
+powershell -ExecutionPolicy Bypass -File .\New-HyperVRdpVM.ps1
 ```
+
+Running `.\New-HyperVRdpVM.ps1` on its own fails on most PCs with an error
+about execution policy, because Windows blocks scripts by default.
+`-ExecutionPolicy Bypass` lifts that for this one run and changes nothing
+else. `Create VM.cmd` does the same.
+
+The other examples below start with `.\New-HyperVRdpVM.ps1` for short. Put
+`powershell -ExecutionPolicy Bypass -File` in front of them in the same way.
 
 Windows asks for administrator permission, then the script runs in a new
 window. It takes 15 to 30 minutes and needs nothing from you. When it finishes
@@ -50,50 +71,134 @@ it opens Remote Desktop and signs you in.
 
 | Item            | Value                                        |
 |-----------------|----------------------------------------------|
-| VM name         | Win11-RDP                                    |
-| Computer name   | Win11-RDP                                    |
+| VM name         | This PC's name and `-Win11`, for example `SURFACEPRO7-Win11` |
+| Computer name   | The same, shortened to 15 characters: `SURFAebkv-Win11` (see [Names](#names)) |
 | User name       | vmuser (an administrator)                    |
 | Password        | vmadmin                                      |
-| Connection file | `Win11-RDP.rdp` on your desktop              |
-| Address         | `Win11-RDP.mshome.net`, or an IP address     |
+| Connection file | `SURFACEPRO7-Win11.rdp` on your desktop      |
+| Address         | `SURFAebkv-Win11.local`, or an IP address    |
+| Network         | Your own network, through an external switch |
+| Starts          | Whenever this PC starts                      |
+
+The examples on this page use a PC called SURFACEPRO7. Yours will use your
+PC's name.
+
+The VM joins your own network, so other computers on it can connect with
+Remote Desktop too, and it starts whenever your PC does, so turning the PC on
+is all it takes. The connection file uses the VM's computer name with
+`.local` rather than its address, because your router can give it a new
+address; other Windows PCs and Macs on your network can look the name up as
+well. It uses the name only when the name leads to this VM and nothing else,
+and otherwise the address.
+
+### Names
+
+The VM's name starts with this PC's name so that VMs made on different PCs
+on one network never share a name. Two computers with one name confuse
+Remote Desktop: it can connect to the other one, and since both have the same
+sign-in, nothing warns you. Before building anything, the script asks the
+network whether a computer already has the name, and stops if one does. That
+only finds computers that are on at the time, so the name rule below also
+makes a clash unlikely to begin with.
+
+Windows limits a computer name to 15 characters. When the VM's name is
+longer, the computer name keeps the ending, which is what tells one PC's VMs
+apart, and cuts the start short, adding four characters worked out from the
+whole name. That keeps names apart even for PCs whose names begin the same
+way, as Windows' own `DESKTOP-` names do. `SURFACEPRO7-Win11` becomes
+`SURFAebkv-Win11`, and a second VM, `SURFACEPRO7-Win11-2`, becomes
+`SURwt9e-Win11-2`. The script says which computer name it uses as it starts.
+Choose your own name with `-VMName`; one of 15 characters or fewer is used
+exactly as it is.
+
+VMs made by earlier versions are called `Win11-RDP`. They keep that name; use
+`-VMName Win11-RDP` with `-Remove` for them.
+
+### Signing in
 
 The sign-in is saved in Windows Credential Manager, so opening the connection
-file logs you straight in. The Default Switch gives the VM a new IP address
-when your PC restarts; the `mshome.net` name keeps working, and the script uses
-it whenever it resolves.
+file signs you in without typing the password. **Remote Desktop still asks
+each time** whether to let the connection use your sound, microphone and
+clipboard, and there's no setting to stop it. Choose Connect. Recent versions
+of Windows show this for every connection file that isn't digitally signed,
+which a file made on your own PC is not.
 
 The password is set never to expire, the VM never sleeps, and automatic
 checkpoints are off.
 
-## Reconnecting later
+### The network
 
-Open `Win11-RDP.rdp` on your desktop, or connect Remote Desktop to
-`Win11-RDP.mshome.net`. The VM has to be running. Hyper-V starts it again
-when your PC restarts if it was running when the PC shut down; give it a
-minute to boot. If you shut the VM itself down, start it from an
-administrator PowerShell window:
+If this PC has no external switch whose adapter is connected, the script
+creates one called `External Network` on the adapter Windows uses for the
+internet, Wi-Fi or Ethernet. It does that only after the ISO has been checked
+and the virtual disk built, so a wrong ISO never changes your networking.
+**This PC's network connection drops for a few seconds while Windows sets it
+up**, and the script waits for it to come back. If an external switch already
+exists, the script uses it and changes nothing.
+
+To undo it later, delete the switch in an administrator PowerShell window once
+no VM uses it. Deleting a VM never removes the switch, since others may use it.
 
 ```powershell
-Start-VM Win11-RDP
+Remove-VMSwitch -Name 'External Network'
+```
+
+To keep the VM private to this PC instead, as earlier versions of the script
+did, use `-HostOnly`. It then goes on the Default Switch, where only this PC can
+reach it, at `<computer name>.mshome.net`, for example
+`SURFAebkv-Win11.mshome.net`.
+
+### Moving between Wi-Fi and a cable
+
+An external switch is tied to one network adapter. On a laptop that uses
+Wi-Fi sometimes and a cable at other times, the VM loses its network when the
+adapter its switch uses disconnects. Windows often drops Wi-Fi when you plug
+in a cable. Make a switch on each adapter, then move the VM to whichever one
+is connected, in Hyper-V Manage's Settings or in an administrator PowerShell
+window:
+
+```powershell
+New-VMSwitch -Name 'External Ethernet' -NetAdapterName 'Ethernet' -AllowManagementOS $true
+Connect-VMNetworkAdapter -VMName SURFACEPRO7-Win11 -SwitchName 'External Ethernet'
+```
+
+Use the adapter's name as it appears in Settings, Network and internet. This
+PC's network drops for a few seconds while Windows makes a switch.
+
+## Reconnecting later
+
+Open the VM's connection file on your desktop, `SURFACEPRO7-Win11.rdp`, or
+connect Remote Desktop to its `.local` name from any computer on your
+network. Copy the `.rdp` file to another computer to use it there. If the file
+is lost, Hyper-V Manage's Save Connection File makes a new one. The VM starts
+whenever your PC does; give it a minute to boot. If you shut the VM itself
+down, start it from Hyper-V Manage, or from an administrator PowerShell window:
+
+```powershell
+Start-VM SURFACEPRO7-Win11
 ```
 
 ## Options
 
 | Option            | Default                | What it does                                   |
 |-------------------|------------------------|------------------------------------------------|
-| `-IsoPath`        | newest Windows ISO in Downloads for this PC's processor | The Windows ISO to install from |
-| `-VMName`         | Win11-RDP              | VM name, and the computer name (15 characters) |
+| `-IsoPath`        | newest Windows ISO for this PC's processor in the script's own folder, then in Downloads | The Windows ISO to install from |
+| `-VMName`         | this PC's name and `-Win11` | VM name, and the computer name (see [Names](#names)) |
 | `-Edition`        | Windows 11 Pro         | Edition inside the ISO. Home is refused.       |
 | `-UserName`       | vmuser                 | Windows account name                           |
 | `-Password`       | vmadmin                | Windows account password                       |
 | `-ProcessorCount` | 4                      | Virtual processors                             |
-| `-MemoryGB`       | 4                      | Starting memory; it can grow to twice this, or 8 GB |
+| `-MemoryGB`       | 4                      | Starting memory, at least 2; it can grow to twice this, or 8 GB |
 | `-DiskGB`         | 128                    | Virtual disk size                              |
-| `-SwitchName`     | Default Switch         | Hyper-V virtual switch                         |
+| `-SwitchName`     | an external switch     | Hyper-V virtual switch. Left out, the VM joins your network through an external switch, created if there isn't one |
+| `-HostOnly`       | off                    | Use the Default Switch: only this PC can reach the VM |
+| `-NoAutoStart`    | off                    | Don't start the VM when this PC starts         |
 | `-VhdFolder`      | Hyper-V's disk folder  | Where the virtual disk goes                    |
 | `-TimeZone`       | this PC's time zone    | Windows time zone name                         |
+| `-Locale`         | the ISO's language     | Language for formats and the keyboard, such as `en-GB` |
+| `-TimeoutMinutes` | 45                     | How long to wait for Windows to finish setting up |
 | `-NoConnect`      | off                    | Don't open Remote Desktop at the end           |
-| `-Remove`         | off                    | Delete the VM, its disk, connection file and saved sign-in |
+| `-Remove`         | off                    | Delete the VM, its disk, connection file and saved sign-in, and anything a failed run left behind |
 
 For example, a second VM with more memory:
 
@@ -104,8 +209,16 @@ For example, a second VM with more memory:
 ## Starting over
 
 ```powershell
-.\New-HyperVRdpVM.ps1 -VMName Win11-RDP -Remove
+.\New-HyperVRdpVM.ps1 -VMName SURFACEPRO7-Win11 -Remove
 ```
+
+Without `-VMName`, `-Remove` uses the default name, this PC's name and
+`-Win11`.
+
+This also works after a run that failed partway. If there's no VM with that
+name, it still deletes the virtual disk, connection file and saved sign-in
+that the run left behind, so you can start again. It leaves a disk alone if
+another VM is using it.
 
 ## How it works
 
@@ -138,8 +251,40 @@ Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Hyper-V-All
 **"This ISO is for x64 PCs, but this PC is Arm64."** Download the ISO for your
 processor. Hyper-V can't run the other kind.
 
-**Remote Desktop asks whether you trust the publisher of the connection.** The
-connection file isn't signed. Check "Don't ask me again" and choose Connect.
+**Remote Desktop asks about sharing every time you connect.** It lists the
+sound, microphone and clipboard the connection uses and asks whether to
+connect. Recent versions of Windows show this for every connection file that
+isn't digitally signed, and it can't be turned off. Choose Connect. Signing
+the file (with `rdpsign.exe` and a certificate your PC trusts) is the only way
+round it; the script doesn't do that, because it would mean adding a
+certificate to Windows' trusted list.
+
+**Remote Desktop connected to the wrong VM.** Two computers on the network
+have the same name, usually VMs made on two PCs by an earlier version of the
+script, which called every VM `Win11-RDP`. Run `ipconfig` in the session to
+see which one you reached. Rename one VM's Windows computer name, or connect by
+address. The current script stops before building a VM whose name is already
+in use.
+
+**"Another computer on your network is already called ..."** The name the VM
+would get is taken. Pick another with `-VMName`.
+
+**Other computers can't reach the VM, or setup never finds its address.**
+The VM gets its address from your router. A few routers refuse more than one
+address from the same Wi-Fi connection, which is how a VM shares it. Plug the PC
+into Ethernet, or start over with `-HostOnly` and connect from this PC.
+
+**-Remove** turns the VM off, deletes it, its checkpoints and its disk, and
+the connection file and saved sign-in. It keeps a disk another VM uses (one
+attached to it, or the parent of one of its differencing disks), and a desktop
+`.rdp` file of the same name that connects to something else.
+
+**The connection file stopped working.** If the VM's `.local` name doesn't
+answer, the VM may have lost its network (see
+[Moving between Wi-Fi and a cable](#moving-between-wi-fi-and-a-cable)), or your
+network may not pass names around. Find the VM's current address in
+Hyper-V Manage and connect to that; setting up an address reservation for the VM
+in your router stops it changing.
 
 **No sound.** In the Remote Desktop window, open Show Options, then Local
 Resources, then Remote audio Settings, and make sure "Play on this computer" is
@@ -171,9 +316,16 @@ progress bars, no pop-up dialogs.
 
 1. Relaunches itself elevated with `-NoExit` if it isn't already.
 2. Checks that `New-VM` exists (Hyper-V is on), the VM name and VHDX are
-   free, the switch exists, the edition isn't Home, and the ISO's
-   architecture matches the host's (`Win32_Processor.Architecture`: 9 is
-   x64, 12 is Arm64, the same numbers `Get-WindowsImage` uses).
+   free, the edition isn't Home, and the ISO's architecture matches the
+   host's (`Win32_Processor.Architecture`: 9 is x64, 12 is Arm64, the same
+   numbers `Get-WindowsImage` uses; this one is made in step 3, once the ISO
+   is mounted). It then picks the switch: `-SwitchName` if given, the Default
+   Switch with `-HostOnly`, otherwise the first external switch whose adapter
+   is up. With none, it notes the internet adapter (the `0.0.0.0/0` route
+   with the lowest route metric plus interface metric, on a physical adapter
+   that is up) to create `External Network` on later. The VM name is refused
+   if it holds `\ / : * ? " < > | [ ]`: it becomes file names, and
+   `Get-VM -Name` reads the last few as wildcards.
 3. Mounts the ISO, finds `sources\install.wim` or `install.esd`, and picks
    the index whose `ImageName` equals `-Edition`.
 4. Creates a dynamic VHDX, mounts it, and initialises it as GPT. Any
@@ -181,42 +333,63 @@ progress bars, no pop-up dialogs.
    260 MB FAT32 partition (made as basic data so it can take a drive
    letter), a 16 MB MSR and an NTFS Windows partition.
 5. Runs `Expand-WindowsImage` onto the Windows partition, then the image's
-   own `bcdboot.exe /f UEFI`. If bcdboot fails, it builds the boot files
-   and store by hand; see [The boot-store fallback](#the-boot-store-fallback).
+   own `bcdboot.exe /f UEFI`. It then sets the store's devices to `boot`
+   and `locate`. bcdboot records the host's view of the mounted VHDX, which
+   the VM can't find (0xc000000e); Convert-WindowsImage makes the same fix.
+   If bcdboot fails with 0xc0000035, the script builds the boot files and
+   store by hand; see [The boot-store fallback](#the-boot-store-fallback).
+   Any other bcdboot failure stops the script with bcdboot's own message.
 6. Writes `\Windows\Panther\unattend.xml`, which has only the `specialize`
    and `oobeSystem` passes. It then switches the first partition's GPT type
    to EFI System and dismounts everything. If this stage fails, the
    half-built VHDX is deleted.
-7. Creates a Generation 2 VM with dynamic memory and automatic checkpoints
-   off, boots from the hard disk first, and adds a vTPM if it can (a
-   failure only prints a note).
-8. Polls `Invoke-Command -VMName` (PowerShell Direct) every 15 seconds with
+7. Creates `External Network` with `-AllowManagementOS` if step 2 said to,
+   now that the ISO and disk have passed, and waits up to 90 seconds for this
+   PC's default route to return through `vEthernet (External Network)`. A
+   failure deletes the new disk, so a second run isn't blocked, and says how
+   to remove a half-made switch.
+8. Creates a Generation 2 VM with dynamic memory and automatic checkpoints
+   off, boots from the hard disk first, sets `AutomaticStartAction Start`
+   (unless `-NoAutoStart`), and adds a vTPM if it can (a failure only prints a
+   note).
+9. Polls `Invoke-Command -VMName` (PowerShell Direct) every 15 seconds with
    `COMPUTERNAME\vmuser`. The call fails until the answer file has created
    the account. Once it gets in, it waits until `HKLM\SYSTEM\Setup` shows
    `SystemSetupInProgress` and `OOBEInProgress` at 0. The same call then
    enables RDP and its firewall group (`@FirewallAPI.dll,-28752`, which
    works in any language), sets the RDP audio policies, starts Audiosrv,
    marks the network Private and returns the VM's IPv4 address.
-9. Uses `COMPUTERNAME.mshome.net` if it resolves to that IP, otherwise the
-   IP. It waits for TCP 3389 to answer, then writes the `.rdp` file to the
-   desktop, runs `cmdkey /generic:TERMSRV/<target>`, and launches `mstsc`.
+10. Picks a name that resolves to that IP, trying for up to a minute while
+   the VM's name registration catches up: `COMPUTERNAME.local` then
+   `COMPUTERNAME` on an external switch, `COMPUTERNAME.mshome.net` on the
+   Default Switch. Otherwise it uses the IP. It waits for TCP 3389 to answer,
+   then writes the `.rdp` file to the desktop, runs
+   `cmdkey /generic:TERMSRV/<target>`, and launches `mstsc`.
 
 ### Test plan
 
 1. On a Pro, Enterprise or Education host with Hyper-V on, download the
    Windows 11 ISO for the host's architecture into Downloads.
 2. Run `Create VM.cmd`. Expect about 30 lines of step messages and a
-   "Still setting up" line every 3 minutes. Remote Desktop should then open
-   and sign in without asking for anything.
+   "Still setting up" line every 3 minutes. Remote Desktop should then open,
+   ask once about sharing sound and the clipboard, and sign in without asking
+   for a password.
 3. In the session, confirm that:
    - you are signed in as `vmuser`, and it's an administrator;
    - sound plays on the host (start Narrator with Ctrl+Win+Enter);
-   - `Win11-RDP.rdp` reconnects after closing the session;
-   - it still reconnects after restarting the host, when the IP changes.
-4. Run `.\New-HyperVRdpVM.ps1 -Remove` and confirm that the VM, VHDX, `.rdp`
+   - `ipconfig` shows the address the script reported, so you reached this VM;
+   - the desktop `.rdp` file reconnects after closing the session;
+   - it still reconnects after restarting the host, when the IP changes;
+   - another computer on the network can connect to the VM's `.local` name;
+   - the VM is running again after the host restarts, without starting it.
+4. With that VM still running, run the script again with
+   `-VMName <the same name>-Copy`, then again on a second PC with the first
+   VM's exact name. The first should build; the second should stop at once
+   with "Another computer on your network is already called ...".
+5. Run `.\New-HyperVRdpVM.ps1 -Remove` and confirm that the VM, VHDX, `.rdp`
    file and saved credential (`cmdkey /list`) are all gone.
-5. If possible, try an `install.esd` ISO (Media Creation Tool) as well as
-   an `install.wim` one, and both x64 and Arm64 hosts.
+6. If possible, try an `install.esd` ISO (Media Creation Tool) as well as
+   an `install.wim` one.
 
 ### What the Arm64 run confirmed
 
@@ -227,16 +400,19 @@ as `COMPUTERNAME\vmuser`, the disk layout and booting from
 `cmdkey` sign-in being used by `mstsc`, `mshome.net` resolving, and the vTPM
 (it was added without a note).
 
-Still unchecked: an x64 host, an `install.esd` ISO, and whether bcdboot
-works normally on a release (non-Insider) build.
+An x64 host has since built a VM end to end through Hyper-V Manage. Still
+unchecked: an `install.esd` ISO, and whether that x64 run went through the
+path where bcdboot succeeds (its `boot` / `locate` device fix was added after
+a code review) or through the fallback. The step 3 line "bcdboot couldn't do
+it" appears only for the fallback.
 
 ### The boot-store fallback
 
 On the 26340 Insider host, `bcdboot /s` fails with exit code 183 and
 `Failed to create a new system store. Status = [c0000035]`. It loads the new
 store under `HKLM\BCD00000000`, the key the host's own store already uses.
-`/offline` and `/nofirmwaresync` don't help. So when bcdboot fails, the script
-does its job by hand. Each step below fixes a failure seen while testing:
+`/offline` and `/nofirmwaresync` don't help. So when bcdboot fails with
+c0000035, the script does its job by hand. Each step below fixes a failure seen while testing:
 
 1. Copies `Windows\Boot\EFI` and `Fonts` from the applied image to
    `\EFI\Microsoft\Boot`, and `bootmgfw.efi` to `\EFI\Boot\boot<arch>.efi`.

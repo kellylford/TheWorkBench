@@ -1,0 +1,26 @@
+<Window x:Class="HyperVManage.Views.ShortcutsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Keyboard shortcuts" Width="560" Height="520" MinWidth="360" MinHeight="300"
+        WindowStartupLocation="CenterOwner" ShowInTaskbar="False">
+    <DockPanel Margin="14">
+        <Button DockPanel.Dock="Bottom" Content="Close" IsCancel="True" MinWidth="80"
+                HorizontalAlignment="Right" Margin="0,10,0,0" Click="Close_Click"/>
+        <!-- One shortcut per line, and each section's heading a line of its own, so the arrow keys
+             walk through them in order and a screen reader reads one at a time. -->
+        <ListBox x:Name="ShortcutList" AutomationProperties.Name="Keyboard shortcuts"
+                 ItemsSource="{Binding}" DisplayMemberPath="Text">
+            <ListBox.ItemContainerStyle>
+                <Style TargetType="ListBoxItem">
+                    <Setter Property="AutomationProperties.Name" Value="{Binding Text}"/>
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding IsHeading}" Value="True">
+                            <Setter Property="FontWeight" Value="Bold"/>
+                            <Setter Property="Margin" Value="0,8,0,2"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </ListBox.ItemContainerStyle>
+        </ListBox>
+    </DockPanel>
+</Window>
