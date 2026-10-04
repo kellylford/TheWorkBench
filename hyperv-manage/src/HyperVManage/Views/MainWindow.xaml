@@ -16,6 +16,7 @@
         <KeyBinding Key="R" Modifiers="Control" Command="{Binding RestartCommand}"/>
         <KeyBinding Key="Enter" Modifiers="Alt" Command="{Binding SettingsCommand}"/>
         <KeyBinding Key="K" Modifiers="Control" Command="{Binding CheckpointCommand}"/>
+        <KeyBinding Key="K" Modifiers="Control+Shift" Command="{Binding ApplyCheckpointCommand}"/>
         <KeyBinding Key="D" Modifiers="Control" Command="{Binding CloneCommand}"/>
     </Window.InputBindings>
 
@@ -43,6 +44,7 @@
                 <Separator/>
                 <MenuItem Header="Setti_ngs…" Command="{Binding SettingsCommand}" InputGestureText="Alt+Enter"/>
                 <MenuItem Header="Chec_kpoint…" Command="{Binding CheckpointCommand}" InputGestureText="Ctrl+K"/>
+                <MenuItem Header="_Apply Checkpoint…" Command="{Binding ApplyCheckpointCommand}" InputGestureText="Ctrl+Shift+K"/>
                 <MenuItem Header="Cl_one…" Command="{Binding CloneCommand}" InputGestureText="Ctrl+D"/>
                 <MenuItem Header="_Delete…" Command="{Binding DeleteCommand}" InputGestureText="Delete"/>
             </MenuItem>
@@ -91,6 +93,7 @@
                                     <Separator/>
                                     <MenuItem Header="Setti_ngs…" Command="{Binding SettingsCommand}" InputGestureText="Alt+Enter"/>
                                     <MenuItem Header="Chec_kpoint…" Command="{Binding CheckpointCommand}" InputGestureText="Ctrl+K"/>
+                                    <MenuItem Header="_Apply Checkpoint…" Command="{Binding ApplyCheckpointCommand}" InputGestureText="Ctrl+Shift+K"/>
                                     <MenuItem Header="Cl_one…" Command="{Binding CloneCommand}" InputGestureText="Ctrl+D"/>
                                     <MenuItem Header="_Delete…" Command="{Binding DeleteCommand}" InputGestureText="Delete"/>
                                 </ContextMenu>

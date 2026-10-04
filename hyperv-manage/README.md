@@ -2,7 +2,7 @@
 
 > **Status: in use on real Hyper-V, not yet released.** On 2 October 2026 it built Windows VMs
 > end to end on an Arm64 PC and an x64 PC, connected to them with Remote Desktop, opened the
-> console, and paused one. Settings, Checkpoint, Clone and Delete have so far been exercised only
+> console, and paused one. Settings, Checkpoint, Apply Checkpoint, Clone and Delete have so far been exercised only
 > against the pretend VMs of demo mode. See [Testing it on a real machine](#testing-it-on-a-real-machine).
 
 A Windows app for managing Hyper-V virtual machines, built screen reader first. It is the
@@ -33,7 +33,10 @@ It isn't called Hyper-V Manager because Windows already has a Hyper-V Manager.
   checkpoints. Processors and memory can only change while the VM is off; the window says so
   and keeps the current values readable. If no switch reaches your own network, it offers to
   create one.
-- **Checkpoint, Clone, Delete.**
+- **Checkpoint, Apply Checkpoint, Clone, Delete.**
+  - Apply Checkpoint lists the VM's checkpoints, newest first, each with when it was taken, and
+    puts the VM back to the one you choose. A running or paused VM is turned off first. Unless
+    you uncheck it, how the VM is now is kept as a checkpoint first, so nothing is lost for good.
   - Clone works on a VM that is off or saved, since a copy of a running one would join the
     network as a second machine with the same name. Windows inside the copy keeps the same
     computer name; rename it there before running both.
@@ -97,6 +100,7 @@ Anywhere in the window:
 | Ctrl+R | Restart |
 | Alt+Enter | Settings |
 | Ctrl+K | Checkpoint |
+| Ctrl+Shift+K | Apply a checkpoint |
 | Ctrl+D | Clone |
 
 Every action is also on the VM menu (Alt+V) and in the list's context menu. The menu bar is
@@ -253,5 +257,7 @@ Still to do, on a PC with Hyper-V:
 4. Save Connection File, then open the file from the desktop.
 5. In Settings, change the network and the start setting on a running VM; then shut it down
    and change processors and memory.
-6. Checkpoint it, Clone it, then Delete the clone and confirm its folder and disk are gone.
+6. Checkpoint it, change something, Apply Checkpoint and confirm the change is gone. Do it again
+   with the VM running, paused and saved, and with the keep-it-first box checked and unchecked.
+   Clone it, then Delete the clone and confirm its folder and disk are gone.
 7. Connect to a VM from another computer on the network.

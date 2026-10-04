@@ -265,4 +265,38 @@ public class WindowTests
         }
         finally { window.Close(); }
     }
+
+    [StaFact]
+    public void ApplyCheckpointNote_SaysARunningVmIsTurnedOff_AndAnOffOneIsNot()
+    {
+        Assert.Contains("turned off first", ApplyCheckpointWindow.Note(new VmInfo("a") { Name = "A", State = "Running" }));
+        Assert.DoesNotContain("turned off", ApplyCheckpointWindow.Note(new VmInfo("a") { Name = "A", State = "Off" }));
+    }
+
+    [StaFact]
+    public void ApplyCheckpointWindow_FocusesTheNewest_AndEachItemSpeaksItsNameAndTheWarning()
+    {
+        EnsureApp();
+        var vm = new VmInfo("a") { Name = "Win11-RDP", State = "Running" };
+        CheckpointInfo[] checkpoints =
+        [
+            new("2", "Before update", new DateTime(2026, 10, 3, 9, 0, 0), true),
+            new("1", "Clean install", new DateTime(2026, 10, 2, 15, 4, 0), false),
+        ];
+        var window = ApplyCheckpointWindow.Create(vm, checkpoints);
+        try
+        {
+            ShowOffscreen(window);
+            Pump();
+            var list = (ListBox)window.FindName("CheckpointList");
+            var first = (ListBoxItem)list.ItemContainerGenerator.ContainerFromIndex(0);
+            Assert.True(first.IsKeyboardFocused);
+            var peer = UIElementAutomationPeer.CreatePeerForElement(first);
+            Assert.Equal(checkpoints[0].ToString(), peer.GetName());
+            Assert.Contains("turned off first", peer.GetHelpText());
+            Assert.Equal("Checkpoint to go back to", UIElementAutomationPeer.CreatePeerForElement(list).GetName());
+            Assert.True(((CheckBox)window.FindName("SaveFirstBox")).IsChecked);
+        }
+        finally { window.Close(); }
+    }
 }

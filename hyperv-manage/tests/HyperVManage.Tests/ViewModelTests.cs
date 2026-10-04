@@ -183,6 +183,124 @@ public class MainViewModelTests
         await vm.CloneCommand.ExecuteAsync(null);
         Assert.Contains(vm.Vms, v => v.Name == "Copy One");
     }
+
+    [Fact]
+    public async Task ApplyCheckpoint_OnlyForAVmWithCheckpoints()
+    {
+        var (vm, _) = Make();
+        await vm.RefreshAsync();
+        vm.Selected = vm.Vms.Single(v => v.Name == "Win11-RDP");
+        Assert.False(vm.ApplyCheckpointCommand.CanExecute(null));
+
+        vm.RequestCheckpointName = _ => "Before update";
+        await vm.CheckpointCommand.ExecuteAsync(null);
+        Assert.True(vm.ApplyCheckpointCommand.CanExecute(null));
+    }
+
+    [Fact]
+    public async Task ApplyCheckpoint_GoesBack_KeepingHowItWasFirst_AndCancelDoesNothing()
+    {
+        var (vm, demo) = Make();
+        await vm.RefreshAsync();
+        var test2 = vm.Vms.Single(v => v.Name == "Test2");
+        vm.Selected = test2;
+        await vm.StartCommand.ExecuteAsync(null);
+        Assert.Equal("Running", test2.State);
+
+        IReadOnlyList<CheckpointInfo>? offered = null;
+        vm.RequestCheckpointToApply = (_, list) => { offered = list; return null; };
+        await vm.ApplyCheckpointCommand.ExecuteAsync(null);
+        Assert.Equal("Running", test2.State);
+        Assert.Equal("Clean install", Assert.Single(offered!).Name);
+        Assert.True(offered![0].IsCurrent);
+
+        var said = new List<string>();
+        vm.Announce += said.Add;
+        vm.RequestCheckpointToApply = (_, list) => new CheckpointChoice(list[0], SaveCurrentFirst: true);
+        await vm.ApplyCheckpointCommand.ExecuteAsync(null);
+
+        // Taken while off, so it comes back off; how it was is now the newest checkpoint.
+        Assert.Equal("Off", test2.State);
+        Assert.Equal(2, test2.CheckpointCount);
+        var now = await demo.GetCheckpointsAsync(test2.Id, TestContext.Current.CancellationToken);
+        Assert.StartsWith("Before applying Clean install", now[0].Name);
+        Assert.Contains(said, s => s.StartsWith("Test2 is back at checkpoint Clean install, and is off."));
+    }
+
+    [Fact]
+    public async Task ApplyCheckpoint_ToARunningVm_SaysItIsBack_AndWhereHowItWasIsKept()
+    {
+        var (vm, _) = Make();
+        await vm.RefreshAsync();
+        var running = vm.Vms.Single(v => v.Name == "Win11-RDP");
+        vm.Selected = running;
+        vm.RequestCheckpointName = _ => "Before update";
+        await vm.CheckpointCommand.ExecuteAsync(null);
+
+        var said = new List<string>();
+        vm.Announce += said.Add;
+        vm.RequestCheckpointToApply = (_, list) => new CheckpointChoice(list[0], SaveCurrentFirst: true);
+        await vm.ApplyCheckpointCommand.ExecuteAsync(null);
+
+        Assert.NotEqual("Running", running.State);
+        Assert.Contains(said, s => s.StartsWith("Win11-RDP is back at checkpoint Before update, and is ")
+            && s.Contains("How it was before is kept as checkpoint Before applying Before update"));
+    }
+
+    [Fact]
+    public async Task ApplyCheckpoint_WhenNoneAreLeft_SaysSo_AndAsksNothing()
+    {
+        var (vm, _) = Make();
+        await vm.RefreshAsync();
+        vm.Selected = vm.Vms.Single(v => v.Name == "Win11-RDP");
+        vm.Selected.CheckpointCount = 1; // the list's count is up to ten seconds old
+        var asked = false;
+        vm.RequestCheckpointToApply = (_, _) => { asked = true; return null; };
+        var said = new List<string>();
+        vm.Announce += said.Add;
+
+        await vm.ApplyCheckpointCommand.ExecuteAsync(null);
+
+        Assert.False(asked);
+        Assert.Contains("Win11-RDP has no checkpoints.", said);
+    }
+
+    [Fact]
+    public async Task ApplyCheckpoint_ThatFails_SaysWhatMayAlreadyHaveHappened()
+    {
+        var (vm, _) = Make();
+        await vm.RefreshAsync();
+        vm.Selected = vm.Vms.Single(v => v.Name == "Test2");
+        var said = new List<string>();
+        vm.Announce += said.Add;
+        // A checkpoint deleted while the window was open.
+        vm.RequestCheckpointToApply = (_, list) => new CheckpointChoice(list[0] with { Id = "gone" }, SaveCurrentFirst: true);
+
+        await vm.ApplyCheckpointCommand.ExecuteAsync(null);
+
+        Assert.Contains(said, s => s.Contains("That checkpoint no longer exists.") && s.Contains("may already be kept as checkpoint Before applying"));
+    }
+
+    [Fact]
+    public void PartwayNote_NamesOnlyWhatCouldHaveHappened()
+    {
+        var off = new VmInfo("a") { Name = "A", State = "Off" };
+        Assert.Equal("", MainViewModel.PartwayNote(off, null));
+        Assert.Contains("A may already have been turned off.", MainViewModel.PartwayNote(new VmInfo("a") { Name = "A", State = "Paused" }, null));
+        Assert.DoesNotContain("turned off", MainViewModel.PartwayNote(off, "X"));
+    }
+
+    [Fact]
+    public async Task ApplyCheckpoint_WithoutKeepingFirst_AddsNoCheckpoint()
+    {
+        var (vm, _) = Make();
+        await vm.RefreshAsync();
+        var test2 = vm.Vms.Single(v => v.Name == "Test2");
+        vm.Selected = test2;
+        vm.RequestCheckpointToApply = (_, list) => new CheckpointChoice(list[0], SaveCurrentFirst: false);
+        await vm.ApplyCheckpointCommand.ExecuteAsync(null);
+        Assert.Equal(1, test2.CheckpointCount);
+    }
 }
 
 public class VmSettingsViewModelTests

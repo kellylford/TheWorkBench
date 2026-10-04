@@ -25,7 +25,7 @@ public sealed class PowerShellHyperVService : IHyperVService
                 AutomaticCheckpoints = [bool]$_.AutomaticCheckpointsEnabled
                 SwitchName = $(if ($na.Count) { [string]$na[0].SwitchName } else { '' })
                 IPAddresses = @($na | ForEach-Object { $_.IPAddresses } | Where-Object { $_ -and $_ -notmatch ':' } | ForEach-Object { [string]$_ })
-                CheckpointCount = @(Get-VMSnapshot -VM $_ -ErrorAction SilentlyContinue).Count
+                CheckpointCount = @(Get-VMSnapshot -VM $_ -ErrorAction SilentlyContinue | Where-Object { "$($_.SnapshotType)" -notmatch 'Recovery|Replica' }).Count
                 Generation = [int]$_.Generation
             }
         })
@@ -102,6 +102,49 @@ public sealed class PowerShellHyperVService : IHyperVService
 
     public Task CreateCheckpointAsync(string vmId, string checkpointName, CancellationToken ct = default) =>
         PowerShellRunner.RunAsync(GetVm(vmId) + $"Checkpoint-VM -VM $vm -SnapshotName {Ps.Quote(checkpointName)}", ct);
+
+    // The time goes as ISO 8601 text with its offset, so it never depends on how Windows
+    // PowerShell serialises a DateTime. Backup (Recovery) and Replica checkpoints are left out,
+    // as Hyper-V Manager leaves them out: they aren't the user's to go back to. The list's
+    // CheckpointCount leaves out the same ones.
+    internal const string CheckpointsScript = """
+        $checkpoints = @(Get-VMSnapshot -VM $vm -ErrorAction SilentlyContinue |
+            Where-Object { "$($_.SnapshotType)" -notmatch 'Recovery|Replica' } | Sort-Object CreationTime -Descending | ForEach-Object {
+            [pscustomobject]@{
+                Id = $_.Id.ToString()
+                Name = $_.Name
+                Created = $_.CreationTime.ToString('o')
+                IsCurrent = [bool]($vm.ParentSnapshotId -and $_.Id -eq $vm.ParentSnapshotId)
+            }
+        })
+        ConvertTo-Json -InputObject $checkpoints -Depth 2 -Compress
+        """;
+
+    public async Task<IReadOnlyList<CheckpointInfo>> GetCheckpointsAsync(string vmId, CancellationToken ct = default) =>
+        ParseCheckpoints(await PowerShellRunner.RunAsync(GetVm(vmId) + CheckpointsScript, ct).ConfigureAwait(false));
+
+    public Task ApplyCheckpointAsync(string vmId, string checkpointId, string? saveCurrentAs, CancellationToken ct = default) =>
+        PowerShellRunner.RunAsync(BuildApplyCheckpointScript(vmId, checkpointId, saveCurrentAs), ct);
+
+    /// <summary>
+    /// A VM that is running or paused is turned off first, as Hyper-V Manager's Apply does. The
+    /// checkpoint is found by id, since two can share a name, and before anything changes, so a
+    /// checkpoint deleted meanwhile changes nothing.
+    /// </summary>
+    internal static string BuildApplyCheckpointScript(string vmId, string checkpointId, string? saveCurrentAs)
+    {
+        var lines = new List<string>
+        {
+            GetVm(vmId).TrimEnd(),
+            $"$checkpoint = Get-VMSnapshot -VM $vm | Where-Object {{ $_.Id.ToString() -eq {Ps.Quote(checkpointId)} }}",
+            "if (-not $checkpoint) { throw 'That checkpoint no longer exists.' }",
+        };
+        if (saveCurrentAs is not null)
+            lines.Add($"Checkpoint-VM -VM $vm -SnapshotName {Ps.Quote(saveCurrentAs)}");
+        lines.Add("if ($vm.State -in 'Running', 'Paused') { Stop-VM -VM $vm -TurnOff -Force }");
+        lines.Add("Restore-VMSnapshot -VMSnapshot $checkpoint -Confirm:$false");
+        return string.Join("\n", lines);
+    }
 
     public Task CloneAsync(string vmId, string newName, CancellationToken ct = default) =>
         PowerShellRunner.RunAsync(BuildCloneScript(vmId, newName), ct);
@@ -364,6 +407,17 @@ public sealed class PowerShellHyperVService : IHyperVService
         using var doc = JsonDocument.Parse(NonEmpty(json));
         return AsArray(doc.RootElement)
             .Select(e => new SwitchInfo(Str(e, "Name"), Str(e, "SwitchType"), Str(e, "AdapterDescription")))
+            .ToList();
+    }
+
+    internal static IReadOnlyList<CheckpointInfo> ParseCheckpoints(string json)
+    {
+        using var doc = JsonDocument.Parse(NonEmpty(json));
+        return AsArray(doc.RootElement)
+            .Select(e => new CheckpointInfo(Str(e, "Id"), Str(e, "Name"),
+                DateTimeOffset.TryParse(Str(e, "Created"), System.Globalization.CultureInfo.InvariantCulture,
+                    System.Globalization.DateTimeStyles.None, out var created) ? created.LocalDateTime : default,
+                Flag(e, "IsCurrent")))
             .ToList();
     }
 

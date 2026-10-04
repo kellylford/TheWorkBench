@@ -528,3 +528,55 @@ public class IsoFinderTests
         finally { Directory.Delete(dir, true); }
     }
 }
+
+public class CheckpointServiceTests
+{
+    [Fact]
+    public void ApplyScript_FindsTheCheckpointById_TurnsOffARunningVm_ThenRestores()
+    {
+        var script = PowerShellHyperVService.BuildApplyCheckpointScript("id-1", "cp-9", null);
+        Assert.Contains("Get-VM -Id 'id-1'", script);
+        Assert.Contains("-eq 'cp-9'", script);
+        Assert.Contains("throw 'That checkpoint no longer exists.'", script);
+        Assert.DoesNotContain("Checkpoint-VM", script);
+        Assert.True(script.IndexOf("Stop-VM -VM $vm -TurnOff", StringComparison.Ordinal)
+            < script.IndexOf("Restore-VMSnapshot -VMSnapshot $checkpoint -Confirm:$false", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void ApplyScript_KeepsHowItIsNow_BeforeTurningOff()
+    {
+        var script = PowerShellHyperVService.BuildApplyCheckpointScript("id-1", "cp-9", "Before applying it's");
+        var keep = script.IndexOf("Checkpoint-VM -VM $vm -SnapshotName 'Before applying it''s'", StringComparison.Ordinal);
+        Assert.True(keep > script.IndexOf("no longer exists", StringComparison.Ordinal));
+        Assert.True(keep < script.IndexOf("Stop-VM", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void BackupAndReplicaCheckpoints_AreLeftOut_OfTheListAndTheCount()
+    {
+        Assert.Contains("-notmatch 'Recovery|Replica'", PowerShellHyperVService.CheckpointsScript);
+        Assert.Contains("-notmatch 'Recovery|Replica'", PowerShellHyperVService.ListScript);
+    }
+
+    [Fact]
+    public void ParseCheckpoints_ReadsEachField_AndAcceptsOneBareObject()
+    {
+        var list = PowerShellHyperVService.ParseCheckpoints(
+            """{"Id":"cp-1","Name":"Clean install","Created":"2026-10-02T15:04:05.0000000-05:00","IsCurrent":true}""");
+        var cp = Assert.Single(list);
+        Assert.Equal("cp-1", cp.Id);
+        Assert.Equal("Clean install", cp.Name);
+        Assert.Equal(DateTimeOffset.Parse("2026-10-02T15:04:05-05:00").LocalDateTime, cp.Created);
+        Assert.True(cp.IsCurrent);
+        Assert.Empty(PowerShellHyperVService.ParseCheckpoints(""));
+    }
+
+    [Fact]
+    public void CheckpointInfo_SpeaksItsNameAndWhen()
+    {
+        var cp = new CheckpointInfo("x", "Clean install", new DateTime(2026, 10, 2, 15, 4, 0), true);
+        Assert.Equal($"Clean install, taken {cp.Created:f}, the one the VM is now based on", cp.ToString());
+        Assert.DoesNotContain("based on", (cp with { IsCurrent = false }).ToString());
+    }
+}

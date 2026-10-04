@@ -33,6 +33,7 @@ public partial class MainWindow : Window
         vm.Announce += text => Announcer.Announce(this, text);
         vm.RequestCloneName = AskCloneName;
         vm.RequestCheckpointName = AskCheckpointName;
+        vm.RequestCheckpointToApply = (v, checkpoints) => ApplyCheckpointWindow.Ask(this, v, checkpoints);
         vm.ConfirmDelete = AskDelete;
         vm.SelectionReplaced += () =>
         {
@@ -97,7 +98,7 @@ public partial class MainWindow : Window
         PromptWindow.Ask(this, $"Checkpoint {vm.Name}",
             "Checkpoint name:",
             $"{vm.Name} {DateTime.Now:yyyy-MM-dd HH.mm}",
-            "A checkpoint saves the VM as it is now, so you can return to it from Hyper-V Manager.");
+            "A checkpoint saves the VM as it is now, so you can go back to it later with Apply Checkpoint.");
 
     private bool AskDelete(VmInfo vm, IReadOnlyList<string> disks)
     {

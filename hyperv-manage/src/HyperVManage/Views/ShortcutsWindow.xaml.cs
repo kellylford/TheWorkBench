@@ -35,6 +35,7 @@ public partial class ShortcutsWindow : Window
             ("Ctrl+R", "restart"),
             ("Alt+Enter", "settings"),
             ("Ctrl+K", "checkpoint"),
+            ("Ctrl+Shift+K", "apply a checkpoint"),
             ("Ctrl+D", "clone"),
             ("Alt or F10", "the menu bar"),
         ]),
