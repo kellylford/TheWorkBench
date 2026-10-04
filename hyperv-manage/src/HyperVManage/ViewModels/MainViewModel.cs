@@ -37,6 +37,8 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
     // The window answers these. Null means the user cancelled.
     public Func<VmInfo, string?>? RequestCloneName { get; set; }
     public Func<VmInfo, string?>? RequestCheckpointName { get; set; }
+    /// <summary>Asked which of the VM's checkpoints to apply, newest first.</summary>
+    public Func<VmInfo, IReadOnlyList<CheckpointInfo>, CheckpointChoice?>? RequestCheckpointToApply { get; set; }
     /// <summary>Asked before deleting, with the disk files that would go.</summary>
     public Func<VmInfo, IReadOnlyList<string>, bool>? ConfirmDelete { get; set; }
     public Action<VmInfo>? OpenSettings { get; set; }
@@ -53,7 +55,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
 
     private void OnSelectedPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
-        if (e.PropertyName is nameof(VmInfo.State) or nameof(VmInfo.IsBusy) or nameof(VmInfo.IpAddresses))
+        if (e.PropertyName is nameof(VmInfo.State) or nameof(VmInfo.IsBusy) or nameof(VmInfo.IpAddresses) or nameof(VmInfo.CheckpointCount))
             RefreshCommandStates();
     }
 
@@ -61,7 +63,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
     {
         foreach (var c in new IRelayCommand[] { StartCommand, ShutDownCommand, TurnOffCommand, SaveCommand,
                      PauseCommand, ResumeCommand, RestartCommand, ConnectCommand, OpenConsoleCommand, SaveConnectionFileCommand,
-                     SettingsCommand, CheckpointCommand, CloneCommand, DeleteCommand })
+                     SettingsCommand, CheckpointCommand, ApplyCheckpointCommand, CloneCommand, DeleteCommand })
             c.NotifyCanExecuteChanged();
     }
 
@@ -233,6 +235,48 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             v => _hyperV.CreateCheckpointAsync(v.Id, name.Trim()), v => $"Checkpoint {name.Trim()} created for {v.Name}.");
     }
 
+    [RelayCommand(CanExecute = nameof(CanApplyCheckpoint))]
+    private async Task ApplyCheckpoint()
+    {
+        var vm = Selected!;
+        IReadOnlyList<CheckpointInfo> checkpoints;
+        // Reading them takes a moment; say so, rather than leaving the key press unanswered.
+        StatusText = $"Reading {vm.Name}'s checkpoints.";
+        try { checkpoints = await _hyperV.GetCheckpointsAsync(vm.Id, _lifetime.Token); }
+        catch (OperationCanceledException) { return; }
+        catch (Exception ex) { Fail(vm, $"Couldn't read {vm.Name}'s checkpoints", ex); return; }
+        if (checkpoints.Count == 0)
+        {
+            StatusText = $"{vm.Name} has no checkpoints.";
+            Announce?.Invoke(StatusText);
+            return;
+        }
+        if (RequestCheckpointToApply?.Invoke(vm, checkpoints) is not { } choice) return;
+
+        var name = choice.Checkpoint.Name;
+        var savedAs = choice.SaveCurrentFirst ? $"Before applying {name}, {DateTime.Now:yyyy-MM-dd HH.mm}" : null;
+        await RunAsync(vm, $"Applying checkpoint {name} to {vm.Name}.",
+            async v =>
+            {
+                try { await _hyperV.ApplyCheckpointAsync(v.Id, choice.Checkpoint.Id, savedAs); }
+                // It may have got partway: say what could already have happened, so nobody has
+                // to work it out from the list.
+                catch (Exception ex) when (savedAs is not null || VmStates.CanTurnOff(v.State))
+                {
+                    throw new HyperVException(ex.Message + PartwayNote(v, savedAs));
+                }
+            },
+            v => $"{v.Name} is back at checkpoint {name}, and is {v.StateText.ToLowerInvariant()}." +
+                 (savedAs is null ? "" : $" How it was before is kept as checkpoint {savedAs}."));
+    }
+
+    internal static string PartwayNote(VmInfo vm, string? savedAs) =>
+        (savedAs is null ? "" : $" How it was may already be kept as checkpoint {savedAs}.") +
+        (VmStates.CanTurnOff(vm.State) ? $" {vm.Name} may already have been turned off." : "");
+
+    /// <summary>Only for a VM with checkpoints, in a settled state.</summary>
+    private bool CanApplyCheckpoint() => Can(VmStates.IsSettled) && Selected!.CheckpointCount > 0;
+
     [RelayCommand(CanExecute = nameof(CanClone))]
     private Task Clone()
     {
@@ -315,3 +359,6 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         _lifetime.Dispose();
     }
 }
+
+/// <summary>The checkpoint to apply, and whether to keep how the VM is now as a checkpoint first.</summary>
+public sealed record CheckpointChoice(CheckpointInfo Checkpoint, bool SaveCurrentFirst);

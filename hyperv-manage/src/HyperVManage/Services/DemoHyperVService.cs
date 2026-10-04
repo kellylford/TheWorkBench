@@ -21,6 +21,12 @@ public sealed class DemoHyperVService : IHyperVService
         new("External Wi-Fi", "External", "Qualcomm FastConnect 7800"),
     ];
 
+    public DemoHyperVService()
+    {
+        // One VM with a checkpoint, so Apply Checkpoint has something to show.
+        AddCheckpoint(_vms[1], "Clean install");
+    }
+
     /// <summary>How long each pretend operation takes. Zero in tests.</summary>
     public TimeSpan Delay { get; init; } = TimeSpan.FromMilliseconds(600);
 
@@ -84,10 +90,53 @@ public sealed class DemoHyperVService : IHyperVService
         }
     }
 
+    // Each pretend checkpoint keeps the state it was taken in, to return to.
+    private readonly Dictionary<string, List<(CheckpointInfo Info, string State)>> _checkpoints = [];
+    private readonly Dictionary<string, string> _currentCheckpoint = [];
+
     public async Task CreateCheckpointAsync(string vmId, string checkpointName, CancellationToken ct = default)
     {
         await Task.Delay(Delay, ct);
-        lock (_gate) Find(vmId).CheckpointCount++;
+        lock (_gate) AddCheckpoint(Find(vmId), checkpointName);
+    }
+
+    private void AddCheckpoint(VmInfo vm, string name)
+    {
+        if (!_checkpoints.TryGetValue(vm.Id, out var list)) _checkpoints[vm.Id] = list = [];
+        var id = Guid.NewGuid().ToString();
+        list.Add((new CheckpointInfo(id, name, DateTime.Now, false), vm.State));
+        _currentCheckpoint[vm.Id] = id;
+        vm.CheckpointCount = list.Count;
+    }
+
+    public Task<IReadOnlyList<CheckpointInfo>> GetCheckpointsAsync(string vmId, CancellationToken ct = default)
+    {
+        lock (_gate)
+        {
+            Find(vmId);
+            var current = _currentCheckpoint.GetValueOrDefault(vmId);
+            var list = _checkpoints.GetValueOrDefault(vmId) ?? [];
+            return Task.FromResult<IReadOnlyList<CheckpointInfo>>(list.Select(c => c.Info with { IsCurrent = c.Info.Id == current })
+                .Reverse().ToList());
+        }
+    }
+
+    public async Task ApplyCheckpointAsync(string vmId, string checkpointId, string? saveCurrentAs, CancellationToken ct = default)
+    {
+        await Task.Delay(Delay, ct);
+        lock (_gate)
+        {
+            var vm = Find(vmId);
+            var list = _checkpoints.GetValueOrDefault(vmId) ?? [];
+            var target = list.FirstOrDefault(c => c.Info.Id == checkpointId);
+            if (target.Info is null) throw new HyperVException("That checkpoint no longer exists.");
+            if (saveCurrentAs is not null) AddCheckpoint(vm, saveCurrentAs);
+            // Like a standard checkpoint: one taken while running comes back saved, memory and all.
+            vm.State = target.State is "Running" or "Paused" ? "Saved" : target.State;
+            vm.IpAddresses = [];
+            vm.MemoryAssignedMB = 0;
+            _currentCheckpoint[vmId] = checkpointId;
+        }
     }
 
     public async Task CloneAsync(string vmId, string newName, CancellationToken ct = default)
@@ -105,6 +154,7 @@ public sealed class DemoHyperVService : IHyperVService
             copy.State = "Off";
             copy.IpAddresses = [];
             copy.MemoryAssignedMB = 0;
+            copy.CheckpointCount = 0;
             _vms.Add(copy);
         }
     }
@@ -119,7 +169,12 @@ public sealed class DemoHyperVService : IHyperVService
     {
         var disks = await GetDiskPathsAsync(vmId, ct);
         await Task.Delay(Delay, ct);
-        lock (_gate) _vms.Remove(Find(vmId));
+        lock (_gate)
+        {
+            _vms.Remove(Find(vmId));
+            _checkpoints.Remove(vmId);
+            _currentCheckpoint.Remove(vmId);
+        }
         return new DeleteResult(disks, [], []);
     }
 

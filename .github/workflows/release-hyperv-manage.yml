@@ -164,7 +164,8 @@ jobs:
             $notes = @'
           **This is a pre-release.** Building VMs, connecting, Open Console, Save Connection File,
           Pause and Delete have been used on real Hyper-V on x64 and Arm64 PCs; Settings,
-          Checkpoint and Clone so far only against the pretend VMs of `--demo`. Every VM is made
+          Checkpoint, Apply Checkpoint and Clone so far only against the pretend VMs of `--demo`.
+          Every VM is made
           with the user name **vmuser** and password **vmadmin** unless you choose others, and
           joins your network with Remote Desktop on, so choose your own password on a network
           you share.
