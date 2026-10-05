@@ -2,7 +2,10 @@ Subject: Letting Claude test Windows apps in a VM, so it stops taking over your 
 
 Hi all,
 
-Here's a tip from my own work with Claude Code, plus a tool you can use.
+I recently created Hyper-V Manage, a screen-reader-first tool for managing Hyper-V virtual machines.
+Part of what drove that was a real problem I run into every day: Claude choosing to run UI tests on
+my own PC. With Hyper-V Manage in place, I took the next step and had Claude create a way to run that
+UI testing in a VM instead. Here's what it does and how you can use it.
 
 ## The problem
 
@@ -78,9 +81,9 @@ Along the way it reported problems with vmtest itself, and the first session fix
 
    Add-LocalGroupMember -Group "Hyper-V Administrators" -Member "$env:USERDOMAIN\$env:USERNAME"
 
-2. Make a Windows 11 VM named ClaudeTesting. There are two ways to do it, both in the same repo:
-   - Hyper-V Manage, a screen-reader-first Hyper-V app I built. It's in the hyperv-manage folder.
-   - The hyperv-rdp-vm script. It builds a VM from a Windows ISO with no clicking through setup.
+2. Make a Windows 11 VM named ClaudeTesting. Hyper-V Manage does this from a Windows ISO with no
+   clicking through Windows setup; it's in the hyperv-manage folder of the same repo. If you'd
+   rather use a script, hyperv-rdp-vm does the same job.
 
    Put the VM on a virtual switch that has internet.
 
