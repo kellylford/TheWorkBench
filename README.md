@@ -106,6 +106,14 @@ in to with Remote Desktop from any computer on your network.
 
 [View Project][15]
 
+### vmtest
+Lets Claude test Windows apps inside a Hyper-V VM instead of on your own PC, so your focus,
+keyboard and screen reader are never disturbed. It launches apps, reads their accessibility tree,
+sends keys, takes screenshots and runs installers in the VM, with a checkpoint for each task. It
+includes a Claude skill so every session knows to use it.
+
+[View Project][16]
+
 ## Getting Started
 
 ## Requirements
@@ -133,3 +141,4 @@ Contributions to existing projects are welcome. If you have a script, app or oth
 [13]:	./thecardplace/spades
 [14]:	./hyperv-manage
 [15]:	./hyperv-rdp-vm
+[16]:	./vmtest
