@@ -26,12 +26,33 @@ instead of on your PC.
   reports back where keyboard focus landed.
 - Each piece of work (a repo and branch) gets its own checkpoint, so Claude can stop and come back
   later with the app still open. When the work is merged, the VM goes back to a clean state.
-- Claude reads the same accessibility information our screen readers do. For classic Windows
-  dialogs it also checks the older MSAA role, because that's often what JAWS goes by. A message box
-  button that the newer API wrongly calls a "pane" is reported as a push button, the way your
-  screen reader would announce it.
+- Claude reads the app's accessibility information (control roles, names, states and focus) and
+  reports what it finds.
 
 Everything is here: https://github.com/kellylford/TheWorkBench/tree/main/vmtest
+
+## Where it fits
+
+Before building this, I weighed three ways of having Claude test:
+
+- **Testing on your own PC, the way Claude does by default.** It's the fastest, and the app runs on
+  your real setup. But it's exactly the problem: focus jumps, stray keystrokes, and your screen
+  reader talking over you.
+- **Testing only through GitHub workflows (CI).** It never touches your PC. But each check takes
+  minutes, it only runs tests that were written in advance, and Claude can't explore the app as it
+  goes.
+- **A test VM on your PC, which is what vmtest is.** It never touches your PC either. Results come
+  back in seconds, Claude can explore the app freely, and each task gets a clean, repeatable
+  starting point. The cost is some memory while the VM runs, and keeping the VM's Windows up to date.
+
+So I use a mix:
+
+- **On my PC, as before:** builds and tests that never open a window. They don't get in the way.
+- **In the VM:** anything that opens a window, sends keys, installs or uninstalls, or needs an
+  accessibility check.
+- **In CI:** the full test suite on every pull request, as a safety net.
+
+It's for Windows desktop apps. Web apps don't need it, and it doesn't help with iOS or Mac apps.
 
 ## A real test it has already done
 
@@ -81,18 +102,11 @@ Along the way it reported problems with vmtest itself, and the first session fix
 A note on the password: the test VM's account uses a throwaway default password. That's fine for a
 VM that exists only for testing, but don't reuse a real password there.
 
-## What it can't tell you
+## A reminder
 
-This matters for us, so I want to be straight about it:
-
-- It sees roles, names, states, help text and focus. It doesn't hear speech.
-  - If an app moves focus without telling assistive technology, or announces something through a
-    notification, vmtest can report focus in the right place while a screen reader says nothing.
-  - Capturing what NVDA actually says inside the VM is on the to-do list.
-- Pressing a button through the accessibility API doesn't prove the button can be reached from the
-  keyboard. Ask Claude to use Tab and arrow keys and to report where focus goes.
-- So listening with JAWS or NVDA is still our job. What vmtest changes is that Claude does all the
-  setup, clicking and checking first, and only hands you the listening part.
+Automated testing only goes so far. vmtest catches a lot before you ever open the app, but actual
+use still matters: with screen readers, with other assistive technology, and with the different
+settings and configurations people really use.
 
 ## Smaller tips that came out of this
 
