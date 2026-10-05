@@ -1,10 +1,15 @@
 # vmtest guest agent. Runs inside the test VM, in the signed-in user's desktop session, started by
-# the scheduled task "vmtest-agent". It reads one request from C:\vmtest\request.json, carries it out
+# the scheduled task "vmtest-agent" (or "vmtest-agent-admin" for -Elevated). It reads one request from C:\vmtest\request.json, carries it out
 # with UI Automation, and writes the answer to C:\vmtest\response.json. The host side is VmTest.psm1.
 param([string]$Root = 'C:\vmtest')
 
 $ErrorActionPreference = 'Stop'
 $response = [ordered]@{ id = $null; ok = $true }
+
+# This drives the desktop it runs on, so it only ever runs inside a virtual machine.
+if ((Get-CimInstance Win32_ComputerSystem).Model -ne 'Virtual Machine') {
+    throw 'The vmtest agent only runs inside a Hyper-V virtual machine.'
+}
 
 Add-Type -AssemblyName UIAutomationClient, UIAutomationTypes, System.Windows.Forms, System.Drawing
 Add-Type -TypeDefinition @'
@@ -16,6 +21,28 @@ namespace VmTest {
         [DllImport("user32.dll")] public static extern bool SetForegroundWindow(IntPtr hWnd);
         [DllImport("user32.dll")] public static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
         [DllImport("user32.dll")] public static extern bool IsIconic(IntPtr hWnd);
+        [DllImport("user32.dll")] public static extern bool IsWindow(IntPtr hWnd);
+
+        [DllImport("kernel32.dll", SetLastError = true)] static extern IntPtr OpenProcess(uint access, bool inherit, int pid);
+        [DllImport("kernel32.dll")] static extern bool CloseHandle(IntPtr h);
+        [DllImport("advapi32.dll", SetLastError = true)] static extern bool OpenProcessToken(IntPtr process, uint access, out IntPtr token);
+        [DllImport("advapi32.dll", SetLastError = true)] static extern bool GetTokenInformation(IntPtr token, int infoClass, out int info, int size, out int returned);
+
+        // Whether a process runs with admin rights. A process whose token can't even be read is
+        // above this one, which for our purposes is the same answer.
+        public static bool IsElevated(int pid) {
+            IntPtr process = OpenProcess(0x1000, false, pid);   // PROCESS_QUERY_LIMITED_INFORMATION
+            if (process == IntPtr.Zero) return false;
+            try {
+                IntPtr token;
+                if (!OpenProcessToken(process, 0x0008, out token)) return true;   // TOKEN_QUERY
+                try {
+                    int elevated, size;
+                    return GetTokenInformation(token, 20, out elevated, 4, out size) && elevated != 0;   // TokenElevation
+                } finally { CloseHandle(token); }
+            } finally { CloseHandle(process); }
+        }
+        [DllImport("user32.dll")] public static extern bool PostMessage(IntPtr hWnd, uint msg, IntPtr wParam, IntPtr lParam);
 
         [StructLayout(LayoutKind.Sequential)] struct KEYBDINPUT { public ushort wVk; public ushort wScan; public uint dwFlags; public uint time; public IntPtr dwExtraInfo; }
         [StructLayout(LayoutKind.Sequential)] struct MOUSEINPUT { public int dx; public int dy; public uint mouseData; public uint dwFlags; public uint time; public IntPtr dwExtraInfo; }
@@ -43,17 +70,71 @@ namespace VmTest {
 }
 '@
 
+# The .NET UI Automation client reports some classic Win32 controls (the buttons in a MessageBox, for
+# example) as plain panes. Screen readers announce them by their MSAA role, so ask MSAA too.
+Add-Type -ReferencedAssemblies Accessibility -TypeDefinition @'
+using System;
+using System.Runtime.InteropServices;
+using System.Text;
+namespace VmTest {
+    public static class Msaa {
+        [DllImport("oleacc.dll")] static extern int AccessibleObjectFromWindow(IntPtr hwnd, uint id, ref Guid iid, [MarshalAs(UnmanagedType.IUnknown)] out object obj);
+        [DllImport("oleacc.dll", CharSet = CharSet.Unicode)] static extern uint GetRoleText(uint role, StringBuilder text, uint size);
+        static Accessibility.IAccessible Get(IntPtr hwnd) {
+            Guid iid = new Guid("618736E0-3C3D-11CF-810C-00AA00389B71");
+            object obj;
+            if (AccessibleObjectFromWindow(hwnd, 0xFFFFFFFC, ref iid, out obj) != 0) return null;
+            return obj as Accessibility.IAccessible;
+        }
+        // The control's MSAA default action (for a button, "Press"). Returns the action's name, or null if it has none.
+        public static string DoDefault(IntPtr hwnd) {
+            Accessibility.IAccessible acc = Get(hwnd);
+            if (acc == null) return null;
+            string action = acc.get_accDefaultAction(0);
+            if (String.IsNullOrEmpty(action)) return null;
+            acc.accDoDefaultAction(0);
+            return action;
+        }
+        public static string Role(IntPtr hwnd) {
+            try {
+                Accessibility.IAccessible acc = Get(hwnd);
+                if (acc == null) return null;
+                object role = acc.get_accRole(0);
+                if (!(role is int)) return null;
+                StringBuilder text = new StringBuilder(64);
+                GetRoleText((uint)(int)role, text, 64);
+                return text.ToString();
+            } catch { return null; }
+        }
+    }
+}
+'@
+
 $AE = [System.Windows.Automation.AutomationElement]
 
 function Get-Description($el) {
     $c = $el.Current
-    $text = "$($c.ControlType.ProgrammaticName -replace '^ControlType\.', '') '$($c.Name)'"
+    $type = $c.ControlType.ProgrammaticName -replace '^ControlType\.', ''
+    if ($type -eq 'Pane' -and $c.NativeWindowHandle) {
+        $msaa = [VmTest.Msaa]::Role([IntPtr]$c.NativeWindowHandle)
+        if ($msaa -and $msaa -notin 'client', 'pane', 'window', 'grouping') { $type = "Pane [MSAA role: $msaa]" }
+    }
+    $text = "$type '$($c.Name)'"
+    # What a screen reader says for the type, when the app has changed it from the usual.
+    $plain = ($c.ControlType.LocalizedControlType)
+    if ($c.LocalizedControlType -and $c.LocalizedControlType -ne $plain) { $text += " (announced as '$($c.LocalizedControlType)')" }
     if ($c.AutomationId) { $text += " id='$($c.AutomationId)'" }
+    if ($c.HelpText) { $text += " help='$($c.HelpText)'" }
     try { $text += " value='$($el.GetCurrentPattern([System.Windows.Automation.ValuePattern]::Pattern).Current.Value)'" } catch {}
     try { $text += " toggle=$($el.GetCurrentPattern([System.Windows.Automation.TogglePattern]::Pattern).Current.ToggleState)" } catch {}
     try { if ($el.GetCurrentPattern([System.Windows.Automation.SelectionItemPattern]::Pattern).Current.IsSelected) { $text += ' selected' } } catch {}
     try { $text += " $($el.GetCurrentPattern([System.Windows.Automation.ExpandCollapsePattern]::Pattern).Current.ExpandCollapseState)".ToLower() } catch {}
     if (-not $c.IsEnabled) { $text += ' disabled' }
+    if ($c.IsOffscreen) { $text += ' offscreen' }
+    # Controls a keyboard user should be able to reach; say so when they can't.
+    if ($c.IsEnabled -and -not $c.IsKeyboardFocusable -and $type -in 'Button', 'CheckBox', 'RadioButton', 'Edit', 'ComboBox', 'Hyperlink', 'Slider') {
+        $text += ' not-keyboard-focusable'
+    }
     if ($c.HasKeyboardFocus) { $text += ' FOCUSED' }
     $text
 }
@@ -61,6 +142,16 @@ function Get-Description($el) {
 function Get-TopWindows {
     $AE::RootElement.FindAll('Children', [System.Windows.Automation.Condition]::TrueCondition) |
         Where-Object { $_.Current.Name -and $_.Current.ClassName -notin 'Shell_TrayWnd', 'Progman' }
+}
+
+$SelfElevated = [VmTest.Native]::IsElevated($PID)
+
+# Windows quietly drops input and actions sent from a normal program to one running as admin, so
+# acting on such a window would report success that didn't happen. Refuse instead.
+function Assert-CanDrive($Window) {
+    if (-not $SelfElevated -and [VmTest.Native]::IsElevated($Window.Current.ProcessId)) {
+        throw "'$($Window.Current.Name)' belongs to a program running as administrator. Add -Elevated to drive it."
+    }
 }
 
 # The window to work in: a process id, part of a title, or (when empty) the window in front.
@@ -74,7 +165,7 @@ function Get-TargetWindow([string]$Spec) {
     $match = if ($Spec -match '^\d+$') {
         $windows | Where-Object { $_.Current.ProcessId -eq [int]$Spec } | Select-Object -First 1
     } else {
-        $windows | Where-Object { $_.Current.Name -like "*$Spec*" } | Select-Object -First 1
+        $windows | Where-Object { $_.Current.Name.IndexOf($Spec, [StringComparison]::OrdinalIgnoreCase) -ge 0 } | Select-Object -First 1
     }
     if (-not $match) {
         $names = ($windows | ForEach-Object { "'$($_.Current.Name)'" }) -join ', '
@@ -83,22 +174,37 @@ function Get-TargetWindow([string]$Spec) {
     $match
 }
 
-# A control inside the window: by AutomationId first, then exact name, then part of the name.
+# A control inside the window: by AutomationId first, then exact name, then part of the name. When
+# several match, an enabled one that's on screen wins, and the answer says how many there were.
 function Find-Target($Window, [string]$Target) {
     if (-not $Target) { throw 'Say which control: its AutomationId or its name.' }
-    $all = $Window.FindAll('Descendants', [System.Windows.Automation.Condition]::TrueCondition)
+    $all = @($Window.FindAll('Descendants', [System.Windows.Automation.Condition]::TrueCondition))
     foreach ($test in @(
             { param($c) $c.AutomationId -eq $Target },
             { param($c) $c.Name -eq $Target },
-            { param($c) $c.Name -like "*$Target*" })) {
-        foreach ($el in $all) { if (& $test $el.Current) { return $el } }
+            { param($c) $c.Name -and $c.Name.IndexOf($Target, [StringComparison]::OrdinalIgnoreCase) -ge 0 })) {
+        $found = @($all | Where-Object { & $test $_.Current })
+        if ($found.Count) {
+            $best = @($found | Where-Object { $_.Current.IsEnabled -and -not $_.Current.IsOffscreen }) + $found | Select-Object -First 1
+            if ($found.Count -gt 1) { $script:response.note = "$($found.Count) controls matched '$Target'; used $(Get-Description $best)." }
+            return $best
+        }
     }
     throw "No control named '$Target' (AutomationId or name) in '$($Window.Current.Name)'."
+}
+
+# The top-level window an element belongs to.
+function Get-TopLevel($el) {
+    $walker = [System.Windows.Automation.TreeWalker]::ControlViewWalker
+    $win = $el; $parent = $walker.GetParent($win)
+    while ($parent -and $parent -ne $AE::RootElement) { $win = $parent; $parent = $walker.GetParent($win) }
+    $win
 }
 
 # Bring the window to the front of the guest desktop, and refuse to go on if it didn't get there,
 # so keys are never typed into the wrong window.
 function Enter-Window($Window) {
+    Assert-CanDrive $Window
     $hwnd = [IntPtr]$Window.Current.NativeWindowHandle
     if ([VmTest.Native]::IsIconic($hwnd)) { [VmTest.Native]::ShowWindow($hwnd, 9) | Out-Null }
     [VmTest.Native]::SetForegroundWindow($hwnd) | Out-Null
@@ -111,19 +217,18 @@ function Enter-Window($Window) {
     if ([VmTest.Native]::GetForegroundWindow() -ne $hwnd) {
         throw "Couldn't bring '$($Window.Current.Name)' to the front, so no keys were sent."
     }
+    # Compare windows, not processes: packaged apps and WebView2 keep focus in a different process
+    # from the window that holds them.
     $focused = $AE::FocusedElement
-    if ($focused -and $focused.Current.ProcessId -ne $Window.Current.ProcessId) {
-        throw "Keyboard focus is on '$($focused.Current.Name)' in another program, so no keys were sent."
+    if ($focused -and (Get-TopLevel $focused).Current.NativeWindowHandle -ne $Window.Current.NativeWindowHandle) {
+        throw "Keyboard focus is on '$($focused.Current.Name)' outside '$($Window.Current.Name)', so no keys were sent."
     }
 }
 
 function Get-FocusReport {
     $f = $AE::FocusedElement
     if (-not $f) { return '(nothing has keyboard focus)' }
-    $top = [System.Windows.Automation.TreeWalker]::ControlViewWalker
-    $win = $f; $parent = $top.GetParent($win)
-    while ($parent -and $parent -ne $AE::RootElement) { $win = $parent; $parent = $top.GetParent($win) }
-    "$(Get-Description $f)  [in window '$($win.Current.Name)']"
+    "$(Get-Description $f)  [in window '$((Get-TopLevel $f).Current.Name)']"
 }
 
 function Get-Tree($Window, [int]$MaxDepth) {
@@ -194,7 +299,9 @@ try {
         }
         'focused' { $response.focus = Get-FocusReport }
         'invoke' {
-            $el = Find-Target (Get-TargetWindow $request.window) $request.target
+            $win = Get-TargetWindow $request.window; Assert-CanDrive $win; $el = Find-Target $win $request.target
+            $before = Get-Description $el
+            $hwnd = $el.Current.NativeWindowHandle
             $done = $null
             foreach ($p in @(
                     @([System.Windows.Automation.InvokePattern]::Pattern, { param($x) $x.Invoke() }, 'pressed'),
@@ -205,13 +312,21 @@ try {
                 $pattern = $null
                 if ($el.TryGetCurrentPattern($p[0], [ref]$pattern)) { & $p[1] $pattern; $done = $p[2]; break }
             }
+            if (-not $done -and $el.Current.NativeWindowHandle) {
+                # Classic Win32 controls the .NET client gives no patterns for: use the MSAA default action.
+                $action = [VmTest.Msaa]::DoDefault([IntPtr]$el.Current.NativeWindowHandle)
+                if ($action) { $done = "did '$action' (MSAA) on" }
+            }
             if (-not $done) { throw "'$($el.Current.Name)' can't be pressed, toggled, selected or expanded." }
             Start-Sleep -Milliseconds 700
-            $response.result = "$done $(Get-Description $el)"
+            # Describe the control as it is now (its new state), or as it was if pressing it closed it.
+            $after = $null
+            if (-not $hwnd -or [VmTest.Native]::IsWindow([IntPtr]$hwnd)) { try { $after = Get-Description $el } catch {} }
+            $response.result = if ($after) { "$done $after" } else { "$done $before (it has gone now)" }
             $response.focus = Get-FocusReport
         }
         'setvalue' {
-            $el = Find-Target (Get-TargetWindow $request.window) $request.target
+            $win = Get-TargetWindow $request.window; Assert-CanDrive $win; $el = Find-Target $win $request.target
             $pattern = $null
             if (-not $el.TryGetCurrentPattern([System.Windows.Automation.ValuePattern]::Pattern, [ref]$pattern)) {
                 throw "'$($el.Current.Name)' doesn't take a typed value."
@@ -221,7 +336,7 @@ try {
             $response.result = Get-Description $el
         }
         'focus' {
-            $el = Find-Target (Get-TargetWindow $request.window) $request.target
+            $win = Get-TargetWindow $request.window; Assert-CanDrive $win; $el = Find-Target $win $request.target
             $el.SetFocus()
             Start-Sleep -Milliseconds 300
             $response.focus = Get-FocusReport
@@ -239,28 +354,76 @@ try {
             $response.focus = Get-FocusReport
         }
         'run' {
-            # A command line run by cmd.exe as the signed-in user (where per-user tools like winget work),
-            # with its output and exit code handed back.
+            # A script the host put in the VM (.cmd, .bat or .ps1), run as the signed-in user (where per-user
+            # tools like winget work), with its output and exit code handed back. Anything it starts and leaves
+            # running may be ended with it; 'launch' is the way to start a program that keeps running.
+            $script = [string]$request.script
+            if (-not (Test-Path $script -PathType Leaf)) { throw "There's no script at $script in the VM." }
             $outFile = Join-Path $Root 'run.out'
-            $proc = Start-Process cmd.exe -ArgumentList '/d', '/s', '/c', "`"$($request.command) > `"$outFile`" 2>&1`"" `
+            # Start from an empty output file, so an earlier command's output can never be mistaken for this one's.
+            Set-Content $outFile '' -Encoding ASCII
+            $inner = if ($script -like '*.ps1') {
+                # A small wrapper turns off progress records (which come out as CLIXML when output is
+                # redirected) and passes the script's exit code, or 1 if it throws, back out.
+                $wrapper = Join-Path $Root 'run-wrapper.ps1'
+                # The exit code is the script's own 'exit N' or, failing that, that of the last program it ran.
+                @(
+                    "`$ProgressPreference = 'SilentlyContinue'"
+                    '[Console]::OutputEncoding = [System.Text.Encoding]::UTF8'
+                    '$global:LASTEXITCODE = 0'
+                    "try { & '$($script -replace "'", "''")' } catch { `$_ | Out-String | Write-Output; exit 1 }"
+                    'exit $LASTEXITCODE'
+                ) | Set-Content $wrapper -Encoding UTF8
+                "powershell.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass -File `"$wrapper`""
+            } else {
+                # UTF-8 code page first, so text outside ASCII comes back intact.
+                "chcp 65001 >nul & `"$script`""
+            }
+            $proc = Start-Process cmd.exe -ArgumentList '/d', '/s', '/c', "`"$inner > `"$outFile`" 2>&1`"" `
                 -WindowStyle Hidden -PassThru
             $limit = if ($request.timeout) { [int]$request.timeout } else { 600 }
             if (-not $proc.WaitForExit($limit * 1000)) {
-                & taskkill.exe /T /F /PID $proc.Id 2>&1 | Out-Null
-                $tail = if (Test-Path $outFile) { (Get-Content $outFile -Tail 20) -join "`n" } else { '' }
+                # Through cmd, so taskkill's complaints (about children already gone) can't replace this message.
+                Start-Process cmd.exe -ArgumentList '/d', '/c', "taskkill /T /F /PID $($proc.Id) >nul 2>&1" -WindowStyle Hidden -Wait
+                $tail = if (Test-Path $outFile) { (Get-Content $outFile -Tail 20 -Encoding UTF8) -join "`n" } else { '' }
                 throw "The command was still running after $limit seconds and was stopped. Last output:`n$tail"
             }
-            $lines = if (Test-Path $outFile) { @(Get-Content $outFile | ForEach-Object { [string]$_ }) } else { @() }
+            $lines = if (Test-Path $outFile) { @(Get-Content $outFile -Encoding UTF8 | ForEach-Object { [string]$_ }) } else { @() }
             # Drop the progress-spinner lines tools like winget draw, and keep the end of long output.
-            $lines = @($lines | Where-Object { $_ -notmatch '^\s*[-\\|/]?\s*$' -and $_ -notmatch '[\u2588\u2592]' })
+            $lines = @($lines | Where-Object { $_ -notmatch '^\s*[-\\|/]\s*$' -and $_ -notmatch '^\s*[\u2588\u2592]+\s+\S+.*$' })
             if ($lines.Count -gt 200) { $lines = @("... ($($lines.Count - 200) earlier lines left out)") + $lines[-200..-1] }
             $response.lines = $lines
             $response.result = "Exit code $($proc.ExitCode)"
         }
         'close' {
-            $win = Get-TargetWindow $request.window
-            $win.GetCurrentPattern([System.Windows.Automation.WindowPattern]::Pattern).Close()
-            $response.result = "Asked '$($win.Current.Name)' to close."
+            $win = Get-TargetWindow $request.window; Assert-CanDrive $win
+            $name = $win.Current.Name
+            $handle = $win.Current.NativeWindowHandle
+            $procId = $win.Current.ProcessId
+            $waitClosed = {
+                param($seconds)
+                $deadline = (Get-Date).AddSeconds($seconds)
+                do {
+                    Start-Sleep -Milliseconds 300
+                    $still = @(Get-TopWindows | Where-Object { $_.Current.NativeWindowHandle -eq $handle })
+                } while ($still.Count -and (Get-Date) -lt $deadline)
+                $still
+            }
+            $pattern = $null
+            if ($win.TryGetCurrentPattern([System.Windows.Automation.WindowPattern]::Pattern, [ref]$pattern)) { $pattern.Close() }
+            $open = @(& $waitClosed 2)
+            if ($open.Count) {
+                # Some apps (WPF ones among them) ignore UI Automation's Close. Send what Alt+F4 sends.
+                [VmTest.Native]::PostMessage([IntPtr]$handle, 0x0112, [IntPtr]0xF060, [IntPtr]::Zero) | Out-Null
+                $open = @(& $waitClosed 3)
+            }
+            if ($open.Count) {
+                $others = @(Get-TopWindows | Where-Object { $_.Current.ProcessId -eq $procId } | ForEach-Object { "'$($_.Current.Name)'" })
+                $response.result = "Asked '$name' to close, but it's still open. Its program's windows now: $($others -join ', '). It may be waiting on a dialog, or a menu may still have the keyboard; try keys '{ESC}' or '%{F4}'."
+            } else {
+                $response.result = "Closed '$name'."
+            }
+            $response.focus = Get-FocusReport
         }
         'shot' {
             $b = [System.Windows.Forms.SystemInformation]::VirtualScreen
@@ -279,7 +442,10 @@ try {
     $response.error = $_.Exception.Message
 }
 
-# Write to a temporary file and rename it, so the host never reads half an answer.
+# Write to a temporary file and rename it, so the host never reads half an answer. The host may be
+# reading at that moment, so try a few times.
 $temp = Join-Path $Root 'response.tmp'
 $response | ConvertTo-Json -Depth 5 | Set-Content $temp -Encoding UTF8
-Move-Item $temp (Join-Path $Root 'response.json') -Force
+for ($i = 0; $i -lt 20; $i++) {
+    try { Move-Item $temp (Join-Path $Root 'response.json') -Force; break } catch { Start-Sleep -Milliseconds 100 }
+}

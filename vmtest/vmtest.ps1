@@ -5,13 +5,15 @@ Test a Windows app inside the ClaudeTesting Hyper-V VM instead of on this PC.
 .DESCRIPTION
 A task (a repo and branch) takes the VM with 'begin', works in it, and either 'save's it (keep the
 state for next time) or 'end's it (after merge: back to Clean). Repo and branch come from the
-current git folder unless -Repo and -Branch are given.
+current git folder unless -Repo and -Branch are given. Every command that works inside the VM
+checks that this task holds it.
 
   prepare [-Force]                 one time: automatic sign-in, agent, Clean checkpoint
   status                           VM state, who has it, checkpoints
-  begin [-Force]                   take the VM; restore this task's checkpoint, or Clean
+  begin [-Force]                   take the VM; carry on, restore this task's checkpoint, or start from Clean
   deploy <path> [-Name n]          copy a build folder or file to C:\vmtest\apps\<name>
-  launch <exe> [-Arguments "a b"] start a program in the VM (path inside the VM)
+  push <file> [-Destination dir]   copy a file into the VM (default C:\vmtest\files)
+  launch <exe> [-Arguments "a b"]  start a program in the VM (path inside the VM)
   windows                          list open windows and what has focus
   tree [-Window w] [-Depth n]      UI Automation tree of a window (default: the one in front)
   focused                          the control with keyboard focus
@@ -19,20 +21,26 @@ current git folder unless -Repo and -Branch are given.
   setvalue <control> <value>       set a text box's value
   focus <control> [-Window w]      move keyboard focus to a control
   keys <keys> [-Window w]          send keys, SendKeys syntax: {TAB} {ENTER} ^s %f +{TAB}
-  type <text> [-Window w]          type plain text
-  run <command> [-Timeout s]       run a command line as the signed-in user (e.g. winget); default 600 s
-  close [-Window w]                close a window
+  type <text> [-Window w]          type plain text (text starting with - goes in -Target)
+  run <command> [-Timeout s]       run a command line as the signed-in user; default 600 s, at most 3600.
+                                   Batch-file rules apply: write % as %%.
+  run -ScriptFile <file>           copy a .cmd/.bat/.ps1 from this PC and run it the same way
+                                   (anything it leaves running may end with it; use launch for that)
+  close [-Window w]                close a window, and say whether it really closed
   shot <out.png> [-FromHost]       picture of the VM's screen
   save                             checkpoint this task, park the VM, release it
   end [-Force]                     after merge: delete this task's checkpoint, back to Clean
 
 -Window is a process id or part of a window title.
+-Elevated runs launch, run and the UI commands with admin rights. Without it, programs run like a
+normal user's would; use it for per-machine installs and to drive windows of elevated programs.
+'vmtest run' exits with the command's own exit code.
 #>
 [CmdletBinding()]
 param(
     [Parameter(Position = 0, Mandatory)]
     [ValidateSet('prepare', 'status', 'begin', 'deploy', 'launch', 'windows', 'tree', 'focused', 'invoke',
-        'setvalue', 'focus', 'keys', 'type', 'run', 'close', 'shot', 'save', 'end')]
+        'setvalue', 'focus', 'keys', 'type', 'run', 'push', 'close', 'shot', 'save', 'end')]
     [string]$Command,
     [Parameter(Position = 1)][string]$Target,
     [Parameter(Position = 2)][string]$Value,
@@ -42,7 +50,10 @@ param(
     [string]$Arguments,
     [string]$Window,
     [int]$Depth = 6,
-    [int]$Timeout = 600,
+    [ValidateRange(1, 3600)][int]$Timeout = 600,
+    [string]$ScriptFile,
+    [string]$Destination,
+    [switch]$Elevated,
     [switch]$FromHost,
     [switch]$Force
 )
@@ -58,27 +69,52 @@ function Show-Answer($r) {
     if ($r.pid) { "Process id: $($r.pid)" }
     if ($r.lines) { $r.lines }
     if ($r.focus) { "Focus: $($r.focus)" }
+    if ($r.note) { "Note: $($r.note)" }
     if ($r.warning) { "Note: $($r.warning)" }
 }
 
+# A request to the agent, from a task that holds the VM.
+function Ask([hashtable]$request) {
+    Assert-TaskHasVM -Repo $Repo -Branch $Branch
+    Show-Answer (Invoke-GuestAgent $request -Elevated:$Elevated)
+}
+
+$exitCode = 0
 try {
     switch ($Command) {
-        'prepare' { Invoke-VmTestPrepare -Force:$Force }
+        'prepare' { Invoke-VmTestPrepare -Repo $Repo -Branch $Branch -Force:$Force }
         'status' { Get-VmTestStatus }
         'begin' { Invoke-VmTestBegin -Repo $Repo -Branch $Branch -Force:$Force }
-        'deploy' { Need 'a folder or file to copy'; Invoke-VmTestDeploy -Path $Target -Name $Name }
-        'launch' { Need 'the program path inside the VM'; Show-Answer (Invoke-GuestAgent @{ op = 'launch'; path = $Target; args = $Arguments }) }
-        'windows' { Show-Answer (Invoke-GuestAgent @{ op = 'windows' }) }
-        'tree' { Show-Answer (Invoke-GuestAgent @{ op = 'tree'; window = $Window; depth = $Depth }) }
-        'focused' { Show-Answer (Invoke-GuestAgent @{ op = 'focused' }) }
-        'invoke' { Need 'a control (AutomationId or name)'; Show-Answer (Invoke-GuestAgent @{ op = 'invoke'; window = $Window; target = $Target }) }
-        'setvalue' { Need 'a control (AutomationId or name)'; Show-Answer (Invoke-GuestAgent @{ op = 'setvalue'; window = $Window; target = $Target; value = $Value }) }
-        'focus' { Need 'a control (AutomationId or name)'; Show-Answer (Invoke-GuestAgent @{ op = 'focus'; window = $Window; target = $Target }) }
-        'keys' { Need 'keys to send'; Show-Answer (Invoke-GuestAgent @{ op = 'keys'; window = $Window; keys = $Target }) }
-        'type' { Need 'text to type'; Show-Answer (Invoke-GuestAgent @{ op = 'type'; window = $Window; text = $Target }) }
-        'run' { Need 'a command line'; Show-Answer (Invoke-GuestAgent @{ op = 'run'; command = $Target; timeout = $Timeout } -TimeoutSec ($Timeout + 30)) }
-        'close' { Show-Answer (Invoke-GuestAgent @{ op = 'close'; window = $Window }) }
-        'shot' { Need 'a file to save the picture to'; Invoke-VmTestShot -Out $Target -FromHost:$FromHost }
+        'deploy' { Need 'a folder or file to copy'; Assert-TaskHasVM -Repo $Repo -Branch $Branch; Invoke-VmTestDeploy -Path $Target -Name $Name }
+        'push' {
+            Need 'a file to copy'
+            Assert-TaskHasVM -Repo $Repo -Branch $Branch
+            $pushArgs = @{ Path = $Target }
+            if ($Destination) { $pushArgs.Destination = $Destination }
+            Invoke-VmTestPush @pushArgs
+        }
+        'launch' { Need 'the program path inside the VM'; Ask @{ op = 'launch'; path = $Target; args = $Arguments } }
+        'windows' { Ask @{ op = 'windows' } }
+        'tree' { Ask @{ op = 'tree'; window = $Window; depth = $Depth } }
+        'focused' { Ask @{ op = 'focused' } }
+        'invoke' { Need 'a control (AutomationId or name)'; Ask @{ op = 'invoke'; window = $Window; target = $Target } }
+        'setvalue' { Need 'a control (AutomationId or name)'; Ask @{ op = 'setvalue'; window = $Window; target = $Target; value = $Value } }
+        'focus' { Need 'a control (AutomationId or name)'; Ask @{ op = 'focus'; window = $Window; target = $Target } }
+        'keys' { Need 'keys to send'; Ask @{ op = 'keys'; window = $Window; keys = $Target } }
+        'type' { Need 'text to type'; Ask @{ op = 'type'; window = $Window; text = $Target } }
+        'close' { Ask @{ op = 'close'; window = $Window } }
+        'run' {
+            Assert-TaskHasVM -Repo $Repo -Branch $Branch
+            $r = Invoke-VmTestRun -Command $Target -ScriptFile $ScriptFile -Timeout $Timeout -Elevated:$Elevated
+            Show-Answer $r
+            if ($r.result -match '^Exit code (-?\d+)$') { $exitCode = [int]$Matches[1] }
+        }
+        'shot' {
+            Need 'a file to save the picture to'
+            # A picture from Hyper-V only looks; one from inside the VM needs the task to hold it.
+            if (-not $FromHost) { Assert-TaskHasVM -Repo $Repo -Branch $Branch }
+            Invoke-VmTestShot -Out $Target -FromHost:$FromHost
+        }
         'save' { Invoke-VmTestSave -Repo $Repo -Branch $Branch }
         'end' { Invoke-VmTestEnd -Repo $Repo -Branch $Branch -Force:$Force }
     }
@@ -86,3 +122,4 @@ try {
     Write-Host "vmtest $Command failed: $($_.Exception.Message)" -ForegroundColor Red
     exit 1
 }
+exit $exitCode
