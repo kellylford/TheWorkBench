@@ -14,14 +14,17 @@ It's made of two parts:
 
 ## One-time setup
 
-1. Add your account to the **Hyper-V Administrators** group from an administrator PowerShell, then
+1. Turn on Hyper-V (Windows 11 Pro, Enterprise or Education), then restart. Either use Turn Windows
+   features on or off (`appwiz.cpl`, then check Hyper-V), or run this from an administrator PowerShell:
+   `Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Hyper-V-All`.
+2. Add your account to the **Hyper-V Administrators** group from an administrator PowerShell, then
    sign out of Windows and back in:
    `Add-LocalGroupMember -Group "Hyper-V Administrators" -Member "$env:USERDOMAIN\$env:USERNAME"`.
    After that, none of this needs elevation.
-2. Build a VM named **ClaudeTesting** with Hyper-V Manage, using the defaults (account `vmuser`).
+3. Build a VM named **ClaudeTesting** with Hyper-V Manage, using the defaults (account `vmuser`).
    - Put it on a switch that has a working connection. **External Wi-Fi** is the usual choice.
    - A checkpoint remembers which switch the VM was on, so re-take Clean if you change it.
-3. Run `vmtest prepare` once. It:
+4. Run `vmtest prepare` once. It:
    - turns on automatic sign-in and turns off Windows' passwordless-only setting, which blocks automatic sign-in;
    - keeps the screen on;
    - switches the VM to Standard checkpoints, so a task comes back with its programs still open;

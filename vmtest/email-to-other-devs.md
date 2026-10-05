@@ -68,7 +68,8 @@ Along the way it reported problems with vmtest itself, and the first session fix
 
 ## What you need
 
-- Windows 11 Pro, Enterprise or Education, with Hyper-V turned on. Home doesn't have Hyper-V.
+- Windows 11 Pro, Enterprise or Education. Home doesn't have Hyper-V.
+- The Hyper-V feature turned on. It's off by default; step 1 below shows how.
 - Enough memory to run a VM next to your own work. The test VM uses about 2 to 8 GB while it runs,
   and none when it's saved.
 - Claude Code.
@@ -76,21 +77,29 @@ Along the way it reported problems with vmtest itself, and the first session fix
 
 ## Setting it up
 
-1. Add yourself to the Hyper-V Administrators group, once, from an administrator PowerShell, then
+1. Turn on Hyper-V, if it isn't on already. It needs a restart afterwards. Either way works:
+   - The old-school way: press Windows+R, type appwiz.cpl and press Enter. Tab to "Turn Windows
+     features on or off" and press Enter. Arrow down to Hyper-V, make sure it's checked (Space
+     checks it), then choose OK.
+   - Or, from an administrator PowerShell:
+
+     Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Hyper-V-All
+
+2. Add yourself to the Hyper-V Administrators group, once, from an administrator PowerShell, then
    sign out and back in. After that, nothing here needs elevation:
 
    Add-LocalGroupMember -Group "Hyper-V Administrators" -Member "$env:USERDOMAIN\$env:USERNAME"
 
-2. Make a Windows 11 VM named ClaudeTesting. Hyper-V Manage does this from a Windows ISO with no
+3. Make a Windows 11 VM named ClaudeTesting. Hyper-V Manage does this from a Windows ISO with no
    clicking through Windows setup; it's in the hyperv-manage folder of the same repo. If you'd
    rather use a script, hyperv-rdp-vm does the same job.
 
    Put the VM on a virtual switch that has internet.
 
-3. Run vmtest prepare once. It sets the VM to sign in by itself, installs the helper, and saves the
+4. Run vmtest prepare once. It sets the VM to sign in by itself, installs the helper, and saves the
    "Clean" checkpoint every test starts from.
 
-4. Teach Claude to use it, which is the important part. The vmtest folder has a skill file
+5. Teach Claude to use it, which is the important part. The vmtest folder has a skill file
    (skill\SKILL.md). Copy it to your own .claude\skills\vmtest folder, and change the path in it to
    wherever you put vmtest. Claude then reaches for vmtest by itself whenever a task means opening,
    driving or installing a Windows app. I also added one line to my global CLAUDE.md, so it isn't
