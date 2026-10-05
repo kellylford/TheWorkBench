@@ -49,7 +49,7 @@ powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File C:\Users\kel
 - **`run` exit codes.** `run` exits with the command's own exit code. Anything a `run` starts may end along with it, so use `launch` for programs that should stay open.
 - **Text starting with `-`.** Pass it as `-Target "-5"`.
 - **Keyboard checks.** To check keyboard access, use `keys "{TAB}"` and read where focus lands. `invoke` and `focus` act through the accessibility API, so they don't prove anything works from the keyboard.
-- **Classic dialog buttons.** These show as `Pane [MSAA role: push button] 'No'`; the MSAA role is what a screen reader uses. `invoke` presses them.
+- **Classic dialog buttons.** Some classic Win32 controls show as plain panes in UI Automation, so vmtest adds their MSAA role, as in `Pane [MSAA role: push button] 'No'`. `invoke` presses them.
 - **What vmtest can't tell you.** It reports roles, names, states and focus, not speech. Hand Kelly the screen-reader listening checks (step 4 of Kelly's workflow).
 - **winget local manifests.** `winget install --manifest` doesn't work in this VM (TheWorkBench issue #142). Install the MSI directly instead.
 - **If vmtest itself misbehaves:**

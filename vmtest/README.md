@@ -120,7 +120,7 @@ It reports:
 - where focus is after every action.
 
 For classic Win32 controls that the .NET client sees as plain panes (the buttons in a MessageBox,
-for example), it adds the MSAA role a screen reader would use, as in `Pane [MSAA role: push button] 'No'`.
+for example), it adds their MSAA role, as in `Pane [MSAA role: push button] 'No'`.
 `invoke` presses such controls through MSAA's default action.
 
 It doesn't tell you:
