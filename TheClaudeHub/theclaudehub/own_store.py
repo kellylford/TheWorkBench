@@ -35,6 +35,9 @@ class OwnSession:
     #: as system/init). Until then the session doesn't exist in Claude Code,
     #: and the next Send starts it again instead of resuming it.
     started: bool = True
+    #: ``--model`` for every turn ("" is Claude Code's own default). Older
+    #: stores don't have it and load as the default.
+    model: str = ""
 
     def to_info(self) -> SessionInfo:
         return SessionInfo(

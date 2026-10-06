@@ -44,6 +44,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import subprocess
 import threading
 import time
@@ -119,12 +120,42 @@ def normalize_permission_mode(mode: str) -> str:
     return _MODE_ALIASES.get(mode, mode)
 
 
-def _common_flags(permission_mode: str) -> List[str]:
+#: The model choices for a session: ``--model`` value and what the picker
+#: says. Aliases, so each means that family's latest model. "" passes no
+#: ``--model`` at all, leaving it to Claude Code's own setting.
+MODELS = [
+    ("", "Default (your Claude Code setting)"),
+    ("fable", "Fable"),
+    ("opus", "Opus"),
+    ("sonnet", "Sonnet"),
+    ("haiku", "Haiku"),
+]
+MODEL_LABELS = dict(MODELS)
+# A full model name ("claude-opus-5-5") may be stored by hand; nothing that
+# could read as another option.
+_SAFE_MODEL = re.compile(r"[A-Za-z0-9][A-Za-z0-9._\[\]-]{0,99}")
+
+
+def model_label(model: str) -> str:
+    """How a session's model is named to Kelly."""
+    return MODEL_LABELS.get(model, model) if model else "Default model"
+
+
+def _common_flags(permission_mode: str, model: str = "") -> List[str]:
     permission_mode = normalize_permission_mode(permission_mode)
     if permission_mode not in PERMISSION_MODE_VALUES:
         raise ValueError(f"Unknown permission mode: {permission_mode!r}")
-    return ["-p", "--output-format", "stream-json", "--verbose",
-            "--permission-mode", permission_mode, "--permission-prompts", "none"]
+    flags = ["-p", "--output-format", "stream-json", "--verbose",
+             "--permission-mode", permission_mode, "--permission-prompts", "none"]
+    if model:
+        if not _SAFE_MODEL.fullmatch(model):
+            raise ValueError(f"Not a valid model name: {model!r}")
+        # Every turn, not just the first. Checked with Claude Code: a resumed
+        # session keeps its model without this, but saying it each time keeps
+        # the session on Kelly's choice whatever the default becomes, and lets
+        # a later change of model take effect on the next turn.
+        flags += ["--model", model]
+    return flags
 
 
 def new_session_id() -> str:
@@ -132,11 +163,12 @@ def new_session_id() -> str:
 
 
 def build_new_command(executable: str, session_id: str, title: str,
-                      permission_mode: str) -> List[str]:
+                      permission_mode: str, model: str = "") -> List[str]:
     """Command for the first turn of a new session. The prompt goes on stdin."""
     if not platform_paths.is_safe_id(session_id):
         raise ValueError("Not a valid session id.")
-    command = [executable, *_common_flags(permission_mode), "--session-id", session_id]
+    command = [executable, *_common_flags(permission_mode, model),
+               "--session-id", session_id]
     title = " ".join((title or "").split())
     if title:
         command += ["--name", title]
@@ -162,10 +194,10 @@ def check_resume_allowed(session_id: str, own_ids: Collection[str],
 
 def build_resume_command(executable: str, session_id: str, permission_mode: str,
                          own_ids: Collection[str],
-                         desktop_ids: Collection[str]) -> List[str]:
+                         desktop_ids: Collection[str], model: str = "") -> List[str]:
     """Command for a later turn. Refuses anything but TheClaudeHub's own sessions."""
     check_resume_allowed(session_id, own_ids, desktop_ids)
-    return [executable, *_common_flags(permission_mode), "--resume", session_id]
+    return [executable, *_common_flags(permission_mode, model), "--resume", session_id]
 
 
 # ---------------------------------------------------------------------------

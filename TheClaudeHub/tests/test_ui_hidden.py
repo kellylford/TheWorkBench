@@ -632,7 +632,7 @@ def test_new_session_view_says_claude_is_starting(frame, env, fake_runner, monke
             return wx.ID_OK
 
         def values(self):
-            return ("C:/G/Brand","Brand new work", "auto", "Start the thing")
+            return ("C:/G/Brand", "Brand new work", "auto", "Start the thing", "opus")
 
         def Destroy(self):
             pass
@@ -640,6 +640,10 @@ def test_new_session_view_says_claude_is_starting(frame, env, fake_runner, monke
     frame.on_new_session()
     runner = fake_runner.instances[0]
     assert "--session-id" in runner.command and runner.prompt == "Start the thing"
+    assert runner.command[runner.command.index("--model") + 1] == "opus"
+    session_id = runner.command[runner.command.index("--session-id") + 1]
+    assert frame.store.get(session_id).model == "opus"
+    assert frame.session_heading.GetLabel().endswith("TheClaudeHub session, Opus.")
     # Read back first, then the new session's view is announced after it.
     assert env["feedback"][-2:] == [
         "Sent to Brand new work: Start the thing.",
@@ -1037,5 +1041,49 @@ def test_settings_dialog_has_the_read_back_checkbox(frame):
         assert not box.GetValue() and not dialog.get_settings().announce_own
         box.SetValue(True)
         assert dialog.get_settings().announce_own
+    finally:
+        dialog.Destroy()
+
+
+# -- choosing the model (issue #180) --------------------------------------------------------
+
+
+def test_a_later_turn_keeps_the_sessions_model(frame, env, fake_runner):
+    frame.store.update("own-1", model="sonnet")
+    select(frame, "Hub probe")
+    frame.on_open_session()
+    assert frame.session_heading.GetLabel().endswith("TheClaudeHub session, Sonnet.")
+    frame.reply_text.SetValue("next")
+    frame.on_send()
+    command = fake_runner.instances[-1].command
+    assert command[-2:] == ["--resume", "own-1"]
+    assert command[command.index("--model") + 1] == "sonnet"
+
+
+def test_an_old_session_without_a_model_uses_the_default(frame, env, fake_runner):
+    select(frame, "Hub probe")
+    frame.on_open_session()
+    assert frame.session_heading.GetLabel().endswith("TheClaudeHub session, Default model.")
+    frame.reply_text.SetValue("next")
+    frame.on_send()
+    assert "--model" not in fake_runner.instances[-1].command
+
+
+def test_new_session_dialog_offers_the_models(frame):
+    from theclaudehub.ui.dialogs import NewSessionDialog
+    dialog = NewSessionDialog(frame, "C:\\G")
+    try:
+        assert dialog.model.GetStringSelection() == "Default (your Claude Code setting)"
+        assert dialog.model.GetCount() == 5
+        dialog.message.SetValue("hello")
+        assert dialog.values()[4] == ""
+        dialog.model.SetStringSelection("Opus")
+        assert dialog.values()[4] == "opus"
+        # Its label (and Alt+D) comes right before it, after Title.
+        labels = [c for c in dialog.GetChildren() if isinstance(c, wx.StaticText)]
+        assert "Mo&del:" in [c.GetLabel() for c in labels]
+        order = list(dialog.GetChildren())
+        assert order.index(dialog.title_text) < order.index(dialog.model) < \
+            order.index(dialog.mode)
     finally:
         dialog.Destroy()

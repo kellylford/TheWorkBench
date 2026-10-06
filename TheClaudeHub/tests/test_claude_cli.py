@@ -66,6 +66,36 @@ def test_resume_command_for_own_session():
         "--resume", "aaaa-1111"]
 
 
+def test_model_goes_on_every_turn():
+    new = build_new_command(EXE, "aaaa-1111", "t", "auto", "opus")
+    resumed = build_resume_command(EXE, "aaaa-1111", "auto", OWN, DESKTOP, model="opus")
+    for command in (new, resumed):
+        assert command[command.index("--model") + 1] == "opus"
+    # A full model name works too.
+    command = build_resume_command(EXE, "aaaa-1111", "auto", OWN, DESKTOP,
+                                   model="claude-opus-5-5")
+    assert command[command.index("--model") + 1] == "claude-opus-5-5"
+
+
+def test_default_model_passes_no_model_flag():
+    assert "--model" not in build_new_command(EXE, "aaaa-1111", "t", "auto", "")
+    assert "--model" not in build_resume_command(EXE, "aaaa-1111", "auto", OWN, DESKTOP)
+
+
+@pytest.mark.parametrize("model", ["--dangerously-skip-permissions", "-x", "opus sonnet",
+                                   "a;b", "x" * 101])
+def test_unsafe_model_name_refused(model):
+    with pytest.raises(ValueError):
+        build_new_command(EXE, "aaaa-1111", "t", "auto", model)
+
+
+def test_model_labels():
+    assert cli.model_label("") == "Default model"
+    assert cli.model_label("opus") == "Opus"
+    assert cli.model_label("claude-opus-5-5") == "claude-opus-5-5"
+    assert [value for value, _label in cli.MODELS] == ["", "fable", "opus", "sonnet", "haiku"]
+
+
 # -- the desktop --resume guard ------------------------------------------------------
 
 
