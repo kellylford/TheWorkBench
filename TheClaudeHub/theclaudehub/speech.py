@@ -65,6 +65,9 @@ from .platform_paths import app_data_dir  # noqa: E402
 
 DEFAULT_SETTINGS_PATH = app_data_dir() / "speech.json"
 
+#: Bytes ``speech.log`` may reach before its older half is dropped.
+LOG_LIMIT = 200_000
+
 #: How much is said when a session replies or finishes a turn.
 ANNOUNCE_FULL = "full"
 ANNOUNCE_SUMMARY = "summary"
@@ -399,6 +402,7 @@ class Speaker:
                 return False
         except Exception:
             return False
+        self._log(spoken, settings, interrupt)
         with self._lock:
             self._queue.append(command)
             if self._worker is None or not self._worker.is_alive():
@@ -460,6 +464,32 @@ class Speaker:
             running, self._running = self._running, []
         for process in running:
             _kill_quietly(process)
+
+    def _log(self, text: str, settings: SpeechSettings, interrupt: bool) -> None:
+        """One line per utterance in ``speech.log`` beside the engine files.
+
+        TheClaudeHub's own record of what it handed to the engine and when;
+        a later interrupting utterance can still cut one off, so a line is not
+        proof it was heard. The engine script's ``last-route.log`` can't
+        serve: ClaudeSpeak's hook
+        writes the same file, and it holds only the latest utterance. Kept
+        under ``LOG_LIMIT`` bytes by dropping the older half.
+        """
+        try:
+            path = self.workdir / "speech.log"
+            flat = " ".join(text.split())
+            opening = flat if len(flat) <= 80 else flat[:79] + "…"
+            line = (f"{time.strftime('%Y-%m-%d %H:%M:%S')} "
+                    f"{'interrupt' if interrupt else 'queue'} {settings.engine} "
+                    f"{len(text)} chars: {opening}\n")
+            if path.exists() and path.stat().st_size > LOG_LIMIT:
+                kept = path.read_text(encoding="utf-8", errors="replace")[-(LOG_LIMIT // 2):]
+                kept = kept[kept.find("\n") + 1:]  # start on a whole line
+                path.write_text(kept, encoding="utf-8")
+            with path.open("a", encoding="utf-8") as log:
+                log.write(line)
+        except Exception:  # noqa: BLE001 - a log must never stop speech
+            pass
 
     def _sweep_old_files(self, max_age: float = 300.0) -> None:
         cutoff = time.time() - max_age

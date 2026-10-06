@@ -9,6 +9,11 @@ Accessibility decisions, and why
   from the messages goes back to the sessions list, still on the same
   session. Enter in the sessions list loads that session and moves to its
   messages; arrowing doesn't load anything.
+* **Send and Stop never move** (issue #175). Both stay enabled, so Tab from
+  the reply box is always Send, then Stop: Kelly tabs and presses Enter from
+  habit, and a disabled Send once made that Tab land on Stop and cancel the
+  turn. Send during a turn queues the message and sends it when the turn
+  ends, as Claude Code does; Stop with nothing running just says so.
 * **Both lists are ``wx.ListBox``.** One tab stop, arrow keys, and every item
   is one string a screen reader reads whole (IDT's chat app made the same
   choice). A session reads "title, repo, state, age"; a message reads
@@ -34,7 +39,7 @@ from typing import Dict, List, Optional
 
 import wx
 
-from .. import __version__, announce, platform_paths
+from .. import __version__, announce, hub, platform_paths
 from ..claude_cli import (ResumeRefused, TurnEvent, TurnRunner, build_new_command,
                           build_resume_command, describe_elapsed, new_session_id)
 from ..hub import Snapshot, collect, finished_turns, last_reply_from_tail
@@ -84,6 +89,7 @@ class MainFrame(wx.Frame):
         self._chat_loaded = False
         self._show_activity = False
         self._drafts: Dict[str, str] = {}  # unsent reply text, per session
+        self._queued: Dict[str, str] = {}  # sent during a turn, goes when it ends
         self._chat_keys: List[str] = []
         self._announce_load = False  # say "Loaded X" once its chat arrives
 
@@ -864,12 +870,17 @@ class MainFrame(wx.Frame):
     def _update_send_state(self):
         info = self._open
         running = info is not None and info.cli_session_id in self._runners
-        self.send_btn.Enable(bool(info and info.is_own and not running))
-        self.stop_btn.Enable(bool(running))
+        # Always enabled: a disabled button drops out of the Tab order, and
+        # Send and Stop must stay where Kelly's fingers expect them.
+        own = bool(info and info.is_own)
+        self.send_btn.Enable(own)
+        self.stop_btn.Enable(own)
         if info is not None and info.is_own:
             if running:
                 elapsed = describe_elapsed(self._runners[info.cli_session_id].elapsed())
                 label = f"Claude is working ({elapsed})."
+                if info.cli_session_id in self._queued:
+                    label += " A message is queued."
             else:
                 label = "Ready."
             if self.turn_status.GetLabel() != label:
@@ -880,8 +891,11 @@ class MainFrame(wx.Frame):
         info = self._open
         runner = self._runners.get(info.cli_session_id) if info else None
         if runner is not None:
+            waiting = (" A message is queued." if info.cli_session_id in self._queued
+                       else "")
             self._feedback(f"{info.title}: Claude has been working for "
-                           f"{describe_elapsed(runner.elapsed())}, last {runner.last_activity}.")
+                           f"{describe_elapsed(runner.elapsed())}, last {runner.last_activity}."
+                           f"{waiting}")
             return
         if not self._runners:
             self._feedback("No turns are running.")
@@ -926,23 +940,55 @@ class MainFrame(wx.Frame):
             self._feedback("Type a message first.")
             self.reply_text.SetFocus()
             return
-        if info.cli_session_id in self._runners:
-            self._feedback("Claude is still working on the last message.")
+        session_id = info.cli_session_id
+        runner = self._runners.get(session_id)
+        if runner is not None and runner.cancelled:
+            # Queuing behind a stopped turn would only bounce back when the
+            # stop lands, so keep the text and say why.
+            self._feedback("Still stopping. Send again in a moment.")
+            self.reply_text.SetFocus()
             return
-        live = self._snapshot.live.get(info.cli_session_id)
+        if runner is not None:
+            # Queue it rather than refuse: the turn's reply comes first, then
+            # this goes. More while one waits joins it as one message.
+            waiting = self._queued.get(session_id)
+            self._queued[session_id] = f"{waiting}\n\n{message}" if waiting else message
+            self.reply_text.SetValue("")
+            self._drafts.pop(session_id, None)
+            self._update_send_state()
+            if waiting:
+                self._feedback(f"Added to the queued message. It will be sent when "
+                               f"{info.title} finishes.")
+            else:
+                self._feedback(f"Queued. It will be sent when {info.title} finishes.")
+            self.reply_text.SetFocus()
+            return
+        problem = self._send_now(session_id, message)
+        if problem:
+            wx.MessageBox(problem, APP_NAME, wx.OK | wx.ICON_WARNING, self)
+            return
+        self.reply_text.SetValue("")
+        self._drafts.pop(session_id, None)
+        # Stay in the reply box; new messages arrive at the end of the list.
+        self.reply_text.SetFocus()
+
+    def _send_now(self, session_id: str, message: str, queued: bool = False) -> Optional[str]:
+        """Start a turn with ``message``. Returns why it can't, or None once
+        sent; the caller decides how to say it (a dialog when Kelly pressed
+        Send, speech for a queued message going out on its own)."""
+        # Read fresh, not from the list's snapshot: up to 5 seconds old, it
+        # still shows TheClaudeHub's own just-finished turn as busy.
+        live = hub.load_live_status().get(session_id)
         if live is not None and live.status == "busy":
-            wx.MessageBox("This session is running somewhere else right now, so "
-                          "TheClaudeHub won't send into it.", APP_NAME,
-                          wx.OK | wx.ICON_INFORMATION, self)
-            return
+            return ("This session is running somewhere else right now, so "
+                    "TheClaudeHub won't send into it.")
         lookup = platform_paths.find_claude()
         if not lookup.path:
-            wx.MessageBox(lookup.problem, APP_NAME, wx.OK | wx.ICON_ERROR, self)
-            return
+            return lookup.problem
         exe = lookup.path
-        own = self.store.get(info.cli_session_id)
+        own = self.store.get(session_id)
         if own is None:
-            return
+            return "That session is no longer in TheClaudeHub's list."
         try:
             if self._session_exists(own):
                 command = build_resume_command(
@@ -957,21 +1003,18 @@ class MainFrame(wx.Frame):
                 command = build_new_command(exe, own.cli_session_id, own.title,
                                             own.permission_mode)
         except (ResumeRefused, ValueError) as exc:
-            wx.MessageBox(str(exc), APP_NAME, wx.OK | wx.ICON_WARNING, self)
-            return
-        self.reply_text.SetValue("")
-        self._drafts.pop(own.cli_session_id, None)
-        self._start_turn(own.cli_session_id, command, own.cwd, message, own.title)
-        # Stay in the reply box (Send is disabled now, and focus on a disabled
-        # button would be lost); new messages arrive at the end of the list.
-        self.reply_text.SetFocus()
+            return str(exc)
+        self._start_turn(own.cli_session_id, command, own.cwd, message, own.title,
+                         queued=queued)
+        return None
 
     def _session_exists(self, own: OwnSession) -> bool:
         if own.started:
             return True
         return platform_paths.transcript_path(own.cwd, own.cli_session_id) is not None
 
-    def _start_turn(self, session_id: str, command, cwd: str, prompt: str, title: str):
+    def _start_turn(self, session_id: str, command, cwd: str, prompt: str, title: str,
+                    queued: bool = False):
         holder = {"id": session_id}
 
         def on_event(event: TurnEvent):
@@ -982,7 +1025,8 @@ class MainFrame(wx.Frame):
         self._denials[session_id] = []
         runner.start()
         self._update_send_state()
-        self._feedback(f"Sent. {title} is working.")
+        self._feedback(f"Sent your queued message. {title} is working." if queued
+                       else f"Sent. {title} is working.")
         self._store_write(self.store.update, session_id, state=IDLE, detail="",
                           last_activity_ms=int(time.time() * 1000))
 
@@ -997,8 +1041,9 @@ class MainFrame(wx.Frame):
                 self._store_write(self.store.rename_id, session_id, reported)
                 self._runners[reported] = self._runners.pop(session_id)
                 self._denials[reported] = self._denials.pop(session_id, [])
-                if session_id in self._drafts:
-                    self._drafts[reported] = self._drafts.pop(session_id)
+                for per_session in (self._drafts, self._queued):
+                    if session_id in per_session:
+                        per_session[reported] = per_session.pop(session_id)
                 if self._open is not None and self._open.cli_session_id == session_id:
                     self._open.cli_session_id = reported
                     self._open.key = f"own:{reported}"
@@ -1024,16 +1069,20 @@ class MainFrame(wx.Frame):
             self._status(f"{title}: permission denied, {event.text}")
             return
         if event.kind in ("finished", "failed"):
-            # UI first, store writes after: a failed write must not leave Send
-            # disabled for good.
+            # UI first, store writes after: a failed write must not leave the
+            # session looking busy for good.
             runner = self._runners.pop(session_id, None)
             denials = event.denials or self._denials.pop(session_id, [])
             self._denials.pop(session_id, None)
             is_open = self._open is not None and self._open.cli_session_id == session_id
             self._update_send_state()
+            # Text to give back, oldest first: a first message that never
+            # reached Claude, then anything queued behind it.
+            unsent = []
             if (event.kind == "failed" and runner is not None
                     and not runner.session_started and not runner.cancelled):
-                self._restore_unsent(session_id, runner.prompt, is_open)
+                unsent.append(runner.prompt)
+            queued = self._queued.pop(session_id, None)
             if event.kind == "failed" or event.is_error:
                 state, detail = NEEDS_YOU, announce.status_text(event.text or "error", 120)
             elif denials:
@@ -1059,14 +1108,42 @@ class MainFrame(wx.Frame):
                     self._status(f"{title} finished. {reply}".strip())
             if is_open:
                 self._refresh_chat()
+            if queued:
+                # After a failure the queued message goes back instead: what
+                # it follows didn't happen. Before the list refresh, so the
+                # list sees the new turn running.
+                problem = "the turn before it failed"
+                if event.kind != "failed" and not event.is_error:
+                    problem = self._send_now(session_id, queued, queued=True)
+                if problem:
+                    unsent.append(queued)
+                    # Spoken, not a dialog: this send wasn't Kelly pressing a
+                    # key, and he may be in another session or another app.
+                    # Feedback queues behind the reply instead of cutting it
+                    # off; Ctrl+Shift+R must still repeat it if a keypress
+                    # silenced it.
+                    refused = (f"Your queued message for {title} wasn't sent: "
+                               f"{problem.rstrip('.')}. It's back in the message box.")
+                    self._feedback(refused)
+                    self._last_announcement = refused
+            if unsent:
+                self._give_back(session_id, "\n\n".join(unsent), is_open)
+            self._update_send_state()
             self.refresh_sessions()
 
-    def _restore_unsent(self, session_id: str, prompt: str, is_open: bool):
-        """A turn that never reached Claude: give the message back."""
-        if is_open and not self.reply_text.GetValue().strip():
-            self.reply_text.SetValue(prompt)
-        elif not self._drafts.get(session_id):
-            self._drafts[session_id] = prompt
+    def _give_back(self, session_id: str, message: str, is_open: bool):
+        """Put ``message`` back in the session's reply box, before anything
+        typed since (it was written first), so nothing is lost. The caret
+        stays at the end, where Kelly was typing."""
+        if is_open:
+            typed = self.reply_text.GetValue()
+            self.reply_text.SetValue(f"{message}\n\n{typed.lstrip()}" if typed.strip()
+                                     else message)
+            self.reply_text.SetInsertionPointEnd()
+        else:
+            typed = self._drafts.get(session_id, "")
+            self._drafts[session_id] = (f"{message}\n\n{typed.lstrip()}" if typed.strip()
+                                        else message)
 
     def on_stop(self, _event=None):
         info = self._open
@@ -1075,6 +1152,12 @@ class MainFrame(wx.Frame):
             self._feedback("Nothing is running.")
             return
         runner.cancel()
+        queued = self._queued.pop(info.cli_session_id, None)
+        if queued:
+            self._give_back(info.cli_session_id, queued, True)
+            self._update_send_state()
+            self._feedback("Stopping. Your queued message is back in the message box.")
+            return
         self._feedback("Stopping.")
 
     # ------------------------------------------------------- settings, about
@@ -1159,7 +1242,8 @@ class MainFrame(wx.Frame):
             answer = wx.MessageBox(
                 f"Claude is working in {count} TheClaudeHub session"
                 f"{'s' if count != 1 else ''}. Quit anyway? The running turn"
-                f"{'s' if count != 1 else ''} will be stopped.",
+                f"{'s' if count != 1 else ''} will be stopped"
+                f"{', and queued messages will not be sent.' if self._queued else '.'}",
                 f"Quit {APP_NAME}", wx.YES_NO | wx.NO_DEFAULT | wx.ICON_QUESTION, self)
             if answer != wx.YES:
                 event.Veto()
