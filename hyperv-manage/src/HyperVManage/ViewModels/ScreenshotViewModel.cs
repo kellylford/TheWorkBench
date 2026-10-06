@@ -63,6 +63,11 @@ public sealed partial class ScreenshotViewModel : ObservableObject, IDisposable
     /// <summary>What was on screen, a line at a time, for the box under the picture.</summary>
     public string OnScreenText => Describe(Picture);
 
+    /// <summary>Where the words came from: not the picture, so they don't depend on a description
+    /// of it. Only focus and the open windows are; the window in front is its title.</summary>
+    internal const string FromAccessibilityTree =
+        "Focus and open windows were read from the VM's accessibility tree (UI Automation), not from the picture.";
+
     internal static string Describe(ScreenPicture picture)
     {
         if (picture.Info is not { } info)
@@ -75,6 +80,8 @@ public sealed partial class ScreenshotViewModel : ObservableObject, IDisposable
         if (info.Foreground.Length > 0) lines.Add($"In front: {info.Foreground}");
         if (info.FocusText.Length > 0) lines.Add($"Focus: {info.FocusText}");
         if (info.Windows.Count > 0) lines.Add($"Open windows: {string.Join("; ", info.Windows)}");
+        // Only when the tree was read: a hung app can stop that, and then only the title came back.
+        if (info.FocusText.Length > 0 || info.Windows.Count > 0) lines.Add(FromAccessibilityTree);
         return string.Join(Environment.NewLine, lines);
     }
 

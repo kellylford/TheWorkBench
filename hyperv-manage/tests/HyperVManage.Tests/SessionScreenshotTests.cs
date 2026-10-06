@@ -378,7 +378,8 @@ public class ScreenshotTakerTests
         };
         Assert.Equal(string.Join(Environment.NewLine,
             "vmuser's Remote Desktop session.", "In front: *notes - Notepad", "Focus: Text editor, document",
-            "Open windows: *notes - Notepad; Settings"), ScreenshotViewModel.Describe(picture));
+            "Open windows: *notes - Notepad; Settings", ScreenshotViewModel.FromAccessibilityTree), ScreenshotViewModel.Describe(picture));
+        Assert.Contains("accessibility tree", ScreenshotViewModel.FromAccessibilityTree);
         var s = new ScreenshotViewModel(new DemoHyperVService(), new VmInfo("a") { Name = "vm2" }, picture);
         Assert.EndsWith(", *notes - Notepad in front", s.PictureName);
     }
@@ -389,7 +390,21 @@ public class ScreenshotTakerTests
         var picture = ScreenshotViewModelTests.Picture(DateTime.Now) with { Note = "Nobody is signed in to Windows in the VM." };
         var text = ScreenshotViewModel.Describe(picture);
         Assert.StartsWith("The VM's own screen, from Hyper-V.", text);
+        Assert.DoesNotContain("accessibility tree", text); // nothing was read from it
         Assert.EndsWith("Nobody is signed in to Windows in the VM.", text);
+    }
+
+    [Fact]
+    public void WhatsOnScreen_WhenTheTreeCouldntBeRead_DoesntClaimItWas()
+    {
+        // A hung app can stop UI Automation; then only the window title came back.
+        var picture = ScreenshotViewModelTests.Picture(DateTime.Now) with
+        {
+            Info = new ScreenInfo("vmuser", true, "*notes - Notepad", "", "", []),
+        };
+        var text = ScreenshotViewModel.Describe(picture);
+        Assert.Contains("In front: *notes - Notepad", text);
+        Assert.DoesNotContain("accessibility tree", text);
     }
 }
 
@@ -397,15 +412,25 @@ public class ScreenshotTakerTests
 public class GuestSignInWindowTests
 {
     [StaFact]
-    public void ItSaysWhyItAsks_OnTheBoxes_AndGivesWhatWasTyped()
+    public void TheBoxesSayLittle_TheWindowExplains_AndAReAskHasItsReasonToSpeak()
     {
         TestApp.Ensure();
-        var w = Views.GuestSignInWindow.Create(new VmInfo("a") { Name = "vm2" }, "Windows in vm2 didn't accept that sign-in: no.", "vmuser");
+        var why = "Windows in vm2 didn't accept that sign-in: no.";
+        var w = Views.GuestSignInWindow.Create(new VmInfo("a") { Name = "vm2" }, why, "vmuser");
         Assert.Equal("Sign in to vm2 for screenshots", w.Title);
+        var user = (System.Windows.Controls.TextBox)w.FindName("UserBox");
         var password = (System.Windows.Controls.PasswordBox)w.FindName("PasswordBox");
-        var help = System.Windows.Automation.AutomationProperties.GetHelpText(password);
-        Assert.StartsWith("Windows in vm2 didn't accept that sign-in", help);
-        Assert.Contains("Remote Desktop", help);
+        foreach (var box in new System.Windows.Controls.Control[] { user, password })
+        {
+            var peer = System.Windows.Automation.Peers.UIElementAutomationPeer.CreatePeerForElement(box);
+            Assert.InRange(peer.GetHelpText().Length, 1, 40); // a hint, not the explanation
+        }
+        Assert.Equal("User name", System.Windows.Automation.Peers.UIElementAutomationPeer.CreatePeerForElement(user).GetName());
+        Assert.Equal("Password", System.Windows.Automation.Peers.UIElementAutomationPeer.CreatePeerForElement(password).GetName());
+        Assert.Equal(why, ((System.Windows.Controls.TextBlock)w.FindName("WhyText")).Text);
+        Assert.Contains("Remote Desktop", ((System.Windows.Controls.TextBlock)w.FindName("NoteText")).Text);
+        Assert.Equal(why, w.OpeningAnnouncement);
+        Assert.Null(Views.GuestSignInWindow.Create(new VmInfo("a") { Name = "vm2" }, null, "vmuser").OpeningAnnouncement);
         password.Password = "vmadmin";
         Assert.Equal(new SignInAnswer(new GuestCredential("vmuser", "vmadmin"), true), w.Answer);
         w.Close();
