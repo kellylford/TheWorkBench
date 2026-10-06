@@ -896,6 +896,7 @@ def test_queued_message_refused_at_send_time_is_spoken_and_goes_to_its_draft(
     assert env["feedback"][-1] == ("Your queued message for Hub probe wasn't sent: Claude "
                                    "Code isn't installed. It's back in the message box.")
     assert frame._drafts["own-1"] == "later\n\ntyped elsewhere"
+    assert frame._last_announcement == env["feedback"][-1]  # Ctrl+Shift+R repeats it
 
 
 def test_queued_send_leaves_the_open_sessions_reply_box_alone(frame, env, fake_runner):

@@ -1119,8 +1119,13 @@ class MainFrame(wx.Frame):
                     unsent.append(queued)
                     # Spoken, not a dialog: this send wasn't Kelly pressing a
                     # key, and he may be in another session or another app.
-                    self._feedback(f"Your queued message for {title} wasn't sent: "
-                                   f"{problem.rstrip('.')}. It's back in the message box.")
+                    # Feedback queues behind the reply instead of cutting it
+                    # off; Ctrl+Shift+R must still repeat it if a keypress
+                    # silenced it.
+                    refused = (f"Your queued message for {title} wasn't sent: "
+                               f"{problem.rstrip('.')}. It's back in the message box.")
+                    self._feedback(refused)
+                    self._last_announcement = refused
             if unsent:
                 self._give_back(session_id, "\n\n".join(unsent), is_open)
             self._update_send_state()
