@@ -164,6 +164,8 @@ public class SessionCaptureTests
 /// <summary>Which picture Screenshot takes, and when it asks for the VM's sign-in.</summary>
 public class ScreenshotTakerTests
 {
+    private static CancellationToken Ct => TestContext.Current.CancellationToken;
+
     private static async Task<(ScreenshotTaker taker, InMemoryCredentialStore store, VmInfo vm, List<string?> asked)> Setup(params SignInAnswer?[] answers)
     {
         var demo = new DemoHyperVService { Delay = TimeSpan.Zero };
@@ -188,12 +190,12 @@ public class ScreenshotTakerTests
     public async Task TheFirstTime_ItAsks_TakesTheSession_AndKeepsTheSignIn()
     {
         var (taker, store, vm, asked) = await Setup(Good());
-        var picture = await taker.TakeAsync(vm);
+        var picture = await taker.TakeAsync(vm, Ct);
         Assert.Equal([null], asked);
         Assert.Equal("Untitled - Notepad", picture.Info?.Foreground);
         Assert.Equal("vmadmin", store.Get(vm.Id)?.Password);
 
-        await taker.TakeAsync(vm);
+        await taker.TakeAsync(vm, Ct);
         Assert.Single(asked); // kept, so not asked again
     }
 
@@ -201,9 +203,9 @@ public class ScreenshotTakerTests
     public async Task NotRemembered_IsUsedOnce_AndAskedForNextTime()
     {
         var (taker, store, vm, asked) = await Setup(Good(remember: false), Good(remember: false));
-        Assert.NotNull((await taker.TakeAsync(vm)).Info);
+        Assert.NotNull((await taker.TakeAsync(vm, Ct)).Info);
         Assert.Null(store.Get(vm.Id));
-        await taker.TakeAsync(vm);
+        await taker.TakeAsync(vm, Ct);
         Assert.Equal(2, asked.Count);
     }
 
@@ -211,10 +213,10 @@ public class ScreenshotTakerTests
     public async Task Declined_GivesTheVmsOwnScreen_SaysWhy_AndDoesntAskAgainThisTime()
     {
         var (taker, _, vm, asked) = await Setup();
-        var picture = await taker.TakeAsync(vm);
+        var picture = await taker.TakeAsync(vm, Ct);
         Assert.Null(picture.Info);
         Assert.Contains("Remote Desktop session in it can't be seen", picture.Note);
-        await taker.TakeAsync(vm);
+        await taker.TakeAsync(vm, Ct);
         Assert.Single(asked);
     }
 
@@ -223,7 +225,7 @@ public class ScreenshotTakerTests
     {
         var (taker, store, vm, asked) = await Setup(Good());
         store.Save(vm.Id, new GuestCredential("vmuser", "")); // kept from before, now wrong
-        var picture = await taker.TakeAsync(vm);
+        var picture = await taker.TakeAsync(vm, Ct);
         Assert.NotNull(picture.Info);
         var why = Assert.Single(asked);
         Assert.Contains("didn't accept that sign-in", why);
@@ -236,7 +238,7 @@ public class ScreenshotTakerTests
         // Refused can mean the VM is still starting: Escape mustn't lose a sign-in that may be right.
         var (taker, store, vm, _) = await Setup();
         store.Save(vm.Id, new GuestCredential("vmuser", ""));
-        Assert.Null((await taker.TakeAsync(vm)).Info);
+        Assert.Null((await taker.TakeAsync(vm, Ct)).Info);
         Assert.NotNull(store.Get(vm.Id));
     }
 
@@ -245,7 +247,7 @@ public class ScreenshotTakerTests
     {
         var (taker, store, vm, _) = await Setup(Good(remember: false));
         store.Save(vm.Id, new GuestCredential("vmuser", ""));
-        Assert.NotNull((await taker.TakeAsync(vm)).Info);
+        Assert.NotNull((await taker.TakeAsync(vm, Ct)).Info);
         Assert.Null(store.Get(vm.Id));
     }
 
@@ -253,7 +255,7 @@ public class ScreenshotTakerTests
     public async Task ARefusedSignIn_ThenDeclined_GivesTheVmsOwnScreen()
     {
         var (taker, store, vm, asked) = await Setup(Bad);
-        var picture = await taker.TakeAsync(vm);
+        var picture = await taker.TakeAsync(vm, Ct);
         Assert.Null(picture.Info);
         Assert.Equal("Windows in the VM didn't accept the sign-in.", picture.Note);
         Assert.Equal(2, asked.Count);
@@ -265,7 +267,7 @@ public class ScreenshotTakerTests
     {
         Users.Clear();
         var (taker, _, vm, _) = await Setup(new SignInAnswer(new GuestCredential("admin", ""), true), null);
-        await taker.TakeAsync(vm);
+        await taker.TakeAsync(vm, Ct);
         Assert.Equal([null, "admin"], Users);
     }
 
@@ -273,8 +275,8 @@ public class ScreenshotTakerTests
     public async Task Declined_ThenTakeAgain_AsksAgain()
     {
         var (taker, _, vm, asked) = await Setup(null, Good());
-        Assert.Null((await taker.TakeAsync(vm)).Info);
-        Assert.NotNull((await taker.TakeAsync(vm, askEvenIfDeclined: true)).Info);
+        Assert.Null((await taker.TakeAsync(vm, Ct)).Info);
+        Assert.NotNull((await taker.TakeAsync(vm, Ct, askEvenIfDeclined: true)).Info);
         Assert.Equal(2, asked.Count);
     }
 
@@ -285,10 +287,10 @@ public class ScreenshotTakerTests
     public async Task ASignInWindowsAccepted_IsKept_EvenWhenThereWasNoPictureToTake(SessionFailure failure, bool kept)
     {
         var flaky = new Flaky(new SessionScreenshotException(failure, "no picture"));
-        var vm = (await flaky.GetVmsAsync()).First(v => v.State == "Running");
+        var vm = (await flaky.GetVmsAsync(Ct)).First(v => v.State == "Running");
         var store = new InMemoryCredentialStore();
         var taker = new ScreenshotTaker(flaky, store) { AskSignIn = (_, _, _) => Good() };
-        var picture = await taker.TakeAsync(vm);
+        var picture = await taker.TakeAsync(vm, Ct);
         Assert.Null(picture.Info);
         Assert.Contains("no picture", picture.Note);
         Assert.Equal(kept, store.Get(vm.Id) is not null);
@@ -298,10 +300,10 @@ public class ScreenshotTakerTests
     public async Task AnythingElseGoingWrongInsideTheVm_StillGivesTheVmsOwnScreen()
     {
         var flaky = new Flaky(new HyperVException("Register-ScheduledTask: Access is denied."));
-        var vm = (await flaky.GetVmsAsync()).First(v => v.State == "Running");
+        var vm = (await flaky.GetVmsAsync(Ct)).First(v => v.State == "Running");
         var store = new InMemoryCredentialStore();
         store.Save(vm.Id, new GuestCredential("vmuser", "vmadmin"));
-        var picture = await new ScreenshotTaker(flaky, store).TakeAsync(vm);
+        var picture = await new ScreenshotTaker(flaky, store).TakeAsync(vm, Ct);
         Assert.Null(picture.Info);
         Assert.Equal("Couldn't take a picture inside the VM: Register-ScheduledTask: Access is denied.", picture.Note);
     }
@@ -310,10 +312,10 @@ public class ScreenshotTakerTests
     public async Task Cancelled_IsNotTurnedIntoAPicture()
     {
         var flaky = new Flaky(new OperationCanceledException());
-        var vm = (await flaky.GetVmsAsync()).First(v => v.State == "Running");
+        var vm = (await flaky.GetVmsAsync(Ct)).First(v => v.State == "Running");
         var store = new InMemoryCredentialStore();
         store.Save(vm.Id, new GuestCredential("vmuser", "vmadmin"));
-        await Assert.ThrowsAnyAsync<OperationCanceledException>(() => new ScreenshotTaker(flaky, store).TakeAsync(vm));
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(() => new ScreenshotTaker(flaky, store).TakeAsync(vm, Ct));
     }
 
     /// <summary>The demo, except that a picture from inside the VM always fails as given.</summary>
@@ -364,7 +366,7 @@ public class ScreenshotTakerTests
         var store = new InMemoryCredentialStore();
         store.Save(vm.Id, new GuestCredential("vmuser", "vmadmin"));
         var taker = new ScreenshotTaker(demo, store);
-        await Assert.ThrowsAsync<HyperVException>(() => taker.TakeAsync(vm));
+        await Assert.ThrowsAsync<HyperVException>(() => taker.TakeAsync(vm, Ct));
     }
 
     [Fact]

@@ -39,12 +39,14 @@ public sealed class ScreenshotTaker(IHyperVService hyperV, IGuestCredentialStore
             note = "Without the VM's sign-in, a Remote Desktop session in it can't be seen. Take Again asks for it.";
         else
         {
-            while (true)
+            note = "";
+            // Until a picture comes back, or there's no sign-in left to try.
+            while (credential is { } trying)
             {
                 try
                 {
-                    var session = await hyperV.TakeSessionScreenshotAsync(vm.Id, credential, ct);
-                    if (remember) Keep(vm, credential);
+                    var session = await hyperV.TakeSessionScreenshotAsync(vm.Id, trying, ct);
+                    if (remember) Keep(vm, trying);
                     else if (replacing) Forget(vm); // the kept one was wrong, and this one isn't to be kept
                     return session.Picture with { Info = session.Info };
                 }
@@ -53,7 +55,7 @@ public sealed class ScreenshotTaker(IHyperVService hyperV, IGuestCredentialStore
                     // The kept sign-in stays until one that works replaces it: a VM still starting
                     // can refuse a right one, and Escape here shouldn't lose it.
                     replacing = true;
-                    (credential, remember) = Ask(vm, $"Windows in {vm.Name} didn't accept that sign-in: {ex.Message}", credential.UserName);
+                    (credential, remember) = Ask(vm, $"Windows in {vm.Name} didn't accept that sign-in: {ex.Message}", trying.UserName);
                     if (credential is null) { note = "Windows in the VM didn't accept the sign-in."; break; }
                 }
                 catch (SessionScreenshotException ex) when (ex.Reason == SessionFailure.Unreachable)
@@ -64,7 +66,7 @@ public sealed class ScreenshotTaker(IHyperVService hyperV, IGuestCredentialStore
                 catch (SessionScreenshotException ex)
                 {
                     // Windows accepted the sign-in; there was just no picture to take this time.
-                    if (remember) Keep(vm, credential);
+                    if (remember) Keep(vm, trying);
                     else if (replacing) Forget(vm);
                     note = ex.Message;
                     break;
