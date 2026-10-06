@@ -468,8 +468,10 @@ class Speaker:
     def _log(self, text: str, settings: SpeechSettings, interrupt: bool) -> None:
         """One line per utterance in ``speech.log`` beside the engine files.
 
-        TheClaudeHub's own record of what it handed to the engine and when.
-        The engine script's ``last-route.log`` can't serve: ClaudeSpeak's hook
+        TheClaudeHub's own record of what it handed to the engine and when;
+        a later interrupting utterance can still cut one off, so a line is not
+        proof it was heard. The engine script's ``last-route.log`` can't
+        serve: ClaudeSpeak's hook
         writes the same file, and it holds only the latest utterance. Kept
         under ``LOG_LIMIT`` bytes by dropping the older half.
         """

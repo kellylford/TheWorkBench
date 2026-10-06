@@ -153,16 +153,20 @@ TheClaudeHub writes to its own. The rule is enforced in code: TheClaudeHub refus
 `--resume` command for any session it didn't start, any session the desktop app knows about
 (archived ones included), or any `local_` id, and there are tests for each. It also won't send
 into one of its own sessions while that session is running somewhere else. One turn runs at a time
-per session. Send during a turn queues the message: TheClaudeHub says "Queued", and once the turn's
-reply has been announced, it sends the message. More messages sent while one is waiting join it,
-and they go together as one message. If the turn fails, or you press Stop, the queued text goes back in the
-message box instead. Send and Stop are never disabled, so from the message box, Tab is always Send
-and the next Tab is always Stop. When a turn is running, Tab doesn't jump past Send to Stop.
+per session. Send during a turn queues the message: TheClaudeHub says "Queued", and once the
+turn's reply has been announced, it sends the message. More messages sent while one is waiting
+join it, and they go together as one message. Turn status (Ctrl+Shift+T) says when a message is
+queued. If the turn fails, or you press Stop, the queued text goes back in the message box
+instead, ahead of anything typed since, with the cursor left at the end. While one of
+TheClaudeHub's sessions is loaded, Send and Stop are never disabled, so from the message box, Tab
+is always Send and the next Tab is always Stop. When a turn is running, Tab doesn't jump past
+Send to Stop.
 
 Every announcement is also written to `speech.log` in `%TEMP%\theclaudehub-speak` (on a Mac,
 `$TMPDIR/theclaudehub-speak`), one line each: the time, whether it interrupts or waits its turn,
-the speech engine, and its opening words. The log shows whether a reply was handed to the screen
-reader when you didn't hear it.
+the speech engine, and its opening words. A line means the text was handed to the speech engine,
+not that it was heard: a later announcement that interrupts can cut it off. The log shows
+whether a reply went to the screen reader at all when you didn't hear it.
 
 A turn runs `claude` in a Windows job object, so Stop, or quitting the app, ends `claude` and every
 program it started (a build or test run, say), not just `claude` itself. The same happens when a

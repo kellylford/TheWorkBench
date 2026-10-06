@@ -453,7 +453,7 @@ def test_send_speaks_confirmation_and_one_turn_at_a_time(frame, env, fake_runner
     assert env["feedback"][-1] == "Queued. It will be sent when Hub probe finishes."
     frame.on_turn_status()
     assert env["feedback"][-1] == ("Hub probe: Claude has been working for 1 minute "
-                                   "15 seconds, last starting.")
+                                   "15 seconds, last starting. A message is queued.")
 
 
 def test_send_refused_when_busy_elsewhere(frame, env, fake_runner, monkeypatch):
@@ -807,9 +807,34 @@ def test_send_during_a_turn_queues_and_goes_when_it_ends(frame, env, fake_runner
     assert env["spoken"][-1] == "Hub probe replied. Done."
     assert len(fake_runner.instances) == 2
     assert fake_runner.instances[1].prompt == "second\n\nthird"
-    assert env["feedback"][-1] == "Sent. Hub probe is working."
+    assert env["feedback"][-1] == "Sent your queued message. Hub probe is working."
     assert frame._queued == {}
     assert "own-1" in frame._runners
+    assert env["boxes"] == []
+
+
+def test_queued_message_goes_despite_the_lists_stale_busy_status(frame, env, fake_runner,
+                                                                 monkeypatch):
+    # During the turn, TheClaudeHub's own `claude -p` writes a busy pid file
+    # for the session, and the list's snapshot keeps it up to 5 seconds after
+    # the process has exited.
+    _start(frame, fake_runner)
+    (env["live"] / "4242.json").write_text(json.dumps(
+        {"pid": 4242, "sessionId": "own-1", "status": "busy"}))
+    claude_running = {"yes": True}
+    original = hub.load_live_status
+    monkeypatch.setattr(hub, "load_live_status",
+                        lambda directory=None, alive=None: original(
+                            directory, alive=lambda pid: claude_running["yes"]))
+    frame.refresh_sessions(force=True)
+    assert pump(lambda: "own-1" in frame._snapshot.live)
+    frame.reply_text.SetValue("second")
+    frame.on_send()
+    claude_running["yes"] = False  # the turn's process has exited
+    frame._on_turn_event({"id": "own-1"}, "Hub probe", TurnEvent("finished", text="Done."))
+    assert "own-1" in frame._snapshot.live  # the snapshot is still stale
+    assert env["boxes"] == []
+    assert fake_runner.instances[-1].prompt == "second"
 
 
 def test_stop_gives_the_queued_message_back(frame, env, fake_runner):
@@ -817,14 +842,31 @@ def test_stop_gives_the_queued_message_back(frame, env, fake_runner):
     frame.reply_text.SetValue("queued words")
     frame.on_send()
     frame.reply_text.SetValue("half typed")
+    frame.reply_text.SetInsertionPointEnd()
     frame.on_stop()
     assert runner.cancelled
     assert frame._queued == {}
-    assert frame.reply_text.GetValue() == "half typed\n\nqueued words"
+    # In the order written, with the caret still where Kelly was typing.
+    assert frame.reply_text.GetValue() == "queued words\n\nhalf typed"
+    assert frame.reply_text.GetInsertionPoint() == frame.reply_text.GetLastPosition()
     assert env["feedback"][-1] == "Stopping. Your queued message is back in the message box."
     frame._on_turn_event({"id": "own-1"}, "Hub probe",
                          TurnEvent("failed", text="Stopped.", is_error=True))
     assert len(fake_runner.instances) == 1  # nothing sent after a stop
+
+
+def test_send_while_stopping_keeps_the_text(frame, env, fake_runner):
+    _start(frame, fake_runner)
+    frame.on_stop()
+    frame.reply_text.SetValue("do this instead")
+    frame.on_send()
+    assert frame._queued == {}
+    assert frame.reply_text.GetValue() == "do this instead"
+    assert env["feedback"][-1] == "Still stopping. Send again in a moment."
+    frame._on_turn_event({"id": "own-1"}, "Hub probe",
+                         TurnEvent("failed", text="Stopped.", is_error=True))
+    frame.on_send()
+    assert fake_runner.instances[-1].prompt == "do this instead"
 
 
 def test_queued_message_is_not_sent_after_a_failed_turn(frame, env, fake_runner):
@@ -835,22 +877,86 @@ def test_queued_message_is_not_sent_after_a_failed_turn(frame, env, fake_runner)
                          TurnEvent("finished", text="API error", is_error=True))
     assert len(fake_runner.instances) == 1
     assert frame.reply_text.GetValue() == "follow up"
-    assert env["feedback"][-1] == ("Your queued message for Hub probe wasn't sent. "
-                                   "It's back in the message box.")
+    assert env["feedback"][-1] == ("Your queued message for Hub probe wasn't sent: the turn "
+                                   "before it failed. It's back in the message box.")
 
 
-def test_queued_message_refused_at_send_time_goes_back_to_its_draft(frame, env, fake_runner,
-                                                                     monkeypatch):
+def test_queued_message_refused_at_send_time_is_spoken_and_goes_to_its_draft(
+        frame, env, fake_runner, monkeypatch):
     _start(frame, fake_runner)
     frame.reply_text.SetValue("later")
     frame.on_send()
+    frame._drafts["own-1"] = "typed elsewhere"
     frame._open = None  # Kelly has moved on to another session
     monkeypatch.setattr(platform_paths, "find_claude",
                         lambda: platform_paths.ClaudeLookup(None, "Claude Code isn't installed."))
     frame._on_turn_event({"id": "own-1"}, "Hub probe", TurnEvent("finished", text="ok"))
     assert len(fake_runner.instances) == 1
-    assert "isn't installed" in env["boxes"][-1]
-    assert frame._drafts["own-1"] == "later"
+    assert env["boxes"] == []  # no dialog he didn't ask for
+    assert env["feedback"][-1] == ("Your queued message for Hub probe wasn't sent: Claude "
+                                   "Code isn't installed. It's back in the message box.")
+    assert frame._drafts["own-1"] == "later\n\ntyped elsewhere"
+
+
+def test_queued_send_leaves_the_open_sessions_reply_box_alone(frame, env, fake_runner):
+    frame.store.add(OwnSession("own-2", "Second", "C:\\G\\Two", last_activity_ms=now_ms() - 5))
+    frame.refresh_sessions(force=True)
+    assert pump(lambda: frame.session_list.GetCount() == 4)
+    _start(frame, fake_runner)
+    frame.reply_text.SetValue("queued")
+    frame.on_send()
+    frame.focus_sessions()
+    settle(frame)
+    select(frame, "Second")
+    frame.on_open_session()
+    frame.reply_text.SetValue("for second")
+    frame._on_turn_event({"id": "own-1"}, "Hub probe", TurnEvent("finished", text="ok"))
+    assert fake_runner.instances[-1].prompt == "queued"
+    assert fake_runner.instances[-1].cwd == "C:\\G\\Scratch"
+    assert frame.reply_text.GetValue() == "for second"
+
+
+def test_failed_first_turn_gives_back_both_messages_in_order(frame, env, fake_runner):
+    frame.store.add(OwnSession("new-1", "Fresh", "C:\\G\\Scratch", started=False,
+                               last_activity_ms=now_ms()))
+    frame.refresh_sessions(force=True)
+    assert pump(lambda: frame.session_list.GetCount() == 4)
+    select(frame, "Fresh")
+    frame.on_open_session()
+    frame.reply_text.SetValue("first")
+    frame.on_send()
+    frame.reply_text.SetValue("queued")
+    frame.on_send()
+    frame.reply_text.SetValue("typing more")
+    frame._on_turn_event({"id": "new-1"}, "Fresh", TurnEvent(
+        "failed", text="Not logged in.", is_error=True))
+    assert frame.reply_text.GetValue() == "first\n\nqueued\n\ntyping more"
+    assert len(fake_runner.instances) == 1
+
+
+def test_failed_first_turn_with_the_session_closed_keeps_its_draft(frame, env, fake_runner):
+    frame.store.add(OwnSession("new-1", "Fresh", "C:\\G\\Scratch", started=False,
+                               last_activity_ms=now_ms()))
+    frame.refresh_sessions(force=True)
+    assert pump(lambda: frame.session_list.GetCount() == 4)
+    select(frame, "Fresh")
+    frame.on_open_session()
+    frame.reply_text.SetValue("first")
+    frame.on_send()
+    frame._open = None
+    frame._drafts["new-1"] = "draft text"
+    frame._on_turn_event({"id": "new-1"}, "Fresh", TurnEvent(
+        "failed", text="Not logged in.", is_error=True))
+    assert frame._drafts["new-1"] == "first\n\ndraft text"
+
+
+def test_turn_status_mentions_a_queued_message(frame, env, fake_runner):
+    _start(frame, fake_runner)
+    frame.reply_text.SetValue("more")
+    frame.on_send()
+    frame.on_turn_status()
+    assert env["feedback"][-1] == ("Hub probe: Claude has been working for 1 minute "
+                                   "15 seconds, last starting. A message is queued.")
 
 
 def test_queued_message_follows_a_renamed_session_id(frame, env, fake_runner):
