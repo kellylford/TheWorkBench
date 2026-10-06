@@ -499,6 +499,7 @@ public class ScreenshotWindowTests
             var ocr = UIElementAutomationPeer.CreatePeerForElement((Button)window.FindName("OcrButton"));
             Assert.Equal("Run Windows OCR", ocr.GetName());
             Assert.Equal("O", ocr.GetAccessKey());
+            Assert.Equal("", ocr.GetHelpText()); // its name says it all
             var keys = ShortcutsWindow.Sections.Single(s => s.Section == "In the screenshot window").Keys.Select(k => k.Key);
             Assert.Equal(["F5", "Ctrl+Shift+C", "Ctrl+S", "Escape"], keys);
         }
