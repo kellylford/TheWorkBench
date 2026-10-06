@@ -20,6 +20,7 @@ SHORTCUTS = [
         ("Ctrl+3", "Go to the reply box (or the note, for a desktop session)"),
         ("Escape in the messages or the reply box",
          "Back to the session list, on the same session"),
+        ("Backspace in the messages", "Also back to the session list"),
     ]),
     ("Session list", [
         ("Enter", "Load that session and move to its messages"),

@@ -248,20 +248,23 @@ def test_tab_order_own_session(frame):
     select(frame, "Hub probe")
     frame.on_open_session()
     order = tab_order(frame)
-    assert order[:5] == [frame.session_list, frame.chat_list, frame.reply_text,
-                         frame.send_btn, frame.activity_check] or \
-        order[:4] == [frame.session_list, frame.chat_list, frame.reply_text, frame.send_btn]
-    # Stop is disabled while nothing runs, so it is skipped; it follows Send.
-    assert frame.desktop_note not in order
+    # Stop is disabled while nothing runs, so Tab skips it.
+    assert order == [frame.session_list, frame.chat_list, frame.reply_text, frame.send_btn,
+                     frame.activity_check, frame.new_btn, frame.refresh_btn]
+    frame._runners["own-1"] = FakeRunner([], "", "", None)
+    frame._update_send_state()
+    # While a turn runs, Send is disabled and Stop takes its place.
+    assert tab_order(frame)[:4] == [frame.session_list, frame.chat_list, frame.reply_text,
+                                    frame.stop_btn]
 
 
 def test_tab_order_desktop_session_puts_the_note_where_the_reply_box_is(frame):
     select(frame, "Quiet one")
     frame.on_open_session()
     order = tab_order(frame)
-    assert order[:4] == [frame.session_list, frame.chat_list, frame.desktop_note,
-                         frame.reply_claude_btn]
-    assert frame.reply_text not in order
+    assert order == [frame.session_list, frame.chat_list, frame.desktop_note,
+                     frame.reply_claude_btn, frame.activity_check, frame.new_btn,
+                     frame.refresh_btn]
 
 
 def test_nothing_loaded_at_start(frame):
@@ -679,3 +682,99 @@ def test_loading_another_session_announces_it(frame, env):
     frame.on_open_session()
     assert pump(lambda: frame._chat_loaded and frame._open.title == "Quiet one")
     assert env["feedback"][-1] == "Loaded Quiet one, 1 message."
+
+
+# -- review of PR #172 ---------------------------------------------------------------------
+
+
+def test_enter_on_the_loaded_session_goes_back_without_reloading(frame, env, monkeypatch):
+    add_transcript(env, "C:\\G\\Repo", "cli-a", [
+        user_text("One"), assistant_block(text_block("Two"), "m1"), user_text("Three")])
+    select(frame, "Quiet one")
+    frame.on_open_session()
+    assert pump(lambda: frame._chat_loaded)
+    frame.chat_list.SetSelection(0)  # Kelly was reading the first message
+    generation = frame._open_generation
+    focused = []
+    monkeypatch.setattr(frame.chat_list, "SetFocus", lambda: focused.append("messages"))
+    frame.on_open_session()          # Enter on the same session again
+    assert frame._open_generation == generation   # not reloaded
+    assert frame.chat_list.GetSelection() == 0
+    assert frame.chat_list.GetCount() == 3
+    assert focused == ["messages"]
+    assert env["feedback"][-1] == "Back in Quiet one."
+
+
+def test_forgetting_the_loaded_session_moves_focus_to_the_session_list(frame, env,
+                                                                       monkeypatch):
+    select(frame, "Hub probe")
+    frame.on_open_session()
+    focused = []
+    monkeypatch.setattr(frame.session_list, "SetFocus", lambda: focused.append("sessions"))
+    frame.on_forget(None)            # MessageBox stub answers Yes
+    assert frame._open is None
+    assert not frame.own_reply.IsShown()
+    assert focused == ["sessions"]
+
+
+def test_message_menu_binds_on_the_menu_and_opens_at_the_message(frame, env, monkeypatch):
+    add_transcript(env, "C:\\G\\Repo", "cli-a", [user_text("Hello")])
+    select(frame, "Quiet one")
+    frame.on_open_session()
+    assert pump(lambda: frame._chat_loaded)
+    read = []
+    monkeypatch.setattr(frame, "on_read_message", lambda: read.append(True))
+    menu = frame._message_menu()
+    try:
+        item = menu.FindItemByPosition(0)
+        assert item.GetItemLabelText() == "Read Full Message"
+        event = wx.CommandEvent(wx.wxEVT_MENU, item.GetId())
+        menu.ProcessEvent(event)
+        assert read == [True]
+    finally:
+        menu.Destroy()
+    # Nothing was bound on the frame, so repeated menus don't pile up handlers.
+    frame.ProcessEvent(wx.CommandEvent(wx.wxEVT_MENU, item.GetId()))
+    assert read == [True]
+    # Opened from the keyboard: at the selected message, not wherever the mouse is.
+    keyboard = wx.ContextMenuEvent(wx.wxEVT_CONTEXT_MENU, frame.chat_list.GetId(),
+                                   wx.DefaultPosition)
+    point = frame._message_menu_position(keyboard)
+    size = frame.chat_list.GetClientSize()
+    assert 0 <= point.x <= max(size.width, 8) and 0 <= point.y <= max(size.height, 40)
+
+
+def test_a_stale_load_starts_the_current_one_straight_away(frame, monkeypatch):
+    select(frame, "Quiet one")
+    frame.on_open_session()
+    calls = []
+    monkeypatch.setattr(frame, "_refresh_chat", lambda: calls.append(True))
+    frame._apply_chat(frame._open_generation - 1, True, [], 0, None)
+    assert calls == [True]
+
+
+def test_a_turn_ending_in_an_unloaded_session_marks_it_and_leaves_the_loaded_one(
+        frame, env, fake_runner, monkeypatch):
+    frame.store.add(OwnSession("own-2", "Second", "C:\\G\\Two", started=False,
+                               last_activity_ms=now_ms()))
+    frame.refresh_sessions(force=True)
+    assert pump(lambda: frame.session_list.GetCount() == 4)
+    # Start a turn in Second, then load Hub probe and type there.
+    select(frame, "Second")
+    frame.on_open_session()
+    frame.reply_text.SetValue("first message for Second")
+    frame.on_send()
+    select(frame, "Hub probe")
+    frame.on_open_session()
+    frame.reply_text.SetValue("typing in Hub probe")
+    refreshed = []
+    monkeypatch.setattr(frame, "_refresh_chat", lambda: refreshed.append(True))
+    # Second's first turn fails before reaching Claude.
+    frame._on_turn_event({"id": "own-2"}, "Second",
+                         TurnEvent("failed", text="Not logged in.", is_error=True))
+    second = frame.store.get("own-2")
+    assert second.unread and second.state == NEEDS_YOU
+    assert frame._drafts["own-2"] == "first message for Second"   # kept for Second
+    assert frame.reply_text.GetValue() == "typing in Hub probe"   # Hub probe untouched
+    assert refreshed == []                                        # loaded chat not reloaded
+    assert frame._open.title == "Hub probe"

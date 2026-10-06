@@ -167,14 +167,13 @@ class MainFrame(wx.Frame):
         self.session_list.Bind(wx.EVT_LISTBOX_DCLICK, self.on_open_session)
         outer.Add(left, 2, wx.EXPAND)
 
-        view = root
         vsizer = wx.BoxSizer(wx.VERTICAL)
-        self.session_heading = wx.StaticText(view, label="")
+        self.session_heading = wx.StaticText(root, label="")
         vsizer.Add(self.session_heading, 0, wx.LEFT | wx.TOP | wx.RIGHT, 8)
 
-        self.messages_label = wx.StaticText(view, label="&Messages:")
+        self.messages_label = wx.StaticText(root, label="&Messages:")
         vsizer.Add(self.messages_label, 0, wx.LEFT | wx.TOP, 8)
-        self.chat_list = wx.ListBox(view, style=wx.LB_SINGLE, name="Messages")
+        self.chat_list = wx.ListBox(root, style=wx.LB_SINGLE, name="Messages")
         set_accessible_name(self.chat_list, "Messages")
         vsizer.Add(self.chat_list, 1, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.BOTTOM, 8)
         self.chat_list.Bind(wx.EVT_CONTEXT_MENU, self._on_message_menu)
@@ -182,7 +181,7 @@ class MainFrame(wx.Frame):
 
         # Where the reply goes: one panel for TheClaudeHub's sessions, one for
         # desktop ones, in the same place so the layout is the same.
-        self.own_reply = wx.Panel(view)
+        self.own_reply = wx.Panel(root)
         osizer = wx.BoxSizer(wx.VERTICAL)
         osizer.Add(wx.StaticText(self.own_reply,
                                  label="&Your message (Ctrl+Enter sends):"), 0, wx.BOTTOM, 4)
@@ -205,7 +204,7 @@ class MainFrame(wx.Frame):
         self.send_btn.Bind(wx.EVT_BUTTON, self.on_send)
         self.stop_btn.Bind(wx.EVT_BUTTON, self.on_stop)
 
-        self.desktop_reply = wx.Panel(view)
+        self.desktop_reply = wx.Panel(root)
         dsizer = wx.BoxSizer(wx.VERTICAL)
         # A read-only text box, not a static label: it is focusable, so the
         # explanation is what's heard on tabbing to where the reply box would be.
@@ -228,18 +227,17 @@ class MainFrame(wx.Frame):
         vsizer.Add(self.desktop_reply, 0, wx.EXPAND | wx.LEFT | wx.RIGHT, 8)
 
         crow = wx.BoxSizer(wx.HORIZONTAL)
-        self.activity_check = wx.CheckBox(view, label="Show tool &activity")
+        self.activity_check = wx.CheckBox(root, label="Show tool &activity")
         crow.Add(self.activity_check, 0, wx.ALIGN_CENTER_VERTICAL)
         vsizer.Add(crow, 0, wx.ALL, 8)
         self.activity_check.Bind(wx.EVT_CHECKBOX, self.on_toggle_activity_check)
-        self.session_view = view
-
+        self.session_view = root
 
         # Session-list commands come last in the Tab order; all of them are
         # also on the Session menu with shortcuts.
         row = wx.BoxSizer(wx.HORIZONTAL)
-        new_btn = wx.Button(root, label="&New Session...")
-        refresh_btn = wx.Button(root, label="&Refresh")
+        self.new_btn = new_btn = wx.Button(root, label="&New Session...")
+        self.refresh_btn = refresh_btn = wx.Button(root, label="&Refresh")
         row.Add(new_btn, 0, wx.RIGHT, 6)
         row.Add(refresh_btn, 0)
         vsizer.Add(row, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 8)
@@ -497,6 +495,8 @@ class MainFrame(wx.Frame):
             return
         if self._open is not None and self._open.key == info.key:
             self.unload_session()
+            # Its messages and reply box are gone: don't leave focus on them.
+            self.session_list.SetFocus()
         # Keep the place: the neighbour moves into the forgotten row.
         index = self._list_keys.index(info.key) if info.key in self._list_keys else -1
         if index >= 0:
@@ -515,6 +515,11 @@ class MainFrame(wx.Frame):
                 if index != wx.NOT_FOUND and index < len(self._list_keys) else None)
         if info is None:
             self._feedback("No session selected.")
+            return
+        if self._open is not None and info.key == self._open.key:
+            # Already loaded: go back to it as it was, without reloading.
+            self.chat_list.SetFocus()
+            self._feedback(f"Back in {info.title}.")
             return
         self.open_session(info)
 
@@ -673,7 +678,12 @@ class MainFrame(wx.Frame):
 
     def _apply_chat(self, generation, changed, messages, unreadable, error):
         self._reader_busy = False
-        if not self or generation != self._open_generation or self._open is None:
+        if not self or self._open is None:
+            return
+        if generation != self._open_generation:
+            # A load for a session that is no longer loaded: start the
+            # current one's now rather than waiting for the next tick.
+            self._refresh_chat()
             return
         if error is not None:
             if not self._chat_loaded:
@@ -778,17 +788,40 @@ class MainFrame(wx.Frame):
             dialog.Destroy()
         self.chat_list.SetFocus()
 
-    def _on_message_menu(self, _event=None):
+    def _message_menu(self) -> wx.Menu:
+        """The messages list's context menu. Its handlers are bound on the
+        menu itself, so nothing accumulates on the frame."""
         menu = wx.Menu()
         read = menu.Append(wx.ID_ANY, "Read &Full Message\tEnter")
         copy = menu.Append(wx.ID_ANY, "&Copy Message\tCtrl+C")
         enabled = self._selected_message() is not None
         read.Enable(enabled)
         copy.Enable(enabled)
-        self.Bind(wx.EVT_MENU, lambda e: self.on_read_message(), read)
-        self.Bind(wx.EVT_MENU, lambda e: self._copy_message(), copy)
-        self.chat_list.PopupMenu(menu)
-        menu.Destroy()
+        menu.Bind(wx.EVT_MENU, lambda e: self.on_read_message(), read)
+        menu.Bind(wx.EVT_MENU, lambda e: self._copy_message(), copy)
+        return menu
+
+    def _message_menu_position(self, event=None) -> wx.Point:
+        """Where the menu opens: at the mouse for a right-click, at the
+        selected message for the Applications key or Shift+F10."""
+        position = event.GetPosition() if event is not None else wx.DefaultPosition
+        if position != wx.DefaultPosition:
+            return self.chat_list.ScreenToClient(position)
+        index = self.chat_list.GetSelection()
+        try:
+            rect = self.chat_list.GetItemRect(max(index, 0))
+            if rect.height > 0:
+                return wx.Point(rect.x + 8, rect.y + rect.height)
+        except (AttributeError, NotImplementedError):
+            pass
+        return wx.Point(8, 8)
+
+    def _on_message_menu(self, event=None):
+        menu = self._message_menu()
+        try:
+            self.chat_list.PopupMenu(menu, self._message_menu_position(event))
+        finally:
+            menu.Destroy()
 
     def on_toggle_activity_menu(self, _event):
         self._set_activity(self.activity_item.IsChecked())

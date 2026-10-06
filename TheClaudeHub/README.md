@@ -37,7 +37,9 @@ session list is always there.
 - **Reply box:** for TheClaudeHub's own sessions, type and press Ctrl+Enter (or Send). You stay in
   the reply box. For desktop app sessions the same place holds a read-only note saying why
   replying happens in Claude, and an Open in Claude button.
-- **Escape** in the messages or the reply box goes back to the session list, on the same session.
+- **Escape** in the messages or the reply box (or Backspace in the messages) goes back to the
+  session list, on the same session. Enter there on the session that's already loaded takes you
+  back to its messages where you left them, without reloading.
 - **Open in Claude** (Ctrl+O) switches the desktop app to the session, for approving a permission
   prompt or answering a question card there.
 - **New Session** (Ctrl+N) starts a session of TheClaudeHub's own: choose a folder, a title, a
@@ -80,6 +82,7 @@ The same list is in the app under Help, Keyboard Shortcuts (F1).
 | Anywhere | Tab, Shift+Tab | Session list, messages, reply box, and back |
 | Anywhere | Ctrl+1, Ctrl+2, Ctrl+3 | Go to the session list, the messages, the reply box |
 | Messages or reply box | Escape | Back to the session list, on the same session |
+| Messages | Backspace | Also back to the session list |
 | Session list | Enter | Load that session and move to its messages |
 | Session list | Ctrl+O | Open the selected session in the Claude desktop app |
 | Session list | Ctrl+N | New TheClaudeHub session |
