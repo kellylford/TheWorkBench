@@ -43,6 +43,19 @@ Describe 'scripts' {
             @($bytes | Where-Object { $_ -gt 127 }).Count | Should Be 0
         }
     }
+    It "the agent's C# compiles (Windows PowerShell 5.1, C# 5)" {
+        # Each Add-Type here-string, compiled in a fresh PowerShell so the types don't stay loaded here.
+        $agent = Get-Content (Join-Path $root 'guest\agent.ps1') -Raw
+        $blocks = [regex]::Matches($agent, "Add-Type(?<refs> -ReferencedAssemblies \w+)? -TypeDefinition @'\r?\n(?<code>.*?)\r?\n'@", 'Singleline')
+        $blocks.Count | Should Be 2
+        foreach ($b in $blocks) {
+            $file = Join-Path $TestDrive "block$([guid]::NewGuid()).cs"
+            [System.IO.File]::WriteAllText($file, $b.Groups['code'].Value)
+            $refs = if ($b.Groups['refs'].Success) { $b.Groups['refs'].Value } else { '' }
+            $out = & powershell.exe -NoProfile -NonInteractive -Command "try { Add-Type$refs -TypeDefinition ([IO.File]::ReadAllText('$file')) -ErrorAction Stop; 'compiled' } catch { `$_.Exception.Message }"
+            ($out -join ' ') | Should Be 'compiled'
+        }
+    }
     It 'the agent refuses to run anywhere but a VM' {
         (Get-Content (Join-Path $root 'guest\agent.ps1') -Raw) | Should Match "Model -ne 'Virtual Machine'"
     }

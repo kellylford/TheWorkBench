@@ -69,9 +69,9 @@ powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File "$env:VMTEST
 | `run "<cmd>" [-Timeout s]` | Runs a command line as the signed-in user, and returns the output and exit code. The default timeout is 600 seconds, and the most is 3600. See the rules below. |
 | `run -ScriptFile <file>` | Copies a `.cmd`, `.bat` or `.ps1` from this PC into the VM and runs it the same way. |
 | `launch <exe> [-Arguments "..."]` | Starts a program. Reports its window and where focus is. |
-| `windows`, `focused` | Lists the open windows, or shows the control with keyboard focus. |
+| `windows`, `focused` | Lists the open windows, with dialogs indented under their owner and any open menu's items, or shows what has keyboard focus. |
 | `tree [-Window w] [-Depth n]` | Shows the accessibility tree: names, AutomationIds, values, states, help text. |
-| `invoke`, `setvalue`, `focus <control>` | Act on a control, found by AutomationId or name. |
+| `invoke`, `setvalue`, `focus <control>` | Act on a control, found by AutomationId or name. `id:<id>` matches only an AutomationId, which is also how to pass a negative one (`id:-31984`); `name:<name>` matches only a name. |
 | `keys "{TAB}"`, `type "text"` | Send keys (SendKeys syntax, so `+` means Shift) or plain text. Each one reports where focus ended up. |
 | `close [-Window w]` | Closes a window, then reports whether it really went. |
 | `shot <file.png> [-FromHost]` | Takes a picture of the VM's screen. |
@@ -99,7 +99,13 @@ powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File "$env:VMTEST
   - A `.ps1` runs with progress records turned off. Its exit code is its own `exit N`, otherwise
     that of the last program it ran, and 1 if it throws.
   - `vmtest run` itself exits with that code.
-- **Text that starts with `-`.** Pass it as `-Target "-5"`; otherwise PowerShell takes it as a parameter name.
+- **Text that starts with `-`.** Pass it as `-Target "-5"`; otherwise PowerShell takes it as a parameter name. For a control id that starts with `-`, write `id:-31984`.
+- **The VM is disposable.** Install, break or reconfigure anything in it; `end` throws it all away. It is on your network, though.
+- **Menus and dialogs.** A classic menu opened with `keys` stays open for more `keys`. `tree`, `windows` and focus reports show its items through MSAA, with the highlighted one marked. Owned dialogs appear under their owner in `windows`, and `-Window "<title>"` finds them.
+- **Programs that relaunch themselves** (PyInstaller one-file builds, for example) are followed: `launch` reports the window of the child process the launcher starts.
+- **Modal and modeless windows.** While a modal dialog has disabled its owner, keys aimed at the owner go to the dialog, as a person's would. A modeless window in front doesn't count; vmtest brings the target forward.
+- **Something else in front.** When vmtest can't bring the target forward (Windows protects notification toasts, for example), it refuses and names the window that's in front, so you can deal with it first.
+- **Typing.** `type` sends each character as its real key (with Shift as needed), and falls back to Unicode only for characters the keyboard layout lacks. Windows 11 Notepad can still mangle fast input, so check typing in the app under test.
 - **Looking at the VM yourself.**
   - Hyper-V Manager's basic (not enhanced) session window leaves the session where it is.
   - A Remote Desktop session takes the VM's screen away from vmtest. Disconnect when you're done.
@@ -128,7 +134,9 @@ It reports:
 - where focus is after every action.
 
 For classic Win32 controls that the .NET client sees as plain panes (the buttons in a MessageBox,
-for example), it adds their MSAA role, as in `Pane [MSAA role: push button] 'No'`.
+for example), it adds their MSAA role, and takes their name and value from MSAA when the .NET
+client has none, as in `Pane [MSAA role: push button] 'No'`. Classic menus are read the same way:
+each item's name, keyboard shortcut and state, with the highlighted one marked.
 `invoke` presses such controls through MSAA's default action.
 
 It doesn't tell you:

@@ -31,7 +31,9 @@ checks that this task holds it.
   save                             checkpoint this task, park the VM, release it
   end [-Force]                     after merge: delete this task's checkpoint, back to Clean
 
--Window is a process id or part of a window title.
+-Window is a process id (its main window) or part of a window title (dialogs included).
+<control> is an AutomationId or a name; id:<id> matches only an AutomationId (id:-31984 for a
+negative one) and name:<name> only a name.
 -Elevated runs launch, run and the UI commands with admin rights. Without it, programs run like a
 normal user's would; use it for per-machine installs and to drive windows of elevated programs.
 'vmtest run' exits with the command's own exit code.
