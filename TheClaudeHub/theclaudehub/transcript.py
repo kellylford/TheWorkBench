@@ -445,11 +445,22 @@ class TranscriptReader:
             return False
         complete = data[: end + 1]
         self._offset += len(complete)
-        lines = complete.decode("utf-8", errors="replace").splitlines()
+        lines = split_jsonl(complete)
         before = (len(self.transcript.messages), self.transcript.unreadable_lines)
         touched = self._parser.feed(lines)
         after = (len(self.transcript.messages), self.transcript.unreadable_lines)
         return bool(touched) or before != after
+
+
+def split_jsonl(data: bytes) -> List[str]:
+    """Lines of a JSONL file, split on newline bytes only.
+
+    Not ``str.splitlines()``: that also splits on U+2028, U+2029 and U+0085,
+    which JSON writers leave raw inside strings, and so would cut a record in
+    half and lose the message.
+    """
+    return [raw.decode("utf-8", errors="replace").rstrip("\r")
+            for raw in data.split(b"\n")]
 
 
 def read_transcript(path: Path) -> Transcript:

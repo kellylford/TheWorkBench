@@ -173,18 +173,202 @@ def open_url(url: str) -> None:
         subprocess.Popen(["xdg-open", url])
 
 
-def claude_executable() -> Optional[str]:
-    """Path to the ``claude`` command, or None if it is not installed."""
+class ClaudeLookup:
+    """Where ``claude`` is, or why it can't be used."""
+
+    def __init__(self, path: Optional[str] = None, problem: str = "") -> None:
+        self.path = path
+        self.problem = problem
+
+
+_SCRIPT_SUFFIXES = (".cmd", ".bat", ".ps1")
+
+
+def find_claude(which=None, native_candidates=None) -> ClaudeLookup:
+    """Find the native ``claude`` executable.
+
+    A ``claude.cmd`` / ``.bat`` (the npm install) is refused on purpose: Windows
+    runs those through cmd.exe, which re-parses the command line, so a session
+    title containing ``&`` or ``"`` could run a second command. The native
+    installer's ``claude.exe`` takes its arguments as they are.
+    """
     import shutil
 
-    found = shutil.which("claude")
+    which = which or shutil.which
+    if native_candidates is None:
+        name = "claude.exe" if sys.platform == "win32" else "claude"
+        native_candidates = [Path.home() / ".local" / "bin" / name]
+    found = which("claude")
+    if found and not found.lower().endswith(_SCRIPT_SUFFIXES):
+        return ClaudeLookup(found)
+    for candidate in native_candidates:
+        if Path(candidate).is_file():
+            return ClaudeLookup(str(candidate))
     if found:
-        return found
-    candidates = [Path.home() / ".local" / "bin" / ("claude.exe" if sys.platform == "win32" else "claude")]
-    for candidate in candidates:
-        if candidate.is_file():
-            return str(candidate)
-    return None
+        return ClaudeLookup(None, (
+            f"The claude command on this PC is a script ({found}), from the npm install. "
+            "TheClaudeHub needs the native claude.exe, because a script would let a session "
+            "title be read as a command. Install Claude Code with the native installer "
+            "(https://code.claude.com/docs/en/setup), sign in once in a terminal, and try again."))
+    return ClaudeLookup(None, (
+        "The claude command wasn't found. Install Claude Code with the native installer, "
+        "sign in once in a terminal, then try again."))
+
+
+def claude_executable() -> Optional[str]:
+    """Path to the native ``claude`` command, or None (see ``find_claude``)."""
+    return find_claude().path
+
+
+class ProcessTree:
+    """Lets a child process be killed together with everything it started.
+
+    On Windows the child goes into a Job Object with KILL_ON_JOB_CLOSE, so
+    terminating the job (or TheClaudeHub exiting) ends the whole tree: claude
+    runs tools as child processes, and killing only claude.exe would leave a
+    long build or test run going. If the job can't be set up, ``kill`` falls
+    back to ``taskkill /T /F``. Elsewhere the child gets its own process group.
+    """
+
+    def __init__(self) -> None:
+        self._job = None
+        self._pid: Optional[int] = None
+
+    @staticmethod
+    def popen_kwargs() -> dict:
+        if sys.platform == "win32":
+            return {"creationflags": hidden_window_flags()}
+        return {"start_new_session": True}
+
+    def attach(self, process) -> None:
+        self._pid = getattr(process, "pid", None)
+        if sys.platform != "win32" or not isinstance(self._pid, int):
+            return
+        try:
+            self._job = _create_kill_on_close_job()
+            if self._job is not None and not _assign_to_job(self._job, process):
+                _close_handle(self._job)
+                self._job = None
+        except Exception:  # noqa: BLE001 - fall back to taskkill
+            self._job = None
+
+    def kill(self) -> None:
+        if self._pid is None:
+            return
+        if sys.platform == "win32":
+            if self._job is not None:
+                import ctypes
+
+                if ctypes.windll.kernel32.TerminateJobObject(self._job, 1):
+                    return
+            import subprocess
+
+            subprocess.run(["taskkill", "/T", "/F", "/PID", str(self._pid)],
+                           capture_output=True, creationflags=hidden_window_flags())
+            return
+        import signal
+
+        try:
+            os.killpg(self._pid, signal.SIGKILL)
+        except OSError:
+            pass
+
+    def close(self) -> None:
+        if self._job is not None:
+            _close_handle(self._job)
+            self._job = None
+
+
+def _create_kill_on_close_job():
+    import ctypes
+    from ctypes import wintypes
+
+    class IO_COUNTERS(ctypes.Structure):
+        _fields_ = [(n, ctypes.c_ulonglong) for n in (
+            "ReadOperationCount", "WriteOperationCount", "OtherOperationCount",
+            "ReadTransferCount", "WriteTransferCount", "OtherTransferCount")]
+
+    class BASIC(ctypes.Structure):
+        _fields_ = [("PerProcessUserTimeLimit", ctypes.c_int64),
+                    ("PerJobUserTimeLimit", ctypes.c_int64),
+                    ("LimitFlags", wintypes.DWORD),
+                    ("MinimumWorkingSetSize", ctypes.c_size_t),
+                    ("MaximumWorkingSetSize", ctypes.c_size_t),
+                    ("ActiveProcessLimit", wintypes.DWORD),
+                    ("Affinity", ctypes.c_size_t),
+                    ("PriorityClass", wintypes.DWORD),
+                    ("SchedulingClass", wintypes.DWORD)]
+
+    class EXTENDED(ctypes.Structure):
+        _fields_ = [("BasicLimitInformation", BASIC), ("IoInfo", IO_COUNTERS),
+                    ("ProcessMemoryLimit", ctypes.c_size_t),
+                    ("JobMemoryLimit", ctypes.c_size_t),
+                    ("PeakProcessMemoryUsed", ctypes.c_size_t),
+                    ("PeakJobMemoryUsed", ctypes.c_size_t)]
+
+    kernel32 = ctypes.windll.kernel32
+    kernel32.CreateJobObjectW.restype = wintypes.HANDLE
+    job = kernel32.CreateJobObjectW(None, None)
+    if not job:
+        return None
+    info = EXTENDED()
+    info.BasicLimitInformation.LimitFlags = 0x2000  # JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE
+    ok = kernel32.SetInformationJobObject(wintypes.HANDLE(job), 9,  # ExtendedLimitInformation
+                                          ctypes.byref(info), ctypes.sizeof(info))
+    if not ok:
+        _close_handle(job)
+        return None
+    return job
+
+
+def _assign_to_job(job, process) -> bool:
+    import ctypes
+    from ctypes import wintypes
+
+    handle = getattr(process, "_handle", None)
+    if handle is None:
+        return False
+    return bool(ctypes.windll.kernel32.AssignProcessToJobObject(
+        wintypes.HANDLE(job), wintypes.HANDLE(int(handle))))
+
+
+def _close_handle(handle) -> None:
+    import ctypes
+    from ctypes import wintypes
+
+    ctypes.windll.kernel32.CloseHandle(wintypes.HANDLE(handle))
+
+
+def bring_window_forward(title_matches) -> bool:
+    """Bring the first top-level window whose title satisfies ``title_matches``
+    to the front. Windows only; returns False elsewhere or if none matched."""
+    if sys.platform != "win32":
+        return False
+    import ctypes
+    from ctypes import wintypes
+
+    user32 = ctypes.windll.user32
+    found = []
+
+    @ctypes.WINFUNCTYPE(wintypes.BOOL, wintypes.HWND, wintypes.LPARAM)
+    def callback(hwnd, _lparam):
+        if not user32.IsWindowVisible(hwnd):
+            return True
+        length = user32.GetWindowTextLengthW(hwnd)
+        buffer = ctypes.create_unicode_buffer(length + 1)
+        user32.GetWindowTextW(hwnd, buffer, length + 1)
+        if title_matches(buffer.value):
+            found.append(hwnd)
+            return False
+        return True
+
+    user32.EnumWindows(callback, 0)
+    if not found:
+        return False
+    hwnd = found[0]
+    if user32.IsIconic(hwnd):
+        user32.ShowWindow(hwnd, 9)  # SW_RESTORE
+    return bool(user32.SetForegroundWindow(hwnd))
 
 
 def hidden_window_flags() -> int:

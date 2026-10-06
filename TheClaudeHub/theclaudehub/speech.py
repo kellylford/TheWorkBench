@@ -38,6 +38,7 @@ import re
 import subprocess
 import sys
 import tempfile
+import time
 from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import List, Optional
@@ -347,20 +348,27 @@ class Speaker:
             ]
         return None
 
-    def speak(self, text: str, settings: SpeechSettings) -> bool:
+    def speak(self, text: str, settings: SpeechSettings, interrupt: bool = True) -> bool:
         """Start speaking ``text``; returns False when speech is unavailable.
 
         Never raises and never blocks: all the work happens in the detached
-        engine process.
+        engine process. ``interrupt=False`` (TheClaudeHub's short confirmations)
+        queues behind whatever the screen reader is saying instead of cutting
+        it off, and leaves an earlier utterance's process running.
         """
         spoken = strip_for_speech(text)
         if not spoken:
             return False
 
-        self.stop()
+        if interrupt:
+            self.stop()
         try:
-            text_file = self.workdir / "response.txt"
-            config_file = self.workdir / "speak-config.json"
+            # One file pair per utterance: two utterances close together
+            # must not overwrite each other's text before it is read.
+            self._sweep_old_files()
+            stem = f"say-{time.time_ns()}"
+            text_file = self.workdir / f"{stem}.txt"
+            config_file = self.workdir / f"{stem}.json"
             # UTF-8 without BOM on purpose: the engine scripts read UTF-8,
             # and a BOM breaks ConvertFrom-Json in Windows PowerShell.
             text_file.write_text(spoken, encoding="utf-8")
@@ -370,7 +378,7 @@ class Speaker:
                         "engine": settings.engine,
                         "voice": settings.voice,
                         "rate": settings.resolved_rate(),
-                        "interrupt": True,
+                        "interrupt": interrupt,
                         "nvdaClientDll": "",
                     }
                 ),
@@ -394,6 +402,18 @@ class Speaker:
         except Exception:
             self._process = None
             return False
+
+    def _sweep_old_files(self, max_age: float = 300.0) -> None:
+        cutoff = time.time() - max_age
+        try:
+            for old in self.workdir.glob("say-*"):
+                try:
+                    if old.stat().st_mtime < cutoff:
+                        old.unlink()
+                except OSError:
+                    pass
+        except OSError:
+            pass
 
     def stop(self) -> None:
         """Kill the current speaker process, if any. Never raises.

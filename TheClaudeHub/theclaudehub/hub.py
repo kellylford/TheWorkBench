@@ -14,7 +14,7 @@ from . import platform_paths
 from .own_store import OwnSession
 from .sessions import (WORKING, DesktopLoadResult, LiveStatus, SessionInfo,
                        load_desktop_sessions, load_live_status, sort_sessions)
-from .transcript import TranscriptParser
+from .transcript import TranscriptParser, split_jsonl
 
 
 @dataclass
@@ -74,8 +74,7 @@ def last_reply_from_tail(path: Path, max_bytes: int = 512 * 1024) -> str:
             data = handle.read()
     except OSError:
         return ""
-    text = data.decode("utf-8", errors="replace")
-    lines = text.splitlines()
+    lines = split_jsonl(data)
     if start > 0 and lines:
         lines = lines[1:]
     parser = TranscriptParser()

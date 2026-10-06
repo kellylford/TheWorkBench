@@ -17,8 +17,9 @@ It runs on your existing Claude subscription. It never uses an API key and costs
 - **Session list.** Each item reads its title, its repo folder, its state (needs you, working or
   idle), and when it was last active: "Fix the release build, QuickMail, needs you: Choose a
   version number, active 1 minute ago". Sessions that need you come first, then working ones, then
-  the rest, newest first. The list refreshes itself every five seconds without moving your place;
-  F5 refreshes it now.
+  the rest, newest first. The list refreshes itself every five seconds. While you're in the list,
+  rows don't move: a changed session is updated where it is and a new one is added at the end.
+  F5, or coming back from a session, puts the list back in order, keeping you on the same session.
 - **Enter opens a session**, which has two tabs.
   - **Chat:** the messages, newest last, with focus on the newest. Each reads "You:" or "Claude:"
     and its first line. Enter moves to the full message in a read-only text box, where you can
@@ -30,14 +31,21 @@ It runs on your existing Claude subscription. It never uses an API key and costs
 - **Open in Claude** (Ctrl+O) switches the desktop app to the session, for approving a permission
   prompt or answering a question card there.
 - **New Session** (Ctrl+N) starts a session of TheClaudeHub's own: choose a folder, a title, a
-  permission mode (auto by default; accept edits, default and plan are offered) and the first
-  message.
+  permission mode (auto by default; accept edits, manual and plan are offered) and the first
+  message. If that first message never reaches Claude (Claude Code not signed in, say), it goes
+  back into the reply box and Send starts the session again.
 - **Announcements.** When the open session gets a new reply, or one of TheClaudeHub's sessions
   finishes a turn, or any listed session stops working, it's announced through your screen reader
   (or a system voice) and put on the status bar. Settings (Ctrl+Comma) chooses full (the whole
   reply), summary (the session's name and the first sentence) or silent (status bar only), whether
   every listed session is announced or just the open one, and the speech route. Ctrl+Shift+R
   repeats the last announcement.
+- **Answers to what you do are spoken too**, briefly and without cutting off your screen reader:
+  "Sent. Hub probe is working.", "Tool activity shown.", "Message copied.", and so on (unless
+  announcements are set to silent).
+- **Turn Status** (Ctrl+Shift+T) says how long Claude has been working on the current turn and what
+  it last did. There's no time limit on a turn; Stop (Ctrl+Period) ends it, along with anything it
+  started, such as a build.
 
 ## Install and run
 
@@ -73,6 +81,7 @@ The same list is in the app under Help, Keyboard Shortcuts (F1).
 | Session view | Ctrl+O | Open this session in the Claude desktop app |
 | Session view | Ctrl+Enter in the reply box | Send (TheClaudeHub sessions only) |
 | Session view | Ctrl+Period | Stop the running turn |
+| Session view | Ctrl+Shift+T | Turn status: how long it has been working, and on what |
 | Anywhere | F1 | Keyboard shortcuts |
 | Anywhere | Ctrl+Comma | Settings |
 | Anywhere | Ctrl+Shift+R | Repeat the last announcement |
@@ -91,7 +100,8 @@ Everything it reads is on your own PC, so reading costs nothing.
 | The desktop app's sessions | `%APPDATA%\Claude\claude-code-sessions\<id>\<org>\local_<id>.json`: title, folder, last activity, archived, and sometimes a summary of the last turn that says whether it needs you. Archived sessions are left out. |
 | Whether a session is working | `%USERPROFILE%\.claude\sessions\<pid>.json`, which says busy or idle while Claude Code runs it. Files whose process has gone are ignored. |
 | The conversation | `%USERPROFILE%\.claude\projects\<folder>\<session>.jsonl`, where `<folder>` is the session's folder with every character that isn't a letter or digit turned into `-`. This was checked against every transcript on Kelly's PC; if it ever misses, the app searches all the project folders for the session id instead. |
-| TheClaudeHub's own sessions | `%APPDATA%\TheClaudeHub\sessions.json` (and `speech.json` for settings) |
+| TheClaudeHub's own sessions | `%APPDATA%\TheClaudeHub\sessions.json` (and `speech.json` for settings). If `sessions.json` can't be read, it's renamed to `sessions.json.bad-<date>` rather than overwritten, and the app says so. |
+| Errors | `%APPDATA%\TheClaudeHub\error.log`: anything that went wrong unexpectedly, with its traceback |
 
 None of these formats is documented, and Claude Code says the transcript format changes between
 versions. So all the knowledge of it is in one small module (`theclaudehub/transcript.py`) that
@@ -99,21 +109,28 @@ skips record types it doesn't know, never crashes on a line it can't read, and s
 N lines" instead. A long transcript is read once, then only its new lines as it grows.
 
 **TheClaudeHub never writes to the desktop app's files or to any transcript.** The only files it
-writes are its own two in `%APPDATA%\TheClaudeHub`.
+writes are its own, in `%APPDATA%\TheClaudeHub`. Only one copy runs at a time; starting a second
+brings the first to the front.
 
 ### Its own sessions, and why desktop sessions are read-only
 
 TheClaudeHub drives its own sessions with the `claude` command in print mode:
-`claude -p --output-format stream-json --verbose --permission-mode <mode>`, with `--session-id` and
-`--name` for the first message and `--resume <id>` for each reply. The message goes in on standard
-input. That runs under the same login as the desktop app, which is why it costs nothing extra.
+`claude -p --output-format stream-json --verbose --permission-mode <mode> --permission-prompts none`,
+with `--session-id` and `--name` for the first message and `--resume <id>` for each reply. The
+message goes in on standard input, byte for byte. That runs under the same login as the desktop
+app, which is why it costs nothing extra.
 
 - It never uses `--bare`, which needs an API key.
-- It removes every `CLAUDE...` and `ANTHROPIC...` environment variable before starting `claude`
-  (except `CLAUDE_CONFIG_DIR`). Started from inside a Claude session, the app would otherwise pass
-  on that session's variables, which point `claude` at the desktop app's local proxy and tell it
-  someone else will refresh its sign-in, and the run then waits for a refresh that never comes.
-  It also means an `ANTHROPIC_API_KEY` set anywhere can't switch it to per-use billing.
+- It needs the native `claude.exe`. The npm install's `claude.cmd` is refused, because Windows runs
+  a `.cmd` through `cmd.exe`, which would let characters in a session title run a command.
+- Before starting `claude` it removes two named sets of environment variables, and keeps the rest
+  (your `CLAUDE_CODE_GIT_BASH_PATH`, `CLAUDE_CONFIG_DIR`, proxy and timeout settings). The first set
+  is what a Claude session puts in the environment of anything started inside it: started from
+  there, the app would otherwise pass on variables that point `claude` at the desktop app's local
+  proxy and tell it someone else will refresh its sign-in, and the run then waits for a refresh
+  that never comes. The second is anything that would move billing off the subscription:
+  `ANTHROPIC_API_KEY`, `ANTHROPIC_AUTH_TOKEN`, `ANTHROPIC_BASE_URL`, and the Bedrock, Vertex and
+  Foundry switches. Both lists are in `claude_cli.py`.
 - As a second check, `claude` reports where its credentials came from before it sends anything.
   If that's an API key rather than the subscription login, TheClaudeHub stops the run and says so.
 
@@ -125,6 +142,9 @@ TheClaudeHub writes to its own. The rule is enforced in code: TheClaudeHub refus
 into one of its own sessions while that session is running somewhere else. One turn runs at a time
 per session: Send is disabled until the turn finishes.
 
+A turn runs `claude` in a Windows job object, so Stop, or quitting the app, ends `claude` and every
+program it started (a build or test run, say), not just `claude` itself.
+
 ### What headless sessions do with questions and permissions
 
 Checked with Claude Code 2.1.289:
@@ -133,7 +153,9 @@ Checked with Claude Code 2.1.289:
   tool at all, so Claude asks its question in ordinary words and you answer in the reply box.
   Question cards in desktop app sessions are shown as text in the chat ("Claude asked: ...,
   Options: ...", then "You answered: ...").
-- **Nothing can approve a permission prompt**, so anything that would ask is refused. Claude is
+- **Nothing can approve a permission prompt**, so `--permission-prompts none` refuses anything
+  that would ask, straight away; the turn carries on rather than waiting. (Checked in manual mode:
+  the refused Write came back at once and Claude finished the turn explaining it.) Claude is
   told and usually says what it couldn't do. TheClaudeHub adds the refused tools to the
   announcement ("1 tool was refused: Write was refused: C:\...\probe.txt"), marks the session
   "needs you", and the chat shows a "Permission denied" line. In auto mode, Claude's safety check
@@ -150,6 +172,8 @@ Checked with Claude Code 2.1.289:
 - TheClaudeHub's own sessions don't appear in the desktop app, so Open in Claude doesn't work for
   them; the app says so.
 - Subagent conversations are left out of the chat.
+- Turns of TheClaudeHub's own sessions are also spoken by ClaudeSpeak's Stop hook, if that's
+  installed, since `claude -p` runs hooks; so a reply can be heard twice.
 - The desktop app's file formats are undocumented and could change with any update.
 
 ## Files

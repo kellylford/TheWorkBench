@@ -88,20 +88,50 @@ def test_store_rejects_unsafe_id(tmp_path):
 
 def test_store_survives_bad_files(tmp_path):
     path = tmp_path / "s.json"
-    path.write_text("{broken", encoding="utf-8")
-    store = OwnSessionStore(path)
-    assert store.all() == [] and "Couldn't read" in store.load_error
-    path.write_text(json.dumps({"sessions": "nope"}), encoding="utf-8")
-    assert "expected format" in OwnSessionStore(path).load_error
     path.write_text(json.dumps({"sessions": [
         {"cli_session_id": "ok", "title": "T", "cwd": "C:\\", "future_field": 1},
         {"cli_session_id": "../bad", "title": "T", "cwd": "C:\\"},
         {"title": "no id"}, "junk",
         {"cli_session_id": "missing-title"},
+        {"cli_session_id": "bad-title", "title": 5, "cwd": "C:\\"},
+        {"cli_session_id": "odd-types", "title": "T", "cwd": "C:\\", "unread": "yes",
+         "created_ms": "soon", "state": None, "started": 1, "last_activity_ms": True},
     ]}), encoding="utf-8")
     store = OwnSessionStore(path)
-    assert [s.cli_session_id for s in store.all()] == ["ok"]
+    assert sorted(s.cli_session_id for s in store.all()) == ["odd-types", "ok"]
+    odd = store.get("odd-types")
+    assert (odd.unread, odd.created_ms, odd.state, odd.started, odd.last_activity_ms) == \
+        (False, 0, "idle", True, 0)
     assert store.load_error == ""
+
+
+@pytest.mark.parametrize("content,why", [("{broken", "valid JSON"),
+                                         (json.dumps({"sessions": "nope"}), "expected format")])
+def test_corrupt_store_is_set_aside_not_overwritten(tmp_path, content, why):
+    path = tmp_path / "sessions.json"
+    path.write_text(content, encoding="utf-8")
+    store = OwnSessionStore(path)
+    assert store.all() == []
+    assert why in store.load_error and "moved to sessions.json.bad-" in store.load_error
+    backups = list(tmp_path.glob("sessions.json.bad-*"))
+    assert len(backups) == 1 and backups[0].read_text(encoding="utf-8") == content
+    store.add(OwnSession("new", "T", "C:\\"))  # saving now can't destroy the old file
+    assert backups[0].read_text(encoding="utf-8") == content
+
+
+def test_store_that_cannot_be_set_aside_refuses_to_save(tmp_path, monkeypatch):
+    import theclaudehub.own_store as own_store
+    path = tmp_path / "sessions.json"
+    path.write_text("{broken", encoding="utf-8")
+
+    def refuse(*a):
+        raise OSError("locked")
+    monkeypatch.setattr(own_store.os, "replace", refuse)
+    store = OwnSessionStore(path)
+    assert "couldn't be moved aside" in store.load_error
+    with pytest.raises(OSError):
+        store.add(OwnSession("new", "T", "C:\\"))
+    assert path.read_text(encoding="utf-8") == "{broken"
 
 
 def test_store_missing_file_is_empty_without_error(tmp_path):

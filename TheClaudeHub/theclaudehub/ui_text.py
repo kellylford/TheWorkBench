@@ -9,7 +9,8 @@ SHORTCUTS = [
         ("Enter", "Open the selected session"),
         ("Ctrl+O", "Open the selected session in the Claude desktop app"),
         ("Ctrl+N", "New TheClaudeHub session"),
-        ("F5", "Refresh the list now (it also refreshes itself every few seconds)"),
+        ("F5", "Refresh the list now and put it back in order (it also refreshes itself "
+               "every few seconds, without moving rows while you're in it)"),
         ("Delete", "Forget the selected TheClaudeHub session (asks first)"),
     ]),
     ("Session view", [
@@ -24,6 +25,7 @@ SHORTCUTS = [
         ("Ctrl+O", "Open this session in the Claude desktop app"),
         ("Ctrl+Enter in the reply box", "Send (TheClaudeHub sessions only)"),
         ("Ctrl+Period", "Stop the running turn"),
+        ("Ctrl+Shift+T", "Turn status: how long Claude has been working, and on what"),
     ]),
     ("Anywhere", [
         ("F1", "This list of shortcuts"),

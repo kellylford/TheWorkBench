@@ -1,10 +1,13 @@
 import io
 import json
+import sys
 import threading
+from pathlib import Path
 
 import pytest
 
 from theclaudehub import claude_cli as cli
+from theclaudehub import platform_paths
 from theclaudehub.claude_cli import (ResumeRefused, StreamParser, TurnRunner,
                                      build_new_command, build_resume_command,
                                      check_resume_allowed, child_environment)
@@ -12,6 +15,7 @@ from theclaudehub.claude_cli import (ResumeRefused, StreamParser, TurnRunner,
 EXE = "C:\\bin\\claude.exe"
 OWN = {"aaaa-1111"}
 DESKTOP = {"dddd-2222"}
+FLAGS = ["-p", "--output-format", "stream-json", "--verbose"]
 
 
 # -- command construction --------------------------------------------------------
@@ -19,23 +23,29 @@ DESKTOP = {"dddd-2222"}
 
 def test_new_command():
     command = build_new_command(EXE, "aaaa-1111", "  My   title ", "auto")
-    assert command == [EXE, "-p", "--output-format", "stream-json", "--verbose",
-                       "--permission-mode", "auto", "--session-id", "aaaa-1111",
-                       "--name", "My title"]
+    assert command == [EXE, *FLAGS, "--permission-mode", "auto",
+                       "--permission-prompts", "none",
+                       "--session-id", "aaaa-1111", "--name", "My title"]
 
 
 def test_new_command_without_title_and_other_modes():
-    for mode in ("acceptEdits", "default", "plan"):
+    for mode in ("acceptEdits", "manual", "plan"):
         command = build_new_command(EXE, "aaaa-1111", "", mode)
         assert "--name" not in command
         assert command[command.index("--permission-mode") + 1] == mode
 
 
-def test_never_bare_and_prompt_not_on_command_line():
+def test_old_default_mode_name_becomes_manual():
+    command = build_resume_command(EXE, "aaaa-1111", "default", OWN, DESKTOP)
+    assert command[command.index("--permission-mode") + 1] == "manual"
+
+
+def test_never_bare_prompts_refused_and_prompt_not_on_command_line():
     for command in (build_new_command(EXE, "aaaa-1111", "t", "auto"),
                     build_resume_command(EXE, "aaaa-1111", "auto", OWN, DESKTOP)):
         assert "--bare" not in command
         assert "-p" in command
+        assert command[command.index("--permission-prompts") + 1] == "none"
 
 
 def test_unknown_permission_mode_refused():
@@ -52,8 +62,8 @@ def test_new_command_rejects_bad_id():
 
 def test_resume_command_for_own_session():
     assert build_resume_command(EXE, "aaaa-1111", "plan", OWN, DESKTOP) == [
-        EXE, "-p", "--output-format", "stream-json", "--verbose",
-        "--permission-mode", "plan", "--resume", "aaaa-1111"]
+        EXE, *FLAGS, "--permission-mode", "plan", "--permission-prompts", "none",
+        "--resume", "aaaa-1111"]
 
 
 # -- the desktop --resume guard ------------------------------------------------------
@@ -83,14 +93,48 @@ def test_resume_refused_for_malformed_ids(bad):
 # -- environment ---------------------------------------------------------------------
 
 
-def test_child_environment_strips_claude_and_anthropic_vars():
+def test_child_environment_strips_session_and_billing_vars_only():
     env = child_environment({
         "PATH": "x", "USERPROFILE": "u",
-        "ANTHROPIC_API_KEY": "secret", "ANTHROPIC_BASE_URL": "http://localhost",
+        "ANTHROPIC_API_KEY": "secret", "ANTHROPIC_AUTH_TOKEN": "t",
+        "ANTHROPIC_BASE_URL": "http://localhost", "CLAUDE_CODE_USE_BEDROCK": "1",
         "CLAUDECODE": "1", "CLAUDE_CODE_SDK_HAS_HOST_AUTH_REFRESH": "1",
-        "claude_code_entrypoint": "lower", "CLAUDE_CONFIG_DIR": "D:\\c",
+        "CLAUDE_CODE_SESSION_ID": "s", "CLAUDE_CODE_OAUTH_TOKEN": "o",
+        "claude_code_entrypoint": "lower",
+        # Chosen by the user: kept.
+        "CLAUDE_CONFIG_DIR": "D:/c", "CLAUDE_CODE_GIT_BASH_PATH": "C:/Git/bash.exe",
+        "HTTPS_PROXY": "http://proxy", "API_TIMEOUT_MS": "60000",
+        "ANTHROPIC_MODEL": "opus",
     })
-    assert env == {"PATH": "x", "USERPROFILE": "u", "CLAUDE_CONFIG_DIR": "D:\\c"}
+    assert env == {"PATH": "x", "USERPROFILE": "u", "CLAUDE_CONFIG_DIR": "D:/c",
+                   "CLAUDE_CODE_GIT_BASH_PATH": "C:/Git/bash.exe",
+                   "HTTPS_PROXY": "http://proxy", "API_TIMEOUT_MS": "60000",
+                   "ANTHROPIC_MODEL": "opus"}
+
+
+# -- finding claude ----------------------------------------------------------------------
+
+
+def test_find_claude_prefers_native_exe(tmp_path):
+    lookup = platform_paths.find_claude(which=lambda n: "C:\\x\\claude.exe",
+                                        native_candidates=[])
+    assert lookup.path == "C:\\x\\claude.exe"
+
+
+@pytest.mark.parametrize("script", ["C:\\npm\\claude.CMD", "C:\\npm\\claude.bat",
+                                    "C:\\npm\\claude.ps1"])
+def test_find_claude_refuses_scripts(script, tmp_path):
+    lookup = platform_paths.find_claude(which=lambda n: script, native_candidates=[])
+    assert lookup.path is None and "native" in lookup.problem
+    native = tmp_path / "claude.exe"
+    native.write_bytes(b"")
+    lookup = platform_paths.find_claude(which=lambda n: script, native_candidates=[native])
+    assert lookup.path == str(native)
+
+
+def test_find_claude_missing():
+    lookup = platform_paths.find_claude(which=lambda n: None, native_candidates=[])
+    assert lookup.path is None and "wasn't found" in lookup.problem
 
 
 # -- stream-json events ---------------------------------------------------------------
@@ -136,10 +180,10 @@ def test_stream_parser_permission_denials():
     result = parser.feed(ev(type="result", subtype="success", is_error=False, result="Done",
                             permission_denials=[
                                 {"tool_name": "Write", "tool_use_id": "t",
-                                 "tool_input": {"file_path": "C:\\x\\probe.txt"}},
+                                 "tool_input": {"file_path": "C:/x/probe.txt"}},
                                 {"tool_name": "Bash", "tool_input": {"command": "rm -rf  /"}},
                                 {"tool_name": "WebFetch"}, "junk"]))
-    assert result[0].denials == ["Write was refused: C:\\x\\probe.txt",
+    assert result[0].denials == ["Write was refused: C:/x/probe.txt",
                                  "Bash was refused: rm -rf /",
                                  "WebFetch was refused", "A tool was refused."]
 
@@ -174,10 +218,13 @@ def test_api_key_problem(source, problem):
 
 
 class FakeProcess:
-    def __init__(self, stdout_lines, returncode=0, stderr_lines=(), hang=False):
-        self.stdout = io.StringIO("".join(l + "\n" for l in stdout_lines))
-        self.stderr = io.StringIO("".join(l + "\n" for l in stderr_lines))
-        self.stdin = io.StringIO()
+    """Byte pipes, like the real Popen the runner makes."""
+
+    def __init__(self, stdout_lines, returncode=0, stderr_lines=()):
+        self.stdout = io.BytesIO("".join(x + "\n" for x in stdout_lines).encode("utf-8"))
+        self.stderr = io.BytesIO("".join(x + "\n" for x in stderr_lines).encode("utf-8"))
+        self.stdin = io.BytesIO()
+        self.pid = None
         self.returncode = None
         self._final = returncode
         self.killed = False
@@ -200,7 +247,7 @@ class FakeProcess:
         self.killed = True
 
 
-def run_turn(process, tmp_path, command=None):
+def run_turn(process, tmp_path, command=None, prompt="Hello -p --bare"):
     captured = {}
     events = []
     done = threading.Event()
@@ -215,7 +262,7 @@ def run_turn(process, tmp_path, command=None):
         if event.kind in ("finished", "failed"):
             done.set()
 
-    runner = TurnRunner(command or ["claude", "-p"], str(tmp_path), "Hello -p --bare",
+    runner = TurnRunner(command or ["claude", "-p"], str(tmp_path), prompt,
                         on_event, popen=popen, env={"PATH": "x"})
     runner.start()
     assert done.wait(5)
@@ -229,13 +276,14 @@ def test_runner_sends_prompt_on_stdin_and_reports_events(tmp_path):
         ev(type="assistant", message={"content": [{"type": "text", "text": "pong"}]}),
         ev(type="result", subtype="success", result="pong", session_id="s1"),
     ])
-    _runner, events, captured = run_turn(process, tmp_path)
-    assert process.written == "Hello -p --bare"
+    runner, events, captured = run_turn(process, tmp_path)
+    assert process.written == b"Hello -p --bare"
     assert captured["cwd"] == str(tmp_path)
     assert captured["env"] == {"PATH": "x"}
-    assert captured["stdin"] is not None
+    assert "encoding" not in captured and "text" not in captured  # byte pipes
     assert [e.kind for e in events] == ["started", "text", "finished"]
     assert events[-1].session_id == "s1"
+    assert runner.session_started
 
 
 def test_runner_stops_when_an_api_key_would_be_billed(tmp_path):
@@ -252,9 +300,10 @@ def test_runner_stops_when_an_api_key_would_be_billed(tmp_path):
 
 def test_runner_reports_exit_without_result(tmp_path):
     process = FakeProcess([], returncode=1, stderr_lines=["Error: not logged in"])
-    _runner, events, _ = run_turn(process, tmp_path)
+    runner, events, _ = run_turn(process, tmp_path)
     assert [e.kind for e in events] == ["failed"]
     assert "exit code 1" in events[0].text and "not logged in" in events[0].text
+    assert not runner.session_started
 
 
 def test_runner_missing_folder(tmp_path):
@@ -290,6 +339,37 @@ def test_runner_cancel(tmp_path):
     assert process.killed
 
 
+def test_cancel_during_popen_kills_at_once(tmp_path):
+    """cancel() landing while Popen is still starting the process."""
+    process = FakeProcess([])
+    events = []
+    done = threading.Event()
+    holder = {}
+
+    def popen(*a, **k):
+        holder["runner"].cancel()  # arrives mid-start, before _process is set
+        return process
+    runner = TurnRunner(["claude"], str(tmp_path), "hi",
+                        lambda e: (events.append(e), done.set()), popen=popen, env={})
+    holder["runner"] = runner
+    runner.start()
+    assert done.wait(5)
+    assert process.killed
+    assert events[-1].kind == "failed" and events[-1].text == "Stopped."
+
+
+def test_cancel_before_start_never_launches(tmp_path):
+    events = []
+    done = threading.Event()
+    runner = TurnRunner(["claude"], str(tmp_path), "hi",
+                        lambda e: (events.append(e), done.set()),
+                        popen=lambda *a, **k: pytest.fail("must not start"), env={})
+    runner.cancel()
+    runner.start()
+    assert done.wait(5)
+    assert events[0].text == "Stopped."
+
+
 def test_runner_survives_a_broken_callback(tmp_path):
     process = FakeProcess([ev(type="result", subtype="success", result="ok")])
     calls = []
@@ -304,6 +384,78 @@ def test_runner_survives_a_broken_callback(tmp_path):
     assert calls == ["finished"]
 
 
+def test_runner_tracks_activity_and_elapsed(tmp_path):
+    times = iter([100.0, 165.0])
+    process = FakeProcess([
+        ev(type="system", subtype="init", session_id="s1", apiKeySource="none"),
+        ev(type="assistant", message={"content": [{"type": "tool_use", "name": "Bash"}]}),
+        ev(type="result", subtype="success", result="ok"),
+    ])
+    runner = TurnRunner(["claude"], str(tmp_path), "hi", lambda e: None,
+                        popen=lambda *a, **k: process, env={}, clock=lambda: next(times))
+    runner.start()
+    runner.join(5)
+    assert runner.session_started and runner.last_activity == "using Bash"
+    assert runner.elapsed() == 65.0
+
+
+@pytest.mark.parametrize("seconds,words", [
+    (0, "0 seconds"), (1, "1 second"), (65, "1 minute 5 seconds"), (120, "2 minutes"),
+    (3600, "1 hour"), (3725, "1 hour 2 minutes")])
+def test_describe_elapsed(seconds, words):
+    assert cli.describe_elapsed(seconds) == words
+
+
 def test_permission_modes_offered():
-    assert cli.PERMISSION_MODE_VALUES == ["auto", "acceptEdits", "default", "plan"]
+    assert cli.PERMISSION_MODE_VALUES == ["auto", "acceptEdits", "manual", "plan"]
     assert cli.DEFAULT_PERMISSION_MODE == "auto"
+
+
+# -- a real child process ---------------------------------------------------------------------
+
+FAKE_CLAUDE = Path(__file__).with_name("fake_claude.py")
+
+
+def run_real(tmp_path, prompt, mode="normal", cancel_after=None):
+    log = tmp_path / "fake.log"
+    env = {**child_environment(), "FAKE_CLAUDE_LOG": str(log), "FAKE_CLAUDE_MODE": mode,
+           "CLAUDECODE": "1"}
+    env = child_environment(env)
+    events = []
+    done = threading.Event()
+
+    def on_event(event):
+        events.append(event)
+        if event.kind in ("finished", "failed"):
+            done.set()
+    runner = TurnRunner([sys.executable, str(FAKE_CLAUDE), "--session-id", "abc-1"],
+                        str(tmp_path), prompt, on_event, env=env)
+    runner.start()
+    if cancel_after is not None:
+        threading.Timer(cancel_after, runner.cancel).start()
+    assert done.wait(30)
+    runner.join(10)
+    return events, (json.loads(log.read_text(encoding="utf-8")) if log.exists() else None)
+
+
+def test_real_child_process_pipes_bytes_exactly(tmp_path):
+    prompt = "line one\nline two \u2014 caf\u00e9 \u2028 end"
+    events, seen = run_real(tmp_path, prompt)
+    assert seen["prompt"] == prompt          # no CRLF, no mangled UTF-8
+    assert seen["claude_env"] == []           # CLAUDECODE was stripped
+    kinds = [e.kind for e in events]
+    assert kinds == ["started", "text", "finished"]
+    # The reply carries a raw U+2028 inside the JSON line; it must survive.
+    assert events[1].text == "reply\u2028with a line separator"
+    assert events[-1].text == "done"
+
+
+def test_real_child_process_cancel_kills_the_tree(tmp_path):
+    events, seen = run_real(tmp_path, "wait", mode="hang", cancel_after=1.5)
+    assert events[-1].kind == "failed" and events[-1].text == "Stopped."
+    grandchild = int((tmp_path / "grandchild.pid").read_text())
+    import time
+    deadline = time.time() + 5
+    while platform_paths.pid_alive(grandchild) and time.time() < deadline:
+        time.sleep(0.1)
+    assert not platform_paths.pid_alive(grandchild)

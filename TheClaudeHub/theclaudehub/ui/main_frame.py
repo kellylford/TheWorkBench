@@ -29,8 +29,8 @@ from typing import Dict, List, Optional
 import wx
 
 from .. import __version__, announce, platform_paths
-from ..claude_cli import (ResumeRefused, TurnEvent, TurnRunner,
-                          build_new_command, build_resume_command, new_session_id)
+from ..claude_cli import (ResumeRefused, TurnEvent, TurnRunner, build_new_command,
+                          build_resume_command, describe_elapsed, new_session_id)
 from ..hub import Snapshot, collect, finished_turns, last_reply_from_tail
 from ..own_store import OwnSession, OwnSessionStore
 from ..sessions import IDLE, NEEDS_YOU, WORKING, SessionInfo
@@ -78,6 +78,9 @@ class MainFrame(wx.Frame):
         self._chat_loaded = False
         self._show_activity = False
         self._drafts: Dict[str, str] = {}  # unsent reply text, per session
+        self._chat_keys: List[str] = []
+        self._shown_key: Optional[str] = None   # message in the text box
+        self._shown_text: Optional[str] = None
 
         self._build_menu()
         self._build_ui()
@@ -90,7 +93,7 @@ class MainFrame(wx.Frame):
         self.Bind(wx.EVT_TIMER, lambda e: self.refresh_sessions(), self._list_timer)
         self._list_timer.Start(LIST_REFRESH_MS)
         self._chat_timer = wx.Timer(self)
-        self.Bind(wx.EVT_TIMER, lambda e: self._refresh_chat(), self._chat_timer)
+        self.Bind(wx.EVT_TIMER, self._on_chat_timer, self._chat_timer)
 
         if self.store.load_error:
             wx.CallAfter(wx.MessageBox, self.store.load_error, APP_NAME,
@@ -108,7 +111,8 @@ class MainFrame(wx.Frame):
         self._item(session, "&Open Session", self.on_open_session)
         self._item(session, "Open in &Claude\tCtrl+O", self.on_open_in_claude)
         self._item(session, "&New Session...\tCtrl+N", self.on_new_session)
-        self._item(session, "&Refresh\tF5", lambda e: self.refresh_sessions(force=True))
+        self._item(session, "&Refresh\tF5",
+                   lambda e: self.refresh_sessions(force=True, resort=True))
         self._item(session, "&Forget TheClaudeHub Session...", self.on_forget)
         session.AppendSeparator()
         self._item(session, "&Settings...\tCtrl+,", self.on_settings, wx.ID_PREFERENCES)
@@ -123,6 +127,7 @@ class MainFrame(wx.Frame):
         self.activity_item = view.AppendCheckItem(wx.ID_ANY, "Show &Tool Activity\tCtrl+T")
         self.Bind(wx.EVT_MENU, self.on_toggle_activity_menu, self.activity_item)
         self._item(view, "Sto&p Running Turn\tCtrl+.", self.on_stop)
+        self._item(view, "T&urn Status\tCtrl+Shift+T", self.on_turn_status)
         self._item(view, "Repeat &Last Announcement\tCtrl+Shift+R",
                    lambda e: self._say(self._last_announcement, force=True))
         bar.Append(view, "&View")
@@ -163,7 +168,8 @@ class MainFrame(wx.Frame):
         open_btn.Bind(wx.EVT_BUTTON, self.on_open_session)
         claude_btn.Bind(wx.EVT_BUTTON, self.on_open_in_claude)
         new_btn.Bind(wx.EVT_BUTTON, self.on_new_session)
-        refresh_btn.Bind(wx.EVT_BUTTON, lambda e: self.refresh_sessions(force=True))
+        refresh_btn.Bind(wx.EVT_BUTTON,
+                         lambda e: self.refresh_sessions(force=True, resort=True))
         self.session_list.Bind(wx.EVT_LISTBOX_DCLICK, self.on_open_session)
         self.book.AddPage(page, "Sessions")
 
@@ -187,6 +193,10 @@ class MainFrame(wx.Frame):
         csizer.Add(wx.StaticText(chat, label="Message &text:"), 0, wx.LEFT, 6)
         self.message_text = wx.TextCtrl(
             chat, style=wx.TE_MULTILINE | wx.TE_READONLY | wx.TE_RICH2 | wx.TE_NOHIDESEL)
+        # TE_RICH2 on purpose. Checked in the vmtest VM (wxPython 4.3.1): a
+        # plain multiline EDIT reports its contents as its accessible name,
+        # with or without a wx.Accessible, while a RichEdit takes its name from
+        # the "Message text:" label before it.
         set_accessible_name(self.message_text, "Message text")
         csizer.Add(self.message_text, 1, wx.EXPAND | wx.ALL, 6)
         crow = wx.BoxSizer(wx.HORIZONTAL)
@@ -212,7 +222,7 @@ class MainFrame(wx.Frame):
         osizer = wx.BoxSizer(wx.VERTICAL)
         osizer.Add(wx.StaticText(self.own_reply,
                                  label="&Your message (Ctrl+Enter sends):"), 0, wx.ALL, 6)
-        self.reply_text = wx.TextCtrl(self.own_reply, style=wx.TE_MULTILINE)
+        self.reply_text = wx.TextCtrl(self.own_reply, style=wx.TE_MULTILINE | wx.TE_RICH2)
         set_accessible_name(self.reply_text, "Your message")
         osizer.Add(self.reply_text, 1, wx.EXPAND | wx.LEFT | wx.RIGHT, 6)
         orow = wx.BoxSizer(wx.HORIZONTAL)
@@ -234,7 +244,7 @@ class MainFrame(wx.Frame):
         dsizer.Add(wx.StaticText(self.desktop_reply, label="About replying:"), 0,
                    wx.LEFT | wx.TOP, 6)
         self.desktop_note = wx.TextCtrl(
-            self.desktop_reply, style=wx.TE_MULTILINE | wx.TE_READONLY | wx.TE_NO_VSCROLL,
+            self.desktop_reply, style=wx.TE_MULTILINE | wx.TE_READONLY | wx.TE_RICH2,
             value=("This session belongs to the Claude desktop app, so you reply to it "
                    "in Claude. TheClaudeHub only reads it: sending from here while the "
                    "desktop app has it open could run two turns at once and tangle "
@@ -280,6 +290,27 @@ class MainFrame(wx.Frame):
         if force or self.speech.enabled:
             speaker.speak(text, self.speech)
 
+    def _feedback(self, text: str):
+        """The answer to something Kelly just did: status bar, and spoken
+        briefly without interrupting the screen reader (unless announcements
+        are set to silent). Background news uses ``_say`` or ``_status``."""
+        if not text:
+            return
+        self._status(text)
+        if self.speech.enabled:
+            speaker.speak(text, self.speech, interrupt=False)
+
+    def _store_write(self, method, *args, **kwargs) -> bool:
+        """Call a store method that writes; report a failed write instead of
+        letting it escape an event handler (which would leave the UI half
+        updated)."""
+        try:
+            method(*args, **kwargs)
+            return True
+        except OSError as exc:
+            self._say(f"Couldn't save TheClaudeHub's session list: {exc}")
+            return False
+
     def _probe_speech(self):
         try:
             self._speech_options = list_speech_options()
@@ -302,10 +333,18 @@ class MainFrame(wx.Frame):
 
     # ----------------------------------------------------------- session list
 
-    def refresh_sessions(self, force: bool = False):
+    def refresh_sessions(self, force: bool = False, resort: bool = False):
+        """Reload the list in the background.
+
+        ``force`` reports the totals; ``resort`` puts the list back in its
+        proper order even while it has focus (F5, and coming back from a
+        session). Otherwise a list with focus keeps its order, so nothing moves
+        under Kelly while he arrows.
+        """
         if self._snapshot_busy:
             # Run again when the current pass lands, so F5 is never lost.
-            self._pending_refresh = bool(force or self._pending_refresh)
+            previous = self._pending_refresh or (False, False)
+            self._pending_refresh = (force or previous[0], resort or previous[1])
             return
         self._snapshot_busy = True
         own = [OwnSession(**vars(s)) for s in self.store.all()]
@@ -322,7 +361,7 @@ class MainFrame(wx.Frame):
                             continue  # own sessions announce from their own turn
                         path = platform_paths.transcript_path(info.cwd, info.cli_session_id)
                         replies[info.key] = last_reply_from_tail(path) if path else ""
-                wx.CallAfter(self._apply_snapshot, snap, ended, replies, force)
+                wx.CallAfter(self._apply_snapshot, snap, ended, replies, force, resort)
             except Exception as exc:  # noqa: BLE001
                 wx.CallAfter(self._snapshot_failed, exc)
 
@@ -335,10 +374,10 @@ class MainFrame(wx.Frame):
 
     def _run_pending_refresh(self):
         if self._pending_refresh is not None:
-            force, self._pending_refresh = self._pending_refresh, None
-            self.refresh_sessions(force=force)
+            (force, resort), self._pending_refresh = self._pending_refresh, None
+            self.refresh_sessions(force=force, resort=resort)
 
-    def _apply_snapshot(self, snap: Snapshot, ended, replies, force):
+    def _apply_snapshot(self, snap: Snapshot, ended, replies, force, resort=False):
         self._snapshot_busy = False
         if not self:
             return
@@ -346,7 +385,9 @@ class MainFrame(wx.Frame):
         self._previous_states = {s.key: s.state for s in snap.sessions}
         first = self._first_snapshot
         self._first_snapshot = False
-        self._update_session_list(snap.sessions)
+        keep_order = (not resort and not first
+                      and wx.Window.FindFocus() is self.session_list)
+        self._update_session_list(snap.sessions, keep_order=keep_order)
 
         if not first and self.speech.announce_all_sessions:
             for info in ended:
@@ -373,18 +414,32 @@ class MainFrame(wx.Frame):
                     f"{working} working.")
             if snap.unreadable_files:
                 text += f" Couldn't read {snap.unreadable_files} session files."
-            self._status(text)
+            if force and not first:
+                self._feedback(text)  # F5: Kelly asked
+            else:
+                self._status(text)
         self._run_pending_refresh()
 
-    def _update_session_list(self, sessions: List[SessionInfo]):
-        """Rewrite only what changed, keeping the selection on the same session."""
+    def _update_session_list(self, sessions: List[SessionInfo], keep_order: bool = False):
+        """Rewrite only what changed, keeping the selection on the same session.
+
+        With ``keep_order`` the rows stay where they are (new sessions are
+        added at the end, vanished ones removed), so a refresh never moves the
+        row under the reader. The proper order comes back on F5, on returning
+        from a session, or on a refresh while the list doesn't have focus.
+        """
         now = int(time.time() * 1000)
-        keys = [s.key for s in sessions]
-        lines = [s.list_line(now) for s in sessions]
-        selected_key = None
+        by_key = {s.key: s for s in sessions}
         index = self.session_list.GetSelection()
-        if index != wx.NOT_FOUND and index < len(self._list_keys):
-            selected_key = self._list_keys[index]
+        selected_key = (self._list_keys[index]
+                        if index != wx.NOT_FOUND and index < len(self._list_keys) else None)
+
+        if keep_order:
+            keys = [k for k in self._list_keys if k in by_key]
+            keys += [s.key for s in sessions if s.key not in set(self._list_keys)]
+        else:
+            keys = [s.key for s in sessions]
+        lines = [by_key[k].list_line(now) for k in keys]
 
         if keys == self._list_keys:
             for i, line in enumerate(lines):
@@ -395,6 +450,29 @@ class MainFrame(wx.Frame):
                 self.session_list.SetString(i, line)
             return
 
+        if keep_order:
+            # Remove vanished rows from the bottom up, then update and append.
+            for i in range(len(self._list_keys) - 1, -1, -1):
+                if self._list_keys[i] not in by_key:
+                    self.session_list.Delete(i)
+            kept = [k for k in self._list_keys if k in by_key]
+            for i, key in enumerate(kept):
+                line = by_key[key].list_line(now)
+                if self.session_list.GetString(i) != line and not (
+                        key == selected_key
+                        and _same_but_age(self.session_list.GetString(i), line)):
+                    self.session_list.SetString(i, line)
+            if len(keys) > len(kept):
+                self.session_list.Append(lines[len(kept):])
+            self._list_keys = keys
+            if selected_key in keys:
+                if self.session_list.GetSelection() != keys.index(selected_key):
+                    self.session_list.SetSelection(keys.index(selected_key))
+            elif keys:
+                old = self._list_keys_before_delete(index, len(keys))
+                self.session_list.SetSelection(old)
+            return
+
         self.session_list.Set(lines)
         self._list_keys = keys
         if not lines:
@@ -402,18 +480,25 @@ class MainFrame(wx.Frame):
         if selected_key in keys:
             self.session_list.SetSelection(keys.index(selected_key))
         else:
-            self.session_list.SetSelection(0)
+            self.session_list.SetSelection(min(max(index, 0), len(keys) - 1))
+
+    @staticmethod
+    def _list_keys_before_delete(index: int, count: int) -> int:
+        """Where the selection goes when its row vanished: the row that took
+        its place, or the new last row."""
+        return min(max(index, 0), count - 1)
 
     def on_forget(self, _event):
         info = self._selected_session()
-        if info is None or not info.is_own:
-            wx.MessageBox("Only sessions TheClaudeHub started can be forgotten. "
-                          "Desktop app sessions are managed in Claude.",
-                          APP_NAME, wx.OK | wx.ICON_INFORMATION, self)
+        if info is None:
+            self._feedback("No session selected.")
+            return
+        if not info.is_own:
+            self._feedback("Only sessions TheClaudeHub started can be forgotten. "
+                           "Desktop app sessions are managed in Claude.")
             return
         if info.cli_session_id in self._runners:
-            wx.MessageBox("A turn is running in that session. Stop it first.",
-                          APP_NAME, wx.OK | wx.ICON_INFORMATION, self)
+            self._feedback("A turn is running in that session. Stop it first.")
             return
         answer = wx.MessageBox(
             f"Remove \"{info.title}\" from TheClaudeHub's list? Its transcript stays on "
@@ -421,10 +506,19 @@ class MainFrame(wx.Frame):
             "Forget Session", wx.YES_NO | wx.NO_DEFAULT | wx.ICON_QUESTION, self)
         if answer != wx.YES:
             return
-        self.store.remove(info.cli_session_id)
+        if not self._store_write(self.store.remove, info.cli_session_id):
+            return
         if self._open is not None and self._open.key == info.key:
             self.show_list()
-        self.refresh_sessions(force=True)
+        # Keep the place: the neighbour moves into the forgotten row.
+        index = self._list_keys.index(info.key) if info.key in self._list_keys else -1
+        if index >= 0:
+            self.session_list.Delete(index)
+            del self._list_keys[index]
+            if self._list_keys:
+                self.session_list.SetSelection(min(index, len(self._list_keys) - 1))
+        self._feedback(f"Forgot {info.title}.")
+        self.refresh_sessions()
 
     # ----------------------------------------------------------- session view
 
@@ -433,7 +527,7 @@ class MainFrame(wx.Frame):
             return
         info = self._selected_session()
         if info is None:
-            self._status("No session selected.")
+            self._feedback("No session selected.")
             return
         self.open_session(info)
 
@@ -448,15 +542,16 @@ class MainFrame(wx.Frame):
         self._open_generation += 1
         self._reader = None
         self._chat_messages = []
+        self._chat_keys = []
+        self._shown_key = self._shown_text = None
         self._chat_loaded = False
         if info.is_own and info.unread:
-            self.store.update(info.cli_session_id, unread=False)
+            self._store_write(self.store.update, info.cli_session_id, unread=False)
             info.unread = False
-        self.chat_list.Set(["Loading messages…"])
+        self.chat_list.Set(["Loading messages\u2026"])
         self.chat_list.SetSelection(0)
         self.message_text.SetValue("")
-        self.messages_label.SetLabel(f"&Messages in {info.title}:")
-        set_accessible_name(self.chat_list, f"Messages in {info.title}")
+        self._update_messages_label()
         self.own_reply.Show(info.is_own)
         self.desktop_reply.Show(not info.is_own)
         self.reply_page.Layout()
@@ -479,7 +574,7 @@ class MainFrame(wx.Frame):
         self._reader = None
         self.book.SetSelection(0)
         self.SetTitle(APP_NAME)
-        self.refresh_sessions()
+        self.refresh_sessions(resort=True)
         self.session_list.SetFocus()
 
     def _update_heading(self):
@@ -489,6 +584,20 @@ class MainFrame(wx.Frame):
         kind = "TheClaudeHub session" if info.is_own else "Claude desktop app session, read-only"
         state = info.state + (f": {info.detail}" if info.detail else "")
         self.session_heading.SetLabel(f"{info.title}, {info.repo}, {state}. {kind}.")
+        self._update_messages_label()
+
+    def _update_messages_label(self):
+        """The chat list's label (its accessible name) carries the session's
+        state and whether it is read-only, so it is heard on arriving there."""
+        info = self._open
+        if info is None:
+            return
+        state = info.state + (f": {info.detail}" if info.detail else "")
+        kind = "" if info.is_own else ", read-only"
+        label = f"Messages in {info.title} ({state}{kind})"
+        if self.messages_label.GetLabel() != f"&{label}:":
+            self.messages_label.SetLabel(f"&{label}:")
+            set_accessible_name(self.chat_list, label)
 
     def _select_tab(self, index: int):
         if self.book.GetSelection() != 1:
@@ -500,6 +609,10 @@ class MainFrame(wx.Frame):
             self.reply_text.SetFocus()
         else:
             self.desktop_note.SetFocus()
+
+    def _on_chat_timer(self, _event=None):
+        self._update_send_state()
+        self._refresh_chat()
 
     def _refresh_chat(self):
         info = self._open
@@ -565,7 +678,7 @@ class MainFrame(wx.Frame):
         self._chat_loaded = True
         if first_load:
             note = f" Couldn't read {unreadable} lines." if unreadable else ""
-            self._status(f"{len(self._visible_messages())} messages.{note}")
+            self._feedback(f"{len(self._visible_messages())} messages.{note}")
             return
         if self._open.is_own:
             return  # its turn announces the reply when it finishes
@@ -582,20 +695,24 @@ class MainFrame(wx.Frame):
             return list(self._chat_messages)
         return [m for m in self._chat_messages if not m.is_activity]
 
-    def _rebuild_chat_list(self, focus_newest: bool = False):
+    def _rebuild_chat_list(self, focus_newest: bool = False,
+                           keep_key: Optional[str] = None):
+        """Bring the list up to date without moving the reader.
+
+        Rows are updated in place and new ones appended; the selection stays on
+        the same message. ``keep_key`` asks for that message (or the nearest
+        one still visible) to be selected after a full rebuild.
+        """
         visible = self._visible_messages()
-        lines = [m.list_line() for m in visible]
-        if not lines:
-            lines = ["No messages yet."]
-        index = self.chat_list.GetSelection()
-        old_keys = getattr(self, "_chat_keys", [])
-        selected_key = old_keys[index] if 0 <= index < len(old_keys) else None
+        lines = [m.list_line() for m in visible] or ["No messages yet."]
         keys = [m.key for m in visible]
+        index = self.chat_list.GetSelection()
+        old_keys = self._chat_keys
+        selected_key = keep_key or (old_keys[index] if 0 <= index < len(old_keys) else None)
 
         current = list(self.chat_list.GetStrings())
-        if not focus_newest and keys[: len(old_keys)] == old_keys and len(current) == len(old_keys):
-            # Grew or changed in place: update rows, append new ones, leave the
-            # selection (and the reader) where it is.
+        if (not focus_newest and keep_key is None and old_keys
+                and keys[: len(old_keys)] == old_keys and len(current) == len(old_keys)):
             for i, line in enumerate(lines[: len(old_keys)]):
                 if current[i] != line:
                     self.chat_list.SetString(i, line)
@@ -603,22 +720,49 @@ class MainFrame(wx.Frame):
                 self.chat_list.Append(lines[len(old_keys):])
         else:
             self.chat_list.Set(lines)
-            if focus_newest or selected_key not in keys:
+            if focus_newest or not keys:
                 self.chat_list.SetSelection(len(lines) - 1)
-            else:
+            elif selected_key in keys:
                 self.chat_list.SetSelection(keys.index(selected_key))
+            else:
+                self.chat_list.SetSelection(self._nearest_visible(selected_key, keys))
         self._chat_keys = keys
         self._show_message(self.chat_list.GetSelection())
 
-    def _on_message_selected(self, _event):
-        self._show_message(self.chat_list.GetSelection())
+    def _nearest_visible(self, key: Optional[str], visible_keys: List[str]) -> int:
+        """Row of the last visible message at or before ``key`` in the full
+        transcript; the newest if ``key`` is unknown."""
+        if not visible_keys:
+            return 0
+        order = [m.key for m in self._chat_messages]
+        if key not in order:
+            return len(visible_keys) - 1
+        position = order.index(key)
+        best = 0
+        for row, visible_key in enumerate(visible_keys):
+            if visible_key in order and order.index(visible_key) <= position:
+                best = row
+        return best
 
-    def _show_message(self, index: int):
+    def _on_message_selected(self, _event):
+        self._show_message(self.chat_list.GetSelection(), user=True)
+
+    def _show_message(self, index: int, user: bool = False):
+        """Put a message in the text box, only when it is a different message
+        or its text grew. A live refresh must not reset the caret while Kelly
+        is reading the text box."""
         visible = self._visible_messages()
         if 0 <= index < len(visible):
-            self.message_text.SetValue(visible[index].full_text())
+            key, text = visible[index].key, visible[index].full_text()
         else:
-            self.message_text.SetValue(self.chat_list.GetStringSelection() or "")
+            key, text = None, self.chat_list.GetStringSelection() or ""
+        if not user and key == self._shown_key and text == self._shown_text:
+            return
+        if (not user and key == self._shown_key
+                and wx.Window.FindFocus() is self.message_text):
+            return  # same message, text grew: leave the reader's caret alone
+        self._shown_key, self._shown_text = key, text
+        self.message_text.SetValue(text)
         self.message_text.SetInsertionPoint(0)
 
     def on_toggle_activity_menu(self, _event):
@@ -632,16 +776,17 @@ class MainFrame(wx.Frame):
         self.activity_item.Check(show)
         self.activity_check.SetValue(show)
         if self._open is not None and self._chat_loaded and self._chat_messages:
-            self._chat_keys = []
-            self._rebuild_chat_list()
-        self._status("Tool activity shown." if show else "Tool activity hidden.")
+            index = self.chat_list.GetSelection()
+            keep = self._chat_keys[index] if 0 <= index < len(self._chat_keys) else None
+            self._rebuild_chat_list(keep_key=keep or "")
+        self._feedback("Tool activity shown." if show else "Tool activity hidden.")
 
     # ------------------------------------------------------- open in Claude
 
     def on_open_in_claude(self, _event=None):
         info = self._selected_session()
         if info is None:
-            self._status("No session selected.")
+            self._feedback("No session selected.")
             return
         if not info.can_open_in_claude:
             wx.MessageBox(
@@ -651,7 +796,7 @@ class MainFrame(wx.Frame):
             return
         try:
             platform_paths.open_url(claude_link(info.desktop_session_id))
-            self._status(f"Opened {info.title} in Claude.")
+            self._feedback(f"Opened {info.title} in Claude.")
         except OSError as exc:
             wx.MessageBox(f"Couldn't open the Claude desktop app: {exc}", APP_NAME,
                           wx.OK | wx.ICON_ERROR, self)
@@ -664,15 +809,38 @@ class MainFrame(wx.Frame):
         self.send_btn.Enable(bool(info and info.is_own and not running))
         self.stop_btn.Enable(bool(running))
         if info is not None and info.is_own:
-            self.turn_status.SetLabel("Claude is working." if running else "Ready.")
+            if running:
+                elapsed = describe_elapsed(self._runners[info.cli_session_id].elapsed())
+                label = f"Claude is working ({elapsed})."
+            else:
+                label = "Ready."
+            if self.turn_status.GetLabel() != label:
+                self.turn_status.SetLabel(label)
+
+    def on_turn_status(self, _event=None):
+        """How long the running turn has taken, and what it is doing."""
+        info = self._open
+        runner = self._runners.get(info.cli_session_id) if info else None
+        if runner is not None:
+            self._feedback(f"{info.title}: Claude has been working for "
+                           f"{describe_elapsed(runner.elapsed())}, last {runner.last_activity}.")
+            return
+        if not self._runners:
+            self._feedback("No turns are running.")
+            return
+        parts = []
+        for session_id, other in self._runners.items():
+            own = self.store.get(session_id)
+            name = own.title if own else "A session"
+            parts.append(f"{name}, {describe_elapsed(other.elapsed())}")
+        self._feedback("Working: " + "; ".join(parts) + ".")
 
     def on_new_session(self, _event=None):
-        exe = platform_paths.claude_executable()
-        if not exe:
-            wx.MessageBox("The claude command wasn't found. Install Claude Code, sign in "
-                          "once in a terminal, then try again.", APP_NAME,
-                          wx.OK | wx.ICON_ERROR, self)
+        lookup = platform_paths.find_claude()
+        if not lookup.path:
+            wx.MessageBox(lookup.problem, APP_NAME, wx.OK | wx.ICON_ERROR, self)
             return
+        exe = lookup.path
         dialog = NewSessionDialog(self, str(platform_paths.default_projects_root()))
         try:
             if dialog.ShowModal() != wx.ID_OK:
@@ -683,11 +851,12 @@ class MainFrame(wx.Frame):
         session_id = new_session_id()
         command = build_new_command(exe, session_id, title, mode)
         own = OwnSession(cli_session_id=session_id, title=title, cwd=folder,
-                         permission_mode=mode)
-        self.store.add(own)
+                         permission_mode=mode, started=False)
+        if not self._store_write(self.store.add, own):
+            return
+        self.open_session(own.to_info())
         self._start_turn(own.cli_session_id, command, folder, message, title)
         self.refresh_sessions()
-        self.open_session(own.to_info())
 
     def on_send(self, _event=None):
         info = self._open
@@ -695,11 +864,11 @@ class MainFrame(wx.Frame):
             return
         message = self.reply_text.GetValue().strip()
         if not message:
-            self._status("Type a message first.")
+            self._feedback("Type a message first.")
             self.reply_text.SetFocus()
             return
         if info.cli_session_id in self._runners:
-            self._status("Claude is still working on the last message.")
+            self._feedback("Claude is still working on the last message.")
             return
         live = self._snapshot.live.get(info.cli_session_id)
         if live is not None and live.status == "busy":
@@ -707,25 +876,38 @@ class MainFrame(wx.Frame):
                           "TheClaudeHub won't send into it.", APP_NAME,
                           wx.OK | wx.ICON_INFORMATION, self)
             return
-        exe = platform_paths.claude_executable()
-        if not exe:
-            wx.MessageBox("The claude command wasn't found.", APP_NAME,
-                          wx.OK | wx.ICON_ERROR, self)
+        lookup = platform_paths.find_claude()
+        if not lookup.path:
+            wx.MessageBox(lookup.problem, APP_NAME, wx.OK | wx.ICON_ERROR, self)
             return
+        exe = lookup.path
         own = self.store.get(info.cli_session_id)
         if own is None:
             return
         try:
-            command = build_resume_command(
-                exe, own.cli_session_id, own.permission_mode,
-                own_ids={s.cli_session_id for s in self.store.all()},
-                desktop_ids=self._snapshot.desktop_cli_ids)
-        except ResumeRefused as exc:
+            if self._session_exists(own):
+                command = build_resume_command(
+                    exe, own.cli_session_id, own.permission_mode,
+                    own_ids={s.cli_session_id for s in self.store.all()},
+                    desktop_ids=self._snapshot.desktop_cli_ids)
+            else:
+                # The first turn never got as far as creating the session:
+                # start it again rather than resume something that isn't there.
+                if own.cli_session_id in self._snapshot.desktop_cli_ids:
+                    raise ResumeRefused("That id belongs to a Claude desktop app session.")
+                command = build_new_command(exe, own.cli_session_id, own.title,
+                                            own.permission_mode)
+        except (ResumeRefused, ValueError) as exc:
             wx.MessageBox(str(exc), APP_NAME, wx.OK | wx.ICON_WARNING, self)
             return
         self.reply_text.SetValue("")
         self._drafts.pop(own.cli_session_id, None)
         self._start_turn(own.cli_session_id, command, own.cwd, message, own.title)
+
+    def _session_exists(self, own: OwnSession) -> bool:
+        if own.started:
+            return True
+        return platform_paths.transcript_path(own.cwd, own.cli_session_id) is not None
 
     def _start_turn(self, session_id: str, command, cwd: str, prompt: str, title: str):
         holder = {"id": session_id}
@@ -735,12 +917,12 @@ class MainFrame(wx.Frame):
 
         runner = TurnRunner(command, cwd, prompt, on_event)
         self._runners[session_id] = runner
-        self.store.update(session_id, state=IDLE, detail="",
-                          last_activity_ms=int(time.time() * 1000))
+        self._denials[session_id] = []
         runner.start()
         self._update_send_state()
-        self._status(f"Sent. {title} is working.")
-        self._denials[session_id] = []
+        self._feedback(f"Sent. {title} is working.")
+        self._store_write(self.store.update, session_id, state=IDLE, detail="",
+                          last_activity_ms=int(time.time() * 1000))
 
     def _on_turn_event(self, holder, title, event: TurnEvent):
         if not self:
@@ -750,13 +932,23 @@ class MainFrame(wx.Frame):
             reported = event.session_id
             if reported and reported != session_id and session_id in self._runners:
                 # Claude chose a different id than the one we asked for.
-                self.store.rename_id(session_id, reported)
+                self._store_write(self.store.rename_id, session_id, reported)
                 self._runners[reported] = self._runners.pop(session_id)
                 self._denials[reported] = self._denials.pop(session_id, [])
+                if session_id in self._drafts:
+                    self._drafts[reported] = self._drafts.pop(session_id)
                 if self._open is not None and self._open.cli_session_id == session_id:
                     self._open.cli_session_id = reported
                     self._open.key = f"own:{reported}"
+                    # The old reader points at the old id's transcript.
+                    self._reader = None
+                    self._open_generation += 1
+                    self._chat_loaded = False
                 holder["id"] = reported
+                session_id = reported
+            own = self.store.get(session_id)
+            if own is not None and not own.started:
+                self._store_write(self.store.update, session_id, started=True)
             self._status(f"{title}: Claude is working.")
             return
         if event.kind == "tool":
@@ -770,10 +962,16 @@ class MainFrame(wx.Frame):
             self._status(f"{title}: permission denied, {event.text}")
             return
         if event.kind in ("finished", "failed"):
-            self._runners.pop(session_id, None)
+            # UI first, store writes after: a failed write must not leave Send
+            # disabled for good.
+            runner = self._runners.pop(session_id, None)
             denials = event.denials or self._denials.pop(session_id, [])
             self._denials.pop(session_id, None)
             is_open = self._open is not None and self._open.cli_session_id == session_id
+            self._update_send_state()
+            if (event.kind == "failed" and runner is not None
+                    and not runner.session_started and not runner.cancelled):
+                self._restore_unsent(session_id, runner.prompt, is_open)
             if event.kind == "failed" or event.is_error:
                 state, detail = NEEDS_YOU, announce.status_text(event.text or "error", 120)
             elif denials:
@@ -782,7 +980,7 @@ class MainFrame(wx.Frame):
                 detail = f"{count} tool{'s were' if count != 1 else ' was'} refused"
             else:
                 state, detail = IDLE, ""
-            self.store.update(session_id, state=state, detail=detail,
+            self._store_write(self.store.update, session_id, state=state, detail=detail,
                               unread=not is_open,
                               last_activity_ms=int(time.time() * 1000))
             if event.kind == "failed" or event.is_error:
@@ -797,19 +995,25 @@ class MainFrame(wx.Frame):
                 else:
                     reply = announce.first_sentence(event.text) if event.text else ""
                     self._status(f"{title} finished. {reply}".strip())
-            self._update_send_state()
             if is_open:
                 self._refresh_chat()
             self.refresh_sessions()
+
+    def _restore_unsent(self, session_id: str, prompt: str, is_open: bool):
+        """A turn that never reached Claude: give the message back."""
+        if is_open and not self.reply_text.GetValue().strip():
+            self.reply_text.SetValue(prompt)
+        elif not self._drafts.get(session_id):
+            self._drafts[session_id] = prompt
 
     def on_stop(self, _event=None):
         info = self._open
         runner = self._runners.get(info.cli_session_id) if info else None
         if runner is None:
-            self._status("Nothing is running.")
+            self._feedback("Nothing is running.")
             return
         runner.cancel()
-        self._status("Stopping…")
+        self._feedback("Stopping.")
 
     # ------------------------------------------------------- settings, about
 
@@ -827,7 +1031,7 @@ class MainFrame(wx.Frame):
         except OSError as exc:
             wx.MessageBox(f"Couldn't save settings: {exc}", APP_NAME,
                           wx.OK | wx.ICON_WARNING, self)
-        self._status("Settings saved.")
+        self._feedback("Settings saved.")
 
     def on_about(self, _event=None):
         wx.MessageBox(
@@ -878,7 +1082,7 @@ class MainFrame(wx.Frame):
                 wx.TheClipboard.SetData(wx.TextDataObject(visible[index].full_text()))
             finally:
                 wx.TheClipboard.Close()
-            self._status("Message copied.")
+            self._feedback("Message copied.")
 
     # ---------------------------------------------------------------- close
 

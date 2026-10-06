@@ -7,15 +7,21 @@ the desktop app and the terminal, so it costs nothing beyond the
 subscription. The things that would change that are all ruled out here:
 
 * **Never ``--bare``.** Bare mode skips the OAuth login and requires an API key.
-* **No CLAUDE_* / ANTHROPIC_* variables reach the child.** If TheClaudeHub is
+* **A host session's variables don't reach the child.** If TheClaudeHub is
   started from inside a Claude Code session (a terminal tab in the desktop app,
-  say), it inherits that session's variables: ``ANTHROPIC_BASE_URL`` pointing at
-  the desktop app's local proxy, ``CLAUDE_CODE_SDK_HAS_HOST_AUTH_REFRESH`` and
-  friends that tell the CLI a host will refresh its OAuth token. A child run
-  with those waits on a token refresh that never comes (the lock seen during
-  the investigation for issue #168). Stripping them also removes any
-  ``ANTHROPIC_API_KEY``, which would otherwise switch the CLI to per-use
-  billing. ``CLAUDE_CONFIG_DIR`` is kept: it says where the login lives.
+  say), it inherits variables that session injected: ``ANTHROPIC_BASE_URL``
+  pointing at the desktop app's local proxy, ``CLAUDE_CODE_SDK_HAS_HOST_AUTH_REFRESH``
+  and friends that tell the CLI a host will refresh its OAuth token. A child
+  run with those waits on a token refresh that never comes (the lock seen
+  during the investigation for issue #168). Those are removed by name
+  (``SESSION_INJECTED_VARS``), as are the variables that would move billing
+  off the subscription (``BILLING_VARS``: API keys, auth tokens, a different
+  endpoint, Bedrock/Vertex/Foundry). Everything else is kept, including
+  settings the user chose such as ``CLAUDE_CODE_GIT_BASH_PATH``,
+  ``CLAUDE_CONFIG_DIR``, proxies and timeouts.
+* **Permission prompts are refused, never waited on.** ``--permission-prompts
+  none`` tells the CLI nobody is there to answer, so anything that would ask
+  is denied at once and the turn carries on.
 * **The run is stopped if the CLI says it is using an API key.** The first
   stream-json event (``system/init``) reports ``apiKeySource``; on a
   subscription login it is ``"none"``. Anything else ends the turn before a
@@ -29,8 +35,10 @@ and is refused for any id the desktop app knows about or any ``local_`` id
 (``ResumeRefused``). That check lives in ``build_resume_command`` so no caller
 can skip it.
 
-Prompts go in on stdin, not the command line: a message that begins with
-``-`` cannot be mistaken for a flag, and there is no command-line length limit.
+Prompts go in on stdin, as UTF-8 bytes with the newlines exactly as typed, not
+on the command line: a message that begins with ``-`` cannot be mistaken for a
+flag, and there is no command-line length limit. Output is read as bytes and
+split only on newline bytes.
 """
 from __future__ import annotations
 
@@ -38,6 +46,7 @@ import json
 import os
 import subprocess
 import threading
+import time
 import uuid
 from dataclasses import dataclass, field
 from typing import Callable, Collection, Dict, List, Optional
@@ -48,15 +57,44 @@ from . import platform_paths
 PERMISSION_MODES = [
     ("auto", "Auto: Claude decides what is safe to run without asking"),
     ("acceptEdits", "Accept edits: file edits allowed, commands that need approval are refused"),
-    ("default", "Default: anything that needs approval is refused"),
+    ("manual", "Manual: anything that needs approval is refused"),
     ("plan", "Plan: Claude plans but does not change anything"),
 ]
 PERMISSION_MODE_VALUES = [value for value, _label in PERMISSION_MODES]
 DEFAULT_PERMISSION_MODE = "auto"
+#: Older names the CLI still accepts; stored sessions may carry them.
+_MODE_ALIASES = {"default": "manual"}
 
-#: Environment variables that are kept even though they match the prefixes.
-_ENV_KEEP = {"CLAUDE_CONFIG_DIR"}
-_ENV_STRIP_PREFIXES = ("CLAUDE", "ANTHROPIC")
+#: Set by a host Claude Code session (seen in the desktop app's terminal on
+#: Claude Code 2.1.289). They describe *that* session, and some of them make a
+#: child wait for the host to refresh its login.
+SESSION_INJECTED_VARS = frozenset({
+    "CLAUDECODE", "CLAUDE_PID", "CLAUDE_EFFORT", "CLAUDE_AGENT_SDK_VERSION",
+    "CLAUDE_PREVIEW_CLASSIFIER_FLOOR",
+    "CLAUDE_CODE_ENTRYPOINT", "CLAUDE_CODE_SESSION_ID", "CLAUDE_CODE_HOST_SESSION_ID",
+    "CLAUDE_CODE_CHILD_SESSION", "CLAUDE_CODE_SESSION_ATTENDED",
+    "CLAUDE_CODE_SDK_HAS_HOST_AUTH_REFRESH", "CLAUDE_CODE_OAUTH_TOKEN",
+    "CLAUDE_CODE_OAUTH_REFRESH_TOKEN", "CLAUDE_CODE_OAUTH_SCOPES",
+    "CLAUDE_CODE_ACCOUNT_UUID", "CLAUDE_CODE_ORGANIZATION_UUID", "CLAUDE_CODE_USER_EMAIL",
+    "CLAUDE_CODE_MESSAGING_SOCKET", "CLAUDE_CODE_MESSAGING_TOKEN",
+    "CLAUDE_CODE_DESKTOP_APP_VERSION", "CLAUDE_CODE_EXECPATH",
+    "CLAUDE_CODE_EMIT_TOOL_USE_SUMMARIES", "CLAUDE_CODE_ENABLE_ASK_USER_QUESTION_TOOL",
+    "CLAUDE_CODE_ENABLE_SDK_FILE_CHECKPOINTING", "CLAUDE_CODE_REPORT_FINDINGS",
+    "CLAUDE_CODE_EAGER_FLUSH", "CLAUDE_CODE_DISABLE_CRON",
+    "CLAUDE_CODE_DISABLE_TERMINAL_TITLE", "CLAUDE_CODE_TERMINAL_MCP_TOOLS",
+})
+
+#: Would take the turn off the subscription login (per-use billing or a cloud
+#: provider), or point it at another endpoint.
+BILLING_VARS = frozenset({
+    "ANTHROPIC_API_KEY", "ANTHROPIC_AUTH_TOKEN", "ANTHROPIC_BASE_URL",
+    "ANTHROPIC_CUSTOM_HEADERS", "ANTHROPIC_BEDROCK_BASE_URL", "ANTHROPIC_VERTEX_BASE_URL",
+    "ANTHROPIC_VERTEX_PROJECT_ID", "ANTHROPIC_FOUNDRY_API_KEY", "ANTHROPIC_FOUNDRY_BASE_URL",
+    "ANTHROPIC_FOUNDRY_RESOURCE",
+    "CLAUDE_CODE_USE_BEDROCK", "CLAUDE_CODE_USE_VERTEX", "CLAUDE_CODE_USE_FOUNDRY",
+})
+
+_STRIP = SESSION_INJECTED_VARS | BILLING_VARS
 
 
 class ResumeRefused(ValueError):
@@ -66,16 +104,19 @@ class ResumeRefused(ValueError):
 def child_environment(base: Optional[Dict[str, str]] = None) -> Dict[str, str]:
     """The environment for a ``claude`` child process (see module docstring)."""
     base = dict(os.environ if base is None else base)
-    return {k: v for k, v in base.items()
-            if k.upper() in _ENV_KEEP
-            or not k.upper().startswith(_ENV_STRIP_PREFIXES)}
+    return {k: v for k, v in base.items() if k.upper() not in _STRIP}
+
+
+def normalize_permission_mode(mode: str) -> str:
+    return _MODE_ALIASES.get(mode, mode)
 
 
 def _common_flags(permission_mode: str) -> List[str]:
+    permission_mode = normalize_permission_mode(permission_mode)
     if permission_mode not in PERMISSION_MODE_VALUES:
         raise ValueError(f"Unknown permission mode: {permission_mode!r}")
     return ["-p", "--output-format", "stream-json", "--verbose",
-            "--permission-mode", permission_mode]
+            "--permission-mode", permission_mode, "--permission-prompts", "none"]
 
 
 def new_session_id() -> str:
@@ -244,18 +285,38 @@ def api_key_problem(source: Optional[str]) -> Optional[str]:
 # ---------------------------------------------------------------------------
 
 
+def describe_elapsed(seconds: float) -> str:
+    """'40 seconds', '3 minutes 5 seconds', '1 hour 2 minutes'."""
+    seconds = max(0, int(seconds))
+    hours, rest = divmod(seconds, 3600)
+    minutes, secs = divmod(rest, 60)
+
+    def unit(n, word):
+        return f"{n} {word}" + ("s" if n != 1 else "")
+    if hours:
+        return unit(hours, "hour") + (" " + unit(minutes, "minute") if minutes else "")
+    if minutes:
+        return unit(minutes, "minute") + (" " + unit(secs, "second") if secs else "")
+    return unit(secs, "second")
+
+
 class TurnRunner:
     """Runs one turn in a background thread and reports ``TurnEvent``s.
 
     ``on_event`` is called from the worker thread; the UI marshals it onto the
     main thread (``wx.CallAfter``). Exactly one ``finished`` or ``failed``
     event is always delivered last, whatever happens.
+
+    There is deliberately no time limit: a long build or test run is a normal
+    turn. ``elapsed`` and ``last_activity`` let the UI say how long it has been
+    going and what it was last doing, when asked; Stop ends it.
     """
 
     def __init__(self, command: List[str], cwd: str, prompt: str,
                  on_event: Callable[[TurnEvent], None],
                  popen: Callable[..., subprocess.Popen] = subprocess.Popen,
-                 env: Optional[Dict[str, str]] = None) -> None:
+                 env: Optional[Dict[str, str]] = None,
+                 clock: Callable[[], float] = time.monotonic) -> None:
         self.command = command
         self.cwd = cwd
         self.prompt = prompt
@@ -263,10 +324,21 @@ class TurnRunner:
         self._popen = popen
         self._env = env if env is not None else child_environment()
         self._process: Optional[subprocess.Popen] = None
+        self._tree = platform_paths.ProcessTree()
+        self._lock = threading.Lock()
         self._cancelled = False
         self._stopped_for_key = False
         self._thread: Optional[threading.Thread] = None
+        self._clock = clock
+        self.started_at = clock()
+        self.last_activity = "starting"
+        #: True once the CLI reported the session (system/init): from then on
+        #: the session exists and later turns must --resume it.
+        self.session_started = False
         self.parser = StreamParser()
+
+    def elapsed(self) -> float:
+        return self._clock() - self.started_at
 
     def start(self) -> None:
         self._thread = threading.Thread(target=self._run, name="claude-turn", daemon=True)
@@ -277,17 +349,25 @@ class TurnRunner:
             self._thread.join(timeout)
 
     def cancel(self) -> None:
-        self._cancelled = True
+        with self._lock:
+            self._cancelled = True
         self._kill()
+
+    @property
+    def cancelled(self) -> bool:
+        return self._cancelled
 
     def _kill(self) -> None:
         process = self._process
-        if process is not None:
-            try:
+        if process is None:
+            return
+        try:
+            if process.poll() is None:
+                self._tree.kill()
                 if process.poll() is None:
                     process.kill()
-            except Exception:  # noqa: BLE001
-                pass
+        except Exception:  # noqa: BLE001
+            pass
 
     def _emit(self, event: TurnEvent) -> None:
         try:
@@ -301,38 +381,48 @@ class TurnRunner:
         try:
             if not os.path.isdir(self.cwd):
                 raise FileNotFoundError(f"The folder {self.cwd} doesn't exist.")
-            self._process = self._popen(
+            if self._cancelled:
+                raise _Cancelled()
+            # Bytes in and out: text mode on Windows would turn the prompt's
+            # newlines into CRLF, and splitting decoded text on every Unicode
+            # line break would cut JSON lines that contain U+2028.
+            process = self._popen(
                 self.command,
                 cwd=self.cwd,
                 env=self._env,
                 stdin=subprocess.PIPE,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
-                encoding="utf-8",
-                errors="replace",
-                creationflags=platform_paths.hidden_window_flags(),
+                **platform_paths.ProcessTree.popen_kwargs(),
             )
-            process = self._process
+            with self._lock:
+                self._process = process
+                self._tree.attach(process)
+                cancelled_early = self._cancelled
+            if cancelled_early:
+                # cancel() ran between the check above and Popen returning.
+                self._kill()
 
             def drain_stderr() -> None:
                 try:
-                    for err_line in process.stderr:
+                    for raw in iter(process.stderr.readline, b""):
                         if len(stderr_lines) < 200:
-                            stderr_lines.append(err_line.rstrip())
+                            stderr_lines.append(_decode(raw).rstrip())
                 except Exception:  # noqa: BLE001
                     pass
 
             err_thread = threading.Thread(target=drain_stderr, daemon=True)
             err_thread.start()
             try:
-                process.stdin.write(self.prompt)
+                process.stdin.write(self.prompt.encode("utf-8"))
                 process.stdin.close()
             except (OSError, ValueError):
                 pass  # the process died early; its exit code tells us why
 
-            for line in process.stdout:
-                for event in self.parser.feed(line):
+            for raw in iter(process.stdout.readline, b""):
+                for event in self.parser.feed(_decode(raw)):
                     if event.kind == "started":
+                        self.session_started = True
                         problem = api_key_problem(self.parser.api_key_source)
                         if problem:
                             self._stopped_for_key = True
@@ -340,6 +430,10 @@ class TurnRunner:
                             final = TurnEvent("failed", text=problem, is_error=True,
                                               session_id=self.parser.session_id)
                             break
+                    if event.kind == "tool":
+                        self.last_activity = f"using {event.text}"
+                    elif event.kind == "text":
+                        self.last_activity = "writing a reply"
                     if event.kind == "finished":
                         final = event
                     else:
@@ -353,17 +447,32 @@ class TurnRunner:
                     final = TurnEvent("failed", text="Stopped.", is_error=True,
                                       session_id=self.parser.session_id)
                 else:
-                    detail = next((l for l in reversed(stderr_lines) if l.strip()), "")
-                    message = f"Claude exited without finishing the turn (exit code {process.returncode})."
+                    detail = next((x for x in reversed(stderr_lines) if x.strip()), "")
+                    message = ("Claude exited without finishing the turn "
+                               f"(exit code {process.returncode}).")
                     if detail:
                         message += f" {detail}"
                     final = TurnEvent("failed", text=message, is_error=True,
                                       session_id=self.parser.session_id)
+        except _Cancelled:
+            final = TurnEvent("failed", text="Stopped.", is_error=True)
         except FileNotFoundError as exc:
             final = TurnEvent("failed", text=str(exc) or "The claude command was not found.",
                               is_error=True)
         except Exception as exc:  # noqa: BLE001
             final = TurnEvent("failed", text=f"Couldn't run claude: {exc}", is_error=True)
+        finally:
+            self._tree.close()
         if not final.session_id:
             final.session_id = self.parser.session_id
         self._emit(final)
+
+
+class _Cancelled(Exception):
+    pass
+
+
+def _decode(raw) -> str:
+    if isinstance(raw, bytes):
+        return raw.decode("utf-8", errors="replace")
+    return str(raw)

@@ -30,6 +30,12 @@ class ShortcutsDialog(wx.Dialog):
         wx.CallAfter(text.SetFocus)
 
 
+PERMISSION_NOTE = (
+    "Nobody can approve a permission prompt while TheClaudeHub runs a turn, so "
+    "anything that would ask is refused straight away, and the chat and the "
+    "announcement say what was refused.")
+
+
 class NewSessionDialog(wx.Dialog):
     """Folder, title, permission mode, first message."""
 
@@ -54,7 +60,7 @@ class NewSessionDialog(wx.Dialog):
         set_accessible_name(self.title_text, "Title (optional)")
         grid.Add(self.title_text, 1, wx.EXPAND)
 
-        grid.Add(wx.StaticText(self, label="&Permission mode:"), 0, wx.ALIGN_CENTER_VERTICAL)
+        grid.Add(wx.StaticText(self, label="Permission m&ode:"), 0, wx.ALIGN_CENTER_VERTICAL)
         self.mode = wx.Choice(self, choices=[label for _v, label in PERMISSION_MODES])
         set_accessible_name(self.mode, "Permission mode")
         values = [v for v, _l in PERMISSION_MODES]
@@ -62,14 +68,17 @@ class NewSessionDialog(wx.Dialog):
         grid.Add(self.mode, 1, wx.EXPAND)
         outer.Add(grid, 0, wx.EXPAND | wx.ALL, 10)
 
-        note = wx.StaticText(self, label=(
-            "Nobody can approve a permission prompt while TheClaudeHub runs a turn, "
-            "so anything that would ask is refused, and the chat says what was refused."))
-        note.Wrap(600)
-        outer.Add(note, 0, wx.LEFT | wx.RIGHT, 10)
+        # A read-only text box rather than a static label, so it is in the tab
+        # order and a screen reader reaches it.
+        outer.Add(wx.StaticText(self, label="About &permissions:"), 0, wx.LEFT, 10)
+        note = wx.TextCtrl(self, style=wx.TE_MULTILINE | wx.TE_READONLY | wx.TE_RICH2,
+                           value=PERMISSION_NOTE)
+        set_accessible_name(note, "About permissions")
+        note.SetMinSize((-1, 60))
+        outer.Add(note, 0, wx.EXPAND | wx.LEFT | wx.RIGHT, 10)
 
         outer.Add(wx.StaticText(self, label="First &message:"), 0, wx.LEFT | wx.TOP, 10)
-        self.message = wx.TextCtrl(self, style=wx.TE_MULTILINE)
+        self.message = wx.TextCtrl(self, style=wx.TE_MULTILINE | wx.TE_RICH2)
         set_accessible_name(self.message, "First message")
         outer.Add(self.message, 1, wx.EXPAND | wx.ALL, 10)
 

@@ -31,6 +31,10 @@ class OwnSession:
     state: str = IDLE              # idle / needs you (working is never stored)
     detail: str = ""
     unread: bool = False
+    #: False until the CLI has reported the session (its first turn got as far
+    #: as system/init). Until then the session doesn't exist in Claude Code,
+    #: and the next Send starts it again instead of resuming it.
+    started: bool = True
 
     def to_info(self) -> SessionInfo:
         return SessionInfo(
@@ -49,6 +53,34 @@ class OwnSession:
 
 
 _FIELDS = {f.name for f in fields(OwnSession)}
+_TYPES = {f.name: f.type for f in fields(OwnSession)}
+_DEFAULTS = {f.name: f.default for f in fields(OwnSession)}
+
+
+def _session_from_dict(item: dict) -> Optional[OwnSession]:
+    """A stored session, or None. Wrong-typed optional fields fall back to
+    their defaults; a wrong-typed id, title or folder drops the entry."""
+    cli_id = item.get("cli_session_id")
+    if not isinstance(cli_id, str) or not platform_paths.is_safe_id(cli_id):
+        return None
+    if not isinstance(item.get("title"), str) or not isinstance(item.get("cwd"), str):
+        return None
+    values = {}
+    for name in _FIELDS:
+        if name not in item:
+            continue
+        value = item[name]
+        kind = _TYPES[name]
+        if kind in ("str", str):
+            ok = isinstance(value, str)
+        elif kind in ("bool", bool):
+            ok = isinstance(value, bool)
+        elif kind in ("int", int):
+            ok = isinstance(value, int) and not isinstance(value, bool)
+        else:
+            ok = True
+        values[name] = value if ok else _DEFAULTS[name]
+    return OwnSession(**values)
 
 
 class OwnSessionStore:
@@ -56,6 +88,7 @@ class OwnSessionStore:
         self.path = Path(path) if path else platform_paths.app_data_dir() / "sessions.json"
         self._sessions: Dict[str, OwnSession] = {}
         self.load_error = ""
+        self._save_blocked = False
         self.load()
 
     # -- persistence ----------------------------------------------------------
@@ -67,27 +100,42 @@ class OwnSessionStore:
             raw = json.loads(self.path.read_text(encoding="utf-8"))
         except FileNotFoundError:
             return
-        except (OSError, ValueError) as exc:
+        except OSError as exc:
             self.load_error = f"Couldn't read {self.path}: {exc}"
+            return
+        except ValueError as exc:
+            self._set_aside(f"isn't valid JSON ({exc})")
             return
         items = raw.get("sessions") if isinstance(raw, dict) else None
         if not isinstance(items, list):
-            self.load_error = f"{self.path} is not in the expected format."
+            self._set_aside("isn't in the expected format")
             return
         for item in items:
             if not isinstance(item, dict):
                 continue
-            values = {k: v for k, v in item.items() if k in _FIELDS}
-            cli_id = values.get("cli_session_id")
-            if not isinstance(cli_id, str) or not platform_paths.is_safe_id(cli_id):
-                continue
-            try:
-                session = OwnSession(**values)
-            except TypeError:
-                continue
-            self._sessions[cli_id] = session
+            session = _session_from_dict(item)
+            if session is not None:
+                self._sessions[session.cli_session_id] = session
+
+    def _set_aside(self, why: str) -> None:
+        """Move an unreadable store out of the way, so the next save can't
+        overwrite whatever is in it, and say where it went."""
+        stamp = time.strftime("%Y%m%d-%H%M%S")
+        backup = self.path.with_name(f"{self.path.name}.bad-{stamp}")
+        try:
+            os.replace(self.path, backup)
+            self.load_error = (f"TheClaudeHub's session list ({self.path}) {why}. It was "
+                               f"moved to {backup.name} in the same folder, and TheClaudeHub "
+                               "started a new list. Its sessions' transcripts are untouched.")
+        except OSError as exc:
+            self.load_error = (f"TheClaudeHub's session list ({self.path}) {why}, and it "
+                               f"couldn't be moved aside ({exc}). Changes won't be saved "
+                               "until it is fixed or removed.")
+            self._save_blocked = True
 
     def save(self) -> None:
+        if self._save_blocked:
+            raise OSError(f"Not saving over the unreadable {self.path}.")
         self.path.parent.mkdir(parents=True, exist_ok=True)
         payload = {"version": 1,
                    "sessions": [asdict(s) for s in self._sessions.values()]}
