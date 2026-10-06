@@ -39,9 +39,11 @@ SHORTCUTS = [
         ("Ctrl+O", "Open this session in the Claude desktop app"),
     ]),
     ("Reply box", [
-        ("Ctrl+Enter", "Send (TheClaudeHub sessions only); you stay in the reply box"),
-        ("Ctrl+Period", "Stop the running turn"),
-        ("Ctrl+Shift+T", "Turn status: how long Claude has been working, and on what"),
+        ("Ctrl+Enter", "Send (TheClaudeHub sessions only); you stay in the reply box. "
+                       "During a turn it queues the message and sends it when the turn ends"),
+        ("Ctrl+Period", "Stop the running turn; a queued message goes back in the reply box"),
+        ("Ctrl+Shift+T", "Turn status: how long Claude has been working, on what, "
+                         "and whether a message is queued"),
     ]),
     ("Anywhere", [
         ("F1", "This list of shortcuts"),
