@@ -85,8 +85,9 @@ public sealed class WindowsCredentialStore : IGuestCredentialStore
 
     public void Forget(string vmId)
     {
-        if (!CredDelete(TargetFor(vmId), CredTypeGeneric, 0) && Marshal.GetLastWin32Error() != ErrorNotFound)
-            throw new Win32Exception(Marshal.GetLastWin32Error());
+        if (CredDelete(TargetFor(vmId), CredTypeGeneric, 0)) return;
+        var error = Marshal.GetLastWin32Error();
+        if (error != ErrorNotFound) throw new Win32Exception(error);
     }
 
     private const uint CredTypeGeneric = 1;

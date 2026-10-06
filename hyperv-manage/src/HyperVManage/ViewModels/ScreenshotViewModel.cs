@@ -115,7 +115,7 @@ public sealed partial class ScreenshotViewModel : ObservableObject, IDisposable
         StatusText = $"Taking a new picture of {Vm.Name}'s screen.";
         try
         {
-            var picture = await _taker.TakeAsync(Vm, _lifetime.Token);
+            var picture = await _taker.TakeAsync(Vm, _lifetime.Token, askEvenIfDeclined: true);
             if (!_lifetime.IsCancellationRequested) Show(picture);
         }
         catch (OperationCanceledException) { }

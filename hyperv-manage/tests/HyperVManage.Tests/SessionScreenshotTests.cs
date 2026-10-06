@@ -11,8 +11,8 @@ public class SessionCaptureTests
 {
     private static readonly string Png = Convert.ToBase64String(ScreenshotViewModelTests.Picture(DateTime.Now).Png);
 
-    private static string Ok(string info, string sessionName = "rdp-tcp#0", string? png = null) =>
-        $$"""{"Status":"ok","Message":"","User":"vmuser","SessionName":"{{sessionName}}","Info":{{System.Text.Json.JsonSerializer.Serialize(info)}}}""" +
+    private static string Ok(string info, bool remote = true, string? png = null) =>
+        $$"""{"Status":"ok","Message":"","User":"vmuser","Remote":{{(remote ? "true" : "false")}},"Info":{{System.Text.Json.JsonSerializer.Serialize(info)}}}""" +
         "\r\n" + (png ?? Png) + "\r\n";
 
     [Fact]
@@ -36,7 +36,7 @@ public class SessionCaptureTests
     {
         // Windows PowerShell writes a one-item array as a bare string, and UTF-8 files from
         // Set-Content start with a byte order mark.
-        var s = SessionCapture.Parse(Ok("﻿" + """{"Width":2,"Height":2,"Foreground":"Settings","Windows":"Settings"}""", "console"), DateTime.Now);
+        var s = SessionCapture.Parse(Ok("﻿" + """{"Width":2,"Height":2,"Foreground":"Settings","Windows":"Settings"}""", remote: false), DateTime.Now);
         Assert.False(s.Info.RemoteDesktop);
         Assert.Equal(["Settings"], s.Info.Windows);
         Assert.Equal("", s.Info.FocusText);
@@ -66,13 +66,56 @@ public class SessionCaptureTests
     }
 
     [Fact]
+    public void Parse_AWarningBeforeTheAnswer_IsSkipped()
+    {
+        var s = SessionCapture.Parse("WARNING: something PowerShell wanted to say\r\n" +
+            Ok("""{"Width":2,"Height":2,"Foreground":"Settings"}"""), DateTime.Now);
+        Assert.Equal("Settings", s.Info.Foreground);
+    }
+
+    [Fact]
+    public void Parse_AnErrorInsideTheSession_IsSaid_NotPassedOffAsALockedScreen()
+    {
+        var ex = Assert.Throws<SessionScreenshotException>(() => SessionCapture.Parse(
+            Ok("""{"Error":"Cannot add type. Compilation is not allowed.","Windows":[]}""", remote: false), DateTime.Now));
+        Assert.Equal(SessionFailure.NotDrawn, ex.Reason);
+        Assert.Contains("Compilation is not allowed", ex.Message);
+    }
+
+    [Fact]
+    public void Parse_AOneColorPicture_IsASessionWindowsIsntDrawing()
+    {
+        var black = Convert.ToBase64String(ScreenPicture.FromRgb565(new byte[8], 2, 2, DateTime.Now).Png);
+        var ex = Assert.Throws<SessionScreenshotException>(() => SessionCapture.Parse(
+            Ok("""{"Width":2,"Height":2}""", png: black), DateTime.Now));
+        Assert.Equal(SessionFailure.NotDrawn, ex.Reason);
+        Assert.Contains("most often because its window is minimized", ex.Message);
+    }
+
+    [Theory]
+    [InlineData("{not json")]
+    [InlineData("{\"Width\":2,")]
+    public void Parse_ADamagedDescription_IsNotDrawn_NotACrash(string info) =>
+        Assert.Equal(SessionFailure.NotDrawn, Assert.Throws<SessionScreenshotException>(() => SessionCapture.Parse(Ok(info), DateTime.Now)).Reason);
+
+    [Fact]
+    public void TheGuestScripts_ArePlainAscii_AndNeverDeleteRecursively()
+    {
+        // Windows PowerShell reads a script without a byte order mark as ANSI.
+        Assert.All(SessionCapture.GuestScript + SessionCapture.GuestAdminScript + SessionCapture.HostScript, c => Assert.True(c < 128, $"'{c}'"));
+        Assert.DoesNotContain("-Recurse", SessionCapture.GuestAdminScript);
+        Assert.DoesNotContain("icacls", SessionCapture.GuestAdminScript);
+        Assert.DoesNotContain("ProgramData", SessionCapture.GuestAdminScript);
+    }
+
+    [Fact]
     public void Parse_NothingAtAll_IsUnreachable() =>
         Assert.Equal(SessionFailure.Unreachable, Assert.Throws<SessionScreenshotException>(() => SessionCapture.Parse("", DateTime.Now)).Reason);
 
     [Fact]
     public async Task TheScripts_AreValidPowerShell()
     {
-        foreach (var script in new[] { SessionCapture.BuildScript("$vm = Get-VM -Id 'x'\n"), SessionCapture.GuestScript })
+        foreach (var script in new[] { SessionCapture.BuildScript("$vm = Get-VM -Id 'x'\n", "0123"), SessionCapture.GuestScript, SessionCapture.GuestAdminScript })
         {
             var check = $"$errors = $null; [void][System.Management.Automation.Language.Parser]::ParseInput({Ps.Quote(script)}, [ref]$null, [ref]$errors); $errors.Count";
             Assert.Equal("0", (await PowerShellRunner.RunAsync(check, TestContext.Current.CancellationToken)).Trim());
@@ -82,7 +125,7 @@ public class SessionCaptureTests
     [Fact]
     public void TheSignIn_IsNeverOnTheCommandLine()
     {
-        var script = SessionCapture.BuildScript("$vm = Get-VM -Id 'x'\n");
+        var script = SessionCapture.BuildScript("$vm = Get-VM -Id 'x'\n", "0123");
         Assert.Contains("$env:HVM_GUEST_PASSWORD", script);
         Assert.Contains("Remove-Item Env:HVM_GUEST_PASSWORD", script);
         Assert.DoesNotContain("GuestCredential", new GuestCredential("vmuser", "secret").ToString().Replace("GuestCredential {", ""));
@@ -126,9 +169,15 @@ public class ScreenshotTakerTests
         var store = new InMemoryCredentialStore();
         var asked = new List<string?>();
         var queue = new Queue<SignInAnswer?>(answers);
-        var taker = new ScreenshotTaker(demo, store) { AskSignIn = (_, why) => { asked.Add(why); return queue.Count > 0 ? queue.Dequeue() : null; } };
+        var taker = new ScreenshotTaker(demo, store)
+        {
+            AskSignIn = (_, why, user) => { asked.Add(why); Users.Add(user); return queue.Count > 0 ? queue.Dequeue() : null; },
+        };
         return (taker, store, vm, asked);
     }
+
+    private static readonly System.Threading.ThreadLocal<List<string?>> UsersLocal = new(() => []);
+    private static List<string?> Users => UsersLocal.Value!;
 
     private static SignInAnswer Good(bool remember = true) => new(new GuestCredential("vmuser", "vmadmin"), remember);
     private static SignInAnswer Bad => new(new GuestCredential("vmuser", ""), true);
@@ -188,6 +237,102 @@ public class ScreenshotTakerTests
         Assert.Equal("Windows in the VM didn't accept the sign-in.", picture.Note);
         Assert.Equal(2, asked.Count);
         Assert.Null(store.Get(vm.Id));
+    }
+
+    [Fact]
+    public async Task AskedAgain_KeepsTheUserNameThatWasTyped()
+    {
+        Users.Clear();
+        var (taker, _, vm, _) = await Setup(new SignInAnswer(new GuestCredential("admin", ""), true), null);
+        await taker.TakeAsync(vm);
+        Assert.Equal([null, "admin"], Users);
+    }
+
+    [Fact]
+    public async Task Declined_ThenTakeAgain_AsksAgain()
+    {
+        var (taker, _, vm, asked) = await Setup(null, Good());
+        Assert.Null((await taker.TakeAsync(vm)).Info);
+        Assert.NotNull((await taker.TakeAsync(vm, askEvenIfDeclined: true)).Info);
+        Assert.Equal(2, asked.Count);
+    }
+
+    [Theory]
+    [InlineData(SessionFailure.NotDrawn, true)]
+    [InlineData(SessionFailure.NobodySignedIn, true)]
+    [InlineData(SessionFailure.Unreachable, false)]
+    public async Task ASignInWindowsAccepted_IsKept_EvenWhenThereWasNoPictureToTake(SessionFailure failure, bool kept)
+    {
+        var flaky = new Flaky(new SessionScreenshotException(failure, "no picture"));
+        var vm = (await flaky.GetVmsAsync()).First(v => v.State == "Running");
+        var store = new InMemoryCredentialStore();
+        var taker = new ScreenshotTaker(flaky, store) { AskSignIn = (_, _, _) => Good() };
+        var picture = await taker.TakeAsync(vm);
+        Assert.Null(picture.Info);
+        Assert.Contains("no picture", picture.Note);
+        Assert.Equal(kept, store.Get(vm.Id) is not null);
+    }
+
+    [Fact]
+    public async Task AnythingElseGoingWrongInsideTheVm_StillGivesTheVmsOwnScreen()
+    {
+        var flaky = new Flaky(new HyperVException("Register-ScheduledTask: Access is denied."));
+        var vm = (await flaky.GetVmsAsync()).First(v => v.State == "Running");
+        var store = new InMemoryCredentialStore();
+        store.Save(vm.Id, new GuestCredential("vmuser", "vmadmin"));
+        var picture = await new ScreenshotTaker(flaky, store).TakeAsync(vm);
+        Assert.Null(picture.Info);
+        Assert.Equal("Couldn't take a picture inside the VM: Register-ScheduledTask: Access is denied.", picture.Note);
+    }
+
+    [Fact]
+    public async Task Cancelled_IsNotTurnedIntoAPicture()
+    {
+        var flaky = new Flaky(new OperationCanceledException());
+        var vm = (await flaky.GetVmsAsync()).First(v => v.State == "Running");
+        var store = new InMemoryCredentialStore();
+        store.Save(vm.Id, new GuestCredential("vmuser", "vmadmin"));
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(() => new ScreenshotTaker(flaky, store).TakeAsync(vm));
+    }
+
+    /// <summary>The demo, except that a picture from inside the VM always fails as given.</summary>
+    private sealed class Flaky(Exception failure) : IHyperVService
+    {
+        private readonly DemoHyperVService _demo = new() { Delay = TimeSpan.Zero };
+        public Task<SessionScreenshot> TakeSessionScreenshotAsync(string vmId, GuestCredential credential, CancellationToken ct = default) => Task.FromException<SessionScreenshot>(failure);
+        public Task<IReadOnlyList<VmInfo>> GetVmsAsync(CancellationToken ct = default) => _demo.GetVmsAsync(ct);
+        public Task<IReadOnlyList<SwitchInfo>> GetSwitchesAsync(CancellationToken ct = default) => _demo.GetSwitchesAsync(ct);
+        public Task RunActionAsync(VmAction action, string vmId, CancellationToken ct = default) => _demo.RunActionAsync(action, vmId, ct);
+        public Task ApplySettingsAsync(string vmId, VmSettings current, VmSettings wanted, CancellationToken ct = default) => _demo.ApplySettingsAsync(vmId, current, wanted, ct);
+        public Task CreateCheckpointAsync(string vmId, string checkpointName, CancellationToken ct = default) => _demo.CreateCheckpointAsync(vmId, checkpointName, ct);
+        public Task<IReadOnlyList<CheckpointInfo>> GetCheckpointsAsync(string vmId, CancellationToken ct = default) => _demo.GetCheckpointsAsync(vmId, ct);
+        public Task ApplyCheckpointAsync(string vmId, string checkpointId, string? saveCurrentAs, CancellationToken ct = default) => _demo.ApplyCheckpointAsync(vmId, checkpointId, saveCurrentAs, ct);
+        public Task CloneAsync(string vmId, string newName, CancellationToken ct = default) => _demo.CloneAsync(vmId, newName, ct);
+        public Task<IReadOnlyList<string>> GetDiskPathsAsync(string vmId, CancellationToken ct = default) => _demo.GetDiskPathsAsync(vmId, ct);
+        public Task<DeleteResult> DeleteAsync(string vmId, CancellationToken ct = default) => _demo.DeleteAsync(vmId, ct);
+        public Task<string> CreateExternalSwitchAsync(CancellationToken ct = default) => _demo.CreateExternalSwitchAsync(ct);
+        public Task ConnectAsync(VmInfo vm, CancellationToken ct = default) => _demo.ConnectAsync(vm, ct);
+        public void OpenConsole(VmInfo vm) => _demo.OpenConsole(vm);
+        public Task<SavedConnection> SaveConnectionFileAsync(VmInfo vm, CancellationToken ct = default) => _demo.SaveConnectionFileAsync(vm, ct);
+        public Task<ScreenPicture> TakeScreenshotAsync(string vmId, CancellationToken ct = default) => _demo.TakeScreenshotAsync(vmId, ct);
+    }
+
+    [Fact]
+    public void WindowsCredentialManager_KeepsReturnsAndForgetsASignIn()
+    {
+        var store = new WindowsCredentialStore();
+        var id = "test-" + Guid.NewGuid().ToString("N");
+        try
+        {
+            Assert.Null(store.Get(id));
+            store.Save(id, new GuestCredential("vmuser", "p\u00e4ss w\u00f6rd \"'$"));
+            Assert.Equal(new GuestCredential("vmuser", "p\u00e4ss w\u00f6rd \"'$"), store.Get(id));
+            store.Save(id, new GuestCredential("admin", ""));
+            Assert.Equal(new GuestCredential("admin", ""), store.Get(id));
+        }
+        finally { store.Forget(id); }
+        Assert.Null(store.Get(id));
+        store.Forget(id); // forgetting what isn't there is fine
     }
 
     [Fact]

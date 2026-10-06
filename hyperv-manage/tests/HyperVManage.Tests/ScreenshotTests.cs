@@ -590,7 +590,7 @@ public class ScreenshotWindowTests
         var vm = new MainViewModel(new DemoHyperVService { Delay = TimeSpan.Zero });
         await vm.RefreshAsync();
         var window = new MainWindow(vm, demo: true) { Placing = MoveOffscreen };
-        vm.Screenshots.AskSignIn = (_, _) => null;
+        vm.Screenshots.AskSignIn = (_, _, _) => null;
         try
         {
             ShowOffscreen(window);
@@ -620,7 +620,7 @@ public class ScreenshotWindowTests
         var vm = new MainViewModel(new DemoHyperVService { Delay = TimeSpan.Zero });
         await vm.RefreshAsync();
         var window = new MainWindow(vm, demo: true) { Placing = MoveOffscreen };
-        vm.Screenshots.AskSignIn = (_, _) => null;
+        vm.Screenshots.AskSignIn = (_, _, _) => null;
         try
         {
             ShowOffscreen(window);
@@ -694,7 +694,7 @@ public class ScreenshotWindowTests
         var vm = new MainViewModel(new DemoHyperVService { Delay = TimeSpan.Zero });
         await vm.RefreshAsync();
         var window = new MainWindow(vm, demo: true) { Placing = MoveOffscreen };
-        vm.Screenshots.AskSignIn = (_, _) => null;
+        vm.Screenshots.AskSignIn = (_, _, _) => null;
         ShowOffscreen(window);
         vm.Selected = vm.Vms.First(v => v.State == "Running");
         await vm.ScreenshotCommand.ExecuteAsync(null);

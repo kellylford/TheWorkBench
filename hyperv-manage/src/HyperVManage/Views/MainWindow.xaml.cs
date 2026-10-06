@@ -47,8 +47,14 @@ public partial class MainWindow : Window
         vm.OpenNewVm = ShowNewVm;
         vm.ShowScreenshot = ShowScreenshot;
         // Asked from whichever of the app's windows is in front: the list, or a viewer's Take Again.
-        vm.Screenshots.AskSignIn = (v, why) => GuestSignInWindow.Ask(
-            Application.Current.Windows.OfType<Window>().FirstOrDefault(w => w.IsActive) ?? this, v, why, DefaultGuestUser);
+        // A second ask comes after a few seconds' wait, by when the user may have moved on; it says
+        // so first, and the dialog brings itself to the front.
+        vm.Screenshots.AskSignIn = (v, why, user) =>
+        {
+            var owner = Application.Current.Windows.OfType<Window>().FirstOrDefault(w => w.IsActive) ?? this;
+            if (why is not null) Announcer.Announce(owner, $"{v.Name} needs its sign-in again.");
+            return GuestSignInWindow.Ask(owner, v, why, user ?? DefaultGuestUser);
+        };
 
         Loaded += async (_, _) =>
         {
@@ -181,14 +187,19 @@ public partial class MainWindow : Window
         if (_newVmWindow is not null) { _newVmWindow.Activate(); return; }
         var newVm = new NewVmViewModel(_vm.Vms.Select(v => v.Name));
         if (_demo) newVm.RunScript = Services.DemoNewVmScript.RunAsync;
+        // async void, as an event handler is: everything in it is caught, so nothing can end the app.
         newVm.Finished += async outcome =>
         {
-            await _vm.RefreshAsync(quiet: true, mustRead: true);
-            // The sign-in it was built with is the one screenshots need, so it's kept: no asking later.
-            if (outcome == BuildOutcome.Succeeded && _vm.Vms.FirstOrDefault(v => v.Name == newVm.VmName.Trim()) is { } made)
+            try
             {
-                try { _vm.Screenshots.Credentials.Save(made.Id, new GuestCredential(newVm.UserName.Trim(), newVm.Password)); }
-                catch (System.ComponentModel.Win32Exception) { }
+                await _vm.RefreshAsync(quiet: true, mustRead: true);
+                // The sign-in it was built with is the one screenshots need, so it's kept: no asking later.
+                if (outcome == BuildOutcome.Succeeded && _vm.Vms.FirstOrDefault(v => v.Name == newVm.VmName.Trim()) is { } made)
+                    _vm.Screenshots.Credentials.Save(made.Id, new GuestCredential(newVm.UserName.Trim(), newVm.Password));
+            }
+            catch (Exception ex)
+            {
+                _vm.StatusText = $"Couldn't keep the new VM's sign-in for screenshots, so Screenshot will ask for it: {ex.Message}";
             }
         };
         // Modeless and unowned, so the list stays usable during the 15 to 30 minutes a build takes.

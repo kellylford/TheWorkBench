@@ -9,7 +9,7 @@
     </Window.InputBindings>
 
     <!-- A Grid rather than a DockPanel, so the order here is the order a screen reader and Tab
-         meet things in: the picture, then the buttons, then the status. -->
+         meet things in: the picture, what's on screen in words, the buttons, then the status. -->
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="*"/>

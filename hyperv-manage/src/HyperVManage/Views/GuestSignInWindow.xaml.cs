@@ -32,6 +32,8 @@ public partial class GuestSignInWindow : Window
         AutomationProperties.SetHelpText(w.PasswordBox, help);
         w.Loaded += (_, _) =>
         {
+            // Asked again after a wait, the user may be elsewhere in the app; come to the front.
+            w.Activate();
             // The user name is usually right; the password is what's needed.
             if (w.UserBox.Text.Length > 0) w.PasswordBox.Focus();
             else w.UserBox.Focus();
