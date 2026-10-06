@@ -452,9 +452,10 @@ public class OcrTests
         s.TextRead += () => read = true;
         await s.RunOcrCommand.ExecuteAsync(null);
         Assert.True(read);
-        Assert.EndsWith(string.Join(Environment.NewLine, ScreenshotViewModel.OcrHeading, "Windows Setup", "Next"), s.OnScreenText);
-        Assert.StartsWith(ScreenshotViewModel.OcrHeading, s.OnScreenText[s.OcrTextStart..]);
-        Assert.Equal("Windows OCR found 2 lines of text.", s.StatusText);
+        Assert.EndsWith(string.Join(Environment.NewLine, "Windows OCR found 2 lines of text in the picture:", "Windows Setup", "Next"), s.OnScreenText);
+        Assert.StartsWith("Windows OCR found 2 lines", s.OnScreenText[s.OcrTextStart..]);
+        Assert.Equal("Windows OCR found 2 lines of text in the picture:", s.OcrFirstLine);
+        Assert.Equal("Windows OCR found 2 lines of text in the picture.", s.StatusText);
     }
 
     [Fact]
@@ -492,17 +493,24 @@ public class OcrTests
     {
         var gate = new TaskCompletionSource<IReadOnlyList<string>>();
         var s = Viewer((_, _) => gate.Task);
+        var spoken = new List<string>();
+        s.Announce += spoken.Add;
         var running = s.RunOcrCommand.ExecuteAsync(null);
+        Assert.Equal("Reading the text in the picture.", s.StatusText);
+        Assert.True(s.RunOcrCommand.ExecuteAsync(null).IsCompleted); // a second press while reading
         s.Show(ScreenshotViewModelTests.Picture(DateTime.Now.AddSeconds(1)));
         gate.SetResult(["stale"]);
         await running;
         Assert.Null(s.OcrLines);
+        Assert.Equal(["Still reading the text.", "The picture changed while its text was being read. Run Windows OCR again."], spoken);
     }
 
     /// <summary>The real thing: Windows reads text drawn into a picture.</summary>
     [StaFact]
     public async Task WindowsOcr_ReadsTextInAPicture()
     {
+        // A PC, or a build server, with no OCR language installed can't run this.
+        if (Windows.Media.Ocr.OcrEngine.AvailableRecognizerLanguages.Count == 0) Assert.Skip("No Windows OCR language is installed.");
         var visual = new System.Windows.Media.DrawingVisual();
         using (var dc = visual.RenderOpen())
         {

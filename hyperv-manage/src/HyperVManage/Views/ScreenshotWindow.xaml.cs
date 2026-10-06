@@ -29,10 +29,12 @@ public partial class ScreenshotWindow : Window
         Loaded += (_, _) => FocusPicture();
         Activated += (_, _) =>
         {
-            if (!_pictureWaiting) return;
-            _pictureWaiting = false;
+            // The newest of the two wins: text read after the picture came in, or the picture.
+            UIElement? target = _textWaiting ? OnScreenBox : _pictureWaiting ? Picture : null;
+            _textWaiting = _pictureWaiting = false;
+            if (target is null) return;
             // After WPF has put back whatever had focus when the window was last used.
-            Dispatcher.BeginInvoke(() => { if (IsActive) Keyboard.Focus(Picture); }, DispatcherPriority.Input);
+            Dispatcher.BeginInvoke(() => { if (IsActive) Keyboard.Focus(target); }, DispatcherPriority.Input);
         };
         Closed += (_, _) => vm.Dispose();
         PreviewKeyDown += OnPreviewKeyDown;
@@ -56,18 +58,29 @@ public partial class ScreenshotWindow : Window
     /// </summary>
     private void FocusPicture()
     {
+        _textWaiting = false;
         if (!IsActive) { _pictureWaiting = true; return; }
         _pictureWaiting = false;
         Dispatcher.BeginInvoke(() => { if (IsActive) Keyboard.Focus(Picture); }, DispatcherPriority.Input);
     }
 
-    /// <summary>Focus goes to the text OCR found, so it's read straight away and can be arrowed through.</summary>
+    /// <summary>True when the text OCR found is to get focus the next time the window is activated.</summary>
+    private bool _textWaiting;
+
+    /// <summary>
+    /// Focus goes to the text OCR found, with the caret on its first line ("Windows OCR found 3
+    /// lines:"), so it's read straight away and can be arrowed through. Already in the box, as
+    /// after Alt+O from there, nothing would be read, so that line is spoken; in the background,
+    /// it waits until the window is next used.
+    /// </summary>
     private void OnTextRead() =>
         Dispatcher.BeginInvoke(() =>
         {
             OnScreenBox.CaretIndex = Math.Min(ViewModel.OcrTextStart, OnScreenBox.Text.Length);
-            if (IsActive) OnScreenBox.Focus();
             OnScreenBox.ScrollToLine(OnScreenBox.GetLineIndexFromCharacterIndex(OnScreenBox.CaretIndex));
+            if (!IsActive) { _textWaiting = true; _pictureWaiting = false; }
+            else if (OnScreenBox.IsKeyboardFocused) Announcer.Announce(this, ViewModel.OcrFirstLine);
+            else OnScreenBox.Focus();
         }, DispatcherPriority.Input);
 
     private void OnPictureReplaced()
