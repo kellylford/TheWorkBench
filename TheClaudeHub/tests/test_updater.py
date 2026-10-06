@@ -111,6 +111,18 @@ def test_github_unreachable_is_a_failure():
     assert "GitHub couldn't be reached (offline)" in result.describe()
 
 
+def test_offline_copy_that_cannot_update_does_not_claim_there_is_no_release():
+    svc = UpdateService("0.1.0", manager_factory=lambda url: FakeManager(portable=True),
+                        latest=lambda: (_ for _ in ()).throw(OSError("offline")))
+    result = svc.check()
+    assert result.status == FAILED and "No release" not in result.describe()
+
+
+def test_github_is_checked_with_the_windows_certificate_store():
+    truststore = pytest.importorskip("truststore")
+    assert isinstance(updater._ssl_context(), truststore.SSLContext)
+
+
 def test_portable_and_source_copies_say_they_cannot_update():
     portable = service(FakeManager(Update("9.9.9"), portable=True), latest="0.3.0").check()
     assert portable.status == NOT_INSTALLED and portable.version == "0.3.0"

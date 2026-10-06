@@ -29,6 +29,7 @@ from __future__ import annotations
 import json
 import logging
 import os
+import ssl
 import sys
 import threading
 import urllib.request
@@ -160,10 +161,23 @@ def _version_key(version: str):
     return parts
 
 
+def _ssl_context() -> ssl.SSLContext:
+    """Verify certificates the way Windows does. Python's own check fails on a
+    PC whose certificate store hasn't yet fetched GitHub's root (seen on a
+    fresh Windows install), where Windows itself would fetch it."""
+    try:
+        import truststore
+
+        return truststore.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
+    except Exception:  # noqa: BLE001 - not installed: Python's own check
+        return ssl.create_default_context()
+
+
 def _fetch(url: str) -> bytes:
     request = urllib.request.Request(url, headers={
         "Accept": "application/vnd.github+json", "User-Agent": "TheClaudeHub-updater"})
-    with urllib.request.urlopen(request, timeout=15) as response:  # noqa: S310
+    with urllib.request.urlopen(request, timeout=15,  # noqa: S310
+                                context=_ssl_context()) as response:
         return response.read()
 
 
@@ -225,8 +239,6 @@ class UpdateService:
             latest = self._latest()
         except Exception as exc:  # noqa: BLE001
             logger.error("couldn't list releases: %s", exc)
-            if not self.can_update:
-                return CheckResult(NOT_INSTALLED, self.current_version)
             return CheckResult(FAILED, self.current_version,
                                detail=_short(f"GitHub couldn't be reached ({exc})"))
         manager = self._make_manager(feed_url(latest or self.current_version))

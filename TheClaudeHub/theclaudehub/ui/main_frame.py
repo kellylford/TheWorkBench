@@ -1268,8 +1268,13 @@ class MainFrame(wx.Frame):
         return any(text.strip() for text in self._drafts.values())
 
     def _modal_open(self) -> bool:
-        return any(isinstance(w, wx.Dialog) and w.IsShown() and w.IsModal()
-                   for w in wx.GetTopLevelWindows())
+        """A dialog of ours is open. A native message box isn't among wx's
+        windows, but it is the active window while it's up."""
+        if any(isinstance(w, wx.Dialog) and w.IsShown() and w.IsModal()
+               for w in wx.GetTopLevelWindows()):
+            return True
+        active = wx.GetActiveWindow()
+        return active is not None and active is not self
 
     def _on_update_downloaded(self, result: CheckResult, ok: bool):
         self._update_busy = False
@@ -1279,8 +1284,7 @@ class MainFrame(wx.Frame):
             self._say(f"Couldn't download TheClaudeHub {result.version}. Try Help, Check for "
                       "Updates again later.", force=True)
             return
-        later = (f"TheClaudeHub {result.version} is downloaded. It will be installed the "
-                 "next time TheClaudeHub starts.")
+        later = self._install_later_text(result)
         # The download took a while; things may have changed since the yes.
         if self._runners or self._modal_open():
             self._say(later, force=True)
@@ -1300,20 +1304,34 @@ class MainFrame(wx.Frame):
         # Let the announcement finish (a few seconds at most), then stop the
         # speech process so nothing of ours is left running in the install
         # folder Velopack replaces. Applying exits the process.
-        self._apply_update_when_quiet(time.monotonic() + APPLY_SPEECH_WAIT_S)
+        self._apply_update_when_quiet(time.monotonic() + APPLY_SPEECH_WAIT_S, result)
 
-    def _apply_update_when_quiet(self, deadline: float):
+    @staticmethod
+    def _install_later_text(result: CheckResult) -> str:
+        return (f"TheClaudeHub {result.version} is downloaded. It will be installed the "
+                "next time TheClaudeHub starts.")
+
+    def _restart_timers(self):
+        self._list_timer.Start(LIST_REFRESH_MS)
+        if self._open is not None:
+            self._chat_timer.Start(CHAT_REFRESH_MS)
+
+    def _apply_update_when_quiet(self, deadline: float, result: CheckResult):
         if not self:
             return
         if speaker.busy() and time.monotonic() < deadline:
-            wx.CallLater(200, self._apply_update_when_quiet, deadline)
+            wx.CallLater(200, self._apply_update_when_quiet, deadline, result)
+            return
+        self._update_busy = False
+        # Applying exits at once; a turn sent, a dialog opened or a reply begun
+        # while the announcement played would be lost.
+        if self._runners or self._modal_open() or self._unsent_text():
+            self._restart_timers()
+            self._say(self._install_later_text(result), force=True)
             return
         speaker.stop()
-        self._update_busy = False
         if not self.updates.apply_and_restart():
-            self._list_timer.Start(LIST_REFRESH_MS)
-            if self._open is not None:
-                self._chat_timer.Start(CHAT_REFRESH_MS)
+            self._restart_timers()
             self._say("Couldn't install the update. It will be tried again the next time "
                       "TheClaudeHub starts.", force=True)
 

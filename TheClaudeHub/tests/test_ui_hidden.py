@@ -944,6 +944,27 @@ def test_a_turn_started_during_the_download_postpones_the_install(frame, env, mo
     frame._runners.clear()
 
 
+def test_a_turn_started_while_the_install_is_announced_postpones_it(frame, env, monkeypatch):
+    from theclaudehub import speech
+    from theclaudehub.updater import AVAILABLE, CheckResult
+    busy = iter([True])
+
+    def still_speaking():
+        # The announcement is playing; Kelly sends a reply meanwhile.
+        frame._runners["own-1"] = FakeRunner([], "", "", None)
+        return next(busy, False)
+    monkeypatch.setattr(speech.speaker, "busy", still_speaking)
+    # pump() doesn't run wx timers; the 200 ms re-check runs straight away here.
+    monkeypatch.setattr(wx, "CallLater", lambda ms, fn, *args: wx.CallAfter(fn, *args))
+    frame.updates = FakeUpdates(CheckResult(AVAILABLE, "0.1.0", "0.2.0"))
+    monkeypatch.setattr(wx, "MessageBox", lambda *a, **k: wx.YES)
+    run_check(frame)
+    assert pump(lambda: "installed the next time" in (env["spoken"] or [""])[-1])
+    assert "apply" not in frame.updates.calls
+    assert frame._list_timer.IsRunning()
+    frame._runners.clear()
+
+
 def test_no_update_is_applied_while_claude_is_working(frame, env, monkeypatch):
     from theclaudehub.updater import AVAILABLE, CheckResult
     frame._runners["own-1"] = FakeRunner([], "", "", None)
