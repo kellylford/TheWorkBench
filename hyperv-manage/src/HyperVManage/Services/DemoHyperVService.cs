@@ -215,6 +215,22 @@ public sealed class DemoHyperVService : IHyperVService
         return ScreenPicture.FromRgb565(pixels, width, height, DateTime.Now);
     }
 
+    /// <summary>The demo's session: any sign-in with a password works, and Notepad is in front.</summary>
+    public async Task<SessionScreenshot> TakeSessionScreenshotAsync(string vmId, GuestCredential credential, CancellationToken ct = default)
+    {
+        await Task.Delay(Delay, ct);
+        lock (_gate)
+        {
+            if (!VmStates.CanScreenshot(Find(vmId).State))
+                throw new SessionScreenshotException(SessionFailure.Unreachable, "The virtual machine is not running.");
+        }
+        if (credential.Password.Length == 0)
+            throw new SessionScreenshotException(SessionFailure.SignInRefused, "The user name or password is incorrect.");
+        var picture = await TakeScreenshotAsync(vmId, ct);
+        return new SessionScreenshot(picture, new ScreenInfo(credential.UserName, RemoteDesktop: true,
+            "Untitled - Notepad", "Text editor", "document", ["Untitled - Notepad", "Settings"]));
+    }
+
     private static ushort Rgb565(int r, int g, int b) => (ushort)((r >> 3) << 11 | (g >> 2) << 5 | b >> 3);
 
     public async Task<string> CreateExternalSwitchAsync(CancellationToken ct = default)

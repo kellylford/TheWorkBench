@@ -47,7 +47,7 @@ public partial class App : Application
         }
 
         IHyperVService service = demo ? new DemoHyperVService() : new PowerShellHyperVService();
-        var vm = new MainViewModel(service);
+        var vm = new MainViewModel(service, demo ? new InMemoryCredentialStore() : new WindowsCredentialStore());
         var window = new MainWindow(vm, demo);
         MainWindow = window;
         window.Show();

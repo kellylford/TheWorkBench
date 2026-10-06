@@ -355,6 +355,29 @@ public sealed class PowerShellHyperVService : IHyperVService
     public async Task<ScreenPicture> TakeScreenshotAsync(string vmId, CancellationToken ct = default) =>
         ScreenPicture.Parse(await PowerShellRunner.RunAsync(GetVm(vmId) + ScreenshotScript, ct), DateTime.Now);
 
+    /// <summary>How long a picture from inside the VM may take, all told. A VM still starting can
+    /// keep PowerShell Direct waiting; this keeps Screenshot from waiting with it.</summary>
+    internal static TimeSpan SessionTimeout { get; set; } = TimeSpan.FromSeconds(90);
+
+    public async Task<SessionScreenshot> TakeSessionScreenshotAsync(string vmId, GuestCredential credential, CancellationToken ct = default)
+    {
+        using var limit = CancellationTokenSource.CreateLinkedTokenSource(ct);
+        limit.CancelAfter(SessionTimeout);
+        string output;
+        try
+        {
+            output = await PowerShellRunner.RunAsync(SessionCapture.BuildScript(GetVm(vmId), Guid.NewGuid().ToString("N")), limit.Token,
+                new Dictionary<string, string> { ["HVM_GUEST_USER"] = credential.UserName, ["HVM_GUEST_PASSWORD"] = credential.Password });
+        }
+        catch (OperationCanceledException) when (!ct.IsCancellationRequested)
+        {
+            throw new SessionScreenshotException(SessionFailure.Unreachable,
+                $"Windows in the VM didn't answer within {SessionTimeout.TotalSeconds:0} seconds.");
+        }
+        // Not ConfigureAwait(false): the picture is checked with WPF's imaging classes, on the caller's thread.
+        return SessionCapture.Parse(output, DateTime.Now);
+    }
+
     /// <summary>
     /// Hyper-V's own picture of the screen, from the host, so nothing is needed inside the VM.
     /// Hyper-V refuses a picture larger than the VM's screen is now, so it asks for exactly that

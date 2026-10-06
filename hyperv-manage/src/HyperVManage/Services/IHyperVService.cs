@@ -79,6 +79,11 @@ public interface IHyperVService
     /// screen size where Hyper-V allows. The VM has to be running or paused.</summary>
     Task<ScreenPicture> TakeScreenshotAsync(string vmId, CancellationToken ct = default);
 
+    /// <summary>A picture of the session someone is signed in to inside the VM, Remote Desktop
+    /// included, taken from inside it with the VM's administrator sign-in, and what's in front.
+    /// Throws <see cref="SessionScreenshotException"/> saying why when there isn't one to take.</summary>
+    Task<SessionScreenshot> TakeSessionScreenshotAsync(string vmId, GuestCredential credential, CancellationToken ct = default);
+
     /// <summary>Opens Remote Desktop to the VM.</summary>
     Task ConnectAsync(VmInfo vm, CancellationToken ct = default);
 

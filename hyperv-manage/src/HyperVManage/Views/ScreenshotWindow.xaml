@@ -9,10 +9,11 @@
     </Window.InputBindings>
 
     <!-- A Grid rather than a DockPanel, so the order here is the order a screen reader and Tab
-         meet things in: the picture, then the buttons, then the status. -->
+         meet things in: the picture, what's on screen in words, the buttons, then the status. -->
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
@@ -25,7 +26,16 @@
                AutomationProperties.Name="{Binding PictureName}"
                AutomationProperties.HelpText="Use your screen reader's picture description to hear what is on the screen."/>
 
-        <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right" Margin="8">
+        <!-- What's on screen in words: read-only rather than a label, so it can be arrowed through
+             a line at a time. -->
+        <DockPanel Grid.Row="1" Margin="8,8,8,0">
+            <Label DockPanel.Dock="Top" Content="_What's on screen:" Target="{Binding ElementName=OnScreenBox}" Padding="0,0,0,2"/>
+            <TextBox x:Name="OnScreenBox" Text="{Binding OnScreenText, Mode=OneWay}" IsReadOnly="True" IsReadOnlyCaretVisible="True"
+                     TextWrapping="Wrap" MaxHeight="110" VerticalScrollBarVisibility="Auto"
+                     AutomationProperties.Name="What's on screen"/>
+        </DockPanel>
+
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="8">
             <Button x:Name="TakeAgainButton" Content="_Take Again" Command="{Binding TakeAgainCommand}" MinWidth="90" Margin="0,0,8,0"
                     AutomationProperties.AcceleratorKey="F5"/>
             <Button x:Name="CopyButton" Content="_Copy" Click="Copy_Click" MinWidth="90" Margin="0,0,8,0"
@@ -35,7 +45,7 @@
             <Button Content="Close" IsCancel="True" Click="Close_Click" MinWidth="90"/>
         </StackPanel>
 
-        <StatusBar Grid.Row="2">
+        <StatusBar Grid.Row="3">
             <StatusBarItem>
                 <TextBlock Text="{Binding StatusText}" TextWrapping="Wrap"/>
             </StatusBarItem>

@@ -17,7 +17,15 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
     private readonly CancellationTokenSource _lifetime = new();
     private Task? _reading;
 
-    public MainViewModel(IHyperVService hyperV) => _hyperV = hyperV;
+    /// <param name="credentials">Where VMs' sign-ins for screenshots are kept; in memory if not given.</param>
+    public MainViewModel(IHyperVService hyperV, IGuestCredentialStore? credentials = null)
+    {
+        _hyperV = hyperV;
+        Screenshots = new ScreenshotTaker(hyperV, credentials ?? new InMemoryCredentialStore());
+    }
+
+    /// <summary>Takes Screenshot's pictures, asking for a VM's sign-in through its AskSignIn.</summary>
+    public ScreenshotTaker Screenshots { get; }
 
     public ObservableCollection<VmInfo> Vms { get; } = [];
 
@@ -229,11 +237,15 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
     private async Task Screenshot()
     {
         var vm = Selected!;
+        // From inside the VM it takes a few seconds; say it has started.
         StatusText = $"Taking a picture of {vm.Name}'s screen.";
+        Announce?.Invoke(StatusText);
         try
         {
-            var picture = await _hyperV.TakeScreenshotAsync(vm.Id, _lifetime.Token);
-            StatusText = $"Took a picture of {vm.Name}'s screen." +
+            var picture = await Screenshots.TakeAsync(vm, _lifetime.Token);
+            StatusText = (picture.Info is { } info
+                    ? $"Took a picture of {info.User}'s {(info.RemoteDesktop ? "Remote Desktop session" : "session")} in {vm.Name}."
+                    : $"Took a picture of {vm.Name}'s own screen." + (picture.Note.Length > 0 ? " " + picture.Note : "")) +
                 (picture.IsBlank ? $" It's {ScreenPicture.BlankNote}, which usually means the VM's display is asleep or off." : "");
             ShowScreenshot?.Invoke(vm, picture);
         }

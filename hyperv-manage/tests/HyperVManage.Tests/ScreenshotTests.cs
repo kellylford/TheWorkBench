@@ -85,7 +85,7 @@ public class ScreenPictureTests
         var vm = new VmInfo("a") { Name = "Win11-RDP", State = "Running" };
         var blank = ScreenPicture.FromRgb565(new byte[8], 2, 2, new DateTime(2026, 10, 6, 15, 42, 10));
         var s = new ScreenshotViewModel(new DemoHyperVService(), vm, blank);
-        Assert.EndsWith(", 2 by 2, blank, the whole screen is one color", s.PictureName);
+        Assert.EndsWith(", 2 by 2, the VM's own screen, blank, the whole screen is one color", s.PictureName);
         s.Show(blank);
         Assert.EndsWith("It's blank, the whole screen is one color.", s.StatusText);
     }
@@ -253,8 +253,9 @@ public class ScreenshotViewModelTests
         main.ShowScreenshot = (_, _) => opened = true;
         await main.ScreenshotCommand.ExecuteAsync(null);
         Assert.False(opened);
-        var said = Assert.Single(spoken);
-        Assert.StartsWith($"Couldn't take a picture of {running.Name}'s screen. Hyper-V wouldn't give a picture", said);
+        Assert.Equal(2, spoken.Count);
+        Assert.Equal($"Taking a picture of {running.Name}'s screen.", spoken[0]);
+        Assert.StartsWith($"Couldn't take a picture of {running.Name}'s screen. Hyper-V wouldn't give a picture", spoken[1]);
     }
 
     [Fact]
@@ -263,7 +264,7 @@ public class ScreenshotViewModelTests
         var vm = new VmInfo("a") { Name = "Win11-RDP", State = "Running" };
         var taken = new DateTime(2026, 10, 6, 15, 42, 10);
         var s = new ScreenshotViewModel(Demo(), vm, Picture(taken));
-        Assert.Equal($"Screen of Win11-RDP, taken {taken:T}, 2 by 2", s.PictureName);
+        Assert.Equal($"Screen of Win11-RDP, taken {taken:T}, 2 by 2, the VM's own screen", s.PictureName);
         Assert.Equal("Screen of Win11-RDP", s.Title);
     }
 
@@ -413,15 +414,16 @@ public class ScreenshotWindowTests
             Assert.True(window.PictureWaitingForFocus);
             var peer = UIElementAutomationPeer.CreatePeerForElement(picture);
             Assert.Equal(AutomationControlType.Image, peer.GetAutomationControlType());
-            Assert.Equal($"Screen of Win11-RDP, taken {taken:T}, 2 by 2", peer.GetName());
+            Assert.Equal($"Screen of Win11-RDP, taken {taken:T}, 2 by 2, the VM's own screen", peer.GetName());
             Assert.True(peer.IsKeyboardFocusable());
             Assert.Contains("picture description", peer.GetHelpText());
             Assert.Equal("Screen of Win11-RDP", window.Title);
 
-            // A screen reader moving through the window meets the picture first, then the buttons.
-            var children = new WindowAutomationPeer(window).GetChildren();
-            Assert.Equal(AutomationControlType.Image, children[0].GetAutomationControlType());
-            Assert.Equal(AutomationControlType.Button, children[1].GetAutomationControlType());
+            // A screen reader moving through the window meets the picture first, then what's on
+            // screen in words, then the buttons.
+            var types = new WindowAutomationPeer(window).GetChildren().Select(c => c.GetAutomationControlType()).ToList();
+            Assert.Equal(AutomationControlType.Image, types[0]);
+            Assert.True(types.IndexOf(AutomationControlType.Edit) is > 0 and var edit && edit < types.IndexOf(AutomationControlType.Button));
         }
         finally { window.Close(); }
     }
@@ -588,6 +590,7 @@ public class ScreenshotWindowTests
         var vm = new MainViewModel(new DemoHyperVService { Delay = TimeSpan.Zero });
         await vm.RefreshAsync();
         var window = new MainWindow(vm, demo: true) { Placing = MoveOffscreen };
+        vm.Screenshots.AskSignIn = (_, _, _) => null;
         try
         {
             ShowOffscreen(window);
@@ -617,6 +620,7 @@ public class ScreenshotWindowTests
         var vm = new MainViewModel(new DemoHyperVService { Delay = TimeSpan.Zero });
         await vm.RefreshAsync();
         var window = new MainWindow(vm, demo: true) { Placing = MoveOffscreen };
+        vm.Screenshots.AskSignIn = (_, _, _) => null;
         try
         {
             ShowOffscreen(window);
@@ -690,6 +694,7 @@ public class ScreenshotWindowTests
         var vm = new MainViewModel(new DemoHyperVService { Delay = TimeSpan.Zero });
         await vm.RefreshAsync();
         var window = new MainWindow(vm, demo: true) { Placing = MoveOffscreen };
+        vm.Screenshots.AskSignIn = (_, _, _) => null;
         ShowOffscreen(window);
         vm.Selected = vm.Vms.First(v => v.State == "Running");
         await vm.ScreenshotCommand.ExecuteAsync(null);
