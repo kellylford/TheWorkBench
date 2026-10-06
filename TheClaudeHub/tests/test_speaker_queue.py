@@ -99,3 +99,28 @@ def test_empty_text_is_not_spoken(tmp_path, monkeypatch):
     s = make(tmp_path, monkeypatch)
     assert s.speak("   ", SpeechSettings()) is False
     assert FakeEngine.started == []
+
+
+def test_every_utterance_is_logged_in_its_own_file(tmp_path, monkeypatch):
+    s = make(tmp_path, monkeypatch)
+    s.speak("Sent. Hub is working.", SpeechSettings(), interrupt=False)
+    s.speak("Hub replied. " + "word " * 40, SpeechSettings(engine="jaws"))
+    lines = (tmp_path / "theclaudehub-speak" / "speech.log").read_text(
+        encoding="utf-8").splitlines()
+    assert len(lines) == 2
+    assert lines[0].endswith(" queue auto 21 chars: Sent. Hub is working.")
+    assert " interrupt jaws " in lines[1] and lines[1].endswith("…")
+    assert len(lines[1].split("chars: ", 1)[1]) == 80
+    s.stop()
+
+
+def test_speech_log_drops_its_older_half_when_too_big(tmp_path, monkeypatch):
+    monkeypatch.setattr(speech, "LOG_LIMIT", 1000)
+    s = make(tmp_path, monkeypatch)
+    for i in range(60):
+        s.speak(f"utterance {i}", SpeechSettings(), interrupt=False)
+    text = (tmp_path / "theclaudehub-speak" / "speech.log").read_text(encoding="utf-8")
+    assert len(text.encode("utf-8")) < 1100
+    assert text.splitlines()[-1].endswith("utterance 59")
+    assert text.splitlines()[0][:4].isdigit()  # starts on a whole line
+    s.stop()
