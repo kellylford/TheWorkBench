@@ -200,32 +200,160 @@ def test_focused_list_removes_vanished_rows_in_place(frame, env, monkeypatch):
 # -- session view ----------------------------------------------------------------------
 
 
-def test_open_desktop_session_shows_chat_and_read_only_reply(frame, env):
+def tab_order(frame):
+    """The focusable controls in Tab order, as the window would visit them."""
+    order = []
+
+    def walk(window):
+        for child in window.GetChildren():
+            if isinstance(child, wx.TopLevelWindow) or not child.IsShown():
+                continue
+            if isinstance(child, wx.Panel):
+                walk(child)  # a container: its controls are the Tab stops
+            elif child.AcceptsFocusFromKeyboard() and child.IsEnabled():
+                order.append(child)
+            else:
+                walk(child)
+    walk(frame)
+    return order
+
+
+def test_desktop_session_loads_in_the_same_window(frame, env):
     add_transcript(env, "C:\\G\\Repo", "cli-a", [
         user_text("Please check the build"),
         assistant_block(text_block("It passes.\nAll green."), "m1"),
     ])
     select(frame, "Quiet one")
     frame.on_open_session()
-    assert frame.book.GetSelection() == 1
     assert pump(lambda: frame.chat_list.GetCount() == 2 and frame._chat_loaded)
     assert list(frame.chat_list.GetStrings()) == ["You: Please check the build",
                                                   "Claude: It passes."]
     assert frame.chat_list.GetSelection() == 1
-    assert frame.message_text.GetValue() == "Claude:\nIt passes.\nAll green."
+    # The session list is still there, on the same session.
+    assert frame.session_list.IsShown()
+    assert frame.session_list.GetStringSelection().startswith("Quiet one")
     assert not frame.own_reply.IsShown() and frame.desktop_reply.IsShown()
     # State and read-only are in the list's label, which is its accessible name.
     assert frame.messages_label.GetLabel() == "&Messages in Quiet one (idle, read-only):"
     assert frame.chat_list.GetName() == "Messages in Quiet one (idle, read-only)"
-    assert env["feedback"][-1] == "2 messages."
+    assert env["feedback"][-1] == "Loaded Quiet one, 2 messages."
     frame.on_send()  # must do nothing for a desktop session
     assert frame._runners == {}
     frame.on_open_in_claude()
     assert env["opened"] == ["claude://claude.ai/epitaxy/local_a"]
     assert env["feedback"][-1] == "Opened Quiet one in Claude."
-    frame.show_list()
-    assert frame.book.GetSelection() == 0
-    assert frame.session_list.GetStringSelection().startswith("Quiet one")
+
+
+def test_tab_order_own_session(frame):
+    select(frame, "Hub probe")
+    frame.on_open_session()
+    order = tab_order(frame)
+    assert order[:5] == [frame.session_list, frame.chat_list, frame.reply_text,
+                         frame.send_btn, frame.activity_check] or \
+        order[:4] == [frame.session_list, frame.chat_list, frame.reply_text, frame.send_btn]
+    # Stop is disabled while nothing runs, so it is skipped; it follows Send.
+    assert frame.desktop_note not in order
+
+
+def test_tab_order_desktop_session_puts_the_note_where_the_reply_box_is(frame):
+    select(frame, "Quiet one")
+    frame.on_open_session()
+    order = tab_order(frame)
+    assert order[:4] == [frame.session_list, frame.chat_list, frame.desktop_note,
+                         frame.reply_claude_btn]
+    assert frame.reply_text not in order
+
+
+def test_nothing_loaded_at_start(frame):
+    assert frame._open is None
+    assert frame.chat_list.GetString(0).startswith("No session loaded")
+    assert not frame.own_reply.IsShown() and not frame.desktop_reply.IsShown()
+
+
+def test_arrowing_the_session_list_does_not_load(frame):
+    select(frame, "Quiet one")
+    frame.session_list.SetSelection(0)
+    wx.GetApp().ProcessPendingEvents()
+    assert frame._open is None
+
+
+def test_escape_and_ctrl_shortcuts_move_between_the_three_parts(frame, monkeypatch):
+    select(frame, "Hub probe")
+    frame.on_open_session()
+    focused = []
+    for name in ("session_list", "chat_list", "reply_text", "desktop_note"):
+        control = getattr(frame, name)
+        monkeypatch.setattr(control, "SetFocus",
+                            lambda n=name: focused.append(n), raising=False)
+    frame.focus_sessions()
+    frame.focus_messages()
+    frame.focus_reply()
+    assert focused == ["session_list", "chat_list", "reply_text"]
+    # Escape from the reply box goes to the session list, still on Hub probe.
+    monkeypatch.setattr(wx.Window, "FindFocus", staticmethod(lambda: frame.reply_text))
+    event = wx.KeyEvent(wx.wxEVT_CHAR_HOOK)
+    event.SetKeyCode(wx.WXK_ESCAPE)
+    frame._on_char_hook(event)
+    assert focused[-1] == "session_list"
+    assert frame.session_list.GetStringSelection().startswith("Hub probe")
+    assert frame._open is not None  # still loaded
+
+
+def test_enter_on_a_message_opens_its_full_text_and_returns_to_it(frame, env, monkeypatch):
+    from theclaudehub.ui import main_frame
+    add_transcript(env, "C:\\G\\Repo", "cli-a", [
+        user_text("First"), assistant_block(text_block("Line one\nLine two"), "m1"),
+        user_text("Third")])
+    select(frame, "Quiet one")
+    frame.on_open_session()
+    assert pump(lambda: frame._chat_loaded)
+    frame.chat_list.SetSelection(1)
+    shown = []
+
+    class FakeMessageDialog:
+        def __init__(self, parent, label, text):
+            shown.append((label, text))
+
+        def ShowModal(self):
+            return wx.ID_CANCEL  # Escape
+
+        def Destroy(self):
+            pass
+    monkeypatch.setattr(main_frame, "MessageDialog", FakeMessageDialog)
+    monkeypatch.setattr(wx.Window, "FindFocus", staticmethod(lambda: frame.chat_list))
+    event = wx.KeyEvent(wx.wxEVT_CHAR_HOOK)
+    event.SetKeyCode(wx.WXK_RETURN)
+    frame._on_char_hook(event)
+    assert shown == [("Claude", "Line one\nLine two")]
+    assert frame.chat_list.GetSelection() == 1  # same message
+
+
+def test_message_dialog_is_a_labelled_read_only_rich_edit(frame):
+    from theclaudehub.ui.dialogs import MessageDialog
+    dialog = MessageDialog(frame, "Claude", "Line one\nLine two")
+    try:
+        assert dialog.text.GetValue() == "Line one\nLine two"
+        assert not dialog.text.IsEditable()
+        assert dialog.text.GetWindowStyle() & wx.TE_RICH2
+        assert dialog.text.GetName() == "Claude said"
+        assert dialog.GetEscapeId() == wx.ID_CANCEL
+    finally:
+        dialog.Destroy()
+
+
+def test_live_refresh_keeps_the_selected_message(frame, env):
+    path = add_transcript(env, "C:\\G\\Repo", "cli-a", [
+        user_text("Go"), assistant_block(text_block("Line one\nLine two"), "m1")])
+    select(frame, "Quiet one")
+    frame.on_open_session()
+    assert pump(lambda: frame._chat_loaded)
+    frame.chat_list.SetSelection(0)
+    with open(path, "a", encoding="utf-8") as handle:
+        handle.write(json.dumps(assistant_block(text_block("Line three"), "m1")) + "\n")
+        handle.write(json.dumps(user_text("Another")) + "\n")
+    frame._refresh_chat()
+    assert pump(lambda: frame.chat_list.GetCount() == 3)
+    assert frame.chat_list.GetSelection() == 0
 
 
 def test_needs_you_state_is_in_the_label(frame):
@@ -246,28 +374,6 @@ def test_new_message_in_open_session_is_announced(frame, env):
     assert pump(lambda: frame.chat_list.GetCount() == 2)
     assert env["spoken"][-1] == "Quiet one replied. Finished the job."
     assert frame.chat_list.GetSelection() == 0  # the reader stays put
-
-
-def test_live_refresh_does_not_move_the_caret_in_the_message_text(frame, env, monkeypatch):
-    path = add_transcript(env, "C:\\G\\Repo", "cli-a", [
-        user_text("Go"), assistant_block(text_block("Line one\nLine two\nLine three"), "m1")])
-    select(frame, "Quiet one")
-    frame.on_open_session()
-    assert pump(lambda: frame._chat_loaded)
-    frame.message_text.SetInsertionPoint(15)  # Kelly reading line two
-    monkeypatch.setattr(wx.Window, "FindFocus", staticmethod(lambda: frame.message_text))
-    # More of the same reply streams in (same message id)...
-    with open(path, "a", encoding="utf-8") as handle:
-        handle.write(json.dumps(assistant_block(text_block("Line four"), "m1")) + "\n")
-    frame._refresh_chat()
-    assert pump(lambda: frame._chat_messages and "Line four" in frame._chat_messages[-1].text)
-    assert frame.message_text.GetInsertionPoint() == 15
-    # ...then an unrelated new message arrives.
-    with open(path, "a", encoding="utf-8") as handle:
-        handle.write(json.dumps(user_text("Another")) + "\n")
-    frame._refresh_chat()
-    assert pump(lambda: frame.chat_list.GetCount() == 3)
-    assert frame.message_text.GetInsertionPoint() == 15
 
 
 def test_missing_transcript_says_so(frame):
@@ -471,17 +577,17 @@ def test_reply_draft_stays_with_its_session(frame, env):
     select(frame, "Hub probe")
     frame.on_open_session()
     frame.reply_text.SetValue("draft for one")
-    frame.show_list()
+    frame.focus_sessions()
     settle(frame)
     select(frame, "Second")
     frame.on_open_session()
     assert frame.reply_text.GetValue() == ""
-    frame.show_list()
+    frame.focus_sessions()
     settle(frame)
     select(frame, "Hub probe")
     frame.on_open_session()
     assert frame.reply_text.GetValue() == "draft for one"
-    frame.show_list()
+    frame.focus_sessions()
     settle(frame)
     select(frame, "Quiet one")
     frame.on_open_session()
@@ -532,7 +638,7 @@ def test_new_session_view_says_claude_is_starting(frame, env, fake_runner, monke
     frame.on_new_session()
     runner = fake_runner.instances[0]
     assert "--session-id" in runner.command and runner.prompt == "Start the thing"
-    assert frame.book.GetSelection() == 1
+    assert frame._open is not None
     assert frame._open.title == "Brand new work"
     frame._refresh_chat()
     assert frame.chat_list.GetString(0) == "No messages yet. Claude is starting this session."
@@ -550,3 +656,26 @@ def test_new_session_view_says_claude_is_starting(frame, env, fake_runner, monke
     assert frame.chat_list.GetString(0).startswith("No messages yet. The first message "
                                                    "didn't reach Claude")
     assert frame.reply_text.GetValue() == "Start the thing"
+
+
+def test_focus_stays_in_the_reply_box_after_sending(frame, env, fake_runner, monkeypatch):
+    select(frame, "Hub probe")
+    frame.on_open_session()
+    calls = []
+    monkeypatch.setattr(frame.reply_text, "SetFocus", lambda: calls.append("reply"))
+    frame.reply_text.SetValue("hello")
+    frame.on_send()
+    assert fake_runner.instances and calls[-1] == "reply"
+    assert frame.reply_text.GetValue() == ""
+
+
+def test_loading_another_session_announces_it(frame, env):
+    add_transcript(env, "C:\\G\\Repo", "cli-a", [user_text("Hi")])
+    select(frame, "Blocked one")
+    frame.on_open_session()
+    assert pump(lambda: frame._chat_loaded)
+    assert env["feedback"][-1].startswith("Loaded Blocked one. No transcript")
+    select(frame, "Quiet one")
+    frame.on_open_session()
+    assert pump(lambda: frame._chat_loaded and frame._open.title == "Quiet one")
+    assert env["feedback"][-1] == "Loaded Quiet one, 1 message."

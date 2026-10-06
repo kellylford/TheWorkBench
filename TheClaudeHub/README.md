@@ -14,20 +14,30 @@ It runs on your existing Claude subscription. It never uses an API key and costs
 
 ## What it does
 
+One window, three parts, in Tab order: the **session list**, the **messages** of the loaded
+session, and the **reply box** with Send and Stop. Shift+Tab goes back the same way, and the
+session list is always there.
+
 - **Session list.** Each item reads its title, its repo folder, its state (needs you, working or
   idle), and when it was last active: "Fix the release build, QuickMail, needs you: Choose a
   version number, active 1 minute ago". Sessions that need you come first, then working ones, then
   the rest, newest first. The list refreshes itself every five seconds. While you're in the list,
   rows don't move: a changed session is updated where it is and a new one is added at the end.
-  F5, or coming back from a session, puts the list back in order, keeping you on the same session.
-- **Enter opens a session**, which has two tabs.
-  - **Chat:** the messages, newest last, with focus on the newest. Each reads "You:" or "Claude:"
-    and its first line. Enter moves to the full message in a read-only text box, where you can
-    read by line, word and character. Question cards read as "Claude asked: Which version?" with
-    the options in the full text, then "You answered: ...". Refused tools read "Permission denied:
-    ...". Tool calls and tool results are hidden unless you turn on Show Tool Activity (Ctrl+T).
-  - **Reply:** for TheClaudeHub's own sessions, a message box and Send (Ctrl+Enter). For desktop
-    app sessions, it says why replying happens in Claude, with an Open in Claude button.
+  F5, or a refresh while you're elsewhere, puts it back in order, keeping you on the same session.
+  Arrowing doesn't load anything; **Enter loads that session** into the messages list, moves you
+  there, and says "Loaded Quiet one, 12 messages."
+- **Messages:** newest last, with focus on the newest. Each reads "You:" or "Claude:" and its
+  first line, and the list's name says the session's state and whether it's read-only. **Enter**
+  (or the context menu's Read Full Message, with the Applications key or Shift+F10) shows the
+  whole message in a read-only text box, to read by line, word and character; Escape closes it,
+  back on the same message. Question cards read as "Claude asked: Which version?" with the
+  options in the full text, then "You answered: ...". Refused tools read "Permission denied:
+  ...". Tool calls and tool results are hidden unless you turn on Show Tool Activity (Ctrl+T).
+  New messages arrive at the end without moving you.
+- **Reply box:** for TheClaudeHub's own sessions, type and press Ctrl+Enter (or Send). You stay in
+  the reply box. For desktop app sessions the same place holds a read-only note saying why
+  replying happens in Claude, and an Open in Claude button.
+- **Escape** in the messages or the reply box goes back to the session list, on the same session.
 - **Open in Claude** (Ctrl+O) switches the desktop app to the session, for approving a permission
   prompt or answering a question card there.
 - **New Session** (Ctrl+N) starts a session of TheClaudeHub's own: choose a folder, a title, a
@@ -67,29 +77,29 @@ The same list is in the app under Help, Keyboard Shortcuts (F1).
 
 | Where | Key | What it does |
 |---|---|---|
-| Session list | Enter | Open the selected session |
+| Anywhere | Tab, Shift+Tab | Session list, messages, reply box, and back |
+| Anywhere | Ctrl+1, Ctrl+2, Ctrl+3 | Go to the session list, the messages, the reply box |
+| Messages or reply box | Escape | Back to the session list, on the same session |
+| Session list | Enter | Load that session and move to its messages |
 | Session list | Ctrl+O | Open the selected session in the Claude desktop app |
 | Session list | Ctrl+N | New TheClaudeHub session |
-| Session list | F5 | Refresh the list now |
+| Session list | F5 | Refresh the list now and put it in order |
 | Session list | Delete | Forget the selected TheClaudeHub session (asks first; its transcript is kept) |
-| Session view | Escape, or Backspace outside the reply box | Back to the session list, on the same session |
-| Session view | Ctrl+1, Ctrl+2 | Chat tab, Reply tab |
-| Session view | Ctrl+Tab, Ctrl+Shift+Tab | Next or previous tab |
-| Session view | Enter on a message | Move to the full text of that message |
-| Session view | Ctrl+C on a message | Copy the whole message |
-| Session view | Ctrl+T | Show or hide tool activity |
-| Session view | Ctrl+O | Open this session in the Claude desktop app |
-| Session view | Ctrl+Enter in the reply box | Send (TheClaudeHub sessions only) |
-| Session view | Ctrl+Period | Stop the running turn |
-| Session view | Ctrl+Shift+T | Turn status: how long it has been working, and on what |
+| Messages | Enter, or Applications key then Read Full Message | Read the whole message; Escape comes back to it |
+| Messages | Ctrl+C | Copy the whole message |
+| Messages | Ctrl+T | Show or hide tool activity |
+| Messages | Ctrl+O | Open this session in the Claude desktop app |
+| Reply box | Ctrl+Enter | Send (TheClaudeHub sessions only); you stay in the reply box |
+| Reply box | Ctrl+Period | Stop the running turn |
+| Reply box | Ctrl+Shift+T | Turn status: how long it has been working, and on what |
 | Anywhere | F1 | Keyboard shortcuts |
 | Anywhere | Ctrl+Comma | Settings |
 | Anywhere | Ctrl+Shift+R | Repeat the last announcement |
 | Anywhere | Alt+F4 | Quit |
 
 Menus are Session (Alt+S), View (Alt+V) and Help (Alt+H). Controls have their own Alt letters
-(Alt+L the session list, Alt+M the messages, Alt+T the message text, Alt+Y the reply box, Alt+D
-Send), and none of them takes a menu's letter.
+(Alt+L the session list, Alt+M the messages, Alt+Y the reply box, Alt+D Send), and none of them
+takes a menu's letter.
 
 ## How it works
 
