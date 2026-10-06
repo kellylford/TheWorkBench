@@ -47,6 +47,20 @@ public sealed partial class ScreenshotViewModel : ObservableObject, IDisposable
 
     [ObservableProperty] private string _statusText = "";
 
+    /// <summary>The text Windows OCR found in this picture, once it has been run; null before.</summary>
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(OnScreenText))]
+    private IReadOnlyList<string>? _ocrLines;
+
+    /// <summary>True while Windows OCR reads the picture. Like Take Again, the button stays enabled.</summary>
+    [ObservableProperty] private bool _isReadingText;
+
+    /// <summary>Reads the text in a picture; Windows OCR, or a stand-in in the tests.</summary>
+    internal Func<byte[], CancellationToken, Task<IReadOnlyList<string>>> ReadText { get; set; } = WindowsOcr.ReadLinesAsync;
+
+    /// <summary>Raised when OCR has added its text: the window moves focus to it.</summary>
+    public event Action? TextRead;
+
     public string Title => $"Screen of {Vm.Name}";
 
     /// <summary>
@@ -60,8 +74,18 @@ public sealed partial class ScreenshotViewModel : ObservableObject, IDisposable
             : Picture.Info is null ? ", the VM's own screen" : "") +
         (Picture.IsBlank ? $", {ScreenPicture.BlankNote}" : "");
 
-    /// <summary>What was on screen, a line at a time, for the box under the picture.</summary>
-    public string OnScreenText => Describe(Picture);
+    /// <summary>What was on screen, a line at a time, for the box under the picture, then the
+    /// text OCR found, once it has been run.</summary>
+    public string OnScreenText => Describe(Picture) + (OcrLines is { } lines ? Environment.NewLine + DescribeOcr(lines) : "");
+
+    internal const string OcrHeading = "Text Windows OCR found in the picture:";
+    internal const string OcrFoundNothing = "Windows OCR found no text in the picture.";
+
+    internal static string DescribeOcr(IReadOnlyList<string> lines) =>
+        lines.Count == 0 ? OcrFoundNothing : OcrHeading + Environment.NewLine + string.Join(Environment.NewLine, lines);
+
+    /// <summary>Where the OCR text starts in What's on screen, for the caret.</summary>
+    public int OcrTextStart => OcrLines is null ? 0 : Describe(Picture).Length + Environment.NewLine.Length;
 
     /// <summary>Where the words came from: not the picture, so they don't depend on a description
     /// of it. Only focus and the open windows are; the window in front is its title.</summary>
@@ -71,8 +95,7 @@ public sealed partial class ScreenshotViewModel : ObservableObject, IDisposable
     internal static string Describe(ScreenPicture picture)
     {
         if (picture.Info is not { } info)
-            return "The VM's own screen, from Hyper-V. Someone working in it over Remote Desktop is in a " +
-                   "session of their own that this doesn't show." + (picture.Note.Length > 0 ? " " + picture.Note : "");
+            return "The VM's own screen." + (picture.Note.Length > 0 ? " " + picture.Note : "");
         var lines = new List<string>
         {
             info.RemoteDesktop ? $"{info.User}'s Remote Desktop session." : $"{info.User}'s session, on the VM's own screen.",
@@ -110,6 +133,7 @@ public sealed partial class ScreenshotViewModel : ObservableObject, IDisposable
     {
         Picture = picture;
         Image = picture.ToBitmap();
+        OcrLines = null; // it was the old picture's text
         StatusText = $"New picture taken at {picture.Taken:T}." + (picture.IsBlank ? $" It's {ScreenPicture.BlankNote}." : "");
         PictureReplaced?.Invoke();
     }
@@ -133,6 +157,31 @@ public sealed partial class ScreenshotViewModel : ObservableObject, IDisposable
             Announce?.Invoke(StatusText);
         }
         finally { IsTaking = false; }
+    }
+
+    [RelayCommand(AllowConcurrentExecutions = true)]
+    private async Task RunOcr()
+    {
+        if (IsReadingText) { Announce?.Invoke("Still reading the text."); return; }
+        IsReadingText = true;
+        var picture = Picture;
+        try
+        {
+            var lines = await ReadText(picture.Png, _lifetime.Token);
+            // A new picture may have come in meanwhile; this text was the old one's.
+            if (_lifetime.IsCancellationRequested || !ReferenceEquals(picture, Picture)) return;
+            OcrLines = lines;
+            StatusText = lines.Count == 0 ? OcrFoundNothing
+                : $"Windows OCR found {lines.Count} {(lines.Count == 1 ? "line" : "lines")} of text.";
+            TextRead?.Invoke();
+        }
+        catch (OperationCanceledException) { }
+        catch (Exception ex)
+        {
+            StatusText = $"Windows OCR couldn't read the picture. {ex.Message}";
+            Announce?.Invoke(StatusText);
+        }
+        finally { IsReadingText = false; }
     }
 
     public void Dispose()

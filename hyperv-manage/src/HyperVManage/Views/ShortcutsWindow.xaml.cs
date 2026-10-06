@@ -43,7 +43,7 @@ public partial class ShortcutsWindow : Window
         ("In the screenshot window",
         [
             ("F5", "take the picture again"),
-            ("Ctrl+C", "copy the picture"),
+            ("Ctrl+Shift+C", "copy the picture"),
             ("Ctrl+S", "save the picture"),
             ("Escape", "close"),
         ]),

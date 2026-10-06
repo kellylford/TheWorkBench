@@ -215,7 +215,7 @@ public class ScreenshotTakerTests
         var (taker, _, vm, asked) = await Setup();
         var picture = await taker.TakeAsync(vm, Ct);
         Assert.Null(picture.Info);
-        Assert.Contains("Remote Desktop session in it can't be seen", picture.Note);
+        Assert.Contains("Take Again asks for the sign-in", picture.Note);
         await taker.TakeAsync(vm, Ct);
         Assert.Single(asked);
     }
@@ -257,7 +257,7 @@ public class ScreenshotTakerTests
         var (taker, store, vm, asked) = await Setup(Bad);
         var picture = await taker.TakeAsync(vm, Ct);
         Assert.Null(picture.Info);
-        Assert.Equal("Windows in the VM didn't accept the sign-in.", picture.Note);
+        Assert.Equal("The sign-in wasn't accepted.", picture.Note);
         Assert.Equal(2, asked.Count);
         Assert.Null(store.Get(vm.Id));
     }
@@ -387,11 +387,11 @@ public class ScreenshotTakerTests
     [Fact]
     public void WhatsOnScreen_ForTheVmsOwnScreen_SaysSo_AndWhy()
     {
-        var picture = ScreenshotViewModelTests.Picture(DateTime.Now) with { Note = "Nobody is signed in to Windows in the VM." };
+        var picture = ScreenshotViewModelTests.Picture(DateTime.Now) with { Note = "Nobody is signed in." };
         var text = ScreenshotViewModel.Describe(picture);
-        Assert.StartsWith("The VM's own screen, from Hyper-V.", text);
+        Assert.Equal("The VM's own screen. Nobody is signed in.", text);
         Assert.DoesNotContain("accessibility tree", text); // nothing was read from it
-        Assert.EndsWith("Nobody is signed in to Windows in the VM.", text);
+
     }
 
     [Fact]
@@ -434,5 +434,90 @@ public class GuestSignInWindowTests
         password.Password = "vmadmin";
         Assert.Equal(new SignInAnswer(new GuestCredential("vmuser", "vmadmin"), true), w.Answer);
         w.Close();
+    }
+}
+
+/// <summary>Windows OCR in the screenshot viewer.</summary>
+public class OcrTests
+{
+    private static ScreenshotViewModel Viewer(Func<byte[], CancellationToken, Task<IReadOnlyList<string>>> read) =>
+        new(new DemoHyperVService { Delay = TimeSpan.Zero }, new VmInfo("a") { Name = "vm2" }, ScreenshotViewModelTests.Picture(DateTime.Now))
+        { ReadText = read };
+
+    [Fact]
+    public async Task TheTextFound_IsAddedToWhatsOnScreen_AndFocusIsSentToIt()
+    {
+        var s = Viewer((_, _) => Task.FromResult<IReadOnlyList<string>>(["Windows Setup", "Next"]));
+        var read = false;
+        s.TextRead += () => read = true;
+        await s.RunOcrCommand.ExecuteAsync(null);
+        Assert.True(read);
+        Assert.EndsWith(string.Join(Environment.NewLine, ScreenshotViewModel.OcrHeading, "Windows Setup", "Next"), s.OnScreenText);
+        Assert.StartsWith(ScreenshotViewModel.OcrHeading, s.OnScreenText[s.OcrTextStart..]);
+        Assert.Equal("Windows OCR found 2 lines of text.", s.StatusText);
+    }
+
+    [Fact]
+    public async Task NoText_SaysSo()
+    {
+        var s = Viewer((_, _) => Task.FromResult<IReadOnlyList<string>>([]));
+        await s.RunOcrCommand.ExecuteAsync(null);
+        Assert.EndsWith(ScreenshotViewModel.OcrFoundNothing, s.OnScreenText);
+        Assert.Equal(ScreenshotViewModel.OcrFoundNothing, s.StatusText);
+    }
+
+    [Fact]
+    public async Task AFailure_IsSpoken_AndAddsNothing()
+    {
+        var s = Viewer((_, _) => Task.FromException<IReadOnlyList<string>>(new InvalidOperationException("No recognition installed.")));
+        var spoken = new List<string>();
+        s.Announce += spoken.Add;
+        await s.RunOcrCommand.ExecuteAsync(null);
+        Assert.Null(s.OcrLines);
+        Assert.Equal(["Windows OCR couldn't read the picture. No recognition installed."], spoken);
+    }
+
+    [Fact]
+    public async Task ANewPicture_DropsTheOldOnesText()
+    {
+        var s = Viewer((_, _) => Task.FromResult<IReadOnlyList<string>>(["old"]));
+        await s.RunOcrCommand.ExecuteAsync(null);
+        s.Show(ScreenshotViewModelTests.Picture(DateTime.Now.AddSeconds(1)));
+        Assert.Null(s.OcrLines);
+        Assert.DoesNotContain("old", s.OnScreenText);
+    }
+
+    [Fact]
+    public async Task TextForAPictureThatHasSinceBeenReplaced_IsNotShown()
+    {
+        var gate = new TaskCompletionSource<IReadOnlyList<string>>();
+        var s = Viewer((_, _) => gate.Task);
+        var running = s.RunOcrCommand.ExecuteAsync(null);
+        s.Show(ScreenshotViewModelTests.Picture(DateTime.Now.AddSeconds(1)));
+        gate.SetResult(["stale"]);
+        await running;
+        Assert.Null(s.OcrLines);
+    }
+
+    /// <summary>The real thing: Windows reads text drawn into a picture.</summary>
+    [StaFact]
+    public async Task WindowsOcr_ReadsTextInAPicture()
+    {
+        var visual = new System.Windows.Media.DrawingVisual();
+        using (var dc = visual.RenderOpen())
+        {
+            dc.DrawRectangle(System.Windows.Media.Brushes.White, null, new System.Windows.Rect(0, 0, 800, 200));
+            dc.DrawText(new System.Windows.Media.FormattedText("Install Windows now", System.Globalization.CultureInfo.InvariantCulture,
+                System.Windows.FlowDirection.LeftToRight, new System.Windows.Media.Typeface("Segoe UI"), 48, System.Windows.Media.Brushes.Black, 1.0),
+                new System.Windows.Point(40, 60));
+        }
+        var bitmap = new System.Windows.Media.Imaging.RenderTargetBitmap(800, 200, 96, 96, System.Windows.Media.PixelFormats.Pbgra32);
+        bitmap.Render(visual);
+        var encoder = new System.Windows.Media.Imaging.PngBitmapEncoder();
+        encoder.Frames.Add(System.Windows.Media.Imaging.BitmapFrame.Create(bitmap));
+        using var png = new MemoryStream();
+        encoder.Save(png);
+        var lines = await WindowsOcr.ReadLinesAsync(png.ToArray(), TestContext.Current.CancellationToken);
+        Assert.Contains(lines, l => l.Contains("Install Windows now", StringComparison.OrdinalIgnoreCase));
     }
 }

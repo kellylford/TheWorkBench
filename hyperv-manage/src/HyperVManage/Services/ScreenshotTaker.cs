@@ -36,7 +36,7 @@ public sealed class ScreenshotTaker(IHyperVService hyperV, IGuestCredentialStore
         if (credential is null && (askEvenIfDeclined || !_declined.Contains(vm.Id)))
             (credential, remember) = Ask(vm, null, null);
         if (credential is null)
-            note = "Without the VM's sign-in, a Remote Desktop session in it can't be seen. Take Again asks for it.";
+            note = "Not signed in, so a Remote Desktop session can't be shown. Take Again asks for the sign-in.";
         else
         {
             note = "";
@@ -56,7 +56,7 @@ public sealed class ScreenshotTaker(IHyperVService hyperV, IGuestCredentialStore
                     // can refuse a right one, and Escape here shouldn't lose it.
                     replacing = true;
                     (credential, remember) = Ask(vm, $"Windows in {vm.Name} didn't accept that sign-in: {ex.Message}", trying.UserName);
-                    if (credential is null) { note = "Windows in the VM didn't accept the sign-in."; break; }
+                    if (credential is null) { note = "The sign-in wasn't accepted."; break; }
                 }
                 catch (SessionScreenshotException ex) when (ex.Reason == SessionFailure.Unreachable)
                 {

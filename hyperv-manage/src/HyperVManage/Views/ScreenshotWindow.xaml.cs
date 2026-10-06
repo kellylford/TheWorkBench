@@ -25,6 +25,7 @@ public partial class ScreenshotWindow : Window
         DataContext = vm;
         vm.Announce += text => Announcer.Announce(this, text);
         vm.PictureReplaced += OnPictureReplaced;
+        vm.TextRead += OnTextRead;
         Loaded += (_, _) => FocusPicture();
         Activated += (_, _) =>
         {
@@ -60,6 +61,15 @@ public partial class ScreenshotWindow : Window
         Dispatcher.BeginInvoke(() => { if (IsActive) Keyboard.Focus(Picture); }, DispatcherPriority.Input);
     }
 
+    /// <summary>Focus goes to the text OCR found, so it's read straight away and can be arrowed through.</summary>
+    private void OnTextRead() =>
+        Dispatcher.BeginInvoke(() =>
+        {
+            OnScreenBox.CaretIndex = Math.Min(ViewModel.OcrTextStart, OnScreenBox.Text.Length);
+            if (IsActive) OnScreenBox.Focus();
+            OnScreenBox.ScrollToLine(OnScreenBox.GetLineIndexFromCharacterIndex(OnScreenBox.CaretIndex));
+        }, DispatcherPriority.Input);
+
     private void OnPictureReplaced()
     {
         // Moving focus to it reads its new name. If it already has focus, nothing would be read,
@@ -70,10 +80,21 @@ public partial class ScreenshotWindow : Window
 
     private void OnPreviewKeyDown(object sender, KeyEventArgs e)
     {
-        if (Keyboard.Modifiers != ModifierKeys.Control) return;
-        if (e.Key == Key.C) { Copy(); e.Handled = true; }
-        else if (e.Key == Key.S) { Save(); e.Handled = true; }
+        if (ShortcutFor(e.Key, Keyboard.Modifiers) is not { } action) return;
+        action(this);
+        e.Handled = true;
     }
+
+    /// <summary>
+    /// The viewer's own keys. Ctrl+Shift+C copies the picture from anywhere in the window; plain
+    /// Ctrl+C is left alone, so in What's on screen it copies the selected text, as in any text.
+    /// </summary>
+    internal static Action<ScreenshotWindow>? ShortcutFor(Key key, ModifierKeys modifiers) => (key, modifiers) switch
+    {
+        (Key.C, ModifierKeys.Control | ModifierKeys.Shift) => w => w.Copy(),
+        (Key.S, ModifierKeys.Control) => w => w.Save(),
+        _ => null,
+    };
 
     private void Copy_Click(object sender, RoutedEventArgs e) => Copy();
 

@@ -162,7 +162,7 @@ public static class SessionCapture
         $active = @($sessions | Where-Object { $_[1] -eq '0' } | Sort-Object { $_[2] -like 'console' }) | Select-Object -First 1
         if (-not $active) {
             $away = $sessions | Where-Object { $_[1] -eq '4' } | Select-Object -First 1
-            $m = if ($away) { "$($away[4])'s session is disconnected: nobody is connected to it, so Windows isn't drawing it." } else { 'Nobody is signed in to Windows in the VM.' }
+            $m = if ($away) { "$($away[4])'s session is disconnected, so there's nothing to show." } else { 'Nobody is signed in.' }
             return [pscustomobject]@{ Status = 'nobody'; Message = $m }
         }
         $account = "$($active[3])\$($active[4])"
