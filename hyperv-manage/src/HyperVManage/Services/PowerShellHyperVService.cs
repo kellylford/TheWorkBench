@@ -349,6 +349,48 @@ public sealed class PowerShellHyperVService : IHyperVService
     public async Task<SavedConnection> SaveConnectionFileAsync(VmInfo vm, CancellationToken ct = default) =>
         await RemoteDesktop.SaveDesktopFileAsync(vm.Name, await CurrentAddressesAsync(vm, ct).ConfigureAwait(false)).ConfigureAwait(false);
 
+    public async Task<ScreenPicture> TakeScreenshotAsync(string vmId, CancellationToken ct = default) =>
+        ScreenPicture.Parse(await PowerShellRunner.RunAsync(GetVm(vmId) + ScreenshotScript, ct).ConfigureAwait(false), DateTime.Now);
+
+    /// <summary>
+    /// Hyper-V's own picture of the screen, from the host, so nothing is needed inside the VM.
+    /// Hyper-V refuses a picture larger than the VM's screen is now, so it asks for exactly that
+    /// size, read from the VM's video head; failing that, the same shape fitted within 1024 by
+    /// 768. Cmdlets don't offer this, so it goes through Hyper-V's WMI classes. The JSON is put
+    /// together by hand: ConvertTo-Json is slow on megabytes of base64.
+    /// </summary>
+    internal const string ScreenshotScript = """
+        $ns = 'root\virtualization\v2'
+        $system = Get-CimInstance -Namespace $ns -ClassName Msvm_ComputerSystem -Filter "Name='$($vm.Id)'"
+        if (-not $system) { throw "Hyper-V can't find the virtual machine to take a picture of." }
+        $settings = Get-CimAssociatedInstance -InputObject $system -ResultClassName Msvm_VirtualSystemSettingData |
+            Where-Object VirtualSystemType -eq 'Microsoft:Hyper-V:System:Realized' | Select-Object -First 1
+        $service = Get-CimInstance -Namespace $ns -ClassName Msvm_VirtualSystemManagementService
+        $head = Get-CimAssociatedInstance -InputObject $system -ResultClassName Msvm_VideoHead -ErrorAction SilentlyContinue |
+            Where-Object { $_.CurrentHorizontalResolution -gt 0 -and $_.CurrentVerticalResolution -gt 0 } | Select-Object -First 1
+        $sizes = @()
+        if ($head) {
+            $w = [int]$head.CurrentHorizontalResolution
+            $h = [int]$head.CurrentVerticalResolution
+            $sizes += ,@($w, $h)
+            $scale = [Math]::Min(1.0, [Math]::Min(1024 / $w, 768 / $h))
+            if ($scale -lt 1) { $sizes += ,@([Math]::Max(1, [int][Math]::Floor($w * $scale)), [Math]::Max(1, [int][Math]::Floor($h * $scale))) }
+        } else {
+            $sizes += ,@(1024, 768)
+        }
+        $code = 0
+        foreach ($size in $sizes) {
+            $r = Invoke-CimMethod -InputObject $service -MethodName GetVirtualSystemThumbnailImage -Arguments @{
+                TargetSystem = $settings; WidthPixels = [uint16]$size[0]; HeightPixels = [uint16]$size[1] }
+            if ($r.ReturnValue -eq 0 -and $r.ImageData) {
+                '{"Width":' + $size[0] + ',"Height":' + $size[1] + ',"Data":"' + [Convert]::ToBase64String([byte[]]$r.ImageData) + '"}'
+                return
+            }
+            $code = $r.ReturnValue
+        }
+        throw "Hyper-V returned error $code. The VM has to be running or paused."
+        """;
+
     /// <summary>
     /// The VM's IPv4 addresses as Hyper-V reports them now. The list's copy can be up to ten
     /// seconds old, and Windows inside a VM that has just started or resumed reports its address
@@ -432,7 +474,7 @@ public sealed class PowerShellHyperVService : IHyperVService
     internal static string Str(JsonElement e, string name) =>
         e.TryGetProperty(name, out var v) && v.ValueKind == JsonValueKind.String ? v.GetString() ?? "" : "";
 
-    private static long Num(JsonElement e, string name) =>
+    internal static long Num(JsonElement e, string name) =>
         e.TryGetProperty(name, out var v) && v.ValueKind == JsonValueKind.Number && v.TryGetInt64(out var n) ? n : 0;
 
     private static bool Flag(JsonElement e, string name) =>

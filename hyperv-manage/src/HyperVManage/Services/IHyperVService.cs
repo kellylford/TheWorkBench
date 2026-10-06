@@ -75,6 +75,10 @@ public interface IHyperVService
     /// returns its name. This PC's connection drops for a few seconds while Windows does it.</summary>
     Task<string> CreateExternalSwitchAsync(CancellationToken ct = default);
 
+    /// <summary>A picture of the VM's screen, taken by Hyper-V from the host, at the VM's own
+    /// screen size where Hyper-V allows. The VM has to be running or paused.</summary>
+    Task<ScreenPicture> TakeScreenshotAsync(string vmId, CancellationToken ct = default);
+
     /// <summary>Opens Remote Desktop to the VM.</summary>
     Task ConnectAsync(VmInfo vm, CancellationToken ct = default);
 

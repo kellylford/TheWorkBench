@@ -18,6 +18,7 @@
         <KeyBinding Key="K" Modifiers="Control" Command="{Binding CheckpointCommand}"/>
         <KeyBinding Key="K" Modifiers="Control+Shift" Command="{Binding ApplyCheckpointCommand}"/>
         <KeyBinding Key="D" Modifiers="Control" Command="{Binding CloneCommand}"/>
+        <KeyBinding Key="S" Modifiers="Control+Shift" Command="{Binding ScreenshotCommand}"/>
     </Window.InputBindings>
 
     <DockPanel>
@@ -33,6 +34,7 @@
                 <MenuItem Header="_Connect with Remote Desktop" Command="{Binding ConnectCommand}" InputGestureText="Enter"/>
                 <MenuItem Header="Open Conso_le" Command="{Binding OpenConsoleCommand}"/>
                 <MenuItem Header="Save Connection _File" Command="{Binding SaveConnectionFileCommand}"/>
+                <MenuItem Header="Sc_reenshot…" Command="{Binding ScreenshotCommand}" InputGestureText="Ctrl+Shift+S"/>
                 <Separator/>
                 <MenuItem Header="_Start" Command="{Binding StartCommand}" InputGestureText="Ctrl+Enter"/>
                 <MenuItem Header="S_hut Down" Command="{Binding ShutDownCommand}" InputGestureText="Ctrl+."/>
@@ -82,6 +84,7 @@
                                     <MenuItem Header="_Connect with Remote Desktop" Command="{Binding ConnectCommand}" InputGestureText="Enter"/>
                                     <MenuItem Header="Open Conso_le" Command="{Binding OpenConsoleCommand}"/>
                                     <MenuItem Header="Save Connection _File" Command="{Binding SaveConnectionFileCommand}"/>
+                                    <MenuItem Header="Sc_reenshot…" Command="{Binding ScreenshotCommand}" InputGestureText="Ctrl+Shift+S"/>
                                     <Separator/>
                                     <MenuItem Header="_Start" Command="{Binding StartCommand}" InputGestureText="Ctrl+Enter"/>
                                     <MenuItem Header="S_hut Down" Command="{Binding ShutDownCommand}" InputGestureText="Ctrl+."/>

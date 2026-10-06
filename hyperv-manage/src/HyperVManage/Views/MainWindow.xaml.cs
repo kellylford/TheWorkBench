@@ -14,6 +14,8 @@ public partial class MainWindow : Window
     private readonly MainViewModel _vm;
     private readonly bool _demo;
     private NewVmWindow? _newVmWindow;
+    /// <summary>The open screenshot viewers, one per VM id.</summary>
+    private readonly Dictionary<string, ScreenshotWindow> _screenshots = [];
 
     public MainWindow(MainViewModel vm, bool demo)
     {
@@ -43,6 +45,7 @@ public partial class MainWindow : Window
         };
         vm.OpenSettings = ShowSettings;
         vm.OpenNewVm = ShowNewVm;
+        vm.ShowScreenshot = ShowScreenshot;
 
         Loaded += async (_, _) =>
         {
@@ -133,6 +136,26 @@ public partial class MainWindow : Window
         _newVmWindow = new NewVmWindow(newVm) { Owner = this };
         _newVmWindow.Closed += (_, _) => { _newVmWindow = null; FocusSelectedRow(); };
         _newVmWindow.Show();
+    }
+
+    /// <summary>
+    /// Opens the viewer for the VM, or, if one is already open, shows the new picture there.
+    /// Modeless, so the list stays usable: start a VM, then take its picture again as it boots.
+    /// It comes to the front only if this window still is: someone who switched to another app
+    /// while the picture was taken keeps their place there.
+    /// </summary>
+    private void ShowScreenshot(VmInfo vm, ScreenPicture picture)
+    {
+        if (_screenshots.TryGetValue(vm.Id, out var open))
+        {
+            open.ViewModel.Show(picture);
+            if (IsActive) open.Activate();
+            return;
+        }
+        var window = new ScreenshotWindow(new ScreenshotViewModel(_vm.HyperV, vm, picture)) { Owner = this, ShowActivated = IsActive };
+        _screenshots[vm.Id] = window;
+        window.Closed += (_, _) => { _screenshots.Remove(vm.Id); FocusSelectedRow(); };
+        window.Show();
     }
 
     private void Exit_Click(object sender, RoutedEventArgs e) => Close();

@@ -37,7 +37,15 @@ public partial class ShortcutsWindow : Window
             ("Ctrl+K", "checkpoint"),
             ("Ctrl+Shift+K", "apply a checkpoint"),
             ("Ctrl+D", "clone"),
+            ("Ctrl+Shift+S", "take a screenshot of the VM's screen"),
             ("Alt or F10", "the menu bar"),
+        ]),
+        ("In the screenshot window",
+        [
+            ("F5", "take the picture again"),
+            ("Ctrl+C", "copy the picture"),
+            ("Ctrl+S", "save the picture"),
+            ("Escape", "close"),
         ]),
         ("In the Hyper-V console window (Open Console)",
         [

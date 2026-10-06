@@ -43,6 +43,8 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
     public Func<VmInfo, IReadOnlyList<string>, bool>? ConfirmDelete { get; set; }
     public Action<VmInfo>? OpenSettings { get; set; }
     public Action? OpenNewVm { get; set; }
+    /// <summary>Shows a picture just taken of the VM's screen.</summary>
+    public Action<VmInfo, ScreenPicture>? ShowScreenshot { get; set; }
 
     public IHyperVService HyperV => _hyperV;
 
@@ -62,7 +64,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
     private void RefreshCommandStates()
     {
         foreach (var c in new IRelayCommand[] { StartCommand, ShutDownCommand, TurnOffCommand, SaveCommand,
-                     PauseCommand, ResumeCommand, RestartCommand, ConnectCommand, OpenConsoleCommand, SaveConnectionFileCommand,
+                     PauseCommand, ResumeCommand, RestartCommand, ConnectCommand, OpenConsoleCommand, SaveConnectionFileCommand, ScreenshotCommand,
                      SettingsCommand, CheckpointCommand, ApplyCheckpointCommand, CloneCommand, DeleteCommand })
             c.NotifyCanExecuteChanged();
     }
@@ -220,6 +222,25 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         }
         catch (Exception ex) { Fail(vm, "Couldn't save a connection file", ex); }
     }
+
+    /// <summary>Allowed while the VM is busy: it only looks, and a VM partway through something
+    /// is when its screen is most worth seeing.</summary>
+    [RelayCommand(CanExecute = nameof(CanScreenshot))]
+    private async Task Screenshot()
+    {
+        var vm = Selected!;
+        StatusText = $"Taking a picture of {vm.Name}'s screen.";
+        try
+        {
+            var picture = await _hyperV.TakeScreenshotAsync(vm.Id, _lifetime.Token);
+            StatusText = $"Took a picture of {vm.Name}'s screen." +
+                (picture.IsBlank ? $" It's {ScreenPicture.BlankNote}, which usually means the VM's display is asleep or off." : "");
+            ShowScreenshot?.Invoke(vm, picture);
+        }
+        catch (OperationCanceledException) { }
+        catch (Exception ex) { Fail(vm, $"Couldn't take a picture of {vm.Name}'s screen", ex); }
+    }
+    private bool CanScreenshot() => Selected is { } vm && VmStates.CanScreenshot(vm.State);
 
     [RelayCommand(CanExecute = nameof(CanSettle))]
     private void Settings() => OpenSettings?.Invoke(Selected!);

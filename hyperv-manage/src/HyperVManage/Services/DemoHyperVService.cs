@@ -188,6 +188,34 @@ public sealed class DemoHyperVService : IHyperVService
     public Task<SavedConnection> SaveConnectionFileAsync(VmInfo vm, CancellationToken ct = default) =>
         throw new HyperVException("This is the demo, so no connection file was saved.");
 
+    /// <summary>A made-up screen, so the viewer can be tried: a blue desktop with a window on
+    /// it and a taskbar, in the RGB565 pixels Hyper-V gives, through the same conversion.</summary>
+    public async Task<ScreenPicture> TakeScreenshotAsync(string vmId, CancellationToken ct = default)
+    {
+        await Task.Delay(Delay, ct);
+        lock (_gate)
+        {
+            var vm = Find(vmId);
+            if (!VmStates.CanScreenshot(vm.State)) throw new HyperVException("Hyper-V returned error 32775. The VM has to be running or paused.");
+        }
+        const int width = 1024, height = 768;
+        var pixels = new byte[width * height * 2];
+        for (var y = 0; y < height; y++)
+            for (var x = 0; x < width; x++)
+            {
+                ushort color =
+                    y >= height - 48 ? Rgb565(32, 32, 32) // taskbar
+                    : x is >= 262 and < 762 && y is >= 200 and < 232 ? Rgb565(240, 240, 240) // title bar
+                    : x is >= 262 and < 762 && y is >= 232 and < 520 ? Rgb565(255, 255, 255) // window
+                    : Rgb565(0, 90, 158); // desktop
+                pixels[(y * width + x) * 2] = (byte)color;
+                pixels[(y * width + x) * 2 + 1] = (byte)(color >> 8);
+            }
+        return ScreenPicture.FromRgb565(pixels, width, height, DateTime.Now);
+    }
+
+    private static ushort Rgb565(int r, int g, int b) => (ushort)((r >> 3) << 11 | (g >> 2) << 5 | b >> 3);
+
     public async Task<string> CreateExternalSwitchAsync(CancellationToken ct = default)
     {
         await Task.Delay(Delay, ct);
