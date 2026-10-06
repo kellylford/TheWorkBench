@@ -25,13 +25,16 @@ public partial class ScreenshotWindow : Window
         DataContext = vm;
         vm.Announce += text => Announcer.Announce(this, text);
         vm.PictureReplaced += OnPictureReplaced;
+        vm.TextRead += OnTextRead;
         Loaded += (_, _) => FocusPicture();
         Activated += (_, _) =>
         {
-            if (!_pictureWaiting) return;
-            _pictureWaiting = false;
+            // The newest of the two wins: text read after the picture came in, or the picture.
+            UIElement? target = _textWaiting ? OnScreenBox : _pictureWaiting ? Picture : null;
+            _textWaiting = _pictureWaiting = false;
+            if (target is null) return;
             // After WPF has put back whatever had focus when the window was last used.
-            Dispatcher.BeginInvoke(() => { if (IsActive) Keyboard.Focus(Picture); }, DispatcherPriority.Input);
+            Dispatcher.BeginInvoke(() => { if (IsActive) Keyboard.Focus(target); }, DispatcherPriority.Input);
         };
         Closed += (_, _) => vm.Dispose();
         PreviewKeyDown += OnPreviewKeyDown;
@@ -55,10 +58,30 @@ public partial class ScreenshotWindow : Window
     /// </summary>
     private void FocusPicture()
     {
+        _textWaiting = false;
         if (!IsActive) { _pictureWaiting = true; return; }
         _pictureWaiting = false;
         Dispatcher.BeginInvoke(() => { if (IsActive) Keyboard.Focus(Picture); }, DispatcherPriority.Input);
     }
+
+    /// <summary>True when the text OCR found is to get focus the next time the window is activated.</summary>
+    private bool _textWaiting;
+
+    /// <summary>
+    /// Focus goes to the text OCR found, with the caret on its first line ("Windows OCR found 3
+    /// lines:"), so it's read straight away and can be arrowed through. Already in the box, as
+    /// after Alt+O from there, nothing would be read, so that line is spoken; in the background,
+    /// it waits until the window is next used.
+    /// </summary>
+    private void OnTextRead() =>
+        Dispatcher.BeginInvoke(() =>
+        {
+            OnScreenBox.CaretIndex = Math.Min(ViewModel.OcrTextStart, OnScreenBox.Text.Length);
+            OnScreenBox.ScrollToLine(OnScreenBox.GetLineIndexFromCharacterIndex(OnScreenBox.CaretIndex));
+            if (!IsActive) { _textWaiting = true; _pictureWaiting = false; }
+            else if (OnScreenBox.IsKeyboardFocused) Announcer.Announce(this, ViewModel.OcrFirstLine);
+            else OnScreenBox.Focus();
+        }, DispatcherPriority.Input);
 
     private void OnPictureReplaced()
     {
@@ -70,10 +93,21 @@ public partial class ScreenshotWindow : Window
 
     private void OnPreviewKeyDown(object sender, KeyEventArgs e)
     {
-        if (Keyboard.Modifiers != ModifierKeys.Control) return;
-        if (e.Key == Key.C) { Copy(); e.Handled = true; }
-        else if (e.Key == Key.S) { Save(); e.Handled = true; }
+        if (ShortcutFor(e.Key, Keyboard.Modifiers) is not { } action) return;
+        action(this);
+        e.Handled = true;
     }
+
+    /// <summary>
+    /// The viewer's own keys. Ctrl+Shift+C copies the picture from anywhere in the window; plain
+    /// Ctrl+C is left alone, so in What's on screen it copies the selected text, as in any text.
+    /// </summary>
+    internal static Action<ScreenshotWindow>? ShortcutFor(Key key, ModifierKeys modifiers) => (key, modifiers) switch
+    {
+        (Key.C, ModifierKeys.Control | ModifierKeys.Shift) => w => w.Copy(),
+        (Key.S, ModifierKeys.Control) => w => w.Save(),
+        _ => null,
+    };
 
     private void Copy_Click(object sender, RoutedEventArgs e) => Copy();
 

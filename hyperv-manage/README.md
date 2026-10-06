@@ -48,7 +48,12 @@ It isn't called Hyper-V Manager because Windows already has a Hyper-V Manager.
     session, as with a minimized Remote Desktop window. What's on screen says which and why, and
     the picture's name ends "the VM's own screen". A picture that is all one color, most often a
     VM whose display has gone to sleep, says "blank" as well.
-  - Take Again (F5), Copy (Ctrl+C), Save As (Ctrl+S) and Close (Escape) are below the picture.
+  - **Run Windows OCR** (Alt+O) reads the text in the picture with Windows' own text
+    recognition, on this PC, and adds it to What's on screen, where focus goes to it. It works
+    on either kind of picture, so it can read a setup screen or an error the VM's own screen shows.
+  - Take Again (F5), Copy (Ctrl+Shift+C), Save As (Ctrl+S) and Close (Escape) are below the
+    picture. Ctrl+Shift+C copies the picture from anywhere in the window; in What's on screen,
+    Ctrl+A and Ctrl+C select and copy its text, as in any text.
     Taking another picture of the same VM, from the viewer or the main window, replaces the one
     in its open viewer and puts focus back on it.
 - **Start, Shut Down, Turn Off, Save, Pause, Resume, Restart.** Only the ones that make sense for
@@ -141,7 +146,7 @@ In the screenshot window:
 | Key | Action |
 |---|---|
 | F5 | Take the picture again |
-| Ctrl+C | Copy the picture |
+| Ctrl+Shift+C | Copy the picture |
 | Ctrl+S | Save the picture as a PNG |
 | Escape | Close |
 

@@ -490,17 +490,29 @@ public class ScreenshotWindowTests
         try
         {
             ShowOffscreen(window);
-            foreach (var (name, key) in new[] { ("TakeAgainButton", "F5"), ("CopyButton", "Ctrl+C"), ("SaveButton", "Ctrl+S") })
+            foreach (var (name, key) in new[] { ("TakeAgainButton", "F5"), ("CopyButton", "Ctrl+Shift+C"), ("SaveButton", "Ctrl+S") })
             {
                 var peer = UIElementAutomationPeer.CreatePeerForElement((Button)window.FindName(name));
                 Assert.Equal(key, peer.GetAcceleratorKey());
                 Assert.NotEmpty(peer.GetAccessKey());
             }
+            var ocr = UIElementAutomationPeer.CreatePeerForElement((Button)window.FindName("OcrButton"));
+            Assert.Equal("Run Windows OCR", ocr.GetName());
+            Assert.Equal("O", ocr.GetAccessKey());
             var keys = ShortcutsWindow.Sections.Single(s => s.Section == "In the screenshot window").Keys.Select(k => k.Key);
-            Assert.Equal(["F5", "Ctrl+C", "Ctrl+S", "Escape"], keys);
+            Assert.Equal(["F5", "Ctrl+Shift+C", "Ctrl+S", "Escape"], keys);
         }
         finally { window.Close(); }
     }
+
+    [Theory]
+    [InlineData(Key.C, ModifierKeys.Control | ModifierKeys.Shift, true)]
+    [InlineData(Key.S, ModifierKeys.Control, true)]
+    [InlineData(Key.C, ModifierKeys.Control, false)]   // left to the text box: copies the selected text
+    [InlineData(Key.A, ModifierKeys.Control, false)]   // select all, in the text box
+    [InlineData(Key.S, ModifierKeys.Control | ModifierKeys.Shift, false)]
+    public void TheViewersKeys_CopyThePictureWithCtrlShiftC_AndLeaveCtrlCToText(Key key, ModifierKeys modifiers, bool handled) =>
+        Assert.Equal(handled, ScreenshotWindow.ShortcutFor(key, modifiers) is not null);
 
     [StaFact]
     public void Save_WritesThePng_AndSaysWhere()
