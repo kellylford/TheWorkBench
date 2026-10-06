@@ -41,7 +41,8 @@ import wx
 
 from .. import __version__, announce, hub, platform_paths
 from ..claude_cli import (ResumeRefused, TurnEvent, TurnRunner, build_new_command,
-                          build_resume_command, describe_elapsed, new_session_id)
+                          build_resume_command, describe_elapsed, model_label,
+                          new_session_id)
 from ..hub import Snapshot, collect, finished_turns, last_reply_from_tail
 from ..own_store import OwnSession, OwnSessionStore
 from ..sessions import IDLE, NEEDS_YOU, WORKING, SessionInfo
@@ -618,6 +619,10 @@ class MainFrame(wx.Frame):
         if info is None:
             return
         kind = "TheClaudeHub session" if info.is_own else "Claude desktop app session, read-only"
+        if info.is_own:
+            own = self.store.get(info.cli_session_id)
+            if own is not None:
+                kind += f" on {model_label(own.model)}"
         state = info.state + (f": {info.detail}" if info.detail else "")
         self.session_heading.SetLabel(f"{info.title}, {info.repo}, {state}. {kind}.")
         self._update_messages_label()
@@ -629,7 +634,12 @@ class MainFrame(wx.Frame):
         if info is None:
             return
         state = info.state + (f": {info.detail}" if info.detail else "")
-        kind = "" if info.is_own else ", read-only"
+        kind = ", read-only"
+        if info.is_own:
+            # The model goes here too: this is what's heard on arriving in
+            # the messages; the heading above is never focused.
+            own = self.store.get(info.cli_session_id)
+            kind = f", on {model_label(own.model)}" if own is not None else ""
         label = f"Messages in {info.title} ({state}{kind})"
         if self.messages_label.GetLabel() != f"&{label}:":
             self.messages_label.SetLabel(f"&{label}:")
@@ -928,13 +938,13 @@ class MainFrame(wx.Frame):
         try:
             if dialog.ShowModal() != wx.ID_OK:
                 return
-            folder, title, mode, message = dialog.values()
+            folder, title, mode, message, model = dialog.values()
         finally:
             dialog.Destroy()
         session_id = new_session_id()
-        command = build_new_command(exe, session_id, title, mode)
+        command = build_new_command(exe, session_id, title, mode, model)
         own = OwnSession(cli_session_id=session_id, title=title, cwd=folder,
-                         permission_mode=mode, started=False)
+                         permission_mode=mode, started=False, model=model)
         if not self._store_write(self.store.add, own):
             return
         # Start the turn first, so the session view sees it running.
@@ -967,11 +977,10 @@ class MainFrame(wx.Frame):
             self.reply_text.SetValue("")
             self._drafts.pop(session_id, None)
             self._update_send_state()
-            if waiting:
-                self._feedback(f"Added to the queued message. It will be sent when "
-                               f"{info.title} finishes.")
-            else:
-                self._feedback(f"Queued. It will be sent when {info.title} finishes.")
+            # Only the newly added words are read back, not the whole queue.
+            self._feedback(announce.queued_text(info.title, message, self.speech.announce,
+                                                self.speech.announce_own,
+                                                added=bool(waiting)))
             self.reply_text.SetFocus()
             return
         problem = self._send_now(session_id, message)
@@ -1005,14 +1014,14 @@ class MainFrame(wx.Frame):
                 command = build_resume_command(
                     exe, own.cli_session_id, own.permission_mode,
                     own_ids={s.cli_session_id for s in self.store.all()},
-                    desktop_ids=self._snapshot.desktop_cli_ids)
+                    desktop_ids=self._snapshot.desktop_cli_ids, model=own.model)
             else:
                 # The first turn never got as far as creating the session:
                 # start it again rather than resume something that isn't there.
                 if own.cli_session_id in self._snapshot.desktop_cli_ids:
                     raise ResumeRefused("That id belongs to a Claude desktop app session.")
                 command = build_new_command(exe, own.cli_session_id, own.title,
-                                            own.permission_mode)
+                                            own.permission_mode, own.model)
         except (ResumeRefused, ValueError) as exc:
             return str(exc)
         self._start_turn(own.cli_session_id, command, own.cwd, message, own.title,
@@ -1036,8 +1045,8 @@ class MainFrame(wx.Frame):
         self._denials[session_id] = []
         runner.start()
         self._update_send_state()
-        self._feedback(f"Sent your queued message. {title} is working." if queued
-                       else f"Sent. {title} is working.")
+        self._feedback(announce.sent_text(title, prompt, self.speech.announce,
+                                          self.speech.announce_own, queued=queued))
         self._store_write(self.store.update, session_id, state=IDLE, detail="",
                           last_activity_ms=int(time.time() * 1000))
 

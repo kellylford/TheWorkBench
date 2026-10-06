@@ -40,9 +40,13 @@ session list is always there.
   back to its messages where you left them, without reloading.
 - **Open in Claude** (Ctrl+O) switches the desktop app to the session, for approving a permission
   prompt or answering a question card there.
-- **New Session** (Ctrl+N) starts a session of TheClaudeHub's own: choose a folder, a title, a
-  permission mode (auto by default; accept edits, manual and plan are offered) and the first
-  message. If that first message never reaches Claude (Claude Code not signed in, say), it goes
+- **New Session** (Ctrl+N) starts a session of TheClaudeHub's own: choose a folder, a title,
+  the model (Alt+D), a permission mode (auto by default; accept edits, manual and plan are
+  offered) and the first message. The models are Default (your Claude Code setting), Opus,
+  Sonnet and Haiku, each the latest of its family. The model is kept with the session and
+  passed to every turn. Arriving in the messages, you hear it ("Messages in Build (idle, on
+  Opus)"). Fable isn't offered: on some plans it bills to usage credits, and in the headless
+  mode TheClaudeHub uses, Claude Code does that without asking. If that first message never reaches Claude (Claude Code not signed in, say), it goes
   back into the reply box and Send starts the session again.
 - **Announcements.** When the open session gets a new reply, or one of TheClaudeHub's sessions
   finishes a turn, or any listed session stops working, it's announced through your screen reader
@@ -51,8 +55,15 @@ session list is always there.
   every listed session is announced or just the open one, and the speech route. Ctrl+Shift+R
   repeats the last announcement.
 - **Answers to what you do are spoken too**, briefly and without cutting off your screen reader:
-  "Sent. Hub probe is working.", "Tool activity shown.", "Message copied.", and so on (unless
-  announcements are set to silent).
+  "Tool activity shown.", "Message copied.", and so on (unless announcements are set to silent).
+- **Your own message is read back when it's sent**, so you hear what actually went to Claude,
+  and where: "Sent to Hub probe: Fix the build." During a turn it's "Queued for Hub probe: …",
+  and when the queued message goes out you hear only "Sent your queued message", not the
+  message again. It follows the announcement level: at full, the message up to about 300
+  characters, then "… and 412 more words"; at summary, its first sentence; at silent, nothing.
+  Markdown is read as words: a code block is "Code block omitted", and headings and list items
+  are read as separate sentences. Turn it off in Settings with "Read your own messages back when
+  they're sent" (Alt+M), and you hear just "Sent. Hub probe is working."
 - **Turn Status** (Ctrl+Shift+T) says how long Claude has been working on the current turn and what
   it last did. There's no time limit on a turn; Stop (Ctrl+Period) ends it, along with anything it
   started, such as a build.

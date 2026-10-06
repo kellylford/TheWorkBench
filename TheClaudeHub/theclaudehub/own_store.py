@@ -16,6 +16,7 @@ from pathlib import Path
 from typing import Dict, List, Optional
 
 from . import platform_paths
+from .claude_cli import MODEL_LABELS
 from .sessions import IDLE, OWN, SessionInfo
 
 
@@ -35,6 +36,9 @@ class OwnSession:
     #: as system/init). Until then the session doesn't exist in Claude Code,
     #: and the next Send starts it again instead of resuming it.
     started: bool = True
+    #: ``--model`` for every turn ("" is Claude Code's own default). Older
+    #: stores don't have it and load as the default.
+    model: str = ""
 
     def to_info(self) -> SessionInfo:
         return SessionInfo(
@@ -80,6 +84,10 @@ def _session_from_dict(item: dict) -> Optional[OwnSession]:
         else:
             ok = True
         values[name] = value if ok else _DEFAULTS[name]
+    # Only a model the picker offers: anything else (a hand edit, or a model
+    # that bills usage credits) would fail or cost extra on every turn.
+    if values.get("model") not in MODEL_LABELS:
+        values["model"] = ""
     return OwnSession(**values)
 
 
