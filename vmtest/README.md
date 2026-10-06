@@ -36,24 +36,29 @@ and `VMTEST_STATE` (the lock folder, which defaults to `%LOCALAPPDATA%\vmtest`).
 
 ## Getting Claude sessions to use it
 
-Three pieces make every Claude session test Windows apps here without being told each time:
+Four pieces make every Claude session test Windows apps here without being told each time:
 
-1. **The skill.** `skill\SKILL.md` teaches a session when and how to use vmtest. Install it for all projects:
-   `Copy-Item vmtest\skill -Destination "$HOME\.claude\skills\vmtest" -Recurse`
-   Claude loads it whenever a task involves opening, driving or installing a Windows app.
-2. **A rule in `~/.claude/CLAUDE.md`,** under "Build it, then test it hard", so it isn't optional:
+1. **Tell Claude where vmtest is.** Set `VMTEST_HOME` to this folder once, then restart Claude Code:
+   `setx VMTEST_HOME "C:\path\to\TheWorkBench\vmtest"`
+2. **The skill.** `skill\SKILL.md` teaches a session when and how to use vmtest. Install it for all projects:
+   `Copy-Item "$env:VMTEST_HOME\skill" -Destination "$HOME\.claude\skills\vmtest" -Recurse`
+   Or, for one project only, copy it to that repo's `.claude\skills\vmtest` folder instead. Claude
+   loads it whenever a task involves opening, driving or installing a Windows app. It has nothing
+   specific to one person in it. If you want your own rules in it (your screen reader, your apps,
+   who to report to), keep your own copy and add them there.
+3. **A rule in `~/.claude/CLAUDE.md`,** with your other testing instructions, so it isn't optional:
    "Test Windows desktop apps (anything that opens a window, sends keys, or installs) in the test VM
    with the vmtest skill, never on this PC."
-3. **A permission rule,** so vmtest runs without a prompt each time. In `~/.claude/settings.json`,
-   under `permissions.allow`:
-   `"PowerShell(powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File C:\\Users\\kelly\\GitHub\\TheWorkBench\\vmtest\\vmtest.ps1:*)"`
+4. **A permission rule,** so vmtest runs without a prompt each time. In `~/.claude/settings.json`,
+   under `permissions.allow`, allow the vmtest command the skill runs. For example:
+   `"PowerShell(powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File \"$env:VMTEST_HOME\\vmtest.ps1\":*)"`
 
 ## Using it
 
 Run it from the repo you're working in, so the task is named after that repo and branch:
 
 ```
-powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File C:\Users\kelly\GitHub\TheWorkBench\vmtest\vmtest.ps1 <command>
+powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File "$env:VMTEST_HOME\vmtest.ps1" <command>
 ```
 
 | Command | What it does |

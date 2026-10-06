@@ -1,26 +1,35 @@
 ---
 name: vmtest
-description: Test a Windows desktop app inside the ClaudeTesting Hyper-V VM instead of on Kelly's PC, so focus, keyboard and JAWS on the PC are never disturbed. Use whenever testing would open a window, send keys or clicks, read an app's accessibility tree, take a screenshot of an app, or install/uninstall software (MSI, winget, setup.exe) for a Windows app, including QuickMail, WeatherFast, ClaudeSpeak, Live Captions, IDT and the TheWorkBench apps. Not needed for unit tests or builds that show no window, for web pages (use the browser pane), or for iOS/Mac apps.
+description: Test a Windows desktop app inside a Hyper-V test VM instead of on the user's own PC, so the user's focus, keyboard and screen reader are never disturbed. Use whenever testing would open a window, send keys or clicks, read an app's accessibility tree, take a screenshot of an app, or install or uninstall software (MSI, winget, setup.exe) for a Windows app. Not needed for unit tests or builds that show no window, for web pages, or for iOS or Mac apps.
 ---
 
 # Testing Windows apps in the test VM (vmtest)
 
-Never launch, click, type into or install a Windows app on Kelly's PC to test it. Kelly works on
-that PC with JAWS, and test windows steal focus, take keystrokes and get read aloud. Do all of that
-in the VM with vmtest. Builds and tests that open no window stay on the PC as usual.
+Never launch, click, type into or install a Windows app on the user's own PC to test it. The user
+is working on that PC, perhaps with a screen reader, and test windows steal focus, take keystrokes
+and get read aloud. Do all of that in the VM with vmtest. Builds and tests that open no window stay
+on the PC as usual.
 
-The tool is `C:\Users\kelly\GitHub\TheWorkBench\vmtest\vmtest.ps1`, and its README sits next to it.
-Run it from the repo you're working in. The task is named after that repo and branch, and every
-command checks that your task holds the VM.
+## Finding vmtest
+
+The `VMTEST_HOME` environment variable names the folder that holds `vmtest.ps1` and its README.
+If it isn't set, ask the user where vmtest is, and suggest they set it once:
+`setx VMTEST_HOME "<the vmtest folder>"`.
+
+Run vmtest from the repo you're working in. The task is named after that repo and branch, and
+every command checks that your task holds the VM.
 
 ```
-powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File C:\Users\kelly\GitHub\TheWorkBench\vmtest\vmtest.ps1 <command> [args]
+powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File "$env:VMTEST_HOME\vmtest.ps1" <command> [args]
 ```
+
+If `begin` says there's no test VM, or no Clean checkpoint, the one-time setup in vmtest's README
+hasn't been done. Tell the user rather than testing on their PC.
 
 ## The flow
 
 1. `begin` takes the VM.
-   - If another task holds it, the command says which one. Wait, or tell Kelly; don't use `-Force` unless Kelly says so.
+   - If another task holds it, the command says which one. Wait, or tell the user; don't use `-Force` unless the user says so.
    - It carries on from this task's last state, or starts from Clean.
 2. Put the build in with one of these:
    - `deploy <build folder> -Name MyApp`, which goes to `C:\vmtest\apps\MyApp`;
@@ -38,7 +47,7 @@ powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File C:\Users\kel
    - `shot C:\path\shot.png` saves a picture of the VM's screen, which you can Read to look at.
    - `close -Window MyApp` closes a window and says whether it really closed.
 5. When you stop for now, run `save`. It keeps this task's VM state and frees the VM.
-6. After this task's PR has merged to main, run `end`. It deletes this task's checkpoint and puts the VM back to Clean.
+6. After this task's work has merged, run `end`. It deletes this task's checkpoint and puts the VM back to Clean.
 
 ## Things that catch people out
 
@@ -50,8 +59,8 @@ powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File C:\Users\kel
 - **Text starting with `-`.** Pass it as `-Target "-5"`.
 - **Keyboard checks.** To check keyboard access, use `keys "{TAB}"` and read where focus lands. `invoke` and `focus` act through the accessibility API, so they don't prove anything works from the keyboard.
 - **Classic dialog buttons.** Some classic Win32 controls show as plain panes in UI Automation, so vmtest adds their MSAA role, as in `Pane [MSAA role: push button] 'No'`. `invoke` presses them.
-- **What vmtest can't tell you.** It reports roles, names, states and focus, not speech. Hand Kelly the screen-reader listening checks (step 4 of Kelly's workflow).
-- **winget local manifests.** `winget install --manifest` doesn't work in this VM (TheWorkBench issue #142). Install the MSI directly instead.
+- **What vmtest can't tell you.** It reports roles, names, states and focus, not speech. Tell the user which checks need a person with a screen reader, and what they should hear.
+- **winget local manifests.** `winget install --manifest` may stop partway in the VM (TheWorkBench issue #142). Install the MSI directly instead.
 - **If vmtest itself misbehaves:**
-  - Report the exact command and output in your summary to Kelly. Don't edit vmtest from another project's session.
-  - Don't work around it by testing on Kelly's PC.
+  - Report the exact command and output to the user. Don't edit vmtest from another project's session.
+  - Don't work around it by testing on the user's PC.
