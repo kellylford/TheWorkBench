@@ -106,6 +106,14 @@ in to with Remote Desktop from any computer on your network.
 
 [View Project][15]
 
+### TheClaudeHub
+A keyboard and screen reader friendly reader for Claude Code sessions: every session the Claude
+desktop app has open as a list, each one as a conversation to arrow through, announcements when a
+session answers, and Open in Claude to switch the desktop app to one. It can also start sessions of
+its own and reply to them. It runs on your Claude subscription, never an API key.
+
+[View Project][17]
+
 ### vmtest
 Lets Claude test Windows apps inside a Hyper-V VM instead of on your own PC, so your focus,
 keyboard and screen reader are never disturbed. It launches apps, reads their accessibility tree,
@@ -142,3 +150,4 @@ Contributions to existing projects are welcome. If you have a script, app or oth
 [14]:	./hyperv-manage
 [15]:	./hyperv-rdp-vm
 [16]:	./vmtest
+[17]:	./TheClaudeHub
