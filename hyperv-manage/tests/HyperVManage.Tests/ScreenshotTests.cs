@@ -587,26 +587,65 @@ public class ScreenshotWindowTests
         TestApp.Ensure();
         var vm = new MainViewModel(new DemoHyperVService { Delay = TimeSpan.Zero });
         await vm.RefreshAsync();
-        var window = new MainWindow(vm, demo: true);
+        var window = new MainWindow(vm, demo: true) { Placing = MoveOffscreen };
         try
         {
             ShowOffscreen(window);
             vm.Selected = vm.Vms.First(v => v.State == "Running");
             await vm.ScreenshotCommand.ExecuteAsync(null);
             Pump();
-            var viewer = Assert.Single(window.OwnedWindows.OfType<ScreenshotWindow>());
+            var viewer = Assert.Single(window.OpenScreenshots);
             var first = viewer.ViewModel.Picture;
             await vm.ScreenshotCommand.ExecuteAsync(null);
             Pump();
-            Assert.Same(viewer, Assert.Single(window.OwnedWindows.OfType<ScreenshotWindow>()));
+            Assert.Same(viewer, Assert.Single(window.OpenScreenshots));
             Assert.NotSame(first, viewer.ViewModel.Picture);
 
             viewer.Close();
             Pump();
             await vm.ScreenshotCommand.ExecuteAsync(null);
             Pump();
-            Assert.NotSame(viewer, Assert.Single(window.OwnedWindows.OfType<ScreenshotWindow>()));
+            Assert.NotSame(viewer, Assert.Single(window.OpenScreenshots));
         }
         finally { window.Close(); }
+    }
+
+    private static void MoveOffscreen(Window w)
+    {
+        w.WindowStartupLocation = WindowStartupLocation.Manual;
+        w.Left = -10000;
+        w.Top = -10000;
+    }
+
+    [StaFact]
+    public async Task MainWindow_NewVmAndViewers_AreTheirOwnWindows_SoAltTabReachesTheList_AndCloseWithIt()
+    {
+        // An owned window stays in front of its owner and goes with it in Alt+Tab: with a build
+        // running there was no way back to the list.
+        TestApp.Ensure();
+        var vm = new MainViewModel(new DemoHyperVService { Delay = TimeSpan.Zero });
+        await vm.RefreshAsync();
+        var window = new MainWindow(vm, demo: true) { Placing = MoveOffscreen };
+        ShowOffscreen(window);
+        vm.Selected = vm.Vms.First(v => v.State == "Running");
+        await vm.ScreenshotCommand.ExecuteAsync(null);
+        vm.NewVmCommand.Execute(null);
+        Pump();
+        var viewer = Assert.Single(window.OpenScreenshots);
+        var newVm = window.OpenNewVmWindow!;
+        foreach (var w in new Window[] { viewer, newVm })
+        {
+            Assert.Null(w.Owner);
+            Assert.True(w.ShowInTaskbar);
+            Assert.True(w.IsVisible);
+        }
+        Assert.Empty(window.OwnedWindows);
+
+        window.Close();
+        Pump();
+        Assert.False(viewer.IsVisible);
+        Assert.False(newVm.IsVisible);
+        Assert.Null(window.OpenNewVmWindow);
+        Assert.Empty(window.OpenScreenshots);
     }
 }

@@ -67,6 +67,8 @@ It isn't called Hyper-V Manager because Windows already has a Hyper-V Manager.
   made: the ISO and disk are unmounted and the half-built disk deleted. If it had already got as
   far as creating the VM, that VM is left in the list to delete. The main window won't close
   while a build runs.
+  New Virtual Machine and the screenshot viewers are windows of their own, so Alt+Tab moves
+  between them and the list, and the list stays usable while a build runs.
 
 Every action goes through Hyper-V's own PowerShell commands, the way Parallels Manager goes
 through `prlctl`, so anything the app does can be repeated by hand.

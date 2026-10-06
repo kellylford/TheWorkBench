@@ -52,7 +52,43 @@ public partial class MainWindow : Window
             await vm.StartAsync();
             FocusSelectedRow();
         };
-        Closed += (_, _) => vm.Dispose();
+        Closed += (_, _) =>
+        {
+            // They have no owner, so they don't go with this window by themselves.
+            foreach (var viewer in _screenshots.Values.ToList()) viewer.Close();
+            _newVmWindow?.Close();
+            vm.Dispose();
+        };
+    }
+
+    /// <summary>Called with each New VM and screenshot window just before it is shown. The tests
+    /// move them off-screen.</summary>
+    internal Action<Window>? Placing { get; set; }
+
+    internal IReadOnlyCollection<ScreenshotWindow> OpenScreenshots => _screenshots.Values;
+
+    internal NewVmWindow? OpenNewVmWindow => _newVmWindow;
+
+    /// <summary>
+    /// Shows a window that works alongside this one: New Virtual Machine and the screenshot
+    /// viewers. They have no owner, so each is its own window in Alt+Tab and on the taskbar and
+    /// this one can come in front of them; an owned window stays in front of its owner and goes
+    /// with it in Alt+Tab, which left no way back to the list while a build ran. Closing one
+    /// brings the list back, but only if the user was in it: not if they'd moved on.
+    /// </summary>
+    private void ShowAlongside(Window window)
+    {
+        window.ShowActivated = IsActive;
+        var wasActive = false;
+        window.Closing += (_, e) => { if (!e.Cancel) wasActive = window.IsActive; };
+        window.Closed += (_, _) =>
+        {
+            if (!wasActive || !IsLoaded) return;
+            Activate();
+            FocusSelectedRow();
+        };
+        Placing?.Invoke(window);
+        window.Show();
     }
 
     /// <summary>Puts keyboard focus on the selected row itself, not just the list, so arrowing
@@ -132,10 +168,10 @@ public partial class MainWindow : Window
         var newVm = new NewVmViewModel(_vm.Vms.Select(v => v.Name));
         if (_demo) newVm.RunScript = Services.DemoNewVmScript.RunAsync;
         newVm.Finished += outcome => { _ = _vm.RefreshAsync(quiet: true); };
-        // Modeless, so the list stays usable during the 15 to 30 minutes a build takes.
-        _newVmWindow = new NewVmWindow(newVm) { Owner = this };
-        _newVmWindow.Closed += (_, _) => { _newVmWindow = null; FocusSelectedRow(); };
-        _newVmWindow.Show();
+        // Modeless and unowned, so the list stays usable during the 15 to 30 minutes a build takes.
+        _newVmWindow = new NewVmWindow(newVm);
+        _newVmWindow.Closed += (_, _) => _newVmWindow = null;
+        ShowAlongside(_newVmWindow);
     }
 
     /// <summary>
@@ -152,10 +188,10 @@ public partial class MainWindow : Window
             if (IsActive) open.Activate();
             return;
         }
-        var window = new ScreenshotWindow(new ScreenshotViewModel(_vm.HyperV, vm, picture)) { Owner = this, ShowActivated = IsActive };
+        var window = new ScreenshotWindow(new ScreenshotViewModel(_vm.HyperV, vm, picture));
         _screenshots[vm.Id] = window;
-        window.Closed += (_, _) => { _screenshots.Remove(vm.Id); FocusSelectedRow(); };
-        window.Show();
+        window.Closed += (_, _) => _screenshots.Remove(vm.Id);
+        ShowAlongside(window);
     }
 
     private void Exit_Click(object sender, RoutedEventArgs e) => Close();

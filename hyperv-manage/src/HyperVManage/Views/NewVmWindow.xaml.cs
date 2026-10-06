@@ -10,7 +10,7 @@ using Microsoft.Win32;
 namespace HyperVManage.Views;
 
 /// <summary>
-/// Modeless, so the VM list stays usable while a build runs. It has no editable text over a live
+/// Modeless and unowned, so the VM list stays usable, and reachable with Alt+Tab, while a build runs. It has no editable text over a live
 /// browser control, so the modal-dialog hazards of a WebView2 host don't apply; modeless is simply
 /// friendlier for something that runs half an hour.
 /// </summary>
@@ -32,7 +32,20 @@ public partial class NewVmWindow : Window
             // The user asked to close during the build; now that it has stopped and cleaned up, do.
             if (_closeWhenStopped) Close();
         };
-        Loaded += (_, _) => { NameBox.Focus(); NameBox.SelectAll(); };
+        // Focusing a control in a window that isn't active would bring it to the front, so a
+        // window opened in the background waits until the user goes to it.
+        var focusNameWhenActive = false;
+        Loaded += (_, _) =>
+        {
+            if (IsActive) FocusName();
+            else focusNameWhenActive = true;
+        };
+        Activated += (_, _) =>
+        {
+            if (!focusNameWhenActive) return;
+            focusNameWhenActive = false;
+            Dispatcher.BeginInvoke(FocusName, System.Windows.Threading.DispatcherPriority.Input);
+        };
 
         var downloads = IsoDownloads.ForThisPcFirst(IsoFinder.HostIsArm64);
         IsoLinkThisPc.NavigateUri = downloads[0].Page;
@@ -49,6 +62,12 @@ public partial class NewVmWindow : Window
                 Close();
             }
         };
+    }
+
+    private void FocusName()
+    {
+        NameBox.Focus();
+        NameBox.SelectAll();
     }
 
     /// <summary>True while the script runs. The main window won't close until this window has.</summary>
