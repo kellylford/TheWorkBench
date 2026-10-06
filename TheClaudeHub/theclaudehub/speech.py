@@ -335,7 +335,6 @@ class Speaker:
         self._lock = threading.Lock()
         self._queue: "deque[list]" = deque()
         self._running: List[subprocess.Popen] = []
-        self._wake = threading.Condition(self._lock)
         self._worker: Optional[threading.Thread] = None
         self._generation = 0
 
@@ -406,7 +405,6 @@ class Speaker:
                 self._worker = threading.Thread(target=self._drain, name="speech",
                                                 daemon=True)
                 self._worker.start()
-            self._wake.notify_all()
         return True
 
     def _drain(self) -> None:
@@ -432,8 +430,12 @@ class Speaker:
                     _kill_quietly(process)
                     continue
                 self._running.append(process)
+            # No timeout: a system voice reading a long reply at the "Full"
+            # level can take minutes, and cutting it off mid-sentence is worse
+            # than waiting. stop() (an interrupting announcement, or closing
+            # the app) kills it when it needs to end early.
             try:
-                process.wait(timeout=120)
+                process.wait()
             except Exception:
                 _kill_quietly(process)
             with self._lock:
