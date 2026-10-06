@@ -393,13 +393,26 @@ public class ScreenshotTakerTests
         Assert.DoesNotContain("accessibility tree", text); // nothing was read from it
         Assert.EndsWith("Nobody is signed in to Windows in the VM.", text);
     }
+
+    [Fact]
+    public void WhatsOnScreen_WhenTheTreeCouldntBeRead_DoesntClaimItWas()
+    {
+        // A hung app can stop UI Automation; then only the window title came back.
+        var picture = ScreenshotViewModelTests.Picture(DateTime.Now) with
+        {
+            Info = new ScreenInfo("vmuser", true, "*notes - Notepad", "", "", []),
+        };
+        var text = ScreenshotViewModel.Describe(picture);
+        Assert.Contains("In front: *notes - Notepad", text);
+        Assert.DoesNotContain("accessibility tree", text);
+    }
 }
 
 [Collection("Wpf")]
 public class GuestSignInWindowTests
 {
     [StaFact]
-    public void TheBoxesSayOnlyWhatTheyAre_TheWindowExplains_AndAReAskSaysWhyOnce()
+    public void TheBoxesSayLittle_TheWindowExplains_AndAReAskHasItsReasonToSpeak()
     {
         TestApp.Ensure();
         var why = "Windows in vm2 didn't accept that sign-in: no.";
@@ -410,7 +423,7 @@ public class GuestSignInWindowTests
         foreach (var box in new System.Windows.Controls.Control[] { user, password })
         {
             var peer = System.Windows.Automation.Peers.UIElementAutomationPeer.CreatePeerForElement(box);
-            Assert.Equal("", peer.GetHelpText());
+            Assert.InRange(peer.GetHelpText().Length, 1, 40); // a hint, not the explanation
         }
         Assert.Equal("User name", System.Windows.Automation.Peers.UIElementAutomationPeer.CreatePeerForElement(user).GetName());
         Assert.Equal("Password", System.Windows.Automation.Peers.UIElementAutomationPeer.CreatePeerForElement(password).GetName());

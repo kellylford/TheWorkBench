@@ -47,14 +47,10 @@ public partial class MainWindow : Window
         vm.OpenNewVm = ShowNewVm;
         vm.ShowScreenshot = ShowScreenshot;
         // Asked from whichever of the app's windows is in front: the list, or a viewer's Take Again.
-        // A second ask comes after a few seconds' wait, by when the user may have moved on; it says
-        // so first, and the dialog brings itself to the front.
-        vm.Screenshots.AskSignIn = (v, why, user) =>
-        {
-            var owner = Application.Current.Windows.OfType<Window>().FirstOrDefault(w => w.IsActive) ?? this;
-            if (why is not null) Announcer.Announce(owner, $"{v.Name} needs its sign-in again.");
-            return GuestSignInWindow.Ask(owner, v, why, user ?? DefaultGuestUser);
-        };
+        // Asked from whichever of the app's windows is in front; the dialog brings itself forward
+        // and, when asking again, says why.
+        vm.Screenshots.AskSignIn = (v, why, user) => GuestSignInWindow.Ask(
+            Application.Current.Windows.OfType<Window>().FirstOrDefault(w => w.IsActive) ?? this, v, why, user ?? DefaultGuestUser);
 
         Loaded += async (_, _) =>
         {

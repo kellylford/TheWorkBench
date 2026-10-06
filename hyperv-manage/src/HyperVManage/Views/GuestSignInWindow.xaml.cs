@@ -18,6 +18,8 @@ public partial class GuestSignInWindow : Window
         "To show the session you're working in, Remote Desktop included, Hyper-V Manage signs in to " +
         "Windows in the VM. Use an account that is an administrator there.";
 
+    internal static TimeSpan AnnouncementDelay { get; } = TimeSpan.FromMilliseconds(700);
+
     /// <summary>What is spoken as the window opens, after its title and the focused box: only why
     /// it is asking again, when it is.</summary>
     internal string? OpeningAnnouncement { get; private set; }
@@ -37,9 +39,19 @@ public partial class GuestSignInWindow : Window
             // The user name is usually right; the password is what's needed.
             if (w.UserBox.Text.Length > 0) w.PasswordBox.Focus();
             else w.UserBox.Focus();
-            // After the focused box has been read, so it isn't cut off.
-            if (w.OpeningAnnouncement is { } text)
-                w.Dispatcher.BeginInvoke(() => Helpers.Announcer.Announce(w, text), System.Windows.Threading.DispatcherPriority.ApplicationIdle);
+        };
+        // The reason, once the screen reader has had time to read the title and the focused box:
+        // spoken with them, it would cut them off or be cut off.
+        w.ContentRendered += (_, _) =>
+        {
+            if (w.OpeningAnnouncement is not { } text) return;
+            var wait = new System.Windows.Threading.DispatcherTimer { Interval = AnnouncementDelay };
+            wait.Tick += (_, _) =>
+            {
+                wait.Stop();
+                if (w.IsVisible) Helpers.Announcer.Announce(w, text);
+            };
+            wait.Start();
         };
         return w;
     }
