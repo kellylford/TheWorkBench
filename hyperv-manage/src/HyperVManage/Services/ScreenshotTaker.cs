@@ -32,6 +32,7 @@ public sealed class ScreenshotTaker(IHyperVService hyperV, IGuestCredentialStore
         string note;
         var credential = Stored(vm);
         var remember = false;
+        var replacing = false;
         if (credential is null && (askEvenIfDeclined || !_declined.Contains(vm.Id)))
             (credential, remember) = Ask(vm, null, null);
         if (credential is null)
@@ -44,11 +45,14 @@ public sealed class ScreenshotTaker(IHyperVService hyperV, IGuestCredentialStore
                 {
                     var session = await hyperV.TakeSessionScreenshotAsync(vm.Id, credential, ct);
                     if (remember) Keep(vm, credential);
+                    else if (replacing) Forget(vm); // the kept one was wrong, and this one isn't to be kept
                     return session.Picture with { Info = session.Info };
                 }
                 catch (SessionScreenshotException ex) when (ex.Reason == SessionFailure.SignInRefused)
                 {
-                    Forget(vm);
+                    // The kept sign-in stays until one that works replaces it: a VM still starting
+                    // can refuse a right one, and Escape here shouldn't lose it.
+                    replacing = true;
                     (credential, remember) = Ask(vm, $"Windows in {vm.Name} didn't accept that sign-in: {ex.Message}", credential.UserName);
                     if (credential is null) { note = "Windows in the VM didn't accept the sign-in."; break; }
                 }
@@ -61,6 +65,7 @@ public sealed class ScreenshotTaker(IHyperVService hyperV, IGuestCredentialStore
                 {
                     // Windows accepted the sign-in; there was just no picture to take this time.
                     if (remember) Keep(vm, credential);
+                    else if (replacing) Forget(vm);
                     note = ex.Message;
                     break;
                 }

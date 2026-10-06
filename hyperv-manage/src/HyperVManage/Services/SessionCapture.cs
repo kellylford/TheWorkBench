@@ -66,8 +66,8 @@ public static class SessionCapture
     /// with its size and the window in front, then info.json with that and what has focus and
     /// which windows are open. UI Automation can hang on a hung app, so shot.json is written
     /// first: the picture isn't lost waiting for it. Each file is written under another name and
-    /// renamed, so it's never read half-written. Plain ASCII: Windows PowerShell reads a script
-    /// without a byte order mark as ANSI.
+    /// renamed, so it's never read half-written. Kept to plain ASCII, though it now travels encoded
+    /// in the task's command line rather than as a file Windows PowerShell would read as ANSI.
     /// </summary>
     internal const string GuestScript = """
         $ErrorActionPreference = 'Stop'
@@ -157,7 +157,9 @@ public static class SessionCapture
         }
         '@
         $sessions = @([HvmWts]::Sessions())
-        $active = $sessions | Where-Object { $_[1] -eq '0' } | Select-Object -First 1
+        # Windows Server can have the console and Remote Desktop sessions active at once; the
+        # Remote Desktop one is where someone is working.
+        $active = @($sessions | Where-Object { $_[1] -eq '0' } | Sort-Object { $_[2] -like 'console' }) | Select-Object -First 1
         if (-not $active) {
             $away = $sessions | Where-Object { $_[1] -eq '4' } | Select-Object -First 1
             $m = if ($away) { "$($away[4])'s session is disconnected: nobody is connected to it, so Windows isn't drawing it." } else { 'Nobody is signed in to Windows in the VM.' }
@@ -200,14 +202,20 @@ public static class SessionCapture
                 Stop-ScheduledTask -TaskName $task -ErrorAction SilentlyContinue
                 Unregister-ScheduledTask -TaskName $task -Confirm:$false -ErrorAction SilentlyContinue
             }
-            $infoFile = @("$dir\info.json", "$dir\shot.json") | Where-Object { Test-Path -LiteralPath $_ } | Select-Object -First 1
+            # The user can put files here, so only plain files of a sensible size are read: not a
+            # link, which would be followed, and not something big enough to stall this PC.
+            function Get-Plain($path, $limit) {
+                $f = Get-Item -LiteralPath $path -Force -ErrorAction SilentlyContinue
+                if ($f -and -not ($f.Attributes -band [IO.FileAttributes]::ReparsePoint) -and $f.Length -le $limit) { $f.FullName }
+            }
+            $infoFile = @("$dir\info.json", "$dir\shot.json") | ForEach-Object { Get-Plain $_ 1MB } | Select-Object -First 1
             if (-not $infoFile) {
                 return [pscustomobject]@{ Status = 'failed'; Message = "The picture didn't come back from $($active[4])'s session within 30 seconds." }
             }
             [pscustomobject]@{
                 Status = 'ok'; User = $active[4]; Remote = $remote
                 Info = [IO.File]::ReadAllText($infoFile)
-                Png = if (Test-Path -LiteralPath "$dir\screen.png") { [Convert]::ToBase64String([IO.File]::ReadAllBytes("$dir\screen.png")) } else { '' }
+                Png = if ($png = Get-Plain "$dir\screen.png" 200MB) { [Convert]::ToBase64String([IO.File]::ReadAllBytes($png)) } else { '' }
             }
         } finally {
             # File by file, then the empty folder: never a recursive delete.
@@ -256,9 +264,11 @@ public static class SessionCapture
         var lines = output.Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
         var at = Array.FindIndex(lines, l => l.StartsWith('{'));
         if (at < 0) throw new SessionScreenshotException(SessionFailure.Unreachable, "Windows in the VM didn't answer.");
-        JsonElement e;
-        try { e = JsonDocument.Parse(lines[at]).RootElement; }
+        JsonDocument answer;
+        try { answer = JsonDocument.Parse(lines[at]); }
         catch (JsonException) { throw new SessionScreenshotException(SessionFailure.NotDrawn, "The answer from the VM was damaged."); }
+        using var answerDoc = answer;
+        var e = answer.RootElement;
         var message = PowerShellHyperVService.Str(e, "Message");
         switch (PowerShellHyperVService.Str(e, "Status"))
         {
@@ -269,9 +279,11 @@ public static class SessionCapture
             default: throw new SessionScreenshotException(SessionFailure.NotDrawn, message.Length > 0 ? message : "The picture didn't come back.");
         }
 
-        JsonElement i;
-        try { i = JsonDocument.Parse(PowerShellHyperVService.Str(e, "Info") is { Length: > 0 } json ? json.Trim().Trim('﻿') : "{}").RootElement; }
+        JsonDocument described;
+        try { described = JsonDocument.Parse(PowerShellHyperVService.Str(e, "Info") is { Length: > 0 } json ? json.Trim().Trim('\uFEFF') : "{}"); }
         catch (JsonException) { throw new SessionScreenshotException(SessionFailure.NotDrawn, "The picture's description came back damaged."); }
+        using var describedDoc = described;
+        var i = described.RootElement;
         var remote = e.TryGetProperty("Remote", out var r) && r.ValueKind == JsonValueKind.True;
         var info = new ScreenInfo(
             PowerShellHyperVService.Str(e, "User"),

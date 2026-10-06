@@ -200,6 +200,7 @@ public partial class MainWindow : Window
             catch (Exception ex)
             {
                 _vm.StatusText = $"Couldn't keep the new VM's sign-in for screenshots, so Screenshot will ask for it: {ex.Message}";
+                Announcer.Announce(this, _vm.StatusText);
             }
         };
         // Modeless and unowned, so the list stays usable during the 15 to 30 minutes a build takes.

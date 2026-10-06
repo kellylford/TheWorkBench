@@ -106,6 +106,8 @@ public class SessionCaptureTests
         Assert.DoesNotContain("-Recurse", SessionCapture.GuestAdminScript);
         Assert.DoesNotContain("icacls", SessionCapture.GuestAdminScript);
         Assert.DoesNotContain("ProgramData", SessionCapture.GuestAdminScript);
+        // Files the user could have put there are checked before they're read.
+        Assert.Contains("ReparsePoint", SessionCapture.GuestAdminScript);
     }
 
     [Fact]
@@ -217,7 +219,7 @@ public class ScreenshotTakerTests
     }
 
     [Fact]
-    public async Task ARefusedSignIn_IsForgotten_AndAskedForAgain_SayingWhy()
+    public async Task ARefusedSignIn_IsReplaced_ByOneThatWorks_AfterAskingAgainSayingWhy()
     {
         var (taker, store, vm, asked) = await Setup(Good());
         store.Save(vm.Id, new GuestCredential("vmuser", "")); // kept from before, now wrong
@@ -226,6 +228,25 @@ public class ScreenshotTakerTests
         var why = Assert.Single(asked);
         Assert.Contains("didn't accept that sign-in", why);
         Assert.Equal("vmadmin", store.Get(vm.Id)?.Password);
+    }
+
+    [Fact]
+    public async Task ARefusedSignIn_ThenEscape_KeepsTheSavedOne()
+    {
+        // Refused can mean the VM is still starting: Escape mustn't lose a sign-in that may be right.
+        var (taker, store, vm, _) = await Setup();
+        store.Save(vm.Id, new GuestCredential("vmuser", ""));
+        Assert.Null((await taker.TakeAsync(vm)).Info);
+        Assert.NotNull(store.Get(vm.Id));
+    }
+
+    [Fact]
+    public async Task ARefusedSignIn_ReplacedByOneNotToBeKept_IsForgotten()
+    {
+        var (taker, store, vm, _) = await Setup(Good(remember: false));
+        store.Save(vm.Id, new GuestCredential("vmuser", ""));
+        Assert.NotNull((await taker.TakeAsync(vm)).Info);
+        Assert.Null(store.Get(vm.Id));
     }
 
     [Fact]
