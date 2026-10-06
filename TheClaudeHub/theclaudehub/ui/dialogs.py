@@ -5,7 +5,7 @@ import os
 
 import wx
 
-from ..claude_cli import DEFAULT_PERMISSION_MODE, PERMISSION_MODES
+from ..claude_cli import DEFAULT_PERMISSION_MODE, MODELS, PERMISSION_MODES
 from ..speech import (ANNOUNCE_LABELS, ANNOUNCE_LEVELS, RATE_PRESET_LABELS,
                       SpeechSettings)
 from ..ui_text import shortcuts_text
@@ -37,7 +37,7 @@ PERMISSION_NOTE = (
 
 
 class NewSessionDialog(wx.Dialog):
-    """Folder, title, permission mode, first message."""
+    """Folder, title, model, permission mode, first message."""
 
     def __init__(self, parent, default_folder: str):
         super().__init__(parent, title="New TheClaudeHub Session", size=(640, 520),
@@ -59,6 +59,12 @@ class NewSessionDialog(wx.Dialog):
         self.title_text = wx.TextCtrl(self)
         set_accessible_name(self.title_text, "Title (optional)")
         grid.Add(self.title_text, 1, wx.EXPAND)
+
+        grid.Add(wx.StaticText(self, label="Mo&del:"), 0, wx.ALIGN_CENTER_VERTICAL)
+        self.model = wx.Choice(self, choices=[label for _v, label in MODELS])
+        set_accessible_name(self.model, "Model")
+        self.model.SetSelection(0)  # Claude Code's own default
+        grid.Add(self.model, 1, wx.EXPAND)
 
         grid.Add(wx.StaticText(self, label="Permission m&ode:"), 0, wx.ALIGN_CENTER_VERTICAL)
         self.mode = wx.Choice(self, choices=[label for _v, label in PERMISSION_MODES])
@@ -136,7 +142,9 @@ class NewSessionDialog(wx.Dialog):
         index = self.mode.GetSelection()
         mode = PERMISSION_MODES[index][0] if 0 <= index < len(PERMISSION_MODES) \
             else DEFAULT_PERMISSION_MODE
-        return folder, title, mode, message
+        index = self.model.GetSelection()
+        model = MODELS[index][0] if 0 <= index < len(MODELS) else ""
+        return folder, title, mode, message, model
 
 
 class SettingsDialog(wx.Dialog):

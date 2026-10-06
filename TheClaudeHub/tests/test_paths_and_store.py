@@ -156,3 +156,22 @@ def test_store_locked_at_startup_is_never_overwritten(tmp_path, monkeypatch):
         store.add(OwnSession("new", "T", "C:/"))
     monkeypatch.undo()
     assert path.read_text(encoding="utf-8") == good
+
+
+def test_store_keeps_the_model(tmp_path):
+    path = tmp_path / "sessions.json"
+    store = OwnSessionStore(path)
+    store.add(OwnSession("id-1", "First", "C:\a", model="opus"))
+    assert OwnSessionStore(path).get("id-1").model == "opus"
+
+
+@pytest.mark.parametrize("stored", [None, 5, "fable", "sonnet[1m]", "--help", "made-up"])
+def test_store_loads_an_unoffered_model_as_the_default(tmp_path, stored):
+    # Older stores have no model; anything the picker doesn't offer (a hand
+    # edit, or a model that bills usage credits) is never passed on.
+    entry = {"cli_session_id": "id-1", "title": "Old", "cwd": "C:\a"}
+    if stored is not None:
+        entry["model"] = stored
+    path = tmp_path / "sessions.json"
+    path.write_text(json.dumps({"sessions": [entry]}), encoding="utf-8")
+    assert OwnSessionStore(path).get("id-1").model == ""
