@@ -143,7 +143,7 @@ class SettingsDialog(wx.Dialog):
     """Announcements and speech (the Speech tab of IDT's settings, adapted)."""
 
     def __init__(self, parent, speech: SpeechSettings, options):
-        super().__init__(parent, title="Settings", size=(660, 460))
+        super().__init__(parent, title="Settings", size=(660, 500))
         self._options = list(options)
         outer = wx.BoxSizer(wx.VERTICAL)
 
@@ -160,6 +160,11 @@ class SettingsDialog(wx.Dialog):
                         "not just the open one")
         self.all_sessions.SetValue(speech.announce_all_sessions)
         outer.Add(self.all_sessions, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
+
+        self.own_messages = wx.CheckBox(
+            self, label="Read your own &messages back when they're sent")
+        self.own_messages.SetValue(speech.announce_own)
+        outer.Add(self.own_messages, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
 
         grid = wx.FlexGridSizer(rows=2, cols=2, vgap=8, hgap=8)
         grid.AddGrowableCol(1, 1)
@@ -226,6 +231,7 @@ class SettingsDialog(wx.Dialog):
             else ANNOUNCE_LEVELS[0]
         return SpeechSettings(announce=level,
                               announce_all_sessions=self.all_sessions.GetValue(),
+                              announce_own=self.own_messages.GetValue(),
                               engine=option.engine, voice=option.voice,
                               rate_preset=preset)
 

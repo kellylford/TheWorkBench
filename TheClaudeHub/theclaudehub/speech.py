@@ -117,6 +117,8 @@ class SpeechSettings:
 
     announce: str = ANNOUNCE_FULL
     announce_all_sessions: bool = True
+    #: Read Kelly's own message back when it's sent or queued (issue #178).
+    announce_own: bool = True
     engine: str = "auto"
     voice: str = ""
     rate_preset: str = "default"
@@ -142,6 +144,7 @@ class SpeechSettings:
         level = str(raw.get("announce", ANNOUNCE_FULL))
         settings.announce = level if level in ANNOUNCE_LEVELS else ANNOUNCE_FULL
         settings.announce_all_sessions = bool(raw.get("announce_all_sessions", True))
+        settings.announce_own = bool(raw.get("announce_own", True))
         settings.engine = str(raw.get("engine", "auto")) or "auto"
         settings.voice = str(raw.get("voice", ""))
         preset = str(raw.get("rate_preset", "default"))

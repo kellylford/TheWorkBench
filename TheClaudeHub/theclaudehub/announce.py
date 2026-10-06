@@ -47,6 +47,36 @@ def turn_end_text(title: str, state: str, detail: str, reply: str, level: str) -
     return f"{head} {reply.strip()}"
 
 
+def _own_words(message: str, level: str, read_back: bool) -> Optional[str]:
+    """The part of Kelly's own message to read back, ending in a full stop
+    (or its own ? or !). None means don't read it."""
+    if not read_back or level == ANNOUNCE_SILENT:
+        return None
+    flat = " ".join((message or "").split())
+    if not flat:
+        return None
+    words = first_sentence(flat) if level == ANNOUNCE_SUMMARY else flat
+    return words if words[-1] in ".?!…" else words + "."
+
+
+def sent_text(title: str, message: str, level: str, read_back: bool) -> str:
+    """Confirmation that Kelly's message went to Claude."""
+    words = _own_words(message, level, read_back)
+    if words is None:
+        return f"Sent. {title} is working."
+    return f"Sent: {words} {title} is working."
+
+
+def queued_text(title: str, message: str, level: str, read_back: bool,
+                added: bool = False) -> str:
+    """Confirmation that Kelly's message waits for the running turn."""
+    words = _own_words(message, level, read_back)
+    head = "Added to the queued message" if added else "Queued"
+    if words is None:
+        return f"{head}. It will be sent when {title} finishes."
+    return f"{head}: {words} It will be sent when {title} finishes."
+
+
 def status_text(text: str, limit: int = 150) -> str:
     """The same news, short enough for the status bar."""
     flat = " ".join((text or "").split())
@@ -54,4 +84,5 @@ def status_text(text: str, limit: int = 150) -> str:
 
 
 __all__ = ["first_sentence", "reply_text", "turn_end_text", "status_text",
+           "sent_text", "queued_text",
            "ANNOUNCE_FULL", "ANNOUNCE_SUMMARY", "ANNOUNCE_SILENT"]

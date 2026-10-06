@@ -31,17 +31,38 @@ def test_first_sentence_and_status_text():
     assert len(announce.status_text("x " * 200)) == 150
 
 
+def test_own_message_read_back_follows_the_level_and_setting():
+    message = "Fix the build.  Then run\nthe tests"
+    assert announce.sent_text("QM", message, ANNOUNCE_FULL, True) == \
+        "Sent: Fix the build. Then run the tests. QM is working."
+    assert announce.sent_text("QM", message, ANNOUNCE_SUMMARY, True) == \
+        "Sent: Fix the build. QM is working."
+    assert announce.sent_text("QM", message, ANNOUNCE_FULL, False) == "Sent. QM is working."
+    assert announce.sent_text("QM", message, ANNOUNCE_SILENT, True) == "Sent. QM is working."
+    assert announce.sent_text("QM", "Is it done?", ANNOUNCE_FULL, True) == \
+        "Sent: Is it done? QM is working."
+    assert announce.queued_text("QM", "and the docs", ANNOUNCE_FULL, True) == \
+        "Queued: and the docs. It will be sent when QM finishes."
+    assert announce.queued_text("QM", "more", ANNOUNCE_FULL, True, added=True) == \
+        "Added to the queued message: more. It will be sent when QM finishes."
+    assert announce.queued_text("QM", "more", ANNOUNCE_FULL, False) == \
+        "Queued. It will be sent when QM finishes."
+
+
 def test_speech_settings_defaults_and_round_trip(tmp_path):
     path = tmp_path / "speech.json"
     settings = SpeechSettings.load(path)
     assert settings.announce == ANNOUNCE_FULL and settings.enabled
     assert settings.announce_all_sessions
+    assert settings.announce_own  # on unless Kelly turns it off
     settings.announce = ANNOUNCE_SILENT
     settings.announce_all_sessions = False
+    settings.announce_own = False
     settings.save(path)
     again = SpeechSettings.load(path)
     assert again.announce == ANNOUNCE_SILENT and not again.enabled
     assert not again.announce_all_sessions
+    assert not again.announce_own
     assert "enabled" not in json.loads(path.read_text())
 
 
