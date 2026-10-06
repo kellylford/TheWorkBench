@@ -8,19 +8,45 @@ from __future__ import annotations
 import re
 from typing import Optional
 
-from .speech import ANNOUNCE_FULL, ANNOUNCE_SILENT, ANNOUNCE_SUMMARY, strip_for_speech
+from .speech import (ANNOUNCE_FULL, ANNOUNCE_SILENT, ANNOUNCE_SUMMARY, CODE_NOTE,
+                     strip_for_speech, without_code_blocks)
 from .sessions import NEEDS_YOU
+
+
+#: Words a full stop follows without ending the sentence ("e.g. the docs").
+_ABBREVIATIONS = {"e.g", "i.e", "etc", "vs", "cf", "dr", "mr", "mrs", "ms", "st", "jr",
+                  "sr", "no", "fig", "approx", "dept", "inc", "ltd", "co"}
+_SENTENCE_END = re.compile(r"[.?!](?= )")
+
+
+def _ends_sentence(text: str, index: int) -> bool:
+    """Whether the mark at ``index`` (followed by a space) ends a sentence."""
+    following = text[index + 2:index + 3]
+    if following.islower():
+        return False
+    if text[index] != ".":
+        return True
+    word = text[:index].rsplit(" ", 1)[-1].lower()
+    # A lone letter is an initial ("J. Smith") or the end of "e.g.".
+    return len(word) > 1 and word not in _ABBREVIATIONS
+
+
+def _cut_at_word(text: str, limit: int) -> str:
+    """At most ``limit`` characters, on a word boundary unless one word
+    (a URL, say) fills it, without trailing punctuation."""
+    head = text[:limit]
+    cut = (head.rsplit(" ", 1)[0] if " " in head else head).rstrip(" ,;:.")
+    return cut or head
 
 
 def first_sentence(text: str, limit: int = 200) -> str:
     stripped = " ".join((text or "").split())
-    for end in (". ", "? ", "! "):
-        index = stripped.find(end)
-        if 0 < index < limit:
-            return stripped[: index + 1]
+    for match in _SENTENCE_END.finditer(stripped, 0, limit):
+        if match.start() > 0 and _ends_sentence(stripped, match.start()):
+            return stripped[: match.start() + 1]
     if len(stripped) <= limit:
         return stripped
-    return stripped[:limit].rstrip() + "…"
+    return _cut_at_word(stripped, limit) + "…"
 
 
 def reply_text(title: str, reply: str, level: str) -> Optional[str]:
@@ -52,7 +78,11 @@ def turn_end_text(title: str, state: str, detail: str, reply: str, level: str) -
 #: of what he just typed, not news: a pasted log shouldn't talk for minutes.
 OWN_LIMIT = 300
 
-_LIST_MARKER = re.compile(r"^\s*(?:[-*+]|\d+[.)])\s+")
+# Up to two digits: "1. first" is a list item, "2026. That year" is not.
+# A task-list box goes with the marker; a marker alone on a line counts too.
+_LIST_MARKER = re.compile(r"^\s*(?:[-*+]|\d{1,2}[.)])(?:\s+\[[ xX]\])?(?:\s+|$)")
+_HEADING_LINE = re.compile(r"^\s*#{1,6}\s")
+_ONLY_MARKS = re.compile(r"[\s\-*_.,;:]*")
 
 
 def _end_sentence(text: str) -> str:
@@ -60,44 +90,59 @@ def _end_sentence(text: str) -> str:
     return text if text[-1:] in (".", "?", "!", "…") else text + "."
 
 
+def _plural(count: int, word: str) -> str:
+    return f"{count} {word}{'s' if count != 1 else ''}"
+
+
 def _own_words(message: str, level: str, read_back: bool) -> Optional[str]:
     """The part of Kelly's own message to read back. None means don't.
 
-    Markdown is stripped while the lines are still lines (headings and code
-    fences are matched per line). A line ends as a sentence, so a list or
-    a heading doesn't run into the next line, unless it's prose that
-    carries on in lowercase on the next line. Then the summary level takes
-    the first sentence and the full level caps the length.
+    Lines are sorted out before markdown is stripped, while a heading still
+    has its ``#``: a heading, a list item, a code block or a blank line
+    ends a sentence; other line breaks are wrapped prose and read on. Then
+    the summary level takes the first sentence and the full level caps the
+    length, counting what's left in words and code blocks.
     """
     if not read_back or level == ANNOUNCE_SILENT:
         return None
-    lines = []  # (text, is a list item)
-    for line in strip_for_speech(message or "").splitlines():
-        item = bool(_LIST_MARKER.match(line))
-        line = " ".join(_LIST_MARKER.sub("", line).split())
-        if line.rstrip(" .,;:"):
-            lines.append((line, item))
+    text = without_code_blocks(message or "", f"\n{CODE_NOTE}\n")
+    lines = []  # (spoken text, whether a sentence must end after it)
+    quoting = False
+    for raw in text.splitlines():
+        structural = bool(_HEADING_LINE.match(raw) or _LIST_MARKER.match(raw)
+                          or raw.strip() == CODE_NOTE)
+        quote = raw.lstrip().startswith(">")
+        spoken = " ".join(strip_for_speech(_LIST_MARKER.sub("", raw)).split())
+        if _ONLY_MARKS.fullmatch(spoken):
+            if lines:  # a blank or marker-only line ends the line before it
+                lines[-1] = (lines[-1][0], True)
+            continue
+        # Moving into or out of a quote ends a sentence too.
+        if lines and (structural or quote != quoting):
+            lines[-1] = (lines[-1][0], True)
+        quoting = quote
+        lines.append((spoken, structural))
     if not lines:
         return None
-    parts = []
-    for index, (line, item) in enumerate(lines):
-        following = lines[index + 1] if index + 1 < len(lines) else None
-        carries_on = (following is not None and not item and not following[1]
-                      and following[0][:1].islower())
-        parts.append(line if carries_on else _end_sentence(line))
-    flat = " ".join(parts)
+    parts = [_end_sentence(spoken) if ends or i == len(lines) - 1 else spoken
+             for i, (spoken, ends) in enumerate(lines)]
+    # Once more over the joined text: emphasis can span a line break.
+    flat = " ".join(strip_for_speech(" ".join(parts)).split())
     if level == ANNOUNCE_SUMMARY:
         return _end_sentence(first_sentence(flat))
     # The limit counts the words, not the full stop added after them.
     if len(flat.rstrip(".")) <= OWN_LIMIT:
         return flat
-    head = flat[:OWN_LIMIT]
-    # On a word boundary, unless one long word (a URL, say) fills the limit.
-    cut = (head.rsplit(" ", 1)[0] if " " in head else head).rstrip(" ,;:.")
-    more = len(flat.split()) - len(cut.split())
-    if more <= 0:
-        return f"{cut}…"
-    return f"{cut}… and {more} more word{'s' if more != 1 else ''}."
+    cut = _cut_at_word(flat, OWN_LIMIT)
+    rest = flat[len(cut):]
+    blocks = rest.count(CODE_NOTE)
+    words = len(rest.replace(CODE_NOTE, " ").split())
+    if " " not in flat[:OWN_LIMIT]:
+        words = max(words - 1, 0)  # the long word was cut, not left out
+    more = [_plural(words, "more word")] if words else []
+    if blocks:
+        more.append("a code block" if blocks == 1 else _plural(blocks, "code block"))
+    return f"{cut}… and {' and '.join(more)}." if more else f"{cut}…"
 
 
 def sent_text(title: str, message: str, level: str, read_back: bool,

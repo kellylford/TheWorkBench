@@ -292,10 +292,15 @@ def list_speech_options(timeout: float = 25.0) -> List[SpeechOption]:
 # Speaking
 # ---------------------------------------------------------------------------
 
-_FENCED_CODE = re.compile(r"```.*?```", re.DOTALL)
+#: What a code block is read as.
+CODE_NOTE = "Code block omitted."
+# An unclosed fence (a pasted, truncated snippet) runs to the end of the text.
+_FENCED_CODE = re.compile(r"```.*?(?:```|\Z)", re.DOTALL)
 _INLINE_CODE = re.compile(r"`([^`\n]+)`")
 _LINK = re.compile(r"\[([^\]]+)\]\([^)]+\)")
 _HEADING = re.compile(r"^#{1,6}\s*", re.MULTILINE)
+_QUOTE = re.compile(r"^[ \t]*(?:>[ \t]?)+", re.MULTILINE)
+_RULE = re.compile(r"^[ \t]*(?:[-*_][ \t]*){3,}$", re.MULTILINE)
 _EMPHASIS = re.compile(r"(\*{1,3})(\S(?:.*?\S)?)\1")
 # Underscores only count as emphasis at a word boundary. Without the
 # lookarounds this ate the internal underscores of snake_case identifiers:
@@ -304,18 +309,25 @@ _EMPHASIS = re.compile(r"(\*{1,3})(\S(?:.*?\S)?)\1")
 _EMPHASIS_UNDERSCORE = re.compile(r"(?<!\w)(_{1,3})(\S(?:.*?\S)?)\1(?!\w)")
 
 
+def without_code_blocks(text: str, replacement: str) -> str:
+    """Fenced code blocks, closed or not, replaced by ``replacement``."""
+    return _FENCED_CODE.sub(replacement, text)
+
+
 def strip_for_speech(text: str) -> str:
     """Markdown → something worth hearing.
 
     Code blocks become a short note instead of minutes of punctuation
     soup; links keep their text and lose their URL; heading and emphasis
-    markers vanish. Deliberately light-handed — the goal is listenable, not
-    a full renderer.
+    markers vanish, and so do quote markers and horizontal rules.
+    Deliberately light-handed — the goal is listenable, not a full renderer.
     """
-    text = _FENCED_CODE.sub(" Code block omitted. ", text or "")
+    text = without_code_blocks(text or "", f" {CODE_NOTE} ")
     text = _INLINE_CODE.sub(r"\1", text)
     text = _LINK.sub(r"\1", text)
     text = _HEADING.sub("", text)
+    text = _QUOTE.sub("", text)
+    text = _RULE.sub("", text)
     text = _EMPHASIS.sub(r"\2", text)
     text = _EMPHASIS_UNDERSCORE.sub(r"\2", text)
     text = text.replace("|", " ")
