@@ -143,7 +143,7 @@ class SettingsDialog(wx.Dialog):
     """Announcements and speech (the Speech tab of IDT's settings, adapted)."""
 
     def __init__(self, parent, speech: SpeechSettings, options):
-        super().__init__(parent, title="Settings", size=(660, 500))
+        super().__init__(parent, title="Settings", size=(660, 460))
         self._options = list(options)
         outer = wx.BoxSizer(wx.VERTICAL)
 

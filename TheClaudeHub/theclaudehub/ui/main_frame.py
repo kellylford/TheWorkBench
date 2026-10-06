@@ -1024,10 +1024,8 @@ class MainFrame(wx.Frame):
         self._denials[session_id] = []
         runner.start()
         self._update_send_state()
-        # A queued message was read back when it was queued; don't read it twice.
-        self._feedback(f"Sent your queued message. {title} is working." if queued
-                       else announce.sent_text(title, prompt, self.speech.announce,
-                                               self.speech.announce_own))
+        self._feedback(announce.sent_text(title, prompt, self.speech.announce,
+                                          self.speech.announce_own, queued=queued))
         self._store_write(self.store.update, session_id, state=IDLE, detail="",
                           last_activity_ms=int(time.time() * 1000))
 

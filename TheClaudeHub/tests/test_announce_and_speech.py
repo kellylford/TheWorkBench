@@ -3,7 +3,7 @@ import json
 from theclaudehub import announce
 from theclaudehub.sessions import IDLE, NEEDS_YOU
 from theclaudehub.speech import (ANNOUNCE_FULL, ANNOUNCE_SILENT, ANNOUNCE_SUMMARY,
-                                 SpeechSettings)
+                                 SpeechSettings, strip_for_speech)
 from theclaudehub.ui_text import shortcuts_text
 
 
@@ -33,20 +33,59 @@ def test_first_sentence_and_status_text():
 
 def test_own_message_read_back_follows_the_level_and_setting():
     message = "Fix the build.  Then run\nthe tests"
+    # Which session comes first, so it's heard even if the rest is cut off.
     assert announce.sent_text("QM", message, ANNOUNCE_FULL, True) == \
-        "Sent: Fix the build. Then run the tests. QM is working."
+        "Sent to QM: Fix the build. Then run the tests."
     assert announce.sent_text("QM", message, ANNOUNCE_SUMMARY, True) == \
-        "Sent: Fix the build. QM is working."
+        "Sent to QM: Fix the build."
     assert announce.sent_text("QM", message, ANNOUNCE_FULL, False) == "Sent. QM is working."
     assert announce.sent_text("QM", message, ANNOUNCE_SILENT, True) == "Sent. QM is working."
     assert announce.sent_text("QM", "Is it done?", ANNOUNCE_FULL, True) == \
-        "Sent: Is it done? QM is working."
+        "Sent to QM: Is it done?"
+    assert announce.sent_text("QM", "x", ANNOUNCE_FULL, True, queued=True) == \
+        "Sent your queued message. QM is working."
     assert announce.queued_text("QM", "and the docs", ANNOUNCE_FULL, True) == \
-        "Queued: and the docs. It will be sent when QM finishes."
+        "Queued for QM: and the docs."
     assert announce.queued_text("QM", "more", ANNOUNCE_FULL, True, added=True) == \
-        "Added to the queued message: more. It will be sent when QM finishes."
+        "Added to the queued message for QM: more."
     assert announce.queued_text("QM", "more", ANNOUNCE_FULL, False) == \
         "Queued. It will be sent when QM finishes."
+
+
+def spoken(text):
+    """What the speaker actually says: the engine gets strip_for_speech's output."""
+    return strip_for_speech(text)
+
+
+def test_own_message_markdown_is_read_as_words():
+    fenced = "Look at this:\n```python\nx = 1. y = 2\n```"
+    assert spoken(announce.sent_text("QM", fenced, ANNOUNCE_SUMMARY, True)) == \
+        "Sent to QM: Look at this."
+    assert spoken(announce.sent_text("QM", fenced, ANNOUNCE_FULL, True)) == \
+        "Sent to QM: Look at this. Code block omitted."
+    plan = "Plan\n## Steps\n- do **this**\n- then that\n1. last"
+    assert spoken(announce.sent_text("QM", plan, ANNOUNCE_FULL, True)) == \
+        "Sent to QM: Plan. Steps. do this. then that. last."
+    assert spoken(announce.sent_text("QM", "```\nonly code\n```", ANNOUNCE_FULL, True)) == \
+        "Sent to QM: Code block omitted."
+    assert announce.sent_text("QM", "```\n```", ANNOUNCE_FULL, True) == \
+        "Sent to QM: Code block omitted."
+    assert announce.sent_text("QM", "  \n ", ANNOUNCE_FULL, True) == "Sent. QM is working."
+
+
+def test_long_own_message_is_capped_at_the_full_level():
+    text = announce.sent_text("QM", "word " * 120, ANNOUNCE_FULL, True)
+    assert len(text) < announce.OWN_LIMIT + 60
+    assert text.endswith("word… and 60 more words.")
+    # 301 characters: everything but the last word fits.
+    assert announce.sent_text("QM", "a " * 150 + "b", ANNOUNCE_FULL, True).endswith(
+        "… and 1 more word.")
+    short = "x" * announce.OWN_LIMIT
+    assert announce.sent_text("QM", short, ANNOUNCE_FULL, True) == f"Sent to QM: {short}."
+    # One word longer than the limit is still cut.
+    url = "https://example.com/" + "x" * 400
+    assert announce.sent_text("QM", url, ANNOUNCE_FULL, True) == \
+        f"Sent to QM: {url[:announce.OWN_LIMIT]}…"
 
 
 def test_speech_settings_defaults_and_round_trip(tmp_path):
