@@ -83,17 +83,21 @@ def test_default_model_passes_no_model_flag():
 
 
 @pytest.mark.parametrize("model", ["--dangerously-skip-permissions", "-x", "opus sonnet",
-                                   "a;b", "x" * 101])
+                                   "a;b", "x" * 101, "sonnet[1m]",
+                                   "claude-opus-4-1@20250805",
+                                   "us.anthropic.claude-opus-4-1-v1:0"])
 def test_unsafe_model_name_refused(model):
     with pytest.raises(ValueError):
         build_new_command(EXE, "aaaa-1111", "t", "auto", model)
 
 
 def test_model_labels():
-    assert cli.model_label("") == "Default model"
+    assert cli.model_label("") == "the default model"
     assert cli.model_label("opus") == "Opus"
     assert cli.model_label("claude-opus-5-5") == "claude-opus-5-5"
-    assert [value for value, _label in cli.MODELS] == ["", "fable", "opus", "sonnet", "haiku"]
+    assert [value for value, _label in cli.MODELS] == ["", "opus", "sonnet", "haiku"]
+    # Fable can bill usage credits without asking in -p mode.
+    assert "fable" not in cli.MODEL_LABELS
 
 
 # -- the desktop --resume guard ------------------------------------------------------

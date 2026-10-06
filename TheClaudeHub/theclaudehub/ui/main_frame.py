@@ -611,7 +611,7 @@ class MainFrame(wx.Frame):
         if info.is_own:
             own = self.store.get(info.cli_session_id)
             if own is not None:
-                kind += f", {model_label(own.model)}"
+                kind += f" on {model_label(own.model)}"
         state = info.state + (f": {info.detail}" if info.detail else "")
         self.session_heading.SetLabel(f"{info.title}, {info.repo}, {state}. {kind}.")
         self._update_messages_label()
@@ -623,7 +623,12 @@ class MainFrame(wx.Frame):
         if info is None:
             return
         state = info.state + (f": {info.detail}" if info.detail else "")
-        kind = "" if info.is_own else ", read-only"
+        kind = ", read-only"
+        if info.is_own:
+            # The model goes here too: this is what's heard on arriving in
+            # the messages; the heading above is never focused.
+            own = self.store.get(info.cli_session_id)
+            kind = f", on {model_label(own.model)}" if own is not None else ""
         label = f"Messages in {info.title} ({state}{kind})"
         if self.messages_label.GetLabel() != f"&{label}:":
             self.messages_label.SetLabel(f"&{label}:")

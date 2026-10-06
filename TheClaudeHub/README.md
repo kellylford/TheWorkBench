@@ -42,11 +42,13 @@ session list is always there.
   back to its messages where you left them, without reloading.
 - **Open in Claude** (Ctrl+O) switches the desktop app to the session, for approving a permission
   prompt or answering a question card there.
-- **New Session** (Ctrl+N) starts a session of TheClaudeHub's own: choose a folder, a title, the
-  model (Alt+D: Default, which is your Claude Code setting, or Fable, Opus, Sonnet or Haiku, each
-  the latest of its family), a permission mode (auto by default; accept edits, manual and plan
-  are offered) and the first message. The model is kept with the session and passed to every
-  turn, and the session's heading names it ("TheClaudeHub session, Opus."). If that first message never reaches Claude (Claude Code not signed in, say), it goes
+- **New Session** (Ctrl+N) starts a session of TheClaudeHub's own: choose a folder, a title,
+  the model (Alt+D), a permission mode (auto by default; accept edits, manual and plan are
+  offered) and the first message. The models are Default (your Claude Code setting), Opus,
+  Sonnet and Haiku, each the latest of its family. The model is kept with the session and
+  passed to every turn. Arriving in the messages, you hear it ("Messages in Build (idle, on
+  Opus)"). Fable isn't offered: on some plans it bills to usage credits, and in the headless
+  mode TheClaudeHub uses, Claude Code does that without asking. If that first message never reaches Claude (Claude Code not signed in, say), it goes
   back into the reply box and Send starts the session again.
 - **Announcements.** When the open session gets a new reply, or one of TheClaudeHub's sessions
   finishes a turn, or any listed session stops working, it's announced through your screen reader

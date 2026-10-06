@@ -123,22 +123,34 @@ def normalize_permission_mode(mode: str) -> str:
 #: The model choices for a session: ``--model`` value and what the picker
 #: says. Aliases, so each means that family's latest model. "" passes no
 #: ``--model`` at all, leaving it to Claude Code's own setting.
+#:
+#: Fable is left out on purpose. Claude Code's docs: on some plans Fable
+#: bills to usage credits, and in ``-p`` mode (every TheClaudeHub turn) it
+#: does so without asking. TheClaudeHub must never cost extra, and the
+#: ``apiKeySource`` check can't catch this (it's still the subscription
+#: login). Add it only once Kelly's plan is known to include it.
 MODELS = [
     ("", "Default (your Claude Code setting)"),
-    ("fable", "Fable"),
     ("opus", "Opus"),
     ("sonnet", "Sonnet"),
     ("haiku", "Haiku"),
 ]
 MODEL_LABELS = dict(MODELS)
 # A full model name ("claude-opus-5-5") may be stored by hand; nothing that
-# could read as another option.
-_SAFE_MODEL = re.compile(r"[A-Za-z0-9][A-Za-z0-9._\[\]-]{0,99}")
+# could read as another option. No brackets: "sonnet[1m]" (1M context) needs
+# usage credits on every subscription plan. No "@" or ":": those are Vertex
+# and Bedrock ids, and their switches are stripped anyway.
+_SAFE_MODEL = re.compile(r"[A-Za-z0-9][A-Za-z0-9._-]{0,99}")
+
+
+def is_safe_model(model: str) -> bool:
+    """Whether ``model`` may be passed as ``--model`` ("" means none)."""
+    return not model or bool(_SAFE_MODEL.fullmatch(model))
 
 
 def model_label(model: str) -> str:
     """How a session's model is named to Kelly."""
-    return MODEL_LABELS.get(model, model) if model else "Default model"
+    return MODEL_LABELS.get(model, model) if model else "the default model"
 
 
 def _common_flags(permission_mode: str, model: str = "") -> List[str]:
@@ -148,12 +160,11 @@ def _common_flags(permission_mode: str, model: str = "") -> List[str]:
     flags = ["-p", "--output-format", "stream-json", "--verbose",
              "--permission-mode", permission_mode, "--permission-prompts", "none"]
     if model:
-        if not _SAFE_MODEL.fullmatch(model):
+        if not is_safe_model(model):
             raise ValueError(f"Not a valid model name: {model!r}")
         # Every turn, not just the first. Checked with Claude Code: a resumed
         # session keeps its model without this, but saying it each time keeps
-        # the session on Kelly's choice whatever the default becomes, and lets
-        # a later change of model take effect on the next turn.
+        # the session on Kelly's choice whatever Claude Code does later.
         flags += ["--model", model]
     return flags
 

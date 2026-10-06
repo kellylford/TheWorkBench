@@ -489,15 +489,18 @@ def test_send_refused_for_a_desktop_id_even_in_own_store(frame, env, fake_runner
 
 def test_first_turn_failure_restores_message_and_starts_again(frame, env, fake_runner):
     frame.store.add(OwnSession("new-1", "Fresh", "C:\\G\\Scratch", started=False,
-                               last_activity_ms=now_ms()))
+                               last_activity_ms=now_ms(), model="sonnet"))
     frame.refresh_sessions(force=True)
     assert pump(lambda: frame.session_list.GetCount() == 4)
     select(frame, "Fresh")
     frame.on_open_session()
+    assert frame.chat_list.GetName() == "Messages in Fresh (idle, on Sonnet)"
     frame.reply_text.SetValue("Build the thing")
     frame.on_send()
     first = fake_runner.instances[0]
     assert "--session-id" in first.command and "--resume" not in first.command
+    # Starting it again keeps the model too.
+    assert first.command[first.command.index("--model") + 1] == "sonnet"
     assert frame.reply_text.GetValue() == ""
     # It fails before Claude ever created the session.
     frame._on_turn_event({"id": "new-1"}, "Fresh", TurnEvent(
@@ -643,7 +646,7 @@ def test_new_session_view_says_claude_is_starting(frame, env, fake_runner, monke
     assert runner.command[runner.command.index("--model") + 1] == "opus"
     session_id = runner.command[runner.command.index("--session-id") + 1]
     assert frame.store.get(session_id).model == "opus"
-    assert frame.session_heading.GetLabel().endswith("TheClaudeHub session, Opus.")
+    assert frame.session_heading.GetLabel().endswith("TheClaudeHub session on Opus.")
     # Read back first, then the new session's view is announced after it.
     assert env["feedback"][-2:] == [
         "Sent to Brand new work: Start the thing.",
@@ -1052,7 +1055,7 @@ def test_a_later_turn_keeps_the_sessions_model(frame, env, fake_runner):
     frame.store.update("own-1", model="sonnet")
     select(frame, "Hub probe")
     frame.on_open_session()
-    assert frame.session_heading.GetLabel().endswith("TheClaudeHub session, Sonnet.")
+    assert frame.session_heading.GetLabel().endswith("TheClaudeHub session on Sonnet.")
     frame.reply_text.SetValue("next")
     frame.on_send()
     command = fake_runner.instances[-1].command
@@ -1063,7 +1066,7 @@ def test_a_later_turn_keeps_the_sessions_model(frame, env, fake_runner):
 def test_an_old_session_without_a_model_uses_the_default(frame, env, fake_runner):
     select(frame, "Hub probe")
     frame.on_open_session()
-    assert frame.session_heading.GetLabel().endswith("TheClaudeHub session, Default model.")
+    assert frame.session_heading.GetLabel().endswith("TheClaudeHub session on the default model.")
     frame.reply_text.SetValue("next")
     frame.on_send()
     assert "--model" not in fake_runner.instances[-1].command
@@ -1074,7 +1077,8 @@ def test_new_session_dialog_offers_the_models(frame):
     dialog = NewSessionDialog(frame, "C:\\G")
     try:
         assert dialog.model.GetStringSelection() == "Default (your Claude Code setting)"
-        assert dialog.model.GetCount() == 5
+        assert dialog.model.GetCount() == 4
+        assert "Fable" not in dialog.model.GetStrings()
         dialog.message.SetValue("hello")
         assert dialog.values()[4] == ""
         dialog.model.SetStringSelection("Opus")
