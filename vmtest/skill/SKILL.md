@@ -28,6 +28,10 @@ hasn't been done. Tell the user rather than testing on their PC.
 
 ## The flow
 
+The VM is disposable. Install, break or reconfigure anything in it: `begin` starts from this task's
+last checkpoint or Clean, and `end` throws it all away. It is on the user's network, though, so that
+freedom stops at the VM itself.
+
 1. `begin` takes the VM.
    - If another task holds it, the command says which one. Wait, or tell the user; don't use `-Force` unless the user says so.
    - It carries on from this task's last state, or starts from Clean.
@@ -38,11 +42,11 @@ hasn't been done. Tell the user rather than testing on their PC.
    - `run "msiexec /i C:\vmtest\files\x.msi /qn" -Timeout 600`
    - `run "winget install --id X -e --silent --accept-source-agreements --accept-package-agreements"`
 4. Look and act. `-Window` is part of a window title, or a process id.
-   - `windows` lists open windows and what has focus.
+   - `windows` lists open windows, with dialogs indented under the window that owns them, any open menu, and what has focus.
    - `tree -Window MyApp -Depth 8` shows names, AutomationIds, values, states and help text.
    - `keys "{TAB}" -Window MyApp` sends SendKeys syntax: `{ENTER} {ESC} ^s %f +{TAB}`. `+` is Shift, so a literal plus is `{+}`.
    - `type "text" -Window MyApp` types plain text.
-   - `invoke <AutomationId or name> -Window MyApp`, `setvalue <control> "<value>"`, `focus <control>`.
+   - `invoke <AutomationId or name> -Window MyApp`, `setvalue <control> "<value>"`, `focus <control>`. Write `id:<id>` to match only an AutomationId, or `name:<name>` to match only a name.
    - `focused` shows the control with keyboard focus. Every action also reports where focus landed.
    - `shot C:\path\shot.png` saves a picture of the VM's screen, which you can Read to look at.
    - `close -Window MyApp` closes a window and says whether it really closed.
@@ -56,7 +60,12 @@ hasn't been done. Tell the user rather than testing on their PC.
   - vmtest refuses, and says so, when you'd need it.
 - **`run` follows batch-file rules.** Write `%` as `%%`. Use `-ScriptFile file.ps1|.cmd` for long commands or tricky quoting.
 - **`run` exit codes.** `run` exits with the command's own exit code. Anything a `run` starts may end along with it, so use `launch` for programs that should stay open.
-- **Text starting with `-`.** Pass it as `-Target "-5"`.
+- **Text or ids starting with `-`.** PowerShell reads them as parameter names. Pass text as `-Target "-5"`, and ids as `id:-31984` (wxPython gives most controls negative ids).
+- **Menus.** Open one with keys (`keys "%f"`), then keep using `keys` to move and choose. `tree`, `windows` and every focus report show its items, with the highlighted one marked.
+- **Dialogs.** `windows` shows a dialog under the window that owns it, and `-Window "<dialog title>"` finds it. `-Window <pid>` means the program's main window, and its tree includes its dialogs. While a modal dialog is up, keys aimed at its owner go to the dialog, as a person's would.
+- **Something else in front.** If `keys` says it couldn't bring the window to the front, the message names what's in front instead (often a Windows notification). Deal with that the way a person would, for example `tree -Window "New notification"` and `invoke "No thanks"`, then try again.
+- **Classic controls.** Win32 controls the .NET UI Automation client sees as blank panes get their role, name and value from MSAA, as in `Pane [MSAA role: editable text] 'Notes' value='...'`.
+- **Windows 11 Notepad isn't a good typing target.** It can mangle fast keyboard input (lost Shift, repeated characters). Test typing in the app under test instead.
 - **Keyboard checks.** To check keyboard access, use `keys "{TAB}"` and read where focus lands. `invoke` and `focus` act through the accessibility API, so they don't prove anything works from the keyboard.
 - **Classic dialog buttons.** Some classic Win32 controls show as plain panes in UI Automation, so vmtest adds their MSAA role, as in `Pane [MSAA role: push button] 'No'`. `invoke` presses them.
 - **What vmtest can't tell you.** It reports roles, names, states and focus, not speech. Tell the user which checks need a person with a screen reader, and what they should hear.
