@@ -1,15 +1,21 @@
-"""TheClaudeHub's window: the session list, and the session view.
+"""TheClaudeHub's window: sessions, messages and reply, all in one view.
 
 Accessibility decisions, and why
 --------------------------------
+* **One window, three parts, in Tab order** (issue #171): the sessions list,
+  the loaded session's messages, then the reply box (or, for a desktop
+  session, a read-only note and Open in Claude in the same place) and Send
+  and Stop. Nothing is hidden behind a tab or a second screen: Shift+Tab
+  from the messages goes back to the sessions list, still on the same
+  session. Enter in the sessions list loads that session and moves to its
+  messages; arrowing doesn't load anything.
 * **Both lists are ``wx.ListBox``.** One tab stop, arrow keys, and every item
   is one string a screen reader reads whole (IDT's chat app made the same
   choice). A session reads "title, repo, state, age"; a message reads
   "You: first line" or "Claude: first line".
-* **The full message is a read-only multiline text box** under the list, so
-  it can be read by line, word and character. Enter on a message moves there.
-* **Two pages in one window** (a ``wx.Simplebook``) rather than a second
-  window: Escape goes back and the list keeps its place.
+* **The full message opens from the list** (Enter, or the context menu) in a
+  read-only multiline text box in a dialog, to read by line, word and
+  character. Escape closes it, back on the same message.
 * **Mnemonics stay off the menu bar's letters.** Menus are Session, View and
   Help, so no control on a page uses Alt+S, Alt+V or Alt+H (a panel mnemonic
   would take the letter away from the menu).
@@ -37,7 +43,7 @@ from ..sessions import IDLE, NEEDS_YOU, WORKING, SessionInfo
 from ..speech import SpeechSettings, default_options, list_speech_options, speaker
 from ..transcript import ASSISTANT, ERROR, PLAN, QUESTION, ChatMessage, TranscriptReader
 from .a11y import set_accessible_name
-from .dialogs import NewSessionDialog, SettingsDialog, ShortcutsDialog
+from .dialogs import MessageDialog, NewSessionDialog, SettingsDialog, ShortcutsDialog
 
 APP_NAME = "TheClaudeHub"
 LIST_REFRESH_MS = 5000
@@ -79,8 +85,7 @@ class MainFrame(wx.Frame):
         self._show_activity = False
         self._drafts: Dict[str, str] = {}  # unsent reply text, per session
         self._chat_keys: List[str] = []
-        self._shown_key: Optional[str] = None   # message in the text box
-        self._shown_text: Optional[str] = None
+        self._announce_load = False  # say "Loaded X" once its chat arrives
 
         self._build_menu()
         self._build_ui()
@@ -108,7 +113,7 @@ class MainFrame(wx.Frame):
         session = wx.Menu()
         # Enter is handled on the list itself (a menu accelerator for Enter
         # would steal it from every button and text box in the window).
-        self._item(session, "&Open Session", self.on_open_session)
+        self._item(session, "&Load Session", self.on_open_session)
         self._item(session, "Open in &Claude\tCtrl+O", self.on_open_in_claude)
         self._item(session, "&New Session...\tCtrl+N", self.on_new_session)
         self._item(session, "&Refresh\tF5",
@@ -121,9 +126,10 @@ class MainFrame(wx.Frame):
         bar.Append(session, "&Session")
 
         view = wx.Menu()
-        self._item(view, "&Back to Session List", lambda e: self.show_list())
-        self._item(view, "C&hat Tab\tCtrl+1", lambda e: self._select_tab(0))
-        self._item(view, "&Reply Tab\tCtrl+2", lambda e: self._select_tab(1))
+        self._item(view, "Go to &Sessions\tCtrl+1", lambda e: self.focus_sessions())
+        self._item(view, "Go to &Messages\tCtrl+2", lambda e: self.focus_messages())
+        self._item(view, "Go to &Reply\tCtrl+3", lambda e: self.focus_reply())
+        self._item(view, "Read &Full Message", lambda e: self.on_read_message())
         self.activity_item = view.AppendCheckItem(wx.ID_ANY, "Show &Tool Activity\tCtrl+T")
         self.Bind(wx.EVT_MENU, self.on_toggle_activity_menu, self.activity_item)
         self._item(view, "Sto&p Running Turn\tCtrl+.", self.on_stop)
@@ -147,84 +153,45 @@ class MainFrame(wx.Frame):
     # --------------------------------------------------------------------- UI
 
     def _build_ui(self):
-        self.book = wx.Simplebook(self)
+        """Sessions on the left, the loaded session on the right. Tab order is
+        creation order: sessions list, messages, reply (or the desktop note),
+        Send and Stop, then the rest."""
+        root = wx.Panel(self)
+        outer = wx.BoxSizer(wx.HORIZONTAL)
 
-        # Page 0: session list.
-        page = wx.Panel(self.book)
-        sizer = wx.BoxSizer(wx.VERTICAL)
-        sizer.Add(wx.StaticText(page, label="Session &list:"), 0, wx.LEFT | wx.TOP, 8)
-        self.session_list = wx.ListBox(page, style=wx.LB_SINGLE, name="Session list")
+        left = wx.BoxSizer(wx.VERTICAL)
+        left.Add(wx.StaticText(root, label="Session &list:"), 0, wx.LEFT | wx.TOP, 8)
+        self.session_list = wx.ListBox(root, style=wx.LB_SINGLE, name="Session list")
         set_accessible_name(self.session_list, "Session list")
-        sizer.Add(self.session_list, 1, wx.EXPAND | wx.ALL, 8)
-        row = wx.BoxSizer(wx.HORIZONTAL)
-        open_btn = wx.Button(page, label="&Open")
-        claude_btn = wx.Button(page, label="Open in &Claude")
-        new_btn = wx.Button(page, label="&New Session...")
-        refresh_btn = wx.Button(page, label="&Refresh")
-        for button in (open_btn, claude_btn, new_btn, refresh_btn):
-            row.Add(button, 0, wx.RIGHT, 6)
-        sizer.Add(row, 0, wx.ALL, 8)
-        page.SetSizer(sizer)
-        open_btn.Bind(wx.EVT_BUTTON, self.on_open_session)
-        claude_btn.Bind(wx.EVT_BUTTON, self.on_open_in_claude)
-        new_btn.Bind(wx.EVT_BUTTON, self.on_new_session)
-        refresh_btn.Bind(wx.EVT_BUTTON,
-                         lambda e: self.refresh_sessions(force=True, resort=True))
+        left.Add(self.session_list, 1, wx.EXPAND | wx.ALL, 8)
         self.session_list.Bind(wx.EVT_LISTBOX_DCLICK, self.on_open_session)
-        self.book.AddPage(page, "Sessions")
+        outer.Add(left, 2, wx.EXPAND)
 
-        # Page 1: session view.
-        view = wx.Panel(self.book)
         vsizer = wx.BoxSizer(wx.VERTICAL)
-        self.session_heading = wx.StaticText(view, label="")
+        self.session_heading = wx.StaticText(root, label="")
         vsizer.Add(self.session_heading, 0, wx.LEFT | wx.TOP | wx.RIGHT, 8)
-        self.notebook = wx.Notebook(view, name="Session tabs")
-        set_accessible_name(self.notebook, "Session tabs")
-        vsizer.Add(self.notebook, 1, wx.EXPAND | wx.ALL, 8)
 
-        # Chat tab.
-        chat = wx.Panel(self.notebook)
-        csizer = wx.BoxSizer(wx.VERTICAL)
-        self.messages_label = wx.StaticText(chat, label="&Messages:")
-        csizer.Add(self.messages_label, 0, wx.LEFT | wx.TOP, 6)
-        self.chat_list = wx.ListBox(chat, style=wx.LB_SINGLE, name="Messages")
+        self.messages_label = wx.StaticText(root, label="&Messages:")
+        vsizer.Add(self.messages_label, 0, wx.LEFT | wx.TOP, 8)
+        self.chat_list = wx.ListBox(root, style=wx.LB_SINGLE, name="Messages")
         set_accessible_name(self.chat_list, "Messages")
-        csizer.Add(self.chat_list, 2, wx.EXPAND | wx.ALL, 6)
-        csizer.Add(wx.StaticText(chat, label="Message &text:"), 0, wx.LEFT, 6)
-        self.message_text = wx.TextCtrl(
-            chat, style=wx.TE_MULTILINE | wx.TE_READONLY | wx.TE_RICH2 | wx.TE_NOHIDESEL)
-        # TE_RICH2 on purpose. Checked in the vmtest VM (wxPython 4.3.1): a
-        # plain multiline EDIT reports its contents as its accessible name,
-        # with or without a wx.Accessible, while a RichEdit takes its name from
-        # the "Message text:" label before it.
-        set_accessible_name(self.message_text, "Message text")
-        csizer.Add(self.message_text, 1, wx.EXPAND | wx.ALL, 6)
-        crow = wx.BoxSizer(wx.HORIZONTAL)
-        self.activity_check = wx.CheckBox(chat, label="Show tool &activity")
-        crow.Add(self.activity_check, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 12)
-        self.chat_claude_btn = wx.Button(chat, label="Open in &Claude")
-        crow.Add(self.chat_claude_btn, 0, wx.RIGHT, 6)
-        back_btn = wx.Button(chat, label="&Back to Sessions")
-        crow.Add(back_btn, 0)
-        csizer.Add(crow, 0, wx.ALL, 6)
-        chat.SetSizer(csizer)
-        self.notebook.AddPage(chat, "Chat")
-        self.chat_list.Bind(wx.EVT_LISTBOX, self._on_message_selected)
-        self.activity_check.Bind(wx.EVT_CHECKBOX, self.on_toggle_activity_check)
-        self.chat_claude_btn.Bind(wx.EVT_BUTTON, self.on_open_in_claude)
-        back_btn.Bind(wx.EVT_BUTTON, lambda e: self.show_list())
+        vsizer.Add(self.chat_list, 1, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.BOTTOM, 8)
+        self.chat_list.Bind(wx.EVT_CONTEXT_MENU, self._on_message_menu)
+        self.chat_list.Bind(wx.EVT_LISTBOX_DCLICK, lambda e: self.on_read_message())
 
-        # Reply tab: one panel for TheClaudeHub's sessions, one for desktop ones.
-        reply = wx.Panel(self.notebook)
-        rsizer = wx.BoxSizer(wx.VERTICAL)
-
-        self.own_reply = wx.Panel(reply)
+        # Where the reply goes: one panel for TheClaudeHub's sessions, one for
+        # desktop ones, in the same place so the layout is the same.
+        self.own_reply = wx.Panel(root)
         osizer = wx.BoxSizer(wx.VERTICAL)
         osizer.Add(wx.StaticText(self.own_reply,
-                                 label="&Your message (Ctrl+Enter sends):"), 0, wx.ALL, 6)
+                                 label="&Your message (Ctrl+Enter sends):"), 0, wx.BOTTOM, 4)
+        # TE_RICH2 on purpose: checked in the vmtest VM (wxPython 4.3.1), a
+        # plain multiline EDIT reports its contents as its accessible name,
+        # while a RichEdit takes its name from the label before it.
         self.reply_text = wx.TextCtrl(self.own_reply, style=wx.TE_MULTILINE | wx.TE_RICH2)
         set_accessible_name(self.reply_text, "Your message")
-        osizer.Add(self.reply_text, 1, wx.EXPAND | wx.LEFT | wx.RIGHT, 6)
+        self.reply_text.SetMinSize((-1, 90))
+        osizer.Add(self.reply_text, 1, wx.EXPAND)
         orow = wx.BoxSizer(wx.HORIZONTAL)
         self.send_btn = wx.Button(self.own_reply, label="Sen&d")
         self.stop_btn = wx.Button(self.own_reply, label="Sto&p")
@@ -232,43 +199,58 @@ class MainFrame(wx.Frame):
         orow.Add(self.stop_btn, 0, wx.RIGHT, 12)
         self.turn_status = wx.StaticText(self.own_reply, label="")
         orow.Add(self.turn_status, 1, wx.ALIGN_CENTER_VERTICAL)
-        osizer.Add(orow, 0, wx.EXPAND | wx.ALL, 6)
+        osizer.Add(orow, 0, wx.EXPAND | wx.TOP, 6)
         self.own_reply.SetSizer(osizer)
         self.send_btn.Bind(wx.EVT_BUTTON, self.on_send)
         self.stop_btn.Bind(wx.EVT_BUTTON, self.on_stop)
 
-        self.desktop_reply = wx.Panel(reply)
+        self.desktop_reply = wx.Panel(root)
         dsizer = wx.BoxSizer(wx.VERTICAL)
         # A read-only text box, not a static label: it is focusable, so the
-        # explanation is the first thing heard on Ctrl+Tab into this tab.
-        dsizer.Add(wx.StaticText(self.desktop_reply, label="About replying:"), 0,
-                   wx.LEFT | wx.TOP, 6)
+        # explanation is what's heard on tabbing to where the reply box would be.
+        dsizer.Add(wx.StaticText(self.desktop_reply, label="About replying:"), 0, wx.BOTTOM, 4)
         self.desktop_note = wx.TextCtrl(
             self.desktop_reply, style=wx.TE_MULTILINE | wx.TE_READONLY | wx.TE_RICH2,
             value=("This session belongs to the Claude desktop app, so you reply to it "
                    "in Claude. TheClaudeHub only reads it: sending from here while the "
                    "desktop app has it open could run two turns at once and tangle "
                    "the conversation. Open in Claude switches the desktop app to it."))
-        set_accessible_name(self.desktop_note, "Replying to this session")
-        dsizer.Add(self.desktop_note, 0, wx.EXPAND | wx.ALL, 6)
+        set_accessible_name(self.desktop_note, "About replying")
         self.desktop_note.SetMinSize((-1, 90))
+        dsizer.Add(self.desktop_note, 1, wx.EXPAND)
         self.reply_claude_btn = wx.Button(self.desktop_reply, label="Open in &Claude")
-        dsizer.Add(self.reply_claude_btn, 0, wx.ALL, 6)
+        dsizer.Add(self.reply_claude_btn, 0, wx.TOP, 6)
         self.desktop_reply.SetSizer(dsizer)
         self.reply_claude_btn.Bind(wx.EVT_BUTTON, self.on_open_in_claude)
 
-        rsizer.Add(self.own_reply, 1, wx.EXPAND)
-        rsizer.Add(self.desktop_reply, 1, wx.EXPAND)
-        reply.SetSizer(rsizer)
-        self.reply_page = reply
-        self.notebook.AddPage(reply, "Reply")
+        vsizer.Add(self.own_reply, 0, wx.EXPAND | wx.LEFT | wx.RIGHT, 8)
+        vsizer.Add(self.desktop_reply, 0, wx.EXPAND | wx.LEFT | wx.RIGHT, 8)
 
-        view.SetSizer(vsizer)
-        self.book.AddPage(view, "Session")
+        crow = wx.BoxSizer(wx.HORIZONTAL)
+        self.activity_check = wx.CheckBox(root, label="Show tool &activity")
+        crow.Add(self.activity_check, 0, wx.ALIGN_CENTER_VERTICAL)
+        vsizer.Add(crow, 0, wx.ALL, 8)
+        self.activity_check.Bind(wx.EVT_CHECKBOX, self.on_toggle_activity_check)
+        self.session_view = root
 
+        # Session-list commands come last in the Tab order; all of them are
+        # also on the Session menu with shortcuts.
+        row = wx.BoxSizer(wx.HORIZONTAL)
+        self.new_btn = new_btn = wx.Button(root, label="&New Session...")
+        self.refresh_btn = refresh_btn = wx.Button(root, label="&Refresh")
+        row.Add(new_btn, 0, wx.RIGHT, 6)
+        row.Add(refresh_btn, 0)
+        vsizer.Add(row, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 8)
+        new_btn.Bind(wx.EVT_BUTTON, self.on_new_session)
+        refresh_btn.Bind(wx.EVT_BUTTON,
+                         lambda e: self.refresh_sessions(force=True, resort=True))
+
+        outer.Add(vsizer, 3, wx.EXPAND)
+        root.SetSizer(outer)
         frame_sizer = wx.BoxSizer(wx.VERTICAL)
-        frame_sizer.Add(self.book, 1, wx.EXPAND)
+        frame_sizer.Add(root, 1, wx.EXPAND)
         self.SetSizer(frame_sizer)
+        self._show_no_session()
 
     # ------------------------------------------------------------ helpers
 
@@ -318,7 +300,10 @@ class MainFrame(wx.Frame):
             self._speech_options = None
 
     def _selected_session(self) -> Optional[SessionInfo]:
-        if self.book.GetSelection() == 1 and self._open is not None:
+        """The session a command means: the highlighted one in the sessions
+        list while that has focus (or nothing is loaded), otherwise the
+        loaded one."""
+        if self._open is not None and wx.Window.FindFocus() is not self.session_list:
             return self._current_info(self._open.key) or self._open
         index = self.session_list.GetSelection()
         if index == wx.NOT_FOUND or index >= len(self._list_keys):
@@ -509,7 +494,9 @@ class MainFrame(wx.Frame):
         if not self._store_write(self.store.remove, info.cli_session_id):
             return
         if self._open is not None and self._open.key == info.key:
-            self.show_list()
+            self.unload_session()
+            # Its messages and reply box are gone: don't leave focus on them.
+            self.session_list.SetFocus()
         # Keep the place: the neighbour moves into the forgotten row.
         index = self._list_keys.index(info.key) if info.key in self._list_keys else -1
         if index >= 0:
@@ -523,11 +510,16 @@ class MainFrame(wx.Frame):
     # ----------------------------------------------------------- session view
 
     def on_open_session(self, _event=None):
-        if self.book.GetSelection() == 1:
-            return
-        info = self._selected_session()
+        index = self.session_list.GetSelection()
+        info = (self._current_info(self._list_keys[index])
+                if index != wx.NOT_FOUND and index < len(self._list_keys) else None)
         if info is None:
             self._feedback("No session selected.")
+            return
+        if self._open is not None and info.key == self._open.key:
+            # Already loaded: go back to it as it was, without reloading.
+            self.chat_list.SetFocus()
+            self._feedback(f"Back in {info.title}.")
             return
         self.open_session(info)
 
@@ -543,39 +535,66 @@ class MainFrame(wx.Frame):
         self._reader = None
         self._chat_messages = []
         self._chat_keys = []
-        self._shown_key = self._shown_text = None
         self._chat_loaded = False
+        self._announce_load = True
         if info.is_own and info.unread:
             self._store_write(self.store.update, info.cli_session_id, unread=False)
             info.unread = False
         self.chat_list.Set(["Loading messages\u2026"])
         self.chat_list.SetSelection(0)
-        self.message_text.SetValue("")
         self._update_messages_label()
         self.own_reply.Show(info.is_own)
         self.desktop_reply.Show(not info.is_own)
-        self.reply_page.Layout()
+        self.session_view.Layout()
         self._update_heading()
         self._update_send_state()
-        self.notebook.SetSelection(0)
-        self.book.SetSelection(1)
-        self.SetTitle(f"{info.title} — {APP_NAME}")
+        if info.key in self._list_keys:
+            row = self._list_keys.index(info.key)
+            if self.session_list.GetSelection() != row:
+                self.session_list.SetSelection(row)
+        self.SetTitle(f"{info.title} \u2014 {APP_NAME}")
         self.chat_list.SetFocus()
         self._refresh_chat()
         self._chat_timer.Start(CHAT_REFRESH_MS)
 
-    def show_list(self):
-        if self.book.GetSelection() == 0:
-            return
+    def unload_session(self):
+        """Nothing loaded (the loaded session was forgotten)."""
         self._chat_timer.Stop()
-        self._save_draft()
         self._open = None
         self._open_generation += 1
         self._reader = None
-        self.book.SetSelection(0)
+        self._chat_messages = []
+        self._chat_keys = []
         self.SetTitle(APP_NAME)
-        self.refresh_sessions(resort=True)
+        self._show_no_session()
+
+    def _show_no_session(self):
+        self.messages_label.SetLabel("&Messages:")
+        set_accessible_name(self.chat_list, "Messages")
+        self.chat_list.Set(["No session loaded. Choose one in the session list and "
+                            "press Enter."])
+        self.chat_list.SetSelection(0)
+        self.session_heading.SetLabel("")
+        self.own_reply.Hide()
+        self.desktop_reply.Hide()
+        self.session_view.Layout()
+
+    def focus_sessions(self):
+        """Back to the sessions list, still on the same session."""
+        self._save_draft()
         self.session_list.SetFocus()
+
+    def focus_messages(self):
+        self.chat_list.SetFocus()
+
+    def focus_reply(self):
+        if self._open is None:
+            self._feedback("No session loaded.")
+            self.session_list.SetFocus()
+        elif self._open.is_own:
+            self.reply_text.SetFocus()
+        else:
+            self.desktop_note.SetFocus()
 
     def _update_heading(self):
         info = self._open
@@ -598,17 +617,6 @@ class MainFrame(wx.Frame):
         if self.messages_label.GetLabel() != f"&{label}:":
             self.messages_label.SetLabel(f"&{label}:")
             set_accessible_name(self.chat_list, label)
-
-    def _select_tab(self, index: int):
-        if self.book.GetSelection() != 1:
-            return
-        self.notebook.SetSelection(index)
-        if index == 0:
-            self.chat_list.SetFocus()
-        elif self._open is not None and self._open.is_own:
-            self.reply_text.SetFocus()
-        else:
-            self.desktop_note.SetFocus()
 
     def _on_chat_timer(self, _event=None):
         self._update_send_state()
@@ -651,7 +659,7 @@ class MainFrame(wx.Frame):
             line = ("No messages yet. Claude is starting this session."
                     if info.cli_session_id in self._runners else
                     "No messages yet. The first message didn't reach Claude; send it again "
-                    "from the Reply tab.")
+                    "from the reply box.")
             self._chat_loaded = False  # keep looking until it appears
         elif info.is_own:
             line = ("No transcript found for this session. Claude Code may not have "
@@ -660,15 +668,22 @@ class MainFrame(wx.Frame):
             line = ("No transcript: this session's history is no longer on disk. Claude "
                     "Code deletes transcripts after its retention period (cleanupPeriodDays "
                     "in Claude's settings).")
+        if self._announce_load:
+            self._announce_load = False
+            self._feedback(f"Loaded {info.title}. {line}")
         if list(self.chat_list.GetStrings()) == [line]:
             return  # already showing it: don't make the reader re-read every tick
         self.chat_list.Set([line])
         self.chat_list.SetSelection(0)
-        self.message_text.SetValue(line)
 
     def _apply_chat(self, generation, changed, messages, unreadable, error):
         self._reader_busy = False
-        if not self or generation != self._open_generation or self._open is None:
+        if not self or self._open is None:
+            return
+        if generation != self._open_generation:
+            # A load for a session that is no longer loaded: start the
+            # current one's now rather than waiting for the next tick.
+            self._refresh_chat()
             return
         if error is not None:
             if not self._chat_loaded:
@@ -685,7 +700,11 @@ class MainFrame(wx.Frame):
         self._chat_loaded = True
         if first_load:
             note = f" Couldn't read {unreadable} lines." if unreadable else ""
-            self._feedback(f"{len(self._visible_messages())} messages.{note}")
+            count = len(self._visible_messages())
+            if self._announce_load:
+                self._announce_load = False
+                self._feedback(f"Loaded {self._open.title}, {count} "
+                               f"message{'s' if count != 1 else ''}.{note}")
             return
         if self._open.is_own:
             return  # its turn announces the reply when it finishes
@@ -734,7 +753,6 @@ class MainFrame(wx.Frame):
             else:
                 self.chat_list.SetSelection(self._nearest_visible(selected_key, keys))
         self._chat_keys = keys
-        self._show_message(self.chat_list.GetSelection())
 
     def _nearest_visible(self, key: Optional[str], visible_keys: List[str]) -> int:
         """Row of the last visible message at or before ``key`` in the full
@@ -751,26 +769,59 @@ class MainFrame(wx.Frame):
                 best = row
         return best
 
-    def _on_message_selected(self, _event):
-        self._show_message(self.chat_list.GetSelection(), user=True)
-
-    def _show_message(self, index: int, user: bool = False):
-        """Put a message in the text box, only when it is a different message
-        or its text grew. A live refresh must not reset the caret while Kelly
-        is reading the text box."""
+    def _selected_message(self) -> Optional[ChatMessage]:
         visible = self._visible_messages()
-        if 0 <= index < len(visible):
-            key, text = visible[index].key, visible[index].full_text()
-        else:
-            key, text = None, self.chat_list.GetStringSelection() or ""
-        if not user and key == self._shown_key and text == self._shown_text:
+        index = self.chat_list.GetSelection()
+        return visible[index] if 0 <= index < len(visible) else None
+
+    def on_read_message(self):
+        """The selected message's full text, in a read-only box to read by
+        line, word and character. Closing it returns to the same message."""
+        message = self._selected_message()
+        if message is None:
+            self._feedback("No message selected.")
             return
-        if (not user and key == self._shown_key
-                and wx.Window.FindFocus() is self.message_text):
-            return  # same message, text grew: leave the reader's caret alone
-        self._shown_key, self._shown_text = key, text
-        self.message_text.SetValue(text)
-        self.message_text.SetInsertionPoint(0)
+        dialog = MessageDialog(self, message.label, message.text)
+        try:
+            dialog.ShowModal()
+        finally:
+            dialog.Destroy()
+        self.chat_list.SetFocus()
+
+    def _message_menu(self) -> wx.Menu:
+        """The messages list's context menu. Its handlers are bound on the
+        menu itself, so nothing accumulates on the frame."""
+        menu = wx.Menu()
+        read = menu.Append(wx.ID_ANY, "Read &Full Message\tEnter")
+        copy = menu.Append(wx.ID_ANY, "&Copy Message\tCtrl+C")
+        enabled = self._selected_message() is not None
+        read.Enable(enabled)
+        copy.Enable(enabled)
+        menu.Bind(wx.EVT_MENU, lambda e: self.on_read_message(), read)
+        menu.Bind(wx.EVT_MENU, lambda e: self._copy_message(), copy)
+        return menu
+
+    def _message_menu_position(self, event=None) -> wx.Point:
+        """Where the menu opens: at the mouse for a right-click, at the
+        selected message for the Applications key or Shift+F10."""
+        position = event.GetPosition() if event is not None else wx.DefaultPosition
+        if position != wx.DefaultPosition:
+            return self.chat_list.ScreenToClient(position)
+        index = self.chat_list.GetSelection()
+        try:
+            rect = self.chat_list.GetItemRect(max(index, 0))
+            if rect.height > 0:
+                return wx.Point(rect.x + 8, rect.y + rect.height)
+        except (AttributeError, NotImplementedError):
+            pass
+        return wx.Point(8, 8)
+
+    def _on_message_menu(self, event=None):
+        menu = self._message_menu()
+        try:
+            self.chat_list.PopupMenu(menu, self._message_menu_position(event))
+        finally:
+            menu.Destroy()
 
     def on_toggle_activity_menu(self, _event):
         self._set_activity(self.activity_item.IsChecked())
@@ -911,6 +962,9 @@ class MainFrame(wx.Frame):
         self.reply_text.SetValue("")
         self._drafts.pop(own.cli_session_id, None)
         self._start_turn(own.cli_session_id, command, own.cwd, message, own.title)
+        # Stay in the reply box (Send is disabled now, and focus on a disabled
+        # button would be lost); new messages arrive at the end of the list.
+        self.reply_text.SetFocus()
 
     def _session_exists(self, own: OwnSession) -> bool:
         if own.started:
@@ -1053,7 +1107,8 @@ class MainFrame(wx.Frame):
         key = event.GetKeyCode()
         focus = wx.Window.FindFocus()
         ctrl = event.ControlDown()
-        on_view = self.book.GetSelection() == 1
+        in_session = focus is not None and focus is not self.session_list and \
+            self._is_in_session_view(focus)
 
         if key in (wx.WXK_RETURN, wx.WXK_NUMPAD_ENTER):
             if ctrl and focus is self.reply_text:
@@ -1063,14 +1118,13 @@ class MainFrame(wx.Frame):
                 self.on_open_session()
                 return
             if not ctrl and focus is self.chat_list:
-                self.message_text.SetFocus()
-                self.message_text.SetInsertionPoint(0)
+                self.on_read_message()
                 return
-        if key == wx.WXK_ESCAPE and on_view:
-            self.show_list()
+        if key == wx.WXK_ESCAPE and in_session:
+            self.focus_sessions()
             return
-        if key == wx.WXK_BACK and on_view and not ctrl and focus is not self.reply_text:
-            self.show_list()
+        if key == wx.WXK_BACK and not ctrl and focus is self.chat_list:
+            self.focus_sessions()
             return
         if key == wx.WXK_DELETE and focus is self.session_list:
             self.on_forget(None)
@@ -1079,6 +1133,11 @@ class MainFrame(wx.Frame):
             self._copy_message()
             return
         event.Skip()
+
+    def _is_in_session_view(self, window) -> bool:
+        """True for the messages list, the reply area and the controls after
+        them (everything but the sessions list)."""
+        return window is not None and window.GetTopLevelParent() is self
 
     def _copy_message(self):
         visible = self._visible_messages()

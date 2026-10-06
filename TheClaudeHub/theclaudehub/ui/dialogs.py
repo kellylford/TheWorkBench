@@ -228,3 +228,32 @@ class SettingsDialog(wx.Dialog):
                               announce_all_sessions=self.all_sessions.GetValue(),
                               engine=option.engine, voice=option.voice,
                               rate_preset=preset)
+
+
+class MessageDialog(wx.Dialog):
+    """One message's full text, read-only, to read by line, word and character.
+
+    A RichEdit, like the reply box: checked in the vmtest VM, a RichEdit takes
+    its accessible name from the label before it, where a plain multiline
+    EDIT reports its contents instead. Escape (or Close) returns to the list,
+    on the same message.
+    """
+
+    def __init__(self, parent, speaker_label: str, text: str):
+        super().__init__(parent, title=f"Message from {speaker_label}"
+                         if speaker_label in ("Claude", "You") else speaker_label,
+                         size=(720, 520), style=wx.DEFAULT_DIALOG_STYLE | wx.RESIZE_BORDER)
+        sizer = wx.BoxSizer(wx.VERTICAL)
+        label = f"{speaker_label} said:" if speaker_label in ("Claude", "You") \
+            else f"{speaker_label}:"
+        sizer.Add(wx.StaticText(self, label="&" + label), 0, wx.LEFT | wx.TOP, 8)
+        self.text = wx.TextCtrl(self, value=text,
+                                style=wx.TE_MULTILINE | wx.TE_READONLY | wx.TE_RICH2)
+        set_accessible_name(self.text, label.rstrip(":"))
+        sizer.Add(self.text, 1, wx.EXPAND | wx.ALL, 8)
+        close = wx.Button(self, wx.ID_CANCEL, "&Close")
+        sizer.Add(close, 0, wx.ALIGN_RIGHT | wx.ALL, 8)
+        self.SetSizer(sizer)
+        self.SetEscapeId(wx.ID_CANCEL)
+        self.text.SetInsertionPoint(0)
+        wx.CallAfter(self.text.SetFocus)

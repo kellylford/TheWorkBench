@@ -3,27 +3,43 @@ from __future__ import annotations
 
 from typing import List
 
+#: The window, in Tab order. The Help dialog and the README both describe it.
+LAYOUT = (
+    "One window, three parts, in Tab order: the session list; the messages of the "
+    "loaded session; and the reply box with Send and Stop (for a Claude desktop app "
+    "session, a read-only note and Open in Claude in the same place). Shift+Tab goes "
+    "back the same way."
+)
+
 #: Every shortcut, grouped. The Help dialog and the README both list these.
 SHORTCUTS = [
+    ("Moving around", [
+        ("Tab, Shift+Tab", "Session list, messages, reply box, and back"),
+        ("Ctrl+1", "Go to the session list"),
+        ("Ctrl+2", "Go to the messages"),
+        ("Ctrl+3", "Go to the reply box (or the note, for a desktop session)"),
+        ("Escape in the messages or the reply box",
+         "Back to the session list, on the same session"),
+        ("Backspace in the messages", "Also back to the session list"),
+    ]),
     ("Session list", [
-        ("Enter", "Open the selected session"),
+        ("Enter", "Load that session and move to its messages"),
         ("Ctrl+O", "Open the selected session in the Claude desktop app"),
         ("Ctrl+N", "New TheClaudeHub session"),
         ("F5", "Refresh the list now and put it back in order (it also refreshes itself "
                "every few seconds, without moving rows while you're in it)"),
         ("Delete", "Forget the selected TheClaudeHub session (asks first)"),
     ]),
-    ("Session view", [
-        ("Escape, or Backspace outside the reply box", "Back to the session list"),
-        ("Ctrl+1", "Chat tab"),
-        ("Ctrl+2", "Reply tab"),
-        ("Ctrl+Tab, Ctrl+Shift+Tab", "Next or previous tab"),
-        ("Enter on a message", "Move to the full text of that message"),
-        ("Ctrl+C on a message", "Copy the whole message"),
+    ("Messages", [
+        ("Enter, or Applications key / Shift+F10 then Read Full Message",
+         "Read the whole message in a text box; Escape comes back to it"),
+        ("Ctrl+C", "Copy the whole message"),
         ("End", "Newest message"),
         ("Ctrl+T", "Show or hide tool activity"),
         ("Ctrl+O", "Open this session in the Claude desktop app"),
-        ("Ctrl+Enter in the reply box", "Send (TheClaudeHub sessions only)"),
+    ]),
+    ("Reply box", [
+        ("Ctrl+Enter", "Send (TheClaudeHub sessions only); you stay in the reply box"),
         ("Ctrl+Period", "Stop the running turn"),
         ("Ctrl+Shift+T", "Turn status: how long Claude has been working, and on what"),
     ]),
@@ -37,7 +53,7 @@ SHORTCUTS = [
 
 
 def shortcuts_text() -> str:
-    lines: List[str] = []
+    lines: List[str] = [LAYOUT, ""]
     for group, items in SHORTCUTS:
         lines.append(f"{group}:")
         for key, action in items:
