@@ -956,11 +956,10 @@ class MainFrame(wx.Frame):
             self.reply_text.SetValue("")
             self._drafts.pop(session_id, None)
             self._update_send_state()
-            if waiting:
-                self._feedback(f"Added to the queued message. It will be sent when "
-                               f"{info.title} finishes.")
-            else:
-                self._feedback(f"Queued. It will be sent when {info.title} finishes.")
+            # Only the newly added words are read back, not the whole queue.
+            self._feedback(announce.queued_text(info.title, message, self.speech.announce,
+                                                self.speech.announce_own,
+                                                added=bool(waiting)))
             self.reply_text.SetFocus()
             return
         problem = self._send_now(session_id, message)
@@ -1025,8 +1024,8 @@ class MainFrame(wx.Frame):
         self._denials[session_id] = []
         runner.start()
         self._update_send_state()
-        self._feedback(f"Sent your queued message. {title} is working." if queued
-                       else f"Sent. {title} is working.")
+        self._feedback(announce.sent_text(title, prompt, self.speech.announce,
+                                          self.speech.announce_own, queued=queued))
         self._store_write(self.store.update, session_id, state=IDLE, detail="",
                           last_activity_ms=int(time.time() * 1000))
 

@@ -53,8 +53,15 @@ session list is always there.
   every listed session is announced or just the open one, and the speech route. Ctrl+Shift+R
   repeats the last announcement.
 - **Answers to what you do are spoken too**, briefly and without cutting off your screen reader:
-  "Sent. Hub probe is working.", "Tool activity shown.", "Message copied.", and so on (unless
-  announcements are set to silent).
+  "Tool activity shown.", "Message copied.", and so on (unless announcements are set to silent).
+- **Your own message is read back when it's sent**, so you hear what actually went to Claude,
+  and where: "Sent to Hub probe: Fix the build." During a turn it's "Queued for Hub probe: …",
+  and when the queued message goes out you hear only "Sent your queued message", not the
+  message again. It follows the announcement level: at full, the message up to about 300
+  characters, then "… and 412 more words"; at summary, its first sentence; at silent, nothing.
+  Markdown is read as words: a code block is "Code block omitted", and headings and list items
+  are read as separate sentences. Turn it off in Settings with "Read your own messages back when
+  they're sent" (Alt+M), and you hear just "Sent. Hub probe is working."
 - **Turn Status** (Ctrl+Shift+T) says how long Claude has been working on the current turn and what
   it last did. There's no time limit on a turn; Stop (Ctrl+Period) ends it, along with anything it
   started, such as a build.

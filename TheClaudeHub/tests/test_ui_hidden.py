@@ -444,13 +444,13 @@ def test_send_speaks_confirmation_and_one_turn_at_a_time(frame, env, fake_runner
     runner = fake_runner.instances[0]
     assert runner.command[-2:] == ["--resume", "own-1"]
     assert (runner.cwd, runner.prompt) == ("C:\\G\\Scratch", "Next step please")
-    assert env["feedback"][-1] == "Sent. Hub probe is working."
+    assert env["feedback"][-1] == "Sent to Hub probe: Next step please."
     assert frame.send_btn.IsEnabled() and frame.stop_btn.IsEnabled()
     assert frame.turn_status.GetLabel() == "Claude is working (1 minute 15 seconds)."
     frame.reply_text.SetValue("again")
     frame.on_send()
     assert len(fake_runner.instances) == 1  # queued, not a second turn
-    assert env["feedback"][-1] == "Queued. It will be sent when Hub probe finishes."
+    assert env["feedback"][-1] == "Queued for Hub probe: again."
     frame.on_turn_status()
     assert env["feedback"][-1] == ("Hub probe: Claude has been working for 1 minute "
                                    "15 seconds, last starting. A message is queued.")
@@ -640,6 +640,10 @@ def test_new_session_view_says_claude_is_starting(frame, env, fake_runner, monke
     frame.on_new_session()
     runner = fake_runner.instances[0]
     assert "--session-id" in runner.command and runner.prompt == "Start the thing"
+    # Read back first, then the new session's view is announced after it.
+    assert env["feedback"][-2:] == [
+        "Sent to Brand new work: Start the thing.",
+        "Loaded Brand new work. No messages yet. Claude is starting this session."]
     assert frame._open is not None
     assert frame._open.title == "Brand new work"
     frame._refresh_chat()
@@ -799,8 +803,7 @@ def test_send_during_a_turn_queues_and_goes_when_it_ends(frame, env, fake_runner
     assert frame.turn_status.GetLabel().endswith("A message is queued.")
     frame.reply_text.SetValue("third")
     frame.on_send()
-    assert env["feedback"][-1] == ("Added to the queued message. It will be sent when "
-                                   "Hub probe finishes.")
+    assert env["feedback"][-1] == "Added to the queued message for Hub probe: third."
     assert len(fake_runner.instances) == 1
     frame._on_turn_event({"id": "own-1"}, "Hub probe", TurnEvent("finished", text="Done."))
     # The reply is announced first, then the queued message goes as one turn.
@@ -987,3 +990,52 @@ def test_quit_prompt_mentions_queued_messages(frame, env, fake_runner):
     event.SetCanVeto(True)
     frame._on_close(event)
     assert "queued messages will not be sent" in env["boxes"][-1]
+
+
+# -- reading your own messages back (issue #178) ------------------------------------------
+
+
+def test_own_messages_not_read_back_when_turned_off(frame, env, fake_runner):
+    frame.speech.announce_own = False
+    _start(frame, fake_runner, "private words")
+    assert env["feedback"][-1] == "Sent. Hub probe is working."
+    frame.reply_text.SetValue("more private words")
+    frame.on_send()
+    assert env["feedback"][-1] == "Queued. It will be sent when Hub probe finishes."
+
+
+def test_summary_level_reads_back_the_first_sentence(frame, env, fake_runner):
+    frame.speech.announce = speech.ANNOUNCE_SUMMARY
+    _start(frame, fake_runner, "Fix the build. Then run every test and report back.")
+    assert env["feedback"][-1] == "Sent to Hub probe: Fix the build."
+
+
+def test_silent_level_reads_nothing_back(frame, env, fake_runner):
+    frame.speech.announce = speech.ANNOUNCE_SILENT
+    _start(frame, fake_runner, "quiet please")
+    assert env["feedback"] == []  # silent speaks no confirmations at all
+    assert frame.GetStatusBar().GetStatusText() == "Sent. Hub probe is working."
+
+
+def test_queued_message_is_read_once(frame, env, fake_runner):
+    _start(frame, fake_runner)
+    frame.reply_text.SetValue("the follow up")
+    frame.on_send()
+    assert env["feedback"][-1] == "Queued for Hub probe: the follow up."
+    frame._on_turn_event({"id": "own-1"}, "Hub probe", TurnEvent("finished", text="ok"))
+    assert env["feedback"][-1] == "Sent your queued message. Hub probe is working."
+    assert sum("the follow up" in f for f in env["feedback"]) == 1
+
+
+def test_settings_dialog_has_the_read_back_checkbox(frame):
+    from theclaudehub.ui.dialogs import SettingsDialog
+    settings = speech.SpeechSettings(announce_own=False)
+    dialog = SettingsDialog(frame, settings, speech.default_options())
+    try:
+        box = dialog.own_messages
+        assert box.GetLabel() == "Read your own &messages back when they're sent"
+        assert not box.GetValue() and not dialog.get_settings().announce_own
+        box.SetValue(True)
+        assert dialog.get_settings().announce_own
+    finally:
+        dialog.Destroy()
