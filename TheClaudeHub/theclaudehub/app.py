@@ -55,8 +55,60 @@ def is_hub_window_title(title: str) -> bool:
     return title == APP_TITLE or title.endswith(f" — {APP_TITLE}")
 
 
-def main() -> int:
+def smoke_test(out_path: str) -> int:
+    """Check a packaged build has everything it needs, without opening a
+    window, and write what was found as JSON. CI runs the built exe with
+    ``--smoke-test <file>`` to catch a missing module or data file before
+    anything is signed or published."""
+    import json
+
+    from . import speech, updater
+
+    report = {"version": __version__, "frozen": bool(getattr(sys, "frozen", False))}
+    problems = []
+    try:
+        import wx
+
+        report["wx"] = wx.version()
+        from .ui import main_frame  # noqa: F401 - imported to prove it's bundled
+    except Exception as exc:  # noqa: BLE001
+        problems.append(f"wx/ui: {exc}")
+    try:
+        import velopack  # noqa: F401
+
+        report["velopack"] = True
+    except Exception as exc:  # noqa: BLE001
+        report["velopack"] = False
+        if report["frozen"]:
+            problems.append(f"velopack: {exc}")
+    scripts = speech._script_dir()
+    for name in ("speak-engine.ps1", "speak-voices.ps1"):
+        if not (scripts / name).is_file():
+            problems.append(f"missing speech script {scripts / name}")
+    lookup = platform_paths.find_claude()
+    report["claude"] = lookup.path or lookup.problem
+    report["data_outside_install"] = updater.data_is_outside_install_dir()
+    report["problems"] = problems
+    try:
+        Path(out_path).write_text(json.dumps(report, indent=2), encoding="utf-8")
+    except OSError:
+        return 2
+    return 1 if problems else 0
+
+
+def main(argv: Optional[list] = None) -> int:
+    argv = list(sys.argv[1:] if argv is None else argv)
+    # Velopack's install/update/uninstall hooks first: Update.exe starts the
+    # app with hook arguments and expects it to exit, before anything else.
+    from . import updater
+
+    updater.bootstrap()
+    if "--smoke-test" in argv:
+        index = argv.index("--smoke-test")
+        target = argv[index + 1] if index + 1 < len(argv) else "smoke-test.json"
+        return smoke_test(target)
     install_error_logging()
+    updater.configure_logging()
     try:
         import wx
     except ImportError:

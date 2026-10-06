@@ -98,7 +98,7 @@ def frame(env):
                 postTurnSummary={"status_category": "blocked", "needs_action": "Pick a name"})
     store = OwnSessionStore(env["tmp"] / "own.json")
     store.add(OwnSession("own-1", "Hub probe", "C:\\G\\Scratch", last_activity_ms=now_ms()))
-    window = MainFrame(store=store)
+    window = MainFrame(store=store, check_updates_at_start=False)
     assert not window.IsShown()
     assert pump(lambda: window.session_list.GetCount() == 3)
     yield window
@@ -778,3 +778,102 @@ def test_a_turn_ending_in_an_unloaded_session_marks_it_and_leaves_the_loaded_one
     assert frame.reply_text.GetValue() == "typing in Hub probe"   # Hub probe untouched
     assert refreshed == []                                        # loaded chat not reloaded
     assert frame._open.title == "Hub probe"
+
+
+# -- updates ---------------------------------------------------------------------------------
+
+
+class FakeUpdates:
+    def __init__(self, result, download_ok=True, apply_ok=True):
+        self.result = result
+        self.download_ok = download_ok
+        self.apply_ok = apply_ok
+        self.calls = []
+
+    def check(self):
+        self.calls.append("check")
+        return self.result
+
+    def download(self):
+        self.calls.append("download")
+        return self.download_ok
+
+    def apply_and_restart(self):
+        self.calls.append("apply")
+        return self.apply_ok
+
+
+def run_check(frame, manual=True):
+    frame.check_for_updates(manual)
+    assert pump(lambda: not frame._update_busy)
+
+
+def test_manual_check_with_no_releases_says_so(frame, env):
+    from theclaudehub.updater import NO_RELEASES, CheckResult
+    frame.updates = FakeUpdates(CheckResult(NO_RELEASES, "0.1.0"))
+    run_check(frame)
+    assert env["feedback"][-1].startswith("No TheClaudeHub release has been published yet.")
+    assert env["boxes"] == []
+
+
+def test_startup_check_is_quiet_unless_there_is_an_update(frame, env):
+    from theclaudehub.updater import CURRENT, NO_RELEASES, CheckResult
+    for status in (CURRENT, NO_RELEASES):
+        frame.updates = FakeUpdates(CheckResult(status, "0.1.0", "0.1.0"))
+        before = (list(env["feedback"]), list(env["spoken"]))
+        run_check(frame, manual=False)
+        assert (env["feedback"], env["spoken"]) == before
+
+
+def test_available_update_is_announced_and_asked_before_applying(frame, env, monkeypatch):
+    from theclaudehub.updater import AVAILABLE, CheckResult
+    frame.updates = FakeUpdates(CheckResult(AVAILABLE, "0.1.0", "0.2.0"))
+    answers = []
+    monkeypatch.setattr(wx, "MessageBox",
+                        lambda text, *a, **k: answers.append(text) or wx.NO)
+    run_check(frame, manual=False)
+    assert env["spoken"][-1] == "TheClaudeHub 0.2.0 is available. You have 0.1.0."
+    assert "Install it now?" in answers[-1] and "sessions and settings are kept" in answers[-1]
+    assert frame.updates.calls == ["check"]          # No: nothing downloaded
+    assert env["feedback"][-1].startswith("Not now.")
+
+
+def test_yes_downloads_then_applies(frame, env, monkeypatch):
+    from theclaudehub.updater import AVAILABLE, CheckResult
+    frame.updates = FakeUpdates(CheckResult(AVAILABLE, "0.1.0", "0.2.0"))
+    monkeypatch.setattr(wx, "MessageBox", lambda *a, **k: wx.YES)
+    run_check(frame)
+    assert pump(lambda: frame.updates.calls == ["check", "download", "apply"])
+    assert env["spoken"][-1] == "Installing TheClaudeHub 0.2.0 and restarting."
+
+
+def test_unsent_text_is_warned_about(frame, env, monkeypatch):
+    from theclaudehub.updater import AVAILABLE, CheckResult
+    select(frame, "Hub probe")
+    frame.on_open_session()
+    frame.reply_text.SetValue("half a thought")
+    frame.updates = FakeUpdates(CheckResult(AVAILABLE, "0.1.0", "0.2.0"))
+    asked = []
+    monkeypatch.setattr(wx, "MessageBox", lambda text, *a, **k: asked.append(text) or wx.NO)
+    run_check(frame)
+    assert "haven't sent" in asked[-1]
+
+
+def test_no_update_is_applied_while_claude_is_working(frame, env, monkeypatch):
+    from theclaudehub.updater import AVAILABLE, CheckResult
+    frame._runners["own-1"] = FakeRunner([], "", "", None)
+    frame.updates = FakeUpdates(CheckResult(AVAILABLE, "0.1.0", "0.2.0"))
+    monkeypatch.setattr(wx, "MessageBox", lambda *a, **k: pytest.fail("must not ask"))
+    run_check(frame)
+    assert frame.updates.calls == ["check"]
+    assert "once Claude finishes" in env["spoken"][-1]
+
+
+def test_failed_download_is_reported_and_nothing_applied(frame, env, monkeypatch):
+    from theclaudehub.updater import AVAILABLE, CheckResult
+    frame.updates = FakeUpdates(CheckResult(AVAILABLE, "0.1.0", "0.2.0"), download_ok=False)
+    monkeypatch.setattr(wx, "MessageBox", lambda *a, **k: wx.YES)
+    run_check(frame)
+    assert pump(lambda: "download" in frame.updates.calls and not frame._update_busy)
+    assert "apply" not in frame.updates.calls
+    assert env["spoken"][-1].startswith("Couldn't download TheClaudeHub 0.2.0.")

@@ -42,11 +42,13 @@ from ..own_store import OwnSession, OwnSessionStore
 from ..sessions import IDLE, NEEDS_YOU, WORKING, SessionInfo
 from ..speech import SpeechSettings, default_options, list_speech_options, speaker
 from ..transcript import ASSISTANT, ERROR, PLAN, QUESTION, ChatMessage, TranscriptReader
+from ..updater import AVAILABLE, FAILED, CheckResult, UpdateService
 from .a11y import set_accessible_name
 from .dialogs import MessageDialog, NewSessionDialog, SettingsDialog, ShortcutsDialog
 
 APP_NAME = "TheClaudeHub"
 LIST_REFRESH_MS = 5000
+UPDATE_CHECK_DELAY_MS = 4000
 CHAT_REFRESH_MS = 2000
 
 _REPLY_KINDS = (ASSISTANT, QUESTION, PLAN, ERROR)
@@ -57,9 +59,13 @@ def claude_link(desktop_session_id: str) -> str:
 
 
 class MainFrame(wx.Frame):
-    def __init__(self, store: Optional[OwnSessionStore] = None):
+    def __init__(self, store: Optional[OwnSessionStore] = None,
+                 updates: Optional[UpdateService] = None,
+                 check_updates_at_start: bool = True):
         super().__init__(None, title=APP_NAME, size=_fitting_size(1000, 720))
         self.store = store or OwnSessionStore()
+        self.updates = updates or UpdateService(__version__)
+        self._update_busy = False
         self.speech = SpeechSettings.load()
         self._speech_options = None
         threading.Thread(target=self._probe_speech, daemon=True).start()
@@ -105,6 +111,10 @@ class MainFrame(wx.Frame):
                          wx.OK | wx.ICON_WARNING, self)
         self.refresh_sessions()
         self.session_list.SetFocus()
+        if check_updates_at_start:
+            # A few seconds in, so the list is read first.
+            self._startup_update_check = wx.CallLater(UPDATE_CHECK_DELAY_MS,
+                                                      self.check_for_updates, False)
 
     # ------------------------------------------------------------------ menus
 
@@ -141,6 +151,7 @@ class MainFrame(wx.Frame):
         help_menu = wx.Menu()
         self._item(help_menu, "&Keyboard Shortcuts\tF1",
                    lambda e: self._modal(ShortcutsDialog(self)))
+        self._item(help_menu, "Check for &Updates...", lambda e: self.check_for_updates(True))
         self._item(help_menu, "&About", self.on_about, wx.ID_ABOUT)
         bar.Append(help_menu, "&Help")
         self.SetMenuBar(bar)
@@ -1095,9 +1106,94 @@ class MainFrame(wx.Frame):
                           wx.OK | wx.ICON_WARNING, self)
         self._feedback("Settings saved.")
 
+    # ------------------------------------------------------------- updates
+
+    def check_for_updates(self, manual: bool = True):
+        """Look for a newer release in the background.
+
+        At start (``manual=False``) only an available update is announced;
+        "up to date", "no releases yet" and errors go to the status bar.
+        From Help, every outcome is spoken.
+        """
+        if self._update_busy:
+            if manual:
+                self._feedback("Already checking for updates.")
+            return
+        self._update_busy = True
+        if manual:
+            self._feedback("Checking for updates.")
+
+        def work():
+            result = self.updates.check()
+            wx.CallAfter(self._on_update_result, result, manual)
+
+        self._pool.submit(work)
+
+    def _on_update_result(self, result: CheckResult, manual: bool):
+        self._update_busy = False
+        if not self:
+            return
+        text = result.describe()
+        if result.status != AVAILABLE:
+            if manual:
+                self._feedback(text)
+            elif result.status == FAILED:
+                self._status(text)
+            return
+        self._say(text)
+        if self._runners:
+            self._say(f"{text} It can be installed once Claude finishes; use Help, "
+                      "Check for Updates then.")
+            return
+        unsent = self._unsent_text()
+        question = (f"{text}\n\nInstall it now? TheClaudeHub downloads it, closes, and "
+                    "starts the new version. Your sessions and settings are kept.")
+        if unsent:
+            question += ("\n\nText you haven't sent in a reply box will be lost, so "
+                         "you may want to send or copy it first.")
+        answer = wx.MessageBox(question, "Update TheClaudeHub",
+                               wx.YES_NO | wx.YES_DEFAULT | wx.ICON_QUESTION, self)
+        if answer != wx.YES:
+            self._feedback("Not now. Help, Check for Updates installs it later.")
+            return
+        self._update_busy = True
+        self._feedback(f"Downloading TheClaudeHub {result.version}.")
+
+        def work():
+            ok = self.updates.download()
+            wx.CallAfter(self._on_update_downloaded, result, ok)
+
+        self._pool.submit(work)
+
+    def _unsent_text(self) -> bool:
+        self._save_draft()
+        return any(text.strip() for text in self._drafts.values())
+
+    def _on_update_downloaded(self, result: CheckResult, ok: bool):
+        self._update_busy = False
+        if not self:
+            return
+        if not ok:
+            self._say(f"Couldn't download TheClaudeHub {result.version}. Try Help, Check for "
+                      "Updates again later.")
+            return
+        if self._runners:
+            self._say("The update is downloaded. It will be installed the next time "
+                      "TheClaudeHub starts, once Claude has finished.")
+            return
+        self._say(f"Installing TheClaudeHub {result.version} and restarting.")
+        self._list_timer.Stop()
+        self._chat_timer.Stop()
+        if not self.updates.apply_and_restart():
+            self._list_timer.Start(LIST_REFRESH_MS)
+            if self._open is not None:
+                self._chat_timer.Start(CHAT_REFRESH_MS)
+            self._say("Couldn't install the update. It will be tried again the next time "
+                      "TheClaudeHub starts.")
+
     def on_about(self, _event=None):
         wx.MessageBox(
-            f"{APP_NAME} {__version__}\n\nA keyboard and screen reader friendly reader "
+            f"{APP_NAME} version {__version__}\n\nA keyboard and screen reader friendly reader "
             "for Claude Code sessions, on your existing Claude subscription.",
             f"About {APP_NAME}", wx.OK | wx.ICON_INFORMATION, self)
 
@@ -1168,6 +1264,9 @@ class MainFrame(wx.Frame):
             runner.cancel()
         self._list_timer.Stop()
         self._chat_timer.Stop()
+        startup_check = getattr(self, "_startup_update_check", None)
+        if startup_check is not None:
+            startup_check.Stop()
         speaker.stop()
         self._pool.shutdown(wait=False, cancel_futures=True)
         event.Skip()

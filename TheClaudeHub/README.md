@@ -1,9 +1,7 @@
 # TheClaudeHub
 
-> **Status: version 1, not yet released.** The backend has been run for real against Claude Code
-> 2.1.289 on Windows (a new session and a reply, on the subscription login). The window has been
-> driven by keyboard in the vmtest VM with made-up sessions. It has not yet had a pass with JAWS
-> or NVDA.
+> **Status: version 0.1.0, ready for its first release.** Used with JAWS on Kelly's PC; the
+> installer and updater have been tested in the vmtest VM. It has not yet had a pass with NVDA.
 
 A keyboard and screen reader friendly reader for Claude Code sessions. It lists every session the
 Claude desktop app has open, shows each one as a conversation you can arrow through, tells you
@@ -59,19 +57,68 @@ session list is always there.
   it last did. There's no time limit on a turn; Stop (Ctrl+Period) ends it, along with anything it
   started, such as a build.
 
-## Install and run
+## Install
 
-You need Windows, Python 3.11 or later, and Claude Code installed and signed in (the `claude`
-command, the same login the desktop app uses).
+You need Windows 10 or 11 and **Claude Code installed with its native installer and signed in**
+to a Claude subscription (the `claude` command, the same login the desktop app uses).
+
+Download `TheClaudeHub-theclaudehub-Setup.exe` from the newest **TheClaudeHub** release on
+[TheWorkBench's releases page](https://github.com/kellylford/TheWorkBench/releases) and run it.
+It installs for you only, with no administrator rights, adds TheClaudeHub to the Start menu, and
+starts it. The portable zip from the same release runs without installing, but doesn't update
+itself.
+
+The app is built for x64; Arm PCs run it under Windows's x64 emulation.
+
+## Updates
+
+The installed app checks for a new version a few seconds after it starts, and whenever you choose
+Help, Check for Updates. At start it only speaks up when there is a new version; from Help it
+always says what it found ("up to date", "no release has been published yet", or an error).
+
+When there is a new version it says so and asks before installing it. If you agree, it downloads
+the update, closes, and starts the new version. It won't install while Claude is working in one of
+its sessions, and it warns you if a reply box holds text you haven't sent.
+
+**Updating never touches your sessions or settings.** The app lives in
+`%LOCALAPPDATA%\TheClaudeHub`, which Velopack replaces on update and removes on uninstall. Your
+data is in `%APPDATA%\TheClaudeHub`, a different folder that neither goes near, and the updater
+refuses to run if that were ever not so. What the updater did is logged in
+`%APPDATA%\TheClaudeHub\update.log`.
+
+The version is in Help, About. Releases come from tags named `theclaudehub-v<version>` in
+TheWorkBench, which holds several apps, so TheClaudeHub publishes its update feed on its own
+Velopack channel (`releases.theclaudehub.json`); the updater never confuses another app's release
+for its own.
+
+## Run from source (development)
+
+You need Python 3.11 or later.
 
 ```
 cd TheWorkBench\TheClaudeHub
-pip install -r requirements.txt
+pip install -r requirements-dev.txt
 pythonw TheClaudeHub.pyw
+python -m pytest tests
 ```
 
-`python -m theclaudehub` also works. To run the tests: `pip install -r requirements-dev.txt`, then
-`python -m pytest tests`.
+`python -m theclaudehub` also works. A copy run from source doesn't update itself; Help, Check
+for Updates says so, and names the newest release.
+
+### Releasing
+
+The version lives in one place, `__version__` in `theclaudehub/__init__.py`. To release:
+
+1. Set `__version__`, and write `release-notes/v<version>.md` (what it is, what's new, downloads,
+   requirements), in one commit on main.
+2. Tag it `theclaudehub-v<version>` and push the tag.
+
+`.github/workflows/release-theclaudehub.yml` then runs the tests, fails if the tag and
+`__version__` disagree, builds the app with PyInstaller, smoke-tests the built exe, signs it with
+Azure Artifact Signing, packs the Velopack installer, portable zip and update feed (signing
+Setup, the updater and the launcher too), checks every signature, and publishes a GitHub release
+(a pre-release before 1.0). Run by hand or for a pull request, it does everything but publish,
+and keeps the files as a workflow artifact; tick "sign" on a hand run to sign and check them too.
 
 ## Keyboard shortcuts
 
@@ -208,3 +255,7 @@ Checked with Claude Code 2.1.289:
 | `theclaudehub/platform_paths.py` | Every path and OS call |
 | `theclaudehub/ui/` | The wxPython window and dialogs |
 | `tests/` | pytest tests, built on made-up records shaped like the real ones |
+| `theclaudehub/updater.py` | Velopack updates, adapted from GHManage's updater |
+| `tools/check_version.py` | Prints the version; checks a release tag against it |
+| `tools/make_version_info.py` | The Windows version resource for the built exe |
+| `release-notes/` | One file per release, used as the GitHub release's notes and the update's notes |
