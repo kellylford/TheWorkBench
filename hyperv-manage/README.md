@@ -32,7 +32,8 @@ It isn't called Hyper-V Manager because Windows already has a Hyper-V Manager.
   - **The session you're working in, Remote Desktop included.** Over Remote Desktop you work in a
     session of your own, which the VM's own screen doesn't show: it sits at the lock screen. So
     Hyper-V Manage signs in to Windows inside the VM over PowerShell Direct (no network needed),
-    finds the signed-in session, and takes the picture there, at full resolution. It also reads
+    finds the signed-in session, and takes the picture there, at full resolution. From the
+    session's accessibility tree (UI Automation), the same source a screen reader there uses, it reads
     what's in front, what has focus and which windows are open, and the picture's name says it:
     "Screen of vm2, taken 8:57:10 AM, 1920 by 1080, notes - Notepad in front". The box under the
     picture, What's on screen (Alt+W), has the rest, a line at a time.
