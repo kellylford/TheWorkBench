@@ -12,7 +12,8 @@ name: Release TheClaudeHub
 #
 # Run by hand (Actions, Run workflow) or for a pull request, it tests, builds and packs the same
 # way and publishes nothing; the files are kept as a workflow artifact. A hand run with "sign"
-# ticked also signs and checks the signatures, which proves signing works without a release.
+# ticked, or a pull request labelled sign-build, also signs and checks the signatures, which
+# proves signing works without a release.
 #
 # Velopack and signing follow GHManage's ghmanage.yml and The-Idea-Place-Projects/signing
 # (lessons.md): sign the program first, then `vpk pack --azureTrustedSignFile` signs Setup, the
@@ -25,6 +26,8 @@ on:
     tags:
       - 'theclaudehub-v*'
   pull_request:
+    # "labeled" so adding the sign-build label to a pull request re-runs it signed.
+    types: [opened, synchronize, reopened, labeled]
     paths:
       - 'TheClaudeHub/**'
       - '.github/workflows/release-theclaudehub.yml'
@@ -56,7 +59,10 @@ jobs:
         working-directory: TheClaudeHub
     env:
       PUBLISH: ${{ startsWith(github.ref, 'refs/tags/theclaudehub-v') }}
-      SIGN: ${{ startsWith(github.ref, 'refs/tags/theclaudehub-v') || (github.event_name == 'workflow_dispatch' && inputs.sign) }}
+      # Signs for a tag; for a hand run with "sign" ticked; and for a pull request labelled
+      # sign-build, which proves signing before a workflow change reaches main (a hand run can
+      # only start a workflow that is already on main). Nothing but a tag publishes.
+      SIGN: ${{ startsWith(github.ref, 'refs/tags/theclaudehub-v') || (github.event_name == 'workflow_dispatch' && inputs.sign) || (github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'sign-build')) }}
       CHANNEL: theclaudehub
     steps:
       # Pinned to release commits (v4.4.0, v5.6.0), like theclaudehub-tests.yml.
