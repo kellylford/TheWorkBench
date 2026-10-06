@@ -225,7 +225,7 @@ public static class RemoteDesktop
     private static void Launch(string rdpFile) =>
         Process.Start(new ProcessStartInfo(SystemTools.RemoteDesktop) { UseShellExecute = false, ArgumentList = { rdpFile } });
 
-    private static string SafeFileName(string name)
+    internal static string SafeFileName(string name)
     {
         var bad = Path.GetInvalidFileNameChars();
         var s = new string(name.Select(c => bad.Contains(c) ? '_' : c).ToArray());

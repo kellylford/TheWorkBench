@@ -26,6 +26,18 @@ It isn't called Hyper-V Manager because Windows already has a Hyper-V Manager.
   that you want to connect to from another computer. It never overwrites a desktop file of that
   name that connects somewhere else.
 - **Open Console**: the Hyper-V window, for when Windows inside the VM isn't up yet.
+- **Screenshot** (Ctrl+Shift+S) takes a picture of a running or paused VM's screen and opens it
+  in a viewer, so your screen reader can describe it: JAWS Picture Smart, an NVDA image
+  description add-on, or paste it into Be My AI, ChatGPT or Claude. Hyper-V takes the picture
+  from outside the VM, so it works when nothing inside can talk to you: Windows setup, a
+  BitLocker prompt, a stuck sign-in, a blue screen, or another operating system. Focus goes to the
+  picture, named with the VM and the time it was taken, for example "Screen of Win11-RDP, taken
+  3:42:10 PM, 1024 by 768"; a picture that is all one color, most often a VM whose display has
+  gone to sleep, says "blank" as well. Take Again (F5), Copy (Ctrl+C), Save As (Ctrl+S) and Close
+  (Escape) are below it. Taking another picture of the same VM, from the viewer or the main
+  window, replaces the one in its open viewer and puts focus back on it. The picture is the
+  VM's screen at its own resolution, the console's screen rather than a Remote Desktop
+  session's.
 - **Start, Shut Down, Turn Off, Save, Pause, Resume, Restart.** Only the ones that make sense for
   the VM's state are available. Shut Down and Restart ask Windows inside the VM, so nothing
   unsaved is lost; Turn Off is the power switch.
@@ -55,6 +67,8 @@ It isn't called Hyper-V Manager because Windows already has a Hyper-V Manager.
   made: the ISO and disk are unmounted and the half-built disk deleted. If it had already got as
   far as creating the VM, that VM is left in the list to delete. The main window won't close
   while a build runs.
+  New Virtual Machine and the screenshot viewers are windows of their own, so Alt+Tab moves
+  between them and the list, and the list stays usable while a build runs.
 
 Every action goes through Hyper-V's own PowerShell commands, the way Parallels Manager goes
 through `prlctl`, so anything the app does can be repeated by hand.
@@ -102,11 +116,21 @@ Anywhere in the window:
 | Ctrl+K | Checkpoint |
 | Ctrl+Shift+K | Apply a checkpoint |
 | Ctrl+D | Clone |
+| Ctrl+Shift+S | Screenshot of the VM's screen |
 
 Every action is also on the VM menu (Alt+V) and in the list's context menu. The menu bar is
 reached with Alt or F10, never with Tab. Help, then Keyboard Shortcuts opens these as a list, one
 shortcut per line and each section's heading a line of its own: arrow through it, and press
 Escape to close it.
+
+In the screenshot window:
+
+| Key | Action |
+|---|---|
+| F5 | Take the picture again |
+| Ctrl+C | Copy the picture |
+| Ctrl+S | Save the picture as a PNG |
+| Escape | Close |
 
 In the Hyper-V console window that Open Console opens:
 
@@ -143,7 +167,8 @@ HyperVManage.exe --demo
 Three pretend VMs, no Hyper-V, and no administrator rights. Every action and dialog works
 against them, and New Virtual Machine prints the script's steps without running anything.
 Connect, Open Console and Save Connection File say there is no real VM, rather than reaching a
-real one that happens to share a demo VM's name. Use it to
+real one that happens to share a demo VM's name. Screenshot shows a made-up screen: a blue
+desktop with a window and a taskbar. Use it to
 try the app, or to check the interface on a PC without Hyper-V.
 
 ## Building
@@ -209,7 +234,8 @@ hyperv-manage/
       DemoHyperVService         The pretend VMs
       NewVmScript.cs            Runs the embedded New-HyperVRdpVM.ps1
       RemoteDesktop.cs          Connection files, and choosing a name over an address
-    ViewModels/                 Main list, Settings, New VM
+      ScreenPicture.cs          Hyper-V's screen pixels made into a PNG
+    ViewModels/                 Main list, Settings, New VM, the screenshot viewer
     Views/                      The windows
   tests/HyperVManage.Tests/
 ```
@@ -242,6 +268,14 @@ hyperv-manage/
   reads `* ? [ ]` as wildcards, so names are never used to find a VM to act on.
 - **The list is updated in place.** Replacing it would move a screen reader back to the top
   every ten seconds.
+- **Screenshots come from Hyper-V's WMI classes**, since no cmdlet takes one:
+  `Msvm_VirtualSystemManagementService.GetVirtualSystemThumbnailImage`. Hyper-V refuses a
+  picture larger than the VM's screen is now, so the app reads that size from the VM's
+  `Msvm_VideoHead` and asks for exactly it. Failing that it asks for the same shape within
+  1024 by 768 (plain 1024 by 768 when the size can't be read), then 640 by 480. The pixels
+  come as 16-bit RGB565 after a 4-byte header that holds the data's length; the app drops the
+  header only when it says exactly that, and refuses data of any other size rather than show a
+  shifted picture.
 
 ## Testing it on a real machine
 
@@ -261,3 +295,6 @@ Still to do, on a PC with Hyper-V:
    with the VM running, paused and saved, and with the keep-it-first box checked and unchecked.
    Clone it, then Delete the clone and confirm its folder and disk are gone.
 7. Connect to a VM from another computer on the network.
+8. Screenshot a running VM at its sign-in screen and at the desktop, a paused one, and one
+   whose display has gone to sleep (it should say blank). Have JAWS Picture Smart and NVDA
+   describe the picture, paste it into a web page, and save it.

@@ -349,6 +349,54 @@ public sealed class PowerShellHyperVService : IHyperVService
     public async Task<SavedConnection> SaveConnectionFileAsync(VmInfo vm, CancellationToken ct = default) =>
         await RemoteDesktop.SaveDesktopFileAsync(vm.Name, await CurrentAddressesAsync(vm, ct).ConfigureAwait(false)).ConfigureAwait(false);
 
+    // Not ConfigureAwait(false): the picture is made with WPF's imaging classes, which tie
+    // themselves to the thread that makes them, so it is made back on the caller's (UI) thread
+    // rather than leaving a dispatcher behind on a thread-pool thread. It takes milliseconds.
+    public async Task<ScreenPicture> TakeScreenshotAsync(string vmId, CancellationToken ct = default) =>
+        ScreenPicture.Parse(await PowerShellRunner.RunAsync(GetVm(vmId) + ScreenshotScript, ct), DateTime.Now);
+
+    /// <summary>
+    /// Hyper-V's own picture of the screen, from the host, so nothing is needed inside the VM.
+    /// Hyper-V refuses a picture larger than the VM's screen is now, so it asks for exactly that
+    /// size, read from the VM's video head; failing that, the same shape fitted within 1024 by
+    /// 768, and last 640 by 480, which any screen holds (firmware and early boot can be that
+    /// small, and a VM with no video head to read has nothing better to go on). Cmdlets don't
+    /// offer this, so it goes through Hyper-V's WMI classes. The JSON is put together by hand:
+    /// ConvertTo-Json is slow on megabytes of base64.
+    /// </summary>
+    internal const string ScreenshotScript = """
+        $ns = 'root\virtualization\v2'
+        $system = Get-CimInstance -Namespace $ns -ClassName Msvm_ComputerSystem -Filter "Name='$($vm.Id)'"
+        if (-not $system) { throw "Hyper-V can't find the virtual machine to take a picture of." }
+        $settings = Get-CimAssociatedInstance -InputObject $system -ResultClassName Msvm_VirtualSystemSettingData |
+            Where-Object VirtualSystemType -eq 'Microsoft:Hyper-V:System:Realized' | Select-Object -First 1
+        $service = Get-CimInstance -Namespace $ns -ClassName Msvm_VirtualSystemManagementService
+        $head = Get-CimAssociatedInstance -InputObject $system -ResultClassName Msvm_VideoHead -ErrorAction SilentlyContinue |
+            Where-Object { $_.CurrentHorizontalResolution -gt 0 -and $_.CurrentVerticalResolution -gt 0 } | Select-Object -First 1
+        $sizes = @()
+        if ($head) {
+            $w = [int]$head.CurrentHorizontalResolution
+            $h = [int]$head.CurrentVerticalResolution
+            $sizes += ,@($w, $h)
+            $scale = [Math]::Min(1.0, [Math]::Min(1024 / $w, 768 / $h))
+            if ($scale -lt 1) { $sizes += ,@([Math]::Max(1, [int][Math]::Floor($w * $scale)), [Math]::Max(1, [int][Math]::Floor($h * $scale))) }
+        } else {
+            $sizes += ,@(1024, 768)
+        }
+        $sizes += ,@(640, 480)
+        $refused = @()
+        foreach ($size in $sizes) {
+            $r = Invoke-CimMethod -InputObject $service -MethodName GetVirtualSystemThumbnailImage -Arguments @{
+                TargetSystem = $settings; WidthPixels = [uint16]$size[0]; HeightPixels = [uint16]$size[1] }
+            if ($r.ReturnValue -eq 0 -and $r.ImageData) {
+                '{"Width":' + $size[0] + ',"Height":' + $size[1] + ',"Data":"' + [Convert]::ToBase64String([byte[]]$r.ImageData) + '"}'
+                return
+            }
+            $refused += $(if ($r.ReturnValue -eq 0) { "$($size[0]) by $($size[1]) (an empty picture)" } else { "$($size[0]) by $($size[1]) (error $($r.ReturnValue))" })
+        }
+        throw "Hyper-V wouldn't give a picture at any size it was asked for: $($refused -join ', ')."
+        """;
+
     /// <summary>
     /// The VM's IPv4 addresses as Hyper-V reports them now. The list's copy can be up to ten
     /// seconds old, and Windows inside a VM that has just started or resumed reports its address
@@ -432,7 +480,7 @@ public sealed class PowerShellHyperVService : IHyperVService
     internal static string Str(JsonElement e, string name) =>
         e.TryGetProperty(name, out var v) && v.ValueKind == JsonValueKind.String ? v.GetString() ?? "" : "";
 
-    private static long Num(JsonElement e, string name) =>
+    internal static long Num(JsonElement e, string name) =>
         e.TryGetProperty(name, out var v) && v.ValueKind == JsonValueKind.Number && v.TryGetInt64(out var n) ? n : 0;
 
     private static bool Flag(JsonElement e, string name) =>

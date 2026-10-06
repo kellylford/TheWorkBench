@@ -14,6 +14,8 @@ public partial class MainWindow : Window
     private readonly MainViewModel _vm;
     private readonly bool _demo;
     private NewVmWindow? _newVmWindow;
+    /// <summary>The open screenshot viewers, one per VM id.</summary>
+    private readonly Dictionary<string, ScreenshotWindow> _screenshots = [];
 
     public MainWindow(MainViewModel vm, bool demo)
     {
@@ -43,13 +45,58 @@ public partial class MainWindow : Window
         };
         vm.OpenSettings = ShowSettings;
         vm.OpenNewVm = ShowNewVm;
+        vm.ShowScreenshot = ShowScreenshot;
 
         Loaded += async (_, _) =>
         {
             await vm.StartAsync();
             FocusSelectedRow();
         };
-        Closed += (_, _) => vm.Dispose();
+        Closed += (_, _) =>
+        {
+            // They have no owner, so they don't go with this window by themselves.
+            foreach (var viewer in _screenshots.Values.ToList()) viewer.Close();
+            _newVmWindow?.Close();
+            vm.Dispose();
+        };
+    }
+
+    /// <summary>Called with each New VM and screenshot window just before it is shown. The tests
+    /// move them off-screen.</summary>
+    internal Action<Window>? Placing { get; set; }
+
+    internal IReadOnlyCollection<ScreenshotWindow> OpenScreenshots => _screenshots.Values;
+
+    internal NewVmWindow? OpenNewVmWindow => _newVmWindow;
+
+    /// <summary>
+    /// Shows a window that works alongside this one: New Virtual Machine and the screenshot
+    /// viewers. They have no owner, so each is its own window in Alt+Tab and on the taskbar and
+    /// this one can come in front of them; an owned window stays in front of its owner and goes
+    /// with it in Alt+Tab, which left no way back to the list while a build ran. Closing one
+    /// brings the list back, but only if the user was in it: not if they'd moved on.
+    /// </summary>
+    private void ShowAlongside(Window window)
+    {
+        window.ShowActivated = IsActive;
+        var wasActive = false;
+        window.Closing += (_, e) => { if (!e.Cancel) wasActive = window.IsActive; };
+        window.Closed += (_, _) =>
+        {
+            if (!wasActive || !IsLoaded) return;
+            Activate();
+            FocusSelectedRow();
+        };
+        if (IsLoaded && WindowState == WindowState.Normal && !double.IsNaN(window.Width) && !double.IsNaN(window.Height))
+        {
+            // Centred on this window, so it opens on the same monitor; CenterScreen means the
+            // primary one. Kept on screen when this window is near an edge.
+            window.WindowStartupLocation = WindowStartupLocation.Manual;
+            window.Left = Math.Max(SystemParameters.VirtualScreenLeft, Left + (ActualWidth - window.Width) / 2);
+            window.Top = Math.Max(SystemParameters.VirtualScreenTop, Top + (ActualHeight - window.Height) / 2);
+        }
+        Placing?.Invoke(window);
+        window.Show();
     }
 
     /// <summary>Puts keyboard focus on the selected row itself, not just the list, so arrowing
@@ -129,10 +176,30 @@ public partial class MainWindow : Window
         var newVm = new NewVmViewModel(_vm.Vms.Select(v => v.Name));
         if (_demo) newVm.RunScript = Services.DemoNewVmScript.RunAsync;
         newVm.Finished += outcome => { _ = _vm.RefreshAsync(quiet: true); };
-        // Modeless, so the list stays usable during the 15 to 30 minutes a build takes.
-        _newVmWindow = new NewVmWindow(newVm) { Owner = this };
-        _newVmWindow.Closed += (_, _) => { _newVmWindow = null; FocusSelectedRow(); };
-        _newVmWindow.Show();
+        // Modeless and unowned, so the list stays usable during the 15 to 30 minutes a build takes.
+        _newVmWindow = new NewVmWindow(newVm);
+        _newVmWindow.Closed += (_, _) => _newVmWindow = null;
+        ShowAlongside(_newVmWindow);
+    }
+
+    /// <summary>
+    /// Opens the viewer for the VM, or, if one is already open, shows the new picture there.
+    /// Modeless, so the list stays usable: start a VM, then take its picture again as it boots.
+    /// It comes to the front only if this window still is: someone who switched to another app
+    /// while the picture was taken keeps their place there.
+    /// </summary>
+    private void ShowScreenshot(VmInfo vm, ScreenPicture picture)
+    {
+        if (_screenshots.TryGetValue(vm.Id, out var open))
+        {
+            open.ViewModel.Show(picture);
+            if (IsActive) open.Activate();
+            return;
+        }
+        var window = new ScreenshotWindow(new ScreenshotViewModel(_vm.HyperV, vm, picture));
+        _screenshots[vm.Id] = window;
+        window.Closed += (_, _) => _screenshots.Remove(vm.Id);
+        ShowAlongside(window);
     }
 
     private void Exit_Click(object sender, RoutedEventArgs e) => Close();

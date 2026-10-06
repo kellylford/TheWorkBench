@@ -115,6 +115,9 @@ public static class VmStates
     public static bool CanRestart(string s) => s is "Running";
     public static bool CanConnect(string s) => s is "Running";
 
+    /// <summary>Hyper-V has a screen to show only while the VM is running or paused.</summary>
+    public static bool CanScreenshot(string s) => s is "Running" or "Paused";
+
     /// <summary>Settled states, where configuration, checkpoints, cloning and deleting are safe.
     /// A VM partway through starting or saving is left alone until it gets there.</summary>
     public static bool IsSettled(string s) => s is "Off" or "Running" or "Paused" or "Saved";
