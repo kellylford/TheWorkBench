@@ -355,6 +355,13 @@ public sealed class PowerShellHyperVService : IHyperVService
     public async Task<ScreenPicture> TakeScreenshotAsync(string vmId, CancellationToken ct = default) =>
         ScreenPicture.Parse(await PowerShellRunner.RunAsync(GetVm(vmId) + ScreenshotScript, ct), DateTime.Now);
 
+    public async Task<SessionScreenshot> TakeSessionScreenshotAsync(string vmId, GuestCredential credential, CancellationToken ct = default)
+    {
+        var output = await PowerShellRunner.RunAsync(SessionCapture.BuildScript(GetVm(vmId)), ct,
+            new Dictionary<string, string> { ["HVM_GUEST_USER"] = credential.UserName, ["HVM_GUEST_PASSWORD"] = credential.Password });
+        return SessionCapture.Parse(output, DateTime.Now);
+    }
+
     /// <summary>
     /// Hyper-V's own picture of the screen, from the host, so nothing is needed inside the VM.
     /// Hyper-V refuses a picture larger than the VM's screen is now, so it asks for exactly that

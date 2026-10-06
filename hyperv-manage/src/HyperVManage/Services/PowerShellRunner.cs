@@ -31,7 +31,10 @@ public static class PowerShellRunner
     /// Runs <paramref name="script"/> and returns its standard output. Any error, from a cmdlet or
     /// a throw, comes back as a <see cref="HyperVException"/> carrying PowerShell's message.
     /// </summary>
-    public static async Task<string> RunAsync(string script, CancellationToken ct = default)
+    /// <param name="environment">Extra environment variables for PowerShell: the way to hand it a
+    /// secret, which on the command line Windows could log.</param>
+    public static async Task<string> RunAsync(string script, CancellationToken ct = default,
+        IReadOnlyDictionary<string, string>? environment = null)
     {
         // -EncodedCommand rather than -Command: no quoting of the script on the command line at
         // all. Values inside the script go through Ps.Quote.
@@ -53,6 +56,8 @@ public static class PowerShellRunner
             StandardOutputEncoding = Encoding.UTF8,
             StandardErrorEncoding = Encoding.UTF8,
         };
+        if (environment is not null)
+            foreach (var (name, value) in environment) psi.Environment[name] = value;
         foreach (var a in new[] { "-NoProfile", "-NonInteractive", "-ExecutionPolicy", "Bypass",
                                   "-OutputFormat", "Text", "-EncodedCommand", encoded })
             psi.ArgumentList.Add(a);

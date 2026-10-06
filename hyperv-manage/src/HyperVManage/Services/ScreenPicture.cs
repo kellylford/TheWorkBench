@@ -13,6 +13,13 @@ public sealed record ScreenPicture(byte[] Png, int Width, int Height, DateTime T
     /// Said in words, so nobody needs a picture description to find out there's nothing to see.</summary>
     public bool IsBlank { get; init; }
 
+    /// <summary>What was on screen in words, for a picture of someone's session inside the VM.
+    /// Null for Hyper-V's picture of the VM's own screen.</summary>
+    public ScreenInfo? Info { get; init; }
+
+    /// <summary>For Hyper-V's picture: why it isn't of the session, when one was wanted.</summary>
+    public string Note { get; init; } = "";
+
     /// <summary>How the picture's name and the status bar describe a blank one.</summary>
     public const string BlankNote = "blank, the whole screen is one color";
 

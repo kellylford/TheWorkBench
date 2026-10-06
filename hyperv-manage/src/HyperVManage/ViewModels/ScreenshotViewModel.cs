@@ -15,12 +15,17 @@ namespace HyperVManage.ViewModels;
 /// </summary>
 public sealed partial class ScreenshotViewModel : ObservableObject, IDisposable
 {
-    private readonly IHyperVService _hyperV;
+    private readonly ScreenshotTaker _taker;
     private readonly CancellationTokenSource _lifetime = new();
 
+    /// <summary>For a viewer whose Take Again never asks for a sign-in: Hyper-V's picture only,
+    /// unless the VM's sign-in is already kept.</summary>
     public ScreenshotViewModel(IHyperVService hyperV, VmInfo vm, ScreenPicture picture)
+        : this(new ScreenshotTaker(hyperV, new InMemoryCredentialStore()), vm, picture) { }
+
+    public ScreenshotViewModel(ScreenshotTaker taker, VmInfo vm, ScreenPicture picture)
     {
-        _hyperV = hyperV;
+        _taker = taker;
         Vm = vm;
         _picture = picture;
         _image = picture.ToBitmap();
@@ -31,7 +36,7 @@ public sealed partial class ScreenshotViewModel : ObservableObject, IDisposable
     public VmInfo Vm { get; }
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(PictureName), nameof(SuggestedFileName))]
+    [NotifyPropertyChangedFor(nameof(PictureName), nameof(SuggestedFileName), nameof(OnScreenText))]
     private ScreenPicture _picture;
 
     [ObservableProperty] private BitmapSource _image;
@@ -45,11 +50,33 @@ public sealed partial class ScreenshotViewModel : ObservableObject, IDisposable
     public string Title => $"Screen of {Vm.Name}";
 
     /// <summary>
-    /// What a screen reader says for the picture when it gets focus: whose screen, when, and its
-    /// size. The time has seconds, so a new picture is heard to be new.
+    /// What a screen reader says for the picture when it gets focus: whose screen, when, its size,
+    /// and what's in front, or that it is the VM's own screen. The time has seconds, so a new
+    /// picture is heard to be new.
     /// </summary>
-    public string PictureName => $"Screen of {Vm.Name}, taken {Picture.Taken:T}, {Picture.Width} by {Picture.Height}" +
+    public string PictureName =>
+        $"Screen of {Vm.Name}, taken {Picture.Taken:T}, {Picture.Width} by {Picture.Height}" +
+        (Picture.Info is { Foreground.Length: > 0 } info ? $", {info.Foreground} in front"
+            : Picture.Info is null ? ", the VM's own screen" : "") +
         (Picture.IsBlank ? $", {ScreenPicture.BlankNote}" : "");
+
+    /// <summary>What was on screen, a line at a time, for the box under the picture.</summary>
+    public string OnScreenText => Describe(Picture);
+
+    internal static string Describe(ScreenPicture picture)
+    {
+        if (picture.Info is not { } info)
+            return "The VM's own screen, from Hyper-V. Someone working in it over Remote Desktop is in a " +
+                   "session of their own that this doesn't show." + (picture.Note.Length > 0 ? " " + picture.Note : "");
+        var lines = new List<string>
+        {
+            info.RemoteDesktop ? $"{info.User}'s Remote Desktop session." : $"{info.User}'s session, on the VM's own screen.",
+        };
+        if (info.Foreground.Length > 0) lines.Add($"In front: {info.Foreground}");
+        if (info.FocusText.Length > 0) lines.Add($"Focus: {info.FocusText}");
+        if (info.Windows.Count > 0) lines.Add($"Open windows: {string.Join("; ", info.Windows)}");
+        return string.Join(Environment.NewLine, lines);
+    }
 
     /// <summary>"Win11-RDP screen 2026-10-06 15.42.10.png", with anything Windows doesn't allow
     /// in a file name replaced.</summary>
@@ -88,7 +115,7 @@ public sealed partial class ScreenshotViewModel : ObservableObject, IDisposable
         StatusText = $"Taking a new picture of {Vm.Name}'s screen.";
         try
         {
-            var picture = await _hyperV.TakeScreenshotAsync(Vm.Id, _lifetime.Token);
+            var picture = await _taker.TakeAsync(Vm, _lifetime.Token);
             if (!_lifetime.IsCancellationRequested) Show(picture);
         }
         catch (OperationCanceledException) { }

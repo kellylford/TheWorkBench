@@ -26,18 +26,30 @@ It isn't called Hyper-V Manager because Windows already has a Hyper-V Manager.
   that you want to connect to from another computer. It never overwrites a desktop file of that
   name that connects somewhere else.
 - **Open Console**: the Hyper-V window, for when Windows inside the VM isn't up yet.
-- **Screenshot** (Ctrl+Shift+S) takes a picture of a running or paused VM's screen and opens it
-  in a viewer, so your screen reader can describe it: JAWS Picture Smart, an NVDA image
-  description add-on, or paste it into Be My AI, ChatGPT or Claude. Hyper-V takes the picture
-  from outside the VM, so it works when nothing inside can talk to you: Windows setup, a
-  BitLocker prompt, a stuck sign-in, a blue screen, or another operating system. Focus goes to the
-  picture, named with the VM and the time it was taken, for example "Screen of Win11-RDP, taken
-  3:42:10 PM, 1024 by 768"; a picture that is all one color, most often a VM whose display has
-  gone to sleep, says "blank" as well. Take Again (F5), Copy (Ctrl+C), Save As (Ctrl+S) and Close
-  (Escape) are below it. Taking another picture of the same VM, from the viewer or the main
-  window, replaces the one in its open viewer and puts focus back on it. The picture is the
-  VM's screen at its own resolution, the console's screen rather than a Remote Desktop
-  session's.
+- **Screenshot** (Ctrl+Shift+S) shows what's going on in a running or paused VM: a picture your
+  screen reader can describe (JAWS Picture Smart, an NVDA image description add-on, or paste it
+  into Be My AI, ChatGPT or Claude), and the same in words.
+  - **The session you're working in, Remote Desktop included.** Over Remote Desktop you work in a
+    session of your own, which the VM's own screen doesn't show: it sits at the lock screen. So
+    Hyper-V Manage signs in to Windows inside the VM over PowerShell Direct (no network needed),
+    finds the signed-in session, and takes the picture there, at full resolution. It also reads
+    what's in front, what has focus and which windows are open, and the picture's name says it:
+    "Screen of vm2, taken 8:57:10 AM, 1920 by 1080, notes - Notepad in front". The box under the
+    picture, What's on screen (Alt+W), has the rest, a line at a time.
+  - **The sign-in** is an account that is an administrator in the VM. It's asked for the first
+    time, with the user name filled in, and kept in Windows Credential Manager for your account
+    (as "HyperVManage:VM:" and the VM's id, where it can be removed by hand). A VM made with New
+    Virtual Machine already knows its own. If Windows refuses it, you're asked again, saying so.
+  - **Otherwise, the VM's own screen**, from Hyper-V, from outside the VM. That works when
+    nothing inside can talk to you: Windows setup, a BitLocker prompt, a stuck sign-in, a blue
+    screen, or another operating system. It's what you get when you choose Use the VM's Own
+    Screen instead of signing in, when nobody is signed in, and when Windows isn't drawing the
+    session, as with a minimized Remote Desktop window. What's on screen says which and why, and
+    the picture's name ends "the VM's own screen". A picture that is all one color, most often a
+    VM whose display has gone to sleep, says "blank" as well.
+  - Take Again (F5), Copy (Ctrl+C), Save As (Ctrl+S) and Close (Escape) are below the picture.
+    Taking another picture of the same VM, from the viewer or the main window, replaces the one
+    in its open viewer and puts focus back on it.
 - **Start, Shut Down, Turn Off, Save, Pause, Resume, Restart.** Only the ones that make sense for
   the VM's state are available. Shut Down and Restart ask Windows inside the VM, so nothing
   unsaved is lost; Turn Off is the power switch.
@@ -167,8 +179,9 @@ HyperVManage.exe --demo
 Three pretend VMs, no Hyper-V, and no administrator rights. Every action and dialog works
 against them, and New Virtual Machine prints the script's steps without running anything.
 Connect, Open Console and Save Connection File say there is no real VM, rather than reaching a
-real one that happens to share a demo VM's name. Screenshot shows a made-up screen: a blue
-desktop with a window and a taskbar. Use it to
+real one that happens to share a demo VM's name. Screenshot asks for a sign-in (any password
+works) and shows a made-up screen: a blue desktop with a window and a taskbar, with Notepad in
+front. Use it to
 try the app, or to check the interface on a PC without Hyper-V.
 
 ## Building
@@ -268,6 +281,13 @@ hyperv-manage/
   reads `* ? [ ]` as wildcards, so names are never used to find a VM to act on.
 - **The list is updated in place.** Replacing it would move a screen reader back to the top
   every ten seconds.
+- **Session pictures are taken inside the VM**, by a one-off scheduled task that runs as the
+  signed-in user in their session (vmtest captures the same way). The app reaches Windows in the
+  VM with `New-PSSession -VMId`, finds the active session with `quser`, and writes the capture
+  script to `C:\ProgramData\HyperVManage` there; the task is removed and the picture deleted from
+  the VM as soon as it has been copied out. The sign-in goes to PowerShell in an environment
+  variable, never on a command line, which Windows can log, and the variable is cleared before
+  anything else runs.
 - **Screenshots come from Hyper-V's WMI classes**, since no cmdlet takes one:
   `Msvm_VirtualSystemManagementService.GetVirtualSystemThumbnailImage`. Hyper-V refuses a
   picture larger than the VM's screen is now, so the app reads that size from the VM's
@@ -297,4 +317,5 @@ Still to do, on a PC with Hyper-V:
 7. Connect to a VM from another computer on the network.
 8. Screenshot a running VM at its sign-in screen and at the desktop, a paused one, and one
    whose display has gone to sleep (it should say blank). Have JAWS Picture Smart and NVDA
-   describe the picture, paste it into a web page, and save it.
+   describe the picture, paste it into a web page, and save it. Then the same over Remote
+   Desktop: with the window open, minimized, and closed.
