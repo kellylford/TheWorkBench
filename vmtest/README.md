@@ -81,6 +81,7 @@ powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File "$env:VMTEST
 
 ### Rules worth knowing
 
+- **Test suites count.** A suite in which any test builds a GUI window (wx, WinForms, WPF, Qt...), even briefly, even if it's called a unit test, runs in the VM. Only builds and tests that never create a window stay on your PC. The skill has a recipe for running a repo's tests in the VM: install the runtime with winget, copy the repo in with `git archive`, install dependencies the way CI does, run the tests.
 - **One task at a time.** Only one task can hold the VM. Every command that works inside the VM checks this.
   - Another task's `begin` is refused until the first one runs `save` or `end`.
   - `-Force` takes the VM anyway, and anything the other task hadn't saved is lost.
