@@ -254,7 +254,7 @@ public class ScreenshotViewModelTests
         await main.ScreenshotCommand.ExecuteAsync(null);
         Assert.False(opened);
         var said = Assert.Single(spoken);
-        Assert.StartsWith($"Couldn't take a picture of {running.Name}'s screen. Hyper-V returned error 32775", said);
+        Assert.StartsWith($"Couldn't take a picture of {running.Name}'s screen. Hyper-V wouldn't give a picture", said);
     }
 
     [Fact]
@@ -608,6 +608,70 @@ public class ScreenshotWindowTests
             Assert.NotSame(viewer, Assert.Single(window.OpenScreenshots));
         }
         finally { window.Close(); }
+    }
+
+    [StaFact]
+    public async Task MainWindow_ClosingAViewerTheUserWasntIn_LeavesTheListAsItWas()
+    {
+        TestApp.Ensure();
+        var vm = new MainViewModel(new DemoHyperVService { Delay = TimeSpan.Zero });
+        await vm.RefreshAsync();
+        var window = new MainWindow(vm, demo: true) { Placing = MoveOffscreen };
+        try
+        {
+            ShowOffscreen(window);
+            vm.Selected = vm.Vms.First(v => v.State == "Running");
+            await vm.ScreenshotCommand.ExecuteAsync(null);
+            Pump();
+            var viewer = Assert.Single(window.OpenScreenshots);
+            // The user goes back to the list, leaving the viewer behind it.
+            window.Activate();
+            Pump();
+            Assert.False(viewer.IsActive);
+            var list = (ListView)window.FindName("VmList");
+            // Move the list's selection, then close the viewer from outside it: the selection and
+            // whatever had focus stay put.
+            vm.Selected = vm.Vms.First(v => v.State == "Off");
+            var focused = Keyboard.FocusedElement;
+            var wasActive = window.IsActive;
+            viewer.Close();
+            Pump();
+            Assert.Same(focused, Keyboard.FocusedElement);
+            Assert.Equal(wasActive, window.IsActive);
+            Assert.Equal("Off", vm.Selected!.State);
+            Assert.Same(vm.Selected, list.SelectedItem);
+        }
+        finally { window.Close(); }
+    }
+
+    [StaFact]
+    public void NewVmWindow_OpenedInTheBackground_DoesntTakeFocus()
+    {
+        TestApp.Ensure();
+        var window = new NewVmWindow(new NewVmViewModel([]));
+        try
+        {
+            ShowOffscreen(window);
+            Assert.False(window.IsActive);
+            Assert.False(((TextBox)window.FindName("NameBox")).IsKeyboardFocused);
+        }
+        finally { window.Close(); }
+    }
+
+    [StaFact]
+    public async Task TakeAgain_PressedWhileTaking_SaysItIsStillTaking()
+    {
+        TestApp.Ensure();
+        var demo = new DemoHyperVService { Delay = TimeSpan.FromMilliseconds(300) };
+        var main = new MainViewModel(demo);
+        await main.RefreshAsync();
+        var s = new ScreenshotViewModel(demo, main.Vms.First(v => v.State == "Running"), ScreenshotViewModelTests.Picture(DateTime.Now));
+        var spoken = new List<string>();
+        s.Announce += spoken.Add;
+        var taking = s.TakeAgainCommand.ExecuteAsync(null);
+        await s.TakeAgainCommand.ExecuteAsync(null);
+        Assert.Equal(["Still taking the picture."], spoken);
+        await taking;
     }
 
     private static void MoveOffscreen(Window w)

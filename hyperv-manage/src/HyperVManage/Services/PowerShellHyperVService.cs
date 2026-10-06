@@ -360,8 +360,9 @@ public sealed class PowerShellHyperVService : IHyperVService
     /// Hyper-V refuses a picture larger than the VM's screen is now, so it asks for exactly that
     /// size, read from the VM's video head; failing that, the same shape fitted within 1024 by
     /// 768, and last 640 by 480, which any screen holds (firmware and early boot can be that
-    /// small, and a VM with no video head to read has nothing better to go on). Cmdlets don't offer this, so it goes through Hyper-V's WMI classes. The JSON is put
-    /// together by hand: ConvertTo-Json is slow on megabytes of base64.
+    /// small, and a VM with no video head to read has nothing better to go on). Cmdlets don't
+    /// offer this, so it goes through Hyper-V's WMI classes. The JSON is put together by hand:
+    /// ConvertTo-Json is slow on megabytes of base64.
     /// </summary>
     internal const string ScreenshotScript = """
         $ns = 'root\virtualization\v2'

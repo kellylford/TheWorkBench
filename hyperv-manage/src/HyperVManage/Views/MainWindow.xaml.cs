@@ -87,6 +87,14 @@ public partial class MainWindow : Window
             Activate();
             FocusSelectedRow();
         };
+        if (IsLoaded && WindowState == WindowState.Normal && !double.IsNaN(window.Width) && !double.IsNaN(window.Height))
+        {
+            // Centred on this window, so it opens on the same monitor; CenterScreen means the
+            // primary one. Kept on screen when this window is near an edge.
+            window.WindowStartupLocation = WindowStartupLocation.Manual;
+            window.Left = Math.Max(SystemParameters.VirtualScreenLeft, Left + (ActualWidth - window.Width) / 2);
+            window.Top = Math.Max(SystemParameters.VirtualScreenTop, Top + (ActualHeight - window.Height) / 2);
+        }
         Placing?.Invoke(window);
         window.Show();
     }

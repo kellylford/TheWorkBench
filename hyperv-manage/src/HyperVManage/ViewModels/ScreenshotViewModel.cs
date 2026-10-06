@@ -83,7 +83,7 @@ public sealed partial class ScreenshotViewModel : ObservableObject, IDisposable
     [RelayCommand(AllowConcurrentExecutions = true)]
     private async Task TakeAgain()
     {
-        if (IsTaking) return;
+        if (IsTaking) { Announce?.Invoke("Still taking the picture."); return; }
         IsTaking = true;
         StatusText = $"Taking a new picture of {Vm.Name}'s screen.";
         try

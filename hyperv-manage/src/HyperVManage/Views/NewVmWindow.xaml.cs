@@ -10,9 +10,9 @@ using Microsoft.Win32;
 namespace HyperVManage.Views;
 
 /// <summary>
-/// Modeless and unowned, so the VM list stays usable, and reachable with Alt+Tab, while a build runs. It has no editable text over a live
-/// browser control, so the modal-dialog hazards of a WebView2 host don't apply; modeless is simply
-/// friendlier for something that runs half an hour.
+/// Modeless and unowned, so the VM list stays usable, and reachable with Alt+Tab, while a build
+/// runs. It has no editable text over a live browser control, so the modal-dialog hazards of a
+/// WebView2 host don't apply; modeless is simply friendlier for something that runs half an hour.
 /// </summary>
 public partial class NewVmWindow : Window
 {

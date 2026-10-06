@@ -196,7 +196,8 @@ public sealed class DemoHyperVService : IHyperVService
         lock (_gate)
         {
             var vm = Find(vmId);
-            if (!VmStates.CanScreenshot(vm.State)) throw new HyperVException("Hyper-V returned error 32775. The VM has to be running or paused.");
+            if (!VmStates.CanScreenshot(vm.State)) throw new HyperVException(
+                "Hyper-V wouldn't give a picture at any size it was asked for: 1024 by 768 (error 32775), 640 by 480 (error 32775).");
         }
         const int width = 1024, height = 768;
         var pixels = new byte[width * height * 2];

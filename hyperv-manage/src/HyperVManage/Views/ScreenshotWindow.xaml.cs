@@ -42,8 +42,10 @@ public partial class ScreenshotWindow : Window
     /// <summary>Saves pictures without a dialog, for the tests. Null shows the Save As dialog.</summary>
     internal Func<string, string?>? ChooseSavePath { get; set; }
 
-    /// <summary>True when the picture is to get focus the next time the window is activated.</summary>
     private bool _pictureWaiting = true;
+
+    /// <summary>True when the picture is to get focus the next time the window is activated.</summary>
+    internal bool PictureWaitingForFocus => _pictureWaiting;
 
     /// <summary>
     /// Puts focus on the picture now if the window is active, or else the next time it is.
@@ -51,8 +53,6 @@ public partial class ScreenshotWindow : Window
     /// even for FocusManager.SetFocusedElement), pulling someone out of whatever they had moved on
     /// to while the picture was being taken, a dialog included.
     /// </summary>
-    internal bool PictureWaitingForFocus => _pictureWaiting;
-
     private void FocusPicture()
     {
         if (!IsActive) { _pictureWaiting = true; return; }
