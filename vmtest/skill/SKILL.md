@@ -1,14 +1,21 @@
 ---
 name: vmtest
-description: Test a Windows desktop app inside a Hyper-V test VM instead of on the user's own PC, so the user's focus, keyboard and screen reader are never disturbed. Use whenever testing would open a window, send keys or clicks, read an app's accessibility tree, take a screenshot of an app, or install or uninstall software (MSI, winget, setup.exe) for a Windows app. Not needed for unit tests or builds that show no window, for web pages, or for iOS or Mac apps.
+description: Test a Windows desktop app inside a Hyper-V test VM instead of on the user's own PC, so the user's focus, keyboard and screen reader are never disturbed. Use whenever testing would open a window, even for a moment, send keys or clicks, read an app's accessibility tree, take a screenshot of an app, or install or uninstall software (MSI, winget, setup.exe) for a Windows app. That includes automated test suites (pytest, xUnit and so on) in which any test builds a GUI window. Only builds and tests that never create a window stay on the PC. Not needed for web pages, or for iOS or Mac apps.
 ---
 
 # Testing Windows apps in the test VM (vmtest)
 
 Never launch, click, type into or install a Windows app on the user's own PC to test it. The user
 is working on that PC, perhaps with a screen reader, and test windows steal focus, take keystrokes
-and get read aloud. Do all of that in the VM with vmtest. Builds and tests that open no window stay
-on the PC as usual.
+and get read aloud. Do all of that in the VM with vmtest. Only builds and tests that never create a
+window stay on the PC.
+
+**"Unit tests" don't get a pass.** A test suite counts as opening a window if any test in it builds a
+GUI window (wx, WinForms, WPF, WinUI, Qt, Tk), even for a moment, even hidden, even if it's called a
+unit test. Many check focus, so they Show, Raise and SetFocus on purpose, and parallel runners
+(`pytest -n 4`) do it several at a time. Before running a suite on the PC, check it: search the
+tests for the GUI toolkit's imports (`import wx`, `System.Windows`, `QApplication`, `tkinter`). See
+"Running a repo's tests in the VM" below.
 
 ## Finding vmtest
 
@@ -52,6 +59,34 @@ freedom stops at the VM itself.
    - `close -Window MyApp` closes a window and says whether it really closed.
 5. When you stop for now, run `save`. It keeps this task's VM state and frees the VM.
 6. After this task's work has merged, run `end`. It deletes this task's checkpoint and puts the VM back to Clean.
+
+## Running a repo's tests in the VM
+
+- **If the repo marks its GUI tests** (a pytest marker, a separate folder or project), run only the
+  windowless ones on the PC, for example `pytest -m "not gui"` or `pytest tests/unit`, and the GUI
+  ones in the VM. Check the marker really covers every test that builds a window.
+- **If it doesn't**, run the whole suite in the VM. Suggest to the user that the repo gets a marker.
+- **Never run GUI tests in parallel** (`-n`) in the VM either: they take focus from each other.
+
+The recipe (Python shown; the same shape works for .NET or Node):
+
+1. `begin`. Then put the runtime in, as the normal user (no `-Elevated`), for example:
+   `run "winget install --id Python.Python.3.13 -e --architecture x64 --scope user --silent --accept-source-agreements --accept-package-agreements" -Timeout 900`
+   x64 is the safe choice even in an Arm64 VM: more packages have x64 wheels, and Windows emulates them.
+   Most native packages (wxPython, PyQt, numpy builds and so on) also need the Visual C++ runtime,
+   which a clean Windows doesn't have. Without it, imports fail with "DLL load failed". It's
+   per-machine, so: `run "winget install --id Microsoft.VCRedist.2015+.x64 -e --silent --accept-source-agreements --accept-package-agreements" -Elevated`2. Copy in the repo's committed files, not its local virtual environments or build output:
+   - `git archive --format zip -o repo.zip HEAD` in the repo (uncommitted changes aren't included;
+     commit first, or use `git stash create` to archive the working tree's tracked files);
+   - `push repo.zip`;
+   - `run "powershell -NoProfile -Command Expand-Archive C:\vmtest\files\repo.zip C:\vmtest\repo -Force"`.
+3. Install the dependencies the way the repo's CI does: read its workflow files, put the steps in a
+   `.cmd` and `run -ScriptFile setup.cmd -Timeout 2400`. Make a virtual environment in
+   `C:\vmtest\repo`, and use the runtime's full path, since PATH may not have caught up yet.
+4. Run the tests the way CI does, with `run` and a generous `-Timeout`. Test windows open and close
+   on the VM's screen, where they belong.
+5. `save` keeps the runtime and dependencies for this task's next `begin`. `end` throws them away.
+   If many tasks need the same runtime, put it into Clean once (the README's "Keeping Clean up to date").
 
 ## Things that catch people out
 
