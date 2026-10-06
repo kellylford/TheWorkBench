@@ -55,6 +55,7 @@ from .dialogs import MessageDialog, NewSessionDialog, SettingsDialog, ShortcutsD
 APP_NAME = "TheClaudeHub"
 LIST_REFRESH_MS = 5000
 UPDATE_CHECK_DELAY_MS = 4000
+APPLY_SPEECH_WAIT_S = 4.0
 CHAT_REFRESH_MS = 2000
 
 _REPLY_KINDS = (ASSISTANT, QUESTION, PLAN, ERROR)
@@ -1203,9 +1204,11 @@ class MainFrame(wx.Frame):
     def check_for_updates(self, manual: bool = True):
         """Look for a newer release in the background.
 
-        At start (``manual=False``) only an available update is announced;
-        "up to date", "no releases yet" and errors go to the status bar.
-        From Help, every outcome is spoken.
+        At start (``manual=False``) an available update is only announced,
+        never asked about: a dialog popping up seconds after launch would take
+        a keystroke meant for something else. "Up to date", "no releases yet"
+        and errors go to the status bar. From Help, every outcome is spoken,
+        even with announcements set to silent, because Kelly asked.
         """
         if self._update_busy:
             if manual:
@@ -1216,7 +1219,7 @@ class MainFrame(wx.Frame):
             self._feedback("Checking for updates.")
 
         def work():
-            result = self.updates.check()
+            result = self.updates.check(manual=manual)
             wx.CallAfter(self._on_update_result, result, manual)
 
         self._pool.submit(work)
@@ -1228,23 +1231,26 @@ class MainFrame(wx.Frame):
         text = result.describe()
         if result.status != AVAILABLE:
             if manual:
-                self._feedback(text)
+                self._say(text, force=True)
             elif result.status == FAILED:
                 self._status(text)
             return
-        self._say(text)
+        if not manual:
+            self._say(f"{text} Help, Check for Updates installs it.")
+            return
         if self._runners:
             self._say(f"{text} It can be installed once Claude finishes; use Help, "
-                      "Check for Updates then.")
+                      "Check for Updates then.", force=True)
             return
-        unsent = self._unsent_text()
+        # The dialog says it all; the screen reader reads it, so nothing is
+        # spoken first. No is the default, so a stray Enter installs nothing.
         question = (f"{text}\n\nInstall it now? TheClaudeHub downloads it, closes, and "
                     "starts the new version. Your sessions and settings are kept.")
-        if unsent:
+        if self._unsent_text():
             question += ("\n\nText you haven't sent in a reply box will be lost, so "
                          "you may want to send or copy it first.")
         answer = wx.MessageBox(question, "Update TheClaudeHub",
-                               wx.YES_NO | wx.YES_DEFAULT | wx.ICON_QUESTION, self)
+                               wx.YES_NO | wx.NO_DEFAULT | wx.ICON_QUESTION, self)
         if answer != wx.YES:
             self._feedback("Not now. Help, Check for Updates installs it later.")
             return
@@ -1261,27 +1267,55 @@ class MainFrame(wx.Frame):
         self._save_draft()
         return any(text.strip() for text in self._drafts.values())
 
+    def _modal_open(self) -> bool:
+        return any(isinstance(w, wx.Dialog) and w.IsShown() and w.IsModal()
+                   for w in wx.GetTopLevelWindows())
+
     def _on_update_downloaded(self, result: CheckResult, ok: bool):
         self._update_busy = False
         if not self:
             return
         if not ok:
             self._say(f"Couldn't download TheClaudeHub {result.version}. Try Help, Check for "
-                      "Updates again later.")
+                      "Updates again later.", force=True)
             return
-        if self._runners:
-            self._say("The update is downloaded. It will be installed the next time "
-                      "TheClaudeHub starts, once Claude has finished.")
+        later = (f"TheClaudeHub {result.version} is downloaded. It will be installed the "
+                 "next time TheClaudeHub starts.")
+        # The download took a while; things may have changed since the yes.
+        if self._runners or self._modal_open():
+            self._say(later, force=True)
             return
-        self._say(f"Installing TheClaudeHub {result.version} and restarting.")
+        if self._unsent_text():
+            answer = wx.MessageBox(
+                f"TheClaudeHub {result.version} is downloaded. Restart now to install it? "
+                "Text you haven't sent in a reply box will be lost.",
+                "Update TheClaudeHub", wx.YES_NO | wx.NO_DEFAULT | wx.ICON_QUESTION, self)
+            if answer != wx.YES or self._runners:
+                self._say(later, force=True)
+                return
+        self._say(f"Installing TheClaudeHub {result.version} and restarting.", force=True)
         self._list_timer.Stop()
         self._chat_timer.Stop()
+        self._update_busy = True
+        # Let the announcement finish (a few seconds at most), then stop the
+        # speech process so nothing of ours is left running in the install
+        # folder Velopack replaces. Applying exits the process.
+        self._apply_update_when_quiet(time.monotonic() + APPLY_SPEECH_WAIT_S)
+
+    def _apply_update_when_quiet(self, deadline: float):
+        if not self:
+            return
+        if speaker.busy() and time.monotonic() < deadline:
+            wx.CallLater(200, self._apply_update_when_quiet, deadline)
+            return
+        speaker.stop()
+        self._update_busy = False
         if not self.updates.apply_and_restart():
             self._list_timer.Start(LIST_REFRESH_MS)
             if self._open is not None:
                 self._chat_timer.Start(CHAT_REFRESH_MS)
             self._say("Couldn't install the update. It will be tried again the next time "
-                      "TheClaudeHub starts.")
+                      "TheClaudeHub starts.", force=True)
 
     def on_about(self, _event=None):
         wx.MessageBox(

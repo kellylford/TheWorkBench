@@ -46,21 +46,29 @@ class FakeManager:
         self.applied.append(update)
 
 
-def service(manager, latest="0.1.0"):
+def service(manager, latest="0.2.0", urls=None):
     def latest_fn():
         if isinstance(latest, Exception):
             raise latest
         return latest
-    return UpdateService("0.1.0", manager_factory=lambda: manager, latest=latest_fn)
+
+    def factory(url):
+        if urls is not None:
+            urls.append(url)
+        return manager
+    return UpdateService("0.1.0", manager_factory=factory, latest=latest_fn)
 
 
 def test_update_available_is_not_downloaded_until_asked():
     manager = FakeManager(Update("0.2.0"))
-    svc = service(manager)
+    urls = []
+    svc = service(manager, urls=urls)
     result = svc.check()
     assert result.status == AVAILABLE and result.version == "0.2.0"
     assert result.describe() == "TheClaudeHub 0.2.0 is available. You have 0.1.0."
-    assert result.url.endswith("/releases/tag/theclaudehub-v0.2.0")
+    # Velopack reads the feed from that one release, not the repo's newest 10.
+    assert urls[-1] == ("https://github.com/kellylford/TheWorkBench/releases/download/"
+                        "theclaudehub-v0.2.0/")
     assert manager.downloaded == []            # nothing happens without a yes
     assert svc.apply_and_restart() is False   # can't apply what isn't downloaded
     assert svc.download() is True
@@ -68,8 +76,9 @@ def test_update_available_is_not_downloaded_until_asked():
     assert manager.applied and manager.applied[0].TargetFullRelease.Version == "0.2.0"
 
 
-def test_up_to_date():
-    result = service(FakeManager(None), latest="0.1.0").check()
+def test_up_to_date_never_asks_velopack():
+    manager = FakeManager(check_error="should not be called")
+    result = service(manager, latest="0.1.0").check()
     assert result.status == CURRENT
     assert result.describe() == "TheClaudeHub is up to date (version 0.1.0)."
 
@@ -80,21 +89,26 @@ def test_no_releases_yet_is_said_plainly():
     assert result.describe().startswith("No TheClaudeHub release has been published yet.")
 
 
-def test_a_feed_error_meaning_no_releases_is_not_reported_as_a_failure():
-    result = service(FakeManager(check_error="404 Not Found: releases.theclaudehub.json")).check()
-    assert result.status == NO_RELEASES
-
-
-def test_other_errors_are_reported_briefly():
-    result = service(FakeManager(check_error="connection reset " * 30)).check()
+def test_newer_release_whose_feed_offers_nothing_is_a_failure_not_up_to_date():
+    # The bug this design fixes: other apps' releases hid TheClaudeHub's feed
+    # and Velopack said "nothing newer" while 0.2.0 was out.
+    result = service(FakeManager(None), latest="0.2.0").check()
     assert result.status == FAILED
-    assert result.describe().startswith("Couldn't check for updates: connection reset")
+    assert "0.2.0 is published" in result.describe()
+    assert "up to date" not in result.describe()
+
+
+def test_feed_errors_are_reported_briefly_not_hidden():
+    result = service(FakeManager(check_error="404 Not Found " * 30)).check()
+    assert result.status == FAILED
+    assert result.describe().startswith("Couldn't check for updates: 404 Not Found")
     assert len(result.detail) <= 160
 
 
-def test_github_unreachable_after_a_good_check_still_says_up_to_date():
+def test_github_unreachable_is_a_failure():
     result = service(FakeManager(None), latest=OSError("offline")).check()
-    assert result.status == CURRENT
+    assert result.status == FAILED
+    assert "GitHub couldn't be reached (offline)" in result.describe()
 
 
 def test_portable_and_source_copies_say_they_cannot_update():
@@ -102,11 +116,19 @@ def test_portable_and_source_copies_say_they_cannot_update():
     assert portable.status == NOT_INSTALLED and portable.version == "0.3.0"
     assert "can't update itself" in portable.describe() and "0.3.0" in portable.describe()
 
-    def broken():
+    def broken(url):
         raise RuntimeError("NotInstalled")
     source = UpdateService("0.1.0", manager_factory=broken, latest=lambda: None).check()
     assert source.status == NOT_INSTALLED
     assert "No release has been published yet" in source.describe()
+
+
+def test_quiet_check_on_a_copy_that_cannot_update_asks_github_nothing():
+    def latest():
+        raise AssertionError("GitHub was asked")
+    portable = UpdateService("0.1.0", manager_factory=lambda url: FakeManager(portable=True),
+                             latest=latest)
+    assert portable.check(manual=False).status == NOT_INSTALLED
 
 
 def test_source_run_never_touches_velopack(monkeypatch):
@@ -140,6 +162,8 @@ def test_latest_published_version_filters_by_prefix():
     only_others = [{"tag_name": "hyperv-manage-v0.9.2"}]
     assert latest_published_version(lambda url: json.dumps(only_others).encode()) is None
     assert latest_published_version(lambda url: b"{}") is None
+    odd = [None, "text", {"tag_name": "theclaudehub-v0.3.0"}]
+    assert latest_published_version(lambda url: json.dumps(odd).encode()) == "0.3.0"
 
 
 # -- data safety ---------------------------------------------------------------------------
@@ -154,6 +178,14 @@ def test_data_folder_is_outside_the_folder_velopack_replaces(tmp_path, monkeypat
                                            tmp_path / "Local" / "TheClaudeHub")
     assert not data_is_outside_install_dir(tmp_path / "Local" / "TheClaudeHub",
                                            tmp_path / "Local" / "TheClaudeHub")
+
+
+def test_installed_copy_checks_the_folder_it_really_runs_from(tmp_path, monkeypatch):
+    root = tmp_path / "Somewhere" / "TheClaudeHub"
+    monkeypatch.setattr(sys, "frozen", True, raising=False)
+    monkeypatch.setattr(sys, "executable", str(root / "current" / "TheClaudeHub.exe"))
+    assert data_is_outside_install_dir(tmp_path / "Roaming" / "TheClaudeHub")
+    assert not data_is_outside_install_dir(root / "data")
 
 
 def test_apply_is_refused_if_data_would_be_replaced(monkeypatch):

@@ -102,13 +102,14 @@ def main(argv: Optional[list] = None) -> int:
     # app with hook arguments and expects it to exit, before anything else.
     from . import updater
 
+    # Logging before the hooks, so a failed install or update hook is recorded.
+    updater.configure_logging()
     updater.bootstrap()
     if "--smoke-test" in argv:
         index = argv.index("--smoke-test")
         target = argv[index + 1] if index + 1 < len(argv) else "smoke-test.json"
         return smoke_test(target)
     install_error_logging()
-    updater.configure_logging()
     try:
         import wx
     except ImportError:

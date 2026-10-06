@@ -1,3 +1,3 @@
 wxPython>=4.2
 # Automatic updates (installed copies only; a source run ignores it).
-velopack
+velopack==1.2.161

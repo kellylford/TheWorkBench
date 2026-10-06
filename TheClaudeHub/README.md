@@ -1,7 +1,9 @@
 # TheClaudeHub
 
 > **Status: version 0.1.0, ready for its first release.** Used with JAWS on Kelly's PC; the
-> installer and updater have been tested in the vmtest VM. It has not yet had a pass with NVDA.
+> installer, uninstaller and update check have been tested in the vmtest VM. Downloading and
+> installing an update needs two published releases, so it is first tried with 0.1.1. It has not
+> yet had a pass with NVDA.
 
 A keyboard and screen reader friendly reader for Claude Code sessions. It lists every session the
 Claude desktop app has open, shows each one as a conversation you can arrow through, tells you
@@ -84,12 +86,15 @@ The app is built for x64; Arm PCs run it under Windows's x64 emulation.
 ## Updates
 
 The installed app checks for a new version a few seconds after it starts, and whenever you choose
-Help, Check for Updates. At start it only speaks up when there is a new version; from Help it
-always says what it found ("up to date", "no release has been published yet", or an error).
+Help, Check for Updates. At start it only speaks up when there is a new version, and then only
+says so: it never opens a dialog you didn't ask for. From Help it always says what it found ("up to
+date", "no release has been published yet", or an error), even with announcements set to silent.
 
-When there is a new version it says so and asks before installing it. If you agree, it downloads
-the update, closes, and starts the new version. It won't install while Claude is working in one of
-its sessions, and it warns you if a reply box holds text you haven't sent.
+From Help, a new version is offered in a Yes/No dialog where No is the default. If you choose Yes,
+it downloads the update, closes, and starts the new version. It won't install while Claude is
+working in one of its sessions, and it warns you if a reply box holds text you haven't sent. If a
+turn starts, a dialog opens, or you type a reply while it downloads, it asks again or leaves the
+update to be installed the next time TheClaudeHub starts.
 
 **Updating never touches your sessions or settings.** The app lives in
 `%LOCALAPPDATA%\TheClaudeHub`, which Velopack replaces on update and removes on uninstall. Your
@@ -99,8 +104,9 @@ refuses to run if that were ever not so. What the updater did is logged in
 
 The version is in Help, About. Releases come from tags named `theclaudehub-v<version>` in
 TheWorkBench, which holds several apps, so TheClaudeHub publishes its update feed on its own
-Velopack channel (`releases.theclaudehub.json`); the updater never confuses another app's release
-for its own.
+Velopack channel (`releases.theclaudehub.json`). The updater finds the newest
+`theclaudehub-v*` release itself and reads the feed from that release only, so however many
+other apps' releases come after it, an update is never missed.
 
 ## Run from source (development)
 
