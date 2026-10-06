@@ -130,6 +130,49 @@ public class ScreenPictureTests
     public void OnlyARunningOrPausedVm_HasAScreen(string state, bool expected) =>
         Assert.Equal(expected, VmStates.CanScreenshot(state));
 
+    /// <summary>
+    /// Runs the real script with Hyper-V's CIM calls replaced by functions that refuse any picture
+    /// larger than maxW by maxH, as Hyper-V refuses one larger than the screen.
+    /// </summary>
+    private static Task<string> RunScriptAgainst(string head, int maxW, int maxH, bool empty = false) =>
+        PowerShellRunner.RunAsync($$"""
+            $vm = [pscustomobject]@{ Id = '61179975-5f1c-4ee0-a830-c0271cc52f50'; Name = 'Lab' }
+            function Get-CimInstance { [CmdletBinding()] param($Namespace, $ClassName, $Filter) [pscustomobject]@{ Name = 'x' } }
+            function Get-CimAssociatedInstance { [CmdletBinding()] param($InputObject, $ResultClassName)
+                if ($ResultClassName -eq 'Msvm_VideoHead') { {{head}} }
+                else { [pscustomobject]@{ VirtualSystemType = 'Microsoft:Hyper-V:System:Realized' } } }
+            function Invoke-CimMethod { [CmdletBinding()] param($InputObject, $MethodName, $Arguments)
+                $w = [int]$Arguments.WidthPixels; $h = [int]$Arguments.HeightPixels
+                if ($w -le {{maxW}} -and $h -le {{maxH}}) {
+                    [pscustomobject]@{ ReturnValue = 0; ImageData = $(if ({{(empty ? "$true" : "$false")}}) { $null } else { [byte[]]::new($w * $h * 2) }) }
+                } else { [pscustomobject]@{ ReturnValue = 32775; ImageData = $null } } }
+
+            """ + PowerShellHyperVService.ScreenshotScript, TestContext.Current.CancellationToken);
+
+    private const string Head1920 = "[pscustomobject]@{ CurrentHorizontalResolution = 1920; CurrentVerticalResolution = 1080 }";
+
+    [Theory]
+    [InlineData(Head1920, 1920, 1080, 1920, 1080)] // the screen's own size
+    [InlineData(Head1920, 1366, 768, 1024, 576)]   // refused: the same shape within 1024 by 768
+    [InlineData("[pscustomobject]@{ CurrentHorizontalResolution = 800; CurrentVerticalResolution = 600 }", 800, 600, 800, 600)]
+    [InlineData("$null", 800, 600, 640, 480)]       // no size to read, and 1024 by 768 refused
+    [InlineData(Head1920, 700, 500, 640, 480)]
+    public async Task TheScript_AsksForTheScreensSize_ThenSmaller(string head, int maxW, int maxH, int w, int h)
+    {
+        var picture = ScreenPicture.Parse(await RunScriptAgainst(head, maxW, maxH), DateTime.Now);
+        Assert.Equal((w, h), (picture.Width, picture.Height));
+    }
+
+    [Fact]
+    public async Task TheScript_RefusedAtEverySize_SaysWhichAndWhy()
+    {
+        var ex = await Assert.ThrowsAsync<HyperVException>(() => RunScriptAgainst(Head1920, 100, 100));
+        Assert.Equal("Hyper-V wouldn't give a picture at any size it was asked for: 1920 by 1080 (error 32775), " +
+                     "1024 by 576 (error 32775), 640 by 480 (error 32775).", ex.Message.Trim());
+        ex = await Assert.ThrowsAsync<HyperVException>(() => RunScriptAgainst("$null", 5000, 5000, empty: true));
+        Assert.Contains("1024 by 768 (an empty picture)", ex.Message);
+    }
+
     [Fact]
     public async Task TheScreenshotScript_IsValidPowerShell()
     {
@@ -272,17 +315,57 @@ public class ScreenshotViewModelTests
     }
 
     [Fact]
-    public async Task TakeAgain_CantBePressedAgainWhileItIsTaking()
+    public async Task TakeAgain_PressedAgainWhileTaking_DoesNothing_ButStaysEnabled()
     {
+        // Disabling the button that has focus would drop keyboard focus onto the bare window.
         var demo = new DemoHyperVService { Delay = TimeSpan.FromMilliseconds(300) };
         var main = new MainViewModel(demo);
         await main.RefreshAsync();
         var s = new ScreenshotViewModel(demo, main.Vms.First(v => v.State == "Running"), Picture(DateTime.Now));
         var taking = s.TakeAgainCommand.ExecuteAsync(null);
         Assert.True(s.IsTaking);
-        Assert.False(s.TakeAgainCommand.CanExecute(null));
-        await taking;
         Assert.True(s.TakeAgainCommand.CanExecute(null));
+        Assert.True(s.TakeAgainCommand.ExecuteAsync(null).IsCompleted);
+        await taking;
+        Assert.False(s.IsTaking);
+    }
+
+    [Fact]
+    public async Task TakeAgain_AfterTheViewerCloses_ShowsNothing()
+    {
+        var demo = new DemoHyperVService { Delay = TimeSpan.FromMilliseconds(300) };
+        var main = new MainViewModel(demo);
+        await main.RefreshAsync();
+        var old = Picture(DateTime.Now);
+        var s = new ScreenshotViewModel(demo, main.Vms.First(v => v.State == "Running"), old);
+        var spoken = new List<string>();
+        s.Announce += spoken.Add;
+        var replaced = false;
+        s.PictureReplaced += () => replaced = true;
+        var taking = s.TakeAgainCommand.ExecuteAsync(null);
+        s.Dispose();
+        await taking;
+        Assert.Same(old, s.Picture);
+        Assert.False(replaced);
+        Assert.Empty(spoken);
+    }
+
+    [Fact]
+    public void ARename_ReachesTheTitleAndPictureName_UntilTheViewerCloses()
+    {
+        var vm = new VmInfo("a") { Name = "Old", State = "Running" };
+        var s = new ScreenshotViewModel(Demo(), vm, Picture(DateTime.Now));
+        var changed = new List<string>();
+        s.PropertyChanged += (_, e) => changed.Add(e.PropertyName!);
+        vm.Name = "New";
+        Assert.Equal("Screen of New", s.Title);
+        Assert.StartsWith("Screen of New,", s.PictureName);
+        Assert.Contains(nameof(ScreenshotViewModel.Title), changed);
+        Assert.Contains(nameof(ScreenshotViewModel.PictureName), changed);
+        s.Dispose();
+        changed.Clear();
+        vm.Name = "Newer";
+        Assert.Empty(changed);
     }
 
     internal static ScreenPicture Picture(DateTime taken) =>
@@ -327,7 +410,7 @@ public class ScreenshotWindowTests
         {
             ShowOffscreen(window);
             var picture = (Image)window.FindName("Picture");
-            Assert.True(picture.IsKeyboardFocused);
+            Assert.True(window.PictureWaitingForFocus);
             var peer = UIElementAutomationPeer.CreatePeerForElement(picture);
             Assert.Equal(AutomationControlType.Image, peer.GetAutomationControlType());
             Assert.Equal($"Screen of Win11-RDP, taken {taken:T}, 2 by 2", peer.GetName());
@@ -338,25 +421,62 @@ public class ScreenshotWindowTests
             // A screen reader moving through the window meets the picture first, then the buttons.
             var children = new WindowAutomationPeer(window).GetChildren();
             Assert.Equal(AutomationControlType.Image, children[0].GetAutomationControlType());
-            Assert.True(picture.MoveFocus(new TraversalRequest(FocusNavigationDirection.Next)));
-            Assert.True(((Button)window.FindName("TakeAgainButton")).IsKeyboardFocused);
+            Assert.Equal(AutomationControlType.Button, children[1].GetAutomationControlType());
         }
         finally { window.Close(); }
     }
 
     [StaFact]
-    public void ANewPicture_TakesFocusBackToThePicture()
+    public void AViewerInTheBackground_StaysThere_WithThePictureReadyForWhenItIsUsed()
     {
+        // As when the picture arrives while the user is in Settings or another app: the viewer
+        // must not take activation, or focus, from them.
         var window = Open(DateTime.Now);
         try
         {
             ShowOffscreen(window);
-            var button = (Button)window.FindName("SaveButton");
+            Assert.False(window.IsActive);
+            var picture = (Image)window.FindName("Picture");
+            Assert.False(picture.IsKeyboardFocused);
+            Assert.True(window.PictureWaitingForFocus);
+            window.ViewModel.Show(ScreenshotViewModelTests.Picture(DateTime.Now.AddSeconds(1)));
+            Pump();
+            Assert.False(window.IsActive);
+            Assert.False(picture.IsKeyboardFocused);
+            Assert.True(window.PictureWaitingForFocus);
+        }
+        finally { window.Close(); }
+    }
+
+    /// <summary>Activates the window, so it only runs with the input tests.</summary>
+    [StaFact(Skip = InputTests.SkipReason, SkipUnless = nameof(InputTests.Enabled), SkipType = typeof(InputTests))]
+    public void InAnActiveViewer_ANewPictureTakesFocusBackToIt_AndAFailedOneLeavesFocusOnTheButton()
+    {
+        TestApp.Ensure();
+        var demo = new DemoHyperVService { Delay = TimeSpan.Zero };
+        var vm = new VmInfo("a") { Name = "Win11-RDP", State = "Running" };
+        var window = new ScreenshotWindow(new ScreenshotViewModel(demo, vm, ScreenshotViewModelTests.Picture(DateTime.Now)))
+            { WindowStartupLocation = WindowStartupLocation.Manual, Left = 0, Top = 0 };
+        try
+        {
+            window.Show();
+            window.Activate();
+            Pump();
+            var button = (Button)window.FindName("TakeAgainButton");
             button.Focus();
             Pump();
             window.ViewModel.Show(ScreenshotViewModelTests.Picture(DateTime.Now.AddSeconds(1)));
             Pump();
             Assert.True(((Image)window.FindName("Picture")).IsKeyboardFocused);
+
+            // The VM id isn't one the demo knows, so taking it again fails.
+            button.Focus();
+            Pump();
+            window.ViewModel.TakeAgainCommand.Execute(null);
+            Pump();
+            Pump();
+            Assert.True(button.IsKeyboardFocused);
+            Assert.Contains("Couldn't take a new picture", window.ViewModel.StatusText);
         }
         finally { window.Close(); }
     }

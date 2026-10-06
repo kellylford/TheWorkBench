@@ -269,10 +269,11 @@ hyperv-manage/
 - **Screenshots come from Hyper-V's WMI classes**, since no cmdlet takes one:
   `Msvm_VirtualSystemManagementService.GetVirtualSystemThumbnailImage`. Hyper-V refuses a
   picture larger than the VM's screen is now, so the app reads that size from the VM's
-  `Msvm_VideoHead` and asks for exactly it (falling back to the same shape within 1024 by 768).
-  The pixels come as 16-bit RGB565 after a 4-byte header that holds the data's length; the app
-  drops the header only when it says exactly that, and refuses data of any other size rather
-  than show a shifted picture.
+  `Msvm_VideoHead` and asks for exactly it. Failing that it asks for the same shape within
+  1024 by 768 (plain 1024 by 768 when the size can't be read), then 640 by 480. The pixels
+  come as 16-bit RGB565 after a 4-byte header that holds the data's length; the app drops the
+  header only when it says exactly that, and refuses data of any other size rather than show a
+  shifted picture.
 
 ## Testing it on a real machine
 

@@ -26,6 +26,14 @@ public partial class ScreenshotWindow : Window
         vm.Announce += text => Announcer.Announce(this, text);
         vm.PictureReplaced += OnPictureReplaced;
         Loaded += (_, _) => FocusPicture();
+        Activated += (_, _) =>
+        {
+            if (!_pictureWaiting) return;
+            _pictureWaiting = false;
+            // After WPF has put back whatever had focus when the window was last used.
+            Dispatcher.BeginInvoke(() => { if (IsActive) Keyboard.Focus(Picture); }, DispatcherPriority.Input);
+        };
+        Closed += (_, _) => vm.Dispose();
         PreviewKeyDown += OnPreviewKeyDown;
     }
 
@@ -34,14 +42,29 @@ public partial class ScreenshotWindow : Window
     /// <summary>Saves pictures without a dialog, for the tests. Null shows the Save As dialog.</summary>
     internal Func<string, string?>? ChooseSavePath { get; set; }
 
-    private void FocusPicture() =>
-        Dispatcher.BeginInvoke(() => { Picture.Focus(); Keyboard.Focus(Picture); }, DispatcherPriority.Input);
+    /// <summary>True when the picture is to get focus the next time the window is activated.</summary>
+    private bool _pictureWaiting = true;
+
+    /// <summary>
+    /// Puts focus on the picture now if the window is active, or else the next time it is.
+    /// Focusing anything in a window in the background would bring it to the front (WPF does that
+    /// even for FocusManager.SetFocusedElement), pulling someone out of whatever they had moved on
+    /// to while the picture was being taken, a dialog included.
+    /// </summary>
+    internal bool PictureWaitingForFocus => _pictureWaiting;
+
+    private void FocusPicture()
+    {
+        if (!IsActive) { _pictureWaiting = true; return; }
+        _pictureWaiting = false;
+        Dispatcher.BeginInvoke(() => { if (IsActive) Keyboard.Focus(Picture); }, DispatcherPriority.Input);
+    }
 
     private void OnPictureReplaced()
     {
         // Moving focus to it reads its new name. If it already has focus, nothing would be read,
-        // so say it.
-        if (Picture.IsKeyboardFocused) Announcer.Announce(this, ViewModel.StatusText);
+        // so say it. A window in the background says nothing; its picture is read when it's next used.
+        if (IsActive && Picture.IsKeyboardFocused) Announcer.Announce(this, ViewModel.StatusText);
         else FocusPicture();
     }
 

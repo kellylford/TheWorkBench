@@ -349,14 +349,18 @@ public sealed class PowerShellHyperVService : IHyperVService
     public async Task<SavedConnection> SaveConnectionFileAsync(VmInfo vm, CancellationToken ct = default) =>
         await RemoteDesktop.SaveDesktopFileAsync(vm.Name, await CurrentAddressesAsync(vm, ct).ConfigureAwait(false)).ConfigureAwait(false);
 
+    // Not ConfigureAwait(false): the picture is made with WPF's imaging classes, which tie
+    // themselves to the thread that makes them, so it is made back on the caller's (UI) thread
+    // rather than leaving a dispatcher behind on a thread-pool thread. It takes milliseconds.
     public async Task<ScreenPicture> TakeScreenshotAsync(string vmId, CancellationToken ct = default) =>
-        ScreenPicture.Parse(await PowerShellRunner.RunAsync(GetVm(vmId) + ScreenshotScript, ct).ConfigureAwait(false), DateTime.Now);
+        ScreenPicture.Parse(await PowerShellRunner.RunAsync(GetVm(vmId) + ScreenshotScript, ct), DateTime.Now);
 
     /// <summary>
     /// Hyper-V's own picture of the screen, from the host, so nothing is needed inside the VM.
     /// Hyper-V refuses a picture larger than the VM's screen is now, so it asks for exactly that
     /// size, read from the VM's video head; failing that, the same shape fitted within 1024 by
-    /// 768. Cmdlets don't offer this, so it goes through Hyper-V's WMI classes. The JSON is put
+    /// 768, and last 640 by 480, which any screen holds (firmware and early boot can be that
+    /// small, and a VM with no video head to read has nothing better to go on). Cmdlets don't offer this, so it goes through Hyper-V's WMI classes. The JSON is put
     /// together by hand: ConvertTo-Json is slow on megabytes of base64.
     /// </summary>
     internal const string ScreenshotScript = """
@@ -378,7 +382,8 @@ public sealed class PowerShellHyperVService : IHyperVService
         } else {
             $sizes += ,@(1024, 768)
         }
-        $code = 0
+        $sizes += ,@(640, 480)
+        $refused = @()
         foreach ($size in $sizes) {
             $r = Invoke-CimMethod -InputObject $service -MethodName GetVirtualSystemThumbnailImage -Arguments @{
                 TargetSystem = $settings; WidthPixels = [uint16]$size[0]; HeightPixels = [uint16]$size[1] }
@@ -386,9 +391,9 @@ public sealed class PowerShellHyperVService : IHyperVService
                 '{"Width":' + $size[0] + ',"Height":' + $size[1] + ',"Data":"' + [Convert]::ToBase64String([byte[]]$r.ImageData) + '"}'
                 return
             }
-            $code = $r.ReturnValue
+            $refused += $(if ($r.ReturnValue -eq 0) { "$($size[0]) by $($size[1]) (an empty picture)" } else { "$($size[0]) by $($size[1]) (error $($r.ReturnValue))" })
         }
-        throw "Hyper-V returned error $code. The VM has to be running or paused."
+        throw "Hyper-V wouldn't give a picture at any size it was asked for: $($refused -join ', ')."
         """;
 
     /// <summary>
