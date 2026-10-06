@@ -511,3 +511,42 @@ def test_forget_keeps_the_place_and_desktop_delete_is_spoken(frame, env):
     assert frame.session_list.GetSelection() == index
     assert frame.session_list.GetStringSelection().startswith("Quiet one")
     assert env["feedback"][-1] == "Forgot Hub probe."
+
+
+def test_new_session_view_says_claude_is_starting(frame, env, fake_runner, monkeypatch):
+    from theclaudehub.ui import main_frame
+
+    class FakeDialog:
+        def __init__(self, parent, folder):
+            pass
+
+        def ShowModal(self):
+            return wx.ID_OK
+
+        def values(self):
+            return ("C:/G/Brand","Brand new work", "auto", "Start the thing")
+
+        def Destroy(self):
+            pass
+    monkeypatch.setattr(main_frame, "NewSessionDialog", FakeDialog)
+    frame.on_new_session()
+    runner = fake_runner.instances[0]
+    assert "--session-id" in runner.command and runner.prompt == "Start the thing"
+    assert frame.book.GetSelection() == 1
+    assert frame._open.title == "Brand new work"
+    frame._refresh_chat()
+    assert frame.chat_list.GetString(0) == "No messages yet. Claude is starting this session."
+    assert not frame._chat_loaded          # keeps looking for the transcript
+    assert not frame.send_btn.IsEnabled()  # its first turn is running
+    # Before the transcript exists, later ticks don't rewrite (and re-read) the list.
+    frame.chat_list.SetSelection(0)
+    frame._refresh_chat()
+    assert frame.chat_list.GetSelection() == 0
+    # The first turn fails before Claude creates the session.
+    frame._on_turn_event({"id": runner.command[runner.command.index("--session-id") + 1]},
+                         "Brand new work",
+                         TurnEvent("failed", text="Not logged in.", is_error=True))
+    frame._refresh_chat()
+    assert frame.chat_list.GetString(0).startswith("No messages yet. The first message "
+                                                   "didn't reach Claude")
+    assert frame.reply_text.GetValue() == "Start the thing"

@@ -137,3 +137,22 @@ def test_store_that_cannot_be_set_aside_refuses_to_save(tmp_path, monkeypatch):
 def test_store_missing_file_is_empty_without_error(tmp_path):
     store = OwnSessionStore(tmp_path / "none.json")
     assert store.all() == [] and store.load_error == ""
+
+
+def test_store_locked_at_startup_is_never_overwritten(tmp_path, monkeypatch):
+    path = tmp_path / "sessions.json"
+    good = json.dumps({"sessions": [{"cli_session_id": "keep-me", "title": "T", "cwd": "C:/"}]})
+    path.write_text(good, encoding="utf-8")
+    real_read = type(path).read_text
+
+    def locked(self, *a, **k):
+        if self == path:
+            raise PermissionError("in use by another process")
+        return real_read(self, *a, **k)
+    monkeypatch.setattr(type(path), "read_text", locked)
+    store = OwnSessionStore(path)
+    assert store.all() == [] and "in use" in store.load_error
+    with pytest.raises(OSError):
+        store.add(OwnSession("new", "T", "C:/"))
+    monkeypatch.undo()
+    assert path.read_text(encoding="utf-8") == good

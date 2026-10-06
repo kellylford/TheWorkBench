@@ -220,14 +220,22 @@ def claude_executable() -> Optional[str]:
     return find_claude().path
 
 
+CREATE_SUSPENDED = 0x00000004
+
+
 class ProcessTree:
     """Lets a child process be killed together with everything it started.
 
     On Windows the child goes into a Job Object with KILL_ON_JOB_CLOSE, so
-    terminating the job (or TheClaudeHub exiting) ends the whole tree: claude
-    runs tools as child processes, and killing only claude.exe would leave a
-    long build or test run going. If the job can't be set up, ``kill`` falls
-    back to ``taskkill /T /F``. Elsewhere the child gets its own process group.
+    terminating the job, closing it when the turn ends, or TheClaudeHub
+    exiting ends the whole tree: claude runs tools as child processes, and
+    killing only claude.exe would leave a long build or test run going. It
+    also means anything Claude started and left running ends with the turn.
+
+    The child is created suspended and only resumed once it is in the job, so
+    nothing it starts can escape the job in between. If the job can't be set
+    up the child is still resumed, and ``kill`` falls back to
+    ``taskkill /T /F``. Elsewhere the child gets its own process group.
     """
 
     def __init__(self) -> None:
@@ -237,30 +245,37 @@ class ProcessTree:
     @staticmethod
     def popen_kwargs() -> dict:
         if sys.platform == "win32":
-            return {"creationflags": hidden_window_flags()}
+            return {"creationflags": hidden_window_flags() | CREATE_SUSPENDED}
         return {"start_new_session": True}
 
     def attach(self, process) -> None:
+        """Put a (suspended) child into the job, then let it run. Raises if a
+        real Windows child can't be resumed, after killing it, so a turn never
+        hangs on a process that was never started."""
         self._pid = getattr(process, "pid", None)
-        if sys.platform != "win32" or not isinstance(self._pid, int):
+        handle = getattr(process, "_handle", None)
+        if sys.platform != "win32" or not isinstance(self._pid, int) or handle is None:
             return
         try:
             self._job = _create_kill_on_close_job()
-            if self._job is not None and not _assign_to_job(self._job, process):
+            if self._job is not None and not _assign_to_job(self._job, int(handle)):
                 _close_handle(self._job)
                 self._job = None
         except Exception:  # noqa: BLE001 - fall back to taskkill
             self._job = None
+        if not _resume_process(int(handle)):
+            try:
+                process.kill()
+            except OSError:
+                pass
+            raise OSError("Couldn't start claude (it could not be resumed).")
 
     def kill(self) -> None:
         if self._pid is None:
             return
         if sys.platform == "win32":
-            if self._job is not None:
-                import ctypes
-
-                if ctypes.windll.kernel32.TerminateJobObject(self._job, 1):
-                    return
+            if self._job is not None and _kernel32().TerminateJobObject(self._job, 1):
+                return
             import subprocess
 
             subprocess.run(["taskkill", "/T", "/F", "/PID", str(self._pid)],
@@ -274,9 +289,49 @@ class ProcessTree:
             pass
 
     def close(self) -> None:
+        """Close the job. KILL_ON_JOB_CLOSE ends anything still in it."""
         if self._job is not None:
             _close_handle(self._job)
             self._job = None
+
+
+_K32 = None
+
+
+def _kernel32():
+    """kernel32 with argument and result types declared, so 64-bit handles
+    are passed whole instead of being truncated to C ints."""
+    global _K32
+    if _K32 is not None:
+        return _K32
+    import ctypes
+    from ctypes import wintypes
+
+    k = ctypes.WinDLL("kernel32", use_last_error=True)
+    k.CreateJobObjectW.argtypes = [wintypes.LPVOID, wintypes.LPCWSTR]
+    k.CreateJobObjectW.restype = wintypes.HANDLE
+    k.SetInformationJobObject.argtypes = [wintypes.HANDLE, ctypes.c_int,
+                                          wintypes.LPVOID, wintypes.DWORD]
+    k.SetInformationJobObject.restype = wintypes.BOOL
+    k.AssignProcessToJobObject.argtypes = [wintypes.HANDLE, wintypes.HANDLE]
+    k.AssignProcessToJobObject.restype = wintypes.BOOL
+    k.TerminateJobObject.argtypes = [wintypes.HANDLE, wintypes.UINT]
+    k.TerminateJobObject.restype = wintypes.BOOL
+    k.CloseHandle.argtypes = [wintypes.HANDLE]
+    k.CloseHandle.restype = wintypes.BOOL
+    _K32 = k
+    return k
+
+
+def _resume_process(handle: int) -> bool:
+    """Resume a process created with CREATE_SUSPENDED (its only thread)."""
+    import ctypes
+    from ctypes import wintypes
+
+    ntdll = ctypes.WinDLL("ntdll")
+    ntdll.NtResumeProcess.argtypes = [wintypes.HANDLE]
+    ntdll.NtResumeProcess.restype = ctypes.c_long
+    return ntdll.NtResumeProcess(handle) == 0
 
 
 def _create_kill_on_close_job():
@@ -306,37 +361,25 @@ def _create_kill_on_close_job():
                     ("PeakProcessMemoryUsed", ctypes.c_size_t),
                     ("PeakJobMemoryUsed", ctypes.c_size_t)]
 
-    kernel32 = ctypes.windll.kernel32
-    kernel32.CreateJobObjectW.restype = wintypes.HANDLE
-    job = kernel32.CreateJobObjectW(None, None)
+    k = _kernel32()
+    job = k.CreateJobObjectW(None, None)
     if not job:
         return None
     info = EXTENDED()
     info.BasicLimitInformation.LimitFlags = 0x2000  # JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE
-    ok = kernel32.SetInformationJobObject(wintypes.HANDLE(job), 9,  # ExtendedLimitInformation
-                                          ctypes.byref(info), ctypes.sizeof(info))
-    if not ok:
+    if not k.SetInformationJobObject(job, 9,  # JobObjectExtendedLimitInformation
+                                     ctypes.byref(info), ctypes.sizeof(info)):
         _close_handle(job)
         return None
     return job
 
 
-def _assign_to_job(job, process) -> bool:
-    import ctypes
-    from ctypes import wintypes
-
-    handle = getattr(process, "_handle", None)
-    if handle is None:
-        return False
-    return bool(ctypes.windll.kernel32.AssignProcessToJobObject(
-        wintypes.HANDLE(job), wintypes.HANDLE(int(handle))))
+def _assign_to_job(job, process_handle: int) -> bool:
+    return bool(_kernel32().AssignProcessToJobObject(job, process_handle))
 
 
 def _close_handle(handle) -> None:
-    import ctypes
-    from ctypes import wintypes
-
-    ctypes.windll.kernel32.CloseHandle(wintypes.HANDLE(handle))
+    _kernel32().CloseHandle(handle)
 
 
 def bring_window_forward(title_matches) -> bool:

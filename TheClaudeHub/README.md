@@ -143,7 +143,11 @@ into one of its own sessions while that session is running somewhere else. One t
 per session: Send is disabled until the turn finishes.
 
 A turn runs `claude` in a Windows job object, so Stop, or quitting the app, ends `claude` and every
-program it started (a build or test run, say), not just `claude` itself.
+program it started (a build or test run, say), not just `claude` itself. The same happens when a
+turn finishes normally: anything Claude started and left running, such as a development server,
+ends with the turn. (Ask Claude to start long-running servers in a terminal of your own instead.)
+`claude` is started suspended and only let run once it's in the job, so nothing it starts can
+slip out first.
 
 ### What headless sessions do with questions and permissions
 

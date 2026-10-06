@@ -96,6 +96,12 @@ BILLING_VARS = frozenset({
 
 _STRIP = SESSION_INJECTED_VARS | BILLING_VARS
 
+#: Whole families a host session sets, including names newer Claude Code
+#: versions add. User settings (CLAUDE_CODE_GIT_BASH_PATH and the like) don't
+#: use these prefixes.
+SESSION_INJECTED_PREFIXES = ("CLAUDE_CODE_SDK_", "CLAUDE_CODE_HOST_",
+                             "CLAUDE_CODE_MESSAGING_")
+
 
 class ResumeRefused(ValueError):
     """--resume was asked for a session TheClaudeHub does not own."""
@@ -104,7 +110,9 @@ class ResumeRefused(ValueError):
 def child_environment(base: Optional[Dict[str, str]] = None) -> Dict[str, str]:
     """The environment for a ``claude`` child process (see module docstring)."""
     base = dict(os.environ if base is None else base)
-    return {k: v for k, v in base.items() if k.upper() not in _STRIP}
+    return {k: v for k, v in base.items()
+            if k.upper() not in _STRIP
+            and not k.upper().startswith(SESSION_INJECTED_PREFIXES)}
 
 
 def normalize_permission_mode(mode: str) -> str:

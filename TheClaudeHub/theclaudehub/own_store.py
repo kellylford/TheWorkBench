@@ -101,7 +101,12 @@ class OwnSessionStore:
         except FileNotFoundError:
             return
         except OSError as exc:
-            self.load_error = f"Couldn't read {self.path}: {exc}"
+            # Locked or unreadable right now (antivirus, a sync tool): the
+            # data may be fine, so never save over it this run.
+            self.load_error = (f"Couldn't read TheClaudeHub's session list ({self.path}): "
+                               f"{exc}. Changes won't be saved until TheClaudeHub is "
+                               "restarted and can read it.")
+            self._save_blocked = True
             return
         except ValueError as exc:
             self._set_aside(f"isn't valid JSON ({exc})")

@@ -101,12 +101,17 @@ def test_child_environment_strips_session_and_billing_vars_only():
         "CLAUDECODE": "1", "CLAUDE_CODE_SDK_HAS_HOST_AUTH_REFRESH": "1",
         "CLAUDE_CODE_SESSION_ID": "s", "CLAUDE_CODE_OAUTH_TOKEN": "o",
         "claude_code_entrypoint": "lower",
+        # Families a host session sets, including names not in the list yet.
+        "CLAUDE_CODE_SDK_FUTURE_THING": "1", "CLAUDE_CODE_HOST_PORT": "1",
+        "claude_code_messaging_new": "1",
+        "CLAUDE_CODE_GIT_BASH_PATH_EXTRA": "kept",
         # Chosen by the user: kept.
         "CLAUDE_CONFIG_DIR": "D:/c", "CLAUDE_CODE_GIT_BASH_PATH": "C:/Git/bash.exe",
         "HTTPS_PROXY": "http://proxy", "API_TIMEOUT_MS": "60000",
         "ANTHROPIC_MODEL": "opus",
     })
     assert env == {"PATH": "x", "USERPROFILE": "u", "CLAUDE_CONFIG_DIR": "D:/c",
+                   "CLAUDE_CODE_GIT_BASH_PATH_EXTRA": "kept",
                    "CLAUDE_CODE_GIT_BASH_PATH": "C:/Git/bash.exe",
                    "HTTPS_PROXY": "http://proxy", "API_TIMEOUT_MS": "60000",
                    "ANTHROPIC_MODEL": "opus"}
@@ -416,7 +421,18 @@ def test_permission_modes_offered():
 FAKE_CLAUDE = Path(__file__).with_name("fake_claude.py")
 
 
-def run_real(tmp_path, prompt, mode="normal", cancel_after=None):
+def wait_for_pid_file(path, timeout=20.0):
+    import time
+    deadline = time.time() + timeout
+    while time.time() < deadline:
+        try:
+            return int(path.read_text().strip())
+        except (OSError, ValueError):
+            time.sleep(0.05)
+    raise AssertionError(f"{path} never appeared")
+
+
+def run_real(tmp_path, prompt, mode="normal", cancel_when_started=False):
     log = tmp_path / "fake.log"
     env = {**child_environment(), "FAKE_CLAUDE_LOG": str(log), "FAKE_CLAUDE_MODE": mode,
            "CLAUDECODE": "1"}
@@ -431,8 +447,10 @@ def run_real(tmp_path, prompt, mode="normal", cancel_after=None):
     runner = TurnRunner([sys.executable, str(FAKE_CLAUDE), "--session-id", "abc-1"],
                         str(tmp_path), prompt, on_event, env=env)
     runner.start()
-    if cancel_after is not None:
-        threading.Timer(cancel_after, runner.cancel).start()
+    if cancel_when_started:
+        # Cancel only once the grandchild really exists.
+        wait_for_pid_file(tmp_path / "grandchild.pid")
+        runner.cancel()
     assert done.wait(30)
     runner.join(10)
     return events, (json.loads(log.read_text(encoding="utf-8")) if log.exists() else None)
@@ -451,7 +469,7 @@ def test_real_child_process_pipes_bytes_exactly(tmp_path):
 
 
 def test_real_child_process_cancel_kills_the_tree(tmp_path):
-    events, seen = run_real(tmp_path, "wait", mode="hang", cancel_after=1.5)
+    events, seen = run_real(tmp_path, "wait", mode="hang", cancel_when_started=True)
     assert events[-1].kind == "failed" and events[-1].text == "Stopped."
     grandchild = int((tmp_path / "grandchild.pid").read_text())
     import time

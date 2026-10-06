@@ -38,7 +38,9 @@ import re
 import subprocess
 import sys
 import tempfile
+import threading
 import time
+from collections import deque
 from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import List, Optional
@@ -315,17 +317,27 @@ def strip_for_speech(text: str) -> str:
 
 
 class Speaker:
-    """Runs the bundled engine script as a detached process.
+    """Runs the bundled engine script, one utterance at a time.
 
-    One speaker at a time: starting a new utterance kills the previous
-    process first (ClaudeSpeak's pid-file model, held in-process here). For
-    screen-reader routes the interrupt also happens at the API level —
+    Utterances are queued and spoken in order by a background thread, each
+    engine process finishing before the next starts, so two system-voice
+    utterances never talk over each other. An interrupting utterance (an
+    announcement) first stops everything: the queue is emptied and every
+    engine process still running is killed (ClaudeSpeak's model, held
+    in-process). A non-interrupting one (a short confirmation) waits its turn.
+    For screen-reader routes the interrupt also happens at the API level —
     ``SayString(text, true)`` / ``nvdaController_cancelSpeech()`` — because
     killing our process cannot silence speech the reader already queued.
     """
 
-    def __init__(self):
-        self._process: Optional[subprocess.Popen] = None
+    def __init__(self, popen=subprocess.Popen):
+        self._popen = popen
+        self._lock = threading.Lock()
+        self._queue: "deque[list]" = deque()
+        self._running: List[subprocess.Popen] = []
+        self._wake = threading.Condition(self._lock)
+        self._worker: Optional[threading.Thread] = None
+        self._generation = 0
 
     @property
     def workdir(self) -> Path:
@@ -349,17 +361,16 @@ class Speaker:
         return None
 
     def speak(self, text: str, settings: SpeechSettings, interrupt: bool = True) -> bool:
-        """Start speaking ``text``; returns False when speech is unavailable.
+        """Queue ``text``; returns False when speech is unavailable.
 
-        Never raises and never blocks: all the work happens in the detached
-        engine process. ``interrupt=False`` (TheClaudeHub's short confirmations)
-        queues behind whatever the screen reader is saying instead of cutting
-        it off, and leaves an earlier utterance's process running.
+        Never raises and never blocks. ``interrupt=True`` stops whatever is
+        being said or waiting first; ``interrupt=False`` (TheClaudeHub's short
+        confirmations) waits for it, and asks a screen reader to queue rather
+        than cut itself off.
         """
         spoken = strip_for_speech(text)
         if not spoken:
             return False
-
         if interrupt:
             self.stop()
         try:
@@ -384,24 +395,69 @@ class Speaker:
                 ),
                 encoding="utf-8",
             )
-
             command = self._command(text_file, config_file)
             if command is None:
                 return False
+        except Exception:
+            return False
+        with self._lock:
+            self._queue.append(command)
+            if self._worker is None or not self._worker.is_alive():
+                self._worker = threading.Thread(target=self._drain, name="speech",
+                                                daemon=True)
+                self._worker.start()
+            self._wake.notify_all()
+        return True
+
+    def _drain(self) -> None:
+        while True:
+            with self._lock:
+                if not self._queue:
+                    self._worker = None
+                    return
+                command = self._queue.popleft()
+                generation = self._generation
             kwargs = {}
             if sys.platform == "win32":
                 kwargs["creationflags"] = subprocess.CREATE_NO_WINDOW
-            self._process = subprocess.Popen(
-                command,
-                stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL,
-                stdin=subprocess.DEVNULL,
-                **kwargs,
-            )
-            return True
-        except Exception:
-            self._process = None
-            return False
+            try:
+                process = self._popen(command, stdout=subprocess.DEVNULL,
+                                      stderr=subprocess.DEVNULL,
+                                      stdin=subprocess.DEVNULL, **kwargs)
+            except Exception:
+                continue
+            with self._lock:
+                if generation != self._generation:
+                    # stop() ran while this one was starting.
+                    _kill_quietly(process)
+                    continue
+                self._running.append(process)
+            try:
+                process.wait(timeout=120)
+            except Exception:
+                _kill_quietly(process)
+            with self._lock:
+                if process in self._running:
+                    self._running.remove(process)
+
+    def busy(self) -> bool:
+        with self._lock:
+            return bool(self._queue or self._running)
+
+    def stop(self) -> None:
+        """Empty the queue and kill every engine process. Never raises.
+
+        Stops system-voice audio immediately (the synthesizer lives in those
+        processes). Speech already queued inside JAWS/NVDA/VoiceOver keeps
+        their own silence key as the off switch — same behaviour as
+        ClaudeSpeak.
+        """
+        with self._lock:
+            self._generation += 1
+            self._queue.clear()
+            running, self._running = self._running, []
+        for process in running:
+            _kill_quietly(process)
 
     def _sweep_old_files(self, max_age: float = 300.0) -> None:
         cutoff = time.time() - max_age
@@ -415,25 +471,15 @@ class Speaker:
         except OSError:
             pass
 
-    def stop(self) -> None:
-        """Kill the current speaker process, if any. Never raises.
 
-        Stops system-voice audio immediately (the synthesizer lives in that
-        process). Speech already queued inside JAWS/NVDA/VoiceOver keeps
-        their own silence key as the off switch — same behaviour as
-        ClaudeSpeak.
-        """
-        process, self._process = self._process, None
-        if process is None:
-            return
-        try:
-            if process.poll() is None:
-                process.kill()
-        except Exception:
-            # The process may have exited between poll and kill, or the OS
-            # may refuse; either way there is nothing further to stop, and
-            # raising from stop() would break every caller's cleanup path.
-            pass
+def _kill_quietly(process) -> None:
+    try:
+        if process.poll() is None:
+            process.kill()
+    except Exception:
+        # It may have exited between poll and kill, or the OS may refuse;
+        # either way there is nothing further to stop.
+        pass
 
 
 #: Module-level speaker shared by the app — one voice at a time is the point.

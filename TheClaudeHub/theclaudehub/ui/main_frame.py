@@ -645,8 +645,13 @@ class MainFrame(wx.Frame):
         if self._chat_loaded:
             return
         self._chat_loaded = True
-        if info.is_own and info.cli_session_id in self._runners:
-            line = "No messages yet. Claude is starting this session."
+        own = self.store.get(info.cli_session_id) if info.is_own else None
+        if info.is_own and (info.cli_session_id in self._runners
+                            or (own is not None and not own.started)):
+            line = ("No messages yet. Claude is starting this session."
+                    if info.cli_session_id in self._runners else
+                    "No messages yet. The first message didn't reach Claude; send it again "
+                    "from the Reply tab.")
             self._chat_loaded = False  # keep looking until it appears
         elif info.is_own:
             line = ("No transcript found for this session. Claude Code may not have "
@@ -655,6 +660,8 @@ class MainFrame(wx.Frame):
             line = ("No transcript: this session's history is no longer on disk. Claude "
                     "Code deletes transcripts after its retention period (cleanupPeriodDays "
                     "in Claude's settings).")
+        if list(self.chat_list.GetStrings()) == [line]:
+            return  # already showing it: don't make the reader re-read every tick
         self.chat_list.Set([line])
         self.chat_list.SetSelection(0)
         self.message_text.SetValue(line)
@@ -854,8 +861,9 @@ class MainFrame(wx.Frame):
                          permission_mode=mode, started=False)
         if not self._store_write(self.store.add, own):
             return
-        self.open_session(own.to_info())
+        # Start the turn first, so the session view sees it running.
         self._start_turn(own.cli_session_id, command, folder, message, title)
+        self.open_session(own.to_info())
         self.refresh_sessions()
 
     def on_send(self, _event=None):
