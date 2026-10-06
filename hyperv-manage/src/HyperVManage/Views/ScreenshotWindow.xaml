@@ -38,8 +38,7 @@
         <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="8">
             <Button x:Name="TakeAgainButton" Content="_Take Again" Command="{Binding TakeAgainCommand}" MinWidth="90" Margin="0,0,8,0"
                     AutomationProperties.AcceleratorKey="F5"/>
-            <Button x:Name="OcrButton" Content="Run Windows _OCR" Command="{Binding RunOcrCommand}" Padding="8,0" Margin="0,0,8,0"
-                    AutomationProperties.HelpText="Reads the text in the picture and adds it to What's on screen."/>
+            <Button x:Name="OcrButton" Content="Run Windows _OCR" Command="{Binding RunOcrCommand}" Padding="8,0" Margin="0,0,8,0"/>
             <Button x:Name="CopyButton" Content="_Copy" Click="Copy_Click" MinWidth="90" Margin="0,0,8,0"
                     AutomationProperties.AcceleratorKey="Ctrl+Shift+C"/>
             <Button x:Name="SaveButton" Content="_Save As…" Click="Save_Click" MinWidth="90" Margin="0,0,8,0"
