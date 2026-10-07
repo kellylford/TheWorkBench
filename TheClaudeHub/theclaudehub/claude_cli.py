@@ -233,6 +233,31 @@ def check_resume_allowed(session_id: str, own_ids: Collection[str],
         raise ResumeRefused("TheClaudeHub only sends messages to sessions it started.")
 
 
+def build_fork_command(executable: str, source_id: str, new_id: str, title: str,
+                       permission_mode: str, model: str = "",
+                       taken_ids: Collection[str] = ()) -> List[str]:
+    """Command for the first turn of a copy of another session (#189), such
+    as a desktop app session, to carry on in TheClaudeHub.
+
+    ``--resume <source> --fork-session --session-id <new>``: Claude Code reads
+    the source's history and writes only to the new session. Checked with
+    Claude Code 2.1.286: the source transcript was byte for byte the same
+    afterwards, the new id was the one asked for, and Claude knew the earlier
+    conversation. So this is allowed for desktop sessions, where a plain
+    ``--resume`` is not; the new id must be one nobody has.
+    """
+    if not platform_paths.is_safe_id(source_id) or source_id.startswith("local_"):
+        raise ResumeRefused("That is not a session id Claude Code can continue from.")
+    if not platform_paths.is_safe_id(new_id) or new_id == source_id or new_id in taken_ids:
+        raise ValueError("The new session needs an id of its own.")
+    command = [executable, *_common_flags(permission_mode, model),
+               "--resume", source_id, "--fork-session", "--session-id", new_id]
+    title = " ".join((title or "").split())
+    if title:
+        command += ["--name", title]
+    return command
+
+
 def build_resume_command(executable: str, session_id: str, permission_mode: str,
                          own_ids: Collection[str],
                          desktop_ids: Collection[str], model: str = "",

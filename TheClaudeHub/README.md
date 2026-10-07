@@ -42,6 +42,11 @@ session list is always there.
   back to its messages where you left them, without reloading.
 - **Open in Claude** (Ctrl+O) switches the desktop app to the session, for approving a permission
   prompt or answering a question card in a desktop app session.
+- **Continue Here** (Ctrl+Shift+N, or the button beside Open in Claude) carries a desktop app
+  session on in TheClaudeHub, as a copy: a new TheClaudeHub session in the same folder, with the
+  whole conversation so far in its messages, that you reply to here. You type its first message
+  in the same dialog as New Session; the title starts as "<title> (continued)". The desktop app
+  session isn't changed, and what you do in the copy doesn't appear in it.
 - **New Session** (Ctrl+N) starts a session of TheClaudeHub's own: choose a folder, a title,
   the model (Alt+D), a permission mode (auto by default; accept edits, manual and plan are
   offered) and the first message. The models are Default (your Claude Code setting), Opus,
@@ -167,6 +172,7 @@ The same list is in the app under Help, Keyboard Shortcuts (F1).
 | Session list | Enter | Load that session and move to its messages |
 | Session list | Ctrl+O | Open the selected session in the Claude desktop app |
 | Session list | Ctrl+N | New TheClaudeHub session |
+| Anywhere | Ctrl+Shift+N | Continue the selected (or loaded) desktop app session here, as a copy |
 | Session list | F5 | Refresh the list now and put it in order |
 | Session list | Delete | Forget the selected TheClaudeHub session (asks first; its transcript is kept) |
 | Messages | Enter, or Applications key then Read Full Message | Read the whole message; Escape comes back to it |
@@ -237,7 +243,11 @@ the same transcript at once and tangle it. Only the desktop app writes to its se
 TheClaudeHub writes to its own. The rule is enforced in code: TheClaudeHub refuses to build a
 `--resume` command for any session it didn't start, any session the desktop app knows about
 (archived ones included), or any `local_` id, and there are tests for each. It also won't send
-into one of its own sessions while that session is running somewhere else. One turn runs at a time
+into one of its own sessions while that session is running somewhere else. Continue Here is the
+one exception that reads a desktop session through `claude`, and it doesn't write to it:
+`--resume <desktop id> --fork-session --session-id <new id>` copies the history into a new
+session. Checked with Claude Code 2.1.286: the desktop session's transcript was byte for byte the
+same afterwards, and Claude knew the earlier conversation. One turn runs at a time
 per session. Send during a turn queues the message: TheClaudeHub says "Queued", and once the
 turn's reply has been announced, it sends the message. More messages sent while one is waiting
 join it, and they go together as one message. Turn status (Ctrl+Shift+T) says when a message is

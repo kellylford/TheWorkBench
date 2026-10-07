@@ -662,3 +662,28 @@ def test_allowed_tools_go_on_every_turn_and_unsafe_rules_are_dropped():
 ])
 def test_describe_tool_use(name, tool_input, words):
     assert cli.describe_tool_use(name, tool_input) == words
+
+
+# -- continuing another session as a copy (#189) -------------------------------------------
+
+
+def test_fork_command_reads_the_source_and_writes_a_new_session():
+    command = cli.build_fork_command(EXE, "dddd-2222", "nnnn-3333", " Carry  on ", "auto",
+                                     "sonnet", taken_ids=OWN | DESKTOP)
+    assert command[command.index("--resume") + 1] == "dddd-2222"
+    assert "--fork-session" in command
+    assert command[command.index("--session-id") + 1] == "nnnn-3333"
+    assert command[command.index("--name") + 1] == "Carry on"
+    assert command[command.index("--model") + 1] == "sonnet"
+
+
+@pytest.mark.parametrize("source,new", [
+    ("local_abc", "nnnn-3333"),       # a desktop app id, not a Claude Code one
+    ("-p", "nnnn-3333"),
+    ("dddd-2222", "dddd-2222"),       # the copy needs its own id
+    ("dddd-2222", "aaaa-1111"),       # already taken
+    ("dddd-2222", "--resume"),
+])
+def test_fork_command_refuses_bad_ids(source, new):
+    with pytest.raises(ValueError):
+        cli.build_fork_command(EXE, source, new, "t", "auto", taken_ids=OWN)

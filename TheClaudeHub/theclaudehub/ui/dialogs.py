@@ -37,27 +37,44 @@ PERMISSION_NOTE = (
     "you, and Ctrl+Shift+A answers.")
 
 
-class NewSessionDialog(wx.Dialog):
-    """Folder, title, model, permission mode, first message."""
+CONTINUE_NOTE = (
+    "This starts a TheClaudeHub session that is a copy of the desktop app session, "
+    "with its whole conversation so far, so you can carry on and reply here. The "
+    "desktop app session isn't changed, and replies here don't appear in it.")
 
-    def __init__(self, parent, default_folder: str):
-        super().__init__(parent, title="New TheClaudeHub Session", size=(640, 520),
+
+class NewSessionDialog(wx.Dialog):
+    """Folder, title, model, permission mode, first message.
+
+    With ``continue_from`` (a desktop session's title, #189) it continues that
+    session as a copy: the folder is the session's own and can't be changed,
+    and the title starts as "<title> (continued)".
+    """
+
+    def __init__(self, parent, default_folder: str, continue_from: str = ""):
+        title = f"Continue Here: {continue_from}" if continue_from \
+            else "New TheClaudeHub Session"
+        super().__init__(parent, title=title, size=(640, 560),
                          style=wx.DEFAULT_DIALOG_STYLE | wx.RESIZE_BORDER)
+        self.continuing = bool(continue_from)
         outer = wx.BoxSizer(wx.VERTICAL)
         grid = wx.FlexGridSizer(cols=2, vgap=8, hgap=8)
         grid.AddGrowableCol(1, 1)
 
         grid.Add(wx.StaticText(self, label="&Folder:"), 0, wx.ALIGN_CENTER_VERTICAL)
         folder_row = wx.BoxSizer(wx.HORIZONTAL)
-        self.folder = wx.TextCtrl(self, value=default_folder)
+        self.folder = wx.TextCtrl(self, value=default_folder,
+                                  style=wx.TE_READONLY if continue_from else 0)
         set_accessible_name(self.folder, "Folder")
         folder_row.Add(self.folder, 1, wx.EXPAND | wx.RIGHT, 6)
         browse = wx.Button(self, label="&Browse...")
         folder_row.Add(browse, 0)
+        browse.Show(not continue_from)
         grid.Add(folder_row, 1, wx.EXPAND)
 
         grid.Add(wx.StaticText(self, label="&Title:"), 0, wx.ALIGN_CENTER_VERTICAL)
-        self.title_text = wx.TextCtrl(self)
+        self.title_text = wx.TextCtrl(self, value=f"{continue_from} (continued)"
+                                      if continue_from else "")
         set_accessible_name(self.title_text, "Title (optional)")
         grid.Add(self.title_text, 1, wx.EXPAND)
 
@@ -77,10 +94,13 @@ class NewSessionDialog(wx.Dialog):
 
         # A read-only text box rather than a static label, so it is in the tab
         # order and a screen reader reaches it.
-        outer.Add(wx.StaticText(self, label="About &permissions:"), 0, wx.LEFT, 10)
+        about = "About continuing" if continue_from else "About permissions"
+        outer.Add(wx.StaticText(self, label=f"{about.replace('About ', 'About &')}:"),
+                  0, wx.LEFT, 10)
         note = wx.TextCtrl(self, style=wx.TE_MULTILINE | wx.TE_READONLY | wx.TE_RICH2,
-                           value=PERMISSION_NOTE)
-        set_accessible_name(note, "About permissions")
+                           value=(CONTINUE_NOTE + "\n\n" + PERMISSION_NOTE) if continue_from
+                           else PERMISSION_NOTE)
+        set_accessible_name(note, about)
         note.SetMinSize((-1, 60))
         outer.Add(note, 0, wx.EXPAND | wx.LEFT | wx.RIGHT, 10)
 
@@ -101,7 +121,8 @@ class NewSessionDialog(wx.Dialog):
         browse.Bind(wx.EVT_BUTTON, self._on_browse)
         ok.Bind(wx.EVT_BUTTON, self._on_ok)
         self.Bind(wx.EVT_CHAR_HOOK, self._on_char_hook)
-        wx.CallAfter(self.folder.SetFocus)
+        # Continuing, the folder is fixed: start at the first thing to type.
+        wx.CallAfter((self.message if continue_from else self.folder).SetFocus)
 
     def _on_char_hook(self, event):
         # Ctrl+Enter starts the session from anywhere, as Send does elsewhere.

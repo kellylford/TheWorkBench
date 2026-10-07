@@ -38,6 +38,7 @@ Accessibility decisions, and why
 """
 from __future__ import annotations
 
+import os
 import threading
 import time
 from concurrent.futures import ThreadPoolExecutor
@@ -48,7 +49,8 @@ import wx
 from .. import __version__, announce, hub, platform_paths
 from ..claude_cli import (PERMISSION_MODES, PermissionRequest, ResumeRefused, TurnEvent,
                           TurnRunner, allow_response, answer_questions_response,
-                          build_new_command, build_resume_command, deny_response,
+                          build_fork_command, build_new_command, build_resume_command,
+                          deny_response,
                           describe_elapsed, model_label, new_session_id)
 from ..hub import Snapshot, collect, finished_turns, last_reply_from_tail
 from ..own_store import OwnSession, OwnSessionStore
@@ -146,6 +148,7 @@ class MainFrame(wx.Frame):
         self._item(session, "&Load Session", self.on_open_session)
         self._item(session, "Open in &Claude\tCtrl+O", self.on_open_in_claude)
         self._item(session, "&Answer Claude...\tCtrl+Shift+A", lambda e: self.on_answer())
+        self._item(session, "Con&tinue Here...\tCtrl+Shift+N", self.on_continue_here)
         self._item(session, "&New Session...\tCtrl+N", self.on_new_session)
         self._item(session, "&Refresh\tF5",
                    lambda e: self.refresh_sessions(force=True, resort=True))
@@ -246,14 +249,22 @@ class MainFrame(wx.Frame):
             value=("This session belongs to the Claude desktop app, so you reply to it "
                    "in Claude. TheClaudeHub only reads it: sending from here while the "
                    "desktop app has it open could run two turns at once and tangle "
-                   "the conversation. Open in Claude switches the desktop app to it."))
+                   "the conversation. Open in Claude switches the desktop app to it. "
+                   "Continue Here starts a TheClaudeHub copy of it, with the whole "
+                   "conversation so far, that you can reply to here; the desktop app "
+                   "session isn't changed."))
         set_accessible_name(self.desktop_note, "About replying")
         self.desktop_note.SetMinSize((-1, 90))
         dsizer.Add(self.desktop_note, 1, wx.EXPAND)
+        drow = wx.BoxSizer(wx.HORIZONTAL)
         self.reply_claude_btn = wx.Button(self.desktop_reply, label="Open in &Claude")
-        dsizer.Add(self.reply_claude_btn, 0, wx.TOP, 6)
+        drow.Add(self.reply_claude_btn, 0, wx.RIGHT, 6)
+        self.continue_btn = wx.Button(self.desktop_reply, label="Con&tinue Here...")
+        drow.Add(self.continue_btn, 0)
+        dsizer.Add(drow, 0, wx.TOP, 6)
         self.desktop_reply.SetSizer(dsizer)
         self.reply_claude_btn.Bind(wx.EVT_BUTTON, self.on_open_in_claude)
+        self.continue_btn.Bind(wx.EVT_BUTTON, self.on_continue_here)
 
         vsizer.Add(self.own_reply, 0, wx.EXPAND | wx.LEFT | wx.RIGHT, 8)
         vsizer.Add(self.desktop_reply, 0, wx.EXPAND | wx.LEFT | wx.RIGHT, 8)
@@ -638,6 +649,8 @@ class MainFrame(wx.Frame):
             own = self.store.get(info.cli_session_id)
             if own is not None:
                 kind += f" on {model_label(own.model)}"
+                if own.forked_from:
+                    kind += f", continued from {own.forked_from}"
         state = info.state + (f": {info.detail}" if info.detail else "")
         self.session_heading.SetLabel(f"{info.title}, {info.repo}, {state}. {kind}.")
         self._update_messages_label()
@@ -1081,6 +1094,55 @@ class MainFrame(wx.Frame):
         self.open_session(own.to_info())
         self.refresh_sessions()
 
+    def on_continue_here(self, _event=None):
+        """Carry on a desktop app session in TheClaudeHub, as a copy (#189)."""
+        info = self._selected_session()
+        if info is None:
+            self._feedback("No session selected.")
+            return
+        if info.is_own:
+            self._feedback(f"{info.title} is already a TheClaudeHub session; reply to it here.")
+            return
+        if not info.cli_session_id or platform_paths.transcript_path(
+                info.cwd, info.cli_session_id) is None:
+            wx.MessageBox("This session's conversation is no longer on disk, so there is "
+                          "nothing to continue from.", APP_NAME, wx.OK | wx.ICON_INFORMATION,
+                          self)
+            return
+        if not info.cwd or not os.path.isdir(info.cwd):
+            wx.MessageBox(f"This session's folder ({info.cwd or 'unknown'}) doesn't exist "
+                          "any more, so it can't be continued here.", APP_NAME,
+                          wx.OK | wx.ICON_WARNING, self)
+            return
+        lookup = platform_paths.find_claude()
+        if not lookup.path:
+            wx.MessageBox(lookup.problem, APP_NAME, wx.OK | wx.ICON_ERROR, self)
+            return
+        dialog = NewSessionDialog(self, info.cwd, continue_from=info.title)
+        try:
+            if dialog.ShowModal() != wx.ID_OK:
+                return
+            _folder, title, mode, message, model = dialog.values()
+        finally:
+            dialog.Destroy()
+        new_id = new_session_id()
+        try:
+            command = build_fork_command(
+                lookup.path, info.cli_session_id, new_id, title, mode, model,
+                taken_ids={s.cli_session_id for s in self.store.all()}
+                | set(self._snapshot.desktop_cli_ids))
+        except (ResumeRefused, ValueError) as exc:
+            wx.MessageBox(str(exc), APP_NAME, wx.OK | wx.ICON_WARNING, self)
+            return
+        own = OwnSession(cli_session_id=new_id, title=title, cwd=info.cwd,
+                         permission_mode=mode, started=False, model=model,
+                         fork_source=info.cli_session_id, forked_from=info.title)
+        if not self._store_write(self.store.add, own):
+            return
+        self._start_turn(new_id, command, info.cwd, message, title)
+        self.open_session(own.to_info())
+        self.refresh_sessions()
+
     def on_send(self, _event=None):
         info = self._open
         if info is None or not info.is_own:
@@ -1150,9 +1212,16 @@ class MainFrame(wx.Frame):
                 # start it again rather than resume something that isn't there.
                 if own.cli_session_id in self._snapshot.desktop_cli_ids:
                     raise ResumeRefused("That id belongs to a Claude desktop app session.")
-                command = build_new_command(exe, own.cli_session_id, own.title,
-                                            own.permission_mode, own.model,
-                                            allowed_tools=own.allowed_tools)
+                if own.fork_source:
+                    # A copy of another session whose first turn didn't get
+                    # going: copy it again.
+                    command = build_fork_command(exe, own.fork_source, own.cli_session_id,
+                                                 own.title, own.permission_mode, own.model,
+                                                 taken_ids=self._snapshot.desktop_cli_ids)
+                else:
+                    command = build_new_command(exe, own.cli_session_id, own.title,
+                                                own.permission_mode, own.model,
+                                                allowed_tools=own.allowed_tools)
         except (ResumeRefused, ValueError) as exc:
             return str(exc)
         self._start_turn(own.cli_session_id, command, own.cwd, message, own.title,

@@ -266,8 +266,8 @@ def test_tab_order_desktop_session_puts_the_note_where_the_reply_box_is(frame):
     frame.on_open_session()
     order = tab_order(frame)
     assert order == [frame.session_list, frame.chat_list, frame.desktop_note,
-                     frame.reply_claude_btn, frame.activity_check, frame.new_btn,
-                     frame.refresh_btn]
+                     frame.reply_claude_btn, frame.continue_btn, frame.activity_check,
+                     frame.new_btn, frame.refresh_btn]
 
 
 def test_nothing_loaded_at_start(frame):
@@ -1457,3 +1457,68 @@ def test_permission_dialog_buttons(frame):
             "Allow, and don't ask again this session for Bash(git push:*)")
     finally:
         with_rule.Destroy()
+
+
+# -- Continue Here (#189) ------------------------------------------------------------------
+
+
+def _continue(frame, env, monkeypatch, message="Carry on from here"):
+    from theclaudehub.ui import dialogs
+    seen = {}
+
+    class Fills(dialogs.NewSessionDialog):
+        def ShowModal(self):
+            seen["title"] = self.GetTitle()
+            seen["folder_editable"] = self.folder.IsEditable()
+            seen["name"] = self.title_text.GetValue()
+            self.message.SetValue(message)
+            return wx.ID_OK
+    monkeypatch.setattr("theclaudehub.ui.main_frame.NewSessionDialog", Fills)
+    frame.on_continue_here()
+    return seen
+
+
+def test_continue_here_forks_a_desktop_session(frame, env, fake_runner, monkeypatch):
+    folder = env["tmp"] / "repo"
+    folder.mkdir()
+    add_desktop(env, "local_c", "cli-c", "Desktop work", cwd=str(folder))
+    add_transcript(env, str(folder), "cli-c", [user_text("Earlier question")])
+    frame.refresh_sessions(force=True, resort=True)
+    settle(frame)
+    select(frame, "Desktop work")
+    frame.on_open_session()
+    assert frame.continue_btn.IsShown()
+    seen = _continue(frame, env, monkeypatch)
+    assert seen == {"title": "Continue Here: Desktop work", "folder_editable": False,
+                    "name": "Desktop work (continued)"}
+    runner = fake_runner.instances[-1]
+    command = runner.command
+    assert command[command.index("--resume") + 1] == "cli-c"
+    assert "--fork-session" in command
+    new_id = command[command.index("--session-id") + 1]
+    assert new_id != "cli-c"
+    assert runner.cwd == str(folder) and runner.prompt == "Carry on from here"
+    own = frame.store.get(new_id)
+    assert own.fork_source == "cli-c" and own.forked_from == "Desktop work"
+    assert frame._open.cli_session_id == new_id
+    assert frame.session_heading.GetLabel().endswith(", continued from Desktop work.")
+    # If that first turn never got going, Send copies the session again.
+    frame._on_turn_event({"id": new_id}, "Desktop work (continued)",
+                         TurnEvent("failed", text="not signed in", is_error=True))
+    frame.reply_text.SetValue("again")
+    frame.on_send()
+    again = fake_runner.instances[-1].command
+    assert again[again.index("--resume") + 1] == "cli-c" and "--fork-session" in again
+    assert again[again.index("--session-id") + 1] == new_id
+
+
+def test_continue_here_needs_a_transcript_and_a_desktop_session(frame, env, fake_runner,
+                                                                monkeypatch):
+    select(frame, "Quiet one")  # no transcript on disk
+    frame.on_continue_here()
+    assert "no longer on disk" in env["boxes"][-1]
+    select(frame, "Hub probe")
+    frame.on_continue_here()
+    assert env["feedback"][-1] == ("Hub probe is already a TheClaudeHub session; "
+                                   "reply to it here.")
+    assert fake_runner.instances == []

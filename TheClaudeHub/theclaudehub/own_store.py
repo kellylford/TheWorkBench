@@ -42,6 +42,11 @@ class OwnSession:
     #: Permission rules chosen with "Allow for this session" (#187), given
     #: to every later turn as ``--allowedTools``.
     allowed_tools: List[str] = field(default_factory=list)
+    #: Continued from another session (#189): its Claude Code id, used to
+    #: start the copy again if the first turn never got going, and its title,
+    #: for the heading.
+    fork_source: str = ""
+    forked_from: str = ""
 
     def to_info(self) -> SessionInfo:
         return SessionInfo(
@@ -97,6 +102,8 @@ def _session_from_dict(item: dict) -> Optional[OwnSession]:
     # that bills usage credits) would fail or cost extra on every turn.
     if values.get("model") not in MODEL_LABELS:
         values["model"] = ""
+    if values.get("fork_source") and not platform_paths.is_safe_id(values["fork_source"]):
+        values["fork_source"] = ""
     return OwnSession(**values)
 
 

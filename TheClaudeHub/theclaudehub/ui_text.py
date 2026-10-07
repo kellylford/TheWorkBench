@@ -7,8 +7,8 @@ from typing import List
 LAYOUT = (
     "One window, three parts, in Tab order: the session list; the messages of the "
     "loaded session; and the reply box with Send and Stop (for a Claude desktop app "
-    "session, a read-only note and Open in Claude in the same place). Shift+Tab goes "
-    "back the same way."
+    "session, a read-only note, Open in Claude and Continue Here in the same place). "
+    "Shift+Tab goes back the same way."
 )
 
 #: Every shortcut, grouped. The Help dialog and the README both list these.
@@ -26,6 +26,8 @@ SHORTCUTS = [
         ("Enter", "Load that session and move to its messages"),
         ("Ctrl+O", "Open the selected session in the Claude desktop app"),
         ("Ctrl+N", "New TheClaudeHub session"),
+        ("Ctrl+Shift+N", "Continue the selected desktop app session here, as a copy you can "
+                         "reply to (the desktop app session isn't changed)"),
         ("F5", "Refresh the list now and put it back in order (it also refreshes itself "
                "every few seconds, without moving rows while you're in it)"),
         ("Delete", "Forget the selected TheClaudeHub session (asks first)"),
