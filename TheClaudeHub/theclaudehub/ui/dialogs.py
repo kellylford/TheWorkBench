@@ -173,7 +173,7 @@ class SettingsDialog(wx.Dialog):
     """Announcements and speech (the Speech tab of IDT's settings, adapted)."""
 
     def __init__(self, parent, speech: SpeechSettings, options):
-        super().__init__(parent, title="Settings", size=(660, 460))
+        super().__init__(parent, title="Settings", size=(660, 540))
         self._options = list(options)
         outer = wx.BoxSizer(wx.VERTICAL)
 
@@ -195,6 +195,16 @@ class SettingsDialog(wx.Dialog):
             self, label="Read your own &messages back when they're sent")
         self.own_messages.SetValue(speech.announce_own)
         outer.Add(self.own_messages, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
+
+        # What you read, apart from what's spoken on its own.
+        messages = wx.StaticBoxSizer(wx.VERTICAL, self, "Reading messages")
+        box = messages.GetStaticBox()
+        self.formatted = wx.CheckBox(
+            box, label="Open full messages as a formatted &page (headings, lists and "
+                       "tables), not plain text")
+        self.formatted.SetValue(speech.formatted_messages)
+        messages.Add(self.formatted, 0, wx.ALL, 6)
+        outer.Add(messages, 0, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
 
         grid = wx.FlexGridSizer(rows=2, cols=2, vgap=8, hgap=8)
         grid.AddGrowableCol(1, 1)
@@ -263,7 +273,8 @@ class SettingsDialog(wx.Dialog):
                               announce_all_sessions=self.all_sessions.GetValue(),
                               announce_own=self.own_messages.GetValue(),
                               engine=option.engine, voice=option.voice,
-                              rate_preset=preset)
+                              rate_preset=preset,
+                              formatted_messages=self.formatted.GetValue())
 
 
 class MessageDialog(wx.Dialog):
@@ -293,6 +304,116 @@ class MessageDialog(wx.Dialog):
         self.SetEscapeId(wx.ID_CANCEL)
         self.text.SetInsertionPoint(0)
         wx.CallAfter(self.text.SetFocus)
+
+
+# -- a message as a formatted page (#190) -----------------------------------------------
+
+#: EndModal code for "Read as Plain Text": the caller opens MessageDialog.
+ID_PLAIN_TEXT = wx.NewIdRef()
+
+#: Escape is pressed inside the page, where wx never sees it, so a script
+#: added to the page posts it back. Added with AddUserScript, which runs
+#: whatever the page's Content-Security-Policy says.
+_KEY_RELAY = """
+document.addEventListener('keydown', function (e) {
+  if (e.key === 'Escape') { e.preventDefault(); window.hub.postMessage('escape'); }
+  else if (e.altKey && (e.key === 'p' || e.key === 'P')) {
+    e.preventDefault(); window.hub.postMessage('plain'); }
+}, true);
+"""
+
+
+def formatted_view_available() -> bool:
+    """Whether the Edge WebView2 runtime can show the formatted page."""
+    try:
+        import wx.html2
+        return bool(wx.html2.WebView.IsBackendAvailable(wx.html2.WebViewBackendEdge))
+    except Exception:  # noqa: BLE001 - no html2, no runtime: plain text
+        return False
+
+
+def _prepare_webview_data_folder() -> None:
+    """WebView2 keeps a profile folder. Its default is beside the program,
+    which for an installed copy is the folder Velopack replaces on update, and
+    for a source run may be Python's own folder. Put it in local app data
+    instead, before the first WebView is made."""
+    if os.environ.get("WEBVIEW2_USER_DATA_FOLDER"):
+        return
+    local = os.environ.get("LOCALAPPDATA")
+    if local:
+        os.environ["WEBVIEW2_USER_DATA_FOLDER"] = os.path.join(local, "TheClaudeHub WebView2")
+
+
+class FormattedMessageDialog(wx.Dialog):
+    """One message as a web page: the screen reader's browse mode moves by
+    heading, table, list and code block. Escape closes it; Read as Plain Text
+    (Alt+P) switches to the text box, to read by character.
+
+    Raises RuntimeError if the WebView can't be made; the caller falls back to
+    MessageDialog.
+    """
+
+    def __init__(self, parent, title: str, page_html: str):
+        import wx.html2
+        from .. import platform_paths
+        super().__init__(parent, title=title, size=(820, 620),
+                         style=wx.DEFAULT_DIALOG_STYLE | wx.RESIZE_BORDER)
+        _prepare_webview_data_folder()
+        self._open_url = platform_paths.open_url
+        self._loaded = False
+        try:
+            self.view = wx.html2.WebView.New(self, backend=wx.html2.WebViewBackendEdge)
+        except Exception as exc:  # noqa: BLE001
+            self.Destroy()
+            raise RuntimeError(f"Couldn't show the formatted page: {exc}") from exc
+        sizer = wx.BoxSizer(wx.VERTICAL)
+        sizer.Add(self.view, 1, wx.EXPAND | wx.ALL, 4)
+        row = wx.BoxSizer(wx.HORIZONTAL)
+        plain = wx.Button(self, ID_PLAIN_TEXT, "Read as &Plain Text")
+        row.Add(plain, 0, wx.RIGHT, 6)
+        row.Add(wx.Button(self, wx.ID_CANCEL, "&Close"), 0)
+        sizer.Add(row, 0, wx.ALIGN_RIGHT | wx.ALL, 8)
+        self.SetSizer(sizer)
+        self.SetEscapeId(wx.ID_CANCEL)
+        plain.Bind(wx.EVT_BUTTON, lambda e: self.EndModal(ID_PLAIN_TEXT))
+        try:
+            self.view.EnableAccessToDevTools(False)
+            self.view.AddScriptMessageHandler("hub")
+            self.view.AddUserScript(_KEY_RELAY)
+        except Exception:  # noqa: BLE001 - Escape still works from the buttons
+            pass
+        self.view.Bind(wx.html2.EVT_WEBVIEW_SCRIPT_MESSAGE_RECEIVED, self._on_script_message)
+        self.view.Bind(wx.html2.EVT_WEBVIEW_NAVIGATING, self._on_navigating)
+        self.view.Bind(wx.html2.EVT_WEBVIEW_NEWWINDOW, self._on_new_window)
+        self.view.Bind(wx.html2.EVT_WEBVIEW_LOADED, self._on_loaded)
+        self.view.SetPage(page_html, "")
+
+    def _on_loaded(self, _event):
+        if not self._loaded:
+            self._loaded = True
+            # Into the page, so the screen reader starts reading it.
+            self.view.SetFocus()
+
+    def _on_script_message(self, event):
+        message = event.GetString()
+        if message == "escape":
+            wx.CallAfter(self.EndModal, wx.ID_CANCEL)
+        elif message == "plain":
+            wx.CallAfter(self.EndModal, ID_PLAIN_TEXT)
+
+    def _on_navigating(self, event):
+        if not self._loaded:
+            return  # the page itself
+        # A link: never in here. http, https and mailto go to the browser.
+        event.Veto()
+        url = event.GetURL()
+        if url.lower().startswith(("http:", "https:", "mailto:")):
+            self._open_url(url)
+
+    def _on_new_window(self, event):
+        url = event.GetURL()
+        if url.lower().startswith(("http:", "https:", "mailto:")):
+            self._open_url(url)
 
 
 # -- Claude is waiting for an answer (#187, #188) ---------------------------------------
@@ -516,6 +637,12 @@ class PlanDialog(wx.Dialog):
         sizer.Add(grid, 0, wx.EXPAND | wx.ALL, 8)
 
         row = wx.BoxSizer(wx.HORIZONTAL)
+        self.formatted_button = None
+        if formatted_view_available():
+            # The plan as a page, by heading and list (#190); back here after.
+            self.formatted_button = wx.Button(self, label="Read &Formatted...")
+            row.Add(self.formatted_button, 0, wx.RIGHT, 18)
+            self.formatted_button.Bind(wx.EVT_BUTTON, lambda e: self._read_formatted(request))
         approve = wx.Button(self, ID_ALLOW, "&Approve")
         row.Add(approve, 0, wx.RIGHT, 6)
         keep = wx.Button(self, ID_DENY, "&Keep Planning")
@@ -532,6 +659,20 @@ class PlanDialog(wx.Dialog):
     def _finish(self, approved: bool):
         self.approved = approved
         self.EndModal(wx.ID_OK)
+
+    def _read_formatted(self, request):
+        from ..rendering import message_page
+        title = "Claude's plan"
+        try:
+            dialog = FormattedMessageDialog(self, title, message_page(title, request.plan()))
+        except RuntimeError:
+            self.plan_text.SetFocus()
+            return
+        try:
+            dialog.ShowModal()
+        finally:
+            dialog.Destroy()
+        (self.formatted_button or self.plan_text).SetFocus()
 
     def chosen_mode(self) -> str:
         index = self.mode.GetSelection()

@@ -29,8 +29,14 @@ session list is always there.
 - **Messages:** newest last, with focus on the newest. Each reads "You:" or "Claude:" and its
   first line, and the list's name says the session's state and whether it's read-only. **Enter**
   (or the context menu's Read Full Message, with the Applications key or Shift+F10) shows the
-  whole message in a read-only text box, to read by line, word and character; Escape closes it,
-  back on the same message. Question cards read as "Claude asked: Which version?" with the
+  whole message as a formatted page, so your screen reader's browse mode moves by heading (H),
+  table (T, then its cell commands), list (L) and code block (each is a region, R, named like
+  "Code block, Python, 14 lines"). Links open in your browser. **Read as Plain Text** (Alt+P)
+  switches to a read-only text box, to read by line, word and character, and Settings can make
+  that the default. Escape closes either, back on the same message. The page needs Microsoft's
+  Edge WebView2 runtime, which comes with Windows 11; without it, the text box opens. Nothing in
+  the page is fetched from the internet, and HTML in a message is shown as text, never run.
+  Question cards read as "Claude asked: Which version?" with the
   options in the full text, then "You answered: ...". Refused tools read "Permission denied:
   ...". Tool calls and tool results are hidden unless you turn on Show Tool Activity (Ctrl+T).
   New messages arrive at the end without moving you.
@@ -66,7 +72,7 @@ session list is always there.
     or **Deny**, which is the default button and can carry a reason Claude reads.
   - **Questions:** each question is a group of options with their descriptions, with Other
     and a box to type your own answer; Send Answers, or Don't Answer.
-  - **Plan:** the plan to read, then **Approve**, choosing the mode to carry on in (accept
+  - **Plan:** the plan to read (Read Formatted shows it as a page, by heading), then **Approve**, choosing the mode to carry on in (accept
     edits, auto or manual), or **Keep Planning** with what to change, which is the default.
 
   Escape in any of them answers later; nothing is approved or refused by waiting. "For this
@@ -76,8 +82,9 @@ session list is always there.
   finishes a turn, or any listed session stops working, it's announced through your screen reader
   (or a system voice) and put on the status bar. Settings (Ctrl+Comma) chooses full (the whole
   reply), summary (the session's name and the first sentence) or silent (status bar only), whether
-  every listed session is announced or just the open one, and the speech route. Ctrl+Shift+R
-  repeats the last announcement.
+  every listed session is announced or just the open one, and the speech route; its Reading
+  messages group chooses whether full messages open as a formatted page or plain text.
+  Ctrl+Shift+R repeats the last announcement.
 - **Answers to what you do are spoken too**, briefly and without cutting off your screen reader:
   "Tool activity shown.", "Message copied.", and so on (unless announcements are set to silent).
 - **Your own message is read back when it's sent**, so you hear what actually went to Claude,
@@ -316,6 +323,7 @@ Checked with Claude Code 2.1.286 (issues #187 and #188):
 | `theclaudehub/claude_cli.py` | `claude` commands, the `--resume` guard, the environment, stream-json events, running a turn |
 | `theclaudehub/hub.py` | Gathering the list, noticing finished turns |
 | `theclaudehub/announce.py` | What gets announced |
+| `theclaudehub/rendering.py` | A message's markdown as a safe HTML page, for the formatted view |
 | `theclaudehub/speech.py`, `theclaudehub/speech/` | Speech, adapted from Image Description Toolkit (ClaudeSpeak's engine scripts) |
 | `theclaudehub/platform_paths.py` | Every path and OS call |
 | `theclaudehub/ui/` | The wxPython window and dialogs |

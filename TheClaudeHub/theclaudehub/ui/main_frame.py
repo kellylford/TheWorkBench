@@ -59,9 +59,11 @@ from ..speech import SpeechSettings, default_options, list_speech_options, speak
 from ..transcript import ASSISTANT, ERROR, PLAN, QUESTION, ChatMessage, TranscriptReader
 from ..updater import AVAILABLE, FAILED, CheckResult, UpdateService
 from .a11y import set_accessible_name
-from .dialogs import (ALLOW, ALLOW_SESSION, MessageDialog, NewSessionDialog,
-                      PermissionDialog, PlanDialog, QuestionDialog, SettingsDialog,
-                      ShortcutsDialog)
+from ..rendering import message_page
+from .dialogs import (ALLOW, ALLOW_SESSION, ID_PLAIN_TEXT, FormattedMessageDialog,
+                      MessageDialog, NewSessionDialog, PermissionDialog, PlanDialog,
+                      QuestionDialog, SettingsDialog, ShortcutsDialog,
+                      formatted_view_available)
 
 APP_NAME = "TheClaudeHub"
 LIST_REFRESH_MS = 5000
@@ -836,12 +838,33 @@ class MainFrame(wx.Frame):
         if message is None:
             self._feedback("No message selected.")
             return
+        if self.speech.formatted_messages and self._show_formatted(message):
+            self.chat_list.SetFocus()
+            return
         dialog = MessageDialog(self, message.label, message.text)
         try:
             dialog.ShowModal()
         finally:
             dialog.Destroy()
         self.chat_list.SetFocus()
+
+    def _show_formatted(self, message: ChatMessage) -> bool:
+        """The message as a formatted page (#190). False when that can't be
+        shown, or Kelly chose Read as Plain Text: the caller opens the text
+        box instead."""
+        if not formatted_view_available():
+            return False
+        title = (f"Message from {message.label}" if message.label in ("Claude", "You")
+                 else message.label)
+        try:
+            dialog = FormattedMessageDialog(self, title, message_page(title, message.text))
+        except RuntimeError as exc:
+            self._status(str(exc))
+            return False
+        try:
+            return dialog.ShowModal() != ID_PLAIN_TEXT
+        finally:
+            dialog.Destroy()
 
     def _message_menu(self) -> wx.Menu:
         """The messages list's context menu. Its handlers are bound on the

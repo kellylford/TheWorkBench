@@ -1,4 +1,6 @@
 wxPython>=4.2
+# Full messages as formatted pages (rendering.py, issue #190).
+markdown==3.11
 # Automatic updates (installed copies only; a source run ignores it).
 velopack==1.2.161
 # Certificate checks through Windows, for the update check (see updater._ssl_context).

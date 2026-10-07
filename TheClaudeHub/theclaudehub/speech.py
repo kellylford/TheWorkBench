@@ -122,6 +122,9 @@ class SpeechSettings:
     engine: str = "auto"
     voice: str = ""
     rate_preset: str = "default"
+    #: Read Full Message opens a formatted page (headings, lists, tables) when
+    #: Edge WebView2 is there, rather than the plain text box (issue #190).
+    formatted_messages: bool = True
 
     @property
     def enabled(self) -> bool:
@@ -149,6 +152,7 @@ class SpeechSettings:
         settings.voice = str(raw.get("voice", ""))
         preset = str(raw.get("rate_preset", "default"))
         settings.rate_preset = preset if preset in RATE_PRESET_LABELS else "default"
+        settings.formatted_messages = bool(raw.get("formatted_messages", True))
         return settings
 
     def save(self, path: Optional[Path] = None) -> None:

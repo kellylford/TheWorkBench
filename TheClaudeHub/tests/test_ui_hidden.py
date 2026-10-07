@@ -46,8 +46,12 @@ def env(tmp_path, monkeypatch, app):
     def speak(text, settings, interrupt=True):
         (spoken if interrupt else feedback).append(text)
     monkeypatch.setattr(speech.speaker, "speak", speak)
-    from theclaudehub.ui import main_frame
+    from theclaudehub.ui import dialogs, main_frame
     monkeypatch.setattr(main_frame, "list_speech_options", lambda: speech.default_options())
+    # No real web page: it would open modal and wait. Tests that want the
+    # formatted view put a fake in.
+    monkeypatch.setattr(main_frame, "formatted_view_available", lambda: False)
+    monkeypatch.setattr(dialogs, "formatted_view_available", lambda: False)
     opened = []
     monkeypatch.setattr(platform_paths, "open_url", lambda url: opened.append(url))
     boxes = []
@@ -1522,3 +1526,74 @@ def test_continue_here_needs_a_transcript_and_a_desktop_session(frame, env, fake
     assert env["feedback"][-1] == ("Hub probe is already a TheClaudeHub session; "
                                    "reply to it here.")
     assert fake_runner.instances == []
+
+
+# -- full messages as a formatted page (#190) ----------------------------------------------
+
+
+def _load_reply(frame, env, text):
+    add_transcript(env, "C:\\G\\Repo", "cli-a", [
+        user_text("Show me"), assistant_block(text_block(text), "m1")])
+    select(frame, "Quiet one")
+    frame.on_open_session()
+    assert pump(lambda: frame._chat_loaded and frame.chat_list.GetCount() == 2)
+
+
+def _fake_viewer(monkeypatch, result):
+    from theclaudehub.ui import main_frame
+    shown = []
+
+    class FakeViewer:
+        def __init__(self, parent, title, page):
+            shown.append((title, page))
+
+        def ShowModal(self):
+            return result
+
+        def Destroy(self):
+            pass
+    monkeypatch.setattr(main_frame, "formatted_view_available", lambda: True)
+    monkeypatch.setattr(main_frame, "FormattedMessageDialog", FakeViewer)
+    return shown
+
+
+def test_full_message_opens_as_a_formatted_page(frame, env, monkeypatch):
+    _load_reply(frame, env, "## Result\n\n| a | b |\n|---|---|\n| 1 | 2 |")
+    shown = _fake_viewer(monkeypatch, wx.ID_CANCEL)
+    plain = []
+    monkeypatch.setattr("theclaudehub.ui.main_frame.MessageDialog",
+                        lambda *a: plain.append(a) or pytest.fail("plain text opened"))
+    frame.on_read_message()
+    title, page = shown[0]
+    assert title == "Message from Claude"
+    assert "<h2>Result</h2>" in page and "<th>a</th>" in page and "<td>2</td>" in page
+
+
+def test_read_as_plain_text_and_the_setting_open_the_text_box(frame, env, monkeypatch):
+    from theclaudehub.ui.dialogs import ID_PLAIN_TEXT, MessageDialog
+    _load_reply(frame, env, "## Result")
+    shown = _fake_viewer(monkeypatch, ID_PLAIN_TEXT)
+    opened = []
+
+    class Plain(MessageDialog):
+        def ShowModal(self):
+            opened.append(self.text.GetValue())
+            return wx.ID_CANCEL
+    monkeypatch.setattr("theclaudehub.ui.main_frame.MessageDialog", Plain)
+    frame.on_read_message()
+    assert len(shown) == 1 and opened == ["## Result"]
+    frame.speech.formatted_messages = False
+    frame.on_read_message()
+    assert len(shown) == 1 and len(opened) == 2  # straight to the text box
+
+
+def test_settings_dialog_has_the_formatted_page_choice(frame):
+    from theclaudehub.ui.dialogs import SettingsDialog
+    dialog = SettingsDialog(frame, speech.SpeechSettings(formatted_messages=False),
+                            speech.default_options())
+    try:
+        assert not dialog.formatted.GetValue()
+        dialog.formatted.SetValue(True)
+        assert dialog.get_settings().formatted_messages
+    finally:
+        dialog.Destroy()

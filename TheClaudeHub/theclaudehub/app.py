@@ -74,6 +74,22 @@ def smoke_test(out_path: str) -> int:
     except Exception as exc:  # noqa: BLE001
         problems.append(f"wx/ui: {exc}")
     try:
+        # Formatted full messages (#190): markdown and its extensions, and
+        # wx's WebView2 loader, which a build can leave behind.
+        from .rendering import message_page
+        report["markdown"] = "<h2>" in message_page("t", "## x")
+        import wx.html2
+
+        loader = Path(wx.html2.__file__).parent / "WebView2Loader.dll"
+        report["webview2_loader"] = loader.is_file()
+        if not loader.is_file():
+            problems.append(f"missing {loader}")
+        # Informational: the runtime itself is the PC's, not the build's.
+        report["webview2_available"] = bool(
+            wx.html2.WebView.IsBackendAvailable(wx.html2.WebViewBackendEdge))
+    except Exception as exc:  # noqa: BLE001
+        problems.append(f"formatted messages: {exc}")
+    try:
         import velopack  # noqa: F401
 
         report["velopack"] = True

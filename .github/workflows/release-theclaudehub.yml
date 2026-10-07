@@ -101,12 +101,14 @@ jobs:
 
       # --onedir, not --onefile: Velopack swaps an app folder in place, and a onefile exe would
       # unpack itself on every start. velopack is imported lazily, so it is named explicitly; the
-      # speech scripts are data files.
+      # speech scripts are data files. --collect-binaries wx brings wx's WebView2Loader.dll, which
+      # PyInstaller otherwise leaves out, and without it full messages can't open as a formatted
+      # page (#190; the smoke test checks for it).
       - name: Build
         run: |
           python tools/make_version_info.py
           python -m PyInstaller --noconfirm --clean --noconsole --onedir --name TheClaudeHub `
-            --version-file build/version_info.txt --hidden-import velopack `
+            --version-file build/version_info.txt --hidden-import velopack --collect-binaries wx `
             --add-data "theclaudehub/speech;theclaudehub/speech" TheClaudeHub.pyw
           if ($LASTEXITCODE -ne 0) { exit 1 }
 

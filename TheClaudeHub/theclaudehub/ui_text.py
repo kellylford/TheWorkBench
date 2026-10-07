@@ -34,7 +34,8 @@ SHORTCUTS = [
     ]),
     ("Messages", [
         ("Enter, or Applications key / Shift+F10 then Read Full Message",
-         "Read the whole message in a text box; Escape comes back to it"),
+         "Read the whole message as a formatted page (move by heading, table, list and "
+         "code block); Alt+P reads it as plain text instead; Escape comes back to it"),
         ("Ctrl+C", "Copy the whole message"),
         ("End", "Newest message"),
         ("Ctrl+T", "Show or hide tool activity"),
