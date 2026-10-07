@@ -8,7 +8,9 @@ Locations, as found on Windows with Claude Code 2.1 and the Claude desktop
 app (none of this is documented, so every caller treats it as best effort):
 
 * Desktop app session metadata:
-  ``%APPDATA%\\Claude\\claude-code-sessions\\<id>\\<orgId>\\local_<id>.json``
+  ``%APPDATA%\\Claude\\claude-code-sessions\\<id>\\<orgId>\\local_<id>.json``,
+  or for the Microsoft Store version
+  ``%LOCALAPPDATA%\\Packages\\Claude_<id>\\LocalCache\\Roaming\\Claude\\claude-code-sessions``
 * Transcripts: ``%USERPROFILE%\\.claude\\projects\\<encoded cwd>\\<cliSessionId>.jsonl``
 * Live sessions: ``%USERPROFILE%\\.claude\\sessions\\<pid>.json``
 * TheClaudeHub's own files: ``%APPDATA%\\TheClaudeHub\\``
@@ -19,7 +21,7 @@ import os
 import re
 import sys
 from pathlib import Path
-from typing import Optional
+from typing import List, Optional
 
 APP_DIR_NAME = "TheClaudeHub"
 
@@ -52,8 +54,34 @@ def _roaming_dir() -> Path:
 
 
 def desktop_sessions_dir() -> Path:
-    """Where the Claude desktop app keeps one JSON file per Code session."""
+    """Where the Claude desktop app keeps one JSON file per Code session, when
+    it was installed with its own installer."""
     return _roaming_dir() / "Claude" / "claude-code-sessions"
+
+
+def _store_app_sessions_dirs() -> List[Path]:
+    """The same folder for the Microsoft Store (MSIX) version of the desktop
+    app (issue #183). Windows redirects a packaged app's AppData writes into
+    its package folder, so ``%APPDATA%\\Claude`` doesn't exist there. Matched
+    on ``Claude_*`` rather than the package id seen on Kelly's PCs
+    (``Claude_pzs8sxrjxfjjc``), in case it differs."""
+    if sys.platform != "win32":
+        return []
+    local = os.environ.get("LOCALAPPDATA")
+    packages = Path(local) / "Packages" if local else Path.home() / "AppData" / "Local" / "Packages"
+    try:
+        return sorted(p / "LocalCache" / "Roaming" / "Claude" / "claude-code-sessions"
+                      for p in packages.glob("Claude_*"))
+    except OSError:
+        return []
+
+
+def desktop_sessions_dirs() -> List[Path]:
+    """Every folder that holds desktop app session files, that exists. Both
+    kinds of install can be present (switching from one to the other leaves
+    the old folder behind); callers read all of them."""
+    candidates = [desktop_sessions_dir(), *_store_app_sessions_dirs()]
+    return [path for path in candidates if path.is_dir()]
 
 
 def app_data_dir() -> Path:

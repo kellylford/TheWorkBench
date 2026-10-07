@@ -36,7 +36,7 @@ def env(tmp_path, monkeypatch, app):
     projects = tmp_path / "projects"
     for folder in (desktop, live, projects):
         folder.mkdir()
-    monkeypatch.setattr(platform_paths, "desktop_sessions_dir", lambda: desktop)
+    monkeypatch.setattr(platform_paths, "desktop_sessions_dirs", lambda: [desktop])
     monkeypatch.setattr(platform_paths, "live_sessions_dir", lambda: live)
     monkeypatch.setattr(platform_paths, "projects_dir", lambda: projects)
     monkeypatch.setattr(speech, "DEFAULT_SETTINGS_PATH", tmp_path / "speech.json")

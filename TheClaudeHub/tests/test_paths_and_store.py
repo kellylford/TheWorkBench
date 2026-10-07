@@ -4,7 +4,7 @@ import pytest
 
 from theclaudehub import platform_paths
 from theclaudehub.own_store import OwnSession, OwnSessionStore
-from theclaudehub.sessions import NEEDS_YOU
+from theclaudehub.sessions import NEEDS_YOU, load_desktop_sessions
 
 
 @pytest.mark.parametrize("cwd,expected", [
@@ -51,6 +51,59 @@ def test_app_dirs_under_appdata(monkeypatch, tmp_path):
     monkeypatch.setenv("APPDATA", str(tmp_path))
     assert platform_paths.app_data_dir() == tmp_path / "TheClaudeHub"
     assert platform_paths.desktop_sessions_dir() == tmp_path / "Claude" / "claude-code-sessions"
+
+
+def _store_layout(tmp_path, monkeypatch, classic=False):
+    """A Microsoft Store install of the desktop app (#183), and optionally
+    the classic folder too. Returns (classic dir, store dir)."""
+    monkeypatch.setattr(platform_paths.sys, "platform", "win32")
+    monkeypatch.setenv("APPDATA", str(tmp_path / "Roaming"))
+    monkeypatch.setenv("LOCALAPPDATA", str(tmp_path / "Local"))
+    store = (tmp_path / "Local" / "Packages" / "Claude_pzs8sxrjxfjjc" / "LocalCache"
+             / "Roaming" / "Claude" / "claude-code-sessions")
+    store.mkdir(parents=True)
+    (tmp_path / "Local" / "Packages" / "OtherApp_123").mkdir()
+    classic_dir = tmp_path / "Roaming" / "Claude" / "claude-code-sessions"
+    if classic:
+        classic_dir.mkdir(parents=True)
+    return classic_dir, store
+
+
+def _write_desktop(folder, local, title):
+    path = folder / local / "org" / f"{local}.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps({"sessionId": local, "cliSessionId": "cli-" + local,
+                                "cwd": "C:\\G\\Repo", "title": title,
+                                "lastActivityAt": 1}), encoding="utf-8")
+    return path
+
+
+def test_store_app_sessions_found(monkeypatch, tmp_path):
+    _classic, store = _store_layout(tmp_path, monkeypatch)
+    assert platform_paths.desktop_sessions_dirs() == [store]
+    _write_desktop(store, "local_s", "From the Store app")
+    titles = [s.title for s in load_desktop_sessions().sessions]
+    assert titles == ["From the Store app"]
+
+
+def test_both_installs_read_once_each_newest_copy_wins(monkeypatch, tmp_path):
+    import os
+    classic, store = _store_layout(tmp_path, monkeypatch, classic=True)
+    assert platform_paths.desktop_sessions_dirs() == [classic, store]
+    old = _write_desktop(classic, "local_both", "Old title")
+    _write_desktop(store, "local_both", "New title")
+    os.utime(old, (1, 1))
+    _write_desktop(classic, "local_only_classic", "Classic only")
+    titles = sorted(s.title for s in load_desktop_sessions().sessions)
+    assert titles == ["Classic only", "New title"]
+
+
+def test_no_desktop_app_means_no_folders(monkeypatch, tmp_path):
+    monkeypatch.setattr(platform_paths.sys, "platform", "win32")
+    monkeypatch.setenv("APPDATA", str(tmp_path / "Roaming"))
+    monkeypatch.setenv("LOCALAPPDATA", str(tmp_path / "Local"))
+    assert platform_paths.desktop_sessions_dirs() == []
+    assert load_desktop_sessions().sessions == []
 
 
 # -- own store ------------------------------------------------------------------

@@ -180,14 +180,22 @@ class DesktopLoadResult:
 
 def load_desktop_sessions(directory: Optional[Path] = None,
                           live: Optional[Dict[str, LiveStatus]] = None) -> DesktopLoadResult:
-    directory = directory or platform_paths.desktop_sessions_dir()
+    directories = [directory] if directory else platform_paths.desktop_sessions_dirs()
     live = live if live is not None else {}
     result = DesktopLoadResult()
-    try:
-        files = list(directory.glob("**/local_*.json"))
-    except OSError:
-        return result
-    for path in files:
+    # A session in two folders (both kinds of desktop app install, #183) is
+    # read once, from the copy written last.
+    newest: Dict[str, Path] = {}
+    for folder in directories:
+        try:
+            found = list(folder.glob("**/local_*.json"))
+        except OSError:
+            continue
+        for path in found:
+            known = newest.get(path.name)
+            if known is None or _mtime(path) > _mtime(known):
+                newest[path.name] = path
+    for path in newest.values():
         try:
             data = json.loads(path.read_text(encoding="utf-8"))
         except (OSError, ValueError):
@@ -205,6 +213,13 @@ def load_desktop_sessions(directory: Optional[Path] = None,
         if info is not None:
             result.sessions.append(info)
     return result
+
+
+def _mtime(path: Path) -> float:
+    try:
+        return path.stat().st_mtime
+    except OSError:
+        return 0.0
 
 
 def desktop_session_from_metadata(data: dict,
