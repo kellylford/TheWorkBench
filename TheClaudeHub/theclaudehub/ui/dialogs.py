@@ -31,9 +31,10 @@ class ShortcutsDialog(wx.Dialog):
 
 
 PERMISSION_NOTE = (
-    "Nobody can approve a permission prompt while TheClaudeHub runs a turn, so "
-    "anything that would ask is refused straight away, and the chat and the "
-    "announcement say what was refused.")
+    "The permission mode decides what Claude may do without asking. When Claude "
+    "asks for permission, asks you a question or has a plan for you to approve, "
+    "the turn waits: TheClaudeHub announces it, the session shows as needing "
+    "you, and Ctrl+Shift+A answers.")
 
 
 class NewSessionDialog(wx.Dialog):
@@ -271,3 +272,249 @@ class MessageDialog(wx.Dialog):
         self.SetEscapeId(wx.ID_CANCEL)
         self.text.SetInsertionPoint(0)
         wx.CallAfter(self.text.SetFocus)
+
+
+# -- Claude is waiting for an answer (#187, #188) ---------------------------------------
+#
+# Shared rules: Escape (Answer Later) closes without answering, so the turn
+# keeps waiting and Ctrl+Shift+A comes back to it. Nothing refuses or approves
+# by accident: Enter's default button is always the harmless choice.
+
+ALLOW, ALLOW_SESSION, DENY = "allow", "session", "deny"
+ID_ALLOW = wx.NewIdRef()
+ID_ALLOW_SESSION = wx.NewIdRef()
+ID_DENY = wx.NewIdRef()
+
+
+def _read_only_text(parent, value: str, name: str, min_height: int = 160) -> wx.TextCtrl:
+    text = wx.TextCtrl(parent, value=value,
+                       style=wx.TE_MULTILINE | wx.TE_READONLY | wx.TE_RICH2)
+    set_accessible_name(text, name)
+    text.SetMinSize((-1, min_height))
+    text.SetInsertionPoint(0)
+    return text
+
+
+class PermissionDialog(wx.Dialog):
+    """Claude wants to use a tool: Allow, Allow for this session, Deny.
+
+    The request is in a read-only box to read by line (the whole command, or
+    the file and what would change). Deny is the default button, so a stray
+    Enter refuses; a reason typed for Deny goes back to Claude.
+    """
+
+    def __init__(self, parent, session_title: str, request):
+        super().__init__(parent, title=f"Claude needs permission: {session_title}",
+                         size=(700, 540), style=wx.DEFAULT_DIALOG_STYLE | wx.RESIZE_BORDER)
+        self.choice = ""
+        sizer = wx.BoxSizer(wx.VERTICAL)
+        sizer.Add(wx.StaticText(self, label="&Request:"), 0, wx.LEFT | wx.TOP, 8)
+        self.request_text = _read_only_text(self, request.detail(), "Request")
+        sizer.Add(self.request_text, 1, wx.EXPAND | wx.ALL, 8)
+        sizer.Add(wx.StaticText(self, label="&Reason to give Claude if you deny (optional):"),
+                  0, wx.LEFT, 8)
+        self.reason = wx.TextCtrl(self)
+        set_accessible_name(self.reason, "Reason to give Claude if you deny (optional)")
+        sizer.Add(self.reason, 0, wx.EXPAND | wx.ALL, 8)
+
+        row = wx.BoxSizer(wx.HORIZONTAL)
+        allow = wx.Button(self, ID_ALLOW, "&Allow")
+        row.Add(allow, 0, wx.RIGHT, 6)
+        session_label = request.allow_for_session_label()
+        if session_label:
+            self.session_button = wx.Button(self, ID_ALLOW_SESSION, "Allow for this &session")
+            # The button says what it does in full to a screen reader.
+            self.session_button.SetToolTip(session_label)
+            set_accessible_name(self.session_button, session_label)
+            row.Add(self.session_button, 0, wx.RIGHT, 6)
+        else:
+            self.session_button = None
+        deny = wx.Button(self, ID_DENY, "&Deny")
+        deny.SetDefault()
+        row.Add(deny, 0, wx.RIGHT, 6)
+        row.Add(wx.Button(self, wx.ID_CANCEL, "Answer &Later"), 0)
+        sizer.Add(row, 0, wx.ALIGN_RIGHT | wx.ALL, 8)
+        self.SetSizer(sizer)
+        self.SetEscapeId(wx.ID_CANCEL)
+        for button_id, choice in ((ID_ALLOW, ALLOW), (ID_ALLOW_SESSION, ALLOW_SESSION),
+                                  (ID_DENY, DENY)):
+            self.Bind(wx.EVT_BUTTON, lambda e, c=choice: self._choose(c), id=button_id)
+        wx.CallAfter(self.request_text.SetFocus)
+
+    def _choose(self, choice: str):
+        self.choice = choice
+        self.EndModal(wx.ID_OK)
+
+    def reason_text(self) -> str:
+        return self.reason.GetValue().strip()
+
+
+OTHER = "Other"
+
+
+class QuestionDialog(wx.Dialog):
+    """Claude's questions (AskUserQuestion), one group per question: the
+    options as radio buttons (check boxes when several may be chosen), each
+    with its description, and Other with a text box. Send Answers is the
+    default button."""
+
+    def __init__(self, parent, session_title: str, request):
+        super().__init__(parent, title=f"Claude asks: {session_title}", size=(700, 560),
+                         style=wx.DEFAULT_DIALOG_STYLE | wx.RESIZE_BORDER)
+        self._questions = request.questions()
+        self._controls = []  # per question: (kind, [controls], other text)
+        outer = wx.BoxSizer(wx.VERTICAL)
+        panel = wx.ScrolledWindow(self, style=wx.VSCROLL)
+        panel.SetScrollRate(0, 20)
+        sizer = wx.BoxSizer(wx.VERTICAL)
+        first = None
+        for number, question in enumerate(self._questions, start=1):
+            header = str(question.get("header") or f"Question {number}")
+            # The question is the group's label: a screen reader reads it on
+            # arriving at the first option, which a text above it is not.
+            box = wx.StaticBoxSizer(wx.VERTICAL, panel, f"{header}: {question['question']}")
+            parent_window = box.GetStaticBox()
+            options = [o for o in question.get("options") or [] if isinstance(o, dict)]
+            multi = bool(question.get("multiSelect"))
+            controls = []
+            for index, option in enumerate(options):
+                label = str(option.get("label") or f"Option {index + 1}")
+                description = str(option.get("description") or "")
+                text = f"{label}: {description}" if description else label
+                if multi:
+                    control = wx.CheckBox(parent_window, label=text)
+                else:
+                    style = wx.RB_GROUP if index == 0 else 0
+                    control = wx.RadioButton(parent_window, label=text, style=style)
+                    control.SetValue(False)
+                control._hub_label = label
+                controls.append(control)
+                box.Add(control, 0, wx.ALL, 4)
+                first = first or control
+            if multi:
+                other = wx.CheckBox(parent_window, label=f"{OTHER} (type below)")
+            else:
+                other = wx.RadioButton(parent_window, label=f"{OTHER} (type below)",
+                                       style=0 if controls else wx.RB_GROUP)
+                other.SetValue(False)
+            other._hub_label = OTHER
+            controls.append(other)
+            box.Add(other, 0, wx.ALL, 4)
+            other_text = wx.TextCtrl(parent_window)
+            set_accessible_name(other_text, f"{header}: your own answer")
+            box.Add(other_text, 0, wx.EXPAND | wx.ALL, 4)
+            other_text.Bind(wx.EVT_TEXT, lambda e, o=other: o.SetValue(True)
+                            if e.GetString().strip() else None)
+            self._controls.append(("multi" if multi else "single", controls, other_text))
+            sizer.Add(box, 0, wx.EXPAND | wx.ALL, 6)
+            first = first or other
+        panel.SetSizer(sizer)
+        outer.Add(panel, 1, wx.EXPAND | wx.ALL, 4)
+
+        row = wx.BoxSizer(wx.HORIZONTAL)
+        send = wx.Button(self, wx.ID_OK, "&Send Answers")
+        send.SetDefault()
+        row.Add(send, 0, wx.RIGHT, 6)
+        decline = wx.Button(self, ID_DENY, "&Don't Answer")
+        row.Add(decline, 0, wx.RIGHT, 6)
+        row.Add(wx.Button(self, wx.ID_CANCEL, "Answer &Later"), 0)
+        outer.Add(row, 0, wx.ALIGN_RIGHT | wx.ALL, 8)
+        self.SetSizer(outer)
+        self.SetEscapeId(wx.ID_CANCEL)
+        self.declined = False
+        send.Bind(wx.EVT_BUTTON, self._on_send)
+        decline.Bind(wx.EVT_BUTTON, self._on_decline)
+        if first is not None:
+            wx.CallAfter(first.SetFocus)
+
+    def _on_decline(self, _event):
+        self.declined = True
+        self.EndModal(wx.ID_OK)
+
+    def _on_send(self, _event):
+        for (_kind, _controls, other_text), question in zip(self._controls, self._questions):
+            if not self._answer_for(_controls, other_text):
+                wx.MessageBox(f"Choose an answer for: {question['question']}",
+                              self.GetTitle(), wx.OK | wx.ICON_WARNING, self)
+                (_controls[0] if _controls else other_text).SetFocus()
+                return
+        self.EndModal(wx.ID_OK)
+
+    @staticmethod
+    def _answer_for(controls, other_text) -> str:
+        chosen = []
+        for control in controls:
+            if not control.GetValue():
+                continue
+            if control._hub_label == OTHER:
+                typed = " ".join(other_text.GetValue().split())
+                if typed:
+                    chosen.append(typed)
+            else:
+                chosen.append(control._hub_label)
+        return ", ".join(chosen)
+
+    def answers(self):
+        """{question text: answer} as Claude Code expects it; several
+        choices are joined with commas."""
+        return {question["question"]: self._answer_for(controls, other_text)
+                for (_kind, controls, other_text), question
+                in zip(self._controls, self._questions)}
+
+
+class PlanDialog(wx.Dialog):
+    """Claude's plan, to read, then Approve (choosing the permission mode to
+    carry on in) or Keep Planning with a note. Keep Planning is the default
+    button: approving starts real changes, so it needs a deliberate press."""
+
+    def __init__(self, parent, session_title: str, request, modes, default_mode: str):
+        super().__init__(parent, title=f"Claude's plan: {session_title}", size=(760, 600),
+                         style=wx.DEFAULT_DIALOG_STYLE | wx.RESIZE_BORDER)
+        self._modes = list(modes)  # (value, label)
+        self.approved = False
+        sizer = wx.BoxSizer(wx.VERTICAL)
+        sizer.Add(wx.StaticText(self, label="&Plan:"), 0, wx.LEFT | wx.TOP, 8)
+        self.plan_text = _read_only_text(self, request.plan() or "(Claude sent no plan text.)",
+                                         "Plan", min_height=260)
+        sizer.Add(self.plan_text, 1, wx.EXPAND | wx.ALL, 8)
+
+        grid = wx.FlexGridSizer(cols=2, vgap=8, hgap=8)
+        grid.AddGrowableCol(1, 1)
+        grid.Add(wx.StaticText(self, label="If approved, carry on &in:"), 0,
+                 wx.ALIGN_CENTER_VERTICAL)
+        self.mode = wx.Choice(self, choices=[label for _v, label in self._modes])
+        set_accessible_name(self.mode, "If approved, carry on in")
+        values = [v for v, _l in self._modes]
+        self.mode.SetSelection(values.index(default_mode) if default_mode in values else 0)
+        grid.Add(self.mode, 1, wx.EXPAND)
+        grid.Add(wx.StaticText(self, label="&What to change (for Keep Planning):"), 0,
+                 wx.ALIGN_CENTER_VERTICAL)
+        self.note = wx.TextCtrl(self)
+        set_accessible_name(self.note, "What to change (for Keep Planning)")
+        grid.Add(self.note, 1, wx.EXPAND)
+        sizer.Add(grid, 0, wx.EXPAND | wx.ALL, 8)
+
+        row = wx.BoxSizer(wx.HORIZONTAL)
+        approve = wx.Button(self, ID_ALLOW, "&Approve")
+        row.Add(approve, 0, wx.RIGHT, 6)
+        keep = wx.Button(self, ID_DENY, "&Keep Planning")
+        keep.SetDefault()
+        row.Add(keep, 0, wx.RIGHT, 6)
+        row.Add(wx.Button(self, wx.ID_CANCEL, "Answer &Later"), 0)
+        sizer.Add(row, 0, wx.ALIGN_RIGHT | wx.ALL, 8)
+        self.SetSizer(sizer)
+        self.SetEscapeId(wx.ID_CANCEL)
+        approve.Bind(wx.EVT_BUTTON, lambda e: self._finish(True))
+        keep.Bind(wx.EVT_BUTTON, lambda e: self._finish(False))
+        wx.CallAfter(self.plan_text.SetFocus)
+
+    def _finish(self, approved: bool):
+        self.approved = approved
+        self.EndModal(wx.ID_OK)
+
+    def chosen_mode(self) -> str:
+        index = self.mode.GetSelection()
+        return self._modes[index][0] if 0 <= index < len(self._modes) else self._modes[0][0]
+
+    def note_text(self) -> str:
+        return self.note.GetValue().strip()

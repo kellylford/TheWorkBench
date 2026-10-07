@@ -137,6 +137,10 @@ class FakeRunner:
     def cancel(self):
         self.cancelled = True
 
+    def respond(self, request_id, response):
+        self.responses = getattr(self, "responses", []) + [(request_id, response)]
+        return not getattr(self, "ended", False)
+
 
 @pytest.fixture
 def fake_runner(monkeypatch):
@@ -1288,3 +1292,168 @@ def test_new_session_dialog_offers_the_models(frame):
             order.index(dialog.mode)
     finally:
         dialog.Destroy()
+
+
+# -- answering Claude (#187, #188) ------------------------------------------------------
+
+
+def _request(request_id="r1", tool="Bash", tool_input=None, suggestions=None):
+    from theclaudehub.claude_cli import PermissionRequest
+    return PermissionRequest(request_id, tool, tool_input or {"command": "git push"},
+                             suggestions=suggestions or [])
+
+
+def _waiting_turn(frame, *requests):
+    select(frame, "Hub probe")
+    frame.on_open_session()
+    runner = FakeRunner([], "", "", None)
+    frame._runners["own-1"] = runner
+    for request in requests:
+        frame._on_turn_event({"id": "own-1"}, "Hub probe",
+                             TurnEvent("permission", text=request.summary(), request=request))
+    return runner
+
+
+def test_permission_request_is_announced_and_the_session_needs_you(frame, env):
+    _waiting_turn(frame, _request())
+    assert env["spoken"][-1] == ("Hub probe needs you. Claude wants to run git push. "
+                                 "Ctrl+Shift+A answers.")
+    assert frame.turn_status.GetLabel() == ("Waiting for you: Claude wants to run git push. "
+                                            "Ctrl+Shift+A answers.")
+    settle(frame)
+    row = [s for s in frame.session_list.GetStrings() if s.startswith("Hub probe")][0]
+    assert "needs you: Claude wants to run git push" in row
+    frame.on_turn_status()
+    assert env["feedback"][-1].startswith("Hub probe is waiting for you: Claude wants to run")
+
+
+def test_answering_sends_the_response_and_announces_the_next(frame, env, monkeypatch):
+    from theclaudehub.claude_cli import allow_response
+    first, second = _request("r1"), _request("r2", tool_input={"command": "git tag v1"})
+    runner = _waiting_turn(frame, first, second)
+    monkeypatch.setattr(frame, "_ask", lambda title, request, own: (
+        allow_response(request), "Allowed.", {}))
+    frame.on_answer()
+    assert runner.responses == [("r1", {"behavior": "allow", "updatedInput": first.input})]
+    assert env["feedback"][-1] == ("Allowed. Next: Claude wants to run git tag v1. "
+                                   "Ctrl+Shift+A answers.")
+    frame.on_answer()
+    assert [r[0] for r in runner.responses] == ["r1", "r2"]
+    assert frame._pending["own-1"] == []
+    frame.on_answer()
+    assert env["feedback"][-1] == "Claude isn't waiting for an answer."
+
+
+def test_answer_later_leaves_it_waiting(frame, env, monkeypatch):
+    runner = _waiting_turn(frame, _request())
+    monkeypatch.setattr(frame, "_ask", lambda *a: None)
+    frame.on_answer()
+    assert not hasattr(runner, "responses")
+    assert len(frame._pending["own-1"]) == 1
+    assert "still waiting" in env["feedback"][-1]
+
+
+def test_allow_for_session_keeps_the_rule_for_later_turns(frame, env, fake_runner, monkeypatch):
+    from theclaudehub.ui import dialogs
+    request = _request(suggestions=[{"type": "addRules", "behavior": "allow",
+                                     "destination": "localSettings",
+                                     "rules": [{"toolName": "Bash",
+                                                "ruleContent": "git push:*"}]}])
+    runner = _waiting_turn(frame, request)
+
+    class Picks(dialogs.PermissionDialog):
+        def ShowModal(self):
+            self.choice = dialogs.ALLOW_SESSION
+            return wx.ID_OK
+    monkeypatch.setattr("theclaudehub.ui.main_frame.PermissionDialog", Picks)
+    frame.on_answer()
+    response = runner.responses[0][1]
+    assert response["updatedPermissions"][0]["destination"] == "session"
+    assert frame.store.get("own-1").allowed_tools == ["Bash(git push:*)"]
+    # The turn ends; the next one is given the rule.
+    frame._on_turn_event({"id": "own-1"}, "Hub probe", TurnEvent("finished", text="Pushed."))
+    frame.reply_text.SetValue("and tag it")
+    frame.on_send()
+    command = fake_runner.instances[-1].command
+    assert command[command.index("--allowedTools") + 1] == "Bash(git push:*)"
+
+
+def test_plan_approval_keeps_the_new_mode(frame, env, monkeypatch):
+    from theclaudehub.ui import dialogs
+    frame.store.update("own-1", permission_mode="plan")
+    runner = _waiting_turn(frame, _request("p1", "ExitPlanMode", {"plan": "# Plan\n1. Go"}))
+    assert "plan is ready" in env["spoken"][-1]
+
+    class Approves(dialogs.PlanDialog):
+        def ShowModal(self):
+            assert self.plan_text.GetValue() == "# Plan\n1. Go"
+            assert self.mode.GetStringSelection().startswith("Accept edits")
+            self.approved = True
+            return wx.ID_OK
+    monkeypatch.setattr("theclaudehub.ui.main_frame.PlanDialog", Approves)
+    frame.on_answer()
+    assert runner.responses[0][1]["updatedPermissions"] == [
+        {"type": "setMode", "mode": "acceptEdits", "destination": "session"}]
+    assert frame.store.get("own-1").permission_mode == "acceptEdits"
+    assert env["feedback"][-1] == "Plan approved. Claude is carrying on in accept edits mode."
+
+
+def test_question_answers_go_back_to_claude(frame, env, monkeypatch):
+    from theclaudehub.ui import dialogs
+    questions = [{"question": "Which color?", "header": "Color",
+                  "options": [{"label": "Red", "description": "Warm"}, {"label": "Blue"}]},
+                 {"question": "Which toppings?", "multiSelect": True,
+                  "options": [{"label": "Cheese"}, {"label": "Olives"}]}]
+    request = _request("q1", "AskUserQuestion", {"questions": questions})
+    runner = _waiting_turn(frame, request)
+
+    class Answers(dialogs.QuestionDialog):
+        def ShowModal(self):
+            color, toppings = self._controls
+            assert [c.GetLabel() for c in color[1]] == ["Red: Warm", "Blue",
+                                                        "Other (type below)"]
+            color[1][1].SetValue(True)
+            toppings[1][0].SetValue(True)
+            toppings[2].SetValue("anchovies")  # typing ticks Other
+            assert toppings[1][2].GetValue()
+            return wx.ID_OK
+    monkeypatch.setattr("theclaudehub.ui.main_frame.QuestionDialog", Answers)
+    frame.on_answer()
+    sent = runner.responses[0][1]
+    assert sent["updatedInput"]["answers"] == {"Which color?": "Blue",
+                                               "Which toppings?": "Cheese, anchovies"}
+    assert env["feedback"][-1] == "Answer sent."
+
+
+def test_turn_end_clears_waiting_and_a_late_answer_says_so(frame, env, monkeypatch):
+    from theclaudehub.claude_cli import allow_response
+    runner = _waiting_turn(frame, _request())
+    request = frame._pending["own-1"][0]
+    frame._on_turn_event({"id": "own-1"}, "Hub probe", TurnEvent("failed", text="Stopped.",
+                                                                 is_error=True))
+    assert "own-1" not in frame._pending
+    runner.ended = True
+    frame._runners["own-1"] = runner
+    frame._apply_answer("own-1", request, allow_response(request), "Allowed.", {})
+    assert env["feedback"][-1] == "That isn't waiting any more: the turn has ended."
+
+
+def test_permission_dialog_buttons(frame):
+    from theclaudehub.ui.dialogs import PermissionDialog
+    plain = PermissionDialog(frame, "Hub probe", _request(tool="WebFetch",
+                                                          tool_input={"url": "https://x"}))
+    try:
+        assert plain.session_button is None
+        assert plain.request_text.GetValue().startswith("Claude wants to fetch https://x.")
+        default = plain.GetDefaultItem()
+        assert default.GetLabel() == "&Deny"
+    finally:
+        plain.Destroy()
+    with_rule = PermissionDialog(frame, "Hub probe", _request(suggestions=[
+        {"type": "addRules", "behavior": "allow",
+         "rules": [{"toolName": "Bash", "ruleContent": "git push:*"}]}]))
+    try:
+        assert with_rule.session_button.GetName() == (
+            "Allow, and don't ask again this session for Bash(git push:*)")
+    finally:
+        with_rule.Destroy()

@@ -19,9 +19,16 @@ subscription. The things that would change that are all ruled out here:
   endpoint, Bedrock/Vertex/Foundry). Everything else is kept, including
   settings the user chose such as ``CLAUDE_CODE_GIT_BASH_PATH``,
   ``CLAUDE_CONFIG_DIR``, proxies and timeouts.
-* **Permission prompts are refused, never waited on.** ``--permission-prompts
-  none`` tells the CLI nobody is there to answer, so anything that would ask
-  is denied at once and the turn carries on.
+* **Permission prompts come to TheClaudeHub** (issues #187, #188), over the
+  same pipes, with the control protocol the Agent SDK uses:
+  ``--input-format stream-json --permission-prompts host
+  --permission-prompt-tool stdio``. Anything that would ask arrives as a
+  ``control_request`` (``can_use_tool``) and the turn waits until it is
+  answered with a ``control_response``: allow (optionally with the input
+  changed, which is how Claude's questions are answered), or deny with a
+  reason Claude reads. Nothing is ever answered by timing out; Stop ends the
+  turn. Claude's questions (AskUserQuestion) and plans (ExitPlanMode) come
+  the same way. Checked against Claude Code 2.1.286.
 * **The run is stopped if the CLI says it is using an API key.** The first
   stream-json event (``system/init``) reports ``apiKeySource``; on a
   subscription login it is ``"none"``. Anything else ends the turn before a
@@ -35,10 +42,12 @@ and is refused for any id the desktop app knows about or any ``local_`` id
 (``ResumeRefused``). That check lives in ``build_resume_command`` so no caller
 can skip it.
 
-Prompts go in on stdin, as UTF-8 bytes with the newlines exactly as typed, not
-on the command line: a message that begins with ``-`` cannot be mistaken for a
-flag, and there is no command-line length limit. Output is read as bytes and
-split only on newline bytes.
+Prompts go in on stdin, as a stream-json user message (UTF-8, the newlines
+exactly as typed, escaped by JSON), not on the command line: a message that
+begins with ``-`` cannot be mistaken for a flag, and there is no command-line
+length limit. Stdin stays open for the turn, for answers to permission
+requests, and is closed when the result arrives so the CLI exits. Output is
+read as bytes and split only on newline bytes.
 """
 from __future__ import annotations
 
@@ -153,12 +162,24 @@ def model_label(model: str) -> str:
     return MODEL_LABELS.get(model, model) if model else "the default model"
 
 
-def _common_flags(permission_mode: str, model: str = "") -> List[str]:
+#: A permission rule as Claude Code writes them: ``Tool`` or
+#: ``Tool(content)``, one line. Rules come from Claude Code's own suggestions,
+#: and must never read as a flag.
+_SAFE_RULE = re.compile(r"[A-Za-z][A-Za-z0-9_.:-]{0,99}(\([^\r\n]{0,500}\))?")
+
+
+def is_safe_rule(rule: str) -> bool:
+    return isinstance(rule, str) and bool(_SAFE_RULE.fullmatch(rule))
+
+
+def _common_flags(permission_mode: str, model: str = "",
+                  allowed_tools: Collection[str] = ()) -> List[str]:
     permission_mode = normalize_permission_mode(permission_mode)
     if permission_mode not in PERMISSION_MODE_VALUES:
         raise ValueError(f"Unknown permission mode: {permission_mode!r}")
-    flags = ["-p", "--output-format", "stream-json", "--verbose",
-             "--permission-mode", permission_mode, "--permission-prompts", "none"]
+    flags = ["-p", "--input-format", "stream-json", "--output-format", "stream-json",
+             "--verbose", "--permission-mode", permission_mode,
+             "--permission-prompts", "host", "--permission-prompt-tool", "stdio"]
     if model:
         if not is_safe_model(model):
             raise ValueError(f"Not a valid model name: {model!r}")
@@ -166,6 +187,14 @@ def _common_flags(permission_mode: str, model: str = "") -> List[str]:
         # session keeps its model without this, but saying it each time keeps
         # the session on Kelly's choice whatever Claude Code does later.
         flags += ["--model", model]
+    rules = [rule for rule in allowed_tools if is_safe_rule(rule)]
+    if rules:
+        # "Allow for this session" (#187). Claude Code keeps a session-scoped
+        # rule only for the life of the process, and every turn here is a new
+        # process, so the rules are kept with the session and given again
+        # each turn. The option takes several values; the flag after it ends
+        # the list.
+        flags += ["--allowedTools", *rules]
     return flags
 
 
@@ -174,11 +203,12 @@ def new_session_id() -> str:
 
 
 def build_new_command(executable: str, session_id: str, title: str,
-                      permission_mode: str, model: str = "") -> List[str]:
+                      permission_mode: str, model: str = "",
+                      allowed_tools: Collection[str] = ()) -> List[str]:
     """Command for the first turn of a new session. The prompt goes on stdin."""
     if not platform_paths.is_safe_id(session_id):
         raise ValueError("Not a valid session id.")
-    command = [executable, *_common_flags(permission_mode, model),
+    command = [executable, *_common_flags(permission_mode, model, allowed_tools),
                "--session-id", session_id]
     title = " ".join((title or "").split())
     if title:
@@ -205,10 +235,12 @@ def check_resume_allowed(session_id: str, own_ids: Collection[str],
 
 def build_resume_command(executable: str, session_id: str, permission_mode: str,
                          own_ids: Collection[str],
-                         desktop_ids: Collection[str], model: str = "") -> List[str]:
+                         desktop_ids: Collection[str], model: str = "",
+                         allowed_tools: Collection[str] = ()) -> List[str]:
     """Command for a later turn. Refuses anything but TheClaudeHub's own sessions."""
     check_resume_allowed(session_id, own_ids, desktop_ids)
-    return [executable, *_common_flags(permission_mode, model), "--resume", session_id]
+    return [executable, *_common_flags(permission_mode, model, allowed_tools),
+            "--resume", session_id]
 
 
 # ---------------------------------------------------------------------------
@@ -216,16 +248,49 @@ def build_resume_command(executable: str, session_id: str, permission_mode: str,
 # ---------------------------------------------------------------------------
 
 
-@dataclass
-class TurnEvent:
-    """One thing that happened during a turn, already made readable."""
+INIT_REQUEST_ID = "theclaudehub-init"
 
-    kind: str               # started | text | tool | denied | finished | failed | notice
-    text: str = ""
-    session_id: str = ""
-    is_error: bool = False
-    denials: List[str] = field(default_factory=list)
-    raw_type: str = ""
+
+def stdin_lines(prompt: str) -> bytes:
+    """What starts a turn on stdin: the ``initialize`` control request (its
+    answer lists the slash commands and skills) and the user's message."""
+    initialize = {"type": "control_request", "request_id": INIT_REQUEST_ID,
+                  "request": {"subtype": "initialize", "hooks": None}}
+    message = {"type": "user", "session_id": "", "parent_tool_use_id": None,
+               "message": {"role": "user", "content": prompt}}
+    return (json.dumps(initialize) + "\n" + json.dumps(message, ensure_ascii=False)
+            + "\n").encode("utf-8")
+
+
+QUESTION_TOOL = "AskUserQuestion"
+PLAN_TOOL = "ExitPlanMode"
+SHELL_TOOLS = ("Bash", "PowerShell")
+
+
+def _tool_target(tool_input: dict, limit: int = 160) -> str:
+    """The one value that says what a tool call is about: its command, file,
+    URL or pattern, on one line."""
+    for key in ("command", "file_path", "notebook_path", "path", "url", "pattern", "query"):
+        value = tool_input.get(key)
+        if isinstance(value, str) and value.strip():
+            target = " ".join(value.split())
+            return target if len(target) <= limit else target[: limit - 1] + "…"
+    return ""
+
+
+def describe_tool_use(name: str, tool_input: dict) -> str:
+    """A tool call as words: "run npm init -y", "edit README.md"."""
+    tool_input = tool_input if isinstance(tool_input, dict) else {}
+    target = _tool_target(tool_input)
+    if name in SHELL_TOOLS and target:
+        return f"run {target}"
+    verbs = {"Write": "write", "Edit": "edit", "MultiEdit": "edit", "NotebookEdit": "edit",
+             "Read": "read", "WebFetch": "fetch", "WebSearch": "search the web for"}
+    if name in verbs and target:
+        if name in ("Write", "Edit", "MultiEdit", "NotebookEdit", "Read"):
+            target = os.path.basename(target.rstrip("\\/")) or target
+        return f"{verbs[name]} {target}"
+    return f"use {name}: {target}" if target else f"use {name}"
 
 
 def describe_denial(denial: dict) -> str:
@@ -234,15 +299,170 @@ def describe_denial(denial: dict) -> str:
         return "A tool was refused."
     name = str(denial.get("tool_name") or "A tool")
     tool_input = denial.get("tool_input") if isinstance(denial.get("tool_input"), dict) else {}
-    target = ""
-    for key in ("command", "file_path", "path", "url", "pattern"):
-        value = tool_input.get(key)
-        if isinstance(value, str) and value.strip():
-            target = " ".join(value.split())
-            if len(target) > 160:
-                target = target[:159] + "…"
-            break
+    target = _tool_target(tool_input)
     return f"{name} was refused: {target}" if target else f"{name} was refused"
+
+
+@dataclass
+class PermissionRequest:
+    """Claude Code asking TheClaudeHub before a tool runs (a ``can_use_tool``
+    control request). Claude's questions and plans come this way too."""
+
+    request_id: str
+    tool_name: str
+    input: dict = field(default_factory=dict)
+    description: str = ""
+    suggestions: list = field(default_factory=list)
+    tool_use_id: str = ""
+
+    @property
+    def is_question(self) -> bool:
+        return self.tool_name == QUESTION_TOOL
+
+    @property
+    def is_plan(self) -> bool:
+        return self.tool_name == PLAN_TOOL
+
+    def questions(self) -> List[dict]:
+        items = self.input.get("questions")
+        return [q for q in items if isinstance(q, dict) and isinstance(q.get("question"), str)] \
+            if isinstance(items, list) else []
+
+    def plan(self) -> str:
+        plan = self.input.get("plan")
+        return plan if isinstance(plan, str) else ""
+
+    def summary(self) -> str:
+        """One line, for announcements: what Claude is waiting for."""
+        if self.is_question:
+            questions = self.questions()
+            first = questions[0]["question"] if questions else "a question"
+            more = f" (and {len(questions) - 1} more)" if len(questions) > 1 else ""
+            return f"Claude asks: {first}{more}"
+        if self.is_plan:
+            return "Claude's plan is ready for you to approve"
+        return f"Claude wants to {describe_tool_use(self.tool_name, self.input)}"
+
+    def detail(self) -> str:
+        """Everything about the request, to read by line."""
+        lines = [self.summary() + "."]
+        if self.description and self.description not in lines[0]:
+            lines.append(f"Why: {self.description}")
+        if self.tool_name in SHELL_TOOLS:
+            lines += ["", f"{self.tool_name} command:", str(self.input.get("command", ""))]
+            return "\n".join(lines)
+        if self.tool_name == "Write":
+            lines += ["", f"File: {self.input.get('file_path', '')}", "", "Content:",
+                      str(self.input.get("content", ""))]
+            return "\n".join(lines)
+        if self.tool_name == "Edit":
+            lines += ["", f"File: {self.input.get('file_path', '')}", "", "Replace:",
+                      str(self.input.get("old_string", "")), "", "With:",
+                      str(self.input.get("new_string", ""))]
+            return "\n".join(lines)
+        lines.append("")
+        for key, value in self.input.items():
+            if isinstance(value, str):
+                lines.append(f"{key}: {value}")
+            else:
+                lines.append(f"{key}: {json.dumps(value, ensure_ascii=False, indent=2)}")
+        return "\n".join(lines)
+
+    def session_rules(self) -> List[str]:
+        """The rules Claude Code suggests for not asking again, as
+        ``Tool(content)`` strings."""
+        rules = []
+        for suggestion in self.suggestions:
+            if not isinstance(suggestion, dict) or suggestion.get("type") != "addRules":
+                continue
+            if suggestion.get("behavior", "allow") != "allow":
+                continue
+            for rule in suggestion.get("rules") or []:
+                if not isinstance(rule, dict) or not isinstance(rule.get("toolName"), str):
+                    continue
+                content = rule.get("ruleContent")
+                text = f"{rule['toolName']}({content})" if isinstance(content, str) and content \
+                    else rule["toolName"]
+                if is_safe_rule(text):
+                    rules.append(text)
+        return rules
+
+    def session_mode(self) -> str:
+        """A permission mode Claude Code suggests switching to instead
+        ("acceptEdits" for a file edit), or ""."""
+        for suggestion in self.suggestions:
+            if isinstance(suggestion, dict) and suggestion.get("type") == "setMode" \
+                    and suggestion.get("mode") in PERMISSION_MODE_VALUES:
+                return suggestion["mode"]
+        return ""
+
+    def allow_for_session_label(self) -> str:
+        """What "Allow for this session" means for this request, or "" when
+        Claude Code has nothing to suggest."""
+        mode = self.session_mode()
+        if mode == "acceptEdits":
+            return "Allow, and accept all file edits for the rest of this session"
+        if mode:
+            return f"Allow, and switch this session to {mode} mode"
+        rules = self.session_rules()
+        if rules:
+            return "Allow, and don't ask again this session for " + ", ".join(rules)
+        return ""
+
+
+def allow_response(request: PermissionRequest, updated_input: Optional[dict] = None,
+                   for_session: bool = False, mode: str = "") -> dict:
+    """The answer that lets the tool run. ``for_session`` applies Claude
+    Code's suggestion for the rest of this turn (the caller keeps it for
+    later turns); ``mode`` switches the permission mode (approving a plan)."""
+    response = {"behavior": "allow",
+                "updatedInput": updated_input if updated_input is not None else request.input}
+    updates = []
+    if mode:
+        updates.append({"type": "setMode", "mode": mode, "destination": "session"})
+    elif for_session:
+        session_mode = request.session_mode()
+        if session_mode:
+            updates.append({"type": "setMode", "mode": session_mode, "destination": "session"})
+        else:
+            rules = []
+            for rule in request.session_rules():
+                name, _, content = rule.partition("(")
+                entry = {"toolName": name}
+                if content:
+                    entry["ruleContent"] = content[:-1]
+                rules.append(entry)
+            if rules:
+                updates.append({"type": "addRules", "rules": rules, "behavior": "allow",
+                                "destination": "session"})
+    if updates:
+        response["updatedPermissions"] = updates
+    return response
+
+
+def deny_response(message: str = "") -> dict:
+    """The answer that refuses; Claude reads ``message`` as the reason."""
+    return {"behavior": "deny",
+            "message": message.strip() or "The user refused this. Don't try it another way "
+                                           "without asking."}
+
+
+def answer_questions_response(request: PermissionRequest, answers: Dict[str, str]) -> dict:
+    """Claude's questions answered: the tool runs with the answers added."""
+    return allow_response(request, updated_input={**request.input, "answers": answers})
+
+
+@dataclass
+class TurnEvent:
+    """One thing that happened during a turn, already made readable."""
+
+    kind: str               # started | text | tool | denied | permission | finished | failed
+    text: str = ""
+    session_id: str = ""
+    is_error: bool = False
+    denials: List[str] = field(default_factory=list)
+    raw_type: str = ""
+    request: Optional[PermissionRequest] = None
 
 
 class StreamParser:
@@ -254,6 +474,12 @@ class StreamParser:
         self.api_key_source: Optional[str] = None
         self.bad_lines = 0
         self.finished = False
+        #: Slash commands and skills, from the answer to ``initialize``:
+        #: dicts with ``name``, ``description`` and ``argumentHint``.
+        self.commands: List[dict] = []
+        #: Control requests TheClaudeHub can't answer (not ``can_use_tool``);
+        #: the runner refuses them so the CLI doesn't wait.
+        self.unsupported_requests: List[str] = []
 
     def feed(self, line: str) -> List[TurnEvent]:
         line = line.strip()
@@ -280,6 +506,34 @@ class StreamParser:
         if isinstance(sid, str) and sid:
             self.session_id = sid
 
+        if etype == "control_request":
+            request_id = str(event.get("request_id") or "")
+            request = event.get("request") if isinstance(event.get("request"), dict) else {}
+            if request.get("subtype") == "can_use_tool" and request_id:
+                tool_input = request.get("input") if isinstance(request.get("input"), dict) else {}
+                suggestions = request.get("permission_suggestions")
+                permission = PermissionRequest(
+                    request_id=request_id,
+                    tool_name=str(request.get("tool_name") or "a tool"),
+                    input=tool_input,
+                    description=str(request.get("description") or ""),
+                    suggestions=suggestions if isinstance(suggestions, list) else [],
+                    tool_use_id=str(request.get("tool_use_id") or ""))
+                return [TurnEvent("permission", text=permission.summary(),
+                                  session_id=self.session_id, request=permission)]
+            if request_id:
+                self.unsupported_requests.append(request_id)
+            return []
+        if etype == "control_response":
+            response = event.get("response") if isinstance(event.get("response"), dict) else {}
+            if response.get("request_id") == INIT_REQUEST_ID:
+                body = response.get("response") if isinstance(response.get("response"), dict) \
+                    else {}
+                commands = body.get("commands")
+                if isinstance(commands, list):
+                    self.commands = [c for c in commands
+                                     if isinstance(c, dict) and isinstance(c.get("name"), str)]
+            return []
         if etype == "system" and subtype == "init":
             source = event.get("apiKeySource")
             self.api_key_source = source if isinstance(source, str) else None
@@ -387,9 +641,49 @@ class TurnRunner:
         #: the session exists and later turns must --resume it.
         self.session_started = False
         self.parser = StreamParser()
+        #: Permission requests sent to the UI and not yet answered.
+        self.pending: Dict[str, PermissionRequest] = {}
+        self._stdin_open = False
 
     def elapsed(self) -> float:
         return self._clock() - self.started_at
+
+    def respond(self, request_id: str, response: dict) -> bool:
+        """Answer a permission request (from the UI thread). False if the turn
+        is already over or the request isn't waiting."""
+        with self._lock:
+            request = self.pending.pop(request_id, None)
+            if request is None:
+                return False
+            ok = self._write_line({"type": "control_response", "response": {
+                "subtype": "success", "request_id": request_id, "response": response}})
+            if ok:
+                self.last_activity = (
+                    "working" if response.get("behavior") == "allow"
+                    else f"carrying on after you refused {request.tool_name}")
+            return ok
+
+    def _write_line(self, obj: dict) -> bool:
+        """Write one JSON line to the CLI's stdin. Call with ``_lock`` held."""
+        process = self._process
+        if process is None or not self._stdin_open:
+            return False
+        try:
+            process.stdin.write((json.dumps(obj, ensure_ascii=False) + "\n").encode("utf-8"))
+            process.stdin.flush()
+            return True
+        except (OSError, ValueError):
+            return False
+
+    def _close_stdin(self) -> None:
+        with self._lock:
+            if not self._stdin_open or self._process is None:
+                return
+            self._stdin_open = False
+            try:
+                self._process.stdin.close()
+            except (OSError, ValueError):
+                pass
 
     def start(self) -> None:
         self._thread = threading.Thread(target=self._run, name="claude-turn", daemon=True)
@@ -464,11 +758,13 @@ class TurnRunner:
 
             err_thread = threading.Thread(target=drain_stderr, daemon=True)
             err_thread.start()
-            try:
-                process.stdin.write(self.prompt.encode("utf-8"))
-                process.stdin.close()
-            except (OSError, ValueError):
-                pass  # the process died early; its exit code tells us why
+            with self._lock:
+                try:
+                    process.stdin.write(stdin_lines(self.prompt))
+                    process.stdin.flush()
+                    self._stdin_open = True
+                except (OSError, ValueError):
+                    pass  # the process died early; its exit code tells us why
 
             for raw in iter(process.stdout.readline, b""):
                 for event in self.parser.feed(_decode(raw)):
@@ -485,12 +781,20 @@ class TurnRunner:
                         self.last_activity = f"using {event.text}"
                     elif event.kind == "text":
                         self.last_activity = "writing a reply"
+                    elif event.kind == "permission":
+                        with self._lock:
+                            self.pending[event.request.request_id] = event.request
+                        self.last_activity = f"waiting for you: {event.request.summary()}"
                     if event.kind == "finished":
                         final = event
+                        # The turn is over: closing stdin lets the CLI exit.
+                        self._close_stdin()
                     else:
                         self._emit(event)
+                self._refuse_unsupported()
                 if self._stopped_for_key:
                     break
+            self._close_stdin()
             process.wait()
             err_thread.join(timeout=2)
             if final is None:
@@ -514,9 +818,22 @@ class TurnRunner:
             final = TurnEvent("failed", text=f"Couldn't run claude: {exc}", is_error=True)
         finally:
             self._tree.close()
+            with self._lock:
+                self.pending.clear()
         if not final.session_id:
             final.session_id = self.parser.session_id
         self._emit(final)
+
+    def _refuse_unsupported(self) -> None:
+        """Control requests other than permission checks (hooks, MCP
+        messages): TheClaudeHub registers none, so say so at once rather than
+        leave the CLI waiting."""
+        while self.parser.unsupported_requests:
+            request_id = self.parser.unsupported_requests.pop(0)
+            with self._lock:
+                self._write_line({"type": "control_response", "response": {
+                    "subtype": "error", "request_id": request_id,
+                    "error": "TheClaudeHub doesn't support this request."}})
 
 
 class _Cancelled(Exception):

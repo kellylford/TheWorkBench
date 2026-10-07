@@ -11,12 +11,12 @@ import json
 import os
 import tempfile
 import time
-from dataclasses import asdict, dataclass, fields
+from dataclasses import asdict, dataclass, field, fields
 from pathlib import Path
 from typing import Dict, List, Optional
 
 from . import platform_paths
-from .claude_cli import MODEL_LABELS
+from .claude_cli import MODEL_LABELS, is_safe_rule
 from .sessions import IDLE, OWN, SessionInfo
 
 
@@ -39,6 +39,9 @@ class OwnSession:
     #: ``--model`` for every turn ("" is Claude Code's own default). Older
     #: stores don't have it and load as the default.
     model: str = ""
+    #: Permission rules chosen with "Allow for this session" (#187), given
+    #: to every later turn as ``--allowedTools``.
+    allowed_tools: List[str] = field(default_factory=list)
 
     def to_info(self) -> SessionInfo:
         return SessionInfo(
@@ -72,6 +75,12 @@ def _session_from_dict(item: dict) -> Optional[OwnSession]:
     values = {}
     for name in _FIELDS:
         if name not in item:
+            continue
+        if name == "allowed_tools":
+            # Only rules Claude Code itself could have suggested; anything
+            # else in a hand-edited file is dropped.
+            rules = item[name] if isinstance(item[name], list) else []
+            values[name] = [r for r in rules if is_safe_rule(r)]
             continue
         value = item[name]
         kind = _TYPES[name]

@@ -41,7 +41,7 @@ session list is always there.
   session list, on the same session. Enter there on the session that's already loaded takes you
   back to its messages where you left them, without reloading.
 - **Open in Claude** (Ctrl+O) switches the desktop app to the session, for approving a permission
-  prompt or answering a question card there.
+  prompt or answering a question card in a desktop app session.
 - **New Session** (Ctrl+N) starts a session of TheClaudeHub's own: choose a folder, a title,
   the model (Alt+D), a permission mode (auto by default; accept edits, manual and plan are
   offered) and the first message. The models are Default (your Claude Code setting), Opus,
@@ -50,6 +50,23 @@ session list is always there.
   Opus)"). Fable isn't offered: on some plans it bills to usage credits, and in the headless
   mode TheClaudeHub uses, Claude Code does that without asking. If that first message never reaches Claude (Claude Code not signed in, say), it goes
   back into the reply box and Send starts the session again.
+- **Claude asks, you answer.** In TheClaudeHub's own sessions, when Claude needs permission
+  for something the permission mode doesn't allow, asks you a question, or has a plan for you
+  to approve, the turn waits for you. It's announced ("Build needs you. Claude wants to run
+  git push. Ctrl+Shift+A answers."), and the session shows as needing you in the list.
+  **Ctrl+Shift+A** opens the answer:
+  - **Permission:** the whole request (the command, or the file and what would change) to
+    read by line, then **Allow**, **Allow for this session** (shown when Claude Code suggests
+    a rule, and named in full, such as "don't ask again this session for Bash(git push:*)"),
+    or **Deny**, which is the default button and can carry a reason Claude reads.
+  - **Questions:** each question is a group of options with their descriptions, with Other
+    and a box to type your own answer; Send Answers, or Don't Answer.
+  - **Plan:** the plan to read, then **Approve**, choosing the mode to carry on in (accept
+    edits, auto or manual), or **Keep Planning** with what to change, which is the default.
+
+  Escape in any of them answers later; nothing is approved or refused by waiting. "For this
+  session" lasts for the session, not just the turn: TheClaudeHub keeps the rule with the
+  session and gives it to every later turn. It never writes Claude Code's settings files.
 - **Announcements.** When the open session gets a new reply, or one of TheClaudeHub's sessions
   finishes a turn, or any listed session stops working, it's announced through your screen reader
   (or a system voice) and put on the status bar. Settings (Ctrl+Comma) chooses full (the whole
@@ -159,6 +176,7 @@ The same list is in the app under Help, Keyboard Shortcuts (F1).
 | Reply box | Ctrl+Enter | Send (TheClaudeHub sessions only); you stay in the reply box |
 | Reply box | Ctrl+Period | Stop the running turn |
 | Reply box | Ctrl+Shift+T | Turn status: how long it has been working, and on what |
+| Anywhere | Ctrl+Shift+A | Answer Claude: a permission request, a question or a plan |
 | Anywhere | F1 | Keyboard shortcuts |
 | Anywhere | Ctrl+Comma | Settings |
 | Anywhere | Ctrl+Shift+R | Repeat the last announcement |
@@ -191,11 +209,14 @@ brings the first to the front.
 
 ### Its own sessions, and why desktop sessions are read-only
 
-TheClaudeHub drives its own sessions with the `claude` command in print mode:
-`claude -p --output-format stream-json --verbose --permission-mode <mode> --permission-prompts none`,
-with `--session-id` and `--name` for the first message and `--resume <id>` for each reply. The
-message goes in on standard input, byte for byte. That runs under the same login as the desktop
-app, which is why it costs nothing extra.
+TheClaudeHub drives its own sessions with the `claude` command in print (headless) mode:
+`claude -p --input-format stream-json --output-format stream-json --verbose --permission-mode <mode>
+--permission-prompts host --permission-prompt-tool stdio`, with `--session-id` and `--name` for the
+first message and `--resume <id>` for each reply, plus `--allowedTools` with any rules you chose
+"for this session". The message goes in on standard input as a stream-json message, and standard
+input stays open for the turn so TheClaudeHub can answer what Claude asks; it's closed when the
+turn's result arrives. That runs under the same login as the desktop app, which is why it costs
+nothing extra.
 
 - It never uses `--bare`, which needs an API key.
 - It needs the native `claude.exe`. The npm install's `claude.cmd` is refused, because Windows runs
@@ -241,19 +262,23 @@ slip out first.
 
 ### What headless sessions do with questions and permissions
 
-Checked with Claude Code 2.1.289:
+Checked with Claude Code 2.1.286 (issues #187 and #188):
 
-- **Question cards don't happen.** In print mode Claude Code doesn't offer the AskUserQuestion
-  tool at all, so Claude asks its question in ordinary words and you answer in the reply box.
-  Question cards in desktop app sessions are shown as text in the chat ("Claude asked: ...,
-  Options: ...", then "You answered: ...").
-- **Nothing can approve a permission prompt**, so `--permission-prompts none` refuses anything
-  that would ask, straight away; the turn carries on rather than waiting. (Checked in manual mode:
-  the refused Write came back at once and Claude finished the turn explaining it.) Claude is
-  told and usually says what it couldn't do. TheClaudeHub adds the refused tools to the
-  announcement ("1 tool was refused: Write was refused: C:\...\probe.txt"), marks the session
-  "needs you", and the chat shows a "Permission denied" line. In auto mode, Claude's safety check
-  decides most of what would otherwise ask, so refusals are rarer there.
+- **Permission prompts, questions and plans come to TheClaudeHub.** With
+  `--permission-prompts host --permission-prompt-tool stdio`, anything that would ask arrives on
+  the turn's output as a `can_use_tool` request, the same control protocol the Agent SDK uses,
+  and the turn waits for the answer on its input. AskUserQuestion and ExitPlanMode come the same
+  way: a question is answered by allowing the tool with the answers added to its input, a plan
+  is approved by allowing it with a switch of permission mode, and Keep Planning denies it with
+  your note. Each was checked against the real CLI: an allowed Write wrote its file; a denied
+  one didn't, and Claude quoted the reason it was given; an approved plan carried on in accept
+  edits without asking again.
+- **Refusals still happen without asking** where Claude Code's own rules say so (a write outside
+  the session's folder, say, or auto mode's safety check). TheClaudeHub adds those to the
+  announcement ("1 tool was refused: ..."), marks the session "needs you", and the chat shows a
+  "Permission denied" line.
+- Question cards in desktop app sessions are shown as text in the chat ("Claude asked: ...,
+  Options: ...", then "You answered: ...") and answered in Claude.
 
 ## Limitations
 

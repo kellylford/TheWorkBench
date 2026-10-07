@@ -29,6 +29,12 @@ Accessibility decisions, and why
 * **Announcements are spoken through the screen reader** (or a system
   voice) by the speech engine, never by moving focus, and also go to the
   status bar.
+* **Claude waiting on you never pops up a dialog** (#187, #188). A
+  permission request, question or plan is announced and the session shows
+  as needing you; Ctrl+Shift+A opens it. A dialog appearing by itself would
+  take keystrokes typed for the reply box, and a letter could press Allow.
+  In each dialog Enter's default is the harmless choice (Deny, Send
+  Answers, Keep Planning) and Escape answers later.
 """
 from __future__ import annotations
 
@@ -40,9 +46,10 @@ from typing import Dict, List, Optional
 import wx
 
 from .. import __version__, announce, hub, platform_paths
-from ..claude_cli import (ResumeRefused, TurnEvent, TurnRunner, build_new_command,
-                          build_resume_command, describe_elapsed, model_label,
-                          new_session_id)
+from ..claude_cli import (PERMISSION_MODES, PermissionRequest, ResumeRefused, TurnEvent,
+                          TurnRunner, allow_response, answer_questions_response,
+                          build_new_command, build_resume_command, deny_response,
+                          describe_elapsed, model_label, new_session_id)
 from ..hub import Snapshot, collect, finished_turns, last_reply_from_tail
 from ..own_store import OwnSession, OwnSessionStore
 from ..sessions import IDLE, NEEDS_YOU, WORKING, SessionInfo
@@ -50,7 +57,9 @@ from ..speech import SpeechSettings, default_options, list_speech_options, speak
 from ..transcript import ASSISTANT, ERROR, PLAN, QUESTION, ChatMessage, TranscriptReader
 from ..updater import AVAILABLE, FAILED, CheckResult, UpdateService
 from .a11y import set_accessible_name
-from .dialogs import MessageDialog, NewSessionDialog, SettingsDialog, ShortcutsDialog
+from .dialogs import (ALLOW, ALLOW_SESSION, MessageDialog, NewSessionDialog,
+                      PermissionDialog, PlanDialog, QuestionDialog, SettingsDialog,
+                      ShortcutsDialog)
 
 APP_NAME = "TheClaudeHub"
 LIST_REFRESH_MS = 5000
@@ -98,6 +107,9 @@ class MainFrame(wx.Frame):
         self._show_activity = False
         self._drafts: Dict[str, str] = {}  # unsent reply text, per session
         self._queued: Dict[str, str] = {}  # sent during a turn, goes when it ends
+        # What Claude is waiting for you to answer, per session, oldest first
+        # (#187, #188). The turn is paused until each is answered.
+        self._pending: Dict[str, List[PermissionRequest]] = {}
         self._chat_keys: List[str] = []
         self._announce_load = False  # say "Loaded X" once its chat arrives
 
@@ -133,6 +145,7 @@ class MainFrame(wx.Frame):
         # would steal it from every button and text box in the window).
         self._item(session, "&Load Session", self.on_open_session)
         self._item(session, "Open in &Claude\tCtrl+O", self.on_open_in_claude)
+        self._item(session, "&Answer Claude...\tCtrl+Shift+A", lambda e: self.on_answer())
         self._item(session, "&New Session...\tCtrl+N", self.on_new_session)
         self._item(session, "&Refresh\tF5",
                    lambda e: self.refresh_sessions(force=True, resort=True))
@@ -353,10 +366,11 @@ class MainFrame(wx.Frame):
         self._snapshot_busy = True
         own = [OwnSession(**vars(s)) for s in self.store.all()]
         running = set(self._runners)
+        waiting = self._waiting()
 
         def work():
             try:
-                snap = collect(own, running)
+                snap = collect(own, running, waiting=waiting)
                 ended = finished_turns(self._previous_states, snap.sessions)
                 replies = {}
                 if not self._first_snapshot and self.speech.announce_all_sessions:
@@ -898,7 +912,10 @@ class MainFrame(wx.Frame):
         self.send_btn.Enable(own)
         self.stop_btn.Enable(own)
         if info is not None and info.is_own:
-            if running:
+            waiting = self._pending.get(info.cli_session_id)
+            if running and waiting:
+                label = f"Waiting for you: {waiting[0].summary()}. Ctrl+Shift+A answers."
+            elif running:
                 elapsed = describe_elapsed(self._runners[info.cli_session_id].elapsed())
                 label = f"Claude is working ({elapsed})."
                 if info.cli_session_id in self._queued:
@@ -912,6 +929,11 @@ class MainFrame(wx.Frame):
         """How long the running turn has taken, and what it is doing."""
         info = self._open
         runner = self._runners.get(info.cli_session_id) if info else None
+        if runner is not None and self._pending.get(info.cli_session_id):
+            request = self._pending[info.cli_session_id][0]
+            self._feedback(f"{info.title} is waiting for you: {request.summary()}. "
+                           "Ctrl+Shift+A answers.")
+            return
         if runner is not None:
             waiting = (" A message is queued." if info.cli_session_id in self._queued
                        else "")
@@ -928,6 +950,112 @@ class MainFrame(wx.Frame):
             name = own.title if own else "A session"
             parts.append(f"{name}, {describe_elapsed(other.elapsed())}")
         self._feedback("Working: " + "; ".join(parts) + ".")
+
+    # ------------------------------------------- answering Claude (#187, #188)
+
+    def _waiting(self) -> Dict[str, str]:
+        """Sessions whose turn is paused on you, and what for."""
+        return {sid: queue[0].summary() for sid, queue in self._pending.items() if queue}
+
+    def _next_waiting_session(self) -> Optional[str]:
+        """The loaded session if it is waiting, otherwise the one that has
+        waited longest."""
+        if (self._open is not None and self._open.is_own
+                and self._pending.get(self._open.cli_session_id)):
+            return self._open.cli_session_id
+        return next((sid for sid, queue in self._pending.items() if queue), None)
+
+    def on_answer(self):
+        session_id = self._next_waiting_session()
+        if session_id is None:
+            self._feedback("Claude isn't waiting for an answer.")
+            return
+        request = self._pending[session_id][0]
+        own = self.store.get(session_id)
+        title = own.title if own else "A session"
+        decision = self._ask(title, request, own)
+        if decision is None:
+            self._feedback("Not answered yet. Claude is still waiting; Ctrl+Shift+A answers.")
+            return
+        response, said, changes = decision
+        self._apply_answer(session_id, request, response, said, changes)
+
+    def _ask(self, title: str, request: PermissionRequest, own: Optional[OwnSession]):
+        """Show the dialog for ``request``. Returns (response for Claude Code,
+        what to say, changes to keep with the session), or None to answer
+        later."""
+        if request.is_question:
+            dialog = QuestionDialog(self, title, request)
+            try:
+                if dialog.ShowModal() != wx.ID_OK:
+                    return None
+                if dialog.declined:
+                    return (deny_response("The user chose not to answer these questions. "
+                                          "Carry on without the answers, or ask in your "
+                                          "reply."), "Declined to answer.", {})
+                return answer_questions_response(request, dialog.answers()), "Answer sent.", {}
+            finally:
+                dialog.Destroy()
+        if request.is_plan:
+            modes = [(value, label) for value, label in PERMISSION_MODES if value != "plan"]
+            dialog = PlanDialog(self, title, request, modes, "acceptEdits")
+            try:
+                if dialog.ShowModal() != wx.ID_OK:
+                    return None
+                if dialog.approved:
+                    mode = dialog.chosen_mode()
+                    name = dict(modes)[mode].split(":")[0].lower()
+                    # Kept with the session too: every turn is started with
+                    # its stored mode, and it must not go back to planning.
+                    return (allow_response(request, mode=mode),
+                            f"Plan approved. Claude is carrying on in {name} mode.",
+                            {"permission_mode": mode})
+                note = dialog.note_text()
+                return (deny_response(note or "Keep planning: the plan isn't approved yet."),
+                        "Claude will keep planning.", {})
+            finally:
+                dialog.Destroy()
+        dialog = PermissionDialog(self, title, request)
+        try:
+            if dialog.ShowModal() != wx.ID_OK:
+                return None
+            if dialog.choice == ALLOW:
+                return allow_response(request), "Allowed.", {}
+            if dialog.choice == ALLOW_SESSION:
+                changes = {}
+                mode = request.session_mode()
+                if mode:
+                    changes["permission_mode"] = mode
+                else:
+                    kept = list(own.allowed_tools) if own is not None else []
+                    kept += [r for r in request.session_rules() if r not in kept]
+                    changes["allowed_tools"] = kept
+                return (allow_response(request, for_session=True),
+                        "Allowed for the rest of this session.", changes)
+            reason = dialog.reason_text()
+            return deny_response(reason), "Refused." + (" Claude has your reason." if reason
+                                                         else ""), {}
+        finally:
+            dialog.Destroy()
+
+    def _apply_answer(self, session_id: str, request: PermissionRequest, response: dict,
+                      said: str, changes: dict):
+        queue = self._pending.get(session_id) or []
+        if request in queue:
+            queue.remove(request)
+        runner = self._runners.get(session_id)
+        if runner is None or not runner.respond(request.request_id, response):
+            self._feedback("That isn't waiting any more: the turn has ended.")
+            self._update_send_state()
+            return
+        if changes:
+            self._store_write(self.store.update, session_id, **changes)
+            self._update_heading()
+        if queue:
+            said += f" Next: {queue[0].summary()}. Ctrl+Shift+A answers."
+        self._feedback(said)
+        self._update_send_state()
+        self.refresh_sessions()
 
     def on_new_session(self, _event=None):
         lookup = platform_paths.find_claude()
@@ -1015,14 +1143,16 @@ class MainFrame(wx.Frame):
                 command = build_resume_command(
                     exe, own.cli_session_id, own.permission_mode,
                     own_ids={s.cli_session_id for s in self.store.all()},
-                    desktop_ids=self._snapshot.desktop_cli_ids, model=own.model)
+                    desktop_ids=self._snapshot.desktop_cli_ids, model=own.model,
+                    allowed_tools=own.allowed_tools)
             else:
                 # The first turn never got as far as creating the session:
                 # start it again rather than resume something that isn't there.
                 if own.cli_session_id in self._snapshot.desktop_cli_ids:
                     raise ResumeRefused("That id belongs to a Claude desktop app session.")
                 command = build_new_command(exe, own.cli_session_id, own.title,
-                                            own.permission_mode, own.model)
+                                            own.permission_mode, own.model,
+                                            allowed_tools=own.allowed_tools)
         except (ResumeRefused, ValueError) as exc:
             return str(exc)
         self._start_turn(own.cli_session_id, command, own.cwd, message, own.title,
@@ -1062,7 +1192,7 @@ class MainFrame(wx.Frame):
                 self._store_write(self.store.rename_id, session_id, reported)
                 self._runners[reported] = self._runners.pop(session_id)
                 self._denials[reported] = self._denials.pop(session_id, [])
-                for per_session in (self._drafts, self._queued):
+                for per_session in (self._drafts, self._queued, self._pending):
                     if session_id in per_session:
                         per_session[reported] = per_session.pop(session_id)
                 if self._open is not None and self._open.cli_session_id == session_id:
@@ -1089,7 +1219,22 @@ class MainFrame(wx.Frame):
             self._denials.setdefault(session_id, []).append(event.text)
             self._status(f"{title}: permission denied, {event.text}")
             return
+        if event.kind == "permission" and event.request is not None:
+            if session_id not in self._runners:
+                return  # the turn already ended; nothing is waiting
+            queue = self._pending.setdefault(session_id, [])
+            queue.append(event.request)
+            if len(queue) == 1:
+                self._say(f"{title} needs you. {event.request.summary()}. "
+                          "Ctrl+Shift+A answers.")
+            else:
+                self._status(f"{title}: {len(queue)} things are waiting for you.")
+            self._update_send_state()
+            self.refresh_sessions()
+            return
         if event.kind in ("finished", "failed"):
+            # Nothing can be waiting once the turn is over.
+            self._pending.pop(session_id, None)
             # UI first, store writes after: a failed write must not leave the
             # session looking busy for good.
             runner = self._runners.pop(session_id, None)

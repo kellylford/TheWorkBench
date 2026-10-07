@@ -12,7 +12,7 @@ from typing import Dict, Iterable, List, Optional, Set
 
 from . import platform_paths
 from .own_store import OwnSession
-from .sessions import (WORKING, DesktopLoadResult, LiveStatus, SessionInfo,
+from .sessions import (NEEDS_YOU, WORKING, DesktopLoadResult, LiveStatus, SessionInfo,
                        load_desktop_sessions, load_live_status, sort_sessions)
 from .transcript import TranscriptParser, split_jsonl
 
@@ -28,13 +28,19 @@ class Snapshot:
 def collect(own: Iterable[OwnSession], running_own_ids: Set[str],
             desktop_dir: Optional[Path] = None,
             live_dir: Optional[Path] = None,
-            alive=platform_paths.pid_alive) -> Snapshot:
+            alive=platform_paths.pid_alive,
+            waiting: Optional[Dict[str, str]] = None) -> Snapshot:
+    """``waiting`` maps a running own session to what Claude is waiting for
+    (a permission request, question or plan): it needs you, not working."""
     live = load_live_status(live_dir, alive=alive)
     desktop: DesktopLoadResult = load_desktop_sessions(desktop_dir, live)
     sessions = list(desktop.sessions)
+    waiting = waiting or {}
     for item in own:
         info = item.to_info()
-        if item.cli_session_id in running_own_ids:
+        if item.cli_session_id in running_own_ids and waiting.get(item.cli_session_id):
+            info.state, info.detail = NEEDS_YOU, waiting[item.cli_session_id]
+        elif item.cli_session_id in running_own_ids:
             info.state, info.detail = WORKING, ""
         elif (live.get(item.cli_session_id) is not None
               and live[item.cli_session_id].status == "busy"):

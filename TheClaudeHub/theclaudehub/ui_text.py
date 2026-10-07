@@ -46,6 +46,9 @@ SHORTCUTS = [
                          "and whether a message is queued"),
     ]),
     ("Anywhere", [
+        ("Ctrl+Shift+A", "Answer Claude: approve or deny a tool, answer its questions, or "
+                         "approve its plan (the loaded session first, then the one that has "
+                         "waited longest). Escape in the dialog answers later"),
         ("F1", "This list of shortcuts"),
         ("Ctrl+Comma", "Settings (announcements and speech)"),
         ("Ctrl+Shift+R", "Repeat the last announcement"),

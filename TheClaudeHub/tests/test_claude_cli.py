@@ -15,7 +15,8 @@ from theclaudehub.claude_cli import (ResumeRefused, StreamParser, TurnRunner,
 EXE = "C:\\bin\\claude.exe"
 OWN = {"aaaa-1111"}
 DESKTOP = {"dddd-2222"}
-FLAGS = ["-p", "--output-format", "stream-json", "--verbose"]
+FLAGS = ["-p", "--input-format", "stream-json", "--output-format", "stream-json", "--verbose"]
+PROMPTS = ["--permission-prompts", "host", "--permission-prompt-tool", "stdio"]
 
 
 # -- command construction --------------------------------------------------------
@@ -23,8 +24,7 @@ FLAGS = ["-p", "--output-format", "stream-json", "--verbose"]
 
 def test_new_command():
     command = build_new_command(EXE, "aaaa-1111", "  My   title ", "auto")
-    assert command == [EXE, *FLAGS, "--permission-mode", "auto",
-                       "--permission-prompts", "none",
+    assert command == [EXE, *FLAGS, "--permission-mode", "auto", *PROMPTS,
                        "--session-id", "aaaa-1111", "--name", "My title"]
 
 
@@ -40,12 +40,13 @@ def test_old_default_mode_name_becomes_manual():
     assert command[command.index("--permission-mode") + 1] == "manual"
 
 
-def test_never_bare_prompts_refused_and_prompt_not_on_command_line():
+def test_never_bare_prompts_come_to_us_and_prompt_not_on_command_line():
     for command in (build_new_command(EXE, "aaaa-1111", "t", "auto"),
                     build_resume_command(EXE, "aaaa-1111", "auto", OWN, DESKTOP)):
         assert "--bare" not in command
         assert "-p" in command
-        assert command[command.index("--permission-prompts") + 1] == "none"
+        assert command[command.index("--permission-prompts") + 1] == "host"
+        assert command[command.index("--permission-prompt-tool") + 1] == "stdio"
 
 
 def test_unknown_permission_mode_refused():
@@ -62,7 +63,7 @@ def test_new_command_rejects_bad_id():
 
 def test_resume_command_for_own_session():
     assert build_resume_command(EXE, "aaaa-1111", "plan", OWN, DESKTOP) == [
-        EXE, *FLAGS, "--permission-mode", "plan", "--permission-prompts", "none",
+        EXE, *FLAGS, "--permission-mode", "plan", *PROMPTS,
         "--resume", "aaaa-1111"]
 
 
@@ -316,7 +317,11 @@ def test_runner_sends_prompt_on_stdin_and_reports_events(tmp_path):
         ev(type="result", subtype="success", result="pong", session_id="s1"),
     ])
     runner, events, captured = run_turn(process, tmp_path)
-    assert process.written == b"Hello -p --bare"
+    sent = [json.loads(line) for line in process.written.decode("utf-8").splitlines()]
+    assert sent[0]["type"] == "control_request"
+    assert sent[0]["request"]["subtype"] == "initialize"
+    assert sent[1]["type"] == "user"
+    assert sent[1]["message"] == {"role": "user", "content": "Hello -p --bare"}
     assert captured["cwd"] == str(tmp_path)
     assert captured["env"] == {"PATH": "x"}
     assert "encoding" not in captured and "text" not in captured  # byte pipes
@@ -497,6 +502,7 @@ def test_real_child_process_pipes_bytes_exactly(tmp_path):
     assert seen["claude_env"] == []           # CLAUDECODE was stripped
     kinds = [e.kind for e in events]
     assert kinds == ["started", "text", "finished"]
+    assert seen["received"] == ["control_request", "user"]
     # The reply carries a raw U+2028 inside the JSON line; it must survive.
     assert events[1].text == "reply\u2028with a line separator"
     assert events[-1].text == "done"
@@ -511,3 +517,148 @@ def test_real_child_process_cancel_kills_the_tree(tmp_path):
     while platform_paths.pid_alive(grandchild) and time.time() < deadline:
         time.sleep(0.1)
     assert not platform_paths.pid_alive(grandchild)
+
+
+def test_real_child_process_permission_request_answered(tmp_path):
+    log = tmp_path / "fake.log"
+    env = child_environment({**child_environment(), "FAKE_CLAUDE_LOG": str(log),
+                             "FAKE_CLAUDE_MODE": "ask"})
+    events = []
+    done = threading.Event()
+    holder = {}
+
+    def on_event(event):
+        events.append(event)
+        if event.kind == "permission":
+            # The UI answers from its own thread.
+            threading.Thread(target=lambda: holder["runner"].respond(
+                event.request.request_id, cli.deny_response("not today"))).start()
+        if event.kind in ("finished", "failed"):
+            done.set()
+    runner = TurnRunner([sys.executable, str(FAKE_CLAUDE)], str(tmp_path), "push it",
+                        on_event, env=env)
+    holder["runner"] = runner
+    runner.start()
+    assert done.wait(30)
+    runner.join(10)
+    kinds = [e.kind for e in events]
+    assert kinds == ["started", "permission", "text", "finished"]
+    request = events[1].request
+    assert request.tool_name == "Bash" and request.summary() == "Claude wants to run git push"
+    assert events[-1].text == "deny"
+    answer = json.loads(log.read_text(encoding="utf-8"))["answer"]
+    assert answer == {"type": "control_response", "response": {
+        "subtype": "success", "request_id": "req-1",
+        "response": {"behavior": "deny", "message": "not today"}}}
+    assert runner.pending == {}
+    assert not runner.respond("req-1", cli.deny_response())  # already answered
+
+
+# -- permission requests -----------------------------------------------------------------
+
+
+def control(request_id="r1", **request):
+    return ev(type="control_request", request_id=request_id,
+              request={"subtype": "can_use_tool", **request})
+
+
+def test_parser_turns_can_use_tool_into_a_permission_event():
+    parser = StreamParser()
+    events = parser.feed(control(
+        tool_name="PowerShell", input={"command": "npm init -y", "description": "Init"},
+        description="Initialize a new npm project",
+        permission_suggestions=[{"type": "addRules", "behavior": "allow",
+                                 "destination": "localSettings",
+                                 "rules": [{"toolName": "PowerShell",
+                                            "ruleContent": "npm init -y"}]}],
+        tool_use_id="t1"))
+    assert [e.kind for e in events] == ["permission"]
+    request = events[0].request
+    assert request.request_id == "r1"
+    assert request.summary() == "Claude wants to run npm init -y"
+    assert "PowerShell command:\nnpm init -y" in request.detail()
+    assert "Why: Initialize a new npm project" in request.detail()
+    assert request.session_rules() == ["PowerShell(npm init -y)"]
+    assert request.allow_for_session_label() == (
+        "Allow, and don't ask again this session for PowerShell(npm init -y)")
+
+
+def test_parser_refuses_other_control_requests_and_reads_commands():
+    parser = StreamParser()
+    assert parser.feed(ev(type="control_request", request_id="h1",
+                          request={"subtype": "hook_callback"})) == []
+    assert parser.unsupported_requests == ["h1"]
+    parser.feed(ev(type="control_response", response={
+        "subtype": "success", "request_id": cli.INIT_REQUEST_ID,
+        "response": {"commands": [{"name": "compact", "description": "Compact"}, "junk"]}}))
+    assert parser.commands == [{"name": "compact", "description": "Compact"}]
+
+
+def test_allow_responses():
+    request = cli.PermissionRequest("r1", "Write", {"file_path": "C:\\x\\a.txt", "content": "hi"},
+                                    suggestions=[{"type": "setMode", "mode": "acceptEdits",
+                                                  "destination": "session"}])
+    assert request.summary() == "Claude wants to write a.txt"
+    assert cli.allow_response(request) == {"behavior": "allow", "updatedInput": request.input}
+    assert request.allow_for_session_label().startswith("Allow, and accept all file edits")
+    assert cli.allow_response(request, for_session=True)["updatedPermissions"] == [
+        {"type": "setMode", "mode": "acceptEdits", "destination": "session"}]
+    bash = cli.PermissionRequest("r2", "Bash", {"command": "git push"}, suggestions=[
+        {"type": "addRules", "behavior": "allow", "destination": "localSettings",
+         "rules": [{"toolName": "Bash", "ruleContent": "git push:*"}]}])
+    # Always "session": TheClaudeHub never writes Claude Code's settings files.
+    assert cli.allow_response(bash, for_session=True)["updatedPermissions"] == [
+        {"type": "addRules", "rules": [{"toolName": "Bash", "ruleContent": "git push:*"}],
+         "behavior": "allow", "destination": "session"}]
+    plain = cli.PermissionRequest("r3", "WebFetch", {"url": "https://example.com"})
+    assert plain.allow_for_session_label() == ""
+    assert "updatedPermissions" not in cli.allow_response(plain, for_session=True)
+
+
+def test_plan_approval_switches_mode_and_deny_carries_the_reason():
+    plan = cli.PermissionRequest("r4", "ExitPlanMode", {"plan": "# Plan\n1. Do it"})
+    assert plan.is_plan and plan.plan() == "# Plan\n1. Do it"
+    assert plan.summary() == "Claude's plan is ready for you to approve"
+    assert cli.allow_response(plan, mode="acceptEdits")["updatedPermissions"] == [
+        {"type": "setMode", "mode": "acceptEdits", "destination": "session"}]
+    assert cli.deny_response("Keep it smaller") == {"behavior": "deny",
+                                                    "message": "Keep it smaller"}
+    assert cli.deny_response("  ")["message"]  # never empty
+
+
+def test_questions_answered_through_updated_input():
+    questions = [{"question": "Which color?", "header": "Color", "multiSelect": False,
+                  "options": [{"label": "Red", "description": "Warm"},
+                              {"label": "Blue", "description": "Cool"}]},
+                 {"question": "Which size?", "options": [{"label": "S"}]}]
+    request = cli.PermissionRequest("r5", "AskUserQuestion", {"questions": questions})
+    assert request.is_question
+    assert request.summary() == "Claude asks: Which color? (and 1 more)"
+    response = cli.answer_questions_response(request, {"Which color?": "Blue",
+                                                       "Which size?": "S"})
+    assert response == {"behavior": "allow", "updatedInput": {
+        "questions": questions, "answers": {"Which color?": "Blue", "Which size?": "S"}}}
+
+
+def test_allowed_tools_go_on_every_turn_and_unsafe_rules_are_dropped():
+    rules = ["Bash(git push:*)", "Edit", "--dangerously-skip-permissions", "Bash(a\nb)"]
+    for command in (build_new_command(EXE, "aaaa-1111", "t", "auto", allowed_tools=rules),
+                    build_resume_command(EXE, "aaaa-1111", "auto", OWN, DESKTOP,
+                                         allowed_tools=rules)):
+        at = command.index("--allowedTools")
+        assert command[at + 1: at + 3] == ["Bash(git push:*)", "Edit"]
+        assert command[at + 3].startswith("--")  # the list ends at the next flag
+        assert "--dangerously-skip-permissions" not in command
+    assert "--allowedTools" not in build_new_command(EXE, "aaaa-1111", "t", "auto")
+
+
+@pytest.mark.parametrize("name,tool_input,words", [
+    ("Bash", {"command": "git  status"}, "run git status"),
+    ("Edit", {"file_path": "C:\\r\\main.py"}, "edit main.py"),
+    ("WebFetch", {"url": "https://x.org"}, "fetch https://x.org"),
+    ("WebSearch", {"query": "wx accessible"}, "search the web for wx accessible"),
+    ("Task", {}, "use Task"),
+    ("mcp__x__y", {"pattern": "*.py"}, "use mcp__x__y: *.py"),
+])
+def test_describe_tool_use(name, tool_input, words):
+    assert cli.describe_tool_use(name, tool_input) == words
