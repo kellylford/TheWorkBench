@@ -84,7 +84,7 @@ listing. The listing is in the repository, like the test information:
 
    ```bash
    scripts/wire-appstore.py
-   scripts/wire-appstore.py --apply --build 4
+   scripts/wire-appstore.py --apply --build 5
    scripts/upload-screenshots.py --apply
    ```
 
@@ -98,6 +98,12 @@ listing. The listing is in the repository, like the test information:
    - Look over the version page, then **Add for Review** and **Submit**.
 5. When it is approved, release it from the version page (the release type is
    manual).
+6. Once it is on the store, publish the Accessibility Nutrition Labels. Apple
+   keeps them as drafts until the app is live:
+
+   ```bash
+   scripts/wire-appstore.py --apply --publish-accessibility
+   ```
 
 The privacy policy is `thecardplace/privacy.html` on the Card Place site; the
 listing's privacy URL points at it, so it has to be live before submission.

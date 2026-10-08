@@ -109,12 +109,12 @@ def wire_app_info(app_id, cfg, locale):
 
     print("Categories")
     rels = {}
-    for rel, key in (("primaryCategory", "primary_category"), ("secondaryCategory", "secondary_category")):
+    for rel, want in cfg["categories"].items():
         cur = get(f"/v1/appInfos/{info['id']}/{rel}")
         have = cur["id"] if cur else None
-        if have != cfg[key]:
-            print(f"    {rel}: {have!r} -> {cfg[key]!r}")
-            rels[rel] = {"data": {"type": "appCategories", "id": cfg[key]}}
+        if have != want:
+            print(f"    {rel}: {have!r} -> {want!r}")
+            rels[rel] = {"data": {"type": "appCategories", "id": want}}
     if rels:
         write("PATCH", f"/v1/appInfos/{info['id']}",
               {"data": {"type": "appInfos", "id": info["id"], "relationships": rels}}, "categories")
@@ -166,7 +166,9 @@ def wire_review(version_id, cfg, locale):
         "review detail")
 
 
-def wire_accessibility(app_id, cfg):
+def wire_accessibility(app_id, cfg, publish=False):
+    """Written as drafts. Apple refuses to publish them until the app is on
+    the store, so --publish-accessibility is for after the first release."""
     print("Accessibility Nutrition Labels")
     a = cfg["accessibility"]
     flags = {k: v for k, v in a.items() if k.startswith("supports")}
@@ -183,6 +185,13 @@ def wire_accessibility(app_id, cfg):
                 "attributes": {"deviceFamily": family, **flags},
                 "relationships": {"app": {"data": {"type": "apps", "id": app_id}}}}},
                 f"accessibility {family}")
+    if publish:
+        for d in get(f"/v1/apps/{app_id}/accessibilityDeclarations"):
+            if d["attributes"].get("state") != "PUBLISHED":
+                print(f"  publish {d['attributes']['deviceFamily']}")
+                write("PATCH", f"/v1/accessibilityDeclarations/{d['id']}", {"data": {
+                    "type": "accessibilityDeclarations", "id": d["id"], "attributes": {"publish": True}}},
+                    "publish accessibility")
 
 
 def wire_price(app_id, cfg):
@@ -227,6 +236,8 @@ def main():
     p.add_argument("--apply", action="store_true", help="write the changes; without it, only show them")
     p.add_argument("--build", type=int, help="choose this build number for the version")
     p.add_argument("--set-price", action="store_true", help="also set price and availability")
+    p.add_argument("--publish-accessibility", action="store_true",
+                   help="publish the accessibility labels (only once the app is on the store)")
     p.add_argument("--locale", default="en-US")
     a = p.parse_args()
     APPLY = a.apply
@@ -245,7 +256,7 @@ def main():
     wire_app(app_id, cfg)
     wire_version(version, cfg, a.build)
     wire_review(version["id"], cfg, a.locale)
-    wire_accessibility(app_id, cfg)
+    wire_accessibility(app_id, cfg, a.publish_accessibility)
     if a.set_price:
         wire_price(app_id, cfg)
     else:
