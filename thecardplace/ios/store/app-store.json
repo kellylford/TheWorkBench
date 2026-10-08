@@ -15,13 +15,7 @@
     "marketing": "https://kellylford.github.io/TheWorkBench/thecardplace/",
     "privacy_policy": "https://kellylford.github.io/TheWorkBench/thecardplace/privacy.html"
   },
-  "review_contact": {
-    "contactFirstName": "Kelly",
-    "contactLastName": "Ford",
-    "contactPhone": "425-381-9165",
-    "contactEmail": "kelly@kellford.com",
-    "demoAccountRequired": false
-  },
+  "_review_contact": "The App Review contact's name, phone and email are in ~/.thecardplace-keys/review-contact.json, not here: this repository is public.",
   "age_rating": {
     "_comment": "No wagering anywhere, so not simulated gambling. All None gives 4+.",
     "advertising": false,

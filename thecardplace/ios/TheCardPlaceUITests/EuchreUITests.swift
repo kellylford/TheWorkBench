@@ -102,7 +102,9 @@ final class EuchreUITests: XCTestCase {
             XCTAssert(app.staticTexts["The dealer's discard"].exists, "the face-down cards are shown once the hand is over")
             if sawTrumpLabel || newGameButton.exists { break outer }
             dealButton.tap()
-            XCTAssert(app.status(startsWith: "Bidding"), "the next hand is dealt")
+            // As at the first deal, a computer may order up before we look.
+            XCTAssert(app.status(startsWith: "Bidding") || app.status(startsWith: "You took the upcard", timeout: 1),
+                      "the next hand is dealt")
         }
 
         XCTAssertGreaterThanOrEqual(handsFinished, 1)

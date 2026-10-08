@@ -49,7 +49,7 @@ TESTS=(
 runtime=$(xcrun simctl list runtimes -j | python3 -c '
 import json, sys
 rs = [r for r in json.load(sys.stdin)["runtimes"] if r["platform"] == "iOS" and r["isAvailable"]]
-print(sorted(rs, key=lambda r: r["version"])[-1]["identifier"])')
+print(sorted(rs, key=lambda r: [int(n) for n in r["version"].split(".")])[-1]["identifier"])')
 
 for entry in "${DEVICES[@]}"; do
   IFS='|' read -r name devtype display size <<<"$entry"
@@ -65,6 +65,8 @@ for rt, ds in json.load(sys.stdin)['devices'].items():
     echo "Created simulator $sim"
   fi
   xcrun simctl boot "$udid" 2>/dev/null || true
+  # Put the real status bar back however this run ends.
+  trap "xcrun simctl status_bar '$udid' clear 2>/dev/null || true" EXIT
   xcrun simctl bootstatus "$udid" -b >/dev/null
   # The status bar Apple's own screenshots show: 9:41, full signal, full battery.
   xcrun simctl status_bar "$udid" override --time 9:41 --dataNetwork wifi --wifiBars 3 \

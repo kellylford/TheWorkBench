@@ -103,9 +103,11 @@ def wire_app_info(app_id, cfg, locale):
     want = {"subtitle": text(locale, "subtitle"), "privacyPolicyUrl": cfg["urls"]["privacy_policy"]}
     if len(want["subtitle"]) > 30:
         raise SystemExit(f"subtitle is {len(want['subtitle'])} characters; the limit is 30")
-    for loc in get(f"/v1/appInfos/{info['id']}/appInfoLocalizations"):
-        if loc["attributes"]["locale"] == locale:
-            patch("appInfoLocalizations", loc["id"], loc["attributes"], want, "app info localization")
+    loc = next((x for x in get(f"/v1/appInfos/{info['id']}/appInfoLocalizations")
+                if x["attributes"]["locale"] == locale), None)
+    if not loc:
+        raise SystemExit(f"app info has no {locale} localization")
+    patch("appInfoLocalizations", loc["id"], loc["attributes"], want, "app info localization")
 
     print("Categories")
     rels = {}
@@ -155,7 +157,9 @@ def wire_version(version, cfg, build):
 
 def wire_review(version_id, cfg, locale):
     print("App Review contact and notes")
-    want = {**cfg["review_contact"], "notes": text(locale, "review_notes")}
+    with open(os.path.expanduser("~/.thecardplace-keys/review-contact.json")) as f:
+        contact = json.load(f)
+    want = {**contact, "demoAccountRequired": False, "notes": text(locale, "review_notes")}
     cur = get(f"/v1/appStoreVersions/{version_id}/appStoreReviewDetail")
     if cur:
         return patch("appStoreReviewDetails", cur["id"], cur["attributes"], want, "review detail")
@@ -200,6 +204,30 @@ def wire_price(app_id, cfg):
     if not (p["free"] and p["all_territories"]):
         raise SystemExit("only free in every territory is scripted; set anything else on the website")
     print("Price: free")
+    st, cur = asc.api("GET", f"/v1/appPriceSchedules/{app_id}/manualPrices",
+                      query={"include": "appPricePoint", "limit": 50})
+    prices = [x for x in (cur.get("included") or []) if x["type"] == "appPricePoints"] if ok(st) else []
+    if prices and all(float(x["attributes"]["customerPrice"]) == 0 for x in prices):
+        print("    already free")
+    else:
+        set_free(app_id, p)
+
+    print("Availability: every territory")
+    territories = get("/v1/territories", limit=200)
+    st, av = asc.api("GET", f"/v1/apps/{app_id}/appAvailabilityV2")
+    if ok(st) and av.get("data"):
+        have = get(f"/v2/appAvailabilities/{av['data']['id']}/territoryAvailabilities", limit=200)
+        if (av["data"]["attributes"].get("availableInNewTerritories")
+                and sum(1 for t in have if t["attributes"].get("available")) >= len(territories)):
+            print(f"    already available in all {len(territories)}, and new ones as Apple adds them")
+            return
+        # Apple accepts one availability per app; after that it is changed
+        # territory by territory, which is easier on the website.
+        raise SystemExit("availability exists but is not every territory; change it on the website")
+    set_everywhere(app_id, territories)
+
+
+def set_free(app_id, p):
     points = get(f"/v1/apps/{app_id}/appPricePoints",
                  **{"filter[territory]": p["base_territory"], "limit": 200})
     free = next((x for x in points if float(x["attributes"]["customerPrice"]) == 0), None)
@@ -215,8 +243,8 @@ def wire_price(app_id, cfg):
                                                                    "id": free["id"]}}}}]},
         "price")
 
-    print("Availability: every territory")
-    territories = get("/v1/territories", limit=200)
+
+def set_everywhere(app_id, territories):
     print(f"    {len(territories)} territories, and new ones as Apple adds them")
     inline = [{"type": "territoryAvailabilities", "id": f"${{{t['id']}}}",
                "attributes": {"available": True},

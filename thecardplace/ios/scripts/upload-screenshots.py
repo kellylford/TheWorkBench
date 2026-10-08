@@ -8,7 +8,7 @@ the store shows exactly what is in build/screenshots/<device>/. Without
   scripts/upload-screenshots.py            # show what would happen
   scripts/upload-screenshots.py --apply
 """
-import argparse, glob, hashlib, json, os, sys
+import argparse, glob, hashlib, json, os, sys, time
 from urllib import request
 
 sys.path.insert(0, os.path.expanduser("~/.thecardplace-keys"))
@@ -54,6 +54,24 @@ def upload(set_id, path):
     return shot["id"]
 
 
+def wait_until_processed(ids, timeout=600):
+    """Marking a screenshot uploaded only starts Apple's processing; this
+    waits for every one to come out COMPLETE, and stops on any that fail."""
+    deadline = time.time() + timeout
+    pending = set(ids)
+    while pending:
+        for i in list(pending):
+            state = (call("GET", f"/v1/appScreenshots/{i}")["attributes"].get("assetDeliveryState") or {})
+            if state.get("state") == "COMPLETE":
+                pending.discard(i)
+            elif state.get("state") == "FAILED":
+                raise SystemExit(f"screenshot {i} failed processing: {json.dumps(state.get('errors'))[:400]}")
+        if pending:
+            if time.time() > deadline:
+                raise SystemExit(f"{len(pending)} screenshots still processing after {timeout} seconds")
+            time.sleep(5)
+
+
 def main():
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("--apply", action="store_true")
@@ -83,9 +101,12 @@ def main():
                 "type": "appScreenshotSets", "attributes": {"screenshotDisplayType": display},
                 "relationships": {"appStoreVersionLocalization": {
                     "data": {"type": "appStoreVersionLocalizations", "id": loc["id"]}}}}})["id"]
+        # The new pictures go up before the old ones come down, so a failure
+        # part way leaves the old set whole rather than an empty one.
+        ids = [upload(set_id, f) for f in files]
+        wait_until_processed(ids)
         for s in old:
             call("DELETE", f"/v1/appScreenshots/{s['id']}")
-        ids = [upload(set_id, f) for f in files]
         call("PATCH", f"/v1/appScreenshotSets/{set_id}/relationships/appScreenshots",
              {"data": [{"type": "appScreenshots", "id": i} for i in ids]})
         print(f"  uploaded {len(ids)}")
