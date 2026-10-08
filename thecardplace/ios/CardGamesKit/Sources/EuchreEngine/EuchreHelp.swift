@@ -14,7 +14,7 @@ public enum EuchreHelp {
 
         ("The bowers — the one rule that surprises everybody",
          "Once a suit is trump, the two highest cards in the game are the right bower — the jack of the " +
-         "trump suit — and the left bower — the jack of the other suit of the same colour. And while it " +
+         "trump suit — and the left bower — the jack of the other suit of the same color. And while it " +
          "is the left bower, it is a trump card and not a card of its printed suit at all. With spades " +
          "trump, the jack of clubs is a spade: it follows spades, and you may not play it on a club lead " +
          "if you hold any spade. " +

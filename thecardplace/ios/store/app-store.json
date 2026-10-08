@@ -1,0 +1,64 @@
+{
+  "_comment": "Everything about the App Store listing that is not prose. The prose is in en-US/. scripts/wire-appstore.py writes all of this; price and availability need --set-price, which is Kelly's call.",
+  "version": "1.0",
+  "copyright": "2026 Kelly Ford",
+  "release_type": "MANUAL",
+  "_categories": "Card and Board are subcategories of Games, not categories of their own.",
+  "categories": {
+    "primaryCategory": "GAMES",
+    "primarySubcategoryOne": "GAMES_CARD",
+    "primarySubcategoryTwo": "GAMES_BOARD"
+  },
+  "content_rights": "DOES_NOT_USE_THIRD_PARTY_CONTENT",
+  "urls": {
+    "support": "https://kellylford.github.io/TheWorkBench/thecardplace/",
+    "marketing": "https://kellylford.github.io/TheWorkBench/thecardplace/",
+    "privacy_policy": "https://kellylford.github.io/TheWorkBench/thecardplace/privacy.html"
+  },
+  "_review_contact": "The App Review contact's name, phone and email are in ~/.thecardplace-keys/review-contact.json, not here: this repository is public.",
+  "age_rating": {
+    "_comment": "No wagering anywhere, so not simulated gambling. All None gives 4+.",
+    "advertising": false,
+    "alcoholTobaccoOrDrugUseOrReferences": "NONE",
+    "contests": "NONE",
+    "gambling": false,
+    "gamblingSimulated": "NONE",
+    "gunsOrOtherWeapons": "NONE",
+    "healthOrWellnessTopics": false,
+    "lootBox": false,
+    "medicalOrTreatmentInformation": "NONE",
+    "messagingAndChat": false,
+    "parentalControls": false,
+    "profanityOrCrudeHumor": "NONE",
+    "ageAssurance": false,
+    "sexualContentGraphicAndNudity": "NONE",
+    "sexualContentOrNudity": "NONE",
+    "socialMedia": false,
+    "horrorOrFearThemes": "NONE",
+    "matureOrSuggestiveThemes": "NONE",
+    "unrestrictedWebAccess": false,
+    "userGeneratedContent": false,
+    "violenceCartoonOrFantasy": "NONE",
+    "violenceRealisticProlongedGraphicOrSadistic": "NONE",
+    "violenceRealistic": "NONE"
+  },
+  "accessibility": {
+    "_comment": "Claimed only where it has been built and checked. Voice Control is left off until somebody has played a whole game of each by voice. There is no video or audio content, so captions and audio descriptions do not apply.",
+    "device_families": ["IPHONE", "IPAD"],
+    "supportsVoiceover": true,
+    "supportsLargerText": true,
+    "supportsDarkInterface": true,
+    "supportsDifferentiateWithoutColorAlone": true,
+    "supportsSufficientContrast": true,
+    "supportsReducedMotion": true,
+    "supportsVoiceControl": false,
+    "supportsCaptions": false,
+    "supportsAudioDescriptions": false
+  },
+  "price": {
+    "_comment": "Applied only with --set-price. Free, in every territory.",
+    "base_territory": "USA",
+    "free": true,
+    "all_territories": true
+  }
+}

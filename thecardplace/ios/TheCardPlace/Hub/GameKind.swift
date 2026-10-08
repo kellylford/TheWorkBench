@@ -23,7 +23,7 @@ enum GameKind: String, CaseIterable, Identifiable, Codable, Hashable {
         case .hearts:
             return "Four players. Every heart is a point and the queen of spades is thirteen, and the lowest score wins."
         case .euchre:
-            return "Four players in two partnerships, first to ten. The jack of trump and its colour partner are the two highest cards."
+            return "Four players in two partnerships, first to ten. The jack of trump and its color partner are the two highest cards."
         case .spades:
             return "Four players in two partnerships. Bid before a card is played; missing the contract costs the whole bid."
         case .cribbage:

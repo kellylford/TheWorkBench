@@ -15,7 +15,7 @@ final class EuchreRulesOracleTests: XCTestCase {
     static let suits: [Suit] = [.clubs, .spades, .hearts, .diamonds]
     static let ranks = ["A", "K", "Q", "J", "T", "9"]
 
-    /// "the jack of the other suit of the same colour"
+    /// "the jack of the other suit of the same color"
     static let sameColour: [Suit: Suit] = [.clubs: .spades, .spades: .clubs, .hearts: .diamonds, .diamonds: .hearts]
 
     /// "with spades trump the order is: jack of spades, jack of clubs, ace, king,

@@ -27,9 +27,11 @@ DESCRIPTION = (
     "and where it sits, a card you may not play says why, and everything that "
     "happens is spoken and written down."
 )
-FEEDBACK_EMAIL = "kelly@kellford.com"
-CONTACT = {"contactFirstName": "kelly", "contactLastName": "ford",
-           "contactPhone": "425-381-9165", "contactEmail": "kelly@kellford.com"}
+# The contact for Beta App Review, and the feedback address, are kept with the
+# keys rather than in this public repository.
+with open(os.path.expanduser("~/.thecardplace-keys/review-contact.json")) as _f:
+    CONTACT = json.load(_f)
+FEEDBACK_EMAIL = CONTACT["contactEmail"]
 
 
 def ok(st):

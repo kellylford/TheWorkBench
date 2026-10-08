@@ -50,7 +50,7 @@ function check(cond, msg) { checks++; if (!cond) fails.push(msg); }
 const SUITS = ['C', 'S', 'H', 'D'];
 const RANKS = ['A', 'K', 'Q', 'J', 'T', '9'];
 
-/* "the jack of the other suit of the same colour" */
+/* "the jack of the other suit of the same color" */
 const SAME_COLOUR = { C: 'S', S: 'C', H: 'D', D: 'H' };
 
 /* "with spades trump the order is: jack of spades, jack of clubs, ace, king,

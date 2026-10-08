@@ -92,7 +92,11 @@ extension XCUIApplication {
         return q.waitForExistence(timeout: timeout)
     }
 
+    /// These pictures become the App Store screenshots, so give a label that
+    /// is changing (Throw becoming Continue, say) time to finish its
+    /// cross-fade rather than catching both words on top of each other.
     func attachScreenshot(_ name: String, to test: XCTestCase) {
+        Thread.sleep(forTimeInterval: 0.6)
         let a = XCTAttachment(screenshot: screenshot())
         a.name = name
         a.lifetime = .keepAlways

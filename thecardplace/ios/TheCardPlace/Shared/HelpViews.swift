@@ -94,7 +94,7 @@ struct AccessibilityHintsView: View {
                 ),
                 HelpSection(
                     heading: "Seeing the cards",
-                    body: "Cards follow your text size, including the largest accessibility sizes, and wrap onto more rows rather than shrinking. Nothing depends on colour: red suits are red, but the suit is printed as a symbol, trump and points are written on the card, a card you may not play is greyed and marked with a cross, and a selected card has a thick border and a tick. Increase Contrast, Bold Text, Reduce Motion and dark mode are all respected."
+                    body: "Cards follow your text size, including the largest accessibility sizes, and wrap onto more rows rather than shrinking. Nothing depends on color: red suits are red, but the suit is printed as a symbol, trump and points are written on the card, a card you may not play is grayed and marked with a cross, and a selected card has a thick border and a tick. Increase Contrast, Bold Text, Reduce Motion and dark mode are all respected."
                 ),
                 HelpSection(
                     heading: "Offline",

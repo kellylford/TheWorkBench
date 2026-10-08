@@ -71,13 +71,13 @@ after the game had all three. **A page nothing looks at is a page that rots.**
 
 ### Still open
 
-- **#3 colour-only play count** — the count is given as text ("Count: 15"), so
+- **#3 color-only play count** — the count is given as text ("Count: 15"), so
   this is not a 1.4.1 failure as written, but there is still no textual cue when
   the count approaches 31.
 - **#6, #8, #10, #15, #16** — board focus indicator, redundant ARIA on the board,
   focus restoration, ARIA descriptions, gradient background.
 - **No interface tests at all.** There is nothing equivalent to Sheephead's
-  `ui-dom.js`: announcements, labels, focus behaviour and keyboard handling are
+  `ui-dom.js`: announcements, labels, focus behavior and keyboard handling are
   untested. That is the layer this audit is about, and it is the most valuable
   thing left to build. See `../TESTING.md`.
 
@@ -89,7 +89,7 @@ hands, under by three to nine points — and that the last card of every play ph
 scored nothing at all.
 
 No accessibility audit would ever have caught either. The game announced its
-wrong answer perfectly clearly, in a well-labelled live region, at better than
+wrong answer perfectly clearly, in a well-labeled live region, at better than
 4.5:1 contrast. **It was accessible and wrong**, which for a player relying on
 that announcement is the worse of the two failures.
 
