@@ -22,6 +22,7 @@ STORE = os.path.join(HERE, "..", "store")
 # The folder take-screenshots.sh writes -> App Store Connect's display type.
 # APP_IPHONE_67 is the 6.9" slot; APP_IPAD_PRO_3GEN_129 the 13" one.
 DISPLAY = {"iphone": "APP_IPHONE_67", "ipad": "APP_IPAD_PRO_3GEN_129"}
+MAX_PER_SET = 10
 
 
 def ok(st):
@@ -102,10 +103,16 @@ def main():
                 "relationships": {"appStoreVersionLocalization": {
                     "data": {"type": "appStoreVersionLocalizations", "id": loc["id"]}}}}})["id"]
         # The new pictures go up before the old ones come down, so a failure
-        # part way leaves the old set whole rather than an empty one.
+        # part way leaves as much of the old set as there is room for. A set
+        # holds at most ten, so only the old ones that leave no room go first.
+        if len(files) > MAX_PER_SET:
+            raise SystemExit(f"{device}: {len(files)} screenshots; a set holds at most {MAX_PER_SET}")
+        room = MAX_PER_SET - len(files)
+        for s in old[room:]:
+            call("DELETE", f"/v1/appScreenshots/{s['id']}")
         ids = [upload(set_id, f) for f in files]
         wait_until_processed(ids)
-        for s in old:
+        for s in old[:room]:
             call("DELETE", f"/v1/appScreenshots/{s['id']}")
         call("PATCH", f"/v1/appScreenshotSets/{set_id}/relationships/appScreenshots",
              {"data": [{"type": "appScreenshots", "id": i} for i in ids]})
