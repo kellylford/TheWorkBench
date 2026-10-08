@@ -1,4 +1,4 @@
-> **This is the multiplayer fork.** It was copied in behavior, not in code, from
+> **This is the multiplayer fork.** It was copied in behaviour, not in code, from
 > `Cribbage/`. The stable single-player game is **not modified** by any work here
 > — that is the whole point of the fork, so the game people actually play cannot
 > regress while multiplayer is built. A CI guard fails the build if a branch
@@ -72,12 +72,12 @@ The whole pleasure of cribbage is in the counting, and handing over a total is
 handing over the game. You count your own hand, as you would at a table.
 
 **The arithmetic of the play is done for you.** During the pegging every card in
-your hand is labeled with what it is worth, what count it would make, and what
+your hand is labelled with what it is worth, what count it would make, and what
 it would score: *"Seven of Clubs, worth seven, makes twenty-two, and scores a
 pair for two, card 2 of 4."* A sighted player reads that off the table in a
 second; by ear it is a running sum plus four subtractions on every single turn.
 It is not coaching — it tells you nothing you could not work out from cards that
-are face up in front of everybody — it removes arithmetic, not judgment.
+are face up in front of everybody — it removes arithmetic, not judgement.
 
 **Everything is a real control.** Cards are `<button>` elements. A card you
 cannot play is marked `aria-disabled` and says why — "cannot be played, it would
