@@ -1,0 +1,7 @@
+The Card Place is five card games (hearts, euchre, spades, cribbage, sheephead) played against computer opponents, entirely offline. There's no sign-in, no network access, no in-app purchase and no data collection.
+
+To try it: open the app, choose a game, then Deal. Play cards from your hand at the bottom of the screen. The button at the lower left always moves the game on.
+
+The app is designed for VoiceOver users, and that's the best way to review it (Settings, Accessibility, VoiceOver, or triple-click the side button if the Accessibility Shortcut is set up). With VoiceOver on, when it becomes your turn focus moves to the first card you can play. This is deliberate, and it can be turned off in the app's Settings. Announcements are queued so they never interrupt each other.
+
+Euchre, cribbage and sheephead offer three difficulty levels. Hearts and spades don't, and the setup screen doesn't offer one for them.

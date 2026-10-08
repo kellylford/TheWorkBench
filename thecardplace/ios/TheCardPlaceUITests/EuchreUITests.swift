@@ -42,10 +42,17 @@ final class EuchreUITests: XCTestCase {
         XCTAssert(app.staticTexts["Players"].exists)
         app.assertControlBar()
 
-        // Five cards, each saying where it sits, and the bidding under way.
-        XCTAssertEqual(app.handCards.count, 5)
-        XCTAssert(app.handCards.matching(NSPredicate(format: "label CONTAINS %@", "card 1 of 5")).firstMatch.exists)
-        XCTAssert(app.status(startsWith: "Bidding"))
+        // Five cards, each saying where it sits, and the bidding under way;
+        // unless we dealt and a computer ordered the upcard up at once, in
+        // which case we already hold six and are choosing what to put back.
+        if app.status(startsWith: "You took the upcard", timeout: 1) {
+            XCTAssertEqual(app.handCards.count, 6)
+            XCTAssert(app.handCards.matching(NSPredicate(format: "label CONTAINS %@", "card 1 of 6")).firstMatch.exists)
+        } else {
+            XCTAssertEqual(app.handCards.count, 5)
+            XCTAssert(app.handCards.matching(NSPredicate(format: "label CONTAINS %@", "card 1 of 5")).firstMatch.exists)
+            XCTAssert(app.status(startsWith: "Bidding"))
+        }
         app.attachScreenshot("euchre-bidding", to: self)
 
         let dealButton = app.buttons["Deal the next hand"]

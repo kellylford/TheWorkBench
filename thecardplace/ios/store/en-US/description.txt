@@ -1,0 +1,32 @@
+Five card games against the computer: hearts, euchre, spades, cribbage and sheephead. Everything is played on your device. There's no network, no account, no ads and nothing to buy.
+
+The Card Place was built from the first card to be played with VoiceOver, and it works just as well by sight.
+
+EVERY CARD SAYS WHAT IT IS
+Each card in your hand is a button that says what it is, anything worth knowing about it right now, and where it sits in your hand. For example: "Jack of Clubs, left bower, second highest trump, card 2 of 5." A card you may not play stays in your hand and says why, such as "you must follow hearts", so you never wonder where it went.
+
+THE SAME LAYOUT IN EVERY GAME
+Your hand and the controls are always at the bottom of the screen and never move. The button that moves the game on (Deal, Cut, Pass, Bid, Next, or Continue) is always the lower left corner. Log and Repeat are always the lower right. As you play, your remaining cards stay where they were.
+
+NOTHING SPOKEN OVER ANYTHING ELSE
+Everything that happens is announced one message at a time, so nothing cuts off anything else. Repeat says the last message again. The log keeps every play, newest first, and with VoiceOver you can flick through the last five entries without leaving the button.
+
+PLAY AT YOUR PACE
+Choose how long the game pauses between the computer's plays, from Immediate to Wait for me, which waits until you say so. Continue always moves on straight away.
+
+THE GAMES
+- Hearts: four players, passing, shooting the moon.
+- Euchre: partners, ordering up, going alone, the bowers.
+- Spades: partners, bidding, nil, bags.
+- Cribbage: two players, the crib, pegging and counting.
+- Sheephead: the Wisconsin favourite for three to six players, with picking, burying, the jack of diamonds as secret partner, leasters and doublers.
+
+Euchre, cribbage and sheephead have three levels of computer player. Help in every game explains the rules, and the Review menu tells you the score, the trick, what's been played and more.
+
+BUILT FOR ACCESSIBILITY
+- VoiceOver: full play, headings to jump between parts of the table, and your turn moves focus to your cards (you can turn that off).
+- Larger Text: cards and controls grow with your text size, all the way to the accessibility sizes.
+- Hardware keyboard: shortcuts for the review commands and for Continue.
+- Nothing is shown by colour alone, contrast is high, dark mode works, and nothing moves on screen except what you choose.
+
+The Card Place started as a set of free web games. This app is a native version of them, with the same rules, the same computer players and the same words.

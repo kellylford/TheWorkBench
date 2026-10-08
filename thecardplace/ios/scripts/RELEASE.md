@@ -52,3 +52,52 @@ including the test information and the beta groups, this script does.
 and the Beta App Review contact, and rewrites them on every release, so they
 are in version control rather than typed into a web form once and forgotten.
 Change them there.
+
+## App Store release
+
+TestFlight and the App Store share the build; what the App Store adds is the
+listing. The listing is in the repository, like the test information:
+
+- `store/en-US/*.txt` — description, keywords, subtitle, promotional text,
+  and the notes for App Review. Each file is the field, as it will appear.
+- `store/app-store.json` — everything else: the version, copyright, release
+  type (manual, so approval does not publish the app), categories, URLs,
+  content rights, the App Review contact, the age rating answers, the
+  Accessibility Nutrition Labels, and the price.
+- `TheCardPlace/PrivacyInfo.xcprivacy` — the privacy manifest in the build:
+  no tracking, no data collected, and `UserDefaults` for the settings.
+
+### Steps
+
+1. Put the build on TestFlight as above, and let it be tested.
+2. Take the screenshots, on a 6.9" iPhone and a 13" iPad simulator (the script
+   creates them if they are missing). This plays a hand of every game, so it
+   takes a few minutes per device:
+
+   ```bash
+   scripts/take-screenshots.sh
+   ```
+
+   They land in `build/screenshots/iphone/` and `build/screenshots/ipad/`,
+   numbered in store order, and are not committed. Look at them before they go up.
+3. See what the listing would change, then write it and choose the build:
+
+   ```bash
+   scripts/wire-appstore.py
+   scripts/wire-appstore.py --apply --build 4
+   scripts/upload-screenshots.py --apply
+   ```
+
+   Price and availability are left alone unless `--set-price` is given, which
+   makes the app free in every territory, including ones Apple adds later.
+   That only has to happen once.
+4. By hand in App Store Connect, because the API cannot do it:
+   - **App Privacy**: Get Started, then "No, we do not collect data from this
+     app", then Publish. That's true because the app has no network access
+     at all. If it ever gains any, this answer and the manifest change too.
+   - Look over the version page, then **Add for Review** and **Submit**.
+5. When it is approved, release it from the version page (the release type is
+   manual).
+
+The privacy policy is `thecardplace/privacy.html` on the Card Place site; the
+listing's privacy URL points at it, so it has to be live before submission.

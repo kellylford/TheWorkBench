@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		03D04F7FE8F58D9184B73A56 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 3F405F1AD88DD8A5285E1281 /* PrivacyInfo.xcprivacy */; };
 		044EB7E107C60C0C207EB597 /* CribbageEngine in Frameworks */ = {isa = PBXBuildFile; productRef = F94700B9513EA796740F09B3 /* CribbageEngine */; };
 		0D1B0DD6377E1CD0052394A7 /* Announcer.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6568E1912006FA72B3DAA2C /* Announcer.swift */; };
 		0FDB6B6AEB144C7A27E905E0 /* CribbageTableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAF045FB25E4ADB2CA67D558 /* CribbageTableView.swift */; };
@@ -20,6 +21,7 @@
 		30DB4DC415FC689D02F002B1 /* CribbageSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = F892E0A3B6953A3B37E00A59 /* CribbageSession.swift */; };
 		4594862BDB9DA6803DBF36D8 /* SheepheadSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C1A121D0F39113DF5761205 /* SheepheadSession.swift */; };
 		53641618134321494D720AA1 /* EuchreTableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0ACA079333595E3D760851C7 /* EuchreTableView.swift */; };
+		56E5ABE0C3D57BE5FA5FF190 /* ScreenshotUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3126D727AE0DE59B7E914C00 /* ScreenshotUITests.swift */; };
 		5C9E10A35902374CB686FEFB /* EuchreUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12686483D5D0F698A83F0DDE /* EuchreUITests.swift */; };
 		6710621CF6DA3E7983B4BA6C /* SpadesUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1F2D50DBA2115DF077A2CBF /* SpadesUITests.swift */; };
 		684B07A81624AD6E30F4A099 /* HeartsUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E7B915DFA27181FB20DE3E72 /* HeartsUITests.swift */; };
@@ -62,6 +64,8 @@
 		22AD0206ACBAF4A849EA37DF /* EuchreSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EuchreSession.swift; sourceTree = "<group>"; };
 		2D4B17D881934D07D0ACB538 /* HeartsSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeartsSession.swift; sourceTree = "<group>"; };
 		2DD2B004D362E811BB4314AB /* GameDispatch.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameDispatch.swift; sourceTree = "<group>"; };
+		3126D727AE0DE59B7E914C00 /* ScreenshotUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenshotUITests.swift; sourceTree = "<group>"; };
+		3F405F1AD88DD8A5285E1281 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		3FE0B1F95772E2B4F7FAF40A /* GameKind.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameKind.swift; sourceTree = "<group>"; };
 		4AC3B197FBCAF26199F2B6EA /* AppSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSettings.swift; sourceTree = "<group>"; };
 		4FB405CFABFA389A83F32338 /* Support.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Support.swift; sourceTree = "<group>"; };
@@ -114,6 +118,7 @@
 			children = (
 				6DD4E6714CC3174B232DEBED /* Assets.xcassets */,
 				BA5231380811FB9C801986A6 /* Info.plist */,
+				3F405F1AD88DD8A5285E1281 /* PrivacyInfo.xcprivacy */,
 				DEC4F04C6B855D0E3A80F318 /* TheCardPlaceApp.swift */,
 				1A613F1CEB72A94C322F8404 /* Games */,
 				50DF580E37675B6BEE01C71C /* Hub */,
@@ -185,6 +190,7 @@
 				D40675BACF55461868978BF6 /* CribbageUITests.swift */,
 				12686483D5D0F698A83F0DDE /* EuchreUITests.swift */,
 				E7B915DFA27181FB20DE3E72 /* HeartsUITests.swift */,
+				3126D727AE0DE59B7E914C00 /* ScreenshotUITests.swift */,
 				CDA075E69F49B49AAB03E8E2 /* SheepheadUITests.swift */,
 				D1F2D50DBA2115DF077A2CBF /* SpadesUITests.swift */,
 				4FB405CFABFA389A83F32338 /* Support.swift */,
@@ -340,6 +346,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				B93E79FD2C9DF036FE4E993B /* Assets.xcassets in Resources */,
+				03D04F7FE8F58D9184B73A56 /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -383,6 +390,7 @@
 				E8408F656A481472872DE22F /* CribbageUITests.swift in Sources */,
 				5C9E10A35902374CB686FEFB /* EuchreUITests.swift in Sources */,
 				684B07A81624AD6E30F4A099 /* HeartsUITests.swift in Sources */,
+				56E5ABE0C3D57BE5FA5FF190 /* ScreenshotUITests.swift in Sources */,
 				88439E0C853714EA8B2AC48C /* SheepheadUITests.swift in Sources */,
 				6710621CF6DA3E7983B4BA6C /* SpadesUITests.swift in Sources */,
 				6FE6B97889EA9F7152F0E6FD /* Support.swift in Sources */,
@@ -503,7 +511,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 3;
+				CURRENT_PROJECT_VERSION = 4;
 				INFOPLIST_FILE = TheCardPlace/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
@@ -592,7 +600,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 3;
+				CURRENT_PROJECT_VERSION = 4;
 				INFOPLIST_FILE = TheCardPlace/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
