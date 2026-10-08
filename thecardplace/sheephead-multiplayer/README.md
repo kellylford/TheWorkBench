@@ -62,7 +62,7 @@ item that takes real DOM focus — the screen reader reads it because focus move
 of any live region or label trickery. Number keys are ignored inside the log so you cannot play a
 card by accident while reading back.
 
-**The blind is shown, not summarised.** When a hand ends, the actual cards are laid out — what was
+**The blind is shown, not summarized.** When a hand ends, the actual cards are laid out — what was
 in the blind, and separately what the picker buried. "21 points buried" tells you nothing about
 what actually went down. In a leaster the blind is shown with who took it on the last trick.
 
@@ -76,7 +76,7 @@ therefore playing alone. Only ever about your own position, never anyone else's.
 
 **Focus is never stolen out from under you.** Focus moves to your cards when it becomes your turn,
 but not while you are in a text field, reading the help, or reading back through the log. The
-announcement still tells you it is your turn. You can turn the behaviour off entirely in setup.
+announcement still tells you it is your turn. You can turn the behavior off entirely in setup.
 
 **Pace is configurable, in real seconds.** Opponent turns can advance instantly, after four seconds,
 after ten seconds, or only when you press Continue. The timed settings are a ceiling rather than a
@@ -93,9 +93,9 @@ quick navigation, so the game's letter shortcuts will not reach the page. That i
 one of them also exists as a button in the "Review the game" group — nothing depends on a shortcut
 being available, and `Tab`/`Enter`/`Space` alone are enough to play a whole game.
 
-Also: visible focus outlines, no colour-only meaning (trump is labelled as well as tinted), a skip
+Also: visible focus outlines, no color-only meaning (trump is labeled as well as tinted), a skip
 link, semantic headings and tables, and support for `prefers-reduced-motion`, `prefers-contrast`
-and forced-colours mode.
+and forced-colors mode.
 
 ### Keys
 
@@ -195,7 +195,7 @@ Three-handed is high because ten-card hands make pairs likely.
 One dialog holds every rule and preference, reachable from the setup screen and from the in-game
 toolbar. Settings are remembered, so a new game uses them again unless you change them.
 
-Pace and speech changes take effect immediately. Rule changes — all-pass behaviour, opponent skill,
+Pace and speech changes take effect immediately. Rule changes — all-pass behavior, opponent skill,
 doublers — take effect from the next hand, so a hand in progress is never scored under rules it did
 not start under.
 

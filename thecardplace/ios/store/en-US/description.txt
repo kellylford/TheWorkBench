@@ -19,7 +19,7 @@ THE GAMES
 - Euchre: partners, ordering up, going alone, the bowers.
 - Spades: partners, bidding, nil, bags.
 - Cribbage: two players, the crib, pegging and counting.
-- Sheephead: the Wisconsin favourite for three to six players, with picking, burying, the jack of diamonds as secret partner, leasters and doublers.
+- Sheephead: the Wisconsin favorite for three to six players, with picking, burying, the jack of diamonds as secret partner, leasters and doublers.
 
 Euchre, cribbage and sheephead have three levels of computer player. Help in every game explains the rules, and the Review menu tells you the score, the trick, what's been played and more.
 
@@ -27,6 +27,4 @@ BUILT FOR ACCESSIBILITY
 - VoiceOver: full play, headings to jump between parts of the table, and your turn moves focus to your cards (you can turn that off).
 - Larger Text: cards and controls grow with your text size, all the way to the accessibility sizes.
 - Hardware keyboard: shortcuts for the review commands and for Continue.
-- Nothing is shown by colour alone, contrast is high, dark mode works, and nothing moves on screen except what you choose.
-
-The Card Place started as a set of free web games. This app is a native version of them, with the same rules, the same computer players and the same words.
+- Nothing is shown by color alone, contrast is high, dark mode works, and nothing moves on screen except what you choose.

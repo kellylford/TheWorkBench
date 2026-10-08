@@ -184,7 +184,7 @@ Cribbage's found three real bugs, all now fixed:
 The first is worth dwelling on: a 4-5-6-6 hand scored 9 instead of 12, and had done since the game
 was written. It is not subtle, it is not rare, and no amount of accessibility auditing, geometry
 measurement or interface testing would ever have found it — because the game announced its wrong
-answer perfectly clearly, in a well-labelled live region, at 4.5:1 contrast.
+answer perfectly clearly, in a well-labeled live region, at 4.5:1 contrast.
 
 ### Mutation tested
 
@@ -269,8 +269,8 @@ waits the deadline out, and it does catch the fault.
 |---|---|
 | `sheephead/tests/layout.js` | Horizontal overflow, card size and aspect ratio, tap targets, the setup screen, two-column reading order — 6 viewports × 2 font sizes |
 | `sheephead/tests/card-overlap.js` | Every index, pip and court glyph measured for intersection |
-| `sheephead/tests/appearance.js` | Both skins × both colour schemes: the chosen skin actually applies, red suits render red, an unplayable card keeps its colour and has nothing painted over it, a played card is readable at half size, and a blocked card still looks different from a playable one |
-| `sheephead/tests/contrast.js` | Every text element's real colour against what is actually painted behind it, WCAG AA by size |
+| `sheephead/tests/appearance.js` | Both skins × both color schemes: the chosen skin actually applies, red suits render red, an unplayable card keeps its color and has nothing painted over it, a played card is readable at half size, and a blocked card still looks different from a playable one |
+| `sheephead/tests/contrast.js` | Every text element's real color against what is actually painted behind it, WCAG AA by size |
 | `Cribbage/tests/audit.js` | **Both pages** — overflow, card geometry and collisions, contrast, tap targets, duplicate ids, heading order, main landmark, table captions, `th` scope, emoji or arrows in link text |
 
 These found a formal accessibility audit's blind spot: Cribbage scored 78/100 in a review that
@@ -357,7 +357,7 @@ Listed because an undocumented gap reads as coverage.
   connections to the in-process server, but only one of them is a real `Table`, because `Table` is a
   module singleton. Two browsers racing for the same seat, or both pressing Deal, is covered at the
   room level and not at the interface level.
-- **Nothing checks colour contrast.** Sheephead has `contrast.js`; euchre inherits its stylesheet
+- **Nothing checks color contrast.** Sheephead has `contrast.js`; euchre inherits its stylesheet
   and has no equivalent, so a palette change here would go unmeasured.
 
 ### All of them
@@ -369,7 +369,7 @@ Listed because an undocumented gap reads as coverage.
 
   Two things that suite learned the hard way, worth knowing before extending it. **A CSS filter is
   invisible to `getComputedStyle`** — it changes the pixels and nothing else, so a greyscale that
-  flattens the red suits cannot be found by reading colours; the filter itself has to be asserted
+  flattens the red suits cannot be found by reading colors; the filter itself has to be asserted
   on. And **measuring only the first suit glyph on a card missed a real break**, because a card
   shows its suit in three places and the corner index was still red while the pips were not.
 - **No shared harness.** The measurement logic in `sheephead/tests/*.js` and `Cribbage/tests/audit.js`

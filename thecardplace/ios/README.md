@@ -155,8 +155,8 @@ once. (`Shared/PaceGate.swift`)
 12, tricks 3" — and partnership games score by side, not by a number repeated
 in two columns.
 
-**Nothing by colour alone.** Red suits are red, but the suit is printed as a
-symbol, trump and points are written on the card, an unplayable card is greyed
+**Nothing by color alone.** Red suits are red, but the suit is printed as a
+symbol, trump and points are written on the card, an unplayable card is grayed
 and marked with a cross, a selected card has a thick border and a tick. The
 red is 6.6:1 on white. Cards follow Dynamic Type up to the accessibility sizes
 and wrap onto more rows rather than shrinking; every control is at least 44
@@ -173,11 +173,11 @@ yet.
 
 | Criterion | How |
 | --- | --- |
-| 1.1.1 Non-text content | Card faces are hidden from VoiceOver; the button label carries everything the face shows. Icons are decorative or labelled. |
-| 1.3.1 Info and relationships | Headings carry the header trait; tables are read as rows; the hand is a labelled group. |
-| 1.3.3 Sensory characteristics | No instruction depends on position or colour. |
-| 1.4.1 Use of colour | Suit symbols, text badges, cross and tick marks alongside colour. |
-| 1.4.3 / 1.4.11 Contrast | Card ink 6.6:1 or better on its ground; system colours elsewhere; Increase Contrast thickens borders. |
+| 1.1.1 Non-text content | Card faces are hidden from VoiceOver; the button label carries everything the face shows. Icons are decorative or labeled. |
+| 1.3.1 Info and relationships | Headings carry the header trait; tables are read as rows; the hand is a labeled group. |
+| 1.3.3 Sensory characteristics | No instruction depends on position or color. |
+| 1.4.1 Use of color | Suit symbols, text badges, cross and tick marks alongside color. |
+| 1.4.3 / 1.4.11 Contrast | Card ink 6.6:1 or better on its ground; system colors elsewhere; Increase Contrast thickens borders. |
 | 1.4.4 / 1.4.12 Resize text | Dynamic Type everywhere, including inside cards via `@ScaledMetric`. |
 | 1.4.10 Reflow | Cards wrap; nothing scrolls sideways. |
 | 2.1.1 Keyboard | Every action is a button; shortcuts exist for review and Continue. |

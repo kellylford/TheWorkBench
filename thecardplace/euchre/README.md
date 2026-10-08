@@ -18,12 +18,12 @@ deployed to Cloudflare from CI. Everything else runs in the browser.
 
 Once a suit is trump, the two highest cards in the game are the **right bower**
 (the jack of trump) and the **left bower** — the jack of the *other suit of the
-same colour*. And while it is the left bower, **it is not a card of its printed
+same color*. And while it is the left bower, **it is not a card of its printed
 suit at all**. With spades trump, the jack of clubs is a spade: it follows
 spades, and you may not play it on a club lead if you hold any spade.
 
 A sighted player absorbs that from five cards at a glance. Read out card by card,
-it is a memory exercise with a colour rule in it, performed while three other
+it is a memory exercise with a color rule in it, performed while three other
 people wait. So:
 
 - **Both bowers are named as bowers** wherever a card is read out — in your hand,
@@ -72,7 +72,7 @@ down a per-player table — a number printed twice invites being read as two
 numbers. <kbd>S</kbd> says the tricks each side has this hand, the game score,
 the match, and how many more tricks you need to make it or to euchre them.
 
-**The dealer's discard is shown, not summarised.** When a hand ends, the actual
+**The dealer's discard is shown, not summarized.** When a hand ends, the actual
 cards are laid out: the upcard, what the dealer put back, and the three cards
 nobody ever sees at a real table. "The dealer discarded" tells you nothing.
 
@@ -83,7 +83,7 @@ it will never play. Its Cards column says "out".
 becomes your turn — and to the bidding buttons when the decision is a bid rather
 than a card — but not while you are in a text field, reading the help, or reading
 back through the log. The announcement still tells you it is your turn. You can
-turn the behaviour off in Settings.
+turn the behavior off in Settings.
 
 **Pace is configurable, in real seconds.** Computer turns can advance instantly,
 after four seconds, after ten, or only when you press Continue. The timed
@@ -101,9 +101,9 @@ toolbar under the table — nothing depends on a shortcut being available, and
 <kbd>Tab</kbd>, <kbd>Enter</kbd> and <kbd>Space</kbd> alone are enough to play a
 whole game.
 
-Also: visible focus outlines, no colour-only meaning (trump is labelled as well
+Also: visible focus outlines, no color-only meaning (trump is labeled as well
 as tinted), a skip link, semantic headings and tables, and support for
-`prefers-reduced-motion`, `prefers-contrast` and forced-colours mode.
+`prefers-reduced-motion`, `prefers-contrast` and forced-colors mode.
 
 ### Keys
 
@@ -184,7 +184,7 @@ Measured over 4,000 hands per row against the hard opponents (`npm run balance`)
 | normal | 95.5% | 13.8% | 12.2% | 8.1% | 67.2% |
 | hard | 94.1% | 12.9% | 14.2% | 9.1% | 65.3% |
 
-Those are the numbers a euchre player would recognise, and they are the reason
+Those are the numbers a euchre player would recognize, and they are the reason
 `tests/balance.js` exists. The first draft of the bidding thresholds threw more
 than two hands in five straight in the bin — a game nobody would sit through, and
 completely invisible to every test that only checks the rules are obeyed.

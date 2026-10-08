@@ -199,7 +199,7 @@ leaks happen through absence — `partner: -1` versus the key omitted, `buried: 
 array lengths, key order.
 
 **What it cannot catch:** timing leaks (bot decision paths differ in length by hidden state, so
-latency carries information) and leaks through derived client behaviour — `roleTags()` and the Role
+latency carries information) and leaks through derived client behavior — `roleTags()` and the Role
 column are the candidates.
 
 ---
