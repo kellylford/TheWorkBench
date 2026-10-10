@@ -15,7 +15,7 @@ has to be written out a second time as a tool call.
 
 ## Download
 
-[**Latest release**](https://github.com/kellylford/TheWorkBench/releases?q=claudespeak&expanded=true)
+[**Latest release**](https://github.com/TheIdeaPlace/TheWorkBench/releases?q=claudespeak&expanded=true)
 — a zip of just this folder. GitHub cannot download a single directory, so without it you
 would have to clone the whole repository.
 
@@ -231,7 +231,7 @@ Particularly:
   judgement calls (code blocks dropped, tables dropped, URLs read as "link"). Those are
   guesses about what people want to hear, not findings.
 
-Open an issue or a PR on [TheWorkBench](https://github.com/kellylford/TheWorkBench).
+Open an issue or a PR on [TheWorkBench](https://github.com/TheIdeaPlace/TheWorkBench).
 
 ## Choosing a route
 

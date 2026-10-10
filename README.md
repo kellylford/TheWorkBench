@@ -128,7 +128,7 @@ Contributions to existing projects are welcome. If you have a script, app or oth
 [2]:	./win11arm-install
 [3]:	./LICENSE
 [4]:	./thecardplace/sheephead
-[5]:	https://kellylford.github.io/TheWorkBench/thecardplace/
+[5]:	https://theideaplace.github.io/TheWorkBench/thecardplace/
 [6]:	./thecardplace/Cribbage
 [7]:	./thecardplace/TESTING.md
 [8]:	./thecardplace/sheephead-multiplayer

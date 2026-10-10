@@ -7,7 +7,7 @@ name: Deploy Cribbage room
 #
 # Setup, once — and note that this reuses the credentials the sheephead room
 # already needs, so if that Worker deploys, this one will too:
-#   gh secret set CLOUDFLARE_API_TOKEN --repo kellylford/TheWorkBench
+#   gh secret set CLOUDFLARE_API_TOKEN --repo TheIdeaPlace/TheWorkBench
 #   CLOUDFLARE_ACCOUNT_ID is a repository VARIABLE, not a secret — it identifies
 #   the account rather than granting anything.
 #
@@ -97,7 +97,7 @@ jobs:
         run: |
           set -euo pipefail
           if [ -z "${TOKEN}" ]; then
-            echo "::error::CLOUDFLARE_API_TOKEN is not set. gh secret set CLOUDFLARE_API_TOKEN --repo kellylford/TheWorkBench"
+            echo "::error::CLOUDFLARE_API_TOKEN is not set. gh secret set CLOUDFLARE_API_TOKEN --repo TheIdeaPlace/TheWorkBench"
             exit 1
           fi
           if [ -z "${ACCOUNT}" ]; then

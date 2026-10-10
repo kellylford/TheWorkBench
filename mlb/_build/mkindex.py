@@ -469,7 +469,7 @@ and is the right place to arrange accessible seating.</p>
 
 <p class="prose">If something here is wrong &mdash; a section placed on the wrong side of the park, a
 row range that does not match the ticket in your hand, a seat-numbering rule that reads backwards
-&mdash; please <a href="https://github.com/kellylford/TheWorkBench/issues">file an issue on
+&mdash; please <a href="https://github.com/TheIdeaPlace/TheWorkBench/issues">file an issue on
 GitHub</a>. Corrections from people who know a ballpark first-hand are the fastest way this gets
 better, and the underlying data files linked from every ballpark page are there so you can check the
 working.</p>

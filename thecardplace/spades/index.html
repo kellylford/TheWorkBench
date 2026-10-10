@@ -460,6 +460,8 @@
 <!-- ORDER MATTERS. localserver.js takes a reference to SH.View when it loads,
      not when it runs, so view.js has to be in place before the shared transport
      is. config.js is first because net.js asks it where the Worker is. -->
+<!-- Must run before the game reads its settings: brings them across from kellylford.github.io. -->
+<script src="../shared/js/settings-import.js"></script>
 <script src="js/config.js"></script>
 <script src="js/cards.js"></script>
 <script src="js/game.js"></script>

@@ -38,7 +38,7 @@
    * v4: the default pause came down from five seconds to four. Same reasoning as
    *     v3: 5000 is no longer offered, so a stored one has to be retired. */
   /* Its own key, and this is not cosmetic. localStorage is scoped to the ORIGIN,
-   * not the path — both builds live under kellylford.github.io, so inheriting
+   * not the path — both builds live under theideaplace.github.io, so inheriting
    * 'sheephead.settings.v4' would mean every setting changed here also changed in
    * the stable game, and vice versa.
    *
@@ -2579,8 +2579,8 @@
 
   /* ---------------- bug reports ---------------- */
 
-  var BUG_REPO = 'kellylford/TheWorkBench';
-  var GAME_URL = 'https://kellylford.github.io/TheWorkBench/thecardplace/sheephead-multiplayer/';
+  var BUG_REPO = 'TheIdeaPlace/TheWorkBench';
+  var GAME_URL = 'https://theideaplace.github.io/TheWorkBench/thecardplace/sheephead-multiplayer/';
   /* Long URLs get rejected or silently truncated, so the link carries the summary
    * only and the full log rides on the clipboard. */
   var MAX_URL = 6000;

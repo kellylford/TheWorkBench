@@ -31,7 +31,7 @@ const arg = (n, d) => {
 const has = n => args.includes('--' + n);
 
 const BASE = arg('base', 'https://sheephead-room.quickmail.workers.dev');
-const ORIGIN = arg('origin', 'https://kellylford.github.io');
+const ORIGIN = arg('origin', 'https://theideaplace.github.io');
 const wsBase = BASE.replace(/^http/, 'ws');
 
 /* HOW LONG A TAKEOVER MAY HONESTLY TAKE, DERIVED RATHER THAN WRITTEN DOWN.
