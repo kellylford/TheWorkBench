@@ -11,9 +11,9 @@
   },
   "content_rights": "DOES_NOT_USE_THIRD_PARTY_CONTENT",
   "urls": {
-    "support": "https://kellylford.github.io/TheWorkBench/thecardplace/",
-    "marketing": "https://kellylford.github.io/TheWorkBench/thecardplace/",
-    "privacy_policy": "https://kellylford.github.io/TheWorkBench/thecardplace/privacy.html"
+    "support": "https://theideaplace.github.io/TheWorkBench/thecardplace/",
+    "marketing": "https://theideaplace.github.io/TheWorkBench/thecardplace/",
+    "privacy_policy": "https://theideaplace.github.io/TheWorkBench/thecardplace/privacy.html"
   },
   "_review_contact": "The App Review contact's name, phone and email are in ~/.thecardplace-keys/review-contact.json, not here: this repository is public.",
   "age_rating": {

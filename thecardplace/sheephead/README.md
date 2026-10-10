@@ -214,7 +214,7 @@ full game log. A read-only box shows exactly what will be copied — nothing is 
 is sent anywhere on its own.
 
 "Copy report and open GitHub" puts the whole report on the clipboard and opens a prefilled
-`issues/new` on `kellylford/TheWorkBench`; paste the log in and post it. The link carries the
+`issues/new` on `TheIdeaPlace/TheWorkBench`; paste the log in and post it. The link carries the
 summary only, because a full transcript runs to tens of thousands of characters and would blow
 past the URL limit — hence the clipboard. There is no server, no API token and no telemetry
 anywhere in this; posting the issue is entirely the user's own action and needs a GitHub account.

@@ -54,7 +54,7 @@ The element can be the window itself — no hidden control or off-screen live re
 
 I've put a small standalone demo app in my TheWorkBench repo that you can clone and run:
 
-    https://github.com/kellylford/TheWorkBench/tree/main/UiaNotifyDemo
+    https://github.com/TheIdeaPlace/TheWorkBench/tree/main/UiaNotifyDemo
 
 It's a single window: a text box and two buttons, one for each processing mode. The AccessibilityHelper.cs in there is the same class QuickMail uses in production. I've tested it with NVDA and JAWS; both respond correctly. Narrator works too.
 

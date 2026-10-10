@@ -66,7 +66,7 @@ jobs:
           `install.ps1 -WhatIf` / `install.sh --dry-run` show what they would do without changing
           anything.
 
-          Read the [README](https://github.com/kellylford/TheWorkBench/tree/main/ClaudeSpeak)
+          Read the [README](https://github.com/TheIdeaPlace/TheWorkBench/tree/main/ClaudeSpeak)
           first — particularly the note on what does and does not get read aloud.
 
           **macOS needs one checkbox.** The VoiceOver route requires *VoiceOver Utility → General

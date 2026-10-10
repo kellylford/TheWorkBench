@@ -89,6 +89,8 @@ jobs:
       # nothing at all. Cheap, and it caught its own first draft.
       - name: No invisible characters in source
         run: node shared/tests/no-control-characters.js
+      - name: Settings carried over from the old address
+        run: node shared/tests/settings-import.js
 
       # Do the games agree with EACH OTHER? Every other audit asks whether one
       # game is right; each of them passed while the set of them drifted apart,

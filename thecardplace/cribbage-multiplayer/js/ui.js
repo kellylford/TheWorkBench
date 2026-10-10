@@ -46,7 +46,7 @@
 
   /* Its own key, and this is not cosmetic. localStorage is scoped to the ORIGIN,
    * not the path — every game in this repository lives under the same
-   * kellylford.github.io — so a key shared with the stable Cribbage would mean
+   * theideaplace.github.io — so a key shared with the stable Cribbage would mean
    * every setting changed here also changed there. Only keys THIS build has
    * itself retired may ever appear in OLD_STORE_KEYS, because loadSettings
    * removes them. */
@@ -2419,8 +2419,8 @@
 
   /* ---------------- bug reports ---------------- */
 
-  var BUG_REPO = 'kellylford/TheWorkBench';
-  var GAME_URL = 'https://kellylford.github.io/TheWorkBench/thecardplace/cribbage-multiplayer/';
+  var BUG_REPO = 'TheIdeaPlace/TheWorkBench';
+  var GAME_URL = 'https://theideaplace.github.io/TheWorkBench/thecardplace/cribbage-multiplayer/';
   var MAX_URL = 6000;
 
   function bugTitle() {

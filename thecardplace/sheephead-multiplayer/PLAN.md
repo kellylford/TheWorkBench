@@ -1,7 +1,7 @@
 # Sheephead Multiplayer — implementation plan
 
-Tracking: [issue #58](https://github.com/kellylford/TheWorkBench/issues/58).
-Scoping and cost analysis: [issue #20](https://github.com/kellylford/TheWorkBench/issues/20).
+Tracking: [issue #58](https://github.com/TheIdeaPlace/TheWorkBench/issues/58).
+Scoping and cost analysis: [issue #20](https://github.com/TheIdeaPlace/TheWorkBench/issues/20).
 
 This plan has been through **four review passes** — one on the first draft, then three independent
 reviewers who were not told what the earlier passes found. Where a review contradicted the plan, the
@@ -35,7 +35,7 @@ it: the commit claimed the new CI job would catch a violation, and it would not 
 guard step that diffs `sheephead/` against `main`.
 
 **It also leaked in a way nobody predicted.** `localStorage` is scoped to the *origin*, not the path.
-Both builds publish under `kellylford.github.io`, so the fork inherited `sheephead.settings.v4` and
+Both builds publish under `theideaplace.github.io`, so the fork inherited `sheephead.settings.v4` and
 shared it with the live game — and `loadSettings()` calls `removeItem` on everything in
 `OLD_STORE_KEYS`, so the first time this fork bumped its schema it would have **deleted a player's
 real settings**. Fixed: the fork uses `sheephead-mp.settings.v1` with an empty `OLD_STORE_KEYS`.

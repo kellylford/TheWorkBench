@@ -6,7 +6,7 @@ compatibility_date = "2026-01-01"
 # Origin check any page anywhere could open a socket to somebody's table — the
 # cheapest abuse defence there is, and the one most often left out.
 [vars]
-ALLOWED_ORIGINS = "https://kellylford.github.io"
+ALLOWED_ORIGINS = "https://kellylford.github.io,https://theideaplace.github.io"
 
 # One object per table. idFromName(code) means the join code IS the address: no
 # lookup table, no registry to keep in step, and two people typing the same code

@@ -44,7 +44,7 @@
 
   /* Its own key, and this is not cosmetic. localStorage is scoped to the ORIGIN,
    * not the path — every game in this repository lives under the same
-   * kellylford.github.io — so a key shared with another game means every setting
+   * theideaplace.github.io — so a key shared with another game means every setting
    * changed here also changes there.
    *
    * The sharp edge is below: loadSettings() calls removeItem on everything in
@@ -2802,8 +2802,8 @@
 
   /* ---------------- bug reports ---------------- */
 
-  var BUG_REPO = 'kellylford/TheWorkBench';
-  var GAME_URL = 'https://kellylford.github.io/TheWorkBench/thecardplace/euchre/';
+  var BUG_REPO = 'TheIdeaPlace/TheWorkBench';
+  var GAME_URL = 'https://theideaplace.github.io/TheWorkBench/thecardplace/euchre/';
   var MAX_URL = 6000;
 
   function bugTitle() {

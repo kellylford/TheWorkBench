@@ -1543,8 +1543,8 @@
 
   /* ---------------- bug reports ---------------- */
 
-  var BUG_REPO = 'kellylford/TheWorkBench';
-  var GAME_URL = 'https://kellylford.github.io/TheWorkBench/thecardplace/sheephead/';
+  var BUG_REPO = 'TheIdeaPlace/TheWorkBench';
+  var GAME_URL = 'https://theideaplace.github.io/TheWorkBench/thecardplace/sheephead/';
   /* Long URLs get rejected or silently truncated, so the link carries the summary
    * only and the full log rides on the clipboard. */
   var MAX_URL = 6000;

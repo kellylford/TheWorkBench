@@ -8,19 +8,19 @@ Five games, five rule sets, one shared conviction: **a test that cannot fail is 
 Seven directories for five games. These are the addresses they are published at — the same ones a
 player's bug report pastes in, so one that is wrong here is wrong in the report too:
 
-- **Euchre** — `euchre/` → https://kellylford.github.io/TheWorkBench/thecardplace/euchre/
-- **Hearts** — `hearts/` → https://kellylford.github.io/TheWorkBench/thecardplace/hearts/
-- **Spades** — `spades/` → https://kellylford.github.io/TheWorkBench/thecardplace/spades/
-- **Cribbage** — `cribbage-multiplayer/` → https://kellylford.github.io/TheWorkBench/thecardplace/cribbage-multiplayer/
-- **Sheephead** — `sheephead-multiplayer/` → https://kellylford.github.io/TheWorkBench/thecardplace/sheephead-multiplayer/
+- **Euchre** — `euchre/` → https://theideaplace.github.io/TheWorkBench/thecardplace/euchre/
+- **Hearts** — `hearts/` → https://theideaplace.github.io/TheWorkBench/thecardplace/hearts/
+- **Spades** — `spades/` → https://theideaplace.github.io/TheWorkBench/thecardplace/spades/
+- **Cribbage** — `cribbage-multiplayer/` → https://theideaplace.github.io/TheWorkBench/thecardplace/cribbage-multiplayer/
+- **Sheephead** — `sheephead-multiplayer/` → https://theideaplace.github.io/TheWorkBench/thecardplace/sheephead-multiplayer/
 
 Those five are the games. Two of them have an ancestor kept for reference — the original
 single-player builds, forked rather than rewritten so the working game could not regress while the
 networked one was written. They are still published and still tested, and they are not what
 anything links:
 
-- **Cribbage, the original** — `Cribbage/` → https://kellylford.github.io/TheWorkBench/thecardplace/Cribbage/
-- **Sheephead, the original** — `sheephead/` → https://kellylford.github.io/TheWorkBench/thecardplace/sheephead/
+- **Cribbage, the original** — `Cribbage/` → https://theideaplace.github.io/TheWorkBench/thecardplace/Cribbage/
+- **Sheephead, the original** — `sheephead/` → https://theideaplace.github.io/TheWorkBench/thecardplace/sheephead/
 
 Every one of these moved once, too: they were published at the top of the site, without the
 `thecardplace/` in the middle. Those addresses still answer, because the repository's `404.html`

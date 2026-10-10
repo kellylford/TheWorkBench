@@ -29,7 +29,7 @@ function arg(name, fallback) {
 const has = name => args.includes('--' + name);
 
 const BASE = arg('base', 'https://sheephead-room.quickmail.workers.dev');
-const ORIGIN = arg('origin', 'https://kellylford.github.io');
+const ORIGIN = arg('origin', 'https://theideaplace.github.io');
 const PLAYERS = Number(arg('players', 2));
 const HANDS = Number(arg('hands', 1));
 const QUIET = has('quiet');

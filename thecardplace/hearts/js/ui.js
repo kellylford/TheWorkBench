@@ -1166,7 +1166,7 @@
    * It is also the address that changed under everybody's feet when the games
    * moved into thecardplace/, so a report holding the old one dates itself,
    * which is worth something on its own. */
-  var GAME_URL = 'https://kellylford.github.io/TheWorkBench/thecardplace/hearts/';
+  var GAME_URL = 'https://theideaplace.github.io/TheWorkBench/thecardplace/hearts/';
 
   function bugReport() {
     var parts = [];
@@ -1600,7 +1600,7 @@
     bind('bug-copy', 'click', function () { copyText(bugReport(), 'The report'); });
     bind('bug-open', 'click', function () {
       copyText(bugReport(), 'The report');
-      global.open('https://github.com/kellylford/TheWorkBench/issues/new', '_blank', 'noopener');
+      global.open('https://github.com/TheIdeaPlace/TheWorkBench/issues/new', '_blank', 'noopener');
     });
     ['bug-title', 'bug-what', 'bug-include-log'].forEach(function (id) {
       bind(id, 'input', refreshBugPreview);
