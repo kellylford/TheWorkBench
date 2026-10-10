@@ -1,0 +1,222 @@
+[
+ {
+  "section": "346",
+  "zone": "Page heading: \"Section 346 at Oriole Park at Camden Yards\". Zone/level label on page: Upper Level / \"300-Level Seating: Upper Level sections are labeled in the 300s on the seating chart.\"",
+  "location": "Zone copy only: \"Upper Level seating at Oriole Park at Camden Yards includes all sections labeled in the 300s.\" \"Sections 330–342 offer strong views of the entire field from behind home plate.\" Neither sentence places Section 346 itself. No section-specific locational sentence is printed.",
+  "rows": "Rows in Section 346 are labeled 1-5, 9-25",
+  "entrance_row": "An entrance to this section is located at Row 8",
+  "seat_direction": "BOILERPLATE (park-wide, identical on every Oriole Park section page): \"When looking towards the field, lower number seats are on the right\". PER-SECTION: No per-section statement. No Q&A, expert answer or fan review on this page names a side for Section 346 specifically.",
+  "seats_per_row": "UNKNOWN",
+  "notes": "\"There is wheelchair seating betweeen Rows 5 and 9\" [sic, \"betweeen\" as printed]. Accessible positions appear as a NUMBERED GAP in the row sequence (rows 6-8 absent), matching the convention recorded in discovery.json. \"Top Pick for Great Views of the Field - Rows 1-5\"; \"Rows 1-5 are recommended for great views of the field\". \"Rows 15 & Above - Covered\"; \"Rows 15 and above are under cover\". No netting, obstructed-view or alternate-ticket-identifier statement appears on this page. Nothing on the page contradicts discovery.json. LOCATION IS ZONE-GENERIC, NOT SECTION-SPECIFIC: every locational sentence returned by this page is shared Upper Level zone copy; nothing on the page states where Section 346 itself sits in the bowl. Per discovery.json the numbering sweep runs right field (1) -> first base -> home plate -> third base -> left field, so a high 3xx number falls on the third-base/left-field side, but the PAGE DOES NOT SAY SO and this is NOT recorded as source text.",
+  "source": "https://www.rateyourseats.com/oriole-park/seating/sections/346"
+ },
+ {
+  "section": "348",
+  "zone": "Page heading: \"Section 348 at Oriole Park at Camden Yards\". Zone/level label on page: Upper Level / \"300-Level Seating: Upper Level sections are labeled in the 300s on the seating chart.\"",
+  "location": "Zone copy only: \"Upper Level seating at Oriole Park at Camden Yards includes all sections labeled in the 300s.\" \"Sections 330–342 offer strong views of the entire field from behind home plate.\" Neither sentence places Section 348 itself. No section-specific locational sentence is printed.",
+  "rows": "Rows in Section 348 are labeled 1-5, 9-25",
+  "entrance_row": "An entrance to this section is located at Row 8",
+  "seat_direction": "BOILERPLATE (park-wide, identical on every Oriole Park section page): \"When looking towards the field, lower number seats are on the right\". PER-SECTION: No per-section statement. No Q&A, expert answer or fan review on this page names a side for Section 348 specifically.",
+  "seats_per_row": "UNKNOWN",
+  "notes": "\"There is wheelchair seating betweeen Rows 5 and 9\" [sic, \"betweeen\" as printed]. Accessible positions appear as a NUMBERED GAP in the row sequence (rows 6-8 absent), matching the convention recorded in discovery.json. \"Top Pick for Outstanding Convenience - Rows 4-12\"; \"Rows 4-12 are recommended for outstanding convenience\". \"Rows 15 & Above - Covered\"; \"Rows 15 and above are under cover\". No netting, obstructed-view or alternate-ticket-identifier statement appears on this page. Nothing on the page contradicts discovery.json. LOCATION IS ZONE-GENERIC, NOT SECTION-SPECIFIC: every locational sentence returned by this page is shared Upper Level zone copy; nothing on the page states where Section 348 itself sits in the bowl. Per discovery.json the numbering sweep runs right field (1) -> first base -> home plate -> third base -> left field, so a high 3xx number falls on the third-base/left-field side, but the PAGE DOES NOT SAY SO and this is NOT recorded as source text.",
+  "source": "https://www.rateyourseats.com/oriole-park/seating/sections/348"
+ },
+ {
+  "section": "350",
+  "zone": "Page heading: \"Section 350 at Oriole Park at Camden Yards\". Zone/level label on page: Upper Level / \"300-Level Seating: Upper Level sections are labeled in the 300s on the seating chart.\"",
+  "location": "Zone copy only: \"Upper Level seating at Oriole Park at Camden Yards includes all sections labeled in the 300s.\" \"These sections sit on the stadium's highest tier and typically contain up to 25 rows of seating.\" \"For the best home plate views in the upper deck, consider Sections 330–342, which sit directly behind home plate.\" None of these places Section 350 itself. No section-specific locational sentence is printed.",
+  "rows": "Rows in Section 350 are labeled 1-5, 6-8",
+  "entrance_row": "An entrance to this section is located at Row 8",
+  "seat_direction": "BOILERPLATE (park-wide, identical on every Oriole Park section page): \"When looking towards the field, lower number seats are on the right\". PER-SECTION: No per-section statement. No Q&A, expert answer or fan review on this page names a side for Section 350 specifically.",
+  "seats_per_row": "UNKNOWN",
+  "notes": "\"Wheelchair seating is available behind Row 5\". \"Top Pick for Outstanding Convenience - Rows 4-12\"; \"Rows 4-12 are recommended for outstanding convenience\". \"The last 10 rows are covered by the stadium overhang.\"; \"The back portion of many sections is protected by the stadium overhang, which can provide shade and protection from rain.\" INTERNAL ODDITY, flagged not reconciled: the row line reads \"Rows in Section 350 are labeled 1-5, 6-8\" - only 8 rows, far short of the 25-row Upper Level pattern used by its neighbours - yet the entrance is given as Row 8, the last row, and the page still carries the generic \"last 10 rows are covered by the stadium overhang\" line, which cannot apply to an 8-row section. Verified by three independent fetches of this URL (including a targeted character-for-character re-read), which all returned \"1-5, 6-8\". Recorded verbatim, NOT corrected to the \"1-5, 9-25\" pattern. Page also shows \"Lowest ticket price: $18\". No netting, obstructed-view or alternate-ticket-identifier statement appears on this page. Nothing on the page contradicts discovery.json. LOCATION IS ZONE-GENERIC, NOT SECTION-SPECIFIC: every locational sentence returned by this page is shared Upper Level zone copy; nothing on the page states where Section 350 itself sits in the bowl. Per discovery.json the numbering sweep runs right field (1) -> first base -> home plate -> third base -> left field, so a high 3xx number falls on the third-base/left-field side, but the PAGE DOES NOT SAY SO and this is NOT recorded as source text.",
+  "source": "https://www.rateyourseats.com/oriole-park/seating/sections/350"
+ },
+ {
+  "section": "352",
+  "zone": "Page heading: \"Section 352 at Oriole Park at Camden Yards\". Zone/level label on page: Upper Level / \"300-Level Seating: Upper Level sections are labeled in the 300s on the seating chart.\"",
+  "location": "Zone copy only: \"Upper Level seating at Oriole Park at Camden Yards includes all sections labeled in the 300s.\" \"Sections 330–342 offer strong views of the entire field from behind home plate.\" Neither sentence places Section 352 itself. No section-specific locational sentence is printed.",
+  "rows": "Rows in Section 352 are labeled 1-25",
+  "entrance_row": "An entrance to this section is located at Row 8",
+  "seat_direction": "BOILERPLATE (park-wide, identical on every Oriole Park section page): \"When looking towards the field, lower number seats are on the right\". PER-SECTION: No per-section statement. No Q&A, expert answer or fan review on this page names a side for Section 352 specifically.",
+  "seats_per_row": "UNKNOWN",
+  "notes": "No wheelchair-gap line on this page; rows run unbroken 1-25. \"Top Pick for Outstanding Convenience - Rows 4-12\"; \"Rows 4-12 are recommended for outstanding convenience\". \"Rows 15 & Above - Covered\"; \"Rows 15 and above are under cover\". FAN REVIEWS: \"Great View - The seat is on the aisle and has a very good view of the overall field\"; \"Good view, bad sound - Speakers are right above this section and turned up too loud.\" Neither review names a side for seat numbering. No netting, obstructed-view or alternate-ticket-identifier statement appears on this page. Nothing on the page contradicts discovery.json. LOCATION IS ZONE-GENERIC, NOT SECTION-SPECIFIC: every locational sentence returned by this page is shared Upper Level zone copy; nothing on the page states where Section 352 itself sits in the bowl. Per discovery.json the numbering sweep runs right field (1) -> first base -> home plate -> third base -> left field, so a high 3xx number falls on the third-base/left-field side, but the PAGE DOES NOT SAY SO and this is NOT recorded as source text.",
+  "source": "https://www.rateyourseats.com/oriole-park/seating/sections/352"
+ },
+ {
+  "section": "354",
+  "zone": "Page heading: \"Section 354 at Oriole Park at Camden Yards\". Zone/level label on page: Upper Level / \"300-Level Seating: Upper Level sections are labeled in the 300s on the seating chart.\"",
+  "location": "Zone copy only: \"Upper Level seating at Oriole Park at Camden Yards includes all sections labeled in the 300s.\" \"These sections sit on the stadium's highest tier and typically contain up to 25 rows of seating.\" \"For the best home plate views in the upper deck, consider Sections 330–342, which sit directly behind home plate.\" None of these places Section 354 itself. No section-specific locational sentence is printed.",
+  "rows": "Rows in Section 354 are labeled 1-5, 9-25",
+  "entrance_row": "An entrance to this section is located at Row 8",
+  "seat_direction": "BOILERPLATE (park-wide, identical on every Oriole Park section page): \"When looking towards the field, lower number seats are on the right\". PER-SECTION: No per-section statement. No Q&A, expert answer or fan review on this page names a side for Section 354 specifically.",
+  "seats_per_row": "UNKNOWN",
+  "notes": "\"There is wheelchair seating betweeen Rows 5 and 9\" [sic, \"betweeen\" as printed]. Accessible positions appear as a NUMBERED GAP in the row sequence (rows 6-8 absent), matching the convention recorded in discovery.json. \"Rows 15 & Above - Covered\"; \"Rows 15 and above are under cover\". FAN REVIEW (shade, section-specific): \"We went on 6/16 and this row was the first row in this section to be fully in shade at 1:00 pm. The entire section 354 was in shade by 2:00 pm.\" This is the only section-specific sentence on the page and it names no side for seat numbering. No netting, obstructed-view or alternate-ticket-identifier statement appears on this page. Nothing on the page contradicts discovery.json. LOCATION IS ZONE-GENERIC, NOT SECTION-SPECIFIC: every locational sentence returned by this page is shared Upper Level zone copy; nothing on the page states where Section 354 itself sits in the bowl. Per discovery.json the numbering sweep runs right field (1) -> first base -> home plate -> third base -> left field, so a high 3xx number falls on the third-base/left-field side, but the PAGE DOES NOT SAY SO and this is NOT recorded as source text.",
+  "source": "https://www.rateyourseats.com/oriole-park/seating/sections/354"
+ },
+ {
+  "section": "356",
+  "zone": "Page heading: \"Section 356 at Oriole Park at Camden Yards\". Zone/level label on page: Upper Level / \"300-Level Seating: Upper Level sections are labeled in the 300s on the seating chart.\"",
+  "location": "Zone copy only: \"Upper Level sections are labeled in the 300s on the seating chart.\" \"These sections sit on the stadium's highest tier and typically contain up to 25 rows of seating.\" Neither sentence places Section 356 itself. \"Upper Level seating at Oriole Park at Camden Yards includes all sections labeled in the 300s.\" No section-specific locational sentence is printed.",
+  "rows": "Rows in Section 356 are labeled 1-5, 9-25",
+  "entrance_row": "An entrance to this section is located at Row 8",
+  "seat_direction": "BOILERPLATE (park-wide, identical on every Oriole Park section page): \"When looking towards the field, lower number seats are on the right\". PER-SECTION: No per-section statement. No Q&A, expert answer or fan review on this page names a side for Section 356 specifically.",
+  "seats_per_row": "UNKNOWN",
+  "notes": "\"There is wheelchair seating between Rows 5 and 9\" (spelled \"between\" on this page, unlike the \"betweeen\" typo on sibling pages). Accessible positions appear as a numbered gap (rows 6-8 absent). \"Top Pick for Outstanding Convenience - Rows 4-12\"; \"Rows 4-12 are recommended for outstanding convenience\". \"Rows 15 & Above - Covered\"; \"Rows 15 and above are under cover\". No netting, obstructed-view or alternate-ticket-identifier statement appears on this page. Nothing on the page contradicts discovery.json. LOCATION IS ZONE-GENERIC, NOT SECTION-SPECIFIC: every locational sentence returned by this page is shared Upper Level zone copy; nothing on the page states where Section 356 itself sits in the bowl. Per discovery.json the numbering sweep runs right field (1) -> first base -> home plate -> third base -> left field, so a high 3xx number falls on the third-base/left-field side, but the PAGE DOES NOT SAY SO and this is NOT recorded as source text.",
+  "source": "https://www.rateyourseats.com/oriole-park/seating/sections/356"
+ },
+ {
+  "section": "358",
+  "zone": "Page heading: \"Section 358 at Oriole Park at Camden Yards\". Zone/level label on page: Upper Level / \"300-Level Seating: Upper Level sections are labeled in the 300s on the seating chart.\"",
+  "location": "Zone copy only: \"Upper Level sections are labeled in the 300s on the seating chart.\" \"These sections sit on the stadium's highest tier and typically contain up to 25 rows of seating.\" Neither sentence places Section 358 itself. No section-specific locational sentence is printed.",
+  "rows": "Rows in Section 358 are labeled 1-5, 6-8",
+  "entrance_row": "An entrance to this section is located at Row 8",
+  "seat_direction": "BOILERPLATE (park-wide, identical on every Oriole Park section page): \"When looking towards the field, lower number seats are on the right\". PER-SECTION: No per-section statement. No Q&A, expert answer or fan review on this page names a side for Section 358 specifically.",
+  "seats_per_row": "UNKNOWN",
+  "notes": "\"Wheelchair seating is available behind Row 5\". \"Top Pick for Outstanding Convenience - Rows 4-12\"; \"Rows 4-12 are recommended for outstanding convenience\". \"The last 10 rows are covered by the stadium overhang.\"; \"The back portion of many sections is protected by the stadium overhang, which can provide shade and protection from rain.\" INTERNAL ODDITY, flagged not reconciled: the row line reads \"Rows in Section 358 are labeled 1-5, 6-8\" - only 8 rows, far short of the 25-row Upper Level pattern used by its neighbours - yet the entrance is given as Row 8, the last row, and the page still carries the generic \"last 10 rows are covered by the stadium overhang\" line, which cannot apply to an 8-row section. Verified by three independent fetches of this URL (including a targeted character-for-character re-read), which all returned \"1-5, 6-8\". Recorded verbatim, NOT corrected to the \"1-5, 9-25\" pattern. No netting, obstructed-view or alternate-ticket-identifier statement appears on this page. Nothing on the page contradicts discovery.json. LOCATION IS ZONE-GENERIC, NOT SECTION-SPECIFIC: every locational sentence returned by this page is shared Upper Level zone copy; nothing on the page states where Section 358 itself sits in the bowl. Per discovery.json the numbering sweep runs right field (1) -> first base -> home plate -> third base -> left field, so a high 3xx number falls on the third-base/left-field side, but the PAGE DOES NOT SAY SO and this is NOT recorded as source text.",
+  "source": "https://www.rateyourseats.com/oriole-park/seating/sections/358"
+ },
+ {
+  "section": "360",
+  "zone": "Page heading: \"Section 360 at Oriole Park at Camden Yards\". Zone/level label on page: Upper Level / \"300-Level Seating: Upper Level sections are labeled in the 300s on the seating chart.\"",
+  "location": "Zone copy only: \"Upper Level seating at Oriole Park at Camden Yards includes all sections labeled in the 300s.\" No section-specific locational sentence is printed.",
+  "rows": "Rows in Section 360 are labeled 1-25",
+  "entrance_row": "An entrance to this section is located at Row 8",
+  "seat_direction": "BOILERPLATE (park-wide, identical on every Oriole Park section page): \"When looking towards the field, lower number seats are on the right\". PER-SECTION: No per-section statement. No Q&A, expert answer or fan review on this page names a side for Section 360 specifically.",
+  "seats_per_row": "UNKNOWN",
+  "notes": "No wheelchair-gap line on this page; rows run unbroken 1-25. \"Top Pick for Outstanding Convenience - Rows 4-12\"; \"Rows 4-12 are recommended for outstanding convenience\". \"Rows 15 & Above - Covered\"; \"Rows 15 and above are under cover\". No netting, obstructed-view or alternate-ticket-identifier statement appears on this page. Nothing on the page contradicts discovery.json. LOCATION IS ZONE-GENERIC, NOT SECTION-SPECIFIC: every locational sentence returned by this page is shared Upper Level zone copy; nothing on the page states where Section 360 itself sits in the bowl. Per discovery.json the numbering sweep runs right field (1) -> first base -> home plate -> third base -> left field, so a high 3xx number falls on the third-base/left-field side, but the PAGE DOES NOT SAY SO and this is NOT recorded as source text.",
+  "source": "https://www.rateyourseats.com/oriole-park/seating/sections/360"
+ },
+ {
+  "section": "362",
+  "zone": "Page heading: \"Section 362 at Oriole Park at Camden Yards\". Zone/level label on page: Upper Level / \"300-Level Seating: Upper Level sections are labeled in the 300s on the seating chart.\"",
+  "location": "Zone copy only: \"Upper Level sections are labeled in the 300s on the seating chart.\" \"These sections sit on the stadium's highest tier and typically contain up to 25 rows of seating.\" Neither sentence places Section 362 itself. No section-specific locational sentence is printed.",
+  "rows": "Rows in Section 362 are labeled 1-5, 9-25",
+  "entrance_row": "An entrance to this section is located at Row 8",
+  "seat_direction": "BOILERPLATE (park-wide, identical on every Oriole Park section page): \"When looking towards the field, lower number seats are on the right\". PER-SECTION: No per-section statement. No Q&A, expert answer or fan review on this page names a side for Section 362 specifically.",
+  "seats_per_row": "UNKNOWN",
+  "notes": "\"There is wheelchair seating betweeen Rows 5 and 9\" [sic, \"betweeen\" as printed]. Accessible positions appear as a NUMBERED GAP in the row sequence (rows 6-8 absent), matching the convention recorded in discovery.json. \"Rows 15 & Above - Covered\"; \"Rows 15 and above are under cover\". No netting, obstructed-view or alternate-ticket-identifier statement appears on this page. Nothing on the page contradicts discovery.json. LOCATION IS ZONE-GENERIC, NOT SECTION-SPECIFIC: every locational sentence returned by this page is shared Upper Level zone copy; nothing on the page states where Section 362 itself sits in the bowl. Per discovery.json the numbering sweep runs right field (1) -> first base -> home plate -> third base -> left field, so a high 3xx number falls on the third-base/left-field side, but the PAGE DOES NOT SAY SO and this is NOT recorded as source text.",
+  "source": "https://www.rateyourseats.com/oriole-park/seating/sections/362"
+ },
+ {
+  "section": "364",
+  "zone": "Page heading: \"Section 364 at Oriole Park at Camden Yards\". Zone/level label on page: Upper Level / \"300-Level Seating: Upper Level sections are labeled in the 300s on the seating chart.\"",
+  "location": "UNKNOWN - the page returned no locational sentence for Section 364; only generic Upper Level review copy, which does not place the section.",
+  "rows": "Rows in Section 364 are labeled 1-5, 9-25",
+  "entrance_row": "An entrance to this section is located at Row 8",
+  "seat_direction": "BOILERPLATE (park-wide, identical on every Oriole Park section page): \"When looking towards the field, lower number seats are on the right\". PER-SECTION: No per-section statement. No Q&A, expert answer or fan review on this page names a side for Section 364 specifically.",
+  "seats_per_row": "UNKNOWN",
+  "notes": "\"There is wheelchair seating between Rows 5 and 9\". Accessible positions appear as a numbered gap (rows 6-8 absent). \"Rows 15 & Above - Covered\"; \"Rows 15 and above are under cover\". No netting, obstructed-view or alternate-ticket-identifier statement appears on this page. Nothing on the page contradicts discovery.json. The fetch returned NO locational sentence at all for this page, not even the usual Upper Level zone copy. LOCATION IS ZONE-GENERIC, NOT SECTION-SPECIFIC: every locational sentence returned by this page is shared Upper Level zone copy; nothing on the page states where Section 364 itself sits in the bowl. Per discovery.json the numbering sweep runs right field (1) -> first base -> home plate -> third base -> left field, so a high 3xx number falls on the third-base/left-field side, but the PAGE DOES NOT SAY SO and this is NOT recorded as source text.",
+  "source": "https://www.rateyourseats.com/oriole-park/seating/sections/364"
+ },
+ {
+  "section": "366",
+  "zone": "Page heading: \"Section 366 at Oriole Park at Camden Yards\". Zone/level label on page: Upper Level / \"300-Level Seating: Upper Level sections are labeled in the 300s on the seating chart.\"",
+  "location": "Zone copy only: \"Upper Level sections are labeled in the 300s on the seating chart.\" \"These sections sit on the stadium's highest tier and typically contain up to 25 rows of seating.\" Neither sentence places Section 366 itself. \"Upper Level seating at Oriole Park at Camden Yards includes all sections labeled in the 300s.\" No section-specific locational sentence is printed.",
+  "rows": "Rows in Section 366 are labeled 1-5, 6-8",
+  "entrance_row": "An entrance to this section is located at Row 8",
+  "seat_direction": "BOILERPLATE (park-wide, identical on every Oriole Park section page): \"When looking towards the field, lower number seats are on the right\". PER-SECTION: No per-section statement. No Q&A, expert answer or fan review on this page names a side for Section 366 specifically.",
+  "seats_per_row": "UNKNOWN",
+  "notes": "\"Wheelchair seating is available behind Row 5\". \"The last 10 rows are covered by the stadium overhang.\"; \"The back portion of many sections is protected by the stadium overhang, which can provide shade and protection from rain.\" \"The last 10 rows of the Upper Level benefit from shade provided by the stadium overhang.\" INTERNAL ODDITY, flagged not reconciled: the row line reads \"Rows in Section 366 are labeled 1-5, 6-8\" - only 8 rows, far short of the 25-row Upper Level pattern used by its neighbours - yet the entrance is given as Row 8, the last row, and the page still carries the generic \"last 10 rows are covered by the stadium overhang\" line, which cannot apply to an 8-row section. Verified by three independent fetches of this URL (including a targeted character-for-character re-read), which all returned \"1-5, 6-8\". Recorded verbatim, NOT corrected to the \"1-5, 9-25\" pattern. No netting, obstructed-view or alternate-ticket-identifier statement appears on this page. Nothing on the page contradicts discovery.json. LOCATION IS ZONE-GENERIC, NOT SECTION-SPECIFIC: every locational sentence returned by this page is shared Upper Level zone copy; nothing on the page states where Section 366 itself sits in the bowl. Per discovery.json the numbering sweep runs right field (1) -> first base -> home plate -> third base -> left field, so a high 3xx number falls on the third-base/left-field side, but the PAGE DOES NOT SAY SO and this is NOT recorded as source text.",
+  "source": "https://www.rateyourseats.com/oriole-park/seating/sections/366"
+ },
+ {
+  "section": "368",
+  "zone": "Page heading: \"Section 368 at Oriole Park at Camden Yards\". Zone/level label on page: Upper Level / \"300-Level Seating: Upper Level sections are labeled in the 300s on the seating chart.\"",
+  "location": "Zone copy only: \"Upper Level sections are labeled in the 300s on the seating chart.\" \"These sections sit on the stadium's highest tier and typically contain up to 25 rows of seating.\" Neither sentence places Section 368 itself. \"Sections 330–342 offer strong views of the entire field from behind home plate.\" No section-specific locational sentence is printed.",
+  "rows": "Rows in Section 368 are labeled 1-25",
+  "entrance_row": "An entrance to this section is located at Row 8",
+  "seat_direction": "BOILERPLATE (park-wide, identical on every Oriole Park section page): \"When looking towards the field, lower number seats are on the right\". PER-SECTION: No per-section statement. No Q&A, expert answer or fan review on this page names a side for Section 368 specifically.",
+  "seats_per_row": "UNKNOWN",
+  "notes": "No wheelchair-gap line on this page; rows run unbroken 1-25. \"Rows 15 & Above - Covered\"; \"Rows 15 and above are under cover\". \"The last 10 rows are covered by the stadium overhang.\" No netting, obstructed-view or alternate-ticket-identifier statement appears on this page. Nothing on the page contradicts discovery.json. LOCATION IS ZONE-GENERIC, NOT SECTION-SPECIFIC: every locational sentence returned by this page is shared Upper Level zone copy; nothing on the page states where Section 368 itself sits in the bowl. Per discovery.json the numbering sweep runs right field (1) -> first base -> home plate -> third base -> left field, so a high 3xx number falls on the third-base/left-field side, but the PAGE DOES NOT SAY SO and this is NOT recorded as source text.",
+  "source": "https://www.rateyourseats.com/oriole-park/seating/sections/368"
+ },
+ {
+  "section": "370",
+  "zone": "Page heading: \"Section 370 at Oriole Park at Camden Yards\". Zone/level label on page: Upper Level / \"300-Level Seating: Upper Level sections are labeled in the 300s on the seating chart.\"",
+  "location": "Zone copy only: \"Upper Level seating at Oriole Park at Camden Yards includes all sections labeled in the 300s.\" No section-specific locational sentence is printed.",
+  "rows": "Rows in Section 370 are labeled 1-5, 9-25",
+  "entrance_row": "An entrance to this section is located at Row 8",
+  "seat_direction": "BOILERPLATE (park-wide, identical on every Oriole Park section page): \"When looking towards the field, lower number seats are on the right\". PER-SECTION: No per-section statement. No Q&A, expert answer or fan review on this page names a side for Section 370 specifically.",
+  "seats_per_row": "UNKNOWN",
+  "notes": "\"There is wheelchair seating betweeen Rows 5 and 9\" [sic, \"betweeen\" as printed]. Accessible positions appear as a NUMBERED GAP in the row sequence (rows 6-8 absent), matching the convention recorded in discovery.json. \"Rows 15 & Above - Covered\"; \"Rows 15 and above are under cover\". \"The last 10 rows are covered by the stadium overhang.\" No netting, obstructed-view or alternate-ticket-identifier statement appears on this page. Nothing on the page contradicts discovery.json. LOCATION IS ZONE-GENERIC, NOT SECTION-SPECIFIC: every locational sentence returned by this page is shared Upper Level zone copy; nothing on the page states where Section 370 itself sits in the bowl. Per discovery.json the numbering sweep runs right field (1) -> first base -> home plate -> third base -> left field, so a high 3xx number falls on the third-base/left-field side, but the PAGE DOES NOT SAY SO and this is NOT recorded as source text.",
+  "source": "https://www.rateyourseats.com/oriole-park/seating/sections/370"
+ },
+ {
+  "section": "372",
+  "zone": "Page heading: \"Section 372 at Oriole Park at Camden Yards\". Zone/level label on page: Upper Level / \"300-Level Seating: Upper Level sections are labeled in the 300s on the seating chart.\"",
+  "location": "Zone copy only: \"Upper Level seating at Oriole Park at Camden Yards includes all sections labeled in the 300s.\" No section-specific locational sentence is printed.",
+  "rows": "Rows in Section 372 are labeled 1-5, 9-25",
+  "entrance_row": "An entrance to this section is located at Row 8",
+  "seat_direction": "BOILERPLATE (park-wide, identical on every Oriole Park section page): \"When looking towards the field, lower number seats are on the right\". PER-SECTION: No per-section statement. No Q&A, expert answer or fan review on this page names a side for Section 372 specifically.",
+  "seats_per_row": "UNKNOWN",
+  "notes": "\"There is wheelchair seating between Rows 5 and 9\". Accessible positions appear as a numbered gap (rows 6-8 absent). \"Rows 15 & Above - Covered\"; \"Rows 15 and above are under cover\". No netting, obstructed-view or alternate-ticket-identifier statement appears on this page. Nothing on the page contradicts discovery.json. LOCATION IS ZONE-GENERIC, NOT SECTION-SPECIFIC: every locational sentence returned by this page is shared Upper Level zone copy; nothing on the page states where Section 372 itself sits in the bowl. Per discovery.json the numbering sweep runs right field (1) -> first base -> home plate -> third base -> left field, so a high 3xx number falls on the third-base/left-field side, but the PAGE DOES NOT SAY SO and this is NOT recorded as source text.",
+  "source": "https://www.rateyourseats.com/oriole-park/seating/sections/372"
+ },
+ {
+  "section": "374",
+  "zone": "Page heading: \"Section 374 at Oriole Park at Camden Yards\". Zone/level label on page: Upper Level / \"300-Level Seating: Upper Level sections are labeled in the 300s on the seating chart.\"",
+  "location": "Zone copy only: \"Upper Level seating at Oriole Park at Camden Yards includes all sections labeled in the 300s.\" \"Sections 330–342 offer strong views of the entire field from behind home plate.\" Neither sentence places Section 374 itself. No section-specific locational sentence is printed.",
+  "rows": "Rows in Section 374 are labeled 1-5, 9-25",
+  "entrance_row": "An entrance to this section is located at Row 8",
+  "seat_direction": "BOILERPLATE (park-wide, identical on every Oriole Park section page): \"When looking towards the field, lower number seats are on the right\". PER-SECTION: No per-section statement. No Q&A, expert answer or fan review on this page names a side for Section 374 specifically.",
+  "seats_per_row": "UNKNOWN",
+  "notes": "\"There is wheelchair seating betweeen Rows 5 and 9\" [sic, \"betweeen\" as printed]. Accessible positions appear as a NUMBERED GAP in the row sequence (rows 6-8 absent), matching the convention recorded in discovery.json. \"Rows 15 & Above - Covered\"; \"Rows 15 and above are under cover\". No netting, obstructed-view or alternate-ticket-identifier statement appears on this page. Nothing on the page contradicts discovery.json. LOCATION IS ZONE-GENERIC, NOT SECTION-SPECIFIC: every locational sentence returned by this page is shared Upper Level zone copy; nothing on the page states where Section 374 itself sits in the bowl. Per discovery.json the numbering sweep runs right field (1) -> first base -> home plate -> third base -> left field, so a high 3xx number falls on the third-base/left-field side, but the PAGE DOES NOT SAY SO and this is NOT recorded as source text.",
+  "source": "https://www.rateyourseats.com/oriole-park/seating/sections/374"
+ },
+ {
+  "section": "376",
+  "zone": "Page heading: \"Section 376 at Oriole Park at Camden Yards\". Zone/level label on page: Upper Level / \"300-Level Seating: Upper Level sections are labeled in the 300s on the seating chart.\"",
+  "location": "Zone copy only: \"Upper Level sections are labeled in the 300s on the seating chart.\" \"These sections sit on the stadium's highest tier and typically contain up to 25 rows of seating.\" Neither sentence places Section 376 itself. \"Upper Level seating at Oriole Park at Camden Yards includes all sections labeled in the 300s.\" No section-specific locational sentence is printed.",
+  "rows": "Rows in Section 376 are labeled 1-25",
+  "entrance_row": "An entrance to this section is located at Row 8",
+  "seat_direction": "BOILERPLATE (park-wide, identical on every Oriole Park section page): \"When looking towards the field, lower number seats are on the right\". PER-SECTION: No per-section statement. No Q&A, expert answer or fan review on this page names a side for Section 376 specifically.",
+  "seats_per_row": "UNKNOWN",
+  "notes": "No wheelchair-gap line on this page; rows run unbroken 1-25. \"Rows 15 & Above - Covered\"; \"Rows 15 and above are under cover\". \"The last 10 rows are covered by the stadium overhang\". No netting, obstructed-view or alternate-ticket-identifier statement appears on this page. Nothing on the page contradicts discovery.json. LOCATION IS ZONE-GENERIC, NOT SECTION-SPECIFIC: every locational sentence returned by this page is shared Upper Level zone copy; nothing on the page states where Section 376 itself sits in the bowl. Per discovery.json the numbering sweep runs right field (1) -> first base -> home plate -> third base -> left field, so a high 3xx number falls on the third-base/left-field side, but the PAGE DOES NOT SAY SO and this is NOT recorded as source text.",
+  "source": "https://www.rateyourseats.com/oriole-park/seating/sections/376"
+ },
+ {
+  "section": "378",
+  "zone": "Page heading: \"Section 378 at Oriole Park at Camden Yards\". Zone/level label on page: Upper Level / \"300-Level Seating: Upper Level sections are labeled in the 300s on the seating chart.\"",
+  "location": "Zone copy only: \"Upper Level sections are labeled in the 300s on the seating chart.\" \"These sections sit on the stadium's highest tier and typically contain up to 25 rows of seating.\" Neither sentence places Section 378 itself. \"Upper Level seating at Oriole Park at Camden Yards includes all sections labeled in the 300s.\" No section-specific locational sentence is printed.",
+  "rows": "Rows in Section 378 are labeled 1-5, 9-25",
+  "entrance_row": "An entrance to this section is located at Row 8",
+  "seat_direction": "BOILERPLATE (park-wide, identical on every Oriole Park section page): \"When looking towards the field, lower number seats are on the right\". PER-SECTION: No per-section statement. No Q&A, expert answer or fan review on this page names a side for Section 378 specifically.",
+  "seats_per_row": "UNKNOWN",
+  "notes": "\"There is wheelchair seating betweeen Rows 5 and 9\" [sic, \"betweeen\" as printed]. Accessible positions appear as a NUMBERED GAP in the row sequence (rows 6-8 absent), matching the convention recorded in discovery.json. \"Top Pick for Outstanding Convenience - Rows 4-12\"; \"Rows 4-12 are recommended for outstanding convenience\". \"Rows 15 & Above - Covered\"; \"Rows 15 and above are under cover\". No netting, obstructed-view or alternate-ticket-identifier statement appears on this page. Nothing on the page contradicts discovery.json. LOCATION IS ZONE-GENERIC, NOT SECTION-SPECIFIC: every locational sentence returned by this page is shared Upper Level zone copy; nothing on the page states where Section 378 itself sits in the bowl. Per discovery.json the numbering sweep runs right field (1) -> first base -> home plate -> third base -> left field, so a high 3xx number falls on the third-base/left-field side, but the PAGE DOES NOT SAY SO and this is NOT recorded as source text.",
+  "source": "https://www.rateyourseats.com/oriole-park/seating/sections/378"
+ },
+ {
+  "section": "380",
+  "zone": "Page heading: \"Section 380 at Oriole Park at Camden Yards\". Zone/level label on page: Upper Level / \"300-Level Seating: Upper Level sections are labeled in the 300s on the seating chart.\"",
+  "location": "Zone copy only: \"Upper Level sections are labeled in the 300s on the seating chart.\" \"These sections sit on the stadium's highest tier and typically contain up to 25 rows of seating.\" Neither sentence places Section 380 itself. \"Upper Level seating at Oriole Park at Camden Yards includes all sections labeled in the 300s.\" No section-specific locational sentence is printed.",
+  "rows": "Rows in Section 380 are labeled 1-25",
+  "entrance_row": "An entrance to this section is located at Row 8",
+  "seat_direction": "BOILERPLATE (park-wide, identical on every Oriole Park section page): \"When looking towards the field, lower number seats are on the right\". PER-SECTION: No per-section statement. No Q&A, expert answer or fan review on this page names a side for Section 380 specifically.",
+  "seats_per_row": "UNKNOWN",
+  "notes": "No wheelchair-gap line on this page; rows run unbroken 1-25. \"Rows 15 & Above - Covered\"; \"Rows 15 and above are under cover\". No netting, obstructed-view or alternate-ticket-identifier statement appears on this page. Nothing on the page contradicts discovery.json. LOCATION IS ZONE-GENERIC, NOT SECTION-SPECIFIC: every locational sentence returned by this page is shared Upper Level zone copy; nothing on the page states where Section 380 itself sits in the bowl. Per discovery.json the numbering sweep runs right field (1) -> first base -> home plate -> third base -> left field, so a high 3xx number falls on the third-base/left-field side, but the PAGE DOES NOT SAY SO and this is NOT recorded as source text.",
+  "source": "https://www.rateyourseats.com/oriole-park/seating/sections/380"
+ },
+ {
+  "section": "381",
+  "zone": "Page heading: \"Section 381 at Oriole Park at Camden Yards\". Zone/level label on page: Upper Level / \"300-Level Seating: Upper Level sections are labeled in the 300s on the seating chart.\"",
+  "location": "Zone copy only: \"Upper Level seating at Oriole Park at Camden Yards includes all sections labeled in the 300s.\" \"These sections sit on the stadium's highest tier and typically contain up to 25 rows of seating.\" \"For the best home plate views in the upper deck, consider Sections 330–342, which sit directly behind home plate.\" None of these places Section 381 itself. No section-specific locational sentence is printed.",
+  "rows": "Rows in Section 381 are labeled 8-25",
+  "entrance_row": "An entrance to this section is located at Row 8",
+  "seat_direction": "BOILERPLATE (park-wide, identical on every Oriole Park section page): \"When looking towards the field, lower number seats are on the right\". PER-SECTION: No per-section statement. No Q&A, expert answer or fan review on this page names a side for Section 381 specifically.",
+  "seats_per_row": "UNKNOWN",
+  "notes": "Rows START AT 8, not 1 - CONFIRMED verbatim, and the entrance row (8) is therefore also the FRONT row of the section. Section 381 is the only ODD-numbered section in an otherwise all-even 300 series; discovery.json flags this as unexplained, and this page offers NO explanation - it serves the same generic Upper Level copy as its even neighbours and says nothing about what 381 is. No wheelchair-gap line. \"Rows 15 & Above - Covered\"; \"Rows 15 and above are under cover\". No netting, obstructed-view or alternate-ticket-identifier statement appears on this page. Nothing on the page contradicts discovery.json. LOCATION IS ZONE-GENERIC, NOT SECTION-SPECIFIC: every locational sentence returned by this page is shared Upper Level zone copy; nothing on the page states where Section 381 itself sits in the bowl. Per discovery.json the numbering sweep runs right field (1) -> first base -> home plate -> third base -> left field, so a high 3xx number falls on the third-base/left-field side, but the PAGE DOES NOT SAY SO and this is NOT recorded as source text.",
+  "source": "https://www.rateyourseats.com/oriole-park/seating/sections/381"
+ },
+ {
+  "section": "382",
+  "zone": "Page heading: \"Section 382 at Oriole Park at Camden Yards\". Zone/level label on page: Upper Level / \"300-Level Seating: Upper Level sections are labeled in the 300s on the seating chart.\"",
+  "location": "Zone copy only: \"Upper Level seating at Oriole Park at Camden Yards includes all sections labeled in the 300s.\" \"These sections sit on the stadium's highest tier and typically contain up to 25 rows of seating.\" \"For the best home plate views in the upper deck, consider Sections 330–342, which sit directly behind home plate.\" None of these places Section 382 itself. No section-specific locational sentence is printed.",
+  "rows": "Rows in Section 382 are labeled 1-25",
+  "entrance_row": "An entrance to this section is located at Row 8",
+  "seat_direction": "BOILERPLATE (park-wide, identical on every Oriole Park section page): \"When looking towards the field, lower number seats are on the right\". PER-SECTION: No per-section statement. No Q&A, expert answer or fan review on this page names a side for Section 382 specifically.",
+  "seats_per_row": "UNKNOWN",
+  "notes": "No wheelchair-gap line on this page; rows run unbroken 1-25. \"Rows 15 & Above - Covered\"; \"Rows 15 and above are under cover\". No netting, obstructed-view or alternate-ticket-identifier statement appears on this page. Nothing on the page contradicts discovery.json. LOCATION IS ZONE-GENERIC, NOT SECTION-SPECIFIC: every locational sentence returned by this page is shared Upper Level zone copy; nothing on the page states where Section 382 itself sits in the bowl. Per discovery.json the numbering sweep runs right field (1) -> first base -> home plate -> third base -> left field, so a high 3xx number falls on the third-base/left-field side, but the PAGE DOES NOT SAY SO and this is NOT recorded as source text.",
+  "source": "https://www.rateyourseats.com/oriole-park/seating/sections/382"
+ }
+]

@@ -1,0 +1,222 @@
+[
+  {
+    "section": "332A",
+    "zone": "Page heading: \"Section 332A at Yankee Stadium\". No separate zone/level label was returned for this page; the sibling page 332B labels the tier \"300 Level Seating: Also known as the Terrace Level.\"",
+    "location": "\"Sections 307-309, 331-332: Decent angle to home plate; far away from the infield\". No other sentence on the page places 332A specifically. Per discovery.json numbering (numbers increase from right field/first base toward left field/third base), 332 sits on the high-numbered third-base/left-field side, but the page does NOT say so - not recorded as source text.",
+    "rows": "Rows in Section 332A are labeled 1-10",
+    "entrance_row": "An entrance to this section is located at Row 10",
+    "seat_direction": "BOILERPLATE (park-wide, identical on every Yankee Stadium section page): \"When looking towards the field/field/stage/field, lower number seats are on the right\" - the repeated \"field/field/stage/field\" is a RateYourSeats template artifact across sport variants, as flagged in discovery.json. PER-SECTION: No per-section statement. No Q&A, expert answer or fan review on this page names a side for Section 332A's seat numbering.",
+    "seats_per_row": "\"Row 1 has 19 seats labeled 1-19\"; \"Rows 2-3 have 20 seats labeled 1-20\"; \"Rows 4-6 have 21 seats labeled 1-21\"; \"Row 7 has 22 seats labeled 1-22\"",
+    "notes": "\"Midfield View\". \"Not Covered by the Roof: Limited overhead protection.\" \"For football games, desirable view from near midfield\" (non-baseball content). INTERNAL GAP, flagged not reconciled: the row line says Rows 1-10 but the published per-row seat counts stop at Row 7 - no counts are printed for Rows 8-10. Nothing on the page contradicts discovery.json.",
+    "source": "https://www.rateyourseats.com/yankee-stadium/seating/sections/332A"
+  },
+  {
+    "section": "332B",
+    "zone": "Page heading: \"Section 332B\". Zone label on page: \"300 Level Seating: Also known as the Terrace Level.\"",
+    "location": "\"Sections 307-309, 331-332: Decent angle to home plate; far away from the infield\". No other sentence on the page places 332B specifically.",
+    "rows": "Rows in Section 332B are labeled 1-10",
+    "entrance_row": "An entrance to this section is located at Row 10",
+    "seat_direction": "BOILERPLATE (park-wide): \"When looking towards the field/field/stage/field, lower number seats are on the right\". PER-SECTION: No per-section statement. Nothing on this page names a side for Section 332B's seat numbering.",
+    "seats_per_row": "\"Row 1 has 20 seats labeled 1-20\"; \"Rows 2-4 have 21 seats labeled 1-21\"; \"Rows 5-6 have 22 seats labeled 1-22\"; \"Row 7 has 23 seats labeled 1-23\"",
+    "notes": "\"300 Level Seating: Also known as the Terrace Level.\" \"Better Views Than 400 Level: Stronger sightlines than Grandstand sections.\" \"No Staircase Entry Required: Easier access compared to upper levels.\" \"Not Covered by the Roof: Limited overhead protection.\" Fan feedback: \"Tons of sun, so prepared to get cooked during a day game.\" INTERNAL GAP, flagged not reconciled: row line says Rows 1-10 but per-row seat counts stop at Row 7.",
+    "source": "https://www.rateyourseats.com/yankee-stadium/seating/sections/332B"
+  },
+  {
+    "section": "333",
+    "zone": "Page heading: \"Section 333 at Yankee Stadium\". Zone label on page: \"Terrace Level Seating\".",
+    "location": "\"Sections 305, 306, 333, and 334\" are grouped as \"home run territory in the outfield\". Fan/expert line: \"Cool view from home run porch; very far from home plate\".",
+    "rows": "Rows in Section 333 are labeled 1-7, 8WC, 9SR",
+    "entrance_row": "An entrance to this section is located at Row 9SR",
+    "seat_direction": "BOILERPLATE (park-wide): \"When looking towards the field/field/stage/field, lower number seats are on the right\". PER-SECTION: No per-section statement. Nothing on this page names a side for Section 333's seat numbering.",
+    "seats_per_row": "\"Row 8WC has 21 seats labeled 1-21\". No seat counts are published for Rows 1-7 or Row 9SR - UNKNOWN for those rows.",
+    "notes": "\"Section Insights: Rows 1-7, 8WC, 9SR\". \"There is standing room only space behind Row 8WC\". \"Terrace Level Seating\". \"Not Covered by the Roof: Limited overhead protection\"; \"These seats are not covered by the roof structure\". Row-suffix convention matches discovery.json: WC = wheelchair row, SR = standing-room row. Nothing on the page contradicts discovery.json.",
+    "source": "https://www.rateyourseats.com/yankee-stadium/seating/sections/333"
+  },
+  {
+    "section": "334",
+    "zone": "Page heading: \"Section 334 at Yankee Stadium\". Zone label on page: \"300 Level Seating: Also known as the Terrace Level\".",
+    "location": "\"Home Run Territory in the Outfield: Sections 305, 306, 333, and 334\". The only other placement line returned is concert-specific: \"Behind/Side Stage (most shows)\".",
+    "rows": "Rows in Section 334 are labeled 1-7, 8WC, 9SR",
+    "entrance_row": "An entrance to this section is located at Row 9SR",
+    "seat_direction": "BOILERPLATE (park-wide): \"When looking towards the field/field/stage/field, lower number seats are on the right\". PER-SECTION: No per-section statement. Nothing on this page names a side for Section 334's seat numbering.",
+    "seats_per_row": "\"Row 8WC has 24 seats labeled 1-24\". No seat counts are published for Rows 1-7 or Row 9SR - UNKNOWN for those rows.",
+    "notes": "\"There is standing room only space behind Row 8WC\". \"300 Level Seating: Also known as the Terrace Level\". \"Not Covered by the Roof: Limited overhead protection\". CONCERT-ONLY warning, not baseball: \"334 is behind the stage or to the side of the stage for most concerts. This may restrict or limit your view of the performance.\" Row-suffix convention matches discovery.json (WC wheelchair row, SR standing room). Nothing contradicts discovery.json.",
+    "source": "https://www.rateyourseats.com/yankee-stadium/seating/sections/334"
+  },
+  {
+    "section": "405",
+    "zone": "Page heading: \"Section 405 at Yankee Stadium\". No Grandstand zone sub-label was returned on this page (sibling 400-level pages carry \"Grandstand Seating\" / \"Grandstand Outfield (Baseball)\").",
+    "location": "UNKNOWN. No sentence on the page places Section 405 in the ballpark for baseball. The only placement text returned is concert-specific: \"Behind/Side Stage (most shows)\".",
+    "rows": "Rows in Section 405 are labeled 1-14",
+    "entrance_row": "An entrance to this section is located at Row 2",
+    "seat_direction": "BOILERPLATE (park-wide): \"When looking towards the field/field/stage/field, lower number seats are on the right\". PER-SECTION: No per-section statement. Nothing on this page names a side for Section 405's seat numbering.",
+    "seats_per_row": "\"Row 1 has 18 seats labeled 1-20\"; \"Rows 2-4 have 18 seats labeled 1-18\"; \"Row 5 has 20 seats labeled 1-20\"; \"Row 6 has 28 seats labeled 1-28\"; \"Rows 7-8 have 32 seats labeled 1-32\"; \"Row 9 has 33 seats labeled 1-33\"; \"Row 10 has 34 seats labeled 1-34\"; \"Row 11 has 35 seats labeled 1-35\"; \"Row 12 has 36 seats labeled 1-36\"; \"Row 13 has 37 seats labeled 1-37\"; \"Row 14 has 37 seats labeled 3-41\"",
+    "notes": "\"Rows 5 & Above - Covered\"; \"Rows 5 and above are under cover\" - matches discovery.json's note for 405. CONCERT-ONLY warning, not baseball: \"405 is behind the stage or to the side of the stage for most concerts. This may restrict or limit your view of the performance.\" INTERNAL INCONSISTENCY in the published seat counts, recorded not reconciled: \"Row 1 has 18 seats labeled 1-20\" (count and label range disagree) and \"Row 14 has 37 seats labeled 3-41\" (a 3-41 range is 39 labels, and the row does not start at seat 1).",
+    "source": "https://www.rateyourseats.com/yankee-stadium/seating/sections/405"
+  },
+  {
+    "section": "406",
+    "zone": "Page heading: \"Section 406 at Yankee Stadium\". No Grandstand zone sub-label was returned on this page.",
+    "location": "UNKNOWN. No sentence on the page places Section 406 in the ballpark for baseball. The only placement text returned is concert-specific: \"Behind/Side Stage (most shows)\".",
+    "rows": "Rows in Section 406 are labeled 1-14",
+    "entrance_row": "An entrance to this section is located at Row 2",
+    "seat_direction": "BOILERPLATE (park-wide): \"When looking towards the field/field/stage/field, lower number seats are on the right\". PER-SECTION: No per-section statement. Nothing on this page names a side for Section 406's seat numbering.",
+    "seats_per_row": "\"Row 1 has 23 seats labeled 1-23\"; \"Row 2 has 18 seats labeled 1-18\"; \"Rows 3-6 have 19 seats labeled 1-19\"; \"Rows 7-8 have 24 seats labeled 1-24\"; \"Rows 9-13 have 25 seats labeled 1-25\"; \"Row 14 has 26 seats labeled 1-28\"",
+    "notes": "\"Rows 5 & Above - Covered\"; \"Rows 5 and above are under cover\". Shade: \"section 406 should have superior shade due to the overhanging roof\". CONCERT-ONLY warning, not baseball: \"406 is behind the stage or to the side of the stage for most concerts. This may restrict or limit your view\". INTERNAL INCONSISTENCY recorded not reconciled: \"Row 14 has 26 seats labeled 1-28\" (count and label range disagree).",
+    "source": "https://www.rateyourseats.com/yankee-stadium/seating/sections/406"
+  },
+  {
+    "section": "407A",
+    "zone": "Page heading: \"Section 407A at Yankee Stadium\". No Grandstand zone sub-label was returned on this page.",
+    "location": "UNKNOWN. No sentence on the page places Section 407A in the ballpark.",
+    "rows": "Rows in Section 407A are labeled 1-14",
+    "entrance_row": "An entrance to this section is located at Row 2",
+    "seat_direction": "BOILERPLATE (park-wide): \"When looking towards the field/field/stage/field, lower number seats are on the right\". PER-SECTION: No per-section statement. Nothing on this page names a side for Section 407A's seat numbering.",
+    "seats_per_row": "\"Row 1 has 20 seats labeled 1-20\"; \"Rows 2-3 have 15 seats labeled 1-15\"; \"Rows 4-5 have 16 seats labeled 1-16\"; \"Row 6 has 17 seats labeled 1-17\"; \"Rows 7-8 have 22 seats labeled 1-22\"; \"Rows 9-11 have 23 seats labeled 1-23\"; \"Rows 12-13 have 24 seats labeled 1-24\"; \"Row 14 has 28 seats labeled 1-28\"",
+    "notes": "\"Top Pick for Kids and Family\"; \"For baseball games, we recommend these seats for kids and family\". POLICY, worth carrying forward: \"Alcohol-Free Section - Yankees Games\" and \"Section 407A is an alcohol-free section for Yankees games\". \"Rows 5 & Above - Covered\"; \"Rows 5 and above are under cover\". Note 407A and 407B publish identical seat counts for Rows 1-13 and differ only at Row 14 (28 vs 26).",
+    "source": "https://www.rateyourseats.com/yankee-stadium/seating/sections/407A"
+  },
+  {
+    "section": "407B",
+    "zone": "Page heading: \"Section 407B at Yankee Stadium\". No Grandstand zone sub-label was returned on this page.",
+    "location": "UNKNOWN. No sentence on the page places Section 407B in the ballpark.",
+    "rows": "Rows in Section 407B are labeled 1-14",
+    "entrance_row": "An entrance to this section is located at Row 2",
+    "seat_direction": "BOILERPLATE (park-wide): \"When looking towards the field/field/stage/field, lower number seats are on the right\". PER-SECTION: No per-section statement. Nothing on this page names a side for Section 407B's seat numbering.",
+    "seats_per_row": "\"Row 1 has 20 seats labeled 1-20\"; \"Rows 2-3 have 15 seats labeled 1-15\"; \"Rows 4-5 have 16 seats labeled 1-16\"; \"Row 6 has 17 seats labeled 1-17\"; \"Rows 7-8 have 22 seats labeled 1-22\"; \"Rows 9-11 have 23 seats labeled 1-23\"; \"Rows 12-13 have 24 seats labeled 1-24\"; \"Row 14 has 26 seats labeled 1-26\"",
+    "notes": "\"Rows 5 & Above - Covered\"; \"Rows 5 and above are under cover\". The alcohol-free designation printed on the 407A page is NOT printed on the 407B page - recorded as an observed difference, not reconciled.",
+    "source": "https://www.rateyourseats.com/yankee-stadium/seating/sections/407B"
+  },
+  {
+    "section": "408",
+    "zone": "Page heading: \"Section 408 at Yankee Stadium\". No Grandstand zone sub-label was returned on this page.",
+    "location": "UNKNOWN. No sentence on the page places Section 408 in the ballpark.",
+    "rows": "Rows in Section 408 are labeled 1-14",
+    "entrance_row": "An entrance to this section is located at Row 2",
+    "seat_direction": "BOILERPLATE (park-wide): \"When looking towards the field/field/stage/field, lower number seats are on the right\". PER-SECTION: No per-section statement. Nothing on this page names a side for Section 408's seat numbering.",
+    "seats_per_row": "\"Row 1 has 20 seats labeled 1-20\"; \"Rows 2-3 have 15 seats labeled 1-15\"; \"Rows 4-5 have 16 seats labeled 1-16\"; \"Row 6 has 17 seats labeled 1-17\"; \"Rows 7-8 have 22 seats labeled 1-22\"; \"Rows 9-11 have 23 seats labeled 1-23\"; \"Rows 12-13 have 24 seats labeled 1-24\"; \"Row 14 has 27 seats labeled 1-27\"",
+    "notes": "\"Rows 5 & Above - Covered\"; \"Rows 5 and above are under cover\". Page carries no Section Insights, obstruction or fan-feedback text beyond the coverage lines. Nothing contradicts discovery.json.",
+    "source": "https://www.rateyourseats.com/yankee-stadium/seating/sections/408"
+  },
+  {
+    "section": "409",
+    "zone": "Page heading: \"Section 409 at Yankee Stadium\". No Grandstand zone sub-label was returned on this page.",
+    "location": "UNKNOWN. No sentence on the page places Section 409 in the ballpark.",
+    "rows": "Rows in Section 409 are labeled 1-14",
+    "entrance_row": "An entrance to this section is located at Row 2",
+    "seat_direction": "BOILERPLATE (park-wide): \"When looking towards the field/field/stage/field, lower number seats are on the right\". PER-SECTION: No per-section statement. Nothing on this page names a side for Section 409's seat numbering.",
+    "seats_per_row": "\"Row 1 has 20 seats labeled 1-20\"; \"Rows 2-3 have 15 seats labeled 1-15\"; \"Rows 4-5 have 16 seats labeled 1-16\"; \"Row 6 has 17 seats labeled 1-17\"; \"Rows 7-8 have 22 seats labeled 1-22\"; \"Rows 9-11 have 23 seats labeled 1-23\"; \"Rows 12-13 have 24 seats labeled 1-24\"; \"Row 14 has 27 seats labeled 1-27\"",
+    "notes": "\"Rows 5 & Above - Covered\"; \"Rows 5 and above are under cover\". Page carries no Section Insights, obstruction or fan-feedback text beyond the coverage lines. Seat counts are identical to Section 408 on this page. Nothing contradicts discovery.json.",
+    "source": "https://www.rateyourseats.com/yankee-stadium/seating/sections/409"
+  },
+  {
+    "section": "410",
+    "zone": "Zone labels on page: \"Grandstand Outfield (Baseball)\" and \"Grandstand Seating\". Page heading: \"Section 410 at Yankee Stadium\".",
+    "location": "\"Grandstand Outfield (Baseball)\". Level text: \"All 400 Level sections\" and \"the uppermost deck at Yankee Stadium\". Also \"Outfield sections provide a more distant, straight-on view\". The page does NOT name a specific side (right/left field) for Section 410.",
+    "rows": "Rows in Section 410 are labeled 1-14",
+    "entrance_row": "An entrance to this section is located at Row 2",
+    "seat_direction": "BOILERPLATE (park-wide): \"When looking towards the field/field/stage/field, lower number seats are on the right\". PER-SECTION: No per-section statement. Nothing on this page names a side for Section 410's seat numbering.",
+    "seats_per_row": "\"Row 1 has 19 seats labeled 1-19\"; \"Rows 2-4 have 15 seats labeled 1-15\"; \"Rows 5-6 have 16 seats labeled 1-16\"; \"Rows 7-9 have 22 seats labeled 1-22\"; \"Rows 10-12 have 23 seats labeled 1-23\"; \"Row 13 has 24 seats labeled 1-24\"; \"Row 14 has 29 seats labeled 1-29\"",
+    "notes": "\"Rows 5 & Above - Covered\". Shade advice: \"try to aim for Rows 5 or 6\" for a \"fairly good chance of being in the shade\". ACCESSIBILITY-RELEVANT: \"Staircase Access Only: No elevator or ramp entry to sections\". This page is the first in the batch to name the 400-level zone as Grandstand Outfield, confirming 410 is an outfield-side Grandstand section; consistent with discovery.json's sweep (low 400s = right field / first base side).",
+    "source": "https://www.rateyourseats.com/yankee-stadium/seating/sections/410"
+  },
+  {
+    "section": "411",
+    "zone": "Zone labels on page: \"Grandstand Outfield (Baseball)\". Page heading: \"Section 411 at Yankee Stadium\".",
+    "location": "\"All 400 Level sections\"; \"Grandstand Seating includes all 400-level sections and makes up the uppermost deck at Yankee Stadium\". Zone tag \"Grandstand Outfield (Baseball)\" places 411 in the outfield Grandstand. The page does NOT name a specific side for Section 411.",
+    "rows": "Rows in Section 411 are labeled 1-14",
+    "entrance_row": "An entrance to this section is located at Row 2",
+    "seat_direction": "BOILERPLATE (park-wide): \"When looking towards the field/field/stage/field, lower number seats are on the right\". PER-SECTION: No per-section statement. Nothing on this page names a side for Section 411's seat numbering.",
+    "seats_per_row": "\"Row 1 has 19 seats labeled 1-19\"; \"Row 2 has 14 seats labeled 1-14\"; \"Rows 3-6 have 15 seats labeled 1-15\"; \"Rows 7-8 have 20 seats labeled 1-20\"; \"Rows 9-13 have 21 seats labeled 1-21\"; \"Row 14 has 23 seats labeled 3-25\"",
+    "notes": "\"Rows 5 & Above - Covered\"; \"Rows 5 and above are under cover\". Shade/value advice: \"For a truly good deal, try to aim for Rows 5 or 6. There are fewer than 20 seats in these rows, they are only a few steps from the concourse, and you have a fairly good chance of being in the shade\". SEAT-LABEL NOTE: \"Row 14 has 23 seats labeled 3-25\" - the back row does NOT start at seat 1, so the seat-1 rule cannot be applied naively to Row 14.",
+    "source": "https://www.rateyourseats.com/yankee-stadium/seating/sections/411"
+  },
+  {
+    "section": "412",
+    "zone": "Zone label on page: \"Grandstand Outfield (Baseball)\". Page heading: \"Section 412 at Yankee Stadium\".",
+    "location": "\"Grandstand Outfield (Baseball)\"; the page describes the tier as \"400 Level sections\" / \"All 400 Level sections\". The page does NOT name a specific side for Section 412.",
+    "rows": "Rows in Section 412 are labeled 1-14",
+    "entrance_row": "An entrance to this section is located at Row 2",
+    "seat_direction": "BOILERPLATE (park-wide): \"When looking towards the field/field/stage/field, lower number seats are on the right\". PER-SECTION: No per-section statement. Nothing on this page names a side for Section 412's seat numbering.",
+    "seats_per_row": "\"Row 1 has 24 seats labeled 1-24\"; \"Rows 2-6 have 19 seats labeled 1-19\"; \"Rows 7-12 have 24 seats labeled 1-24\"; \"Row 13 has 23 seats labeled 1-23\"; \"Row 14 has 23 seats labeled 2-24\"",
+    "notes": "\"Rows 5 & Above - Covered\"; \"Rows 5 and above are under cover\"; \"Top Rows Covered: Upper rows protected by the roof\". ACCESSIBILITY-RELEVANT: \"Staircase Access Only: No elevator or ramp entry\". SEAT-LABEL NOTE: \"Row 14 has 23 seats labeled 2-24\" - the back row does not start at seat 1.",
+    "source": "https://www.rateyourseats.com/yankee-stadium/seating/sections/412"
+  },
+  {
+    "section": "413",
+    "zone": "Zone label on page: \"Grandstand Outfield (Baseball)\". Page heading: \"Section 413 at Yankee Stadium\".",
+    "location": "\"Grandstand Outfield (Baseball)\". Shade line implying side: \"outfield seating, especially in RF, is in the sun\". The page does not state in as many words that 413 itself is in right field.",
+    "rows": "Rows in Section 413 are labeled 1-14",
+    "entrance_row": "An entrance to this section is located at Row 2",
+    "seat_direction": "BOILERPLATE (park-wide): \"When looking towards the field/field/stage/field, lower number seats are on the right\". PER-SECTION: No per-section statement. Nothing on this page names a side for Section 413's seat numbering.",
+    "seats_per_row": "\"Row 1 has 25 seats labeled 1-25\"; \"Rows 2-5 have 20 seats labeled 1-20\"; \"Row 6 has 21 seats labeled 1-21\"; \"Rows 7-11 have 26 seats labeled 1-26\"; \"Row 12 has 27 seats labeled 1-27\"; \"Row 13 has 26 seats labeled 1-26\"; \"Row 14 has 28 seats labeled 2-29\"",
+    "notes": "\"Rows 5 & Above - Covered\"; \"Rows 5 and above are under cover\"; \"Rows 1-14\"; \"Each grandstand section has fourteen rows of seating\". Value/shade advice: \"try to aim for Rows 5 or 6. There are fewer than 20 seats in these rows\" (note that on THIS page Rows 5-6 are published at 20 and 21 seats, which does not match the \"fewer than 20 seats\" claim - recorded, not reconciled). The sun line \"outfield seating, especially in RF, is in the sun\" is CONSISTENT with discovery.json, which puts low section numbers on the right-field / first-base side. SEAT-LABEL NOTE: \"Row 14 has 28 seats labeled 2-29\" - back row does not start at seat 1.",
+    "source": "https://www.rateyourseats.com/yankee-stadium/seating/sections/413"
+  },
+  {
+    "section": "414",
+    "zone": "Zone labels on page: \"Grandstand Infield (Baseball)\" and \"Grandstand Seating\". Page heading: \"Section 414 at Yankee Stadium\".",
+    "location": "\"Grandstand Infield seating is an inexpensive way to catch a Yankees game.\" \"Grandstand Seating includes all 400-level sections and makes up the uppermost deck at Yankee Stadium.\" \"Behind home plate, the elevation provides a clear look at defensive positioning\". The zone tag changes from Grandstand Outfield (410-413) to Grandstand Infield at 414 - a useful boundary marker.",
+    "rows": "Rows in Section 414 are labeled 1-14",
+    "entrance_row": "An entrance to this section is located at Row 2",
+    "seat_direction": "BOILERPLATE (park-wide): \"When looking towards the field/field/stage/field, lower number seats are on the right\". PER-SECTION: No per-section statement. Nothing on this page names a side for Section 414's seat numbering.",
+    "seats_per_row": "\"Row 1 has 25 seats labeled 1-25\"; \"Rows 2-4 have 20 seats labeled 1-20\"; \"Rows 5-6 have 21 seats labeled 1-21\"; \"Rows 7-9 have 26 seats labeled 1-26\"; \"Rows 10-13 have 27 seats labeled 1-27\"; \"Row 14 has 30 seats labeled 1-30\"",
+    "notes": "OBSTRUCTION, first appearance in this batch: \"Fans have complained about the plexiglass obstructing views in Rows 1 and 2.\" This is a front-row obstruction specific to the Grandstand Infield sections and is NOT in discovery.json's known_obstructions list - new finding. \"Rows 5 & Above - Covered\"; \"Top Rows Covered: Upper rows protected by the roof.\" ACCESSIBILITY-RELEVANT: \"Staircase Access Only: No elevator or ramp entry to sections.\"",
+    "source": "https://www.rateyourseats.com/yankee-stadium/seating/sections/414"
+  },
+  {
+    "section": "415",
+    "zone": "Zone label on page: \"Grandstand Seating\". Page heading: \"Section 415 at Yankee Stadium\".",
+    "location": "\"All 400 Level sections\"; \"Grandstand Seating includes all 400-level sections and makes up the uppermost deck at Yankee Stadium\". The page does NOT name infield/outfield or a side for Section 415 specifically.",
+    "rows": "Rows in Section 415 are labeled 1-14",
+    "entrance_row": "An entrance to this section is located at Row 2",
+    "seat_direction": "BOILERPLATE (park-wide): \"When looking towards the field/field/stage/field, lower number seats are on the right\". PER-SECTION: No per-section statement. Nothing on this page names a side for Section 415's seat numbering.",
+    "seats_per_row": "\"Row 1 has 24 seats labeled 1-24\"; \"Rows 2-6 have 19 seats labeled 1-19\"; \"Rows 7-13 have 24 seats labeled 1-24\"; \"Row 14 has 26 seats labeled 1-28\"",
+    "notes": "\"Rows 5 and above are under cover\". ACCESSIBILITY-RELEVANT: \"These sections are accessed by staircase only\". \"From the 400 Level, fans get a high, panoramic view of the entire ballpark\". INTERNAL INCONSISTENCY recorded not reconciled: \"Row 14 has 26 seats labeled 1-28\" (count and label range disagree).",
+    "source": "https://www.rateyourseats.com/yankee-stadium/seating/sections/415"
+  },
+  {
+    "section": "416",
+    "zone": "Zone labels on page: \"Grandstand Infield (Baseball)\" and \"Grandstand Seating\". Page heading: \"Section 416 at Yankee Stadium\".",
+    "location": "\"Grandstand Infield seating is an inexpensive way to catch a Yankees game. In fact, the grandstand seats behind home plate (Sections 419-421) are one of only two seating areas where you can get a home plate view without paying for club seats.\" Section 416 itself is NOT explicitly placed; the 419-421 home-plate statement is zone text quoted on this page, not a statement about 416.",
+    "rows": "Rows in Section 416 are labeled 1-14",
+    "entrance_row": "An entrance to this section is located at Row 2",
+    "seat_direction": "BOILERPLATE (park-wide): \"When looking towards the field/field/stage/field, lower number seats are on the right\". PER-SECTION: No per-section statement. Nothing on this page names a side for Section 416's seat numbering.",
+    "seats_per_row": "\"Row 1 has 24 seats labeled 1-24\"; \"Rows 2-6 have 19 seats labeled 1-19\"; \"Rows 7-13 have 24 seats labeled 1-24\"; \"Row 14 has 25 seats labeled 3-27\"",
+    "notes": "OBSTRUCTION: \"Fans have complained about the plexiglass obstructing views in Rows 1 and 2\". \"Rows 5 & Above - Covered\"; \"Top rows of the Grandstand are covered by the stadium roof\". SEAT-LABEL NOTE: \"Row 14 has 25 seats labeled 3-27\" - back row does not start at seat 1. The \"grandstand seats behind home plate (Sections 419-421)\" line corroborates discovery.json's 400-level home-plate anchor.",
+    "source": "https://www.rateyourseats.com/yankee-stadium/seating/sections/416"
+  },
+  {
+    "section": "417",
+    "zone": "Zone label on page: \"Grandstand Infield (Baseball)\". Page heading: \"Section 417 at Yankee Stadium\".",
+    "location": "\"Grandstand Seating includes all 400-level sections and makes up the uppermost deck at Yankee Stadium.\" Zone tag \"Grandstand Infield (Baseball)\" places 417 in the infield Grandstand. No side (first base / third base) is named for Section 417.",
+    "rows": "Rows in Section 417 are labeled 1-14",
+    "entrance_row": "An entrance to this section is located at Row 2",
+    "seat_direction": "BOILERPLATE (park-wide): \"When looking towards the field/field/stage/field, lower number seats are on the right\". PER-SECTION: No per-section statement. Nothing on this page names a side for Section 417's seat numbering.",
+    "seats_per_row": "\"Row 1 has 25 seats labeled 1-25\"; \"Rows 2-4 have 20 seats labeled 1-20\"; \"Rows 5-6 have 21 seats labeled 1-21\"; \"Rows 7-9 have 26 seats labeled 1-26\"; \"Rows 10-13 have 27 seats labeled 1-27\"; \"Row 14 has 27 seats labeled 4-30\"",
+    "notes": "OBSTRUCTION: \"plexiglass obstructing views in Rows 1 and 2\". \"Rows 5 & Above - Covered\"; \"The roof covers the upper two-thirds of these sections\"; \"Rows 1-14\". SEAT-LABEL NOTE: \"Row 14 has 27 seats labeled 4-30\" - the back row starts at seat 4, so the seat-1 rule does not apply to Row 14.",
+    "source": "https://www.rateyourseats.com/yankee-stadium/seating/sections/417"
+  },
+  {
+    "section": "418",
+    "zone": "Zone label on page: \"Grandstand Infield (Baseball)\". Page heading: \"Section 418 at Yankee Stadium\".",
+    "location": "\"Grandstand Infield seating is an inexpensive way to catch a Yankees game. In fact, the grandstand seats behind home plate (Sections 419-421)\". Section 418 itself is not separately placed beyond the Grandstand Infield zone tag.",
+    "rows": "Rows in Section 418 are labeled 1-14",
+    "entrance_row": "An entrance to this section is located at Row 2",
+    "seat_direction": "BOILERPLATE (park-wide): \"When looking towards the field/field/stage/field, lower number seats are on the right\". PER-SECTION: No per-section statement. Nothing on this page names a side for Section 418's seat numbering.",
+    "seats_per_row": "\"Row 1 has 23 seats labeled 1-23\"; \"Rows 2-3 have 19 seats labeled 1-19\"; \"Rows 4-6 have 20 seats labeled 1-20\"; \"Rows 7-9 have 26 seats labeled 1-26\"; \"Rows 10-11 have 27 seats labeled 1-27\"; \"Rows 12-13 have 28 seats labeled 1-28\"; \"Row 14 has 30 seats labeled 1-30\"",
+    "notes": "OBSTRUCTION: \"Fans have complained about the plexiglass obstructing views in Rows 1 and 2\". \"Rows 5 & Above - Covered\"; \"The roof covers the upper two-thirds of these sections\". Fan feedback: \"High but good view - You can see everything perfectly from these seats. However, if you have a fear of heights, these aren't the seats for you. It's high up!\" NOTE: discovery.json cites this page for \"For shade, opt for seats on the third base side (e.g.: 423-426).\" That sentence was NOT returned in this extraction; treat it as previously observed on this page but unconfirmed in this pass. The \"grandstand seats behind home plate (Sections 419-421)\" line WAS returned and corroborates discovery.json.",
+    "source": "https://www.rateyourseats.com/yankee-stadium/seating/sections/418"
+  },
+  {
+    "section": "419",
+    "zone": "Zone label on page: \"Grandstand Infield (Baseball)\". Page heading: \"Section 419 at Yankee Stadium\".",
+    "location": "\"Home Plate View\" tag. \"Grandstand Infield seating is an inexpensive way to catch a Yankees game. In fact, the grandstand seats behind home plate (Sections 419-421)\". Also \"desirable view from behind home plate\". This is the first section in the batch that the source explicitly places behind home plate.",
+    "rows": "Rows in Section 419 are labeled 1-14",
+    "entrance_row": "An entrance to this section is located at Row 2",
+    "seat_direction": "BOILERPLATE (park-wide): \"When looking towards the field/field/stage/field, lower number seats are on the right\". PER-SECTION: No per-section statement. Nothing on this page names a side for Section 419's seat numbering.",
+    "seats_per_row": "\"Row 1 has 23 seats labeled 1-23\"; \"Rows 2-3 have 19 seats labeled 1-19\"; \"Rows 4-6 have 20 seats labeled 1-20\"; \"Rows 7-9 have 26 seats labeled 1-26\"; \"Rows 10-11 have 27 seats labeled 1-27\"; \"Rows 12-13 have 28 seats labeled 1-28\"; \"Row 14 has 31 seats labeled 1-31\"",
+    "notes": "OBSTRUCTION: \"Fans have complained about the plexiglass obstructing views in Rows 1 and 2.\" \"Rows 5 & Above - Covered\"; \"Rows 5 and above are under cover\"; \"The roof covers the upper two-thirds of these sections\". \"desirable view from behind home plate\". Section 419's published seat counts are identical to 418 except Row 14 (31 vs 30). Nothing on the page contradicts discovery.json; the 419-421 home-plate anchor is confirmed verbatim.",
+    "source": "https://www.rateyourseats.com/yankee-stadium/seating/sections/419"
+  }
+]

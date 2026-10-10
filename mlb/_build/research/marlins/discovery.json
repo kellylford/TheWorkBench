@@ -1,0 +1,240 @@
+{
+  "venue": "loanDepot park (official club styling uses lower-case 'l' in loanDepot and lower-case 'p' in park; MLB.com page titles render it 'loanDepot park', RateYourSeats renders it 'loanDepot Park', Ballparks of Baseball notes 'the l is not capitalized in the name'). CONFIRMED CURRENT as of August 2026: RateYourSeats lists 2026 Miami Marlins home games at this venue through September 2026, and A View From My Seat shows 2026 Marlins fan photos here. Formerly named Marlins Park (2012-2020); renamed loanDepot Park in March 2021 after the club sold naming rights to loanDepot.",
+  "team": "Miami Marlins",
+  "rateyourseats_slug": "loandepot-park",
+  "sections": [
+    "1", "2", "3", "4", "5", "6", "7", "8", "9", "10",
+    "11", "12", "13", "14", "15", "16", "17", "18", "19", "20",
+    "21", "22", "23", "24", "25", "26", "27", "28", "29", "30",
+    "31", "32", "34", "35", "36", "38", "39", "40",
+    "134", "135", "136", "137", "138", "139", "140", "141",
+    "201", "202", "203", "204", "205", "206", "207", "208", "209", "210", "211",
+    "219", "220", "221", "222", "223", "224", "225", "226", "227", "228",
+    "302", "303", "304", "305", "306", "307", "308", "309", "310",
+    "311", "312", "313", "314", "315", "316", "317", "318", "319", "320",
+    "321", "322", "323", "324", "325", "326", "327",
+    "FL1", "FL2", "FL3", "FL4", "FL5", "FL6", "FL7", "FL8", "FL9", "FL10", "FL11",
+    "FL14", "FL15", "FL16"
+  ],
+  "concert_only_sections": [],
+  "capacity": "CONFLICT. Ballparks of Baseball states Capacity: 37,442 (https://www.ballparksofbaseball.com/ballparks/loandepot-park/). SeatSecrets states 'With a 37,442-seat capacity' and its FAQ repeats 'LoanDepot Park seats 37,442' (https://seatsecrets.com/the-best-seats-for-the-miami-marlins-at-loandepot-park/). A WebSearch summary of the Wikipedia 'LoanDepot Park' article reports 36,742 seated capacity with 37,442 including standing room (https://en.wikipedia.org/wiki/LoanDepot_Park - NOT fetched directly; page exceeded fetch size limit, figure is from search-result summary only). RECOMMENDED: 37,442 (the figure two directly-read sources publish). Secondary figure to mention if a seated-only number is needed: 36,742.",
+  "orientation": {
+    "batter_faces": "UNKNOWN. No source consulted states a compass direction for home plate / the batter. Baseball Almanac's National League ballpark orientation page lists LoanDepot Park but its orientation diagram is a graphic and produced no directional text in the fetched page. The only directional statement found is Ballparks of Baseball: 'One of the most important features of loanDepot Park is its retractable roof... When open it sits behind the first base grandstand on the west side of the ballpark.' That implies the FIRST BASE grandstand is on the WEST side of the building, but it does not state where the batter faces and should not be used to derive one.",
+    "confidence": "none for batter_faces; medium for 'first base grandstand is on the west side of the ballpark'",
+    "source": "https://www.ballparksofbaseball.com/ballparks/loandepot-park/ ; https://www.baseball-almanac.com/stadium/ballpark_NSEW_NL.shtml"
+  },
+  "numbering_direction": {
+    "summary": "Section numbers INCREASE FROM THE RIGHT-FIELD / FIRST-BASE SIDE TOWARD THE THIRD-BASE / LEFT-FIELD SIDE on every tier. LOW numbers = right field and first base side. HIGH numbers = third base side and left field. This holds for the lower Promenade bowl (1 at the right-field foul pole, 8-10 at the first-base dugout, 13-18 behind home plate, 19-21 at the third-base dugout, 22-28 down the left-field line, 29-32 behind the left-field wall), for the Legends 200 level (201-204 right field, 207-211 first base, 219-222 third base, 223-228 left field), and for the Vista 300 level (302-305 right field, 306-310 first base, 311-318 behind the plate, 319-322 third base, 323-327 left field). IMPORTANT NON-MONOTONIC WRAP IN THE LOWER BOWL: after section 32 (behind the left-field wall) the lower-bowl numbering appears to continue around through center field and land back in RIGHT field. RateYourSeats' March-2026 Home Run Porch page states the porch (134-141) is 'above the right field outfield seats' and that 'the lower right field sections (34-40) [are] located directly beneath the porch', and Ballparks of Baseball independently states 'Two levels of seats are located above the right field fence with limited seating located behind the left field fence.' So 34-40 are RIGHT-field outfield sections under the Home Run Porch, NOT a continuation past left field. Sections 33 and 37 do not exist in the ticketed index. The Home Run Porch tier (134-141) is right-field-only and does not run through the infield.",
+    "anchors": [
+      {
+        "section": "3",
+        "where": "RIGHT FIELD (lower bowl, down the right-field line). MLB.com, verbatim: 'the netting will be 30 feet high at the ends of each dugout, and taper down each foul line to the ends of Section 3 in right field, and FL11 in left field.'",
+        "source": "https://www.mlb.com/news/marlins-to-extend-safety-net-at-marlins-park-c301374200"
+      },
+      {
+        "section": "1-3",
+        "where": "RIGHT FIELD LINE (lower bowl). RateYourSeats The Social page, verbatim: 'The Social at LoanDepot Park is located down the right field line. The primary stnading locaiton is above Sections 1-3.' [sic, typos in source]",
+        "source": "https://www.rateyourseats.com/loandepot-park/seating/the-social"
+      },
+      {
+        "section": "13-18",
+        "where": "BEHIND HOME PLATE (lower bowl). RateYourSeats expert review on section 18's page, verbatim: 'Sections 13-18 behind home plate and 25-28 down the left field line offer surprisingly good angles towards the 50 yard-line.' Section 12's page separately carries the seating note 'For baseball games, desirable view from behind home plate.'",
+        "source": "https://www.rateyourseats.com/loandepot-park/seating/sections/18 ; https://www.rateyourseats.com/loandepot-park/seating/sections/12"
+      },
+      {
+        "section": "29-32",
+        "where": "LEFT FIELD (lower bowl, behind the left-field wall). RateYourSeats expert review on sections 12 and 29, verbatim: 'Sideline seats on the lower level are located in left field in Sections 29-32 and on the infield in Sections 5-12.'",
+        "source": "https://www.rateyourseats.com/loandepot-park/seating/sections/29 ; https://www.rateyourseats.com/loandepot-park/seating/sections/12"
+      },
+      {
+        "section": "FL11",
+        "where": "LEFT FIELD / third-base end of the field-level premium sections. MLB.com, verbatim: '...taper down each foul line to the ends of Section 3 in right field, and FL11 in left field.'",
+        "source": "https://www.mlb.com/news/marlins-to-extend-safety-net-at-marlins-park-c301374200"
+      },
+      {
+        "section": "1-2 vs 26-27",
+        "where": "LOWER BOWL SIDE TEST. RateYourSeats Vista Level 2026 review, verbatim: 'Sections 1-2 on the first base side and 26-27 on the third base side are often among the cheapest lower-level options.' Low numbers = FIRST BASE side; high numbers = THIRD BASE side.",
+        "source": "https://www.rateyourseats.com/loandepot-park/seating/sections/315"
+      },
+      {
+        "section": "207-211 vs 219-222",
+        "where": "LEGENDS 200 LEVEL SIDE TEST. RateYourSeats Legends Platinum 2026 review, verbatim: 'Sections 207-211 on the first base side / Sections 219-222 on the third base side' and 'Sections 211 and 219, located closest to home plate'.",
+        "source": "https://www.rateyourseats.com/loandepot-park/seating/sections/211 ; https://www.rateyourseats.com/loandepot-park/seating/sections/219"
+      },
+      {
+        "section": "201-204",
+        "where": "RIGHT FIELD (Legends 200 level). RateYourSeats obstructed-seating review, verbatim: 'For football games at Marlins Park, right field sections can not see the entire field. Obstructed sections include Field sections 1-4, outfield sections 134-141 and sections 201-204 and 302-305.'",
+        "source": "https://www.rateyourseats.com/loandepot-park/seating/sections/1 ; https://www.rateyourseats.com/loandepot-park/seating/sections/134"
+      },
+      {
+        "section": "302-305",
+        "where": "RIGHT FIELD (Vista 300 level). Same obstructed-seating review as above; corroborated by the Vista Level 2026 review: 'Section 303 is the best option on the right field side as it will be close to good concession options and the bar located in outside section 302.'",
+        "source": "https://www.rateyourseats.com/loandepot-park/seating/sections/327 ; https://www.rateyourseats.com/loandepot-park/seating/sections/141"
+      },
+      {
+        "section": "324",
+        "where": "THIRD BASE / LEFT SIDE (Vista 300 level). RateYourSeats Vista Level Down the Line review, verbatim: 'On the third base side we recommend section 324 for its great views on the video board in right field.'",
+        "source": "https://www.rateyourseats.com/loandepot-park/seating/sections/327"
+      },
+      {
+        "section": "134-141",
+        "where": "RIGHT FIELD (Home Run Porch, second tier above the right-field outfield seats). RateYourSeats Home Run Porch page (last verified March 2026), verbatim: 'The Home Run Porch at LoanDepot Park is located above the right field outfield seats, forming a second tier of seating behind the lower outfield sections. This area overlooks the right field bullpen...'",
+        "source": "https://www.rateyourseats.com/loandepot-park/seating/home-run-porch"
+      },
+      {
+        "section": "34-40",
+        "where": "RIGHT FIELD outfield, directly beneath the Home Run Porch. RateYourSeats, verbatim: 'Fans who want to sit closer to the field in the same area of the ballpark can consider the lower right field sections (34-40) located directly beneath the porch.' Corroborated by Ballparks of Baseball: 'Two levels of seats are located above the right field fence with limited seating located behind the left field fence.' NOTE this conflicts with an older RateYourSeats Bullpen Outfield review that calls 38-39 'left field' - see uncertain[].",
+        "source": "https://www.rateyourseats.com/loandepot-park/seating/home-run-porch ; https://www.ballparksofbaseball.com/ballparks/loandepot-park/"
+      }
+    ],
+    "confidence": "HIGH for the core direction (low = right field / first base, high = third base / left field) - five independent statements across three levels plus an official MLB.com netting statement all agree. MEDIUM for the lower-bowl wrap placing sections 34-40 back in right field (two agreeing sources, one contradicting RateYourSeats review)."
+  },
+  "home_plate_sections": {
+    "Promenade Level (lower bowl, 1-40)": ["13", "14", "15", "16", "17", "18"],
+    "Lexus Legends Level (200)": [],
+    "Vista Level (300)": ["311", "312", "313", "314", "315", "316", "317", "318"],
+    "Field Level premium (FL)": ["FL4", "FL5", "FL6", "FL7", "FL8"],
+    "Home Run Porch (134-141)": [],
+    "_notes": {
+      "Promenade Level (lower bowl, 1-40)": "Source: RateYourSeats expert review 'Sections 13-18 behind home plate'. Section 12 also carries the note 'For baseball games, desirable view from behind home plate', so the true backstop band may start at 12; 13-18 is what is explicitly published as a range.",
+      "Lexus Legends Level (200)": "THIS TIER DOES NOT WRAP BEHIND HOME PLATE. Sections 212 through 218 do not exist as ticketed seating - the RateYourSeats venue section index jumps straight from 211 to 219, and the Legends Platinum 2026 review says only 'Sections 207-211 on the first base side / Sections 219-222 on the third base side' with 'Sections 211 and 219, located closest to home plate'. The area directly behind the plate on this level is occupied by suites (Founders & Legends Suites, Hall of Fame Club/Suites) and the press level. OMIT this tier's home-plate anchor in the config so distances come out blank rather than wrong.",
+      "Vista Level (300)": "Source: RateYourSeats Vista Level 2026 review, verbatim: 'Sections 311-318 sit directly behind home plate and are positioned above the suite level below, which places them slightly higher than surrounding sections.' Section 315's page carries the insight tag 'Home Plate View'.",
+      "Field Level premium (FL)": "Source: RateYourSeats seating-guide photo caption, verbatim: 'Field sections F4 and F8 are directly behind home plate between the dugouts.' The range FL4-FL8 is inferred from that caption naming F4 and F8 as the bookends; MEDIUM confidence.",
+      "Home Run Porch (134-141)": "THIS TIER DOES NOT WRAP BEHIND HOME PLATE. It is a right-field-outfield-only second deck. Omit its home-plate anchor."
+    }
+  },
+  "levels": [
+    {
+      "name": "Field Level premium / Premium Level (FL sections)",
+      "sections": "FL1-FL11 (plus FL14, FL15, FL16 listed in the RateYourSeats index with unverified location); FL12 and FL13 do not appear in the index",
+      "notes": "Field-level seats within four rows of the playing surface. Dugout Club = FL1-FL3 (first base side) and FL9-FL11 (third base side); rows labeled AA through DD. FL4-FL8 are directly behind home plate between the dugouts. A View From My Seat groups FL1-FL11 under a level it calls 'Premium Level'.",
+      "source": "https://www.rateyourseats.com/loandepot-park/seating/dugout-club ; https://www.rateyourseats.com/loandepot-park/seating ; https://aviewfrommyseat.com/venue/loanDepot+park/"
+    },
+    {
+      "name": "Promenade Level (lower bowl) / A View From My Seat calls it 'Field Level'",
+      "sections": "1-32, 34, 35, 36, 38, 39, 40 (sections 33 and 37 do not exist in the ticketed index)",
+      "notes": "1-4 right field line; 5-12 first-base infield; 13-18 behind home plate; 19-21 third-base infield behind the Marlins dugout (Clubhouse Box); 22-28 down the left field line; 29-32 the small strip behind the left-field wall; 34-40 the right-field outfield deck beneath the Home Run Porch. RateYourSeats names the sub-zones Promenade Level Infield (Home Plate Box / Clubhouse Box / Base Reserved), Promenade Level Down the Line (a.k.a. Baseline Reserved), and Bullpen Outfield.",
+      "source": "https://www.rateyourseats.com/loandepot-park/seating/sections ; https://www.rateyourseats.com/loandepot-park/seating/sections/18 ; https://www.rateyourseats.com/loandepot-park/seating/sections/29"
+    },
+    {
+      "name": "Home Run Porch",
+      "sections": "134-141",
+      "notes": "Second tier above the right-field outfield seats, overlooking the right-field bullpen. Right field only; does not extend to the infield or behind the plate.",
+      "source": "https://www.rateyourseats.com/loandepot-park/seating/home-run-porch ; https://aviewfrommyseat.com/venue/loanDepot+park/"
+    },
+    {
+      "name": "Lexus Legends Level (200 level)",
+      "sections": "201-211 and 219-228 (212-218 are not ticketed seating; suites/press occupy the area behind the plate)",
+      "notes": "Climate-controlled Legends Level concourse. Legends Platinum = cushioned premium infield sections 207-211 (first base side) and 219-222 (third base side), no more than 10 rows each. 202-204 in right field have only 8 rows.",
+      "source": "https://www.rateyourseats.com/loandepot-park/seating/sections/211 ; https://www.rateyourseats.com/loandepot-park/seating/sections/219 ; https://aviewfrommyseat.com/venue/loanDepot+park/"
+    },
+    {
+      "name": "Suite Level",
+      "sections": "Not individually ticketed in the RateYourSeats section index. A View From My Seat lists 202A, 204A, Suite 15, Suite 27, Suite 42.",
+      "notes": "Includes the Legend, Fiesta, MVP and Championship suites; Founders & Legends Suites and Hall of Fame Suites sit behind home plate, with the press box above them.",
+      "source": "https://aviewfrommyseat.com/venue/loanDepot+park/ ; https://www.rateyourseats.com/loandepot-park/seating"
+    },
+    {
+      "name": "Vista Level (300 level)",
+      "sections": "302-327 (301 is not in the index)",
+      "notes": "Highest seating tier. 306-310 and 319-322 closest to the infield; 311-318 directly behind home plate and sit above the suite level, so they are noticeably higher than neighbouring sections. Often closed for lower-demand Marlins games.",
+      "source": "https://www.rateyourseats.com/loandepot-park/seating/sections/315 ; https://www.rateyourseats.com/loandepot-park/seating/sections/327"
+    }
+  ],
+  "dugouts": {
+    "home": "THIRD BASE side (RECOMMENDED, but SOURCES CONFLICT - see uncertain[]). Evidence for third base: (1) Ballparks of Baseball facts panel states verbatim '-Home Dugout: Third Base'. (2) RateYourSeats Promenade Level Infield expert review states verbatim 'The Clubhouse Box seats in sections 19-21 will get you just behind the Marlin's dugout, and the same can be said for sections 8-10 behind the visitors dugout' - and sections 19-21 are on the THIRD BASE side per the Vista Level review ('26-27 on the third base side', '1-2 on the first base side') and the Legends review ('219-222 on the third base side'). (3) RateYourSeats seating-guide photo caption: 'The best views of the videoboard are found in infield sections on the 3B (Marlins) side of the field.' (4) Ballparks of Baseball: the pool 'behind the left field fence next to the Marlins bullpen' places the Marlins bullpen in left field, the same side as a third-base home dugout.",
+    "visiting": "FIRST BASE side (follows from the above; RateYourSeats: 'sections 8-10 behind the visitors dugout', and 8-10 are on the first base side).",
+    "source": "https://www.ballparksofbaseball.com/ballparks/loandepot-park/ ; https://www.rateyourseats.com/loandepot-park/seating/sections/12 ; https://www.rateyourseats.com/loandepot-park/seating/sections/18 ; https://www.rateyourseats.com/loandepot-park/seating ; CONTRADICTING SOURCE: https://www.rateyourseats.com/loandepot-park/seating/dugout-club (March 2026) states verbatim 'First Base Side (Sections F1-F3): These seats sit on the Marlins dugout side of the field' and 'Third Base Side (Sections F9-F11): These seats sit near the visiting team dugout'. MLB.com's own Dugout Clubs page (https://www.mlb.com/marlins/tickets/premium/dugout-clubs) describes 'The First and Third Base Dugout Clubs' but never says which team occupies which dugout, so it does not break the tie."
+  },
+  "bullpens": "Both bullpens are beyond the outfield walls, on opposite sides. MARLINS (home) BULLPEN: LEFT FIELD. Ballparks of Baseball, verbatim: 'The ballpark originally featured a pool on the field level, behind the left field fence next to the Marlins bullpen.' RateYourSeats Bullpen Outfield review, verbatim: 'Sections 29-31 will be located directly behind the Marlins bullpen in left field.' VISITING BULLPEN: RIGHT FIELD, beneath/behind the Home Run Porch. RateYourSeats Home Run Porch page (March 2026), verbatim: 'Views Toward the Bullpen: Positioned above the right field bullpen area.' The older RateYourSeats Bullpen Outfield review says 'sections 38-39 are just behind the visiting bullpen in left field' - the section numbers agree but the words 'left field' contradict both the Home Run Porch page and Ballparks of Baseball's 'two levels of seats above the right field fence'; treat 'left field' there as a stale error. CONFLICTING FAN NOTE: a RateYourSeats fan-feedback item on section 29 says 'The Visitor Bullpen is Below Sections 29-31', directly contradicting the RateYourSeats expert review on the same page. A fan note on section 40 says 'The Marlins Bullpen is to the Left of Section 40'. See uncertain[].",
+  "special_areas": [
+    {
+      "name": "The Social (Party Pass standing room)",
+      "where": "Down the right field line, on drink rails above sections 1-3; five standing drink rails, no reserved seat. Party Pass also includes access to AutoNation Alley in left field.",
+      "level": "Promenade / right field line"
+    },
+    {
+      "name": "AutoNation Alley",
+      "where": "Left field; multi-tiered standing space, included with the Party Pass. (Replaced the 'Homer' home-run sculpture area; the sculpture was relocated outside the ballpark before 2020.)",
+      "level": "Left field outfield"
+    },
+    {
+      "name": "Bullpen Bar & Grill (formerly The Clevelander, then Recess Sports Lounge)",
+      "where": "Field level directly behind the LEFT field wall. Reserved seating sold in its own internal 'Sections 1-3', Rows A-D, plus standing-room access. WARNING: those 'Sections 1-3' are a SEPARATE NUMBERING NAMESPACE and are NOT the lower-bowl sections 1-3 down the right field line.",
+      "level": "Field level, left field"
+    },
+    {
+      "name": "Dugout Club (First Base and Third Base Dugout Clubs)",
+      "where": "Field level just beyond the dugouts: FL1-FL3 first base side, FL9-FL11 third base side. Rows AA-DD, all within four rows of the field. Private lounges, in-seat wait service, dedicated field-level entrances.",
+      "level": "Field Level premium"
+    },
+    {
+      "name": "PNC Club",
+      "where": "Behind home plate; expanded to 120 seats in 2025; Marlins Membership-exclusive, all-inclusive food and drink, private entrance, valet parking. (Formerly the Diamond Club / 'The Club presented by DEX Imaging'.)",
+      "level": "Behind home plate, field/lower level"
+    },
+    {
+      "name": "Legends Platinum",
+      "where": "200-level premium infield: sections 207-211 (first base side) and 219-222 (third base side); cushioned seats, climate-controlled Legends Level concourse.",
+      "level": "Lexus Legends Level"
+    },
+    {
+      "name": "Hall of Fame Club / Hall of Fame Suites, Founders & Legends Suites",
+      "where": "Behind home plate on the Legends/Suite level; the press box sits above the suites behind the plate.",
+      "level": "Suite Level"
+    },
+    {
+      "name": "The Alley (premium group space)",
+      "where": "Left-center field; group space for 50-100 guests.",
+      "level": "Outfield"
+    },
+    {
+      "name": "Bobblehead Museum",
+      "where": "Behind home plate on the Promenade concourse.",
+      "level": "Promenade Level"
+    },
+    {
+      "name": "Retractable outfield glass panels",
+      "where": "Behind LEFT field: six panels, 240 feet long and 60 feet high combined, open or close in eight minutes, framing the downtown Miami skyline.",
+      "level": "Left field wall"
+    }
+  ],
+  "accessibility": {
+    "summary": "Wheelchair-accessible and semi-ambulatory seats with operable armrests are located on ALL ballpark levels, generally at the TOP of most sections (which matches the RateYourSeats row data, where accessible rows are labeled 'WC' and the section entrance is at row WC). One companion/escort may sit with a guest with a disability in designated accessible seating; folding chairs can be provided. Eight public elevators serve all seating levels, located primarily at the 3rd Base, PNC Club and 1st Base Dugout Club entrances; ramps are available as an alternative. Electrical outlets for medical devices are provided in designated seating areas on the Promenade, Legends and Vista Levels. Braille and tactile signage throughout; closed captioning on the Legends Level ribbon display; sensory kits and a sensory room for neurodivergent guests on the Legends Level (5th floor). Wheelchair transport to and from seats can be requested at entrances or by texting 305-480-4999; Guest Experience is reachable at 305-480-1300. Accessible parking is first-come first-served in all four parking garages and two surface lots (East Lot 2 and East Lot 3), with a placard or disability plate required. Miami-Dade Paratransit drop-off/pick-up is at NW 6th Street & NW 16th Avenue. Rideshare pickup/drop-off is East Lot 1, 1380 NW 6th Street. General gates open 90 minutes before first pitch; the Marlins Member Express Entrance is at West Plaza Gate 1 and the Home Plate Entrance. CAVEAT: the MLB.com Access Guide for Guests With Disabilities (https://mlb.com/marlins/ballpark/disability-access-guide) could not be fetched directly (https://www.mlb.com/marlins/ballpark/accessibility returned empty); the elevator, gate, parking and paratransit details above come from a WebSearch summary of that MLB.com page plus the SeatSecrets guide, and should be re-verified against the club page before publication.",
+    "landmarks": [
+      "3rd Base entrance (elevator bank)",
+      "1st Base Dugout Club entrance (elevator bank)",
+      "PNC Club entrance (elevator bank)",
+      "Home Plate Entrance",
+      "West Plaza Gate 1 (Marlins Member Express Entrance)",
+      "Home Plate Garage (1502 NW 7th Street)",
+      "First Base Garage (1502 NW 4th Street)",
+      "Center Field Garage",
+      "Third Base Garage",
+      "East Lot 2 and East Lot 3 (accessible surface parking)",
+      "East Lot 1, 1380 NW 6th Street (rideshare)",
+      "NW 6th Street & NW 16th Avenue (Miami-Dade Paratransit drop-off)",
+      "Row 'WC' at the top of accessible sections (RateYourSeats row label)"
+    ],
+    "source": "https://mlb.com/marlins/ballpark/disability-access-guide (via WebSearch summary; direct fetch failed) ; https://seatsecrets.com/the-best-seats-for-the-miami-marlins-at-loandepot-park/ ; RateYourSeats section pages for 29, 134, 211, 219 (row 'WC' labels)"
+  },
+  "row_seat_conventions": "MIXED LETTERS AND NUMBERS, varying by level and by section. Promenade / lower bowl infield sections use lettered rows first, then numbered rows: section 12 and section 18 are 'A-E, 1-27' with the section entrance at row 27; section 40 is 'A-G, 1-12' with the entrance at row 12. Some lower-bowl corner sections are numbers only and do not start at 1: section 1 is 'rows 9-30' with the entrance at row 30. The small left-field strip sections use short number-only ranges plus an accessible row: section 29 is 'rows 1-8, WC' with the entrance at row WC. HOME RUN PORCH: section 134 is 'rows 1-5, WC' (entrance at row WC); section 141 is 'rows 1-16' (entrance at row 8). LEXUS LEGENDS 200 LEVEL: sections 211 and 219 are 'rows 1-10, WC' with the entrance at row WC; the Legends Platinum review states no section has more than 10 rows and sections 202-204 have only 8 rows. VISTA 300 LEVEL: mixed - section 315 is 'A-C, 1-16' (entrance at row 3); section 327 is 'A-K, 1-9' (entrance at row K). DUGOUT CLUB (FL1-FL3, FL9-FL11): rows AA through DD, i.e. every seat within the first four rows of the field. BULLPEN BAR & GRILL reserved seating: its own internal sections 1-3, rows A-D. ACCESSIBLE-ROW LABEL: 'WC' - RateYourSeats consistently phrases it 'Rows in Section N are labeled 1-10, WC' and 'An entrance to this section is located at Row WC', i.e. the wheelchair row is at the top of the section at the concourse entrance. No 'WCH', 'VWC' or AC-suffix convention was found at this park.",
+  "seat1_side_verbatim": "\"When looking towards the field/field/stage, lower number seats are on the right\" - RateYourSeats renders the sentence with the '/field/stage' artifact because the page carries Baseball/Football/Concert tabs; the baseball reading is 'When looking towards the field, lower number seats are on the right.' VERIFIED IDENTICAL ON ELEVEN SECTION PAGES, one per level: lower bowl 1, 12, 18, 29, 40; Home Run Porch 134, 141; Legends 211, 219; Vista 315, 327. NO CONTRADICTING SOURCE FOUND. Therefore seat 1 is on the RIGHT as you face the field, i.e. seat numbers increase from right to left when looking at the field, in every section checked at every tier. URLs: https://www.rateyourseats.com/loandepot-park/seating/sections/1 , /12 , /18 , /29 , /40 , /134 , /141 , /211 , /219 , /315 , /327",
+  "known_obstructions": "PROTECTIVE NETTING (official, installed for the 2019 season and still the configuration described by the club): MLB.com, verbatim - 'the netting will be 30 feet high at the ends of each dugout, and taper down each foul line to the ends of Section 3 in right field, and FL11 in left field.' The netting is knotless Dyneema, 30 percent thinner than traditional netting; portions are adjustable with autograph access points along the entire length of both dugouts plus four areas down the first-base line and three down the third-base line. RateYourSeats fan feedback (attached to sections 12 and 18), verbatim: 'There is some amount of netting or screening in front of sections 8-21. The height and coverage of netting or screening will vary by section.' A fan in section 18 row 8 wrote 'Great seats almost behind home plate. You do have to look through the net...'. A separate search summary attributed to the same MLB netting story reported netting 'covers Sections 4 - 10 & 19 - 25' - that phrasing does NOT appear in the MLB.com article text as fetched, so treat it as unverified. OTHER: RateYourSeats flags 'Obstructed/Limited Views' as a section insight for sections 1, 134 and 141. A fan review in section 1 row 21: 'The yellow foul pole is distracting when looking at the outfield.' Sections 134 and 141 are additionally flagged 'Behind/Side Stage (most shows)' for concerts. FOOTBALL-ONLY (not applicable to baseball): 'For football games at Marlins Park, right field sections can not see the entire field. Obstructed sections include Field sections 1-4, outfield sections 134-141 and sections 201-204 and 302-305.' VIDEOBOARD SIGHTLINE: the main videoboard (101 ft x 51 ft) is above the right-centerfield stands, so right-field-side seats struggle to see it; the best videoboard views are from the third-base side.",
+  "uncertain": [
+    "VENUE NAME STYLING: sources disagree on capitalization. MLB.com and Ballparks of Baseball use 'loanDepot park' (lower-case l, lower-case p); Ballparks of Baseball explicitly notes 'the l is not capitalized in the name'. RateYourSeats uses 'loanDepot Park' (capital P) in headings but 'loanDepot park' in some captions. Wikipedia's article title is 'LoanDepot Park'. Recommend rendering 'loanDepot park' as the club does, but be aware of the split.",
+    "RENAME HISTORY: the building opened in 2012 as Marlins Park and was renamed loanDepot Park in March 2021. Much of the RateYourSeats content and nearly all its photo filenames still say 'Marlins Park', and some expert reviews still refer to 'Marlins Park' in body text. This is stale wording, not a second venue. No further rename found as of August 2026; 2026 Marlins home games are listed at loanDepot Park.",
+    "DUGOUT SIDE - UNRESOLVED CONFLICT, HIGHEST-PRIORITY ITEM TO RE-VERIFY. Ballparks of Baseball states '-Home Dugout: Third Base'. RateYourSeats' own Promenade Level Infield review places the Marlins dugout in front of sections 19-21 and the visitors dugout in front of sections 8-10 - and 19-21 are on the third base side under the confirmed numbering direction. RateYourSeats' seating-guide caption says the '3B (Marlins) side of the field'. BUT RateYourSeats' Dugout Club page (last verified March 2026) says the opposite: 'First Base Side (Sections F1-F3): These seats sit on the Marlins dugout side of the field' and 'Third Base Side (Sections F9-F11): These seats sit near the visiting team dugout'. MLB.com's Dugout Clubs page names 'The First and Third Base Dugout Clubs' but never assigns a team to either, so it does not settle it. Recommended value is THIRD BASE (three-plus sources vs one), but do not present it as certain without a fresh official confirmation.",
+    "LOWER-BOWL WRAP / SECTIONS 34-40: RateYourSeats' March-2026 Home Run Porch page places 34-40 in RIGHT field beneath the porch, and Ballparks of Baseball independently says 'Two levels of seats are located above the right field fence with limited seating located behind the left field fence', which fits. However RateYourSeats' older Bullpen Outfield review says 'sections 38-39 are just behind the visiting bullpen in LEFT field' and 'Sections 29-31 ... behind the Marlins bullpen in left field', implying 29-40 are all left field. Both cannot be true. Recommended reading: 29-32 = the small strip behind the LEFT field wall (short row ranges, e.g. 29 is rows 1-8), 34-40 = the larger RIGHT field outfield deck under the Home Run Porch (rows A-G, 1-12). Verify against the club seat map before publishing anything that names a field for 34-40.",
+    "BULLPEN OWNERSHIP CONFLICT: RateYourSeats' expert review says the MARLINS bullpen is behind sections 29-31, while RateYourSeats' own fan-feedback item on section 29 says 'The Visitor Bullpen is Below Sections 29-31'. Ballparks of Baseball supports the expert review (pool behind the left field fence 'next to the Marlins bullpen'). A section 40 fan note says 'The Marlins Bullpen is to the Left of Section 40', which does not fit a right-field section 40 with the Marlins bullpen in left field. Recommended: Marlins bullpen = left field behind 29-31; visiting bullpen = right field behind 38-39 and beneath the Home Run Porch.",
+    "MISSING SECTION NUMBERS: 33 and 37 are absent from the lower bowl; 212-218 are absent from the 200 level; 301 is absent from the 300 level; FL12 and FL13 are absent from the field level. None of these appear in the RateYourSeats venue section index or in A View From My Seat's section list. No source states what occupies those gaps except the 200-level gap (suites and press behind home plate). Do not invent sections to fill them.",
+    "FL14, FL15 and FL16 appear in the RateYourSeats section index (under URLs /sections/fl_14, /fl_15, /fl_16) but no consulted source states where they are or whether they are sold for Marlins games. Their thumbnails reuse 2016 'Marlins-Park-Section-15/16-Row-A' images. They are included in sections[] because they are in the venue index, but their location is UNKNOWN and they may be an artifact.",
+    "CONCERT-ONLY SECTIONS: RateYourSeats groups concert floor seating under a single 'Field Seats for Concerts' page (/loandepot-park/seating/field-seats) that enumerates no individual section IDs, so no concert-only section names could be extracted. concert_only_sections is therefore empty rather than guessed. Note that sections 134 and 141 carry a concert-specific 'Behind/Side Stage (most shows)' warning but are ordinary baseball sections.",
+    "BULLPEN BAR & GRILL uses its own internal 'Sections 1-3, Rows A-D' which collide by name with lower-bowl sections 1-3 down the right field line. If the generator keys on bare section strings this is a real collision risk.",
+    "CAPACITY: 37,442 vs 36,742 (see capacity field). The 36,742 figure comes only from a search summary of Wikipedia, which could not be fetched directly.",
+    "COMPASS ORIENTATION: no source states which way the batter faces. Only Ballparks of Baseball's statement that the open roof 'sits behind the first base grandstand on the west side of the ballpark' gives any bearing. batter_faces is recorded as UNKNOWN rather than derived.",
+    "ROOF BEHAVIOUR: Ballparks of Baseball states the three-panel retractable roof opens or closes in 13 minutes and parks behind the first base grandstand on the west side; retractable glass panels behind left field (six panels, 240 ft x 60 ft combined) open or close in eight minutes. When the roof is closed the ballpark is air-conditioned. No source consulted gives the club's current rule for when the roof is opened or closed.",
+    "VISTA LEVEL AVAILABILITY: RateYourSeats states the Vista Level 'is often closed to fans due to lower attendance levels' for many regular-season Marlins games, opening mainly for marquee events. 300-level sections may therefore be unsellable on a given date.",
+    "PLAYING SURFACE / DIMENSIONS (for context, from Ballparks of Baseball): Shaw synthetic turf B1K since 2020; dimensions 340-L, 384-LC, 400-C, 387-RC, 335-R."
+  ]
+}

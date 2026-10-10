@@ -1,0 +1,222 @@
+[
+ {
+  "section": "101",
+  "zone": "Page heading: \"Section 101 at Tropicana Field\". Seating-category content served on the page is the Home Plate Boxes review, plus the line \"Lower Level Infield seating at Tropicana Field includes sections 101-126.\"",
+  "location": "\"Sections 101-108: Rows L-N, positioned behind the Home Plate Club seats\" / \"Home Plate Box seating is located on the Lower Level in the front of sections 101-110\" / \"Lower Level Infield seating at Tropicana Field includes sections 101-126.\" / \"Sections 101-108 are located behind home plate with a clearer view\"",
+  "rows": "\"Rows in Section 101 are labeled L-Z, AA-JJ\"",
+  "entrance_row": "\"An entrance to this section is located at Row JJ\"",
+  "seat_direction": "PARK-WIDE BOILERPLATE (Row Numbers block), verbatim: \"When looking towards the field/field, lower number seats are on the left\". PER-SECTION TEXT: no sentence names a side. The only per-section text mentioning a seat number is a fan review, verbatim: \"Great seats. You can't see the first base bag from seat 1.\" That names a seat but NOT a side, so it is not a side statement; recorded here because it is the only seat-1 reference on the page.",
+  "seats_per_row": "UNKNOWN",
+  "notes": "Section Insights, verbatim: \"Top Pick for Great Views of the Field-Rows EE-JJ\", \"Home Plate View\", \"Rows L-Z, AA-JJ\". Seating Notes, verbatim: \"For baseball games, we recommend rows EE-JJ for great views\" and \"For baseball games, desirable view from behind home plate\". Fan review headed \"Behind Home Plate\". PAGE MIXES section-specific data (rows, entrance) with generic Home Plate Boxes / Lower Level Corner category reviews. INDIRECT SIDE EVIDENCE, FLAGGED AS INFERENCE NOT A STATEMENT: the fan line \"You can't see the first base bag from seat 1\" is consistent with seat 1 sitting on the fan's left (i.e. the third-base side of a section behind home plate, furthest from first base) and therefore with the boilerplate, but the page never says which side seat 1 is on. Do not treat as a per-section side statement. Nothing on this page contradicts discovery.json. Netting: page prints no netting line for 101, though the club lists 101 among netted sections.",
+  "source": "https://www.rateyourseats.com/tropicana-field/seating/sections/101"
+ },
+ {
+  "section": "102",
+  "zone": "Page heading: \"Section 102 at Tropicana Field\". Home Plate Box category content served alongside.",
+  "location": "\"Sections 101-108: Rows L-N, positioned behind the Home Plate Club seats\" / \"Sections 101-108 provide a centered, slightly elevated perspective behind home plate\"",
+  "rows": "\"Rows in Section 102 are labeled L-Z, AA-JJ\"",
+  "entrance_row": "\"An entrance to this section is located at Row JJ\"",
+  "seat_direction": "PARK-WIDE BOILERPLATE (Row Numbers block), verbatim: \"When looking towards the field/field, lower number seats are on the left\". NO PER-SECTION STATEMENT: no Q&A, expert answer or fan comment on this page names a side or an aisle seat number for this section. The boilerplate is the only seat-numbering evidence here.",
+  "seats_per_row": "UNKNOWN",
+  "notes": "Section Insights, verbatim: \"Top Pick for Great Views of the FieldRows EE-JJ\", \"Home Plate View\", \"Rows L-Z, AA-JJ\". Seating Notes, verbatim: \"For baseball games, we recommend rows EE-JJ for great views\" and \"For baseball games, desirable view from behind home plate\". Fan review, verbatim: \"Great view of game with excellent view of the pitches. Sec 102 / Row U\" and a 5-star review headed \"Great seats at a 'reasonable' price\". Page mixes section-specific rows/entrance with generic Home Plate Box category content. No netting or obstruction line printed for 102. Nothing contradicts discovery.json.",
+  "source": "https://www.rateyourseats.com/tropicana-field/seating/sections/102"
+ },
+ {
+  "section": "103",
+  "zone": "Page heading: \"Section 103 at Tropicana Field\". Home Plate Box category content served alongside.",
+  "location": "NOT STATED on the page - it prints no sentence placing Section 103 relative to home plate, a base line or the dugouts. (Insights only give \"Home Plate View\".)",
+  "rows": "\"Rows in Section 103 are labeled L-Z, AA-JJ\"",
+  "entrance_row": "\"An entrance to this section is located at Row JJ\"",
+  "seat_direction": "PARK-WIDE BOILERPLATE (Row Numbers block), verbatim: \"When looking towards the field/field, lower number seats are on the left\". PER-SECTION Q&A EXISTS but names no side: verbatim \"Row AA would be considered a middle row in this section and is roughly 25 rows from the field.\" No per-section statement of which side seat 1 is on.",
+  "seats_per_row": "UNKNOWN",
+  "notes": "Section Insights, verbatim: \"Top Pick for Great Views of the FieldRows EE-JJ\", \"Home Plate View\", \"Rows L-Z, AA-JJ\". Seating Notes, verbatim: \"For baseball games, we recommend rows EE-JJ for great views of the field\" and \"For baseball games, desirable view from behind home plate\". NETTING/SCREEN, verbatim from the page Q&A: \"While there are very few flaws with these seats, the biggest one would be that they are behind the screen.\" - consistent with the club listing 103 among netted sections. Fan reviews, verbatim fragments: \"Nice seats! Trop is round so seats a little tight at that location...\", \"Great view of the entire field - Seats were easy to get to...\", \"Chicago Cubs at Tampa Bay Rays - Apr 7, 2026 - Some of the best views.\" (a 2026-dated review, i.e. post-reopening). Page mixes section-specific content with generic Home Plate Box content.",
+  "source": "https://www.rateyourseats.com/tropicana-field/seating/sections/103"
+ },
+ {
+  "section": "104",
+  "zone": "Page heading: \"Section 104 at Tropicana Field\". Home Plate Boxes category content served alongside.",
+  "location": "NOT STATED on the page - no explicit location sentence for Section 104; the only placement cue is the generic Home Plate Boxes category context.",
+  "rows": "\"Rows in Section 104 are labeled L-Z, AA-JJ\"",
+  "entrance_row": "\"An entrance to this section is located at Row JJ\"",
+  "seat_direction": "PARK-WIDE BOILERPLATE (Row Numbers block), verbatim: \"When looking towards the field/field, lower number seats are on the left\". NO PER-SECTION STATEMENT: no Q&A, expert answer or fan comment on this page names a side or an aisle seat number for this section. The boilerplate is the only seat-numbering evidence here.",
+  "seats_per_row": "UNKNOWN",
+  "notes": "Section Insights, verbatim: \"Home Plate View\", \"Rows L-Z, AA-JJ\". Seating Notes, verbatim: \"For baseball games, desirable view from behind home plate\". Fan reviews are five-star ratings dated May 28, Aug 13 and Oct 4 2023 citing only \"Sec 104 / Row U\" and \"Sec 104 / Row T\" with no descriptive seat or side detail. No netting, obstruction or overhang line printed for 104. Page mixes generic Home Plate Boxes review with section-specific row labels and seat-view images.",
+  "source": "https://www.rateyourseats.com/tropicana-field/seating/sections/104"
+ },
+ {
+  "section": "105",
+  "zone": "Page heading: \"Section 105 at Tropicana Field\". Home Plate Box / Lower Level category content served alongside.",
+  "location": "NOT STATED on the page - no sentence explicitly describes where Section 105 sits in the ballpark.",
+  "rows": "\"Rows in Section 105 are labeled L-Z, AA-JJ\"",
+  "entrance_row": "\"An entrance to this section is located at Row JJ\"",
+  "seat_direction": "PARK-WIDE BOILERPLATE (Row Numbers block), verbatim: \"When looking towards the field/field, lower number seats are on the left\". NO PER-SECTION STATEMENT: no Q&A, expert answer or fan comment on this page names a side or an aisle seat number for this section. The boilerplate is the only seat-numbering evidence here.",
+  "seats_per_row": "UNKNOWN",
+  "notes": "Section Insights, verbatim: \"Top Pick for Great Views of the FieldRows EE-JJ\", \"Home Plate View\", \"Rows L-Z, AA-JJ\". Seating Notes, verbatim: \"For baseball games, we recommend rows EE-JJ for great views of the field\" and \"For baseball games, desirable view from behind home plate\". CONTRADICTION WITHIN THE PAGE, FLAGGED: a fan review is filed as \"Sec 105 / Row PP\" - verbatim \"Great view from these seats, worth the price. Sec 105 / Row PP - Baseball\" - but the row label line for 105 lists only \"L-Z, AA-JJ\", which contains no row PP. Either the row list is incomplete (neighbouring 107 does list a PP-XX block) or the review is mis-filed. Recorded, not reconciled. No netting or obstruction line printed for 105.",
+  "source": "https://www.rateyourseats.com/tropicana-field/seating/sections/105"
+ },
+ {
+  "section": "106",
+  "zone": "Page heading: \"Section 106 at Tropicana Field\". Home Plate Box category content served alongside.",
+  "location": "\"Sections 101-108: Rows L-N, positioned behind the Home Plate Club seats\" / \"Sections 101-108 provide a centered, slightly elevated perspective behind home plate\" / \"Sections 101-108 are located behind home plate with a clearer view\"",
+  "rows": "\"Rows in Section 106 are labeled L-Z, AA-JJ\"",
+  "entrance_row": "\"An entrance to this section is located at Row JJ\"",
+  "seat_direction": "PARK-WIDE BOILERPLATE (Row Numbers block), verbatim: \"When looking towards the field/field, lower number seats are on the left\". NO PER-SECTION STATEMENT: no Q&A, expert answer or fan comment on this page names a side or an aisle seat number for this section. The boilerplate is the only seat-numbering evidence here.",
+  "seats_per_row": "UNKNOWN",
+  "notes": "Section Insights, verbatim: \"Home Plate View\", \"Rows L-Z, AA-JJ\". Seating Notes, verbatim: \"For baseball games, desirable view from behind home plate\". No Q&A, no fan seat/side detail, no netting or obstruction line printed for 106. Page is partly generic - the Home Plate Box category text it carries applies to sections 101-108 collectively, not to 106 alone. NOTE: 106 (URL \"106\") is a distinct identifier from the Rays Club premium slug \"106C\" listed in discovery.json; this page is the ordinary lower-bowl section and prints rows L-Z, AA-JJ, not the PP-UU rows discovery records for Rays Club 106.",
+  "source": "https://www.rateyourseats.com/tropicana-field/seating/sections/106"
+ },
+ {
+  "section": "107",
+  "zone": "Page heading: \"Section 107 at Tropicana Field\". Home Plate Boxes and Lower Level Corner category reviews served alongside.",
+  "location": "NOT STATED on the page - no sentence places Section 107 within the ballpark beyond general seating-tier information.",
+  "rows": "\"Rows in Section 107 are labeled L-Z, AA-JJ, PP-XX\"",
+  "entrance_row": "\"An entrance to this section is located at Row JJ\"",
+  "seat_direction": "PARK-WIDE BOILERPLATE (Row Numbers block), verbatim: \"When looking towards the field/field, lower number seats are on the left\". NO PER-SECTION STATEMENT: no Q&A, expert answer or fan comment on this page names a side or an aisle seat number for this section. The boilerplate is the only seat-numbering evidence here.",
+  "seats_per_row": "UNKNOWN",
+  "notes": "Section Insights, verbatim: \"Top Pick for Great Views of the FieldRows EE-JJ\" and \"Obstructed/Limited ViewsRows VV-YY\". Seating Notes, verbatim: \"For baseball games, we recommend rows EE-JJ for great views of the field\" and \"Obstructed/Limited Views - See all details\". OBSTRUCTION: 107 carries the PP-XX rear block and an explicit obstructed-rows flag at VV-YY, matching the 200-level overhang problem discovery.json records for sections carrying that block. NOTE THE ROW-LIST DIFFERENCE: 101-106 and 108 list \"L-Z, AA-JJ\" only, while 107 lists an additional \"PP-XX\" block - so the 101-108 group is NOT uniform. Page carries substantial generic content (Home Plate Boxes, Lower Level Corner reviews) mixed with section data.",
+  "source": "https://www.rateyourseats.com/tropicana-field/seating/sections/107"
+ },
+ {
+  "section": "108",
+  "zone": "Page heading: \"Section 108 at Tropicana Field\". Home Plate Boxes overview served alongside.",
+  "location": "\"Sections 101-108: Rows L-N, positioned behind the Home Plate Club seats\" / \"Sections 101-108 are located behind home plate with a clearer view\"",
+  "rows": "\"Rows in Section 108 are labeled L-Z, AA-JJ\"",
+  "entrance_row": "\"An entrance to this section is located at Row JJ\"",
+  "seat_direction": "PARK-WIDE BOILERPLATE (Row Numbers block), verbatim: \"When looking towards the field/field, lower number seats are on the left\". PER-SECTION TEXT EXISTS but names no side: verbatim \"Seats in sections 101-108 sit about 10 rows off the field due to the Home Plate Club sections in front.\" That is a depth statement, not a side statement. No per-section statement of which side seat 1 is on.",
+  "seats_per_row": "UNKNOWN",
+  "notes": "Section Insights, verbatim: \"Rows L-Z, AA-JJ\". OVERHANG/OBSTRUCTION, verbatim: \"Avoid Rows WW and XX on the Lower Level because of the obstructed view created by the 200 level overhang.\" - this is the park-wide lower-bowl overhang warning discovery.json already records; note 108's own row list stops at JJ and contains no WW/XX rows, so the warning is carried generically here and does not bite in 108. Useful depth fact, verbatim: \"Seats in sections 101-108 sit about 10 rows off the field due to the Home Plate Club sections in front.\" Page mixes generic Home Plate Boxes overview with section-specific detail.",
+  "source": "https://www.rateyourseats.com/tropicana-field/seating/sections/108"
+ },
+ {
+  "section": "109",
+  "zone": "Page heading: \"Section 109 at Tropicana Field\". Home Plate Box review content served alongside.",
+  "location": "NOT STATED on the page - it prints no sentence placing Section 109 (baseline, corner, behind home plate or otherwise).",
+  "rows": "\"Rows in Section 109 are labeled B-Z, AA-JJ, PP-XX\"",
+  "entrance_row": "\"An entrance to this section is located at Row KK\"",
+  "seat_direction": "PARK-WIDE BOILERPLATE (Row Numbers block), verbatim: \"When looking towards the field/field, lower number seats are on the left\". NO PER-SECTION STATEMENT: no Q&A, expert answer or fan comment on this page names a side or an aisle seat number for this section. The boilerplate is the only seat-numbering evidence here. The only per-section fan text is the review tag \"Sec 109 / Row K - Baseball\", which names no side.",
+  "seats_per_row": "UNKNOWN",
+  "notes": "Section Insights, verbatim: \"Top Pick for Great Views of the FieldRows EE-JJ\" and \"Obstructed/Limited ViewsRows VV-YY\". Seating Notes, verbatim: \"For baseball games, we recommend rows EE-JJ for great views of the field\" and \"Obstructed/Limited Views - See all details\". INTERNAL INCONSISTENCY, FLAGGED: the entrance line names \"Row KK\", but the row label line for 109 is \"B-Z, AA-JJ, PP-XX\", which contains no row KK (it jumps from JJ to PP). RateYourSeats prints the same KK entrance on 111, 113, 115, 117 and 119, all of which likewise list no KK row. Recorded, not reconciled - KK appears to denote a concourse/walkway position between the JJ and PP blocks rather than a saleable row, but no source says so. Compare the related printed line on 111/115/119: \"There is a walkway betweeen Rows LL and PP\" [sic, \"betweeen\"]. OBSTRUCTION: 109 carries the PP-XX block and the VV-YY obstructed flag (200-level overhang).",
+  "source": "https://www.rateyourseats.com/tropicana-field/seating/sections/109"
+ },
+ {
+  "section": "110",
+  "zone": "Page heading: \"Section 110 at Tropicana Field\". No explicit seating-category name captured on this page.",
+  "location": "NOT STATED on the page - no sentence explicitly states where Section 110 is located within the ballpark. (Section 101's page separately states \"Home Plate Box seating is located on the Lower Level in the front of sections 101-110\", which is a category statement covering 110, not a 110-specific location line.)",
+  "rows": "\"Rows in Section 110 are labeled B-Z, AA-JJ\"",
+  "entrance_row": "\"An entrance to this section is located at Row JJ\"",
+  "seat_direction": "PARK-WIDE BOILERPLATE (Row Numbers block), verbatim: \"When looking towards the field/field, lower number seats are on the left\". PER-SECTION Q&A EXISTS but names no side: verbatim \"Row AA is directly behind Row Z, about 25 rows from the field.\" No per-section statement of which side seat 1 is on.",
+  "seats_per_row": "UNKNOWN",
+  "notes": "Seating Notes, verbatim: \"For baseball games, we recommend rows FF-JJ for outstanding convenience\". Row list starts at B, not L - the first-row letter is NOT uniform across the 101-110 run (101-108 start at L, 109 and 110 start at B), so no single front row should be assumed. No netting, obstruction or overhang line printed for 110. Page reads as section-specific rather than generic.",
+  "source": "https://www.rateyourseats.com/tropicana-field/seating/sections/110"
+ },
+ {
+  "section": "111",
+  "zone": "\"Fieldside Boxes\" (seating-category name printed on the page). Page heading \"Section 111 at Tropicana Field\".",
+  "location": "\"Sections 111, 113, 115, 117 (odd): Above the visiting team dugout\" / \"For baseball games, these seats are located behind the visitor dugout\"",
+  "rows": "\"Rows in Section 111 are labeled K-Z, AA-JJ, PP-XX\"",
+  "entrance_row": "\"An entrance to this section is located at Row KK\"",
+  "seat_direction": "PARK-WIDE BOILERPLATE (Row Numbers block), verbatim: \"When looking towards the field/field, lower number seats are on the left\". PER-SECTION Q&A EXISTS but names no side: verbatim \"Row K is the first row behind the visitor's dugout in Section 111.\" That fixes the front row, not the seat-1 side. No per-section statement of which side seat 1 is on.",
+  "seats_per_row": "UNKNOWN",
+  "notes": "Section Insights, verbatim: \"Top Pick for Outstanding Convenience - Rows FF-QQ\", \"Top Pick for Great Views of the Field - Rows EE-JJ\", \"Obstructed/Limited Views - Rows VV-YY\". Seating Notes, verbatim: \"There is a walkway between Rows LL and PP\" and \"For baseball games, we recommend rows EE-JJ for great views of the field\". Fan comment, verbatim: \"Great seats on third base line. Close to visitors dugout.\" CONFIRMS discovery.json parity and dugout facts - odd 111 is the VISITOR dugout / third-base side. No contradiction found. OBSTRUCTION: PP-XX block present with VV-YY flagged (200-level overhang). ENTRANCE ANOMALY: entrance \"Row KK\" is not in the section's own row list (K-Z, AA-JJ, PP-XX); same pattern as 109, 113, 115, 117, 119.",
+  "source": "https://www.rateyourseats.com/tropicana-field/seating/sections/111"
+ },
+ {
+  "section": "112",
+  "zone": "\"Fieldside Boxes\" (primary category printed on the page); the page also references \"Lower Level Infield (Baseball)\".",
+  "location": "\"These seats are located behind the Rays dugout\" / \"For football games, these seats are located behind the visitor sideline\"",
+  "rows": "\"Rows in Section 112 are labeled K-Z, AA-JJ\"",
+  "entrance_row": "\"An entrance to this section is located at Row JJ\"",
+  "seat_direction": "PARK-WIDE BOILERPLATE (Row Numbers block), verbatim: \"When looking towards the field/field, lower number seats are on the left\". PER-SECTION Q&A EXISTS but names no side: verbatim \"Row K is the first row behind the Rays dugout in Section 112.\" No per-section statement of which side seat 1 is on.",
+  "seats_per_row": "UNKNOWN",
+  "notes": "Section Insights, verbatim: \"Near Rays Dugout\" and \"Top Pick for Outstanding ConvenienceRows FF-JJ\". Seating Notes, verbatim: \"For baseball games, we recommend rows FF-JJ for outstanding convenience\". OVERHANG (carried from the Lower Level Infield review on the page), verbatim: \"Avoid Rows WW and XX on the Lower Level because of the obstructed view created by the 200 level overhang.\" - 112's own row list stops at JJ and has no WW/XX rows, so the warning does not bite here. CONFIRMS discovery.json: even 112 is the RAYS (home) dugout / first-base side. No contradiction found.",
+  "source": "https://www.rateyourseats.com/tropicana-field/seating/sections/112"
+ },
+ {
+  "section": "113",
+  "zone": "Page heading \"Section 113 at Tropicana Field\". No zone name printed explicitly on the page; content is the Fieldside Boxes / Lower Level Infield material.",
+  "location": "\"Sections 111, 113, 115, 117 (odd): Above the visiting team dugout\" / \"For baseball games, these seats are located behind the visitor dugout\"",
+  "rows": "\"Rows in Section 113 are labeled K-Z, AA-JJ, PP-XX\"",
+  "entrance_row": "\"An entrance to this section is located at Row KK\"",
+  "seat_direction": "PARK-WIDE BOILERPLATE (Row Numbers block), verbatim: \"When looking towards the field/field, lower number seats are on the left\". PER-SECTION Q&A EXISTS but names no side: verbatim \"Row K is the first row behind the visitor's dugout in Section 113.\" No per-section statement of which side seat 1 is on.",
+  "seats_per_row": "UNKNOWN",
+  "notes": "Seating Notes and Insights, verbatim: \"Obstructed/Limited Views\", \"For baseball games, we recommend rows FF-QQ for outstanding convenience\", \"For baseball games, we recommend rows EE-JJ for great views of the field\". OVERHANG, verbatim and IMPORTANT because it names the exact affected range: \"The views from rows VV-YY in sections 107-131 are limited by the overhang from the 200 level.\" This is more specific than the park-wide \"Avoid Rows WW and XX\" line discovery.json records from section 118 - the two differ on which rows (VV-YY vs WW and XX). Both recorded, not reconciled. Fan comment, verbatim: \"Foul ball heaven!\" CONFIRMS discovery.json parity/dugout facts - odd 113 is visitor dugout / third-base side. ENTRANCE ANOMALY: \"Row KK\" is not in the section's row list.",
+  "source": "https://www.rateyourseats.com/tropicana-field/seating/sections/113"
+ },
+ {
+  "section": "114",
+  "zone": "\"Fieldside Boxes\" (seating-category name printed on the page).",
+  "location": "\"Sections 112, 114, 116, 118 (even): Above the Rays dugout\" / \"These seats are located behind the Rays dugout\"",
+  "rows": "\"Rows in Section 114 are labeled K-Z, AA-JJ\"",
+  "entrance_row": "\"An entrance to this section is located at Row JJ\"",
+  "seat_direction": "PARK-WIDE BOILERPLATE (Row Numbers block), verbatim: \"When looking towards the field/field, lower number seats are on the left\". PER-SECTION Q&A EXISTS but names no side: verbatim \"Row K is the first row behind the Rays dugout in Section 114.\" and \"There are 26 lettered rows in section 114 at Tropicana Field. The first row in the section and closest to the Rays dugout is Row K, which is then followed by rows L-Z, and ends with rows AA-JJ\". Both are row/depth statements. No per-section statement of which side seat 1 is on.",
+  "seats_per_row": "UNKNOWN",
+  "notes": "Section Insights, verbatim: \"Near Rays Dugout\" and \"Top Pick for Outstanding ConvenienceRows FF-JJ\". Seating Notes, verbatim: \"For baseball games, we recommend rows FF-JJ for outstanding convenience\". ROW-COUNT CHECK, verbatim: \"There are 26 lettered rows in section 114\" - K-Z is 16 letters and AA-JJ is 10, totalling 26, so the page is internally consistent and confirms AA-JJ means AA,BB,...,JJ (doubled letters), i.e. 10 rows, not an alphabetic span of 36. This is a useful decoding fact for every Tropicana Field row list. CONFIRMS discovery.json: the explicit \"(even): Above the Rays dugout\" line is a direct parity statement matching the club guide. No contradiction found. No netting or obstruction line printed for 114.",
+  "source": "https://www.rateyourseats.com/tropicana-field/seating/sections/114"
+ },
+ {
+  "section": "115",
+  "zone": "\"Fieldside Boxes\" (seating-category name printed on the page).",
+  "location": "\"Sections 111, 113, 115, 117 (odd): Above the visiting team dugout\" / \"For baseball games, these seats are located behind the visitor dugout\"",
+  "rows": "\"Rows in Section 115 are labeled K-Z, AA-JJ, PP-XX\"",
+  "entrance_row": "\"An entrance to this section is located at Row KK\"",
+  "seat_direction": "PARK-WIDE BOILERPLATE (Row Numbers block), verbatim: \"When looking towards the field/field, lower number seats are on the left\". PER-SECTION Q&A EXISTS but names no side: verbatim \"Row K is the first row behind the visitor's dugout in Section 115.\" No per-section statement of which side seat 1 is on.",
+  "seats_per_row": "UNKNOWN",
+  "notes": "Section Insights, verbatim: Top Pick for Outstanding Convenience \"Rows FF-QQ\"; Top Pick for Great Views \"Rows EE-JJ\"; Obstructed/Limited Views \"Rows VV-YY\". Seating Notes, verbatim: \"There is a walkway betweeen Rows LL and PP\" [sic - \"betweeen\" is how the page renders it]. CONFIRMS discovery.json parity/dugout facts - odd 115 is visitor dugout / third-base side. OBSTRUCTION: PP-XX block present with VV-YY flagged (200-level overhang). ENTRANCE ANOMALY: entrance \"Row KK\" is not in the section's own row list. Page reads as section-specific.",
+  "source": "https://www.rateyourseats.com/tropicana-field/seating/sections/115"
+ },
+ {
+  "section": "116",
+  "zone": "\"Fieldside Boxes\" (seating-category name printed on the page).",
+  "location": "\"These seats are located behind the Rays dugout\" / \"For football games, these seats are located behind the visitor sideline\"",
+  "rows": "\"Rows in Section 116 are labeled K-Z, AA-JJ\"",
+  "entrance_row": "\"An entrance to this section is located at Row JJ\"",
+  "seat_direction": "PARK-WIDE BOILERPLATE (Row Numbers block), verbatim: \"When looking towards the field/field, lower number seats are on the left\". PER-SECTION Q&A EXISTS but names no side: verbatim \"Row K is the first row behind the Rays dugout in Section 116.\" No per-section statement of which side seat 1 is on.",
+  "seats_per_row": "UNKNOWN",
+  "notes": "Section Insights, verbatim: \"Near Rays Dugout\", \"Rows K-Z, AA-JJ\". Seating Notes, verbatim: \"These seats are located behind the Rays dugout\" and \"For football games, these seats are located behind the visitor sideline\". CONFIRMS discovery.json: even 116 is Rays (home) dugout / first-base side. No netting, obstruction or overhang line printed for 116. Page carries extensive generic Fieldside Boxes category text alongside the section-specific rows, entrance and fan feedback.",
+  "source": "https://www.rateyourseats.com/tropicana-field/seating/sections/116"
+ },
+ {
+  "section": "117",
+  "zone": "\"Fieldside Boxes\" (seating-category name printed on the page).",
+  "location": "\"Sections 111, 113, 115, 117 (odd): Above the visiting team dugout\" / \"For baseball games, these seats are located behind the visitor dugout\"",
+  "rows": "\"Rows in Section 117 are labeled K-Z, AA-JJ, PP-XX\"",
+  "entrance_row": "\"An entrance to this section is located at Row KK\"",
+  "seat_direction": "PARK-WIDE BOILERPLATE (Row Numbers block), verbatim: \"When looking towards the field/field, lower number seats are on the left\". PER-SECTION Q&A EXISTS but names no side: verbatim \"Row K is the first row behind the visitor's dugout in Section 117.\" No per-section statement of which side seat 1 is on.",
+  "seats_per_row": "UNKNOWN",
+  "notes": "Section Insights, verbatim: \"Top Pick for Great Views of the FieldRows EE-JJ\" and \"Obstructed/Limited ViewsRows VV-YY\". Seating Notes, verbatim: \"For baseball games, we recommend rows EE-JJ for great views of the field\" and \"Obstructed/Limited Views - See all details\". CONFIRMS discovery.json parity/dugout facts - odd 117 is visitor dugout / third-base side. OBSTRUCTION: PP-XX block present with VV-YY flagged (200-level overhang). ENTRANCE ANOMALY: entrance \"Row KK\" is not in the section's own row list.",
+  "source": "https://www.rateyourseats.com/tropicana-field/seating/sections/117"
+ },
+ {
+  "section": "118",
+  "zone": "\"Fieldside Boxes\" (seating-category name printed on the page).",
+  "location": "\"Located within ~12 rows of the field near the dugouts\" / \"Fieldside Box seating is located on the Lower Level near the dugouts and along the baselines\" / \"These seats are located behind the Rays dugout\" / \"For football games, these seats are located behind the visitor sideline\"",
+  "rows": "\"Rows in Section 118 are labeled K-Z, AA-JJ\"",
+  "entrance_row": "\"An entrance to this section is located at Row JJ\"",
+  "seat_direction": "PARK-WIDE BOILERPLATE (Row Numbers block), verbatim: \"When looking towards the field/field, lower number seats are on the left\". PER-SECTION Q&A EXISTS but names no side: verbatim \"Row K is the first row behind the Rays dugout in Section 118.\" No per-section statement of which side seat 1 is on.",
+  "seats_per_row": "UNKNOWN",
+  "notes": "Section Insights, verbatim: \"Near Rays Dugout\", \"Midfield View\", \"Rows K-Z, AA-JJ\". Seating Notes are the location lines above. CONFIRMS discovery.json: 118 is \"behind the Rays dugout\", i.e. even = first-base side. NOTE ON THIS FETCH: discovery.json cites section 118 as the source of the park-wide line \"Avoid Rows WW and XX on the Lower Level because of the obstructed view created by the 200 level overhang.\" That sentence did NOT surface in this fetch of the 118 page - it surfaced instead on the 108 and 112 pages. The line clearly exists on the site; which page carries it varies between fetches, which is consistent with the source-access caveat recorded in discovery.json. Not treated as a contradiction. 118's own row list stops at JJ, so it has no WW/XX rows regardless.",
+  "source": "https://www.rateyourseats.com/tropicana-field/seating/sections/118"
+ },
+ {
+  "section": "119",
+  "zone": "\"Fieldside Boxes\" (seating-category name printed on the page).",
+  "location": "\"Sections 119-125: Extend further down the baselines past the dugouts\"",
+  "rows": "\"Rows in Section 119 are labeled B-Z, AA-JJ, PP-XX\"",
+  "entrance_row": "\"An entrance to this section is located at Row KK\"",
+  "seat_direction": "PARK-WIDE BOILERPLATE (Row Numbers block), verbatim: \"When looking towards the field/field, lower number seats are on the left\". NO PER-SECTION STATEMENT: no Q&A, expert answer or fan comment on this page names a side or an aisle seat number for this section. The boilerplate is the only seat-numbering evidence here.",
+  "seats_per_row": "UNKNOWN",
+  "notes": "NETTING, verbatim and section-specific: \"Front of sections 119-120 are behind the netting - There is some amount of netting or screening in front of sections 119-120.\" This corroborates the club's netted-section list (which includes 119 and 120) from discovery.json. Section Insights, verbatim: \"Top Pick for Great Views of the FieldRows B-G\", \"Top Pick for Great Views of the FieldRows EE-JJ\", \"Obstructed/Limited ViewsRows VV-YY\". Seating Notes, verbatim: \"There is a walkway betweeen Rows LL and PP\" [sic], \"For baseball games, we recommend rows B-G for great views\", \"For baseball games, we recommend rows EE-JJ for great views\". Row list starts at B, not K - the front row differs from the 111-118 dugout sections. OBSTRUCTION: PP-XX block present with VV-YY flagged. ENTRANCE ANOMALY: entrance \"Row KK\" is not in the section's own row list. NOTE ON PARITY: 119 is odd, so by discovery.json it is on the third-base/left-field side; the page itself does not say which line \"past the dugouts\" it extends down, so it neither confirms nor contradicts.",
+  "source": "https://www.rateyourseats.com/tropicana-field/seating/sections/119"
+ },
+ {
+  "section": "120",
+  "zone": "\"Fieldside Boxes\" (primary category printed on the page); the page also references \"Lower Level Infield (Baseball)\" and \"Lower Level Sideline (Football)\".",
+  "location": "\"Sections 119-125: Extend further down the baselines past the dugouts\"",
+  "rows": "\"Rows in Section 120 are labeled B-Z, AA-JJ, WCH\"",
+  "entrance_row": "\"An entrance to this section is located at Row WCH\"",
+  "seat_direction": "PARK-WIDE BOILERPLATE (Row Numbers block), verbatim: \"When looking towards the field/field, lower number seats are on the left\". NO PER-SECTION STATEMENT: no Q&A, expert answer or fan comment on this page names a side or an aisle seat number for this section. The boilerplate is the only seat-numbering evidence here. The only per-section text touching seating layout is the Fieldside Box row spec \"119 & 120: Rows B-L\", which names rows, not a side.",
+  "seats_per_row": "UNKNOWN",
+  "notes": "ACCESSIBLE ROW: 120's row list ends with \"WCH\" and the entrance is given as \"Row WCH\", consistent with discovery.json's finding that WCH is a REAR wheelchair row at the back of the section by the concourse (not a front row) and that it doubles as the entrance position. Section Insights, verbatim: \"Top Pick for Great Views of the FieldRows B-G\", \"Midfield View\". Seating Notes, verbatim: \"For football games, these seats are located behind the visitor sideline\", \"For baseball games, we recommend rows B-G for great views of the field\", \"For football games, desirable view from near midfield\". NETTING: section 119's page states \"Front of sections 119-120 are behind the netting - There is some amount of netting or screening in front of sections 119-120\", which covers 120; the 120 page itself printed no netting line in this fetch. Row list has no PP-XX block, so the VV-YY / WW-XX overhang obstruction does not apply to 120. NOTE ON PARITY: 120 is even, so by discovery.json it is first-base/right-field side; the page does not say which line it extends down.",
+  "source": "https://www.rateyourseats.com/tropicana-field/seating/sections/120"
+ }
+]

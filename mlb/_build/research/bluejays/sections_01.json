@@ -1,0 +1,222 @@
+[
+  {
+    "section": "1",
+    "zone": "TD Lounge (page heading: \"Section 1 at Rogers Centre\"; Section Insight: \"TD Lounge\")",
+    "location": "\"Sections 1-5, located directly behind home plate and between the dugouts\". Page also headlines \"Prime Lower Bowl Location\" with \"elite, centered views\".",
+    "rows": "\"Rows in Section 1 are labeled 1-5\"",
+    "entrance_row": "UNKNOWN",
+    "seat_direction": "RateYourSeats park-wide BOILERPLATE (identical on every Rogers Centre section page): \"When looking towards the field/ring/stage, lower number seats are on the right\". PER-SECTION: No per-section statement. No Q&A, expert answer or fan comment on this page names a side for seat 1 in this section.",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights verbatim: \"Top Pick for Impressing a Guest\"; \"TD Lounge\"; \"Rows 1-5\". Seating Notes verbatim: \"For baseball games, we recommend these seats for impressing a guest\"; \"Premium seating area as part of the TD Lounge\". No netting, obstruction, overhang or shade line on this page. No entrance-row line is printed on any of the field-level premium sections (1-5, 16-28) in this batch. Consistent with discovery.json, which records TD Lounge as \"Each section features just five rows\".",
+    "source": "https://www.rateyourseats.com/rogers-centre/seating/sections/1"
+  },
+  {
+    "section": "2",
+    "zone": "TD Lounge (page heading: \"Section 2 at Rogers Centre\"; Section Insight: \"TD Lounge\")",
+    "location": "UNKNOWN. No sentence on the Section 2 page places the section in the ballpark; the page carries only the \"TD Lounge\" / \"Rows 1-5\" Section Insight. (Sibling pages 1, 3, 4 and 5 state the TD Lounge group is \"located directly behind home plate and between the dugouts\".)",
+    "rows": "\"Rows in Section 2 are labeled 1-5\"",
+    "entrance_row": "UNKNOWN",
+    "seat_direction": "RateYourSeats park-wide BOILERPLATE (identical on every Rogers Centre section page): \"When looking towards the field/ring/stage, lower number seats are on the right\". PER-SECTION: No per-section statement. No Q&A, expert answer or fan comment on this page names a side for seat 1 in this section.",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights verbatim: \"Top Pick for Impressing a Guest\"; \"TD Lounge\"; \"Rows 1-5\". Seating Notes verbatim: \"For baseball games, we recommend these seats for impressing a guest\"; \"Premium seating area as part of the TD Lounge\". No netting, obstruction, overhang or shade line on this page. No entrance-row line is printed on any of the field-level premium sections (1-5, 16-28) in this batch. Consistent with discovery.json, which records TD Lounge as \"Each section features just five rows\". FAN REVIEW verbatim: \"Close but obstructed - Not bad seats they were pretty close. Only down side was minor blocks from equipment but overall still fairly good seats.\" This is the only obstruction mention anywhere in this batch.",
+    "source": "https://www.rateyourseats.com/rogers-centre/seating/sections/2"
+  },
+  {
+    "section": "3",
+    "zone": "TD Lounge (page heading: \"Section 3 at Rogers Centre\"; Section Insight: \"TD Lounge\")",
+    "location": "\"Sections 1-5, 21-26, and 122-125 offer elite, centered views\" and \"Sections 1-5, located directly behind home plate and between the dugouts.\"",
+    "rows": "\"Rows in Section 3 are labeled 1-5\"",
+    "entrance_row": "UNKNOWN",
+    "seat_direction": "RateYourSeats park-wide BOILERPLATE (identical on every Rogers Centre section page): \"When looking towards the field/ring/stage, lower number seats are on the right\". PER-SECTION: No per-section statement. No Q&A, expert answer or fan comment on this page names a side for seat 1 in this section.",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights verbatim: \"Top Pick for Impressing a Guest\"; \"TD Lounge\"; \"Rows 1-5\". Seating Notes verbatim: \"For baseball games, we recommend these seats for impressing a guest\"; \"Premium seating area as part of the TD Lounge\". No netting, obstruction, overhang or shade line on this page. No entrance-row line is printed on any of the field-level premium sections (1-5, 16-28) in this batch. Consistent with discovery.json, which records TD Lounge as \"Each section features just five rows\".",
+    "source": "https://www.rateyourseats.com/rogers-centre/seating/sections/3"
+  },
+  {
+    "section": "4",
+    "zone": "TD Lounge (page heading: \"Section 4 at Rogers Centre\"; Section Insight: \"TD Lounge\")",
+    "location": "\"Sections 1-5, 21-26, and 122-125 offer elite, centered views\" and \"Sections 1-5, located directly behind home plate and between the dugouts.\"",
+    "rows": "\"Rows in Section 4 are labeled 1-5\"",
+    "entrance_row": "UNKNOWN",
+    "seat_direction": "RateYourSeats park-wide BOILERPLATE (identical on every Rogers Centre section page): \"When looking towards the field/ring/stage, lower number seats are on the right\". PER-SECTION: No per-section statement. No Q&A, expert answer or fan comment on this page names a side for seat 1 in this section.",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights verbatim: \"Top Pick for Impressing a Guest\"; \"TD Lounge\"; \"Rows 1-5\". Seating Notes verbatim: \"For baseball games, we recommend these seats for impressing a guest\"; \"Premium seating area as part of the TD Lounge\". No netting, obstruction, overhang or shade line on this page. No entrance-row line is printed on any of the field-level premium sections (1-5, 16-28) in this batch. Consistent with discovery.json, which records TD Lounge as \"Each section features just five rows\".",
+    "source": "https://www.rateyourseats.com/rogers-centre/seating/sections/4"
+  },
+  {
+    "section": "5",
+    "zone": "TD Lounge (page heading: \"Section 5 at Rogers Centre\"; Section Insight: \"TD Lounge\")",
+    "location": "\"Sections 1-5, 21-26, and 122-125 offer elite, centered views\" and \"TD Lounge Club seating includes Sections 1-5, located directly behind home plate and between the dugouts.\"",
+    "rows": "\"Rows in Section 5 are labeled 1-5\"",
+    "entrance_row": "UNKNOWN",
+    "seat_direction": "RateYourSeats park-wide BOILERPLATE (identical on every Rogers Centre section page): \"When looking towards the field/ring/stage, lower number seats are on the right\". PER-SECTION: No per-section statement. No Q&A, expert answer or fan comment on this page names a side for seat 1 in this section.",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights verbatim: \"Top Pick for Impressing a Guest\"; \"TD Lounge\"; \"Rows 1-5\". Seating Notes verbatim: \"For baseball games, we recommend these seats for impressing a guest\"; \"Premium seating area as part of the TD Lounge\". No netting, obstruction, overhang or shade line on this page. No entrance-row line is printed on any of the field-level premium sections (1-5, 16-28) in this batch. Consistent with discovery.json, which records TD Lounge as \"Each section features just five rows\".",
+    "source": "https://www.rateyourseats.com/rogers-centre/seating/sections/5"
+  },
+  {
+    "section": "16",
+    "zone": "KPMG Blueprint Club (page heading: \"Section 16 at Rogers Centre\"; Section Insight: \"Blueprint Club - Blue Jays Games\")",
+    "location": "\"Sections 16-22 sit just behind the visitor dugout near home plate.\" and \"KPMG Blueprint Club seating includes Sections 16-22, located just behind the visitor dugout on the first base side at Rogers Centre.\" and \"For baseball games, these seats are located behind the visitor dugout\".",
+    "rows": "\"Rows in Section 16 are labeled 1-11\"",
+    "entrance_row": "UNKNOWN",
+    "seat_direction": "RateYourSeats park-wide BOILERPLATE (identical on every Rogers Centre section page): \"When looking towards the field/ring/stage, lower number seats are on the right\". PER-SECTION: No per-section statement. No Q&A, expert answer or fan comment on this page names a side for seat 1 in this section.",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights verbatim: \"Blueprint Club - Blue Jays Games\". Seating Notes verbatim: \"For baseball games, these seats are located behind the visitor dugout\"; \"Premium seating area as part of the Blueprint Club for Blue Jays games\". Page also lists \"Upscale All-Inclusive Experience (Blue Jays): Premium dining, in-seat service, and elevated food stations included.\"; \"Exclusive Club Access: Private lounge located directly beneath the seating sections.\"; \"Unique Batting Cage Views: Direct views into the visitor batting cage from the club.\". No netting, obstruction, overhang or shade line on this page. No entrance-row line printed. Agrees with discovery.json: visitor dugout on the FIRST-BASE side, Blueprint Club 16-22. Section Insight also lists \"Rows 1-11\".",
+    "source": "https://www.rateyourseats.com/rogers-centre/seating/sections/16"
+  },
+  {
+    "section": "17",
+    "zone": "KPMG Blueprint Club (page heading: \"Section 17 at Rogers Centre\"; Section Insight: \"Blueprint Club - Blue Jays Games\")",
+    "location": "\"Sections 16-22 sit just behind the visitor dugout near home plate.\" and \"for baseball games, these seats are located behind the visitor dugout\".",
+    "rows": "\"Rows in Section 17 are labeled 1-11\"",
+    "entrance_row": "UNKNOWN",
+    "seat_direction": "RateYourSeats park-wide BOILERPLATE (identical on every Rogers Centre section page): \"When looking towards the field/ring/stage, lower number seats are on the right\". PER-SECTION: No per-section statement. No Q&A, expert answer or fan comment on this page names a side for seat 1 in this section.",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights verbatim: \"Blueprint Club - Blue Jays Games\". Seating Notes verbatim: \"For baseball games, these seats are located behind the visitor dugout\"; \"Premium seating area as part of the Blueprint Club for Blue Jays games\". Page also lists \"Upscale All-Inclusive Experience (Blue Jays): Premium dining, in-seat service, and elevated food stations included.\"; \"Exclusive Club Access: Private lounge located directly beneath the seating sections.\"; \"Unique Batting Cage Views: Direct views into the visitor batting cage from the club.\". No netting, obstruction, overhang or shade line on this page. No entrance-row line printed. Agrees with discovery.json: visitor dugout on the FIRST-BASE side, Blueprint Club 16-22. Section Insight also lists \"Rows 1-11\".",
+    "source": "https://www.rateyourseats.com/rogers-centre/seating/sections/17"
+  },
+  {
+    "section": "18",
+    "zone": "KPMG Blueprint Club (page heading: \"Section 18 at Rogers Centre\"; Section Insight: \"Blueprint Club - Blue Jays Games\")",
+    "location": "\"Sections 16-22 sit just behind the visitor dugout near home plate\" and \"located just behind the visitor dugout on the first base side at Rogers Centre.\"",
+    "rows": "\"Rows in Section 18 are labeled 1-11\"",
+    "entrance_row": "UNKNOWN",
+    "seat_direction": "RateYourSeats park-wide BOILERPLATE (identical on every Rogers Centre section page): \"When looking towards the field/ring/stage, lower number seats are on the right\". PER-SECTION: No per-section statement. No Q&A, expert answer or fan comment on this page names a side for seat 1 in this section.",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights verbatim: \"Blueprint Club - Blue Jays Games\". Seating Notes verbatim: \"For baseball games, these seats are located behind the visitor dugout\"; \"Premium seating area as part of the Blueprint Club for Blue Jays games\". Page also lists \"Upscale All-Inclusive Experience (Blue Jays): Premium dining, in-seat service, and elevated food stations included.\"; \"Exclusive Club Access: Private lounge located directly beneath the seating sections.\"; \"Unique Batting Cage Views: Direct views into the visitor batting cage from the club.\". No netting, obstruction, overhang or shade line on this page. No entrance-row line printed. Agrees with discovery.json: visitor dugout on the FIRST-BASE side, Blueprint Club 16-22. Section Insight also lists \"Rows 1-11\".",
+    "source": "https://www.rateyourseats.com/rogers-centre/seating/sections/18"
+  },
+  {
+    "section": "19",
+    "zone": "KPMG Blueprint Club (page heading: \"Section 19 at Rogers Centre\"; Section Insight: \"Blueprint Club - Blue Jays Games\")",
+    "location": "\"Sections 16-22 sit just behind the visitor dugout near home plate\" and \"KPMG Blueprint Club seating includes Sections 16-22, located just behind the visitor dugout on the first base side\" and \"For baseball games, these seats are located behind the visitor dugout\".",
+    "rows": "\"Rows in Section 19 are labeled 1-11\"",
+    "entrance_row": "UNKNOWN",
+    "seat_direction": "RateYourSeats park-wide BOILERPLATE (identical on every Rogers Centre section page): \"When looking towards the field/ring/stage, lower number seats are on the right\". PER-SECTION: No per-section statement. No Q&A, expert answer or fan comment on this page names a side for seat 1 in this section.",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights verbatim: \"Blueprint Club - Blue Jays Games\". Seating Notes verbatim: \"For baseball games, these seats are located behind the visitor dugout\"; \"Premium seating area as part of the Blueprint Club for Blue Jays games\". Page also lists \"Upscale All-Inclusive Experience (Blue Jays): Premium dining, in-seat service, and elevated food stations included.\"; \"Exclusive Club Access: Private lounge located directly beneath the seating sections.\"; \"Unique Batting Cage Views: Direct views into the visitor batting cage from the club.\". No netting, obstruction, overhang or shade line on this page. No entrance-row line printed. Agrees with discovery.json: visitor dugout on the FIRST-BASE side, Blueprint Club 16-22. Section Insight also lists \"Rows 1-11\".",
+    "source": "https://www.rateyourseats.com/rogers-centre/seating/sections/19"
+  },
+  {
+    "section": "20",
+    "zone": "KPMG Blueprint Club (page heading: \"Section 20 at Rogers Centre\"; Section Insight: \"Blueprint Club - Blue Jays Games\")",
+    "location": "\"Visitor Dugout Location: Sections 16-22 sit just behind the visitor dugout near home plate.\" and \"For baseball games, these seats are located behind the visitor dugout\".",
+    "rows": "\"Rows in Section 20 are labeled 1-8\"",
+    "entrance_row": "UNKNOWN",
+    "seat_direction": "RateYourSeats park-wide BOILERPLATE (identical on every Rogers Centre section page): \"When looking towards the field/ring/stage, lower number seats are on the right\". PER-SECTION: No per-section statement. No Q&A, expert answer or fan comment on this page names a side for seat 1 in this section.",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights verbatim: \"Blueprint Club - Blue Jays Games\". Seating Notes verbatim: \"For baseball games, these seats are located behind the visitor dugout\"; \"Premium seating area as part of the Blueprint Club for Blue Jays games\". Page also lists \"Upscale All-Inclusive Experience (Blue Jays): Premium dining, in-seat service, and elevated food stations included.\"; \"Exclusive Club Access: Private lounge located directly beneath the seating sections.\"; \"Unique Batting Cage Views: Direct views into the visitor batting cage from the club.\". No netting, obstruction, overhang or shade line on this page. No entrance-row line printed. Agrees with discovery.json: visitor dugout on the FIRST-BASE side, Blueprint Club 16-22. Section Insight also lists \"Rows 1-8\".",
+    "source": "https://www.rateyourseats.com/rogers-centre/seating/sections/20"
+  },
+  {
+    "section": "21",
+    "zone": "KPMG Blueprint Club (page heading: \"Section 21 at Rogers Centre\"; Section Insight: \"Blueprint Club - Blue Jays Games\")",
+    "location": "\"Sections 16-22 sit just behind the visitor dugout near home plate\" and \"located just behind the visitor dugout on the first base side\".",
+    "rows": "\"Rows in Section 21 are labeled 1-8\"",
+    "entrance_row": "UNKNOWN",
+    "seat_direction": "RateYourSeats park-wide BOILERPLATE (identical on every Rogers Centre section page): \"When looking towards the field/ring/stage, lower number seats are on the right\". PER-SECTION: No per-section statement. No Q&A, expert answer or fan comment on this page names a side for seat 1 in this section.",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights verbatim: \"Blueprint Club - Blue Jays Games\". Seating Notes verbatim: \"For baseball games, these seats are located behind the visitor dugout\"; \"Premium seating area as part of the Blueprint Club for Blue Jays games\". Page also lists \"Upscale All-Inclusive Experience (Blue Jays): Premium dining, in-seat service, and elevated food stations included.\"; \"Exclusive Club Access: Private lounge located directly beneath the seating sections.\"; \"Unique Batting Cage Views: Direct views into the visitor batting cage from the club.\". No netting, obstruction, overhang or shade line on this page. No entrance-row line printed. Agrees with discovery.json: visitor dugout on the FIRST-BASE side, Blueprint Club 16-22. Section Insight also lists \"Rows 1-8\".",
+    "source": "https://www.rateyourseats.com/rogers-centre/seating/sections/21"
+  },
+  {
+    "section": "22",
+    "zone": "KPMG Blueprint Club (page heading: \"Section 22 at Rogers Centre\"; Section Insight: \"Blueprint Club - Blue Jays Games\")",
+    "location": "\"Sections 16-22 sit just behind the visitor dugout near home plate.\" and \"Sections 21 and 22 sit closer to home plate than any other Blueprint Club sections.\"",
+    "rows": "\"Rows in Section 22 are labeled 1-8\"",
+    "entrance_row": "UNKNOWN",
+    "seat_direction": "RateYourSeats park-wide BOILERPLATE (identical on every Rogers Centre section page): \"When looking towards the field/ring/stage, lower number seats are on the right\". PER-SECTION: No per-section statement. No Q&A, expert answer or fan comment on this page names a side for seat 1 in this section.",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights verbatim: \"Blueprint Club - Blue Jays Games\". Seating Notes verbatim: \"For baseball games, these seats are located behind the visitor dugout\"; \"Premium seating area as part of the Blueprint Club for Blue Jays games\". Page also lists \"Upscale All-Inclusive Experience (Blue Jays): Premium dining, in-seat service, and elevated food stations included.\"; \"Exclusive Club Access: Private lounge located directly beneath the seating sections.\"; \"Unique Batting Cage Views: Direct views into the visitor batting cage from the club.\". No netting, obstruction, overhang or shade line on this page. No entrance-row line printed. Agrees with discovery.json: visitor dugout on the FIRST-BASE side, Blueprint Club 16-22. Section Insight also lists \"Rows 1-8\". Page additionally states \"Sections 21 and 22 sit closer to home plate than any other Blueprint Club sections.\" A fan review is present but carries only a star rating and header, no text: \"***** | Sec 22 / Row 5 - Baseball | New York Yankees at Toronto Blue Jays - Jun 28, 2024\".",
+    "source": "https://www.rateyourseats.com/rogers-centre/seating/sections/22"
+  },
+  {
+    "section": "23",
+    "zone": "Rogers Banner Club (page heading: \"Section 23 at Rogers Centre\"; Section Insight: \"Banner Club\")",
+    "location": "\"Sections 23-25: Behind home plate\" and \"Rogers Banner Club seating includes Sections 23-32, located behind home plate and along the third base side behind the Blue Jays dugout.\"",
+    "rows": "\"Rows in Section 23 are labeled 1-8\"",
+    "entrance_row": "UNKNOWN",
+    "seat_direction": "RateYourSeats park-wide BOILERPLATE (identical on every Rogers Centre section page): \"When looking towards the field/ring/stage, lower number seats are on the right\". PER-SECTION: No per-section statement. No Q&A, expert answer or fan comment on this page names a side for seat 1 in this section.",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights verbatim: \"Banner Club\". Seating Notes verbatim: \"Premium seating area as part of the Banner Club\". Page also states \"All seats are within 15 rows of the field\" and \"In-Seat Service (Blue Jays): Fans can order ballpark favorites and gourmet menu items directly to their seats.\" and describes \"access to a club lounge located directly beneath the seating sections\". No netting, obstruction, overhang or shade line on this page. No entrance-row line printed. Agrees with discovery.json: Blue Jays dugout on the THIRD-BASE side. Section Insight also lists \"Rows 1-8\".",
+    "source": "https://www.rateyourseats.com/rogers-centre/seating/sections/23"
+  },
+  {
+    "section": "23A",
+    "zone": "KPMG Blueprint Club (page heading: \"Section 23A at Rogers Centre\"; Section Insight: \"Blueprint Club - Blue Jays Games\") -- SEE CONTRADICTION IN NOTES",
+    "location": "\"Sections 16-22 sit just behind the visitor dugout near home plate\" and \"located just behind the visitor dugout on the first base side at Rogers Centre.\"",
+    "rows": "\"For most events, rows in Section 23A are labeled 1-8\"",
+    "entrance_row": "UNKNOWN",
+    "seat_direction": "RateYourSeats park-wide BOILERPLATE (identical on every Rogers Centre section page): \"When looking towards the field/ring/stage, lower number seats are on the right\". PER-SECTION: No per-section statement. No Q&A, expert answer or fan comment on this page names a side for seat 1 in this section.",
+    "seats_per_row": "UNKNOWN",
+    "notes": "URL ANOMALY: the brief-supplied identifier URL .../seating/sections/23A does NOT serve section content - it redirects to the Rogers Centre \"Find Your Seats\" section index, where 23A is listed as a link pointing to .../seating/sections/23_a. The underscore form was fetched and does serve genuine Section 23A content. *** CONTRADICTION, FLAGGED AND NOT RECONCILED: the Section 23A page places this section with the BLUEPRINT CLUB on the FIRST-BASE side behind the VISITOR dugout (\"Sections 16-22 sit just behind the visitor dugout near home plate\"; \"located just behind the visitor dugout on the first base side\"), while the Section 23 and Section 23B pages both place the 23 series with the BANNER CLUB behind home plate (\"Sections 23-25: Behind home plate\"; \"Sections 23-32 span from behind home plate to directly behind the Blue Jays dugout\"). Two RateYourSeats pages for adjacent 23-series identifiers assign them to different clubs on different sides of home plate. Note also that the location sentences quoted on the 23A page name only sections 16-22 and never name 23A itself, so this may be boilerplate club text bled onto the page rather than a positional statement about 23A. Neither reading is adopted here. Section Insights verbatim: \"Blueprint Club - Blue Jays Games\"; \"Rows 1-8\". Seating Notes verbatim: \"Premium seating area as part of the Blueprint Club for Blue Jays games\". Page also mentions \"All-inclusive dining\", \"private club space\", a \"low-level infield perspective from the first base side\" and \"unique views into the visitor batting cage\". No netting, obstruction, overhang or shade line. No entrance-row line printed.",
+    "source": "Fetched https://www.rateyourseats.com/rogers-centre/seating/sections/23A (served the generic section index, not section content) then https://www.rateyourseats.com/rogers-centre/seating/sections/23_a (genuine Section 23A content)"
+  },
+  {
+    "section": "23B",
+    "zone": "Rogers Banner Club (page heading: \"Section 23B at Rogers Centre\"; Section Insight: \"Banner Club\")",
+    "location": "\"Behind Home Plate & Jays Dugout: Sections 23-32 span from behind home plate to directly behind the Blue Jays dugout.\" and \"Sections 23-25: Behind home plate\".",
+    "rows": "\"For most events, rows in Section 23B are labeled 1-8\"",
+    "entrance_row": "UNKNOWN",
+    "seat_direction": "RateYourSeats park-wide BOILERPLATE (identical on every Rogers Centre section page): \"When looking towards the field/ring/stage, lower number seats are on the right\". PER-SECTION: No per-section statement. No Q&A, expert answer or fan comment on this page names a side for seat 1 in this section.",
+    "seats_per_row": "UNKNOWN",
+    "notes": "URL ANOMALY: the brief-supplied identifier URL .../seating/sections/23B does NOT serve section content - it redirects to the Rogers Centre \"Find Your Seats\" section index, where 23B is listed as a link pointing to .../seating/sections/23_b. The underscore form was fetched and does serve genuine Section 23B content. The index page shows no seat-view photo for 23B (\"no-photo_1.png\"). CONTRADICTION FLAG: Section 23B is assigned to the BANNER CLUB behind home plate, while the sibling Section 23A page assigns 23A to the BLUEPRINT CLUB behind the visitor dugout on the first-base side. See the Section 23A record. Not reconciled. Section Insights verbatim: \"Banner Club\". Seating Notes verbatim: \"Premium seating area as part of the Banner Club\". Page also states \"All seats are within 15 rows of the field\" and \"In-Seat Service (Blue Jays): Fans can order ballpark favorites and gourmet menu items directly to their seats.\" and describes \"access to a club lounge located directly beneath the seating sections\". No netting, obstruction, overhang or shade line on this page. No entrance-row line printed. Agrees with discovery.json: Blue Jays dugout on the THIRD-BASE side. Section Insight also lists \"Rows 1-8\".",
+    "source": "Fetched https://www.rateyourseats.com/rogers-centre/seating/sections/23B (served the generic section index, not section content) then https://www.rateyourseats.com/rogers-centre/seating/sections/23_b (genuine Section 23B content)"
+  },
+  {
+    "section": "24",
+    "zone": "Rogers Banner Club (page heading: \"Section 24 at Rogers Centre\"; Section Insight: \"Banner Club\")",
+    "location": "\"Behind Home Plate & Jays Dugout: Sections 23-32 span from behind home plate to directly behind the Blue Jays dugout.\" and \"Sections 23-25: Behind home plate\".",
+    "rows": "\"Rows in Section 24 are labeled 1-8\"",
+    "entrance_row": "UNKNOWN",
+    "seat_direction": "RateYourSeats park-wide BOILERPLATE (identical on every Rogers Centre section page): \"When looking towards the field/ring/stage, lower number seats are on the right\". PER-SECTION: No per-section statement. No Q&A, expert answer or fan comment on this page names a side for seat 1 in this section.",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights verbatim: \"Banner Club\". Seating Notes verbatim: \"Premium seating area as part of the Banner Club\". Page also states \"All seats are within 15 rows of the field\" and \"In-Seat Service (Blue Jays): Fans can order ballpark favorites and gourmet menu items directly to their seats.\" and describes \"access to a club lounge located directly beneath the seating sections\". No netting, obstruction, overhang or shade line on this page. No entrance-row line printed. Agrees with discovery.json: Blue Jays dugout on the THIRD-BASE side. Section Insight also lists \"Rows 1-8\". Page also states \"Close-to-Field Seating\".",
+    "source": "https://www.rateyourseats.com/rogers-centre/seating/sections/24"
+  },
+  {
+    "section": "25",
+    "zone": "Rogers Banner Club (page heading: \"Section 25 at Rogers Centre\"; Section Insight: \"Banner Club\")",
+    "location": "UNKNOWN. No sentence on the Section 25 page places the section in the ballpark; the page carries only the \"Banner Club\" / \"Rows 1-8\" Section Insight. (Sibling pages 23, 23B, 24 and 26 state \"Sections 23-25: Behind home plate\".)",
+    "rows": "\"Rows in Section 25 are labeled 1-8\"",
+    "entrance_row": "UNKNOWN",
+    "seat_direction": "RateYourSeats park-wide BOILERPLATE (identical on every Rogers Centre section page): \"When looking towards the field/ring/stage, lower number seats are on the right\". PER-SECTION: No per-section statement. No Q&A, expert answer or fan comment on this page names a side for seat 1 in this section.",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights verbatim: \"Banner Club\". Seating Notes verbatim: \"Premium seating area as part of the Banner Club\". Page also states \"All seats are within 15 rows of the field\" and \"In-Seat Service (Blue Jays): Fans can order ballpark favorites and gourmet menu items directly to their seats.\" and describes \"access to a club lounge located directly beneath the seating sections\". No netting, obstruction, overhang or shade line on this page. No entrance-row line printed. Agrees with discovery.json: Blue Jays dugout on the THIRD-BASE side. Section Insight also lists \"Rows 1-8\".",
+    "source": "https://www.rateyourseats.com/rogers-centre/seating/sections/25"
+  },
+  {
+    "section": "26",
+    "zone": "Rogers Banner Club (page heading: \"Section 26 at Rogers Centre\"; Section Insight: \"Banner Club\")",
+    "location": "\"Sections 23-32 span from behind home plate to directly behind the Blue Jays dugout\" and \"Sections 23-25: Behind home plate\" and \"Sections 29-32: Directly behind the Blue Jays dugout\".",
+    "rows": "\"Rows in Section 26 are labeled 1-8\"",
+    "entrance_row": "UNKNOWN",
+    "seat_direction": "RateYourSeats park-wide BOILERPLATE (identical on every Rogers Centre section page): \"When looking towards the field/ring/stage, lower number seats are on the right\". PER-SECTION: No per-section statement. No Q&A, expert answer or fan comment on this page names a side for seat 1 in this section.",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights verbatim: \"Banner Club\". Seating Notes verbatim: \"Premium seating area as part of the Banner Club\". Page also states \"All seats are within 15 rows of the field\" and \"In-Seat Service (Blue Jays): Fans can order ballpark favorites and gourmet menu items directly to their seats.\" and describes \"access to a club lounge located directly beneath the seating sections\". No netting, obstruction, overhang or shade line on this page. No entrance-row line printed. Agrees with discovery.json: Blue Jays dugout on the THIRD-BASE side. Section Insight also lists \"Rows 1-8\".",
+    "source": "https://www.rateyourseats.com/rogers-centre/seating/sections/26"
+  },
+  {
+    "section": "27",
+    "zone": "Rogers Banner Club (page heading: \"Section 27 at Rogers Centre\"; Section Insight: \"Banner Club\")",
+    "location": "\"Sections 23-32 span from behind home plate to directly behind the Blue Jays dugout.\"",
+    "rows": "\"Rows in Section 27 are labeled 1-8\"",
+    "entrance_row": "UNKNOWN",
+    "seat_direction": "RateYourSeats park-wide BOILERPLATE (identical on every Rogers Centre section page): \"When looking towards the field/ring/stage, lower number seats are on the right\". PER-SECTION: No per-section statement. No Q&A, expert answer or fan comment on this page names a side for seat 1 in this section.",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights verbatim: \"Banner Club\". Seating Notes verbatim: \"Premium seating area as part of the Banner Club\". Page also states \"All seats are within 15 rows of the field\" and \"In-Seat Service (Blue Jays): Fans can order ballpark favorites and gourmet menu items directly to their seats.\" and describes \"access to a club lounge located directly beneath the seating sections\". No netting, obstruction, overhang or shade line on this page. No entrance-row line printed. Agrees with discovery.json: Blue Jays dugout on the THIRD-BASE side. Section Insight also lists \"Rows 1-8\".",
+    "source": "https://www.rateyourseats.com/rogers-centre/seating/sections/27"
+  },
+  {
+    "section": "28",
+    "zone": "Rogers Banner Club (page heading: \"Section 28 at Rogers Centre\"; Section Insight: \"Banner Club\")",
+    "location": "\"Near Blue Jays Dugout\" and \"These seats are located behind the Blue Jays dugout\".",
+    "rows": "\"Rows in Section 28 are labeled 1-8\"",
+    "entrance_row": "UNKNOWN",
+    "seat_direction": "RateYourSeats park-wide BOILERPLATE (identical on every Rogers Centre section page): \"When looking towards the field/ring/stage, lower number seats are on the right\". PER-SECTION: No per-section statement. No Q&A, expert answer or fan comment on this page names a side for seat 1 in this section.",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights verbatim: \"Near Blue Jays Dugout\"; \"Banner Club\"; \"Rows 1-8\". Seating Notes verbatim: \"These seats are located behind the Blue Jays dugout\"; \"Premium seating area as part of the Banner Club\". Section 28 is the lowest-numbered section in this batch that the page itself places AT the Blue Jays dugout; the same page's zone text lists \"Sections 29-32: Directly behind the Blue Jays dugout\", so 28 sits at the home-plate end of the dugout run. Fan review present, text verbatim: \"Love it!\" (5-star, Apr 17, 2024 game). No netting, obstruction, overhang or shade line. No entrance-row line printed. Agrees with discovery.json: Blue Jays dugout on the THIRD-BASE side.",
+    "source": "https://www.rateyourseats.com/rogers-centre/seating/sections/28"
+  }
+]

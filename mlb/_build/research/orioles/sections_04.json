@@ -1,0 +1,222 @@
+[
+  {
+    "section": "68",
+    "zone": "Field Level",
+    "location": "No section-specific location sentence is printed on this page. Zone-level only, verbatim from the Field Level page: \"Field Level sections include even-numbered sections below 100 (e.g., 20, 40, etc.)\" and \"Field Boxes (Sections 16-58)\" / \"Sections 22-26 sit behind the Orioles dugout, while Sections 48-52 sit behind the visitor dugout.\" This section falls OUTSIDE the stated 16-58 Field Boxes range; no source sentence places it more precisely.",
+    "rows": "Verbatim: \"Rows in Section 68 are labeled 1-27, EAL\"",
+    "entrance_row": "Verbatim: \"An entrance to this section is located at Row EAL\"",
+    "seat_direction": "BOILERPLATE (park-wide, identical on every Oriole Park section page): \"When looking towards the field, lower number seats are on the right\". PER-SECTION: No per-section Q&A, expert answer or fan-review statement naming a side for this section was found on the page.",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights carries only the row bullet; the expert-review body is generic Field Level zone text, not section-specific. No netting, fencing or obstructed-view note is printed for this section (consistent with discovery.json: RateYourSeats publishes no per-section netting note at this park). The page states no shade note for this section. Generic Field Level text says \"Most sections feature 25-30 rows with Row 1 at the front and accessible seating near the back.\" Nothing on the page contradicts discovery.json. ",
+    "source": "https://www.rateyourseats.com/oriole-park/seating/sections/68 ; zone context: https://www.rateyourseats.com/oriole-park/seating/field-level"
+  },
+  {
+    "section": "69",
+    "zone": "Terrace Level",
+    "location": "No section-specific location sentence is printed on this page. Zone-level only, verbatim: \"Odd-Numbered Lower Level Sections: Terrace Level seats are the odd-numbered sections on the lower level of Camden Yards.\" and \"These seats sit behind the Field Level sections, providing a slightly elevated perspective of the field.\" The Terrace Level zone page names only \"Sections 33-39 behind home plate\", \"Sections 1-9 in right field\" and \"Terrace sections 43-65, which tend to provide the best shade during afternoon games\" - this section is not placed by any of those.",
+    "rows": "Verbatim: \"Rows in Section 69 are labeled 1-13\"",
+    "entrance_row": "Verbatim: \"An entrance to this section is located at Row 1\"",
+    "seat_direction": "BOILERPLATE (park-wide, identical on every Oriole Park section page): \"When looking towards the field, lower number seats are on the right\". PER-SECTION: No per-section Q&A, expert answer or fan-review statement naming a side for this section was found on the page.",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Cover/shade, verbatim: \"Rows 2 & Above - Covered\"; \"Rows 2 and above are under cover\"; \"Most Terrace Level sections sit under the Club Level overhang, helping shield fans from both sun and rain.\" No netting, fencing or obstructed-view note is printed for this section (consistent with discovery.json: RateYourSeats publishes no per-section netting note at this park). Nothing on the page contradicts discovery.json. Note the Terrace-Level entrance convention differs from the Field Level: entrance is at Row 1 (the front), not at an \"EAL\" row.",
+    "source": "https://www.rateyourseats.com/oriole-park/seating/sections/69 ; zone context: https://www.rateyourseats.com/oriole-park/seating/terrace-level"
+  },
+  {
+    "section": "70",
+    "zone": "Field Level",
+    "location": "No section-specific location sentence is printed on this page. Zone-level only, verbatim from the Field Level page: \"Field Level sections include even-numbered sections below 100 (e.g., 20, 40, etc.)\" and \"Field Boxes (Sections 16-58)\" / \"Sections 22-26 sit behind the Orioles dugout, while Sections 48-52 sit behind the visitor dugout.\" This section falls OUTSIDE the stated 16-58 Field Boxes range; no source sentence places it more precisely.",
+    "rows": "Verbatim: \"Rows in Section 70 are labeled 1-27, EAL\"",
+    "entrance_row": "Verbatim: \"An entrance to this section is located at Row EAL\"",
+    "seat_direction": "BOILERPLATE (park-wide, identical on every Oriole Park section page): \"When looking towards the field, lower number seats are on the right\". PER-SECTION: No per-section Q&A, expert answer or fan-review statement naming a side for this section was found on the page.",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights carries only the row bullet; the expert-review body is generic Field Level zone text, not section-specific. No netting, fencing or obstructed-view note is printed for this section (consistent with discovery.json: RateYourSeats publishes no per-section netting note at this park). FAN REVIEW, verbatim: \"This seat is right up against the angled 3rd base wall. The seat is at an angle to the wall and so close that the seat bottom hits the wall when you put it down.\" and \"There is no place to put your legs unless you are under 4' tall.\" FLAG: this reviewer places Section 70 against \"the angled 3rd base wall\", i.e. on the third-base/left-field-line side. That is CONSISTENT in side with discovery.json (high numbers = third base then left field) but is the only wording found that puts a 60s-70s section near third base rather than in left field proper; recorded, not reconciled. This is a fan comment about one seat, not a published obstruction note.",
+    "source": "https://www.rateyourseats.com/oriole-park/seating/sections/70 ; zone context: https://www.rateyourseats.com/oriole-park/seating/field-level"
+  },
+  {
+    "section": "71",
+    "zone": "Terrace Level",
+    "location": "No section-specific location sentence is printed on this page. Zone-level only, verbatim: \"Odd-Numbered Lower Level Sections: Terrace Level seats are the odd-numbered sections on the lower level of Camden Yards.\" and \"These seats sit behind the Field Level sections, providing a slightly elevated perspective of the field.\" The Terrace Level zone page names only \"Sections 33-39 behind home plate\", \"Sections 1-9 in right field\" and \"Terrace sections 43-65, which tend to provide the best shade during afternoon games\" - this section is not placed by any of those.",
+    "rows": "Verbatim: \"Rows in Section 71 are labeled 1-13\"",
+    "entrance_row": "Verbatim: \"An entrance to this section is located at Row 1\"",
+    "seat_direction": "BOILERPLATE (park-wide, identical on every Oriole Park section page): \"When looking towards the field, lower number seats are on the right\". PER-SECTION: No per-section Q&A, expert answer or fan-review statement naming a side for this section was found on the page.",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Cover/shade, verbatim: \"Rows 2 & Above - Covered\"; \"Rows 2 and above are under cover\"; \"Most Terrace Level sections sit under the Club Level overhang, helping shield fans from both sun and rain.\" No netting, fencing or obstructed-view note is printed for this section (consistent with discovery.json: RateYourSeats publishes no per-section netting note at this park). Nothing on the page contradicts discovery.json. ",
+    "source": "https://www.rateyourseats.com/oriole-park/seating/sections/71 ; zone context: https://www.rateyourseats.com/oriole-park/seating/terrace-level"
+  },
+  {
+    "section": "72",
+    "zone": "Field Level",
+    "location": "No section-specific location sentence is printed on this page. Zone-level only, verbatim from the Field Level page: \"Field Level sections include even-numbered sections below 100 (e.g., 20, 40, etc.)\" and \"Field Boxes (Sections 16-58)\" / \"Sections 22-26 sit behind the Orioles dugout, while Sections 48-52 sit behind the visitor dugout.\" This section falls OUTSIDE the stated 16-58 Field Boxes range; no source sentence places it more precisely.",
+    "rows": "Verbatim: \"Rows in Section 72 are labeled 4-27, EAL\"",
+    "entrance_row": "Verbatim: \"An entrance to this section is located at Row EAL\"",
+    "seat_direction": "BOILERPLATE (park-wide, identical on every Oriole Park section page): \"When looking towards the field, lower number seats are on the right\". PER-SECTION: No per-section Q&A, expert answer or fan-review statement naming a side for this section was found on the page.",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights carries only the row bullet; the expert-review body is generic Field Level zone text, not section-specific. No netting, fencing or obstructed-view note is printed for this section (consistent with discovery.json: RateYourSeats publishes no per-section netting note at this park). ANOMALY: the row sequence starts at Row 4, not Row 1 (\"Rows in Section 72 are labeled 4-27, EAL\") - rows 1-3 are absent. No source explains why. Neighbouring even sections 68, 70 are labeled 1-27. Nothing on the page contradicts discovery.json. ",
+    "source": "https://www.rateyourseats.com/oriole-park/seating/sections/72 ; zone context: https://www.rateyourseats.com/oriole-park/seating/field-level"
+  },
+  {
+    "section": "73",
+    "zone": "Terrace Level",
+    "location": "No section-specific location sentence is printed on this page. Zone-level only, verbatim: \"Odd-Numbered Lower Level Sections: Terrace Level seats are the odd-numbered sections on the lower level of Camden Yards.\" and \"These seats sit behind the Field Level sections, providing a slightly elevated perspective of the field.\" The Terrace Level zone page names only \"Sections 33-39 behind home plate\", \"Sections 1-9 in right field\" and \"Terrace sections 43-65, which tend to provide the best shade during afternoon games\" - this section is not placed by any of those.",
+    "rows": "Verbatim: \"Rows in Section 73 are labeled 1-13\"",
+    "entrance_row": "Verbatim: \"An entrance to this section is located at Row 1\"",
+    "seat_direction": "BOILERPLATE (park-wide, identical on every Oriole Park section page): \"When looking towards the field, lower number seats are on the right\". PER-SECTION: No per-section Q&A, expert answer or fan-review statement naming a side for this section was found on the page.",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Cover/shade, verbatim: \"Rows 2 & Above - Covered\"; \"Rows 2 and above are under cover\"; \"Most Terrace Level sections sit under the Club Level overhang, helping shield fans from both sun and rain.\" No netting, fencing or obstructed-view note is printed for this section (consistent with discovery.json: RateYourSeats publishes no per-section netting note at this park). FAN REVIEW, verbatim: \"You cannot see the scoreboard and the sound system in this section does not work so you cannot hear anything that is going on. There are also no cup holders for some reason.\" SIGHTLINE FLAG: a fan reports the scoreboard is not visible from this section. Note this review predates the 2026 centre-field videoboard replacement described in discovery.json, so its scoreboard claim may be stale. Nothing on the page contradicts discovery.json. ",
+    "source": "https://www.rateyourseats.com/oriole-park/seating/sections/73 ; zone context: https://www.rateyourseats.com/oriole-park/seating/terrace-level"
+  },
+  {
+    "section": "74",
+    "zone": "Field Level",
+    "location": "No section-specific location sentence is printed on this page. Zone-level only, verbatim from the Field Level page: \"Field Level sections include even-numbered sections below 100 (e.g., 20, 40, etc.)\" and \"Field Boxes (Sections 16-58)\" / \"Sections 22-26 sit behind the Orioles dugout, while Sections 48-52 sit behind the visitor dugout.\" This section falls OUTSIDE the stated 16-58 Field Boxes range; no source sentence places it more precisely.",
+    "rows": "Verbatim: \"Rows in Section 74 are labeled 1-23, EAL\"",
+    "entrance_row": "Verbatim: \"An entrance to this section is located at Row EAL\"",
+    "seat_direction": "BOILERPLATE (park-wide, identical on every Oriole Park section page): \"When looking towards the field, lower number seats are on the right\". PER-SECTION (beats boilerplate): verbatim \"As you look towards the field from this section, seat 1 is on the right aisle.\" This AGREES with the park-wide boilerplate.",
+    "seats_per_row": "Verbatim: \"Most rows in Section 74 have 16 seats per row. The only exceptions are row 1 (13 seats), and the last row, which includes spaces for wheelchairs and companion seating.\"",
+    "notes": "Section Insights carries only the row bullet; the expert-review body is generic Field Level zone text, not section-specific. No netting, fencing or obstructed-view note is printed for this section (consistent with discovery.json: RateYourSeats publishes no per-section netting note at this park). ACCESSIBLE SEATING: the seats-per-row sentence states the last row \"includes spaces for wheelchairs and companion seating\" - a per-section accessible-location fact, which discovery.json lists as otherwise UNKNOWN across the park. SEAT-1 CORROBORATION: the per-section sentence agrees with the boilerplate; no disagreement. Nothing on the page contradicts discovery.json. ",
+    "source": "https://www.rateyourseats.com/oriole-park/seating/sections/74 ; zone context: https://www.rateyourseats.com/oriole-park/seating/field-level"
+  },
+  {
+    "section": "75",
+    "zone": "Terrace Level",
+    "location": "No section-specific location sentence is printed on this page. Zone-level only, verbatim: \"Odd-Numbered Lower Level Sections: Terrace Level seats are the odd-numbered sections on the lower level of Camden Yards.\" and \"These seats sit behind the Field Level sections, providing a slightly elevated perspective of the field.\" The Terrace Level zone page names only \"Sections 33-39 behind home plate\", \"Sections 1-9 in right field\" and \"Terrace sections 43-65, which tend to provide the best shade during afternoon games\" - this section is not placed by any of those.",
+    "rows": "Verbatim: \"Rows in Section 75 are labeled 1-13\"",
+    "entrance_row": "Verbatim: \"An entrance to this section is located at Row 1\"",
+    "seat_direction": "BOILERPLATE (park-wide, identical on every Oriole Park section page): \"When looking towards the field, lower number seats are on the right\". PER-SECTION: No per-section Q&A, expert answer or fan-review statement naming a side for this section was found on the page.",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights / Seating Notes, verbatim: \"Top Pick for Outstanding Convenience - Rows 1-5\"; \"Rows 1-5 are recommended for outstanding convenience\"; \"Rows 2 & Above - Covered\"; \"Rows 2 and above are under cover\". Also verbatim from the page: \"The first row sits 25-30 rows behind the field, offering a comfortable viewing height.\" No netting, fencing or obstructed-view note is printed for this section (consistent with discovery.json: RateYourSeats publishes no per-section netting note at this park). Nothing on the page contradicts discovery.json. ",
+    "source": "https://www.rateyourseats.com/oriole-park/seating/sections/75 ; zone context: https://www.rateyourseats.com/oriole-park/seating/terrace-level"
+  },
+  {
+    "section": "76",
+    "zone": "Field Level",
+    "location": "No section-specific location sentence is printed on this page. Zone-level only, verbatim from the Field Level page: \"Field Level sections include even-numbered sections below 100 (e.g., 20, 40, etc.)\" and \"Field Boxes (Sections 16-58)\" / \"Sections 22-26 sit behind the Orioles dugout, while Sections 48-52 sit behind the visitor dugout.\" This section falls OUTSIDE the stated 16-58 Field Boxes range; no source sentence places it more precisely.",
+    "rows": "Verbatim: \"Rows in Section 76 are labeled 1-23, EAL\"",
+    "entrance_row": "Verbatim: \"An entrance to this section is located at Row EAL\"",
+    "seat_direction": "BOILERPLATE (park-wide, identical on every Oriole Park section page): \"When looking towards the field, lower number seats are on the right\". PER-SECTION Q&A (beats boilerplate): verbatim \"Section 76 Row 6 has a total of 16 seats, with seat 1 being on the right side of the row as you face the field, and seat 16 being on the left.\" This AGREES with the park-wide boilerplate.",
+    "seats_per_row": "Verbatim: \"Section 76 Row 6 has a total of 16 seats\" (stated for Row 6 only).",
+    "notes": "Section Insights / Seating Notes, verbatim: \"Top Pick for Outstanding Convenience Rows 24\"; \"Rows 24 are recommended for outstanding convenience\". FLAG: that \"Rows 24\" recommendation is inconsistent with the stated row range for this section (\"Rows in Section 76 are labeled 1-23, EAL\") - Row 24 is not in the labelled range. Recorded, not reconciled. Seat-view photo on the page is dated \"Feb 2026\", so the page content is current for the 2026 season. No netting, fencing or obstructed-view note is printed for this section (consistent with discovery.json: RateYourSeats publishes no per-section netting note at this park). SEAT-1 CORROBORATION: this is one of the third-base/left-field-side spot-checks discovery.json asked for, and it CONFIRMS the boilerplate on that half of the park. Nothing on the page contradicts discovery.json. ",
+    "source": "https://www.rateyourseats.com/oriole-park/seating/sections/76 ; zone context: https://www.rateyourseats.com/oriole-park/seating/field-level"
+  },
+  {
+    "section": "77",
+    "zone": "Terrace Level",
+    "location": "No section-specific location sentence is printed on this page. Zone-level only, verbatim: \"Odd-Numbered Lower Level Sections: Terrace Level seats are the odd-numbered sections on the lower level of Camden Yards.\" and \"These seats sit behind the Field Level sections, providing a slightly elevated perspective of the field.\" The Terrace Level zone page names only \"Sections 33-39 behind home plate\", \"Sections 1-9 in right field\" and \"Terrace sections 43-65, which tend to provide the best shade during afternoon games\" - this section is not placed by any of those.",
+    "rows": "Verbatim: \"Rows in Section 77 are labeled 1-13\"",
+    "entrance_row": "Verbatim: \"An entrance to this section is located at Row 1\"",
+    "seat_direction": "BOILERPLATE (park-wide, identical on every Oriole Park section page): \"When looking towards the field, lower number seats are on the right\". PER-SECTION: No per-section Q&A, expert answer or fan-review statement naming a side for this section was found on the page.",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights / Seating Notes, verbatim: \"Top Pick for Outstanding Convenience - Rows 1-5\"; \"Rows 2 & Above - Covered\"; \"Most Terrace Level sections sit under the Club Level overhang, helping shield fans from both sun and rain.\" No netting, fencing or obstructed-view note is printed for this section (consistent with discovery.json: RateYourSeats publishes no per-section netting note at this park). Nothing on the page contradicts discovery.json. ",
+    "source": "https://www.rateyourseats.com/oriole-park/seating/sections/77 ; zone context: https://www.rateyourseats.com/oriole-park/seating/terrace-level"
+  },
+  {
+    "section": "78",
+    "zone": "Field Level",
+    "location": "No section-specific location sentence is printed on this page. Zone-level only, verbatim from the Field Level page: \"Field Level sections include even-numbered sections below 100 (e.g., 20, 40, etc.)\" and \"Field Boxes (Sections 16-58)\" / \"Sections 22-26 sit behind the Orioles dugout, while Sections 48-52 sit behind the visitor dugout.\" This section falls OUTSIDE the stated 16-58 Field Boxes range; no source sentence places it more precisely.",
+    "rows": "Verbatim: \"Rows in Section 78 are labeled 1-13, EAL\"",
+    "entrance_row": "Verbatim: \"An entrance to this section is located at Row EAL\"",
+    "seat_direction": "BOILERPLATE (park-wide, identical on every Oriole Park section page): \"When looking towards the field, lower number seats are on the right\". PER-SECTION: No per-section Q&A, expert answer or fan-review statement naming a side for this section was found on the page.",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights carries only the row bullet; the expert-review body is generic Field Level zone text, not section-specific. No netting, fencing or obstructed-view note is printed for this section (consistent with discovery.json: RateYourSeats publishes no per-section netting note at this park). FAN REVIEW, verbatim: \"Wear a hard hat! Incomings all night. Manny Machado blasted two right over our heads. Great view of entire field. Close to concessions and quick exit from the park .Will only sit in 78 from now on.\" (posted from Sec 78 / Row 4). This is a home-run-ball area, consistent with an outfield section. FLAG: the page carries seat-view photos labelled Row 20 and Row 23, which fall outside the stated labelled range \"Rows in Section 78 are labeled 1-13, EAL\". Recorded, not reconciled - the photo labels may be stale. CROSS-CHECK vs discovery.json: the official Orioles accessibility guide states \"Elevators are available behind home plate (near Section 36) and in left field (behind Section 78)\", but NO such elevator statement appears on this RateYourSeats page. Nothing on the page contradicts discovery.json. ",
+    "source": "https://www.rateyourseats.com/oriole-park/seating/sections/78 ; zone context: https://www.rateyourseats.com/oriole-park/seating/field-level"
+  },
+  {
+    "section": "79",
+    "zone": "Terrace Level",
+    "location": "No section-specific location sentence is printed on this page. Zone-level only, verbatim: \"Odd-Numbered Lower Level Sections: Terrace Level seats are the odd-numbered sections on the lower level of Camden Yards.\" and \"These seats sit behind the Field Level sections, providing a slightly elevated perspective of the field.\" The Terrace Level zone page names only \"Sections 33-39 behind home plate\", \"Sections 1-9 in right field\" and \"Terrace sections 43-65, which tend to provide the best shade during afternoon games\" - this section is not placed by any of those.",
+    "rows": "Verbatim: \"Rows in Section 79 are labeled 1-13\"",
+    "entrance_row": "Verbatim: \"An entrance to this section is located at Row 1\"",
+    "seat_direction": "BOILERPLATE (park-wide, identical on every Oriole Park section page): \"When looking towards the field, lower number seats are on the right\". PER-SECTION: No per-section Q&A, expert answer or fan-review statement naming a side for this section was found on the page.",
+    "seats_per_row": "Verbatim: \"There are 17 seats for rows 1-2, 18 seats for rows 3-4, 19 seats for row 5, 22 seats for rows 6-7, 23 seats for rows 8-9, 24 seats for row 10, and 23 seats for rows 11-13.\"",
+    "notes": "Cover/shade, verbatim: \"Rows 2 & Above - Covered\"; \"Rows 2 and above are under cover\"; \"Most Terrace Level sections sit under the Club Level overhang, helping shield fans from both sun and rain.\" No netting, fencing or obstructed-view note is printed for this section (consistent with discovery.json: RateYourSeats publishes no per-section netting note at this park). The seats-per-row breakdown covers all 13 rows and shows the section widening from front to back (17 seats in Row 1 up to 24 in Row 10). It comes from a per-section Q&A about Row 10 but names no side, so it does NOT corroborate or contradict the seat-1 boilerplate. Nothing on the page contradicts discovery.json. ",
+    "source": "https://www.rateyourseats.com/oriole-park/seating/sections/79 ; zone context: https://www.rateyourseats.com/oriole-park/seating/terrace-level"
+  },
+  {
+    "section": "80",
+    "zone": "Field Level",
+    "location": "No section-specific location sentence is printed on this page. Zone-level only, verbatim from the Field Level page: \"Field Level sections include even-numbered sections below 100 (e.g., 20, 40, etc.)\" and \"Field Boxes (Sections 16-58)\" / \"Sections 22-26 sit behind the Orioles dugout, while Sections 48-52 sit behind the visitor dugout.\" This section falls OUTSIDE the stated 16-58 Field Boxes range; no source sentence places it more precisely.",
+    "rows": "Verbatim: \"Rows in Section 80 are labeled 1-13, EAL\"",
+    "entrance_row": "Verbatim: \"An entrance to this section is located at Row EAL\"",
+    "seat_direction": "BOILERPLATE (park-wide, identical on every Oriole Park section page): \"When looking towards the field, lower number seats are on the right\". PER-SECTION: No per-section Q&A, expert answer or fan-review statement naming a side for this section was found on the page.",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights carries only the row bullet; the expert-review body is generic Field Level zone text, not section-specific. No netting, fencing or obstructed-view note is printed for this section (consistent with discovery.json: RateYourSeats publishes no per-section netting note at this park). The generic Field Level body on this page repeats the park-wide bullpen line, verbatim: \"Fans interested in watching pitchers warm up should look toward Section 86, where the team bullpens are located.\" Nothing on the page contradicts discovery.json. ",
+    "source": "https://www.rateyourseats.com/oriole-park/seating/sections/80 ; zone context: https://www.rateyourseats.com/oriole-park/seating/field-level"
+  },
+  {
+    "section": "81",
+    "zone": "Terrace Level",
+    "location": "No section-specific location sentence is printed on this page. Zone-level only, verbatim: \"Odd-Numbered Lower Level Sections: Terrace Level seats are the odd-numbered sections on the lower level of Camden Yards.\" and \"These seats sit behind the Field Level sections, providing a slightly elevated perspective of the field.\" The Terrace Level zone page names only \"Sections 33-39 behind home plate\", \"Sections 1-9 in right field\" and \"Terrace sections 43-65, which tend to provide the best shade during afternoon games\" - this section is not placed by any of those.",
+    "rows": "Verbatim: \"Rows in Section 81 are labeled 1-13\"",
+    "entrance_row": "Verbatim: \"An entrance to this section is located at Row 13\"",
+    "seat_direction": "BOILERPLATE (park-wide, identical on every Oriole Park section page): \"When looking towards the field, lower number seats are on the right\". PER-SECTION: No per-section Q&A, expert answer or fan-review statement naming a side for this section was found on the page.",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Cover/shade, verbatim: \"Rows 2 & Above - Covered\"; \"Rows 2 and above are under cover\"; \"Most Terrace Level sections sit under the Club Level overhang, helping shield fans from both sun and rain.\" No netting, fencing or obstructed-view note is printed for this section (consistent with discovery.json: RateYourSeats publishes no per-section netting note at this park). ENTRANCE-ROW SWITCH: the entrance for Section 81 is at Row 13 (the BACK of the section), whereas Terrace sections 69, 71, 73, 75, 77 all show \"An entrance to this section is located at Row 1\" (the front). Sections 83, 85 and 87 also show Row 13. So the Terrace entrance row flips from Row 1 to Row 13 somewhere between Section 79 and Section 81. Recorded as observed; no source explains it. Generic zone text on this page, verbatim: \"On the Orioles seating chart, Terrace Level sections are the odd-numbered sections on the lower seating bowl.\" Nothing on the page contradicts discovery.json. ",
+    "source": "https://www.rateyourseats.com/oriole-park/seating/sections/81 ; zone context: https://www.rateyourseats.com/oriole-park/seating/terrace-level"
+  },
+  {
+    "section": "82",
+    "zone": "Field Level",
+    "location": "No section-specific location sentence is printed on this page. Zone-level only, verbatim from the Field Level page: \"Field Level sections include even-numbered sections below 100 (e.g., 20, 40, etc.)\" and \"Field Boxes (Sections 16-58)\" / \"Sections 22-26 sit behind the Orioles dugout, while Sections 48-52 sit behind the visitor dugout.\" This section falls OUTSIDE the stated 16-58 Field Boxes range; no source sentence places it more precisely.",
+    "rows": "Verbatim: \"Rows in Section 82 are labeled 1-13, EAL\"",
+    "entrance_row": "Verbatim: \"An entrance to this section is located at Row EAL\"",
+    "seat_direction": "BOILERPLATE (park-wide, identical on every Oriole Park section page): \"When looking towards the field, lower number seats are on the right\". PER-SECTION: No per-section Q&A, expert answer or fan-review statement naming a side for this section was found on the page.",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights carries only the row bullet; the expert-review body is generic Field Level zone text, not section-specific. No netting, fencing or obstructed-view note is printed for this section (consistent with discovery.json: RateYourSeats publishes no per-section netting note at this park). Nothing on the page contradicts discovery.json. ",
+    "source": "https://www.rateyourseats.com/oriole-park/seating/sections/82 ; zone context: https://www.rateyourseats.com/oriole-park/seating/field-level"
+  },
+  {
+    "section": "83",
+    "zone": "Terrace Level",
+    "location": "No section-specific location sentence is printed on this page. Zone-level only, verbatim: \"Odd-Numbered Lower Level Sections: Terrace Level seats are the odd-numbered sections on the lower level of Camden Yards.\" and \"These seats sit behind the Field Level sections, providing a slightly elevated perspective of the field.\" The Terrace Level zone page names only \"Sections 33-39 behind home plate\", \"Sections 1-9 in right field\" and \"Terrace sections 43-65, which tend to provide the best shade during afternoon games\" - this section is not placed by any of those.",
+    "rows": "Verbatim: \"Rows in Section 83 are labeled 1-13\"",
+    "entrance_row": "Verbatim: \"An entrance to this section is located at Row 13\"",
+    "seat_direction": "BOILERPLATE (park-wide, identical on every Oriole Park section page): \"When looking towards the field, lower number seats are on the right\". PER-SECTION: No per-section Q&A, expert answer or fan-review statement naming a side for this section was found on the page.",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Cover/shade, verbatim: \"Rows 2 & Above - Covered\"; \"Rows 2 and above are under cover\"; \"Most Terrace Level sections sit under the Club Level overhang, helping shield fans from both sun and rain.\" No netting, fencing or obstructed-view note is printed for this section (consistent with discovery.json: RateYourSeats publishes no per-section netting note at this park). FAN REVIEW, verbatim: \"This is the worst seat I have ever sat in... Someone choose to put this seat right at the top of the stairs and no one in this section can get to any seat without asking you to get up out of your seat...\" - an aisle/stair-position complaint about one specific seat, not a published obstruction note. Entrance is at Row 13 (back of section), matching 81/85/87 and differing from 69-79. Nothing on the page contradicts discovery.json. ",
+    "source": "https://www.rateyourseats.com/oriole-park/seating/sections/83 ; zone context: https://www.rateyourseats.com/oriole-park/seating/terrace-level"
+  },
+  {
+    "section": "84",
+    "zone": "Field Level",
+    "location": "No section-specific location sentence is printed on this page. Zone-level only, verbatim from the Field Level page: \"Field Level sections include even-numbered sections below 100 (e.g., 20, 40, etc.)\" and \"Field Boxes (Sections 16-58)\" / \"Sections 22-26 sit behind the Orioles dugout, while Sections 48-52 sit behind the visitor dugout.\" This section falls OUTSIDE the stated 16-58 Field Boxes range; no source sentence places it more precisely.",
+    "rows": "Verbatim: \"Rows in Section 84 are labeled 1-13, EAL\"",
+    "entrance_row": "Verbatim: \"An entrance to this section is located at Row EAL\"",
+    "seat_direction": "BOILERPLATE (park-wide, identical on every Oriole Park section page): \"When looking towards the field, lower number seats are on the right\". PER-SECTION: No per-section Q&A, expert answer or fan-review statement naming a side for this section was found on the page.",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights carries only the row bullet; the expert-review body is generic Field Level zone text, not section-specific. No netting, fencing or obstructed-view note is printed for this section (consistent with discovery.json: RateYourSeats publishes no per-section netting note at this park). No bullpen statement appears on this page even though discovery.json notes The Stadium Insiders groups sections 84-86 as the \"Bird Bath\" adjacent to the left-centre bullpens; RateYourSeats names only Section 86 for the bullpens. Nothing on the page contradicts discovery.json. ",
+    "source": "https://www.rateyourseats.com/oriole-park/seating/sections/84 ; zone context: https://www.rateyourseats.com/oriole-park/seating/field-level"
+  },
+  {
+    "section": "85",
+    "zone": "Terrace Level",
+    "location": "No section-specific location sentence is printed on this page. Zone-level only, verbatim: \"Odd-Numbered Lower Level Sections: Terrace Level seats are the odd-numbered sections on the lower level of Camden Yards.\" and \"These seats sit behind the Field Level sections, providing a slightly elevated perspective of the field.\" The Terrace Level zone page names only \"Sections 33-39 behind home plate\", \"Sections 1-9 in right field\" and \"Terrace sections 43-65, which tend to provide the best shade during afternoon games\" - this section is not placed by any of those.",
+    "rows": "Verbatim: \"Rows in Section 85 are labeled 1-13\"",
+    "entrance_row": "Verbatim: \"An entrance to this section is located at Row 13\"",
+    "seat_direction": "BOILERPLATE (park-wide, identical on every Oriole Park section page): \"When looking towards the field, lower number seats are on the right\". PER-SECTION Q&A (beats boilerplate): verbatim \"Section 85 Row 5 has a total of 22 seats, with Seat 1 being on the aisle at the right side as you face the field, and Seat 22 being on the aisle at the left.\" This AGREES with the park-wide boilerplate.",
+    "seats_per_row": "Verbatim: \"Section 85 Row 5 has a total of 22 seats\" (stated for Row 5 only).",
+    "notes": "Cover/shade, verbatim: \"Rows 2 & Above - Covered\"; \"Rows 2 and above are under cover\"; \"Most Terrace Level sections sit under the Club Level overhang, helping shield fans from both sun and rain.\" No netting, fencing or obstructed-view note is printed for this section (consistent with discovery.json: RateYourSeats publishes no per-section netting note at this park). SEAT-1 CORROBORATION: this is a left-field/left-centre spot-check of the kind discovery.json asked for, and it CONFIRMS the boilerplate on the high-numbered half of the park. Together with Sections 74 and 76 in this batch, three independent per-section statements in the 74-86 range all agree with \"lower number seats are on the right\". PAGE HEADING: the page is titled \"Section 85 at Oriole Park at Camden Yards\"; the zone is recorded as Terrace Level on the odd-numbered-section rule plus the \"Rows 2 and above are under cover\" Terrace note, not from an explicit zone heading. Nothing on the page contradicts discovery.json. ",
+    "source": "https://www.rateyourseats.com/oriole-park/seating/sections/85 ; zone context: https://www.rateyourseats.com/oriole-park/seating/terrace-level"
+  },
+  {
+    "section": "86",
+    "zone": "Field Level (inferred from the RateYourSeats Field Level zone page, verbatim: \"Field Level sections include even-numbered sections below 100 (e.g., 20, 40, etc.)\" and \"Fans interested in watching pitchers warm up should look toward Section 86, where the team bullpens are located.\" The section page itself is titled only \"Section 86 at Oriole Park at Camden Yards\" and prints no zone heading.)",
+    "location": "No explicit location sentence is printed on the section page. Verbatim from the RateYourSeats Field Level zone page: \"Fans interested in watching pitchers warm up should look toward Section 86, where the team bullpens are located.\" Fan review on the section page, verbatim: \"Both Team Bullpens are to the Left of Section 86\" and \"Best thing about these seats is being able to watch the bullpen.\"",
+    "rows": "Verbatim: \"Rows in Section 86 are labeled 1-13\"",
+    "entrance_row": "Verbatim: \"An entrance to this section is located at Row EAL\"",
+    "seat_direction": "BOILERPLATE (park-wide, identical on every Oriole Park section page): \"When looking towards the field, lower number seats are on the right\". PER-SECTION (beats boilerplate): verbatim \"Higher number seats are closer to the left side of Section 86.\" This AGREES with the park-wide boilerplate.",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights / Seating Notes, verbatim: \"Top Pick for Visiting Team Fans Rows 12-12\"; \"Rows 12-12 are recommended for visiting team fans\"; \"Rows 1-13\". BULLPEN: page states \"Fans interested in watching pitchers warm up should look toward Section 86, where the team bullpens are located.\" A fan review adds, verbatim: \"Both Team Bullpens are to the Left of Section 86\" - a NEW datum: it places BOTH bullpens to the LEFT of the section as the fan faces out, and confirms both are together, matching discovery.json's two-tier left-centre-field description. It still does not say which tier is the Orioles', so that remains UNKNOWN. VIEW QUALITY, verbatim fan reviews: \"View is not great.\" and \"Best thing about these seats is being able to watch the bullpen.\" ENTRANCE-ROW ANOMALY: entrance is at \"Row EAL\" but EAL does not appear in the row label line (\"Rows in Section 86 are labeled 1-13\" - no \", EAL\" suffix, unlike every other even section in this batch). discovery.json records the same discrepancy for Section 86. Recorded, not reconciled. The \"Rows 12-12 are recommended for visiting team fans\" note is consistent with, but does not resolve, the ambiguous bullpen-tier phrasing flagged in discovery.json. No netting, fencing or obstructed-view note is printed for this section (consistent with discovery.json: RateYourSeats publishes no per-section netting note at this park). Nothing on the page contradicts discovery.json. ",
+    "source": "https://www.rateyourseats.com/oriole-park/seating/sections/86 ; zone context: https://www.rateyourseats.com/oriole-park/seating/field-level"
+  },
+  {
+    "section": "87",
+    "zone": "Terrace Level",
+    "location": "No section-specific location sentence is printed on this page. Zone-level only, verbatim: \"Odd-Numbered Lower Level Sections: Terrace Level seats are the odd-numbered sections on the lower level of Camden Yards.\" and \"These seats sit behind the Field Level sections, providing a slightly elevated perspective of the field.\" The Terrace Level zone page names only \"Sections 33-39 behind home plate\", \"Sections 1-9 in right field\" and \"Terrace sections 43-65, which tend to provide the best shade during afternoon games\" - this section is not placed by any of those.",
+    "rows": "Verbatim: \"Rows in Section 87 are labeled 1-13\"",
+    "entrance_row": "Verbatim: \"An entrance to this section is located at Row 13\"",
+    "seat_direction": "BOILERPLATE (park-wide, identical on every Oriole Park section page): \"When looking towards the field, lower number seats are on the right\". PER-SECTION: No per-section Q&A, expert answer or fan-review statement naming a side for this section was found on the page. The page does state that Section 87 is an odd-numbered Terrace Level section, but gives no section-specific directional wording.",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Cover/shade, verbatim: \"Rows 2 & Above - Covered\"; \"Rows 2 and above are under cover\"; \"Most Terrace Level sections sit under the Club Level overhang, helping shield fans from both sun and rain.\" No netting, fencing or obstructed-view note is printed for this section (consistent with discovery.json: RateYourSeats publishes no per-section netting note at this park). Weather-protection note on the page, verbatim fragments: \"Great Weather Protection\" under the \"Club Level overhang\". Entrance at Row 13 (back of section), matching 81/83/85. NOTE for the index question raised in discovery.json: Section 87 resolves to a real, section-specific page (it was reported by one discovery read as the highest live section in the 1-99 series) - this batch confirms 87 exists as a live page. Nothing on the page contradicts discovery.json. ",
+    "source": "https://www.rateyourseats.com/oriole-park/seating/sections/87 ; zone context: https://www.rateyourseats.com/oriole-park/seating/terrace-level"
+  }
+]

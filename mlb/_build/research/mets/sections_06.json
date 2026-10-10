@@ -1,0 +1,222 @@
+[
+  {
+    "section": "410",
+    "zone": "Promenade Baseline (Sections 401-410 and 419-428)",
+    "location": "Promenade Level, 400 level. Per Promenade Level review, Promenade Silver is Sections 411-418 (behind home plate); Promenade Baseline is Sections 401-410 and 419-428.",
+    "rows": "1-4, 5WC",
+    "entrance_row": "Row 5WC",
+    "seat_direction": "When looking towards the field/stage, lower number seats are on the left",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights list 'Rows 1-4, 5WC' (WC likely indicates a wheelchair/accessible row label at the entrance). Fan review: 'Row 2 is great. You can look into visitors dugout. There is a railing in front of section. If everyone sits back in chair, not an issue at all for sure. Only issue would be if the person directly in front of you sits forward, but even if that happens you have room to look to the side.' 400-level sections typically contain no more than eight rows per the Promenade Level review; weather protection is extremely limited on the Promenade Level.",
+    "source": "https://www.rateyourseats.com/citi-field/seating/sections/410"
+  },
+  {
+    "section": "411",
+    "zone": "Promenade Silver (Sections 411-418, behind home plate)",
+    "location": "Promenade Level, 400 level, behind home plate per Promenade Level review: 'Promenade Silver: Sections 411-418 (behind home plate)'.",
+    "rows": "1-4, 5WC",
+    "entrance_row": "Row 5WC",
+    "seat_direction": "When looking towards the field/stage, lower number seats are on the left",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Rows labeled 1-4, 5WC (WC likely an accessible row designation at entrance). Section 411 is at the first-base end of the Promenade Silver 411-418 run per discovery.json anchors (official Mets guide: Promenade Level at Section 411 = First Base side).",
+    "source": "https://www.rateyourseats.com/citi-field/seating/sections/411"
+  },
+  {
+    "section": "412",
+    "zone": "Promenade Silver (Sections 411-418, behind home plate)",
+    "location": "Promenade Level, 400 level, behind home plate.",
+    "rows": "1-7",
+    "entrance_row": "Row 7",
+    "seat_direction": "When looking towards the field/stage, lower number seats are on the left",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights: 'Rows 1-7'. No fan reviews listed on this page beyond the RYS Expert Reviews for Promenade Gold and Promenade Level.",
+    "source": "https://www.rateyourseats.com/citi-field/seating/sections/412"
+  },
+  {
+    "section": "413",
+    "zone": "Promenade Silver / Promenade Gold (Row 1)",
+    "location": "Promenade Level, 400 level, behind home plate.",
+    "rows": "1-5",
+    "entrance_row": "Row 5",
+    "seat_direction": "When looking towards the field/stage, lower number seats are on the left",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Seating Notes: 'For baseball games, we recommend rows 1-5 for outstanding convenience' and 'For baseball games, desirable view from behind home plate'. Related Seating tags: Promenade Gold (Rows 1), Promenade Level. Also flagged 'Recommended For Outstanding Convenience' - 'within five rows of the concourse (fewer stairs)' with a men's restroom, women's restroom and concessions near this section.",
+    "source": "https://www.rateyourseats.com/citi-field/seating/sections/413"
+  },
+  {
+    "section": "414",
+    "zone": "Promenade Silver / Promenade Gold (Row 1)",
+    "location": "Promenade Level, 400 level, behind home plate.",
+    "rows": "1-7",
+    "entrance_row": "Row 7",
+    "seat_direction": "When looking towards the field/stage, lower number seats are on the left",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights: 'Top Pick for Outstanding Convenience Rows 1-5', 'Home Plate View', 'Rows 1-7'. Seating Notes: 'For baseball games, we recommend rows 1-5 for outstanding convenience' and 'For baseball games, desirable view from behind home plate'. Fan review (Row 1): 'Great view behind home plate. Love the extra leg room and access to Hudson Whiskey NY.'",
+    "source": "https://www.rateyourseats.com/citi-field/seating/sections/414"
+  },
+  {
+    "section": "415",
+    "zone": "Promenade Silver / Promenade Gold (Row 1)",
+    "location": "Promenade Level, 400 level, behind home plate. Discovery.json home-plate anchor for the Promenade 400 level.",
+    "rows": "1-5",
+    "entrance_row": "Row 5",
+    "seat_direction": "When looking towards the field/stage, lower number seats are on the left",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights: 'Home Plate View', 'Rows 1-5'. Seating Notes: 'For baseball games, desirable view from behind home plate'.",
+    "source": "https://www.rateyourseats.com/citi-field/seating/sections/415"
+  },
+  {
+    "section": "416",
+    "zone": "Promenade Silver / Promenade Gold (Row 1)",
+    "location": "Promenade Level, 400 level, behind home plate.",
+    "rows": "1-5",
+    "entrance_row": "Row 5",
+    "seat_direction": "When looking towards the field/stage, lower number seats are on the left",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights: 'Top Pick for Outstanding Convenience Rows 1-5', 'Home Plate View', 'Rows 1-5'. Seating Notes: 'For baseball games, we recommend rows 1-5 for outstanding convenience' and 'For baseball games, desirable view from behind home plate'.",
+    "source": "https://www.rateyourseats.com/citi-field/seating/sections/416"
+  },
+  {
+    "section": "417",
+    "zone": "Promenade Silver / Promenade Gold (Row 1)",
+    "location": "Promenade Level, 400 level, behind home plate.",
+    "rows": "1-5",
+    "entrance_row": "Row 5",
+    "seat_direction": "When looking towards the field/stage, lower number seats are on the left",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights: 'Top Pick for Outstanding Convenience Rows 1-5', 'Home Plate View', 'Rows 1-5'. Seating Notes: 'For baseball games, we recommend rows 1-5 for outstanding convenience' and 'For baseball games, desirable view from behind home plate'. Fan review (Row 1): 'Beautiful view from this section. This level is so close to the field, It feels like you are looking down over home plate... Seats have access to 3 clubs.' Fan review (Row 3): 'Good location just to the left of home with a clear view of the entire field.'",
+    "source": "https://www.rateyourseats.com/citi-field/seating/sections/417"
+  },
+  {
+    "section": "418",
+    "zone": "Promenade Silver (Sections 411-418, behind home plate)",
+    "location": "Promenade Level, 400 level, behind home plate; third-base end of the 411-418 run.",
+    "rows": "1-7",
+    "entrance_row": "Row 7",
+    "seat_direction": "When looking towards the field/stage, lower number seats are on the left",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights: 'Rows 1-7'. Section 418 is at the third-base end of the Promenade Silver 411-418 run per discovery.json anchors (official Mets guide: Promenade Level at Section 418 = Third Base side).",
+    "source": "https://www.rateyourseats.com/citi-field/seating/sections/418"
+  },
+  {
+    "section": "419",
+    "zone": "Promenade Baseline (Sections 401-410 and 419-428)",
+    "location": "Promenade Level, 400 level, third-base side of the Promenade Silver block.",
+    "rows": "1-5",
+    "entrance_row": "Row 5",
+    "seat_direction": "When looking towards the field/stage, lower number seats are on the left",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights: 'Rows 1-5'. Fan review (Row 3): 'Overall pretty good seats for the value! Good view of all the action. Not too far away.'",
+    "source": "https://www.rateyourseats.com/citi-field/seating/sections/419"
+  },
+  {
+    "section": "420",
+    "zone": "Promenade Baseline (Sections 401-410 and 419-428)",
+    "location": "Promenade Level, 400 level, third-base side.",
+    "rows": "1-5",
+    "entrance_row": "Row 5",
+    "seat_direction": "When looking towards the field/stage, lower number seats are on the left",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights: 'Top Pick for Outstanding Convenience Rows 1-5', 'Rows 1-5'. Seating Notes: 'For baseball games, we recommend rows 1-5 for outstanding convenience'. Fan review (Row 3): 'Great seats.'",
+    "source": "https://www.rateyourseats.com/citi-field/seating/sections/420"
+  },
+  {
+    "section": "421",
+    "zone": "Promenade Baseline (Sections 401-410 and 419-428)",
+    "location": "Promenade Level, 400 level, third-base side.",
+    "rows": "1-5",
+    "entrance_row": "Row 5",
+    "seat_direction": "When looking towards the field/stage, lower number seats are on the left",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights: 'Top Pick for Outstanding Convenience Rows 1-5', 'Top Pick for Great Views of the Field Rows 2-5', 'Rows 1-5'. Seating Notes: 'For baseball games, we recommend rows 1-5 for outstanding convenience' and 'For baseball games, we recommend rows 2-5 for great views of the field'.",
+    "source": "https://www.rateyourseats.com/citi-field/seating/sections/421"
+  },
+  {
+    "section": "422",
+    "zone": "Promenade Baseline (Sections 401-410 and 419-428)",
+    "location": "Promenade Level, 400 level, third-base side.",
+    "rows": "1-5",
+    "entrance_row": "Row 5",
+    "seat_direction": "When looking towards the field/stage, lower number seats are on the left",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights: 'Top Pick for Great Views of the Field Rows 2-5', 'Rows 1-5'. Seating Notes: 'For baseball games, we recommend rows 2-5 for great views of the field'. Fan review (Row 1): 'It felt exponentially more intimate than the top level, without having to pay for a lower level seat. The only downside is if you lean back in the chair there is a rail obstructing the view, you have to sit pretty straight to see everything, and I'm tall. The second row is probably way better honestly.'",
+    "source": "https://www.rateyourseats.com/citi-field/seating/sections/422"
+  },
+  {
+    "section": "423",
+    "zone": "Promenade Baseline (Sections 401-410 and 419-428)",
+    "location": "Promenade Level, 400 level, third-base side.",
+    "rows": "1-5",
+    "entrance_row": "Row 5",
+    "seat_direction": "When looking towards the field/stage, lower number seats are on the left",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights: 'Top Pick for Great Views of the Field Rows 2-5', 'Rows 1-5'. Seating Notes: 'For baseball games, we recommend rows 2-5 for great views of the field'.",
+    "source": "https://www.rateyourseats.com/citi-field/seating/sections/423"
+  },
+  {
+    "section": "424",
+    "zone": "Promenade Baseline (Sections 401-410 and 419-428)",
+    "location": "Promenade Level, 400 level, third-base side.",
+    "rows": "1-8",
+    "entrance_row": "Row 8",
+    "seat_direction": "When looking towards the field/stage, lower number seats are on the left",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights: 'Rows 1-8'. Fan review (Row 4): 'Really like the view of home plate. Great angle. Seeing left field is tricky - you can't see balls hit deep down the line. The row is about a million seats long. Liked having the aisle, but you will have to get up for other guests. Otherwise, you're about 6 seconds from concessions and the men's room.'",
+    "source": "https://www.rateyourseats.com/citi-field/seating/sections/424"
+  },
+  {
+    "section": "425",
+    "zone": "Promenade Baseline (Sections 401-410 and 419-428)",
+    "location": "Promenade Level, 400 level, third-base side.",
+    "rows": "1-5",
+    "entrance_row": "Row 5",
+    "seat_direction": "When looking towards the field/stage, lower number seats are on the left",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights: 'Rows 1-5'. No specific seating notes or fan reviews beyond the standard Promenade Gold/Promenade Level RYS Expert Reviews.",
+    "source": "https://www.rateyourseats.com/citi-field/seating/sections/425"
+  },
+  {
+    "section": "426",
+    "zone": "Promenade Baseline (Sections 401-410 and 419-428)",
+    "location": "Promenade Level, 400 level, third-base side.",
+    "rows": "1-7",
+    "entrance_row": "Row 7",
+    "seat_direction": "When looking towards the field/stage, lower number seats are on the left",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights: 'Rows 1-7'. No specific seating notes or fan reviews beyond the standard Promenade Gold/Promenade Level RYS Expert Reviews.",
+    "source": "https://www.rateyourseats.com/citi-field/seating/sections/426"
+  },
+  {
+    "section": "427",
+    "zone": "Promenade Baseline (Sections 401-410 and 419-428)",
+    "location": "Promenade Level, 400 level, third-base side.",
+    "rows": "1-7",
+    "entrance_row": "Row 7",
+    "seat_direction": "When looking towards the field/stage, lower number seats are on the left",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights: 'Rows 1-7'. No specific seating notes or fan reviews beyond the standard Promenade Gold/Promenade Level RYS Expert Reviews.",
+    "source": "https://www.rateyourseats.com/citi-field/seating/sections/427"
+  },
+  {
+    "section": "428",
+    "zone": "Promenade Baseline (Sections 401-410 and 419-428)",
+    "location": "Promenade Level, 400 level, third-base side, adjacent to the left-field corner (Promenade Box begins at 429).",
+    "rows": "1-5",
+    "entrance_row": "Row 5",
+    "seat_direction": "When looking towards the field/stage, lower number seats are on the left",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights: 'Rows 1-5'. This section's 'What It's Like to Sit' tab order is reversed on the page (Concert listed before Baseball) compared to other 400-level sections, but content itself is otherwise the same format.",
+    "source": "https://www.rateyourseats.com/citi-field/seating/sections/428"
+  },
+  {
+    "section": "429",
+    "zone": "Promenade Box (Sections 429-437)",
+    "location": "Promenade Level, 400 level, left-field corner. Per discovery.json official Mets accessibility guide: 'The Left Field Ramp is available for all guests... located in the left field corner behind sections 129, 329, and 429.'",
+    "rows": "1-5",
+    "entrance_row": "Row 5",
+    "seat_direction": "When looking towards the field/stage, lower number seats are on the left",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights: 'Top Pick for Outstanding Convenience Rows 1-5', 'Rows 1-5', 'Behind/Side Stage (most shows)'. Seating Notes: 'For baseball games, we recommend rows 1-5 for outstanding convenience'. Concert-specific note: 'For Concerts, Section 429 May Have a Limited View - 429 is behind the stage or to the side of the stage for most concerts. This may restrict or limit your view of the performance.' Fan review (Row 3): 'View way better than I thought. Slight angle of the seats gives comfortable sight line to all parts of Citi Field. Decent view of scoreboard and lineups. Only problem is I'm getting destroyed by the sun for this day game.'",
+    "source": "https://www.rateyourseats.com/citi-field/seating/sections/429"
+  }
+]

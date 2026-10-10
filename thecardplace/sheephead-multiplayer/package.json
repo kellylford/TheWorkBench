@@ -1,0 +1,28 @@
+{
+  "name": "sheephead-multiplayer",
+  "version": "1.0.0",
+  "description": "Multiplayer build of Sheephead. Forked from sheephead/ at 160ff33; the single-player game is not modified by work here.",
+  "private": true,
+  "scripts": {
+    "test": "node tests/rules-oracle.js && node tests/authorization.js && node tests/projection.js && node tests/online.js && node tests/room.js && node tests/keepalive.js && node tests/engine-invariants.js && node tests/hidden-information.js && node tests/transcript.js && node tests/doublers.js && node tests/ui-dom.js && node tests/announcements.js && node tests/lobby.js && node tests/connection-ui.js && node ../shared/tests/browser/card-overlap.js sheephead-multiplayer && node ../shared/tests/browser/contrast.js sheephead-multiplayer && node tests/randomness.js && node ../shared/tests/browser/appearance.js sheephead-multiplayer",
+    "test:rules": "node tests/rules-oracle.js",
+    "test:auth": "node tests/authorization.js",
+    "test:projection": "node tests/projection.js && node tests/online.js && node tests/room.js",
+    "test:random": "node tests/randomness.js",
+    "test:invariants": "node tests/engine-invariants.js",
+    "test:hidden": "node tests/hidden-information.js",
+    "test:net": "node tests/keepalive.js",
+    "test:ui": "node tests/ui-dom.js && node tests/announcements.js && node tests/lobby.js",
+    "test:transcript": "node tests/transcript.js",
+    "test:doublers": "node tests/doublers.js",
+    "test:layout": "node ../shared/tests/browser/layout.js sheephead-multiplayer",
+    "test:overlap": "node ../shared/tests/browser/card-overlap.js sheephead-multiplayer",
+    "test:appearance": "node ../shared/tests/browser/appearance.js sheephead-multiplayer",
+    "test:contrast": "node ../shared/tests/browser/contrast.js sheephead-multiplayer",
+    "balance": "node tests/balance.js",
+    "test:keys": "node ../shared/tests/browser/keys.js sheephead-multiplayer",
+    "test:log": "node ../shared/tests/browser/log.js sheephead-multiplayer",
+    "test:renders": "node ../shared/tests/browser/renders.js sheephead-multiplayer"
+  },
+  "license": "MIT"
+}

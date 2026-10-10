@@ -1,0 +1,150 @@
+/* What is particular to sheephead.
+ *
+ * Everything shared with the other games is in ../shared/styles/core.css, which
+ * the page loads first. This file loads after it, so anything said here wins —
+ * that is the whole override mechanism, and it needs no !important.
+ */
+
+/* Sheephead - presentation.
+ * Aims: strong contrast, visible focus, no colour-only meaning, respects
+ * prefers-reduced-motion and prefers-contrast, and scales with the user's font size.
+ */
+:root {
+  --bg: #10161d;
+  --panel: #1a232e;
+  --panel-2: #223040;
+  --ink: #eef3f8;
+  --ink-dim: #ccd8e4;
+  --line: #3c4b5d;
+  --accent: #6fd0ff;
+  --accent-ink: #06212e;
+  --good: #7ee08a;
+  --bad: #ff9b9b;
+  --card-bg: #f7f9fb;
+  /* A card you cannot play. Light enough that a red suit still clears AA on it
+   * — #c2ccd6 looked better and put the pips at 4.25:1, which is a fail. */
+  --card-off: #ccd5de;
+  --card-ink: #16202a;
+  --card-red: #b3122a;
+  --trump: #f0c04a;
+  --partner: #7ad3a0;
+  --partner-ink: #0d5c38;
+  --felt: #1d5c43;
+  --felt-edge: #123a2b;
+  /* Ink for text sitting DIRECTLY on the felt, rather than on a panel.
+   *
+   * Deliberately not redefined for light mode, and that is the whole point:
+   * the felt is dark green in both colour schemes, but --ink-dim flips to a
+   * dark slate in light mode. Anything on the felt using --ink-dim was
+   * therefore 1.41:1 in light mode — dark grey on dark green, against the
+   * 4.5:1 WCAG AA asks for.
+   *
+   * Measured here at 1.41 before this change, the same as the three
+   * multiplayer games, which is not a coincidence — they were forked from
+   * this stylesheet. Unseen for as long as it was because the text it affects
+   * only appears when a hand runs empty, and nothing had ever been looking
+   * at the page in that state. */
+  --ink-on-felt: #e6eef6;
+  --back-a: #2a4f7c;
+  --back-b: #1b3557;
+  --focus: #ffd54a;
+  --radius: 8px;
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    --bg: #f2f5f8;
+    --panel: #ffffff;
+    --panel-2: #e8eef4;
+    --ink: #12181f;
+    --ink-dim: #3b4a5b;
+    --line: #b9c6d4;
+    --accent: #14556f;
+    --accent-ink: #ffffff;
+    --good: #10662a;
+    --bad: #a11226;
+    --card-bg: #ffffff;
+    --card-off: #ccd5de;
+    --card-ink: #12181f;
+    --card-red: #b3122a;
+    --trump: #8a5a00;
+    --partner: #1a7f4f;
+    --partner-ink: #0d5c38;
+    --felt: #1f6b4d;
+    --felt-edge: #14503a;
+    --back-a: #33608f;
+    --back-b: #224060;
+    --focus: #a35a00;
+  }
+}
+
+/* Cards just taken from the blind, shown at the front of the hand until the
+ * picker buries. Lifted and outlined so they read as "these are the new ones". */
+.card.from-blind {
+  border-color: var(--accent);
+  border-width: 3px;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 35%, transparent);
+  transform: translateY(-.35rem);
+}
+
+.card.from-blind .tag { color: var(--accent); font-weight: 800; }
+
+/* The jack of diamonds: whoever holds it is the picker's partner, so it is
+ * worth spotting instantly. */
+.card.partner-card {
+  border-color: var(--partner);
+  border-width: 3px;
+  /* Colour and image set separately: a gradient alone leaves background-color
+   * transparent, which is both a weak fallback and unmeasurable for contrast. */
+  background-color: var(--card-bg);
+  background-image: linear-gradient(180deg, color-mix(in srgb, var(--partner) 18%, var(--card-bg)) 0%, var(--card-bg) 55%);
+}
+
+.card.partner-card .tag { color: var(--partner-ink); font-weight: 800; }
+
+.card.partner-card::before {
+  content: "★";
+  position: absolute; top: 1px; right: 4px;
+  font-size: .8rem; line-height: 1;
+  color: var(--partner-ink);
+}
+
+.card.from-blind.partner-card { box-shadow: 0 0 0 3px color-mix(in srgb, var(--partner) 40%, transparent); }
+
+@media (forced-colors: active) {
+  .card.trump { border-style: double; }
+  .card.from-blind { border-style: dashed; }
+  .card.partner-card { outline: 3px solid; outline-offset: 1px; }
+  .trick li.winning { border-style: dashed; }
+}
+
+/* ---------- optional two-column desktop layout ----------
+ * Off by default; Settings > Appearance > Desktop layout turns it on.
+ *
+ * CSS Grid auto-placement is row-major, so panels fill left-to-right in exact
+ * DOM order. Nothing is repositioned and no `order` is used, so reading order
+ * and visual order stay identical — which is the whole reason this is grid and
+ * not absolute positioning.
+ *
+ * 64rem in a media query is always 1024px regardless of the user's font size,
+ * so phones and tablets are untouched whatever this is set to.
+ */
+@media (min-width: 64rem) {
+  .layout-two-col #game-section {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    column-gap: 1.25rem;
+    align-items: start;
+  }
+  /* Anything that reads as a full-width band stays one. The rest pairs up:
+   * hand | seats, then current trick | last trick. */
+  .layout-two-col #game-section > h2,
+  .layout-two-col #game-section > #status,
+  .layout-two-col #game-section > #action-section,
+  .layout-two-col #game-section > .toolbar,
+  .layout-two-col #game-section > #blind-section,
+  .layout-two-col #game-section > section[aria-labelledby="players-h"],
+  .layout-two-col #game-section > section[aria-labelledby="log-h"] {
+    grid-column: 1 / -1;
+  }
+}

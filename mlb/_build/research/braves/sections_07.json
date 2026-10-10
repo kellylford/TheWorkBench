@@ -1,0 +1,222 @@
+[
+  {
+    "section": "257",
+    "zone": "Chop House Club",
+    "location": "Verbatim: 'The Chop House seating area is located in right field at Truist Park, near: Sections 156–160, Section 257, Section 259.' 'Social Seating in Right Field: Located near Sections 156–160, 257 and 259.'",
+    "rows": "1-2",
+    "entrance_row": "UNKNOWN",
+    "seat_direction": "When looking towards the stage/field, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "'Premium seating area as part of the Chop House Club.' Views 'focus primarily on the right field and outfield portions of the game' and are 'not as direct as seats near the dugomes' (near the dugouts); Home Run Territory: 'Located near the right field wall where fans have a chance at a homerun ball.' High-top bar-style seating with cupholders is typical of the Chop House area generally. ANOMALY: the Chop House Club zone review names three specific seating styles — Chop House Terrace (Sections 156-160, 5 rows), Chop House Deck (Section 259, single row of ~20 seats), and Below the Chop (unnumbered) — but does not say which style Section 257 belongs to, and 257's own 'Rows in Section 257 are labeled 1-2' does not match any of the three described styles cleanly.",
+    "source": "https://www.rateyourseats.com/truist-park/seating/sections/257"
+  },
+  {
+    "section": "259",
+    "zone": "Chop House Club",
+    "location": "Verbatim: 'The Chop House seating area is located in right field at Truist Park, near: Sections 156–160, Section 257, Section 259.' Chop House Deck: 'Located on top of the Chop House restaurant, this area features a single row of approximately 20 seats with elevated views over right field.'",
+    "rows": "1-2",
+    "entrance_row": "UNKNOWN",
+    "seat_direction": "When looking towards the stage/field, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "'Premium seating area as part of the Chop House Club.' Views 'focus primarily on the right field and outfield portions of the game' and are 'not as direct as seats near the dugouts.' CONTRADICTION flagged verbatim: this section's own 'Row Numbers' block states 'Rows in Section 259 are labeled 1-2,' but the Chop House Club zone review describes the Chop House Deck (which the zone text says IS Section 259) as having 'a single row of approximately 20 seats.' The two statements on the same page (1-2 rows vs. a single row) are not reconciled by the source; recorded verbatim rather than resolved.",
+    "source": "https://www.rateyourseats.com/truist-park/seating/sections/259"
+  },
+  {
+    "section": "312",
+    "zone": "Vista Level Down the Line",
+    "location": "Verbatim: 'The Vista Level Down the Line seats are comprised of many sections, with most of them on the left field side of Truist Park. Each section has 13 rows of seating and sections 317 and 335 will have a better viewing angle of the field and line up almost directly with the first and third bases. Section 347 is in far left field, and is not recommended for great views.'",
+    "rows": "1-13",
+    "entrance_row": "Row 13",
+    "seat_direction": "When looking towards the stage/field, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "'Rows 10 and above are under cover.' $13 lowest price in Section 312 noted at time of fetch (not recorded as a fact, informational only).",
+    "source": "https://www.rateyourseats.com/truist-park/seating/sections/312"
+  },
+  {
+    "section": "313",
+    "zone": "Vista Level Down the Line",
+    "location": "Verbatim: 'The Vista Level Down the Line seats are comprised of many sections, with most of them on the left field side of Truist Park. Each section has 13 rows of seating and sections 317 and 335 will have a better viewing angle of the field and line up almost directly with the first and third bases. Section 347 is in far left field, and is not recommended for great views.'",
+    "rows": "1-11, 12-13",
+    "entrance_row": "Row 13",
+    "seat_direction": "When looking towards the stage/field, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "'Rows 10 and above are under cover.' 'Wheelchair seating is available behind Row 11.'",
+    "source": "https://www.rateyourseats.com/truist-park/seating/sections/313"
+  },
+  {
+    "section": "314",
+    "zone": "Vista Level Down the Line",
+    "location": "Verbatim: 'The Vista Level Down the Line seats are comprised of many sections, with most of them on the left field side of Truist Park. Each section has 13 rows of seating and sections 317 and 335 will have a better viewing angle of the field and line up almost directly with the first and third bases. Section 347 is in far left field, and is not recommended for great views.'",
+    "rows": "1-13",
+    "entrance_row": "Row 13",
+    "seat_direction": "When looking towards the stage/field, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "'Rows 10 and above are under cover.' Fan review (Sep 18, 2023, Sec 314/Row 1, Phillies at Braves): 'Pretty cool!'",
+    "source": "https://www.rateyourseats.com/truist-park/seating/sections/314"
+  },
+  {
+    "section": "315",
+    "zone": "Vista Level Down the Line",
+    "location": "Verbatim: 'The Vista Level Down the Line seats are comprised of many sections, with most of them on the left field side of Truist Park. Each section has 13 rows of seating and sections 317 and 335 will have a better viewing angle of the field and line up almost directly with the first and third bases. Section 347 is in far left field, and is not recommended for great views.'",
+    "rows": "1-10, WC",
+    "entrance_row": "Row WC",
+    "seat_direction": "When looking towards the stage/field, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "'Rows 10 and above are under cover.' 'Wheelchair seating is available behind Row 10.' Unlike most other sections in this batch, Section 315's own row label includes a 'WC' row (rather than a plain 1-13 numeric range), and its stated section entrance is at Row WC rather than a numbered row.",
+    "source": "https://www.rateyourseats.com/truist-park/seating/sections/315"
+  },
+  {
+    "section": "316",
+    "zone": "Vista Level Down the Line",
+    "location": "Verbatim: 'The Vista Level Down the Line seats are comprised of many sections, with most of them on the left field side of Truist Park. Each section has 13 rows of seating and sections 317 and 335 will have a better viewing angle of the field and line up almost directly with the first and third bases. Section 347 is in far left field, and is not recommended for great views.'",
+    "rows": "1-13",
+    "entrance_row": "Row 13",
+    "seat_direction": "When looking towards the stage/field, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "'Rows 10 and above are under cover.'",
+    "source": "https://www.rateyourseats.com/truist-park/seating/sections/316"
+  },
+  {
+    "section": "317",
+    "zone": "Vista Level Down the Line",
+    "location": "Verbatim: 'The Vista Level Down the Line seats are comprised of many sections, with most of them on the left field side of Truist Park. Each section has 13 rows of seating and sections 317 and 335 will have a better viewing angle of the field and line up almost directly with the first and third bases. Section 347 is in far left field, and is not recommended for great views.' Section 317 is specifically named as one of the two sections (with 335) that 'line up almost directly with the first and third bases.'",
+    "rows": "1-13",
+    "entrance_row": "Row 13",
+    "seat_direction": "When looking towards the stage/field, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "'Rows 10 and above are under cover.' Fan review, Sec 317/Row 3: 'Problem area, you are on the outfield cut of infield when looking back to home plate, the person beside you can block view if they lean forward or aren't sitting back.' Same review notes seats were shaded by 1:50pm for a 1:35pm start.",
+    "source": "https://www.rateyourseats.com/truist-park/seating/sections/317"
+  },
+  {
+    "section": "318",
+    "zone": "Vista Infield",
+    "location": "Verbatim: '300 Level Infield Seating: Includes Sections 318–333 at Truist Park.' 'These sections run along the infield portion of the level and sit below the upper deck, giving fans a clear view of the field while still maintaining some protection from the elements.'",
+    "rows": "1-11, 12-13",
+    "entrance_row": "Row 13",
+    "seat_direction": "When looking towards the stage/field, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "'Rows 10 and above are under cover.' 'Wheelchair seating is available behind Row 11.' 'Each section contains at least 7 rows and no more than 13 rows.' Fan reviews: Sec 318/Row 5 'seats were EXTREMELY too close'; Sec 318/Row 6 (Astros at Braves, Apr 23, 2023, no comment text).",
+    "source": "https://www.rateyourseats.com/truist-park/seating/sections/318"
+  },
+  {
+    "section": "320",
+    "zone": "Vista Infield",
+    "location": "Verbatim: '300 Level Infield Seating: Includes Sections 318–333 at Truist Park.' 'These sections run along the infield portion of the level and sit below the upper deck.'",
+    "rows": "1-13",
+    "entrance_row": "Row 13",
+    "seat_direction": "When looking towards the stage/field, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "'Rows 10 and above are under cover.' Multiple fan reviews describe shade: 'These seats are covered, so in the shade' (Sec 320/Row 12); 'Up on 3rd level, even with 1st base. Very good view of field' (Sec 320/Row 8); '1:20 game and we were completely in the shade' (Sec 320/Row 6).",
+    "source": "https://www.rateyourseats.com/truist-park/seating/sections/320"
+  },
+  {
+    "section": "322",
+    "zone": "Vista Infield",
+    "location": "Verbatim: '300 Level Infield Seating: Includes Sections 318–333 at Truist Park.' 'These sections run along the infield portion of the level and sit below the upper deck.'",
+    "rows": "1-13",
+    "entrance_row": "Row 13",
+    "seat_direction": "When looking towards the stage/field, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "'Rows 10 and above are under cover.' Fan review (Sec 322/Row 13): seats are 'underneath an eave that offers some welcome evening shade' but 'does not completely protect from the elements' — during a rain delay 'some rain still dripped'; also notes a concession stand located directly behind the last row causing foot traffic. Fan review (Sec 322/Row 10): 'you will NOT be in foul ball territory - too high.'",
+    "source": "https://www.rateyourseats.com/truist-park/seating/sections/322"
+  },
+  {
+    "section": "323",
+    "zone": "Vista Infield",
+    "location": "Verbatim: '300 Level Infield Seating: Includes Sections 318–333 at Truist Park.' 'These sections run along the infield portion of the level and sit below the upper deck.'",
+    "rows": "1-11, 12-13",
+    "entrance_row": "Row 13",
+    "seat_direction": "When looking towards the stage/field, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "'Rows 10 and above are under cover.' 'Wheelchair seating is available behind Row 11.'",
+    "source": "https://www.rateyourseats.com/truist-park/seating/sections/323"
+  },
+  {
+    "section": "324",
+    "zone": "Vista Infield",
+    "location": "Verbatim: '300 Level Infield Seating: Includes Sections 318–333 at Truist Park.' 'These sections run along the infield portion of the level and sit below the upper deck.'",
+    "rows": "1-7",
+    "entrance_row": "UNKNOWN",
+    "seat_direction": "When looking towards the stage/field, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights tag: 'Afternoon Shade in Select Rows.' 'Rows 6 and above are shaded during most late afternoon games.' No 'Home Plate View' tag on this page (unlike 325-327). Fan review (Sec 324/Row 5, Rockies at Braves, Apr 26, 2019, no comment text).",
+    "source": "https://www.rateyourseats.com/truist-park/seating/sections/324"
+  },
+  {
+    "section": "325",
+    "zone": "Vista Infield",
+    "location": "Verbatim: '300 Level Infield Seating: Includes Sections 318–333 at Truist Park.' 'For the most balanced perspective, Sections 325–327 sit closest to directly behind home plate and provide some of the best views available on the Vista Level.'",
+    "rows": "1-7",
+    "entrance_row": "UNKNOWN",
+    "seat_direction": "When looking towards the stage/field, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights tags: 'Home Plate View' and 'Afternoon Shade in Select Rows.' Seating Notes: 'For baseball games, desirable view from behind home plate' and 'Rows 7 and above are shaded during most late afternoon games.' Fan review (Sec 325/Row 5, Giants at Braves, Aug 18, 2023, no comment text).",
+    "source": "https://www.rateyourseats.com/truist-park/seating/sections/325"
+  },
+  {
+    "section": "326",
+    "zone": "Vista Infield",
+    "location": "Verbatim: '300 Level Infield Seating: Includes Sections 318–333 at Truist Park.' 'For the most balanced perspective, Sections 325–327 sit closest to directly behind home plate and provide some of the best views available on the Vista Level.'",
+    "rows": "1-7",
+    "entrance_row": "UNKNOWN",
+    "seat_direction": "When looking towards the stage/field, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights tag: 'Home Plate View.' Seating Notes: 'For baseball games, desirable view from behind home plate.' No 'Afternoon Shade in Select Rows' tag on this page (present on 324 and 325 but not here). Fan review (Sec 326/Row 7): 'Last row, right next to cameras. Only 4 seats in row... 4pm game in June and we had shade for the entire game... There did seem to be a lot of seat jumpers.'",
+    "source": "https://www.rateyourseats.com/truist-park/seating/sections/326"
+  },
+  {
+    "section": "327",
+    "zone": "Vista Infield",
+    "location": "Verbatim: '300 Level Infield Seating: Includes Sections 318–333 at Truist Park.' 'For the most balanced perspective, Sections 325–327 sit closest to directly behind home plate and provide some of the best views available on the Vista Level.'",
+    "rows": "1-7",
+    "entrance_row": "UNKNOWN",
+    "seat_direction": "When looking towards the stage/field, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights tag: 'Home Plate View.' Seating Notes: 'For baseball games, desirable view from behind home plate.' No covered-rows or shade note stated on this page. Fan review (Sec 327/Row 2, Phillies at Braves, Apr 9, 2025): 'The seats were perfect! We could see the entire field. We were close to the concessions and restrooms.'",
+    "source": "https://www.rateyourseats.com/truist-park/seating/sections/327"
+  },
+  {
+    "section": "328",
+    "zone": "Vista Infield",
+    "location": "Verbatim: '300 Level Infield Seating: Includes Sections 318–333 at Truist Park.' 'These sections run along the infield portion of the level and sit below the upper deck.'",
+    "rows": "1-7",
+    "entrance_row": "UNKNOWN",
+    "seat_direction": "When looking towards the stage/field, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "No 'Home Plate View' or shade/cover tag stated for this section (Section Insights lists only 'Rows 1-7'). Fan review (Sec 328/Row 1): 'Good view behind home plate and just a hair to the left. This is the front row of section, so no cup holder, it was where the canopy ends so rain and big drops come off the edge of the roof... The plexiglass is new, but it is already dirty and your view is distracted by the metal rim along the top of the plexiglass... There is good leg room and 20 & 21 are the first 2 seats.'",
+    "source": "https://www.rateyourseats.com/truist-park/seating/sections/328"
+  },
+  {
+    "section": "329",
+    "zone": "Vista Infield",
+    "location": "Verbatim: '300 Level Infield Seating: Includes Sections 318–333 at Truist Park.' 'These sections run along the infield portion of the level and sit below the upper deck.'",
+    "rows": "1-11, 12-13",
+    "entrance_row": "UNKNOWN",
+    "seat_direction": "When looking towards the stage/field, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "'Rows 10 and above are under cover.' 'Wheelchair seating is available behind Row 11.' No 'entrance located at Row X' statement appears on this page (unlike 312-318, 320, 322, 323). Fan reviews: Sec 329/Row 5 (Brewers at Braves, Jun 20, 2026): 'Wasn't a bad view for being high up.'",
+    "source": "https://www.rateyourseats.com/truist-park/seating/sections/329"
+  },
+  {
+    "section": "330",
+    "zone": "Vista Infield",
+    "location": "Verbatim: '300 Level Infield Seating: Includes Sections 318–333 at Truist Park.' 'These sections run along the infield portion of the level and sit below the upper deck.'",
+    "rows": "1-13",
+    "entrance_row": "UNKNOWN",
+    "seat_direction": "When looking towards the stage/field, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "'Rows 10 and above are under cover.' No 'entrance located at Row X' statement appears on this page. Fan review (Sec 330/Row 6): 'Good view of home plate and not too expensive.'",
+    "source": "https://www.rateyourseats.com/truist-park/seating/sections/330"
+  },
+  {
+    "section": "331",
+    "zone": "Vista Infield",
+    "location": "Verbatim: '300 Level Infield Seating: Includes Sections 318–333 at Truist Park.' 'These sections run along the infield portion of the level and sit below the upper deck.'",
+    "rows": "1-13",
+    "entrance_row": "UNKNOWN",
+    "seat_direction": "When looking towards the stage/field, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "'Rows 10 and above are under cover.' No 'entrance located at Row X' statement appears on this page. Fan reviews: Sec 331/Row 12 (Phillies at Braves, May 28, 2023): 'In the shade! Very good visibility overall. 1st base side preferred but being on 3rd base was just fine.' Sec 331/Row 1 (Cardinals at Braves, Jul 1, 2026): 'Wonderful seats.'",
+    "source": "https://www.rateyourseats.com/truist-park/seating/sections/331"
+  }
+]

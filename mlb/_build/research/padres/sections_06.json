@@ -1,0 +1,112 @@
+[
+  {
+    "section": "320",
+    "zone": "Upper Box and Reserved",
+    "location": "\"Upper Box and Upper Reserved seating is located on the highest seating tier at Petco Park, with sections numbered in the 300s.\" / \"These sections stretch across the entire upper deck, running from the right field corner across home plate to the left field corner.\"",
+    "rows": "1-4, 9-27",
+    "entrance_row": "Row 4",
+    "seat_direction": "When looking towards the field/field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Row block verbatim: \"Rows in Section 320 are labeled 1-4, 9-27\"; \"There is a walkway betweeen Rows 4 and 9\"; \"An entrance to this section is located at Row 4\". Section Insights verbatim: \"Rows 19 & Above - Covered\" / \"Rows 1-4, 9-27\". Seating Note verbatim: \"Rows 19 and above are under cover\". Fan Feedback (verbatim): \"The row may be ok, but these seats are rough, lots of traffic.\" - \"My seats were 1, 2, 3, and 4. The isle seats. Lots of people walking in and out, blocking the view. I missed most of the game. Maybe further down would be ok, but not here. The glass barrier also blocks the view. Maybe if your tall the glass barrier wouldn’t block so much, but the people still will. Also, shade after 130pm.\" (Sec 320 / Row 11 - Baseball). Obstruction per that fan review: people walking in the aisle and a glass barrier. NOTE - the fan review says seats 1-4 are \"The isle seats\" but does NOT state which end of the row (left or right, home-plate end or outfield end), so it is not recorded as SEAT1 evidence. INTERNAL TENSION on this page, both readings recorded: the RYS zone review states \"Upper Box vs Upper Reserved: Rows 1-6 are Upper Box, while rows above Row 6 are Upper Reserved\", yet this section's own row labels are \"1-4, 9-27\" and contain no rows 5-8. NOT RECONCILED. The page states no first-base/third-base placement for this section; discovery.json's park-wide parity rule (even = third base / left field) is NOT stated anywhere on this page.",
+    "source": "https://www.rateyourseats.com/petco-park/seating/sections/320"
+  },
+  {
+    "section": "321",
+    "zone": "Upper Box and Reserved",
+    "location": "\"Upper Box and Upper Reserved seating is located on the highest seating tier at Petco Park, with sections numbered in the 300s.\" / \"These sections stretch across the entire upper deck, running from the right field corner across home plate to the left field corner.\"",
+    "rows": "7-27",
+    "entrance_row": "UNKNOWN",
+    "seat_direction": "When looking towards the field/field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Row block verbatim: \"Rows in Section 321 are labeled 7-27\". The page carries NO entrance-row line and NO walkway line for this section, so entrance_row is UNKNOWN. Section Insights verbatim: \"Rows 19 & Above - Covered\" / \"Rows 7-27\". Seating Note verbatim: \"Rows 19 and above are under cover\". No fan reviews on the page. INTERNAL TENSION, both readings recorded: the RYS zone review states \"Upper Box vs Upper Reserved: Rows 1-6 are Upper Box, while rows above Row 6 are Upper Reserved\", yet this section's labelled rows start at 7 and contain no rows 1-6. NOT RECONCILED. The page states no first-base/third-base placement for this section; discovery.json's park-wide parity rule (odd = first base / right field) is NOT stated anywhere on this page.",
+    "source": "https://www.rateyourseats.com/petco-park/seating/sections/321"
+  },
+  {
+    "section": "322",
+    "zone": "Upper Box and Reserved",
+    "location": "\"Upper Box and Upper Reserved seating is located on the highest seating tier at Petco Park, with sections numbered in the 300s.\" / \"These sections stretch across the entire upper deck, running from the right field corner across home plate to the left field corner.\"",
+    "rows": "9-27",
+    "entrance_row": "UNKNOWN",
+    "seat_direction": "When looking towards the field/field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Row block verbatim: \"Rows in Section 322 are labeled 9-27\". The page carries NO entrance-row line and NO walkway line for this section, so entrance_row is UNKNOWN. Section Insights verbatim: \"Rows 19 & Above - Covered\" / \"Rows 9-27\". Seating Note verbatim: \"Rows 19 and above are under cover\". No fan reviews on the page. INTERNAL TENSION, both readings recorded: the RYS zone review states \"Upper Box vs Upper Reserved: Rows 1-6 are Upper Box, while rows above Row 6 are Upper Reserved\", yet this section's labelled rows start at 9 and contain no rows 1-6. NOT RECONCILED. The page states no first-base/third-base placement for this section; discovery.json's park-wide parity rule (even = third base / left field) is NOT stated anywhere on this page.",
+    "source": "https://www.rateyourseats.com/petco-park/seating/sections/322"
+  },
+  {
+    "section": "323",
+    "zone": "Upper Box and Reserved",
+    "location": "\"Upper Box and Upper Reserved seating is located on the highest seating tier at Petco Park, with sections numbered in the 300s.\" / \"These sections stretch across the entire upper deck, running from the right field corner across home plate to the left field corner.\"",
+    "rows": "1-6, 9-27",
+    "entrance_row": "Row 6",
+    "seat_direction": "When looking towards the field/field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Row block verbatim: \"Rows in Section 323 are labeled 1-6, 9-27\"; \"There is a walkway betweeen Rows 6 and 9\"; \"An entrance to this section is located at Row 6\". Section Insights verbatim: \"Rows 19 & Above - Covered\" / \"Rows 1-6, 9-27\". Seating Note verbatim: \"Rows 19 and above are under cover\". No fan reviews on the page. Rows 7 and 8 are not labelled in this section. The page states no first-base/third-base placement for this section; discovery.json's park-wide parity rule (odd = first base / right field) is NOT stated anywhere on this page.",
+    "source": "https://www.rateyourseats.com/petco-park/seating/sections/323"
+  },
+  {
+    "section": "324",
+    "zone": "Upper Box and Reserved",
+    "location": "\"Upper Box and Upper Reserved seating is located on the highest seating tier at Petco Park, with sections numbered in the 300s.\" / \"These sections stretch across the entire upper deck, running from the right field corner across home plate to the left field corner.\"",
+    "rows": "1-4, 9-27",
+    "entrance_row": "Row 3",
+    "seat_direction": "When looking towards the field/field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Row block verbatim: \"Rows in Section 324 are labeled 1-4, 9-27\"; \"There is a walkway betweeen Rows 4 and 9\"; \"An entrance to this section is located at Row 3\". Section Insights verbatim: \"Top Pick for Outstanding ConvenienceRows 1-4\" / \"Rows 19 & Above - Covered\" / \"Rows 1-4, 9-27\". Seating Notes verbatim: \"For baseball games, we recommend rows 1-4 for outstanding convenience\" and \"Rows 19 and above are under cover\". No fan reviews on the page. INTERNAL TENSION, both readings recorded: the RYS zone review states \"Upper Box vs Upper Reserved: Rows 1-6 are Upper Box, while rows above Row 6 are Upper Reserved\", yet this section's row labels are \"1-4, 9-27\" and contain no rows 5-8. NOT RECONCILED. The page states no first-base/third-base placement for this section; discovery.json's park-wide parity rule (even = third base / left field) is NOT stated anywhere on this page.",
+    "source": "https://www.rateyourseats.com/petco-park/seating/sections/324"
+  },
+  {
+    "section": "325",
+    "zone": "Upper Box and Reserved",
+    "location": "\"Upper Box and Upper Reserved seating is located on the highest seating tier at Petco Park, with sections numbered in the 300s.\" / \"These sections stretch across the entire upper deck, running from the right field corner across home plate to the left field corner.\"",
+    "rows": "1-4, 9-27",
+    "entrance_row": "Row 4",
+    "seat_direction": "When looking towards the field/field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Row block verbatim: \"Rows in Section 325 are labeled 1-4, 9-27\"; \"There is a walkway betweeen Rows 4 and 9\"; \"An entrance to this section is located at Row 4\". Section Insights verbatim: \"Rows 19 & Above - Covered\" / \"Rows 1-4, 9-27\". Seating Note verbatim: \"Rows 19 and above are under cover\". No fan reviews on the page. INTERNAL TENSION, both readings recorded: the RYS zone review states \"Upper Box vs Upper Reserved: Rows 1-6 are Upper Box, while rows above Row 6 are Upper Reserved\", yet this section's row labels are \"1-4, 9-27\" and contain no rows 5-8. NOT RECONCILED. The page states no first-base/third-base placement for this section; discovery.json's park-wide parity rule (odd = first base / right field) is NOT stated anywhere on this page. RYS' shade guide (not this page) lists \"Upper Deck in Right Field: Odd sections 315-329\" under seats in the sun - recorded here only as a cross-reference, not as a statement on this section page.",
+    "source": "https://www.rateyourseats.com/petco-park/seating/sections/325"
+  },
+  {
+    "section": "326",
+    "zone": "Upper Box and Reserved",
+    "location": "\"Upper Box and Upper Reserved seating is located on the highest seating tier at Petco Park, with sections numbered in the 300s.\" / \"These sections stretch across the entire upper deck, running from the right field corner across home plate to the left field corner.\"",
+    "rows": "1-6, 7-27",
+    "entrance_row": "Row 6",
+    "seat_direction": "When looking towards the field/field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Row block verbatim: \"Rows in Section 326 are labeled 1-6, 7-27\"; \"There is a walkway betweeen Rows 6 and 7\"; \"An entrance to this section is located at Row 6\". Section Insights verbatim: \"Rows 19 & Above - Covered\" / \"Rows 1-6, 7-27\". Seating Note verbatim: \"Rows 19 and above are under cover\". No fan reviews on the page. This is the only section in this batch whose two row runs are contiguous (1-6 then 7-27) yet still separated by a stated walkway. The page states no first-base/third-base placement for this section; discovery.json's park-wide parity rule (even = third base / left field) is NOT stated anywhere on this page.",
+    "source": "https://www.rateyourseats.com/petco-park/seating/sections/326"
+  },
+  {
+    "section": "327",
+    "zone": "Upper Box and Reserved",
+    "location": "\"Upper Box and Upper Reserved seating is located on the highest seating tier at Petco Park, with sections numbered in the 300s.\" / \"These sections stretch across the entire upper deck, running from the right field corner across home plate to the left field corner.\"",
+    "rows": "1-6, 9-27",
+    "entrance_row": "Row 6",
+    "seat_direction": "When looking towards the field/field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Row block verbatim: \"Rows in Section 327 are labeled 1-6, 9-27\"; \"There is a walkway betweeen Rows 6 and 9\"; \"An entrance to this section is located at Row 6\". Section Insights verbatim: \"Rows 19 & Above - Covered\" / \"Rows 1-6, 9-27\". Seating Note verbatim: \"Rows 19 and above are under cover\". No fan reviews on the page. Rows 7 and 8 are not labelled in this section. The page states no first-base/third-base placement for this section; discovery.json's park-wide parity rule (odd = first base / right field) is NOT stated anywhere on this page.",
+    "source": "https://www.rateyourseats.com/petco-park/seating/sections/327"
+  },
+  {
+    "section": "328",
+    "zone": "Upper Box and Reserved",
+    "location": "\"For a unique ballpark setting, consider sitting near Section 328, which sits beside the historic Western Metal Supply building, one of the most recognizable architectural features at Petco Park.\" (also \"Upper Box and Upper Reserved seating is located on the highest seating tier at Petco Park, with sections numbered in the 300s.\")",
+    "rows": "1-4, 9-27",
+    "entrance_row": "Row 4",
+    "seat_direction": "When looking towards the field/field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Row block verbatim: \"Rows in Section 328 are labeled 1-4, 9-27\"; \"There is a walkway betweeen Rows 4 and 9\"; \"An entrance to this section is located at Row 4\". Section Insights verbatim: \"Rows 19 & Above - Covered\" / \"Rows 1-4, 9-27\". Seating Note verbatim: \"Rows 19 and above are under cover\". No fan reviews on the page. This is the ONLY section in this batch that the RYS expert review names individually, verbatim: \"For a unique ballpark setting, consider sitting near Section 328, which sits beside the historic Western Metal Supply building, one of the most recognizable architectural features at Petco Park.\" The page does not itself say the Western Metal building is in left field. INTERNAL TENSION, both readings recorded: the RYS zone review states \"Upper Box vs Upper Reserved: Rows 1-6 are Upper Box, while rows above Row 6 are Upper Reserved\", yet this section's row labels are \"1-4, 9-27\" and contain no rows 5-8. NOT RECONCILED.",
+    "source": "https://www.rateyourseats.com/petco-park/seating/sections/328"
+  },
+  {
+    "section": "329",
+    "zone": "Upper Box and Reserved",
+    "location": "\"Upper Box and Upper Reserved seating is located on the highest seating tier at Petco Park, with sections numbered in the 300s.\" / \"These sections stretch across the entire upper deck, running from the right field corner across home plate to the left field corner.\"",
+    "rows": "1-1",
+    "entrance_row": "Row 1",
+    "seat_direction": "When looking towards the field/field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Row block verbatim: \"Rows in Section 329 are labeled 1-1\" and \"An entrance to this section is located at Row 1\" - i.e. a SINGLE row. Section Insights verbatim: \"Rows 1-1\" (no covered-rows insight and no Seating Notes block at all on this page, unlike every other section in this batch). Only one seat view exists (\"Baseball Seat View From Section 329, Row 1\") and no price is listed. No fan reviews on the page. The page states no first-base/third-base placement for this section; discovery.json's park-wide parity rule (odd = first base / right field) is NOT stated anywhere on this page.",
+    "source": "https://www.rateyourseats.com/petco-park/seating/sections/329"
+  }
+]

@@ -1,0 +1,222 @@
+[
+  {
+    "section": "313",
+    "zone": "300 Level Infield (RYS baseball review block '300 Level Infield (Baseball)', which the review itself calls \"also known as Infield Reserved\"); the 'MVP Box' review block is also served on this page and states the MVP Box is \"the front rows (1-7) of sections 310-322\"",
+    "location": "\"MVP Box seating is located in sections 310-322, positioned along the infield on the upper level.\" (RYS 'MVP Box' (2026 Review) block served on this section page)",
+    "rows": "1-32",
+    "entrance_row": "Row 4",
+    "seat_direction": "When looking towards the field/field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights list ONLY \"Rows 1-32\" - no 'Home Plate View' insight (unlike Sections 314-318). No 'Seating Notes' block on this page. Fan Feedback: none - no Fan Reviews section on this page. Expert review blocks served: '300 Level Corner (Football)', '300 Level Infield (Baseball)', 'MVP Box'. CONTRADICTION WITHIN THE SOURCE (both readings recorded, not reconciled): the '300 Level Corner (Football)' block says \"Sections here have up to 32 numbered rows of seating, and entry tunnels located near the front at Row 4\", while the '300 Level Infield (Baseball)' block on the SAME page says \"Sections here are among some of the largest with up to 40 rows of seating per section. Entry tunnels are located near the bottom of the sections (at Row 4)\". The football block also reads \"Located behind home plate on the highest seating tier at Chase Field, the 300 Level Corner sections will have some of the furthest views of the field.\" - i.e. RYS labels these 'Corner' sections yet describes them as behind home plate; this is a football-configuration block. Netting/obstruction: NO netting or physical obstruction statement appears on this page. Videoboard, verbatim: \"The head on views of the videoboard are a plus, however fans in the highest rows will be left with some of the least desirable views of the action on the field.\"",
+    "source": "https://www.rateyourseats.com/chase-field/seating/sections/313"
+  },
+  {
+    "section": "314",
+    "zone": "300 Level Infield (RYS '300 Level Infield (Baseball)', \"also known as Infield Reserved\"); 'MVP Box' block also served, stated as \"the front rows (1-7) of sections 310-322\"",
+    "location": "\"MVP Box seating is located in sections 310-322, positioned along the infield on the upper level.\" (RYS 'MVP Box' (2026 Review) block served on this section page). Section Insights also flag \"Home Plate View\" and Seating Notes state \"For baseball games, desirable view from behind home plate\".",
+    "rows": "1-32",
+    "entrance_row": "Row 4",
+    "seat_direction": "When looking towards the field/field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights, verbatim: \"Top Pick for Outstanding ConvenienceRows 1-5\" [sic, run-together on the page], \"Home Plate View\", \"Rows 1-32\". Seating Notes, verbatim: \"For baseball games, we recommend rows 1-5 for outstanding convenience\" and \"For baseball games, desirable view from behind home plate\". Fan Feedback (verbatim): one 5-star review titled \"Dbacks games\", attributed \"Sec 314 / Row 5 - Baseball\"; the review body text was not exposed on the section page (collapsed behind 'Read More'). Expert review blocks served: '300 Level Corner (Football)', '300 Level Infield (Baseball)', 'MVP Box'. CONTRADICTION WITHIN THE SOURCE (both recorded, not reconciled): '300 Level Corner (Football)' says \"Sections here have up to 32 numbered rows of seating, and entry tunnels located near the front at Row 4\" while '300 Level Infield (Baseball)' on the same page says \"Sections here are among some of the largest with up to 40 rows of seating per section. Entry tunnels are located near the bottom of the sections (at Row 4)\". Netting/obstruction: NO netting or physical obstruction statement appears on this page.",
+    "source": "https://www.rateyourseats.com/chase-field/seating/sections/314"
+  },
+  {
+    "section": "315",
+    "zone": "300 Level Infield (RYS '300 Level Infield (Baseball)', \"also known as Infield Reserved\"); 'MVP Box' block also served, stated as \"the front rows (1-7) of sections 310-322\"",
+    "location": "\"MVP Box seating is located in sections 310-322, positioned along the infield on the upper level.\" (RYS 'MVP Box' (2026 Review) block served on this section page). Section Insights also flag \"Home Plate View\" and Seating Notes state \"For baseball games, desirable view from behind home plate\".",
+    "rows": "1-32",
+    "entrance_row": "Row 4",
+    "seat_direction": "When looking towards the field/field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights, verbatim: \"Home Plate View\", \"Rows 1-32\". Seating Notes, verbatim: \"For baseball games, desirable view from behind home plate\". NOTE for downstream use: discovery.json records Section 315 as NOT individually sourced as a home-plate section; this page DOES carry the 'Home Plate View' insight and the 'desirable view from behind home plate' note for 315, so that discovery caveat is now superseded by a direct source statement. Fan Feedback: none - no Fan Reviews section on this page. Expert review blocks served: '300 Level Corner (Football)', '300 Level Infield (Baseball)', 'MVP Box'. CONTRADICTION WITHIN THE SOURCE (both recorded, not reconciled): '300 Level Corner (Football)' says \"Sections here have up to 32 numbered rows of seating\" while '300 Level Infield (Baseball)' says \"Sections here are among some of the largest with up to 40 rows of seating per section\". Netting/obstruction: NO netting or physical obstruction statement appears on this page.",
+    "source": "https://www.rateyourseats.com/chase-field/seating/sections/315"
+  },
+  {
+    "section": "316",
+    "zone": "300 Level Infield (RYS '300 Level Infield (Baseball)', \"also known as Infield Reserved\"); 'MVP Box' block also served, stated as \"the front rows (1-7) of sections 310-322\"",
+    "location": "\"MVP Box seating is located in sections 310-322, positioned along the infield on the upper level.\" (RYS 'MVP Box' (2026 Review) block served on this section page). Section Insights also flag \"Home Plate View\" and Seating Notes state \"For baseball games, desirable view from behind home plate\".",
+    "rows": "1-3, 4C-4W, 8-32",
+    "entrance_row": "Row 4W",
+    "seat_direction": "When looking towards the field/field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights, verbatim: \"Home Plate View\", \"Rows 1-3, 4C-4W, 8-32\". Row Numbers block, verbatim: \"Rows in Section 316 are labeled 1-3, 4C-4W, 8-32\", \"There is wheelchair seating betweeen Rows 4W and 8\" [sic, RYS typo 'betweeen'], \"An entrance to this section is located at Row 4W\". Seating Notes, verbatim: \"For baseball games, desirable view from behind home plate\". Seating and Ticket Q&A (Verified Feb 2026), verbatim: Q \"Do the seats have backs and arms in Section 316 at Chase Field?\" A \"Yes, we can confirm that the seats in Section 316 Row 15 will have be traditional stadium style seats, with both seat backs and arm rests at Chase Field.\" [sic, 'will have be'] and caption \"Seats in Section 316 will feature backs and arm rests\". Fan Feedback: none - no Fan Reviews section on this page. Expert review blocks served: '300 Level Corner (Football)', '300 Level Infield (Baseball)', 'MVP Box'. CONTRADICTION WITHIN THE SOURCE (both recorded, not reconciled): the entrance is given as \"Row 4W\" in the Row Numbers block but both expert review blocks say the entry tunnel is at \"Row 4\"; and '300 Level Corner (Football)' says \"up to 32 numbered rows\" while '300 Level Infield (Baseball)' says \"up to 40 rows of seating per section\". Netting/obstruction: NO netting or physical obstruction statement appears on this page.",
+    "source": "https://www.rateyourseats.com/chase-field/seating/sections/316"
+  },
+  {
+    "section": "317",
+    "zone": "300 Level Infield (RYS '300 Level Infield (Baseball)', \"also known as Infield Reserved\"); 'MVP Box' block also served, stated as \"the front rows (1-7) of sections 310-322\"",
+    "location": "\"MVP Box seating is located in sections 310-322, positioned along the infield on the upper level.\" (RYS 'MVP Box' (2026 Review) block served on this section page). Section Insights also flag \"Home Plate View\" and Seating Notes state \"For baseball games, desirable view from behind home plate\".",
+    "rows": "1-32",
+    "entrance_row": "Row 4",
+    "seat_direction": "When looking towards the field/field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights, verbatim: \"Home Plate View\", \"Rows 1-32\". Seating Notes, verbatim: \"For baseball games, desirable view from behind home plate\". Fan Feedback: none - no Fan Reviews section on this page. Expert review blocks served: '300 Level Corner (Football)', '300 Level Infield (Baseball)', 'MVP Box'. CONTRADICTION WITHIN THE SOURCE (both recorded, not reconciled): '300 Level Corner (Football)' says \"Sections here have up to 32 numbered rows of seating, and entry tunnels located near the front at Row 4\" while '300 Level Infield (Baseball)' says \"Sections here are among some of the largest with up to 40 rows of seating per section. Entry tunnels are located near the bottom of the sections (at Row 4)\". Netting/obstruction: NO netting or physical obstruction statement appears on this page.",
+    "source": "https://www.rateyourseats.com/chase-field/seating/sections/317"
+  },
+  {
+    "section": "318",
+    "zone": "300 Level Infield (RYS '300 Level Infield (Baseball)', \"also known as Infield Reserved\"); 'MVP Box' block also served, stated as \"the front rows (1-7) of sections 310-322\"",
+    "location": "\"MVP Box seating is located in sections 310-322, positioned along the infield on the upper level.\" (RYS 'MVP Box' (2026 Review) block served on this section page). Section Insights also flag \"Home Plate View\" and Seating Notes state \"For baseball games, desirable view from behind home plate\".",
+    "rows": "1-32",
+    "entrance_row": "Row 4",
+    "seat_direction": "When looking towards the field/field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights, verbatim: \"Top Pick for Outstanding ConvenienceRows 1-5\" [sic, run-together on the page], \"Home Plate View\", \"Rows 1-32\". Seating Notes, verbatim: \"For baseball games, we recommend rows 1-5 for outstanding convenience\" and \"For baseball games, desirable view from behind home plate\". Fan Feedback: none - no Fan Reviews section on this page. Expert review blocks served: '300 Level Corner (Football)', '300 Level Infield (Baseball)', 'MVP Box'. CONTRADICTION WITHIN THE SOURCE (both recorded, not reconciled): '300 Level Corner (Football)' says \"up to 32 numbered rows of seating\" while '300 Level Infield (Baseball)' says \"up to 40 rows of seating per section\". Netting/obstruction: NO netting or physical obstruction statement appears on this page.",
+    "source": "https://www.rateyourseats.com/chase-field/seating/sections/318"
+  },
+  {
+    "section": "319",
+    "zone": "300 Level Infield (RYS '300 Level Infield (Baseball)', \"also known as Infield Reserved\"); 'MVP Box' block also served, stated as \"the front rows (1-7) of sections 310-322\"",
+    "location": "\"MVP Box seating is located in sections 310-322, positioned along the infield on the upper level.\" (RYS 'MVP Box' (2026 Review) block served on this section page)",
+    "rows": "1-32",
+    "entrance_row": "Row 4",
+    "seat_direction": "When looking towards the field/field/stage, lower number seats are on the right",
+    "seats_per_row": "PARTIAL, rows 21-30 only, verbatim from the RYS Seating and Ticket Q&A (Verified Feb 2026): \"Rows 21-22 have 22 seats\", \"Rows 23-25 have 23 seats\", \"Rows 26-28 have 24 seats\", \"Rows 29-30 have 25 seats.\" No figure is stated for Rows 1-20 or 31-32 - UNKNOWN for those rows.",
+    "notes": "Section Insights list ONLY \"Rows 1-32\" - no 'Home Plate View' insight. No 'Seating Notes' block on this page. Fan Feedback: none - no Fan Reviews section on this page. Seating and Ticket Q&A (Verified Feb 2026), verbatim: Q \"How many seats per row are in the upper portion of Section 319?\" A \"The seating layouts for Rows 21 through 30 in Section 319 at Chase Field are as follows: Rows 21-22 have 22 seats / Rows 23-25 have 23 seats / Rows 26-28 have 24 seats / Rows 29-30 have 25 seats. As you face the field from the section, the lower numbered seats will always be on the right side of the row.\" - this Q&A independently confirms the park-wide seat-1-on-the-right rule. Expert review blocks served: '300 Level Corner (Football)', '300 Level Infield (Baseball)', 'MVP Box'. CONTRADICTION WITHIN THE SOURCE (both recorded, not reconciled): '300 Level Corner (Football)' says \"up to 32 numbered rows of seating\" while '300 Level Infield (Baseball)' says \"up to 40 rows of seating per section\". Netting/obstruction: NO netting or physical obstruction statement appears on this page.",
+    "source": "https://www.rateyourseats.com/chase-field/seating/sections/319"
+  },
+  {
+    "section": "320",
+    "zone": "300 Level Infield (RYS '300 Level Infield (Baseball)', \"also known as Infield Reserved\"); 'MVP Box' block also served, stated as \"the front rows (1-7) of sections 310-322\"",
+    "location": "\"MVP Box seating is located in sections 310-322, positioned along the infield on the upper level.\" (RYS 'MVP Box' (2026 Review) block served on this section page)",
+    "rows": "1-3, 4C-4W, 8-32",
+    "entrance_row": "Row 4W",
+    "seat_direction": "When looking towards the field/field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights list ONLY \"Rows 1-3, 4C-4W, 8-32\" - no 'Home Plate View' insight. Row Numbers block, verbatim: \"Rows in Section 320 are labeled 1-3, 4C-4W, 8-32\", \"There is wheelchair seating betweeen Rows 4W and 8\" [sic, RYS typo 'betweeen'], \"An entrance to this section is located at Row 4W\". No 'Seating Notes' block on this page. Fan Feedback: none - no Fan Reviews section on this page. Expert review blocks served: '300 Level Corner (Football)', '300 Level Infield (Baseball)', 'MVP Box'. CONTRADICTION WITHIN THE SOURCE (both recorded, not reconciled): the Row Numbers block gives the entrance as \"Row 4W\" but both expert blocks say the entry tunnel is at \"Row 4\"; and '300 Level Corner (Football)' says \"up to 32 numbered rows\" while '300 Level Infield (Baseball)' says \"up to 40 rows of seating per section\". Netting/obstruction: NO netting or physical obstruction statement appears on this page.",
+    "source": "https://www.rateyourseats.com/chase-field/seating/sections/320"
+  },
+  {
+    "section": "321",
+    "zone": "300 Level Infield (RYS '300 Level Infield (Baseball)', \"also known as Infield Reserved\"); 'MVP Box' block also served, stated as \"the front rows (1-7) of sections 310-322\"",
+    "location": "\"MVP Box seating is located in sections 310-322, positioned along the infield on the upper level.\" (RYS 'MVP Box' (2026 Review) block served on this section page)",
+    "rows": "1-32",
+    "entrance_row": "Row 4",
+    "seat_direction": "When looking towards the field/field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights list ONLY \"Rows 1-32\". No 'Seating Notes' block on this page. Fan Feedback: none - no Fan Reviews section on this page. Expert review blocks served: '300 Level Infield (Baseball)', '300 Level Sideline (Football)', 'MVP Box'. NOTE the football block changes here from 'Corner' (Sections 313-320) to 'Sideline' (Sections 321-332); the Sideline block's only section-naming sentence is \"Sections 324-326 keep you close to the 50 yard line, offering good viewing height and optimal sight lines for seeing both ends of the field.\" - a FOOTBALL-configuration statement that does not name Section 321. Netting/obstruction: NO netting or physical obstruction statement appears on this page.",
+    "source": "https://www.rateyourseats.com/chase-field/seating/sections/321"
+  },
+  {
+    "section": "322",
+    "zone": "300 Level Infield (RYS '300 Level Infield (Baseball)', \"also known as Infield Reserved\"); 'MVP Box' block also served, stated as \"the front rows (1-7) of sections 310-322\"",
+    "location": "\"MVP Box seating is located in sections 310-322, positioned along the infield on the upper level.\" (RYS 'MVP Box' (2026 Review) block served on this section page)",
+    "rows": "1-32",
+    "entrance_row": "Row 4",
+    "seat_direction": "When looking towards the field/field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights, verbatim: \"Top Pick for Partying and Socializing\", \"Rows 1-32\". Seating Notes, verbatim: \"For baseball games, we recommend these seats for partying and socializing\". Fan Feedback: none - no Fan Reviews section on this page. Expert review blocks served: '300 Level Infield (Baseball)', '300 Level Sideline (Football)', 'MVP Box'. Section 322 is the LAST section in the stated MVP Box range 310-322. Netting/obstruction: NO netting or physical obstruction statement appears on this page.",
+    "source": "https://www.rateyourseats.com/chase-field/seating/sections/322"
+  },
+  {
+    "section": "323",
+    "zone": "300 Level Infield (RYS '300 Level Infield (Baseball)', \"also known as Infield Reserved\")",
+    "location": "UNKNOWN - no source sentence on this page names Section 323 or a section range containing it. The only zone-level baseball statement is \"The 300 Level is the highest seating area at Chase Field... From the Infield portion of the 300 Level (also known as Infield Reserved), fans will have good sight lines to the center field scoreboard\", which names no sections.",
+    "rows": "1-3, 4C-4W, 8-36",
+    "entrance_row": "Row 4W",
+    "seat_direction": "When looking towards the field/field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights, verbatim: \"Top Pick for Partying and Socializing\", \"Rows 1-3, 4C-4W, 8-36\". Row Numbers block, verbatim: \"Rows in Section 323 are labeled 1-3, 4C-4W, 8-36\", \"There is wheelchair seating betweeen Rows 4W and 8\" [sic, RYS typo 'betweeen'], \"An entrance to this section is located at Row 4W\". Seating Notes, verbatim: \"For baseball games, we recommend these seats for partying and socializing\". Fan Feedback: none - no Fan Reviews section on this page. Expert review blocks served: '300 Level Infield (Baseball)', '300 Level Sideline (Football)'. NO 'MVP Box' block is served on this page, consistent with the stated MVP Box range 310-322 ending at 322. CONTRADICTION WITHIN THE SOURCE (both recorded, not reconciled): the Row Numbers block gives the entrance as \"Row 4W\" but the '300 Level Infield (Baseball)' block says \"Entry tunnels are located near the bottom of the sections (at Row 4)\". Netting/obstruction: NO netting or physical obstruction statement appears on this page.",
+    "source": "https://www.rateyourseats.com/chase-field/seating/sections/323"
+  },
+  {
+    "section": "324",
+    "zone": "300 Level Infield (RYS '300 Level Infield (Baseball)', \"also known as Infield Reserved\")",
+    "location": "\"Sections 324-326 keep you close to the 50 yard line, offering good viewing height and optimal sight lines for seeing both ends of the field.\" (RYS '300 Level Sideline (Football)' block - this is a FOOTBALL-configuration statement; no BASEBALL-configuration sentence on this page names Section 324 or a range containing it, so the baseball placement is UNKNOWN from this source.)",
+    "rows": "1-40",
+    "entrance_row": "Row 4",
+    "seat_direction": "When looking towards the field/field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights, verbatim: \"Top Pick for Partying and Socializing\", \"Midfield View\", \"Rows 1-40\". Seating Notes, verbatim: \"For baseball games, we recommend these seats for partying and socializing\" and \"For football games, desirable view from near midfield\". NOTE the 'Midfield View' insight and the midfield seating note are explicitly FOOTBALL-only on this page. Fan Feedback: none - no Fan Reviews section on this page. Expert review blocks served: '300 Level Infield (Baseball)', '300 Level Sideline (Football)'. No 'MVP Box' block (consistent with the MVP Box range ending at 322). Netting/obstruction: NO netting or physical obstruction statement appears on this page.",
+    "source": "https://www.rateyourseats.com/chase-field/seating/sections/324"
+  },
+  {
+    "section": "325",
+    "zone": "300 Level Infield (RYS '300 Level Infield (Baseball)', \"also known as Infield Reserved\")",
+    "location": "\"Sections 324-326 keep you close to the 50 yard line, offering good viewing height and optimal sight lines for seeing both ends of the field.\" (RYS '300 Level Sideline (Football)' block - this is a FOOTBALL-configuration statement; no BASEBALL-configuration sentence on this page names Section 325 or a range containing it, so the baseball placement is UNKNOWN from this source.)",
+    "rows": "1-40",
+    "entrance_row": "Row 4",
+    "seat_direction": "When looking towards the field/field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights, verbatim: \"Top Pick for Partying and Socializing\", \"Midfield View\", \"Rows 1-40\". Seating Notes, verbatim: \"For baseball games, we recommend these seats for partying and socializing\" and \"For football games, desirable view from near midfield\". The 'Midfield View' insight is explicitly FOOTBALL-only on this page. Fan Feedback: none - no Fan Reviews section on this page. Expert review blocks served: '300 Level Infield (Baseball)', '300 Level Sideline (Football)'. Section 325 is the LAST section in this batch carrying the '300 Level Infield (Baseball)' review; Sections 326-332 carry '300 Level Outfield (Baseball)' instead, so RYS places the 300 Level infield/outfield boundary between 325 and 326. Netting/obstruction: NO netting or physical obstruction statement appears on this page.",
+    "source": "https://www.rateyourseats.com/chase-field/seating/sections/325"
+  },
+  {
+    "section": "326",
+    "zone": "300 Level Outfield (RYS baseball review block '300 Level Outfield (Baseball)')",
+    "location": "\"Sections 324-326 keep you close to the 50 yard line, offering good viewing height and optimal sight lines for seeing both ends of the field.\" (RYS '300 Level Sideline (Football)' block - FOOTBALL configuration). For baseball the only placement statement is zone-level, verbatim: \"300 Level Outfield seating is the furthest of any seating area at Chase Field.\" - no baseball sentence names Section 326 individually.",
+    "rows": "1-3, 4C-4W, 8-40",
+    "entrance_row": "Row 4W",
+    "seat_direction": "When looking towards the field/field/stage, lower number seats are on the right",
+    "seats_per_row": "Most rows 19 seats. RYS Seating and Ticket Q&A (Verified Feb 2026), verbatim: \"Most seating rows in Section 326 will have 19 seats, with seat 1 being on the aisle at the right side of the section, and seat 19 being on the aisle at the left. Rows 4C and 8 are the exceptions, with Row 4C having 8 seats, and Row 8 having 16 seats.\"",
+    "notes": "Section Insights, verbatim: \"Top Pick for Partying and Socializing\", \"Midfield View\", \"Rows 1-3, 4C-4W, 8-40\". Row Numbers block, verbatim: \"Rows in Section 326 are labeled 1-3, 4C-4W, 8-40\", \"There is wheelchair seating betweeen Rows 4W and 8\" [sic, RYS typo 'betweeen'], \"An entrance to this section is located at Row 4W\". Seating Notes, verbatim: \"For baseball games, we recommend these seats for partying and socializing\" and \"For football games, desirable view from near midfield\". Fan Feedback (verbatim), 5 stars, \"Sec 326 / Row 2 - Football\", titled \"Great view, but bad sound/acoustics & a bit snug\": \"If you know your neighbors and don't mind being squished next to them, and if you aren't trying to hear your team's band (as I was, unsuccessfully) at a Bowl Game (vs. a baseball game), these seats are fine. The view of the field is great. For a college football game where I wanted to be part of the full experience, though, it was lacking, so I moved to the 100 level late in the 1st quarter.\" Q&A also states, verbatim: \"In the neighboring sections across the aisles, the seating numbers will reset with seat 1 being on the right and the higher numbered seats being on the left.\" Expert review blocks served: '300 Level Outfield (Baseball)', '300 Level Sideline (Football)'. The '300 Level Outfield (Baseball)' block also states, verbatim: \"The views of the scoreboard in center field will be great but there are much better options for enjoying the views of the game.\" and \"The Chase Field Sandlot is located on this upper tier closest to section 332W.\" CONTRADICTION WITHIN THE SOURCE (both recorded, not reconciled): the Row Numbers block gives the entrance as \"Row 4W\" but the Sideline block refers to entry tunnels at Row 4. Netting/obstruction: NO netting or physical obstruction statement appears on this page.",
+    "source": "https://www.rateyourseats.com/chase-field/seating/sections/326"
+  },
+  {
+    "section": "327",
+    "zone": "300 Level Outfield (RYS baseball review block '300 Level Outfield (Baseball)')",
+    "location": "\"300 Level Outfield seating is the furthest of any seating area at Chase Field.\" (RYS '300 Level Outfield (Baseball)' zone review served on this section page; the review names no individual section numbers, so the precise placement of Section 327 is UNKNOWN from this source.)",
+    "rows": "1-40",
+    "entrance_row": "Row 4",
+    "seat_direction": "When looking towards the field/field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights list ONLY \"Rows 1-40\". No 'Seating Notes' block on this page. Fan Feedback: none - no Fan Reviews section on this page. No Seating and Ticket Q&A. Expert review blocks served: '300 Level Outfield (Baseball)', '300 Level Sideline (Football)'. The outfield block also states, verbatim: \"The views of the scoreboard in center field will be great but there are much better options for enjoying the views of the game.\" and \"The Chase Field Sandlot is located on this upper tier closest to section 332W.\" Netting/obstruction: NO netting or physical obstruction statement appears on this page.",
+    "source": "https://www.rateyourseats.com/chase-field/seating/sections/327"
+  },
+  {
+    "section": "328",
+    "zone": "300 Level Outfield (RYS baseball review block '300 Level Outfield (Baseball)')",
+    "location": "\"300 Level Outfield seating is the furthest of any seating area at Chase Field.\" (RYS '300 Level Outfield (Baseball)' zone review served on this section page; the review names no individual section numbers, so the precise placement of Section 328 is UNKNOWN from this source.)",
+    "rows": "1-3, 4C-4W, 8-40",
+    "entrance_row": "Row 4W",
+    "seat_direction": "When looking towards the field/field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights list ONLY \"Rows 1-3, 4C-4W, 8-40\". Row Numbers block, verbatim: \"Rows in Section 328 are labeled 1-3, 4C-4W, 8-40\", \"There is wheelchair seating betweeen Rows 4W and 8\" [sic, RYS typo 'betweeen'], \"An entrance to this section is located at Row 4W\". No 'Seating Notes' block on this page. Fan Feedback: none - no Fan Reviews section on this page. Expert review blocks served: '300 Level Outfield (Baseball)', '300 Level Sideline (Football)'. CONTRADICTION WITHIN THE SOURCE (both recorded, not reconciled): the Row Numbers block gives the entrance as \"Row 4W\" but the Sideline review refers to entry tunnels at Row 4. Netting/obstruction: NO netting or physical obstruction statement appears on this RYS page. (Separately, discovery.json records a ShadedSeats statement that \"Sections 314-318 and 328-332 are the safest options\" for roof shade - that is a sun/shade note from a different source, not an obstruction, and it is NOT repeated on this page.)",
+    "source": "https://www.rateyourseats.com/chase-field/seating/sections/328"
+  },
+  {
+    "section": "329",
+    "zone": "300 Level Outfield (RYS baseball review block '300 Level Outfield (Baseball)')",
+    "location": "\"300 Level Outfield seating is the furthest of any seating area at Chase Field.\" (RYS '300 Level Outfield (Baseball)' zone review served on this section page; the review names no individual section numbers, so the precise placement of Section 329 is UNKNOWN from this source.)",
+    "rows": "1-40",
+    "entrance_row": "Row 4",
+    "seat_direction": "When looking towards the field/field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights list ONLY \"Rows 1-40\". No 'Seating Notes' block on this page. Fan Feedback: none - no Fan Reviews section on this page. No Seating and Ticket Q&A. Expert review blocks served: '300 Level Outfield (Baseball)', '300 Level Sideline (Football)'. The outfield block also states, verbatim: \"The views of the scoreboard in center field will be great but there are much better options for enjoying the views of the game.\" and \"The Chase Field Sandlot is located on this upper tier closest to section 332W.\" Netting/obstruction: NO netting or physical obstruction statement appears on this page.",
+    "source": "https://www.rateyourseats.com/chase-field/seating/sections/329"
+  },
+  {
+    "section": "330",
+    "zone": "300 Level Outfield (RYS baseball review block '300 Level Outfield (Baseball)')",
+    "location": "\"300 Level Outfield seating is the furthest of any seating area at Chase Field.\" (RYS '300 Level Outfield (Baseball)' zone review served on this section page; the review names no individual section numbers, so the precise placement of Section 330 is UNKNOWN from this source.)",
+    "rows": "1-33",
+    "entrance_row": "Row 4",
+    "seat_direction": "When looking towards the field/field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights list ONLY \"Rows 1-33\" - note this is the only section in the batch with a 33-row range. No 'Seating Notes' block on this page. Fan Feedback: none - no Fan Reviews section on this page. No Seating and Ticket Q&A. Expert review blocks served: '300 Level Outfield (Baseball)', '300 Level Sideline (Football)'. Netting/obstruction: NO netting or physical obstruction statement appears on this page.",
+    "source": "https://www.rateyourseats.com/chase-field/seating/sections/330"
+  },
+  {
+    "section": "331",
+    "zone": "300 Level Outfield (RYS baseball review block '300 Level Outfield (Baseball)')",
+    "location": "\"300 Level Outfield seating is the furthest of any seating area at Chase Field.\" (RYS '300 Level Outfield (Baseball)' zone review served on this section page; the review names no individual section numbers, so the precise placement of Section 331 is UNKNOWN from this source.)",
+    "rows": "1-32",
+    "entrance_row": "Row 4",
+    "seat_direction": "When looking towards the field/field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights list ONLY \"Rows 1-32\". No 'Seating Notes' block on this page. Fan Feedback: none - no Fan Reviews section on this page. No Seating and Ticket Q&A. Expert review blocks served: '300 Level Outfield (Baseball)', '300 Level Sideline (Football)'. Netting/obstruction: NO netting or physical obstruction statement appears on this page.",
+    "source": "https://www.rateyourseats.com/chase-field/seating/sections/331"
+  },
+  {
+    "section": "332",
+    "zone": "300 Level Outfield (RYS baseball review block '300 Level Outfield (Baseball)')",
+    "location": "\"The Chase Field Sandlot is located on this upper tier closest to section 332W.\" (RYS '300 Level Outfield (Baseball)' review - note this names section 332W, NOT 332). The zone statement is \"300 Level Outfield seating is the furthest of any seating area at Chase Field.\" No source sentence on this page names Section 332 itself, so its precise placement is UNKNOWN from this source.",
+    "rows": "1-32",
+    "entrance_row": "Row 4",
+    "seat_direction": "When looking towards the field/field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights list ONLY \"Rows 1-32\". No 'Seating Notes' block on this page. Fan Feedback: none - no Fan Reviews section on this page. No Seating and Ticket Q&A. Expert review blocks served: '300 Level Outfield (Baseball)', '300 Level Sideline (Football)'. Section 332 is the highest-numbered 300 Level section in the RYS index (332W follows as a separate wheelchair section). Netting/obstruction: NO netting or physical obstruction statement appears on this page.",
+    "source": "https://www.rateyourseats.com/chase-field/seating/sections/332"
+  }
+]

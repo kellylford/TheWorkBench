@@ -1,0 +1,1 @@
+hearts,euchre,spades,cribbage,sheepshead,schafkopf,accessible,screen reader,blind,offline

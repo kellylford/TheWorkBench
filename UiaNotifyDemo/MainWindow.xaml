@@ -1,0 +1,49 @@
+<Window x:Class="UiaNotifyDemo.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="UIA Notify Demo"
+        Height="280" Width="520"
+        ResizeMode="CanResize"
+        AutomationProperties.Name="UIA Notify Demo">
+    <Grid Margin="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Label with access key wired to the TextBox -->
+        <Label Grid.Row="0"
+               Content="_Text to announce:"
+               Target="{Binding ElementName=AnnounceTextBox}"/>
+
+        <TextBox Grid.Row="1"
+                 x:Name="AnnounceTextBox"
+                 Text="Hello from a UIA notification"
+                 Margin="0,2,0,12"
+                 Padding="4"
+                 AutomationProperties.Name="Text to announce"/>
+
+        <StackPanel Grid.Row="2" Orientation="Horizontal">
+            <!-- Queued: polite, does not cut off current speech -->
+            <Button Content="Announce (_queue)"
+                    AutomationProperties.HelpText="Speaks the text after the screen reader finishes its current utterance."
+                    Click="AnnounceQueued_Click"
+                    Padding="10,4" Margin="0,0,8,0"/>
+
+            <!-- Interrupt: assertive, cuts off current speech -->
+            <Button Content="Announce (_interrupt)"
+                    AutomationProperties.HelpText="Interrupts whatever the screen reader is currently saying."
+                    Click="AnnounceInterrupt_Click"
+                    Padding="10,4"/>
+        </StackPanel>
+
+        <TextBlock Grid.Row="3"
+                   TextWrapping="Wrap"
+                   Margin="0,14,0,0"
+                   Foreground="Gray"
+                   FontSize="11"
+                   Text="Queue: politely waits for current speech to finish.&#x0a;Interrupt: immediately cuts off whatever the screen reader is saying.&#x0a;&#x0a;Works with NVDA, JAWS, and Narrator via RaiseNotificationEvent (UIA 1.1, Windows 10 1703+).&#x0a;No SDKs or COM interop required."/>
+    </Grid>
+</Window>

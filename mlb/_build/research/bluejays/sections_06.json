@@ -1,0 +1,222 @@
+[
+  {
+    "section": "226",
+    "zone": "Page heading: \"Section 226 at Rogers Centre\". Zone named on page: \"Home Plate Terrace\" (Section Insights bullet); prose calls it the \"Home Plate Terrace (Rogers Terrace Club)\" / \"Rogers Terrace\".",
+    "location": "\"Sections 221-227 are part of the Home Plate Terrace (Rogers Terrace Club) - a reimagined premium space located directly behind home plate.\" \"Rogers Terrace-also known as the Home Plate Terrace Club-includes Sections 221-227, located directly behind home plate on the 200 level of Rogers Centre.\"",
+    "rows": "\"Rows in Section 226 are labeled 1-10\"",
+    "entrance_row": "\"An entrance to this section is located at Row 10\"",
+    "seat_direction": "PARK-WIDE BOILERPLATE ONLY: \"When looking towards the field/ring/stage, lower number seats are on the right\". NO PER-SECTION STATEMENT: there is no Q&A block on this page and no fan comment naming a side for seat 1 in Section 226.",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights bullets: \"Top Pick for Impressing a Guest\"; \"Top Pick for Great Views of the Field\"; \"Home Plate View\"; \"Head-on View (most shows)\"; \"Home Plate Terrace\"; \"Rows 1-10\". Seating Notes: \"For baseball games, we recommend these seats for impressing a guest\"; \"For baseball games, we recommend these seats for great views of the field\"; \"For baseball games, desirable view from behind home plate\"; \"Head-on view of the performance for end-stage concerts\"; \"Premium seating area as part of the Home Plate Terrace\". No netting, obstructed-view, shade or overhang line on this page. Consistent with discovery.json, which puts 221-227 as the Home Plate Terrace directly behind home plate. Note that 226 has 10 rows while its neighbours 227-240 have 13 - recorded as found, not reconciled.",
+    "source": "https://www.rateyourseats.com/rogers-centre/seating/sections/226"
+  },
+  {
+    "section": "227",
+    "zone": "Page heading: \"Section 227 at Rogers Centre\". Zone named on page: \"Home Plate Terrace\" (Section Insights bullet); prose calls it the \"Home Plate Terrace (Rogers Terrace Club)\" / \"Rogers Terrace\".",
+    "location": "\"Sections 221-227 are part of the Home Plate Terrace (Rogers Terrace Club) - a reimagined premium space located directly behind home plate.\" \"Rogers Terrace-also known as the Home Plate Terrace Club-includes Sections 221-227, located directly behind home plate on the 200 level of Rogers Centre.\"",
+    "rows": "\"Rows in Section 227 are labeled 1-13\"",
+    "entrance_row": "\"An entrance to this section is located at Row 13\"",
+    "seat_direction": "PARK-WIDE BOILERPLATE ONLY: \"When looking towards the field/ring/stage, lower number seats are on the right\". NO PER-SECTION STATEMENT: there is no Q&A block on this page and the single fan review names no side.",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights bullets: \"Top Pick for Outstanding ConvenienceRows 8-13\"; \"Home Plate Terrace\"; \"Rows 1-13\". Seating Notes: \"For baseball games, we recommend rows 8-13 for outstanding convenience\"; \"Premium seating area as part of the Home Plate Terrace\". Fan review: \"The seats were easy to get to and afforded a great view.\" No netting, obstructed-view, shade or overhang line on this page. 227 is the last section of the Home Plate Terrace run per the page's own \"Sections 221-227\" statement; discovery.json also lists 227-231 as starting the third-base side, so 227 sits at the boundary.",
+    "source": "https://www.rateyourseats.com/rogers-centre/seating/sections/227"
+  },
+  {
+    "section": "228",
+    "zone": "Page heading: \"Section 228 at Rogers Centre\". No zone name is printed for this section; the page serves the generic 200 Level expert review.",
+    "location": "UNKNOWN - the page states nothing about where Section 228 sits in the ballpark (no infield/baseline/outfield or base-side wording). Only generic 200 Level content is served.",
+    "rows": "\"Rows in Section 228 are labeled 1-13\"",
+    "entrance_row": "\"An entrance to this section is located at Row 13\"",
+    "seat_direction": "PARK-WIDE BOILERPLATE ONLY: \"When looking towards the field/ring/stage, lower number seats are on the right\". NO PER-SECTION STATEMENT naming a side for seat 1: the page's only Q&A is about seat padding, not seat numbering.",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Seating Notes: \"For baseball games, we recommend rows 8-13 for outstanding convenience\"; \"These seats were hand-selected for being close to a wide-range of amenities. They are within five rows of the concourse (fewer stairs) and there is a men's restroom, women's restroom and concessions near this section.\" Generic 200 Level review bullets: \"Elevated & Comfortable Views: Ideal height for following the game with a clear, balanced perspective.\"; \"Smaller Sections: Most sections have fewer than 15 rows, creating a less crowded feel.\" *** STALE Q&A FLAG: the page carries the Q \"Are seats in Section 228 at Rogers Centre padded? Do they have cup holders?\" answered \"Seats in Section 228 at Rogers Centre are not padded due to a change for the 2015 season. The seats remain slightly larger than others in the ballpark but no longer have the padding. The seats do still have cup holders for your convenience.\" This answer predates the 2022-24 renovation that discovery.json flags as having changed the seating structure and numbering; do not treat it as current. *** The review carousel on this page also surfaces a review labelled for Section 230 (\"Ok seats\"), i.e. cross-section review content. No netting, obstructed-view or shade line.",
+    "source": "https://www.rateyourseats.com/rogers-centre/seating/sections/228"
+  },
+  {
+    "section": "229",
+    "zone": "Page heading: \"Section 229 at Rogers Centre\". No zone name is printed for this section; the page serves the generic 200 Level expert review.",
+    "location": "UNKNOWN - the page does not state where Section 229 is positioned (no infield/baseline/outfield or base-side wording).",
+    "rows": "\"Rows in Section 229 are labeled 1-13\"",
+    "entrance_row": "\"An entrance to this section is located at Row 13\"",
+    "seat_direction": "PARK-WIDE BOILERPLATE ONLY: \"When looking towards the field/ring/stage, lower number seats are on the right\". NO PER-SECTION STATEMENT: there is no Q&A block on this page and no fan comment naming a side for seat 1.",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights bullet: \"Rows 1-13\". Everything else served on the page is the generic 200 Level expert review (elevated views, sections with fewer than 15 rows, value down the lines, outfield home-run potential, premium club options, concert tradeoffs) and is not section-specific. No netting, obstructed-view, shade or overhang line for this section.",
+    "source": "https://www.rateyourseats.com/rogers-centre/seating/sections/229"
+  },
+  {
+    "section": "230",
+    "zone": "Page heading: \"Section 230 at Rogers Centre\". No zone name is printed for this section; the page serves the generic 200 Level expert review.",
+    "location": "UNKNOWN - the page does not state where Section 230 is positioned in the ballpark.",
+    "rows": "\"Rows in Section 230 are labeled 1-13\"",
+    "entrance_row": "\"An entrance to this section is located at Row 13\"",
+    "seat_direction": "PARK-WIDE BOILERPLATE: \"When looking towards the field/ring/stage, lower number seats are on the right\". *** PER-SECTION Q&A STATEMENT PRESENT - the first found anywhere at Rogers Centre in this project. *** Q: \"Is one of section 230L row 12 seats 101-106 on the aisle?\" A (verbatim): \"In 230L row 12, seat 101 is on the right aisle as you face the field. Seats 101-108 make up 230L in this row and are adjacent to seat 8 in 231R.\" So this section is split into lettered halves (230L / 230R), the L half is numbered in a 101+ series, and its seat 101 is stated to be on the RIGHT aisle as you face the field, with numbers rising leftward toward the neighbouring section 231.",
+    "seats_per_row": "Partial, for the L half of one row only: \"Seats 101-108 make up 230L in this row\" (Row 12). No full-section seats-per-row figure is stated. Otherwise UNKNOWN.",
+    "notes": "Section Insights bullet: \"Rows 1-13\". Fan reviews: \"Ok seats\" (Sec 230 / Row 10, Baseball, 5 stars); \"Favorite Seats: Section 230L, Row 12, Seats 105 - 108\" (Sec 230 / Row 12, Baseball). No netting, obstructed-view or shade line. *** TICKET-IDENTIFIER FINDING: real tickets print an L/R suffix (230L) and a 101-series seat number that the URL/section identifier \"230\" does not carry. discovery.json records no L/R split anywhere at Rogers Centre - this is new information against discovery. *** *** INTERNAL TENSION, NOT RECONCILED: the answer places 230L's seat 101 \"on the right aisle as you face the field\" while also saying 230L's 101-108 are \"adjacent to seat 8 in 231R\". Section 231 is the higher-numbered neighbour, which by discovery.json's very-well-attested rule (numbers increase toward third base, and the boilerplate puts low numbers on the right) sits to the LEFT as you face the field. An L half whose seat 101 is on the right aisle and which also abuts the section to its left cannot be read straightforwardly. Compare the Section 239 answer, which says the LEFT portion begins with Seat 101 at the aisle and rises toward the middle, and the RIGHT portion begins with Seat 1 at the aisle and rises toward the middle - i.e. 101 at the OUTER LEFT edge. Both are quoted verbatim here and on the 239 record; the judgement is deferred per the brief. *** Note also that the boilerplate itself is NOT contradicted by either answer as regards seat 1: both make Seat 1 the start of the right-hand portion at its aisle.",
+    "source": "https://www.rateyourseats.com/rogers-centre/seating/sections/230"
+  },
+  {
+    "section": "231",
+    "zone": "Page heading: \"Section 231 at Rogers Centre\". No zone name is printed for this section; the page serves the generic 200 Level expert review.",
+    "location": "UNKNOWN - the page does not state where Section 231 is positioned; it is referenced only as part of the 200 Level.",
+    "rows": "\"Rows in Section 231 are labeled 1-13\"",
+    "entrance_row": "\"An entrance to this section is located at Row 13\"",
+    "seat_direction": "PARK-WIDE BOILERPLATE ONLY on this page: \"When looking towards the field/ring/stage, lower number seats are on the right\". No Q&A block and no per-section statement on the Section 231 page itself. *** However, the Section 230 page's Q&A names this section: \"Seats 101-108 make up 230L in this row and are adjacent to seat 8 in 231R.\" That is external evidence that Section 231 is likewise split into 231L / 231R halves and that 231R carries a low (1-series) seat run. It is recorded here as second-hand, from the 230 page, not from this page. ***",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights bullet: \"Rows 1-13\" - the only section-specific content on the page. No netting, obstructed-view, shade or overhang line. The expert review served is the generic 200 Level text. Cross-reference: https://www.rateyourseats.com/rogers-centre/seating/sections/230 supplies the only statement anywhere that 231 has L/R halves; see the 230 record for the unreconciled directional tension in that answer.",
+    "source": "https://www.rateyourseats.com/rogers-centre/seating/sections/231 (cross-reference quote from https://www.rateyourseats.com/rogers-centre/seating/sections/230)"
+  },
+  {
+    "section": "232",
+    "zone": "Page heading: \"Section 232 at Rogers Centre\". No zone name is printed for this section; the page serves the generic 200 Level expert review.",
+    "location": "UNKNOWN as a direct statement about Section 232. The nearest thing is a generic 200 Level review bullet that names a range including it: \"Strong Value Down the Lines: Sections like 232-236 offer excellent views at a lower price than home plate.\" That places 232-236 \"down the lines\" but does not say which line.",
+    "rows": "\"Rows in Section 232 are labeled 1-13\"",
+    "entrance_row": "\"An entrance to this section is located at Row 13\"",
+    "seat_direction": "PARK-WIDE BOILERPLATE ONLY: \"When looking towards the field/ring/stage, lower number seats are on the right\". NO PER-SECTION STATEMENT: no Q&A block on this page, and the fan review names no side.",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Generic 200 Level review bullets: \"Elevated & Comfortable Views: Ideal height for following the game with a clear, balanced perspective.\"; \"Smaller Sections: Most sections have fewer than 15 rows, creating a less crowded feel.\"; \"Strong Value Down the Lines: Sections like 232-236 offer excellent views at a lower price than home plate.\" SHADE/COVER, fan-reported: \"We were covered and in the shade. Tacos were fantastic. And as always we wish beer prices were lower, what a mark up!\" - a fan statement that this section is covered, consistent with discovery.json's note that back rows sit under the 200-Level overhang and the roof shades parts of the bowl, but the fan does not say which rows. No netting or obstructed-view line.",
+    "source": "https://www.rateyourseats.com/rogers-centre/seating/sections/232"
+  },
+  {
+    "section": "233",
+    "zone": "Page heading: \"Section 233 at Rogers Centre\". No zone name is printed for this section; the page serves the generic 200 Level expert review.",
+    "location": "UNKNOWN - the page does not state where Section 233 is positioned in the ballpark.",
+    "rows": "\"Rows in Section 233 are labeled 1-13\"",
+    "entrance_row": "\"An entrance to this section is located at Row 13\"",
+    "seat_direction": "PARK-WIDE BOILERPLATE ONLY: \"When looking towards the field/ring/stage, lower number seats are on the right\". NO PER-SECTION STATEMENT: the only Q&A item surfaced on this page is a related-question link to Section 228's seat-padding question (\"Are seats in Section 228 at Rogers Centre padded?\"), which carries no answer text here and says nothing about seat numbering.",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Seating Notes: \"For baseball games, we recommend rows 8-13 for outstanding convenience\". Expert convenience blurb: \"These seats were hand-selected for being close to a wide-range of amenities. They are within five rows of the concourse (fewer stairs) and there is a men's restroom, women's restroom and concessions near this section.\" Generic 200 Level bullet: \"Elevated & Comfortable Views: Ideal height for following the game with a clear, balanced perspective.\" CROSS-SECTION CONTENT FLAG: the Q&A block on the 233 page is about Section 228, not 233 - treat that block as syndicated, not section-specific. No netting, obstructed-view or shade line.",
+    "source": "https://www.rateyourseats.com/rogers-centre/seating/sections/233"
+  },
+  {
+    "section": "234",
+    "zone": "Page heading: \"Section 234 at Rogers Centre\". No zone name is printed for this section; the page serves the generic 200 Level expert review.",
+    "location": "UNKNOWN - the page does not state where Section 234 is positioned in the ballpark.",
+    "rows": "\"Rows in Section 234 are labeled 1-13\"",
+    "entrance_row": "\"An entrance to this section is located at Row 13\"",
+    "seat_direction": "PARK-WIDE BOILERPLATE ONLY: \"When looking towards the field/ring/stage, lower number seats are on the right\". NO PER-SECTION STATEMENT: there is no Q&A block on this page and no fan comment naming a side for seat 1.",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights bullets: \"Top Pick for Outstanding Convenience Rows 8-13\"; \"Rows 1-13\". Seating Notes: \"For baseball games, we recommend rows 8-13 for outstanding convenience\". No netting, obstructed-view, shade or overhang line, and no fan review text specific to this section.",
+    "source": "https://www.rateyourseats.com/rogers-centre/seating/sections/234"
+  },
+  {
+    "section": "235",
+    "zone": "Page heading: \"Section 235 at Rogers Centre\". No zone name is printed for this section; the page serves the generic 200 Level expert review.",
+    "location": "UNKNOWN - the page describes the 200 Level generally but does not state Section 235's position (infield, baseline or outfield).",
+    "rows": "\"Rows in Section 235 are labeled 1-13\"",
+    "entrance_row": "\"An entrance to this section is located at Row 13\"",
+    "seat_direction": "PARK-WIDE BOILERPLATE ONLY: \"When looking towards the field/ring/stage, lower number seats are on the right\". NO PER-SECTION STATEMENT: there is no Q&A block on this page and no fan comment naming a side for seat 1.",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights bullet: \"Top Pick for Outstanding Convenience Rows 8-13\". Seating Notes: \"For baseball games, we recommend rows 8-13 for outstanding convenience\". Everything else on the page is the generic 200 Level expert review and does not reference Section 235. No netting, obstructed-view, shade or overhang line.",
+    "source": "https://www.rateyourseats.com/rogers-centre/seating/sections/235"
+  },
+  {
+    "section": "236",
+    "zone": "Page heading: \"Section 236 at Rogers Centre\". No zone name is printed for this section; the page serves the generic 200 Level expert review.",
+    "location": "UNKNOWN as a direct statement. The generic 200 Level bullet \"Strong Value Down the Lines: Sections like 232-236 offer excellent views at a lower price than home plate\" names a range including 236 but does not say which line.",
+    "rows": "\"Rows in Section 236 are labeled 1-13\"",
+    "entrance_row": "\"An entrance to this section is located at Row 13\"",
+    "seat_direction": "PARK-WIDE BOILERPLATE ONLY: \"When looking towards the field/ring/stage, lower number seats are on the right\". NO PER-SECTION STATEMENT about seat numbering: the page does carry a Q&A block, but it is about sight restrictions, not seat sides.",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights bullet: \"Rows 1-13\". *** OVERHANG / SIGHT-RESTRICTION Q&A, verbatim. *** Q: \"Are there sight restrictions in section 236?\" A: \"Generally speaking, the views from section 236 are almost entirely unobstructed. There is a small overhang above the section which may cause you to lose sight on some balls hit very high into the air. In these instances, the last two rows (12 and 13) of the section would be most affected. However, this is a very minor concern and the views from section 236 should generally be considered above average.\" This independently corroborates the row range 1-13 (rows 12 and 13 called \"the last two rows\") and matches discovery.json's overhang note. Fan review: \"Ok\" (Sec 236 / Row 1, Baseball, 5 stars). No netting line.",
+    "source": "https://www.rateyourseats.com/rogers-centre/seating/sections/236"
+  },
+  {
+    "section": "237",
+    "zone": "Page heading: \"Section 237 at Rogers Centre\". No zone name is printed for this section; the page serves the generic 200 Level expert review.",
+    "location": "UNKNOWN - the page provides general 200 Level information but does not state Section 237's position in the ballpark.",
+    "rows": "\"Rows in Section 237 are labeled 1-13\"",
+    "entrance_row": "\"An entrance to this section is located at Row 13\"",
+    "seat_direction": "PARK-WIDE BOILERPLATE ONLY: \"When looking towards the field/ring/stage, lower number seats are on the right\". NO PER-SECTION STATEMENT: there is no Q&A block on this page and neither fan review names a side.",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights bullets: \"Top Pick for Outstanding ConvenienceRows 8-13\"; \"Top Pick for Kids and FamilyRows 1-13\". Seating Notes: \"For baseball games, we recommend rows 8-13 for outstanding convenience\"; \"For baseball games, we recommend these seats for kids and family\". Fan reviews (titles only): \"Great seats and great game\" (Aug 25, 2024); \"Far Out\" (undated). No netting, obstructed-view, shade or overhang line.",
+    "source": "https://www.rateyourseats.com/rogers-centre/seating/sections/237"
+  },
+  {
+    "section": "238",
+    "zone": "Page heading: \"Section 238 at Rogers Centre\". No zone name is printed for this section; the page serves the generic 200 Level expert review.",
+    "location": "UNKNOWN - the page does not state Section 238's location (behind home plate, down the line, outfield); only general 200 Level information is served.",
+    "rows": "\"Rows in Section 238 are labeled 1-13\"",
+    "entrance_row": "\"An entrance to this section is located at Row 13\"",
+    "seat_direction": "PARK-WIDE BOILERPLATE ONLY: \"When looking towards the field/ring/stage, lower number seats are on the right\". NO PER-SECTION STATEMENT: there is no Q&A block on this page and no fan comment naming a side for seat 1.",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights bullets: \"Top Pick for Outstanding Convenience - Rows 8-13\"; \"Top Pick for Kids and Family - Rows 1-13\". Seating Notes: \"For baseball games, we recommend rows 8-13 for outstanding convenience\"; \"For baseball games, we recommend these seats for kids and family\". Generic 200 Level bullet: \"Elevated & Comfortable Views: Ideal height for following the game with a clear, balanced perspective.\" No netting, obstructed-view, shade or overhang line.",
+    "source": "https://www.rateyourseats.com/rogers-centre/seating/sections/238"
+  },
+  {
+    "section": "239",
+    "zone": "Page heading: \"Section 239 at Rogers Centre\". No zone name is printed for this section; the page serves the generic 200 Level expert review.",
+    "location": "UNKNOWN as an explicit statement by the site. The only positional evidence is fan-reported: \"Awesome view, lots of action - view of videoboard - Home run alley! Great view - only downside was anything hit deep to left field but not a Homer was difficult to see the action.\" (Sec 239 / Row 9, Baseball) - a fan calling it \"Home run alley\" with a poor angle on deep left field.",
+    "rows": "\"Rows in Section 239 are labeled 1-13\" (corroborated by the Q&A: \"Each portion of the section has 13 numbered rows of seating\")",
+    "entrance_row": "\"An entrance to this section is located at Row 13\"",
+    "seat_direction": "PARK-WIDE BOILERPLATE: \"When looking towards the field/ring/stage, lower number seats are on the right\". *** PER-SECTION Q&A STATEMENT PRESENT, and it is the most explicit seat-numbering text found at this ballpark. *** Q: \"What seat numbers are available in Section 239 at Rogers Centre?\" A (verbatim): \"Section 239 is divided into a left and right portion by the center aisle, and the two portions are often referred to as 239L and 239R. Each portion of the section has 13 numbered rows of seating, however the seats in the left portion begin with Seat 101 at the aisle (and increasing as you get closer to the middle of the section). Seats on the right portion will start at Seat 1 on the aisle, and increase as you walk closer to the middle of the right portion.\" The page marks this answer \"(Verified Feb 2026)\". Read literally: Seat 1 is on the OUTER RIGHT aisle of the section and numbers rise leftward (inward), which AGREES with the park-wide boilerplate; the left half is a separate 101+ series starting at the OUTER LEFT aisle and also rising inward, so the two series converge at the centre aisle.",
+    "seats_per_row": "UNKNOWN - the answer gives 13 rows per portion but no seat count per row.",
+    "notes": "Section Insights bullet: \"Rows 1-13\". *** TICKET-IDENTIFIER FINDING: real tickets print an L/R suffix (239L / 239R) and, in the left half, a 101-series seat number, neither of which the URL/section identifier \"239\" carries. discovery.json records no L/R split at Rogers Centre and no 101-series seat numbering; this batch establishes both for the 200 level. *** *** CROSS-SECTION TENSION, NOT RECONCILED: the Section 230 Q&A says \"In 230L row 12, seat 101 is on the right aisle as you face the field\", whereas this Section 239 answer puts the 101-series in the LEFT portion starting at its aisle. Both are quoted verbatim (see the 230 record); one of the two locates the 101-series on the opposite side from the other. The brief forbids reconciling them here. Note that neither answer contradicts the boilerplate about Seat 1 itself. *** Fan review as above. No netting, obstructed-view, shade or overhang line.",
+    "source": "https://www.rateyourseats.com/rogers-centre/seating/sections/239"
+  },
+  {
+    "section": "240",
+    "zone": "Page heading: \"Section 240 at Rogers Centre\". No zone name is printed for this section; the page serves the generic 200 Level expert review.",
+    "location": "UNKNOWN - the page does not state where Section 240 is positioned (no \"behind home plate\", \"down the left line\" or equivalent wording).",
+    "rows": "\"Rows in Section 240 are labeled 1-13\"",
+    "entrance_row": "\"An entrance to this section is located at Row 13\"",
+    "seat_direction": "PARK-WIDE BOILERPLATE ONLY: \"When looking towards the field/ring/stage, lower number seats are on the right\". NO PER-SECTION STATEMENT: there is no Q&A block on this page and no fan comment naming a side for seat 1.",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights bullet: \"Rows 1-13\" - the only section-specific content. The expert review served is generic to the 200 Level. No netting, obstructed-view, shade or overhang line, and no concert \"Behind/Side Stage\" flag - note that 241-244 immediately after it all carry that flag, so 240 is the last of the run without it.",
+    "source": "https://www.rateyourseats.com/rogers-centre/seating/sections/240"
+  },
+  {
+    "section": "241",
+    "zone": "Page heading: \"Section 241 at Rogers Centre\". No baseball zone name is printed; the only zone-style label is the concert tag \"Behind/Side Stage (most shows)\".",
+    "location": "UNKNOWN for baseball. The only positional statement is concert-specific: \"Behind/Side Stage (most shows)\" and \"241 is behind the stage or to the side of the stage for most concerts.\"",
+    "rows": "\"Rows in Section 241 are labeled 1-11\"",
+    "entrance_row": "\"An entrance to this section is located at Row 11\"",
+    "seat_direction": "PARK-WIDE BOILERPLATE ONLY: \"When looking towards the field/ring/stage, lower number seats are on the right\". NO PER-SECTION STATEMENT: there is no Q&A block on this page and no fan comment naming a side for seat 1.",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights bullets: \"Rows 1-11\"; \"Behind/Side Stage (most shows)\". Concert warning, verbatim: \"For Concerts, Section 241 May Have a Limited View: 241 is behind the stage or to the side of the stage for most concerts. This may restrict or limit your view of the performance.\" This is a CONCERT restriction only and is not a baseball obstruction. Row count drops from 13 (226-240) to 11 here, matching discovery.json's note that Section 244 has \"Rows 1-11\" - so 241-244 are the shorter end sections. No netting, shade or overhang line.",
+    "source": "https://www.rateyourseats.com/rogers-centre/seating/sections/241"
+  },
+  {
+    "section": "242",
+    "zone": "Page heading: \"Section 242 at Rogers Centre\". No baseball zone name is printed; the only zone-style label is the concert tag \"Behind/Side Stage (most shows)\".",
+    "location": "UNKNOWN for baseball. Only the concert-specific line is given: \"Behind/Side Stage (most shows)\" / \"242 is behind the stage or to the side of the stage for most concerts.\"",
+    "rows": "\"Rows in Section 242 are labeled 1-11\"",
+    "entrance_row": "\"An entrance to this section is located at Row 11\"",
+    "seat_direction": "PARK-WIDE BOILERPLATE ONLY: \"When looking towards the field/ring/stage, lower number seats are on the right\". NO PER-SECTION STATEMENT: there is no Q&A block on this page and no fan comment naming a side for seat 1.",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights bullets: \"Rows 1-11\"; \"Behind/Side Stage (most shows)\". Concert warning: \"242 is behind the stage or to the side of the stage for most concerts.\" plus \"For more information about the stage setup for your show, find your event\". Concert restriction only, not a baseball obstruction. No netting, obstructed-view, shade or overhang line, and no fan review specific to Section 242 - only generic 200 Level review content.",
+    "source": "https://www.rateyourseats.com/rogers-centre/seating/sections/242"
+  },
+  {
+    "section": "243",
+    "zone": "Page heading: \"Section 243 at Rogers Centre\". No baseball zone name is printed; the only zone-style label is the concert tag \"Behind/Side Stage (most shows)\".",
+    "location": "UNKNOWN for baseball. Only the concert-specific line is given: \"Behind/Side Stage (most shows)\".",
+    "rows": "\"Rows in Section 243 are labeled 1-11\"",
+    "entrance_row": "\"An entrance to this section is located at Row 11\"",
+    "seat_direction": "PARK-WIDE BOILERPLATE ONLY: \"When looking towards the field/ring/stage, lower number seats are on the right\". NO PER-SECTION STATEMENT: there is no Q&A block on this page and no fan comment naming a side for seat 1.",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights bullets: \"Rows 1-11\"; \"Behind/Side Stage (most shows)\". Concert warning, verbatim: \"243 is behind the stage or to the side of the stage for most concerts. This may restrict or limit your view of the performance.\" Concert restriction only. The rest of the page is the broader 200 Level review with little section-specific detail. No netting, obstructed-view, shade or overhang line.",
+    "source": "https://www.rateyourseats.com/rogers-centre/seating/sections/243"
+  },
+  {
+    "section": "244",
+    "zone": "Page heading: \"Section 244 at Rogers Centre\". No baseball zone name is printed; the only zone-style label is the concert tag \"Behind/Side Stage (most shows)\".",
+    "location": "UNKNOWN for baseball. Only the concert-specific line is given: \"Behind/Side Stage (most shows)\".",
+    "rows": "\"Rows in Section 244 are labeled 1-11\"",
+    "entrance_row": "\"An entrance to this section is located at Row 11\"",
+    "seat_direction": "PARK-WIDE BOILERPLATE ONLY: \"When looking towards the field/ring/stage, lower number seats are on the right\". NO PER-SECTION STATEMENT: there is no Q&A block on this page and no fan comment naming a side for seat 1.",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights bullets: \"Rows 1-11\"; \"Behind/Side Stage (most shows)\". Concert warning, verbatim: \"For Concerts, Section 244 May Have a Limited View: 244 is behind the stage or to the side of the stage for most concerts.\" Concert restriction only, not a baseball obstruction. Rows 1-11 and entrance at Row 11 match exactly what discovery.json already recorded for Section 244, so this page is stable across visits. No netting, obstructed-view, shade or overhang line.",
+    "source": "https://www.rateyourseats.com/rogers-centre/seating/sections/244"
+  },
+  {
+    "section": "508",
+    "zone": "Page heading: \"Section 508 at Rogers Centre\". No zone name is printed for this section; the page serves the generic 500 Level expert review.",
+    "location": "UNKNOWN - no sentence on the page places Section 508 in the ballpark geography. (discovery.json separately puts 508 at the right-field corner via the club's Gate 3 elevator table pairing 108/508, but the RateYourSeats page itself states nothing.)",
+    "rows": "\"Rows in Section 508 are labeled 1-28\"",
+    "entrance_row": "\"An entrance to this section is located at Row 5\"",
+    "seat_direction": "PARK-WIDE BOILERPLATE ONLY: \"When looking towards the field/ring/stage, lower number seats are on the right\". NO PER-SECTION STATEMENT: there is no Q&A block on this page and no fan comment naming a side for seat 1. Note that the L/R split and 101-series numbering documented on the 230 and 239 pages are 200-level statements; nothing on this page says whether the 500 level does the same.",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights bullet: \"Top Pick for Outstanding Convenience Rows 1-9\". Seating Notes: \"For baseball games, we recommend rows 1-9 for outstanding convenience\". Concert warning: \"508 is behind the stage or to the side of the stage for most concerts. This may restrict or limit your view of the performance.\" NOTE THE ENTRANCE ANOMALY, recorded as found: rows run 1-28 but the entrance is at Row 5, i.e. the concourse enters near the FRONT of this section, not the back - the opposite of the 200-level pattern in this batch (entrance at the last row). This matches discovery.json, which recorded the same 1-28 / Row 5 pairing for 508 and a 1-13 / Row 5 pairing for 540, so the 500 level appears to enter from the front consistently. The 500 Level expert review served is generic and does not address obstructions, netting, shade or overhang for 508.",
+    "source": "https://www.rateyourseats.com/rogers-centre/seating/sections/508"
+  }
+]

@@ -1,0 +1,222 @@
+[
+  {
+    "section": "100",
+    "zone": "Outfield Reserve",
+    "location": "\"Located just beyond the outfield walls and in prime home run ball territory. These seats are also the home of the Center Field Lounge and Center Field Reserved seating areas (located in section 100) which provide fans with a unique viewing experience and close proximity to the Red Porch Restaurant.\"",
+    "rows": "A-Z, AA-DD",
+    "entrance_row": "Row J",
+    "seat_direction": "When looking towards the field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Fan Feedback (verbatim): \"The Visitor Bullpen is to the Right of Section 100\" — this contradicts the discovery-level statement (sourced from Section 101's page) that the visitor bullpen sits in front of Sections 101/102; recorded verbatim rather than reconciled. \"Seats in left and center field will see the sun throughout most of the day.\"",
+    "source": "https://www.rateyourseats.com/nationals-park/seating/sections/100"
+  },
+  {
+    "section": "101",
+    "zone": "Outfield Reserve",
+    "location": "\"Sections 101 and 102 out in left field are located directly behind the visitors bullpen\"",
+    "rows": "L-Z, AA-DD",
+    "entrance_row": "Row DD",
+    "seat_direction": "When looking towards the field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Fan Feedback (verbatim): \"The Visitor Bullpen is in Front of Sections 101 and 102 — Sit in Row L to be behind the visitor bullpen.\" Seats in left field see sun throughout most of the day.",
+    "source": "https://www.rateyourseats.com/nationals-park/seating/sections/101"
+  },
+  {
+    "section": "102",
+    "zone": "Outfield Reserve",
+    "location": "\"Sections 101 and 102 out in left field are located directly behind the visitors bullpen\"",
+    "rows": "L-Z, AA-DD",
+    "entrance_row": "Row DD",
+    "seat_direction": "When looking towards the field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Fan Feedback (verbatim): \"The Visitor Bullpen is in Front of Sections 101 and 102 — Sit in Row L to be behind the visitor bullpen.\" Seats in left field see sun throughout most of the day.",
+    "source": "https://www.rateyourseats.com/nationals-park/seating/sections/102"
+  },
+  {
+    "section": "103",
+    "zone": "Outfield Reserve",
+    "location": "Left-field outfield reserve area (general Outfield Reserve review text); fan feedback places the visitor bullpen to this section's left",
+    "rows": "A-Z, AA-CC",
+    "entrance_row": "Row CC",
+    "seat_direction": "When looking towards the field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Fan Feedback (verbatim): \"The Visitor Bullpen is to the Left of Section 103\". Seats in left field see sun throughout most of the day per the shared Outfield Reserve review.",
+    "source": "https://www.rateyourseats.com/nationals-park/seating/sections/103"
+  },
+  {
+    "section": "104",
+    "zone": "Outfield Reserve",
+    "location": "Outfield Reserve area per shared review text (left field / left-center, beyond the outfield walls)",
+    "rows": "A-Z, AA-DD",
+    "entrance_row": "Row DD",
+    "seat_direction": "When looking towards the field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "No section-specific fan feedback found. Shared Outfield Reserve review: seats in left and center field see sun throughout most of the day.",
+    "source": "https://www.rateyourseats.com/nationals-park/seating/sections/104"
+  },
+  {
+    "section": "105",
+    "zone": "Outfield Reserve",
+    "location": "Outfield Reserve area per shared review text",
+    "rows": "A-Z, AA-CC",
+    "entrance_row": "Row CC",
+    "seat_direction": "When looking towards the field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "\"For baseball games, we recommend rows Y-Z, AA-CC for outstanding convenience.\" No netting/obstruction statement found on this page.",
+    "source": "https://www.rateyourseats.com/nationals-park/seating/sections/105"
+  },
+  {
+    "section": "106",
+    "zone": "Outfield Reserve",
+    "location": "Outfield Reserve area per shared review text",
+    "rows": "A-Z, AA-CC",
+    "entrance_row": "Row CC",
+    "seat_direction": "When looking towards the field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "\"For baseball games, we recommend rows Y-Z, AA-CC for outstanding convenience.\" No netting/obstruction statement found on this page.",
+    "source": "https://www.rateyourseats.com/nationals-park/seating/sections/106"
+  },
+  {
+    "section": "107",
+    "zone": "Outfield Reserve",
+    "location": "Outfield Reserve area per shared review text",
+    "rows": "X-Z, AA-WW",
+    "entrance_row": "Row WW",
+    "seat_direction": "When looking towards the field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "No section-specific seating notes or fan feedback found on this page.",
+    "source": "https://www.rateyourseats.com/nationals-park/seating/sections/107"
+  },
+  {
+    "section": "108",
+    "zone": "Field Level Down the Line",
+    "location": "\"Field Level Down the Line seating is a good option for fans that prefer being on the lowest tier ... The sections will begin to angle the seating more towards the infield as you get closer to the foul poles ... In the sections closer to the infield, the lower half of seating is known as Baseline Box, while the upper half of seating is known as the Baseline Reserved. Sections nearest to the foul pole in this location are also referred to as the Left and Right Field Corner.\"",
+    "rows": "F-Z, AA-WW",
+    "entrance_row": "Row WW",
+    "seat_direction": "When looking towards the field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "\"For baseball games, we recommend rows SS-WW for outstanding convenience.\" \"Rows RR and above are under cover.\"",
+    "source": "https://www.rateyourseats.com/nationals-park/seating/sections/108"
+  },
+  {
+    "section": "109",
+    "zone": "Field Level Down the Line",
+    "location": "Field Level Down the Line, lowest tier beyond the infield, angling toward the infield near the foul poles (shared review text)",
+    "rows": "P-Z, AA-WW",
+    "entrance_row": "Row WW",
+    "seat_direction": "When looking towards the field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "\"Rows NN and above are under cover.\"",
+    "source": "https://www.rateyourseats.com/nationals-park/seating/sections/109"
+  },
+  {
+    "section": "110",
+    "zone": "Field Level Down the Line",
+    "location": "Field Level Down the Line, lowest tier beyond the infield, angling toward the infield near the foul poles (shared review text)",
+    "rows": "A-Z, AA-WW",
+    "entrance_row": "Row WW",
+    "seat_direction": "When looking towards the field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "\"Rows LL and above are under cover.\"",
+    "source": "https://www.rateyourseats.com/nationals-park/seating/sections/110"
+  },
+  {
+    "section": "111",
+    "zone": "Field Level Down the Line",
+    "location": "Field Level Down the Line, lowest tier beyond the infield, angling toward the infield near the foul poles (shared review text)",
+    "rows": "A-Z, AA-WW",
+    "entrance_row": "Row WW",
+    "seat_direction": "When looking towards the field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "\"Rows MM and above are under cover.\"",
+    "source": "https://www.rateyourseats.com/nationals-park/seating/sections/111"
+  },
+  {
+    "section": "112",
+    "zone": "Field Level Down the Line",
+    "location": "Field Level Down the Line, lowest tier beyond the infield, angling toward the infield near the foul poles (shared review text)",
+    "rows": "A, D-Z, AA-WW",
+    "entrance_row": "Row WW",
+    "seat_direction": "When looking towards the field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "\"There is open space between Rows A and D.\" \"Rows PP and above are under cover.\" Q&A (Verified Feb 2026): \"Section 112 is located down the third base line of the stadium with an overhang protecting the back part of the section. Unfortunately, the overhang does not extend very far over section 112. Row RR is the last row that is protected from the rain, so row KK is exposed to potential precipitation.\"",
+    "source": "https://www.rateyourseats.com/nationals-park/seating/sections/112"
+  },
+  {
+    "section": "113",
+    "zone": "Field Level Down the Line",
+    "location": "Field Level Down the Line, lowest tier beyond the infield, angling toward the infield near the foul poles (shared review text)",
+    "rows": "A, D-Z, AA-WW",
+    "entrance_row": "Row WW",
+    "seat_direction": "When looking towards the field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "\"For baseball games, we recommend rows N-Z, AA-GG for great views of the field.\" \"There is open space between Rows A and D.\" \"Rows RR and above are under cover.\"",
+    "source": "https://www.rateyourseats.com/nationals-park/seating/sections/113"
+  },
+  {
+    "section": "114",
+    "zone": "Dugout Box",
+    "location": "\"Sections on the third base side (114–118) sit near the visiting team dugout, while sections on the first base side (127–131) sit near the Nationals dugout.\"",
+    "rows": "A, D-Z, AA-WW",
+    "entrance_row": "Row WW",
+    "seat_direction": "When looking towards the field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "\"For baseball games, we recommend rows N-Z, AA-GG for great views of the field.\" \"There is open space between Rows A and D.\" \"Rows RR and above are under cover.\" Q&A (Verified Feb 2026): \"Section 114WC is a common name used for the handicap accessible seating in Section 114 which is located at the very top of the section. There are 10 traditional seats in this row for companion seating, and spaces for 5 wheelchairs in between every two companion seats.\"",
+    "source": "https://www.rateyourseats.com/nationals-park/seating/sections/114"
+  },
+  {
+    "section": "115",
+    "zone": "Dugout Box",
+    "location": "Dugout Box, third base side near the visiting team dugout (shared Dugout Box review text)",
+    "rows": "A-Z, AA-WW",
+    "entrance_row": "Row WW",
+    "seat_direction": "When looking towards the field/stage, lower number seats are on the right",
+    "seats_per_row": "20 (stated for Row F only: \"There are a total of 20 seats in Section 115 Row F at Nationals Park.\")",
+    "notes": "\"For baseball games, we recommend rows N-Z, AA-GG for great views of the field.\" \"Rows SS and above are under cover.\" Fan Feedback (verbatim): \"Row D is the first row behind the visitor's dugout in Section 115.\" Q&A (Verified Feb 2026): \"As you face the field from the Section, the lower numbered seats will be located on the right side of the row (closer to home plate).\"",
+    "source": "https://www.rateyourseats.com/nationals-park/seating/sections/115"
+  },
+  {
+    "section": "116",
+    "zone": "Dugout Box",
+    "location": "\"For baseball games, these seats are located behind the visitor dugout\"",
+    "rows": "D-Z, AA-WW",
+    "entrance_row": "Row WW",
+    "seat_direction": "When looking towards the field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "\"For baseball games, we recommend rows N-Z, AA-GG for great views of the field.\" \"Rows TT and above are under cover.\" Fan Feedback (verbatim): \"Row D is the first row behind the visitor's dugout in Section 116.\" Fan Feedback (verbatim): \"Front of sections 116-129 are behind the netting — There is some amount of netting or screening in front of sections 116-129. The height and coverage of netting or screening will vary by section.\"",
+    "source": "https://www.rateyourseats.com/nationals-park/seating/sections/116"
+  },
+  {
+    "section": "117",
+    "zone": "Dugout Box",
+    "location": "\"For baseball games, these seats are located behind the visitor dugout\"",
+    "rows": "D-Z, AA-WW",
+    "entrance_row": "Row WW",
+    "seat_direction": "When looking towards the field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "\"Rows TT and above are under cover.\" Fan Feedback (verbatim): \"Row D is the first row behind the visitor's dugout in Section 117.\" Fan Feedback (verbatim): \"Front of sections 116-129 are behind the netting — There is some amount of netting or screening in front of sections 116-129. The height and coverage of netting or screening will vary by section.\" Family restroom is listed elsewhere (discovery.json) as being on the concourse behind Section 117 — not stated on this page itself.",
+    "source": "https://www.rateyourseats.com/nationals-park/seating/sections/117"
+  },
+  {
+    "section": "118",
+    "zone": "Dugout Box",
+    "location": "Dugout Box, third base side near the visiting team dugout (shared Dugout Box review text: \"Sections on the third base side (114–118) sit near the visiting team dugout\")",
+    "rows": "D-Z, AA-KK",
+    "entrance_row": "Row KK",
+    "seat_direction": "When looking towards the field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "No shaded/covered-rows note stated on this page (unlike neighboring 116/117). Fan Feedback (verbatim): \"Row D is the first row behind the visitor's dugout in Section 118.\" Fan Feedback (verbatim): \"Front of sections 116-129 are behind the netting — There is some amount of netting or screening in front of sections 116-129. The height and coverage of netting or screening will vary by section.\"",
+    "source": "https://www.rateyourseats.com/nationals-park/seating/sections/118"
+  },
+  {
+    "section": "119",
+    "zone": "Diamond Club (Rows A-H only) / general 100-level section for remaining rows",
+    "location": "\"100 level Home Plate Seating: Diamond Club seats are located in Sections 121–125 and Rows A–H of Sections 119, 120, and 126, directly behind the Terra Club sections.\" \"PNC Diamond Club seating is located directly behind home plate at the front of the lower bowl, positioned just above the Terra Club sections.\"",
+    "rows": "A-U",
+    "entrance_row": "Row U",
+    "seat_direction": "When looking towards the field/stage, lower number seats are on the right",
+    "seats_per_row": "UNKNOWN",
+    "notes": "\"For baseball games, we recommend rows Q-U for outstanding convenience.\" \"Rows A-H are part of the Diamond Club.\" Fan Feedback (verbatim): \"Front of sections 116-129 are behind the netting — There is some amount of netting or screening in front of sections 116-129. The height and coverage of netting or screening will vary by section.\" This page rendered in an older/shorter RateYourSeats template than Sections 100-118 but is section-specific content, not a redirect or index fallback.",
+    "source": "https://www.rateyourseats.com/nationals-park/seating/sections/119"
+  }
+]

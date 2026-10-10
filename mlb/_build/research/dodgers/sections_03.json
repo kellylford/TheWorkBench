@@ -1,0 +1,145 @@
+[
+  {
+    "section": "41",
+    "zone": "Field Level",
+    "location": "Page-level Field Level context, verbatim: \"Sections 1-25 are located along the infield, while sections in the 26-53 range extend farther down the baselines and near the foul poles.\" and \"Fans hoping to sit near the Dodgers dugout should look toward odd-numbered sections 15-27, while visiting fans hoping to sit near their team's dugout should consider even-numbered sections 14-26.\" No sentence naming section 41's own position in the park was found beyond this shared Field Level text.",
+    "rows": "\"Rows in Section 41 are labeled 3-6, A-X\"",
+    "entrance_row": "\"An entrance to this section is located at Row X\"",
+    "seat_direction": "BOILERPLATE (Row Numbers block): \"When looking towards the field/stage, lower number seats are on the right\" | PER-SECTION Q&A ANSWER: \"Row V is the third to last row in the section, and has a total of 8 seats in the row (lower numbered seats are at the right side of the row, while higher numbered seats are at the left side of the row).\" The two AGREE.",
+    "seats_per_row": "\"Row V is the third to last row in the section, and has a total of 8 seats in the row\" (stated only for Row V)",
+    "notes": "Section Insights: \"Baseline Club (Rows 1-6)\", \"Rows T & Above - Covered\", \"Rows 3-6, A-X\". Seating Notes: \"Rows 1-6 are part of the Baseline Club\", \"Rows T and above are under cover\". Shade: \"The overhanging seating deck above will provide protection from the elements in the last four rows of Field Level Section 41 (Rows U, V, W, and X - with Row X being the last row in the section).\" Page-level Baseline Club text: \"Baseline Club in Front Rows: Rows 1-6 of sections 26-43 are part of the premium Baseline Club.\" CONFLICT/GAP: the Seating Note and Insight say Baseline Club is Rows 1-6, but the row label line for this section lists only \"3-6\" (rows 1 and 2 are not listed as existing in section 41). Fan feedback: 5-star reviews praising the view and the availability of shade. No netting or obstruction statement appears on the page, despite mlb.com listing section 41 as the third-base end of the netting run.",
+    "source": "https://www.rateyourseats.com/uniqlo-field-at-dodger-stadium/seating/sections/41"
+  },
+  {
+    "section": "42",
+    "zone": "Field Level",
+    "location": "Page-level Field Level context, verbatim: \"sections in the 26-53 range extend farther down the baselines and near the foul poles\" and, for the premium rows, \"Baseline Club is located along the field level baselines at Dodger Stadium, positioned just down the lines from the dugouts\". No sentence naming section 42's own position in the park was found beyond this shared text.",
+    "rows": "\"Rows in Section 42 are labeled 3-6, A-X\"",
+    "entrance_row": "\"An entrance to this section is located at Row X\"",
+    "seat_direction": "BOILERPLATE (Row Numbers block): \"When looking towards the field/stage, lower number seats are on the right\". No per-section Q&A or fan statement about which side seat 1 is on was found.",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights: \"Baseline Club (Rows 1-6)\", \"Rows T & Above - Covered\", \"Rows 3-6, A-X\". Seating Notes: \"Rows 1-6 are part of the Baseline Club\", \"Rows T and above are under cover\". Generic Field Level line also present: \"Most rows contain no more than eight seats\" - this is shared Field Level boilerplate, not a section-42 statement, so it is not recorded as seats_per_row. Fan feedback: \"Good seat, good view of the field. Day time game, it's hot in the sun.\" GAP: Baseline Club is stated as Rows 1-6 but the row label line lists only \"3-6\". No netting or obstruction statement on the page.",
+    "source": "https://www.rateyourseats.com/uniqlo-field-at-dodger-stadium/seating/sections/42"
+  },
+  {
+    "section": "43",
+    "zone": "Field Level",
+    "location": "Page-level context, verbatim: \"The Baseline Club is located along the field level baselines at Dodger Stadium, positioned just down the lines from the dugouts.\" No sentence naming section 43's own position in the park was found beyond shared Field Level text.",
+    "rows": "\"Rows in Section 43 are labeled 3-6, A-X\"",
+    "entrance_row": "\"An entrance to this section is located at Row X\"",
+    "seat_direction": "BOILERPLATE (Row Numbers block): \"When looking towards the field/stage, lower number seats are on the right\". No per-section Q&A or fan statement about which side seat 1 is on was found.",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Seating Notes: \"Rows 1-6 are part of the Baseline Club\", \"Rows T and above are under cover\". Generic Field Level line present: \"Most rows contain no more than eight seats, which makes it much easier for fans to enter and exit their seats compared to longer rows found in many other stadium sections.\" - shared Field Level boilerplate, not a section-43 count, so not recorded as seats_per_row. Fan feedback returned by the fetch was an excerpt attributed to a neighbouring section (\"Bad angle to the field\", Section 40), not to section 43. GAP: Baseline Club stated as Rows 1-6 while the row label line lists only \"3-6\". No netting or obstruction statement on the page.",
+    "source": "https://www.rateyourseats.com/uniqlo-field-at-dodger-stadium/seating/sections/43"
+  },
+  {
+    "section": "44",
+    "zone": "Field Level",
+    "location": "Page-level context, verbatim: \"The Baseline Club is located along the field level baselines at Dodger Stadium\". No sentence naming section 44's own position in the park was found beyond shared Field Level text.",
+    "rows": "\"Rows in Section 44 are labeled AA-CC, A-W\"",
+    "entrance_row": "\"An entrance to this section is located at Row W\"",
+    "seat_direction": "BOILERPLATE (Row Numbers block): \"When looking towards the field/stage, lower number seats are on the right\". No per-section Q&A or fan statement about which side seat 1 is on was found.",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights: \"Baseline Club (Rows AA-CC)\", \"Rows T & Above - Covered\", \"Rows AA-CC, A-W\". Seating Notes: \"Rows AA-CC are part of the Baseline Club\", \"Rows T and above are under cover\". CONTRADICTION on the page: the section-level note says \"Rows AA-CC are part of the Baseline Club\" while another Baseline Club line reads \"Rows 1-3 of sections 44 and 45\"; a third, page-wide line elsewhere in this batch reads \"Rows 1-6 of sections 26-43 are part of the premium Baseline Club\". Recorded as found; not reconciled. Note also that the lettered Baseline Club rows here (AA-CC) differ from the numbered ones (3-6) used in sections 41-43. No netting or obstruction statement on the page.",
+    "source": "https://www.rateyourseats.com/uniqlo-field-at-dodger-stadium/seating/sections/44"
+  },
+  {
+    "section": "45",
+    "zone": "Field Level",
+    "location": "Page-level context, verbatim: \"sections in the 26-53 range extend farther down the baselines and near the foul poles\" and, for the premium rows, \"Located along the field level baselines at Dodger Stadium, positioned just down the lines from the dugouts\". Also present: \"Fans hoping to sit near the Dodgers dugout should look toward odd-numbered sections 15-27\".",
+    "rows": "\"Rows in Section 45 are labeled AA-CC, A-W\"",
+    "entrance_row": "\"An entrance to this section is located at Row W\"",
+    "seat_direction": "BOILERPLATE (Row Numbers block): \"When looking towards the field/stage, lower number seats are on the right\". No per-section Q&A or fan statement about which side seat 1 is on was found.",
+    "seats_per_row": "\"Rows A-F in Field 45 have 20 seats. Rows G-O have 21 seats and Rows P-T have 22 seats.\"",
+    "notes": "Section Insights: \"Baseline Club (Rows AA-CC)\", \"Rows T & Above - Covered\", \"Rows AA-CC, A-W\". Seating Notes: \"Rows AA-CC are part of the Baseline Club\", \"Rows T and above are under cover\". Q&A note: Baseline Club rows precede the lettered rows, so Row C is described as essentially the sixth row from the field once the three premium rows ahead of it are counted (paraphrase returned by the fetch; the exact wording was not recovered verbatim). CONTRADICTION: this section-specific seats-per-row answer (20-22 seats) directly conflicts with the shared Field Level line \"Most rows contain no more than eight seats\" that appears on neighbouring section pages. Recorded as found; not reconciled. Also conflicting Baseline Club definitions across pages (\"Rows AA-CC\" here vs \"Rows 1-3 of sections 44 and 45\" on the section 44 page). No netting or obstruction statement on the page.",
+    "source": "https://www.rateyourseats.com/uniqlo-field-at-dodger-stadium/seating/sections/45"
+  },
+  {
+    "section": "46",
+    "zone": "Field Level",
+    "location": "\"The Field Level is the lowest seating tier at Dodger Stadium and runs from foul pole to foul pole.\" Also present: \"Fans hoping to sit near the Dodgers dugout should look toward odd-numbered sections 15-27, while visiting fans hoping to sit near their team's dugout should consider even-numbered sections 14-26.\" No sentence naming section 46's own position in the park was found.",
+    "rows": "\"Rows in Section 46 are labeled A-S, T-X\"",
+    "entrance_row": "\"An entrance to this section is located at Row X\"",
+    "seat_direction": "BOILERPLATE (Row Numbers block): \"When looking towards the field/stage, lower number seats are on the right\". No per-section Q&A or fan statement about which side seat 1 is on was found.",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights: \"Rows T & Above - Covered\", \"Rows A-S, T-X\". Seating Notes: \"Rows T and above are under cover\"; \"Wheelchair seating is available behind Row S\". Fan feedback: multiple positive reviews mentioning a \"great view\" and recommending sunglasses for the lower rows. No Baseline Club rows here - section 46 is the first section in this batch with no premium front rows. No netting or obstruction statement on the page.",
+    "source": "https://www.rateyourseats.com/uniqlo-field-at-dodger-stadium/seating/sections/46"
+  },
+  {
+    "section": "47",
+    "zone": "Field Level",
+    "location": "\"The Field Level is the lowest standard seating tier at Dodger Stadium, stretching from foul pole to foul pole in the double-digit and single-digit sections.\" Also: \"Sections 1-25 are located along the infield, while sections in the 26-53 range extend farther down the baselines and near the foul poles.\" And: \"Fans hoping to sit near the Dodgers dugout should look toward odd-numbered sections 15-27, while visiting fans hoping to sit near their team's dugout should consider even-numbered sections 14-26.\"",
+    "rows": "\"Rows in Section 47 are labeled A-S, T-X\"",
+    "entrance_row": "\"An entrance to this section is located at Row X\"",
+    "seat_direction": "BOILERPLATE (Row Numbers block): \"When looking towards the field/stage, lower number seats are on the right\" | PER-SECTION Q&A ANSWER: \"There are two section 47s at Dodger Stadium. On the Field Level, there are 15 seats in Row C, with seat 1 on your right as you look toward the field.\" The two AGREE.",
+    "seats_per_row": "\"On the Field Level, there are 15 seats in Row C\" (stated only for Row C)",
+    "notes": "Section Insights: \"Rows T & Above - Covered\", \"Rows A-S, T-X\". Seating Notes: \"Rows T and above are under cover\"; \"Wheelchair seating is available behind Row S\". The Q&A explicitly warns there are two section 47s at Dodger Stadium (Field Level and Reserve Level) - this page is the Field Level one. The section-specific 15-seat Row C count conflicts with the shared Field Level line \"Most rows contain no more than eight seats\" found on other pages in this batch; recorded, not reconciled. Fan feedback: one 5-star review dated Aug 11, 2019 (Arizona Diamondbacks at Los Angeles Dodgers, Sec 47/Row J). No netting or obstruction statement on the page.",
+    "source": "https://www.rateyourseats.com/uniqlo-field-at-dodger-stadium/seating/sections/47"
+  },
+  {
+    "section": "48",
+    "zone": "Field Level",
+    "location": "Page-level Field Level context, verbatim: \"Sections 26-43 extend farther down the baselines and near the foul poles.\" and \"Fans hoping to sit near the Dodgers dugout should look toward odd-numbered sections 15-27\". Fan review places the section near the foul pole: \"Kinda cool to be behind the foul pole.\"",
+    "rows": "\"Rows in Section 48 are labeled AA, A-T, U-X\"",
+    "entrance_row": "\"An entrance to this section is located at Row X\"",
+    "seat_direction": "BOILERPLATE (Row Numbers block): \"When looking towards the field/stage, lower number seats are on the right\". No per-section Q&A or fan statement about which side seat 1 is on was found.",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights: \"Rows T & Above - Covered\", \"Rows AA, A-T, U-X\". Row Numbers block also states \"There is open space behind Row T\". Seating Notes: \"Rows T and above are under cover\", \"See all shaded and covered seating\". CONTRADICTION in the shade material: the Seating Note says Rows T and above are under cover, while fan feedback says the section is \"not shaded in the afternoon\" (one review does confirm \"Row T is actually covered from above\"). Recorded, not reconciled. Generic Field Level line present: \"Most rows contain no more than eight seats, which makes it much easier for fans to enter and exit\" - shared boilerplate, not a section-48 count, so not recorded as seats_per_row. Other fan feedback mentions sun exposure, foul pole proximity, good views of the right fielder, and concourse accessibility. NOTE: the page-level line quoted as \"Sections 26-43 extend farther down the baselines\" differs from the \"26-53\" range quoted on sections 45, 47, 50 and 51; flagged as an inconsistency in the site's own boilerplate. No netting or obstruction statement on the page.",
+    "source": "https://www.rateyourseats.com/uniqlo-field-at-dodger-stadium/seating/sections/48"
+  },
+  {
+    "section": "49",
+    "zone": "Field Level",
+    "location": "\"Both are located near the left field foul pole, however Field Level Section 49 is located on the lower level seating tier at Dodger Stadium, while Reserve Level Section 49 is on the highest seating tier running down the left field line.\" Also: \"Fans hoping to sit near the Dodgers dugout should look toward odd-numbered sections 15-27, while visiting fans hoping to sit near their team's dugout should consider even-numbered sections 14-26.\"",
+    "rows": "\"Rows in Section 49 are labeled AA, A-T, U-X\"",
+    "entrance_row": "\"An entrance to this section is located at Row X\"",
+    "seat_direction": "BOILERPLATE (Row Numbers block): \"When looking towards the field/stage, lower number seats are on the right\". No per-section Q&A or fan statement about which side seat 1 is on was found.",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights: \"Rows T & Above - Covered\", \"Rows AA, A-T, U-X\". Seating Notes: \"Rows T and above are under cover\". Q&A on the page - Question: \"Where is Section 49 Row AA at Dodger Stadium?\" Answer excerpt: \"Row AA will be the very first row of seating in both the Field Level Section 49 and the Reserve Level Section 49.\" This confirms the leading AA row sits in FRONT of Row A, i.e. closest to the field. The Q&A also warns there are two section 49s (Field Level and Reserve Level), both near the left field foul pole - this page is the Field Level one. Odd-numbered / left field placement matches the park-wide parity rule. No fan feedback and no netting or obstruction statement on the page.",
+    "source": "https://www.rateyourseats.com/uniqlo-field-at-dodger-stadium/seating/sections/49"
+  },
+  {
+    "section": "50",
+    "zone": "Field Level",
+    "location": "\"The Field Level is the lowest seating tier at Dodger Stadium and runs from foul pole to foul pole.\" Also: \"Sections 1-25 are located along the infield, while sections in the 26-53 range extend farther down the baselines and near the foul poles.\" No sentence naming section 50's own position in the park was found.",
+    "rows": "\"Rows in Section 50 are labeled AA, A-T, U-X\"",
+    "entrance_row": "\"An entrance to this section is located at Row X\"",
+    "seat_direction": "BOILERPLATE (Row Numbers block): \"When looking towards the field/stage, lower number seats are on the right\". No per-section Q&A or fan statement about which side seat 1 is on was found.",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights: \"Rows T & Above - Covered\", \"Rows AA, A-T, U-X\". Row Numbers block also states \"There is open space behind Row T\". Seating Notes: \"Rows T and above are under cover\". Generic Field Level lines present: \"Most rows have eight seats or fewer, making it easy to enter and exit.\" and \"Most rows contain no more than eight seats, which makes it much easier for fans to enter and exit their seats compared to longer rows found in many other stadium sections.\" - shared boilerplate, not a section-50 count, so not recorded as seats_per_row. Also present: \"Because the Dugout Club sits directly in front of sections 1-25, the first row of these Field Level sections actually begins roughly ten rows from the field.\" (applies to sections 1-25, not to 50). No fan feedback and no netting or obstruction statement on the page.",
+    "source": "https://www.rateyourseats.com/uniqlo-field-at-dodger-stadium/seating/sections/50"
+  },
+  {
+    "section": "51",
+    "zone": "Field Level",
+    "location": "Page-level Field Level context, verbatim: \"Sections 1-25 are located along the infield, while sections in the 26-53 range extend farther down the baselines and near the foul poles.\" and \"Fans hoping to sit near the Dodgers dugout should look toward odd-numbered sections 15-27, while visiting fans hoping to sit near their team's dugout should consider even-numbered sections 14-26.\" No sentence naming section 51's own position in the park was found.",
+    "rows": "\"Rows in Section 51 are labeled AA, A-T, U-X\"",
+    "entrance_row": "\"An entrance to this section is located at Row X\"",
+    "seat_direction": "BOILERPLATE (Row Numbers block): \"When looking towards the field/stage, lower number seats are on the right\". No per-section Q&A or fan statement about which side seat 1 is on was found.",
+    "seats_per_row": "UNKNOWN",
+    "notes": "Section Insights: \"Rows T & Above - Covered\", \"Rows AA, A-T, U-X\". Seating Notes: \"Rows T and above are under cover\" plus a link to the site's shaded and covered seating resource. Shade: general Field Level note reads \"Limited Shade: Many seats are exposed to the Southern California sun during day games.\" Generic Field Level lines present: \"Most rows have eight seats or fewer, making it easy to enter and exit.\" and \"Most rows contain no more than eight seats...\" - shared boilerplate, not a section-51 count, so not recorded as seats_per_row. Also present: \"Because the Dugout Club sits directly in front of sections 1-25, the first row of these Field Level sections actually begins roughly ten rows from the field.\" (applies to sections 1-25, not to 51). Fan feedback: \"Perfect seats, you can see everything\" (5-star, Sec 51/Row A, Baseball). No netting or obstruction statement on the page.",
+    "source": "https://www.rateyourseats.com/uniqlo-field-at-dodger-stadium/seating/sections/51"
+  },
+  {
+    "section": "52",
+    "zone": "Field Level",
+    "location": "\"The Field Level is the lowest seating tier at Dodger Stadium and runs from foul pole to foul pole.\" Bullpen reference on the page: \"The Visitor Bullpen is to the Left of Section 302\".",
+    "rows": "\"Rows in Section 52 are labeled AA, A-Z\"",
+    "entrance_row": "\"An entrance to this section is located at Row Z\"",
+    "seat_direction": "BOILERPLATE (Row Numbers block): \"When looking towards the field/stage, lower number seats are on the right\" | PER-SECTION FAN/EXPERT TIP: \"Sit in a higher number seat (8 or 9) in Section 52 to be close to the Visitor bullpen.\" The tip states which seats are nearer the bullpen but does not itself name a left/right side, so it neither confirms nor contradicts the boilerplate on its face.",
+    "seats_per_row": "UNKNOWN (the tip naming seats 8 or 9 implies at least nine seats in a row but no total is stated)",
+    "notes": "Section Insights: \"Top Pick for Getting a BallRows AA,A-N\", \"Top Pick for Visiting Team Fans\", \"Rows T & Above - Covered\", \"Rows AA, A-Z\". Seating Notes: \"For baseball games, we recommend rows AA,A-N for getting a ball\", \"For baseball games, we recommend these seats for visiting team fans\", \"Rows T and above are under cover\". POSSIBLE TENSION worth downstream checking, NOT reconciled here: section 52 is an even (first base / right field) section and the visitor bullpen is in right field, yet the tip puts the bullpen-adjacent seats at the HIGH numbers (8-9), which under the boilerplate would be on the viewer's left, i.e. the home-plate side rather than the right field corner. The page states both facts and does not explain them. Also note the page locates the visitor bullpen relative to Pavilion section 302, not relative to 52. This is the last even-numbered Field Level section. No netting or obstruction statement on the page.",
+    "source": "https://www.rateyourseats.com/uniqlo-field-at-dodger-stadium/seating/sections/52"
+  },
+  {
+    "section": "53",
+    "zone": "Field Level",
+    "location": "\"The Field Level is the lowest standard seating tier at Dodger Stadium, stretching from foul pole to foul pole in the double-digit and single-digit sections.\" Also: \"sections in the 26-53 range extend farther down the baselines and near the foul poles.\" Bullpen: \"Section 53 is right next to the Dodgers bullpen.\" and \"The Dodgers Bullpen is to the Left of Section 53\".",
+    "rows": "\"Rows in Section 53 are labeled AA, A-Z\"",
+    "entrance_row": "\"An entrance to this section is located at Row Z\"",
+    "seat_direction": "BOILERPLATE (Row Numbers block): \"When looking towards the field/stage, lower number seats are on the right\" | PER-SECTION FAN/EXPERT TIP: \"Sit in a higher number seat (8-10) in Section 53 to be close to the Dodgers bullpen.\" Combined with \"The Dodgers Bullpen is to the Left of Section 53\", the high seat numbers are on the LEFT side of the row, which AGREES with the boilerplate.",
+    "seats_per_row": "UNKNOWN (the tip naming seats 8-10 implies at least ten seats in a row but no total is stated)",
+    "notes": "Section Insights: \"Top Pick for Getting a Ball-Rows AA,A-N\", \"Rows T & Above - Covered\". Seating Notes: \"For baseball games, we recommend rows AA,A-N for getting a ball\", \"Rows T and above are under cover\". The Dodgers bullpen placement here (left field, adjacent to section 53) matches the verified park facts and matches the odd-section / third-base-and-left-field parity rule. This is the last odd-numbered Field Level section. No netting or obstruction statement on the page.",
+    "source": "https://www.rateyourseats.com/uniqlo-field-at-dodger-stadium/seating/sections/53"
+  }
+]
