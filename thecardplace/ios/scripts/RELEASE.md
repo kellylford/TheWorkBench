@@ -91,10 +91,18 @@ listing. The listing is in the repository, like the test information:
    Price and availability are left alone unless `--set-price` is given, which
    makes the app free in every territory, including ones Apple adds later.
    That only has to happen once.
+   **Build with a released Xcode.** TestFlight takes builds from a beta Xcode;
+   App Store submission refuses them ("The build's Xcode build is not supported
+   yet"). Version 1.0 went in as build 6 from the Xcode 27.1 RC after build 5,
+   from the 27.1 beta, was refused.
 4. By hand in App Store Connect, because the API cannot do it:
-   - **App Privacy**: Get Started, then "No, we do not collect data from this
-     app", then Publish. That's true because the app has no network access
-     at all. If it ever gains any, this answer and the manifest change too.
+   - **App Privacy**
+     (`https://appstoreconnect.apple.com/apps/6807994140/distribution/privacy`):
+     Get Started, then "No, we do not collect data from this app", then Save,
+     **then Publish** — saving alone is not enough, and submission is refused
+     until the answers are published. That's true because the app has no
+     network access at all. If it ever gains any, this answer and the manifest
+     change too.
    - Look over the version page, then **Add for Review** and **Submit**.
 5. When it is approved, release it from the version page (the release type is
    manual).
