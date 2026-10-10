@@ -1,16 +1,19 @@
 <#
 .SYNOPSIS
-Test a Windows app inside the ClaudeTesting Hyper-V VM instead of on this PC.
+Test a Windows app inside a Hyper-V test VM (ClaudeTesting, or a copy of it) instead of on this PC.
 
 .DESCRIPTION
-A task (a repo and branch) takes the VM with 'begin', works in it, and either 'save's it (keep the
-state for next time) or 'end's it (after merge: back to Clean). Repo and branch come from the
-current git folder unless -Repo and -Branch are given. Every command that works inside the VM
-checks that this task holds it.
+A task (a repo and branch) takes a free VM from the pool with 'begin', works in it, and either
+'save's it (keep the state for next time) or 'end's it (after merge: back to Clean). Repo and branch
+come from the current git folder unless -Repo and -Branch are given. Every command that works inside
+a VM uses the one this task holds.
 
-  prepare [-Force]                 one time: automatic sign-in, agent, Clean checkpoint
-  status                           VM state, who has it, checkpoints
-  begin [-Force]                   take the VM; carry on, restore this task's checkpoint, or start from Clean
+  prepare [-Force] [-VM name]      one time: automatic sign-in, agent, Clean checkpoint
+  prepare -Pool [-Force]           make the pool's other VMs from the first VM's Clean
+  status                           each VM: its state, who has it, checkpoints
+  begin [-VM name] [-Wait] [-Force]
+                                   take a free VM; carry on, restore this task's checkpoint, or start
+                                   from Clean. -Wait waits up to -Timeout seconds when all are busy.
   deploy <path> [-Name n]          copy a build folder or file to C:\vmtest\apps\<name>
   push <file> [-Destination dir]   copy a file into the VM (default C:\vmtest\files)
   launch <exe> [-Arguments "a b"]  start a program in the VM (path inside the VM)
@@ -29,7 +32,7 @@ checks that this task holds it.
   close [-Window w]                close a window, and say whether it really closed
   shot <out.png> [-FromHost]       picture of the VM's screen
   save                             checkpoint this task, park the VM, release it
-  end [-Force]                     after merge: delete this task's checkpoint, back to Clean
+  end [-Force -VM name]            after merge: delete this task's checkpoints, its VM back to Clean
 
 -Window is a process id (its main window) or part of a window title (dialogs included).
 <control> is an AutomationId or a name; id:<id> matches only an AutomationId (id:-31984 for a
@@ -55,6 +58,9 @@ param(
     [ValidateRange(1, 3600)][int]$Timeout = 600,
     [string]$ScriptFile,
     [string]$Destination,
+    [string]$VM,
+    [switch]$Pool,
+    [switch]$Wait,
     [switch]$Elevated,
     [switch]$FromHost,
     [switch]$Force
@@ -84,9 +90,9 @@ function Ask([hashtable]$request) {
 $exitCode = 0
 try {
     switch ($Command) {
-        'prepare' { Invoke-VmTestPrepare -Repo $Repo -Branch $Branch -Force:$Force }
+        'prepare' { Invoke-VmTestPrepare -Repo $Repo -Branch $Branch -VM $VM -Pool:$Pool -Force:$Force }
         'status' { Get-VmTestStatus }
-        'begin' { Invoke-VmTestBegin -Repo $Repo -Branch $Branch -Force:$Force }
+        'begin' { Invoke-VmTestBegin -Repo $Repo -Branch $Branch -VM $VM -Force:$Force -WaitSeconds $(if ($Wait) { $Timeout } else { 0 }) }
         'deploy' { Need 'a folder or file to copy'; Assert-TaskHasVM -Repo $Repo -Branch $Branch; Invoke-VmTestDeploy -Path $Target -Name $Name }
         'push' {
             Need 'a file to copy'
@@ -114,11 +120,11 @@ try {
         'shot' {
             Need 'a file to save the picture to'
             # A picture from Hyper-V only looks; one from inside the VM needs the task to hold it.
-            if (-not $FromHost) { Assert-TaskHasVM -Repo $Repo -Branch $Branch }
+            if ($FromHost) { Select-VMToLookAt -Repo $Repo -Branch $Branch -VM $VM } else { Assert-TaskHasVM -Repo $Repo -Branch $Branch }
             Invoke-VmTestShot -Out $Target -FromHost:$FromHost
         }
         'save' { Invoke-VmTestSave -Repo $Repo -Branch $Branch }
-        'end' { Invoke-VmTestEnd -Repo $Repo -Branch $Branch -Force:$Force }
+        'end' { Invoke-VmTestEnd -Repo $Repo -Branch $Branch -VM $VM -Force:$Force }
     }
 } catch {
     Write-Host "vmtest $Command failed: $($_.Exception.Message)" -ForegroundColor Red

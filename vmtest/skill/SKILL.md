@@ -24,7 +24,7 @@ If it isn't set, ask the user where vmtest is, and suggest they set it once:
 `setx VMTEST_HOME "<the vmtest folder>"`.
 
 Run vmtest from the repo you're working in. The task is named after that repo and branch, and
-every command checks that your task holds the VM.
+every command works on the test VM your task holds.
 
 ```
 powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File "$env:VMTEST_HOME\vmtest.ps1" <command> [args]
@@ -39,9 +39,15 @@ The VM is disposable. Install, break or reconfigure anything in it: `begin` star
 last checkpoint or Clean, and `end` throws it all away. It is on the user's network, though, so that
 freedom stops at the VM itself.
 
-1. `begin` takes the VM.
-   - If another task holds it, the command says which one. Wait, or tell the user; don't use `-Force` unless the user says so.
-   - It carries on from this task's last state, or starts from Clean.
+1. `begin` takes a free VM from the pool, and says which one.
+   - If every VM is busy, it says who holds each one. Don't keep checking back: run
+     `begin -Wait -Timeout 3600` in the background, which takes the first VM that frees up. Don't
+     use `-Force` unless the user says so.
+   - A task that has left its VM unused for two hours is saved for it and its VM handed on, so a
+     wait never lasts forever.
+   - It carries on from this task's last state, or starts from Clean. If it says this task's
+     checkpoint is on a busy VM and it started from Clean, put back what you need, or wait for that
+     VM with `begin -VM <name> -Wait`.
 2. Put the build in with one of these:
    - `deploy <build folder> -Name MyApp`, which goes to `C:\vmtest\apps\MyApp`;
    - `push <file>`, which goes to `C:\vmtest\files`.
@@ -57,8 +63,11 @@ freedom stops at the VM itself.
    - `focused` shows the control with keyboard focus. Every action also reports where focus landed.
    - `shot C:\path\shot.png` saves a picture of the VM's screen, which you can Read to look at.
    - `close -Window MyApp` closes a window and says whether it really closed.
-5. When you stop for now, run `save`. It keeps this task's VM state and frees the VM.
-6. After this task's work has merged, run `end`. It deletes this task's checkpoint and puts the VM back to Clean.
+5. When you stop for now, run `save`. It keeps this task's VM state and frees the VM. Save
+   whenever you'll be away from the VM for a while, such as waiting on the user, so others can use it.
+6. After this task's work has merged, run `end`. It deletes this task's checkpoints and puts its VM back to Clean.
+
+`status` lists every VM, who holds it and when they last used it.
 
 ## Running a repo's tests in the VM
 
