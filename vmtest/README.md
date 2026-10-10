@@ -31,8 +31,19 @@ It's made of two parts:
    - installs the agent;
    - saves the VM as the **Clean** checkpoint.
 
-Settings can be changed with environment variables: `VMTEST_VM`, `VMTEST_USER`, `VMTEST_PASSWORD`
-and `VMTEST_STATE` (the lock folder, which defaults to `%LOCALAPPDATA%\vmtest`).
+5. Run `vmtest prepare -Pool` to make the rest of the pool (see "Several VMs" below). It's optional;
+   without it, vmtest uses ClaudeTesting alone.
+
+Settings can be changed with environment variables:
+
+| Variable | What it sets | Default |
+|---|---|---|
+| `VMTEST_VM` | The first VM, the one the others are copied from | `ClaudeTesting` |
+| `VMTEST_POOL` | How many VMs (`3`), or their names (`ClaudeTesting,TestB`), the first one first | From this PC's memory and processors, 1 to 3 |
+| `VMTEST_STALE_MINUTES` | How long a task can leave its VM unused before another task's `begin` may save it and take it; `0` for never | `120` |
+| `VMTEST_RESERVE_GB` | Memory kept for this PC: a VM isn't started unless this much would still be free | `4` |
+| `VMTEST_USER`, `VMTEST_PASSWORD` | The VM's test account | `vmuser`, `vmadmin` |
+| `VMTEST_STATE` | The folder for the locks | `%LOCALAPPDATA%\vmtest` |
 
 ## Getting Claude sessions to use it
 
@@ -63,7 +74,7 @@ powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File "$env:VMTEST
 
 | Command | What it does |
 |---|---|
-| `begin` | Takes the VM for this repo and branch. If this task already has it, carries on from wherever it is, even if the VM was saved or turned off in the meantime. Otherwise it restores the task's checkpoint, or Clean the first time. |
+| `begin [-VM name] [-Wait]` | Takes a VM for this repo and branch. If this task already has one, carries on from wherever it is, even if the VM was saved or turned off in the meantime. Otherwise it takes a free VM and restores the task's checkpoint, or Clean the first time. `-Wait` keeps trying for up to `-Timeout` seconds (default 600) when every VM is busy. |
 | `deploy <path> [-Name n]` | Copies a build folder or file to `C:\vmtest\apps\<name>` in the VM. |
 | `push <file> [-Destination dir]` | Copies one file into the VM. The default destination is `C:\vmtest\files`. |
 | `run "<cmd>" [-Timeout s]` | Runs a command line as the signed-in user, and returns the output and exit code. The default timeout is 600 seconds, and the most is 3600. See the rules below. |
@@ -76,16 +87,18 @@ powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File "$env:VMTEST
 | `close [-Window w]` | Closes a window, then reports whether it really went. |
 | `shot <file.png> [-FromHost]` | Takes a picture of the VM's screen. |
 | `save` | Checkpoints this task, parks the VM and frees it for other tasks. |
-| `end [-Force]` | Use after the work is merged. Deletes the task's checkpoint and puts the VM back to Clean. If another task holds the VM, it only deletes this task's checkpoint. With `-Force`, it resets the VM anyway. |
-| `status` | Shows who has the VM and lists its checkpoints. |
+| `end [-Force -VM name]` | Use after the work is merged. Deletes the task's checkpoints from every VM, and puts the VM it holds back to Clean. With `-Force`, it resets `-VM` (or the first VM) even if another task holds it. |
+| `status` | Lists each VM: its state, who has it and since when, when they last used it, and its checkpoints. |
+| `prepare -Pool [-Force]` | Makes the pool's other VMs from the first VM's Clean. `-Force` remakes the ones made from an older Clean, except any a task is using or has saved state on. |
 
 ### Rules worth knowing
 
 - **Test suites count.** A suite in which any test builds a GUI window (wx, WinForms, WPF, Qt...), even briefly, even if it's called a unit test, runs in the VM. Only builds and tests that never create a window stay on your PC. The skill has a recipe for running a repo's tests in the VM: install the runtime with winget, copy the repo in with `git archive`, install dependencies the way CI does, run the tests.
-- **One task at a time.** Only one task can hold the VM. Every command that works inside the VM checks this.
-  - Another task's `begin` is refused until the first one runs `save` or `end`.
-  - `-Force` takes the VM anyway, and anything the other task hadn't saved is lost.
-  - Commands that change the VM wait for each other, so two sessions can't take it at once.
+- **One task per VM.** Each VM has its own lock, and a task holds at most one VM. Every command that works inside a VM uses the one its task holds.
+  - `begin` takes a free VM. If every VM is busy, it says who holds each one and when they last used it.
+  - A task that has left its VM unused for `VMTEST_STALE_MINUTES` (two hours) is saved for it, not thrown away, and its VM goes to the waiting task. Its next `begin` carries on from that save.
+  - `-Force` takes the longest-unused VM anyway, and anything that task hadn't saved is lost.
+  - Commands that change a VM wait for each other, so two sessions can't take the same one.
 - **Admin rights.** Programs run without admin rights by default, the way a normal user would run them.
   - Add `-Elevated` to `run`, `launch` or the UI commands for per-machine installs, or to drive the
     window of a program running as administrator.
@@ -112,13 +125,37 @@ powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File "$env:VMTEST
   - A Remote Desktop session takes the VM's screen away from vmtest. Disconnect when you're done.
     The next vmtest command moves the session back to the screen. While you're still connected, vmtest says so and waits for you.
 
+### Several VMs
+
+Several Claude sessions can test at once, each in its own VM. The pool is the first VM
+(ClaudeTesting) and copies of it named `ClaudeTesting-2`, `ClaudeTesting-3` and so on.
+
+- **How many.** `VMTEST_POOL` sets it. Unset, it's one VM per 5 GB of memory beyond 12 GB, or one
+  per 4 logical processors, whichever is fewer, from 1 to 3. A 16 GB PC keeps one VM; a 32 GB PC with
+  12 processors gets three.
+- **Making them.** `vmtest prepare -Pool` copies the first VM's Clean checkpoint once into a
+  read-only base disk, then makes each copy with a differencing disk on top of it, so each copy costs
+  only what it changes. Each copy gets its own Windows computer name and network address, signs in by
+  itself, and gets its own Clean. It takes a few minutes per VM, and the other VMs keep working meanwhile.
+- **Memory.** Each VM uses about 4 GB while it runs, and a saved VM uses none. `begin` won't start a
+  VM unless this PC would still have `VMTEST_RESERVE_GB` free; it says so instead.
+- **Checkpoints stay on their VM.** A task's checkpoint lives on the VM it last saved on, and `begin`
+  prefers that VM. If it's busy, the task starts from Clean on another VM and `begin` says so; saving
+  there replaces the older checkpoint.
+- **Copies vmtest didn't make are left alone.** vmtest only ever deletes or remakes a VM whose notes
+  say `prepare -Pool` made it.
+
 ### Keeping Clean up to date
 
-Clean doesn't get Windows updates by itself. To refresh it, use a throwaway task:
+Clean doesn't get Windows updates by itself. To refresh it, use a throwaway task on the first VM:
 
-1. `vmtest begin -Repo vmtest -Branch refresh`, which starts from Clean.
+1. `vmtest begin -VM ClaudeTesting -Repo vmtest -Branch refresh`, which starts from Clean.
 2. Apply updates with `vmtest run ... -Elevated` or Windows Update.
 3. `vmtest prepare -Force -Repo vmtest -Branch refresh`. This saves the result as the new Clean and frees the VM.
+4. `vmtest prepare -Pool -Force` remakes the copies from the new Clean, so they don't drift apart.
+   It skips a copy a task is using, and a copy holding a task's saved state, and names those tasks;
+   once they `end` (or `begin` and `save` on another VM), run it again. A copy already made from the
+   current Clean is left as it is.
 
 ## What it can and can't tell you about accessibility
 
@@ -161,6 +198,8 @@ exist. They cover:
 - checkpoint names, including their hash, and recovering from a save that was cut short;
 - `begin`'s resume-or-restore decision, for every VM state;
 - the lock, `save`, `end`, `prepare` and `run`'s argument checks;
+- the pool: which VM `begin` picks, saving an idle task, the memory check, `-Wait`, per-VM locks,
+  the pool's size and names, and that `prepare -Pool` never touches a VM it didn't make;
 - reading who is signed in.
 
 What was checked by hand on the Arm64 Surface host (Windows 11 build 26340, VM build 26300):
